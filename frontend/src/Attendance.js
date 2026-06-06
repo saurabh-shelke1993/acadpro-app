@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from './supabaseClient';
 
 function Attendance() {
@@ -9,15 +9,11 @@ function Attendance() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  useEffect(() => {
-    fetchPlayers();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    if (players.length > 0) fetchAttendance();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedDate, players]);
+useEffect(() => {
+  if (players.length > 0) {
+    fetchAttendance();
+  }
+}, [selectedDate, players, fetchAttendance]);
 
   const fetchPlayers = async () => {
     setLoading(true);
@@ -26,17 +22,20 @@ function Attendance() {
     setLoading(false);
   };
 
-  const fetchAttendance = async () => {
-    const { data } = await supabase
-      .from('attendance')
-      .select('*')
-      .eq('date', selectedDate);
-    const attendanceMap = {};
-    (data || []).forEach(record => {
-      attendanceMap[record.player_id] = record.status;
-    });
-    setAttendance(attendanceMap);
-  };
+const fetchAttendance = useCallback(async () => {
+  const { data } = await supabase
+    .from('attendance')
+    .select('*')
+    .eq('date', selectedDate);
+
+  const attendanceMap = {};
+
+  (data || []).forEach(record => {
+    attendanceMap[record.player_id] = record.status;
+  });
+
+  setAttendance(attendanceMap);
+}, [selectedDate]);
 
   const toggleAttendance = (playerId) => {
     setAttendance(prev => ({
