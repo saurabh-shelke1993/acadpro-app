@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { supabase } from './supabaseClient';
 import Players from './Players';
+import Attendance from './Attendance';
 
 function Dashboard({ session }) {
   const [activePage, setActivePage] = useState('dashboard');
@@ -13,6 +14,8 @@ function Dashboard({ session }) {
     switch (activePage) {
       case 'players':
         return <Players />;
+      case 'attendance':
+        return <Attendance />;
       default:
         return (
           <div>
@@ -59,7 +62,11 @@ function Dashboard({ session }) {
             onClick={() => setActivePage('players')}>
             👥 Players
           </div>
-          <div style={styles.navItem}>📋 Attendance</div>
+          <div
+            style={{ ...styles.navItem, ...(activePage === 'attendance' ? styles.activeNav : {}) }}
+            onClick={() => setActivePage('attendance')}>
+            📋 Attendance
+          </div>
           <div style={styles.navItem}>💰 Fees</div>
         </nav>
         <div style={styles.logoutBtn} onClick={handleLogout}>
