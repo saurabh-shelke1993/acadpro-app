@@ -9,9 +9,9 @@ function Attendance() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  useEffect(() => {
-    fetchPlayers();
-  }, []);
+useEffect(() => {
+    if (players.length > 0) fetchAttendance();
+  }, [selectedDate, players]);
 
   useEffect(() => {
     if (players.length > 0) fetchAttendance();

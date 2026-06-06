@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { supabase } from './supabaseClient';
 
 function ParentPortal() {
@@ -8,7 +8,7 @@ function ParentPortal() {
   const [fees, setFees] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [searched, setSearched] = useState(false);
+
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -25,7 +25,6 @@ function ParentPortal() {
     if (!playerData) {
       setError('No player found with this phone number. Please contact your academy admin.');
       setLoading(false);
-      setSearched(true);
       return;
     }
 
@@ -47,7 +46,6 @@ function ParentPortal() {
     setAttendance(attendanceData || []);
     setFees(feesData || []);
     setLoading(false);
-    setSearched(true);
   };
 
   const presentCount = attendance.filter(a => a.status === 'present').length;
