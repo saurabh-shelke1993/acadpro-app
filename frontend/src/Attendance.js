@@ -9,12 +9,14 @@ function Attendance() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
-useEffect(() => {
-    if (players.length > 0) fetchAttendance();
-  }, [selectedDate, players]);
+  useEffect(() => {
+    fetchPlayers();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (players.length > 0) fetchAttendance();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDate, players]);
 
   const fetchPlayers = async () => {
@@ -29,7 +31,6 @@ useEffect(() => {
       .from('attendance')
       .select('*')
       .eq('date', selectedDate);
-
     const attendanceMap = {};
     (data || []).forEach(record => {
       attendanceMap[record.player_id] = record.status;
@@ -53,7 +54,6 @@ useEffect(() => {
         .select('id')
         .eq('player_id', player.id)
         .eq('date', selectedDate);
-
       if (existing && existing.length > 0) {
         await supabase.from('attendance')
           .update({ status })
@@ -90,8 +90,6 @@ useEffect(() => {
           </button>
         </div>
       </div>
-
-      {/* Stats */}
       <div style={styles.statsRow}>
         <div style={styles.statCard}>
           <h3 style={{ color: '#34a853', margin: 0 }}>{presentCount}</h3>
@@ -106,7 +104,6 @@ useEffect(() => {
           <p style={styles.statLabel}>Total Players</p>
         </div>
       </div>
-
       {players.length === 0 ? (
         <div style={styles.emptyState}>
           <p>⚽ No players found. Add players first!</p>
@@ -129,16 +126,9 @@ useEffect(() => {
                   <span style={{ color: isPresent ? '#34a853' : '#e53935', fontWeight: '600', fontSize: '14px', marginRight: '12px' }}>
                     {isPresent ? 'Present' : 'Absent'}
                   </span>
-                  <div
-                    onClick={() => toggleAttendance(player.id)}
-                    style={{
-                      ...styles.toggle,
-                      backgroundColor: isPresent ? '#34a853' : '#ddd',
-                    }}>
-                    <div style={{
-                      ...styles.toggleKnob,
-                      transform: isPresent ? 'translateX(24px)' : 'translateX(0)',
-                    }} />
+                  <div onClick={() => toggleAttendance(player.id)}
+                    style={{ ...styles.toggle, backgroundColor: isPresent ? '#34a853' : '#ddd' }}>
+                    <div style={{ ...styles.toggleKnob, transform: isPresent ? 'translateX(24px)' : 'translateX(0)' }} />
                   </div>
                 </div>
               </div>
