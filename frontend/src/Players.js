@@ -32,12 +32,18 @@ function Players() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Delete this player?')) {
-      await supabase.from('players').delete().eq('id', id);
+const handleDelete = async (id) => {
+  if (window.confirm('Delete this player?')) {
+    await supabase.from('attendance').delete().eq('player_id', id);
+    await supabase.from('fees').delete().eq('player_id', id);
+    const { error } = await supabase.from('players').delete().eq('id', id);
+    if (error) {
+      alert('Error deleting player: ' + error.message);
+    } else {
       fetchPlayers();
     }
-  };
+  }
+};
 
   return (
     <div>
