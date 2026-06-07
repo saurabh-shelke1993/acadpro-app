@@ -11,80 +11,64 @@ function Login() {
     e.preventDefault();
     setLoading(true);
     setMessage('');
-
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-
-    if (error) {
-      setMessage(error.message);
-    }
+    if (error) setMessage(error.message);
     setLoading(false);
   };
 
   return (
     <div style={styles.page}>
-      {/* Left Panel */}
-      <div style={styles.leftPanel}>
-        <div style={styles.leftContent}>
-          <h1 style={styles.brandName}>AcadPro</h1>
-          <p style={styles.brandTagline}>The smart way to manage your football academy</p>
-          <div style={styles.featureList}>
-            <div style={styles.feature}>⚽ Player Management</div>
-            <div style={styles.feature}>📋 Attendance Tracking</div>
-            <div style={styles.feature}>💰 Fee Management</div>
-            <div style={styles.feature}>👨‍👩‍👦 Parent Portal</div>
-          </div>
-        </div>
+      {/* Top Blue Section */}
+      <div style={styles.topSection}>
+        <div style={styles.logoCircle}>⚽</div>
+        <h1 style={styles.brandName}>AcadPro</h1>
+        <p style={styles.brandTagline}>The smart way to manage your football academy</p>
       </div>
 
-      {/* Right Panel */}
-      <div style={styles.rightPanel}>
-        <div style={styles.loginCard}>
-          <div style={styles.logoCircle}>⚽</div>
-          <h2 style={styles.loginTitle}>Welcome Back</h2>
-          <p style={styles.loginSubtitle}>Sign in to your academy dashboard</p>
+      {/* Login Card */}
+      <div style={styles.loginCard}>
+        <h2 style={styles.loginTitle}>Welcome Back</h2>
+        <p style={styles.loginSubtitle}>Sign in to your academy dashboard</p>
 
-          <form onSubmit={handleLogin}>
-            <div style={styles.inputGroup}>
-              <label style={styles.label}>Email Address</label>
-              <input
-                style={styles.input}
-                type="email"
-                placeholder="admin@youracademy.com"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div style={styles.inputGroup}>
-              <label style={styles.label}>Password</label>
-              <input
-                style={styles.input}
-                type="password"
-                placeholder="Enter your password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                required
-              />
-            </div>
-            {message && (
-              <div style={styles.errorBox}>
-                ⚠️ {message}
-              </div>
-            )}
-            <button style={styles.loginBtn} type="submit" disabled={loading}>
-              {loading ? (
-                <span>Signing in...</span>
-              ) : (
-                <span>Sign In →</span>
-              )}
-            </button>
-          </form>
+        <form onSubmit={handleLogin}>
+          <div style={styles.inputGroup}>
+            <label style={styles.label}>Email Address</label>
+            <input
+              style={styles.input}
+              type="email"
+              placeholder="admin@youracademy.com"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div style={styles.inputGroup}>
+            <label style={styles.label}>Password</label>
+            <input
+              style={styles.input}
+              type="password"
+              placeholder="Enter your password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          {message && <div style={styles.errorBox}>⚠️ {message}</div>}
+          <button style={styles.loginBtn} type="submit" disabled={loading}>
+            {loading ? 'Signing in...' : 'Sign In →'}
+          </button>
+        </form>
 
-          <p style={styles.parentLink}>
-            Are you a parent?{' '}
-            <a href="/parent" style={styles.link}>View your child's progress →</a>
-          </p>
+        <div style={styles.features}>
+          {['⚽ Player Management', '📋 Attendance Tracking', '💰 Fee Management', '👨‍👩‍👦 Parent Portal'].map((f, i) => (
+            <div key={i} style={styles.featureBadge}>{f}</div>
+          ))}
         </div>
+
+        <p style={styles.parentLink}>
+          Are you a parent?{' '}
+          <a href="/parent" style={styles.link}>View your child's progress →</a>
+        </p>
       </div>
     </div>
   );
@@ -92,53 +76,114 @@ function Login() {
 
 const styles = {
   page: {
-    display: 'flex', height: '100vh', fontFamily: "'Segoe UI', Arial, sans-serif"
+    minHeight: '100vh',
+    backgroundColor: '#f0f4f8',
+    fontFamily: "'Segoe UI', Arial, sans-serif",
   },
-  leftPanel: {
-    flex: 1, backgroundColor: '#1a73e8',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    padding: '48px',
+  topSection: {
+    backgroundColor: '#1a73e8',
+    padding: '40px 24px 60px',
+    textAlign: 'center',
+    color: 'white',
   },
-  leftContent: { color: 'white', maxWidth: '400px' },
-  brandName: { fontSize: '48px', fontWeight: '800', margin: '0 0 12px 0', letterSpacing: '-1px' },
-  brandTagline: { fontSize: '18px', opacity: 0.85, margin: '0 0 48px 0', lineHeight: '1.5' },
-  featureList: { display: 'flex', flexDirection: 'column', gap: '16px' },
-  feature: {
-    backgroundColor: 'rgba(255,255,255,0.15)', padding: '14px 20px',
-    borderRadius: '12px', fontSize: '16px', fontWeight: '500'
-  },
-  rightPanel: {
-    width: '480px', backgroundColor: '#f8faff',
-    display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px'
-  },
-  loginCard: { width: '100%', maxWidth: '380px' },
   logoCircle: {
-    width: '64px', height: '64px', backgroundColor: '#1a73e8',
-    borderRadius: '16px', display: 'flex', alignItems: 'center',
-    justifyContent: 'center', fontSize: '32px', marginBottom: '24px'
+    fontSize: '48px',
+    marginBottom: '12px',
+    display: 'block',
   },
-  loginTitle: { fontSize: '28px', fontWeight: '700', color: '#1a1a2e', margin: '0 0 8px 0' },
-  loginSubtitle: { color: '#666', margin: '0 0 32px 0', fontSize: '15px' },
+  brandName: {
+    fontSize: '36px',
+    fontWeight: '800',
+    margin: '0 0 8px 0',
+  },
+  brandTagline: {
+    fontSize: '15px',
+    opacity: 0.85,
+    margin: 0,
+    lineHeight: '1.5',
+  },
+  loginCard: {
+    backgroundColor: 'white',
+    borderRadius: '24px 24px 0 0',
+    padding: '32px 24px',
+    marginTop: '-24px',
+    minHeight: '60vh',
+    boxShadow: '0 -4px 20px rgba(0,0,0,0.08)',
+  },
+  loginTitle: {
+    fontSize: '24px',
+    fontWeight: '700',
+    color: '#1a1a2e',
+    margin: '0 0 8px 0',
+  },
+  loginSubtitle: {
+    color: '#666',
+    margin: '0 0 28px 0',
+    fontSize: '14px',
+  },
   inputGroup: { marginBottom: '20px' },
-  label: { display: 'block', marginBottom: '8px', color: '#333', fontWeight: '600', fontSize: '14px' },
+  label: {
+    display: 'block',
+    marginBottom: '8px',
+    color: '#333',
+    fontWeight: '600',
+    fontSize: '14px',
+  },
   input: {
-    width: '100%', padding: '14px 16px', borderRadius: '10px',
-    border: '2px solid #e8ecf4', fontSize: '15px', boxSizing: 'border-box',
-    outline: 'none', transition: 'border-color 0.2s',
-    backgroundColor: 'white'
+    width: '100%',
+    padding: '14px 16px',
+    borderRadius: '12px',
+    border: '2px solid #e8ecf4',
+    fontSize: '15px',
+    boxSizing: 'border-box',
+    backgroundColor: '#f8faff',
   },
   errorBox: {
-    backgroundColor: '#fce8e6', color: '#c62828', padding: '12px 16px',
-    borderRadius: '10px', fontSize: '14px', marginBottom: '16px'
+    backgroundColor: '#fce8e6',
+    color: '#c62828',
+    padding: '12px 16px',
+    borderRadius: '10px',
+    fontSize: '14px',
+    marginBottom: '16px',
   },
   loginBtn: {
-    width: '100%', padding: '14px', backgroundColor: '#1a73e8',
-    color: 'white', border: 'none', borderRadius: '10px',
-    fontSize: '16px', fontWeight: '600', cursor: 'pointer',
-    marginTop: '8px', letterSpacing: '0.3px'
+    width: '100%',
+    padding: '16px',
+    backgroundColor: '#1a73e8',
+    color: 'white',
+    border: 'none',
+    borderRadius: '12px',
+    fontSize: '16px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    marginTop: '8px',
   },
-  parentLink: { textAlign: 'center', marginTop: '24px', color: '#666', fontSize: '14px' },
-  link: { color: '#1a73e8', textDecoration: 'none', fontWeight: '600' },
+  features: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '8px',
+    marginTop: '24px',
+    justifyContent: 'center',
+  },
+  featureBadge: {
+    backgroundColor: '#e8f0fe',
+    color: '#1a73e8',
+    padding: '6px 12px',
+    borderRadius: '20px',
+    fontSize: '12px',
+    fontWeight: '500',
+  },
+  parentLink: {
+    textAlign: 'center',
+    marginTop: '24px',
+    color: '#666',
+    fontSize: '14px',
+  },
+  link: {
+    color: '#1a73e8',
+    textDecoration: 'none',
+    fontWeight: '600',
+  },
 };
 
 export default Login;
