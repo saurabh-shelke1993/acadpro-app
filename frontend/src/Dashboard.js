@@ -6,6 +6,7 @@ import Fees from './Fees';
 
 function Dashboard({ session }) {
   const [activePage, setActivePage] = useState('dashboard');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [stats, setStats] = useState({
     totalPlayers: 0,
     presentToday: 0,
@@ -19,30 +20,20 @@ function Dashboard({ session }) {
 
   const fetchStats = async () => {
     const today = new Date().toISOString().split('T')[0];
-
     const { data: players } = await supabase.from('players').select('id');
     const { data: attendance } = await supabase
-      .from('attendance')
-      .select('id')
-      .eq('date', today)
-      .eq('status', 'present');
+      .from('attendance').select('id')
+      .eq('date', today).eq('status', 'present');
     const { data: paidFees } = await supabase
-      .from('fees')
-      .select('amount')
-      .eq('status', 'paid');
+      .from('fees').select('amount').eq('status', 'paid');
     const { data: unpaidFees } = await supabase
-      .from('fees')
-      .select('amount')
-      .eq('status', 'unpaid');
-
-    const totalCollected = (paidFees || []).reduce((sum, f) => sum + Number(f.amount), 0);
-    const totalPending = (unpaidFees || []).reduce((sum, f) => sum + Number(f.amount), 0);
+      .from('fees').select('amount').eq('status', 'unpaid');
 
     setStats({
       totalPlayers: players?.length || 0,
       presentToday: attendance?.length || 0,
-      totalCollected,
-      totalPending,
+      totalCollected: (paidFees || []).reduce((sum, f) => sum + Number(f.amount), 0),
+      totalPending: (unpaidFees || []).reduce((sum, f) => sum + Number(f.amount), 0),
     });
   };
 
@@ -50,14 +41,16 @@ function Dashboard({ session }) {
     await supabase.auth.signOut();
   };
 
+  const navigateTo = (page) => {
+    setActivePage(page);
+    setSidebarOpen(false);
+  };
+
   const renderContent = () => {
     switch (activePage) {
-      case 'players':
-        return <Players />;
-      case 'attendance':
-        return <Attendance />;
-      case 'fees':
-        return <Fees />;
+      case 'players': return <Players />;
+      case 'attendance': return <Attendance />;
+      case 'fees': return <Fees />;
       default:
         return (
           <div>
@@ -69,45 +62,33 @@ function Dashboard({ session }) {
               <span style={styles.userEmail}>{session.user.email}</span>
             </div>
 
-            {/* Stats Grid */}
-            <div style={styles.statsGrid}>
-              <div style={styles.card}>
-                <div style={styles.cardIcon}>👥</div>
-                <h3 style={styles.cardNumber}>{stats.totalPlayers}</h3>
-                <p style={styles.cardLabel}>Total Players</p>
-              </div>
-              <div style={styles.card}>
-                <div style={styles.cardIcon}>✅</div>
-                <h3 style={{ ...styles.cardNumber, color: '#34a853' }}>{stats.presentToday}</h3>
-                <p style={styles.cardLabel}>Present Today</p>
-              </div>
-              <div style={styles.card}>
-                <div style={styles.cardIcon}>💰</div>
-                <h3 style={{ ...styles.cardNumber, color: '#34a853' }}>₹{stats.totalCollected}</h3>
-                <p style={styles.cardLabel}>Fees Collected</p>
-              </div>
-              <div style={styles.card}>
-                <div style={styles.cardIcon}>⏳</div>
-                <h3 style={{ ...styles.cardNumber, color: '#e53935' }}>₹{stats.totalPending}</h3>
-                <p style={styles.cardLabel}>Fees Pending</p>
-              </div>
+            <div className="stats-grid">
+              {[
+                { icon: '👥', number: stats.totalPlayers, label: 'Total Players', color: '#1a73e8' },
+                { icon: '✅', number: stats.presentToday, label: 'Present Today', color: '#34a853' },
+                { icon: '💰', number: `₹${stats.totalCollected}`, label: 'Fees Collected', color: '#34a853' },
+                { icon: '⏳', number: `₹${stats.totalPending}`, label: 'Fees Pending', color: '#e53935' },
+              ].map((stat, i) => (
+                <div key={i} style={styles.card}>
+                  <div style={styles.cardIcon}>{stat.icon}</div>
+                  <h3 style={{ ...styles.cardNumber, color: stat.color }}>{stat.number}</h3>
+                  <p style={styles.cardLabel}>{stat.label}</p>
+                </div>
+              ))}
             </div>
 
-            {/* Quick Actions */}
             <h2 style={styles.sectionTitle}>Quick Actions</h2>
-            <div style={styles.quickActions}>
-              <div style={styles.actionCard} onClick={() => setActivePage('players')}>
-                <span style={styles.actionIcon}>👥</span>
-                <p style={styles.actionLabel}>Add Player</p>
-              </div>
-              <div style={styles.actionCard} onClick={() => setActivePage('attendance')}>
-                <span style={styles.actionIcon}>📋</span>
-                <p style={styles.actionLabel}>Mark Attendance</p>
-              </div>
-              <div style={styles.actionCard} onClick={() => setActivePage('fees')}>
-                <span style={styles.actionIcon}>💰</span>
-                <p style={styles.actionLabel}>Manage Fees</p>
-              </div>
+            <div className="quick-actions">
+              {[
+                { icon: '👥', label: 'Add Player', page: 'players' },
+                { icon: '📋', label: 'Mark Attendance', page: 'attendance' },
+                { icon: '💰', label: 'Manage Fees', page: 'fees' },
+              ].map((action, i) => (
+                <div key={i} style={styles.actionCard} onClick={() => navigateTo(action.page)}>
+                  <span style={styles.actionIcon}>{action.icon}</span>
+                  <p style={styles.actionLabel}>{action.label}</p>
+                </div>
+              ))}
             </div>
           </div>
         );
@@ -115,39 +96,40 @@ function Dashboard({ session }) {
   };
 
   return (
-    <div style={styles.container}>
+    <div className="dashboard-container">
+      {/* Hamburger Button */}
+      <button className="hamburger" onClick={() => setSidebarOpen(!sidebarOpen)}>
+        {sidebarOpen ? '✕' : '☰'}
+      </button>
+
+      {/* Overlay for mobile */}
+      {sidebarOpen && (
+        <div onClick={() => setSidebarOpen(false)}
+          style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 99 }} />
+      )}
+
       {/* Sidebar */}
-      <div style={styles.sidebar}>
+      <div className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
         <h2 style={styles.logo}>AcadPro</h2>
         <nav>
-          <div
-            style={{ ...styles.navItem, ...(activePage === 'dashboard' ? styles.activeNav : {}) }}
-            onClick={() => setActivePage('dashboard')}>
-            🏠 Dashboard
-          </div>
-          <div
-            style={{ ...styles.navItem, ...(activePage === 'players' ? styles.activeNav : {}) }}
-            onClick={() => setActivePage('players')}>
-            👥 Players
-          </div>
-          <div
-            style={{ ...styles.navItem, ...(activePage === 'attendance' ? styles.activeNav : {}) }}
-            onClick={() => setActivePage('attendance')}>
-            📋 Attendance
-          </div>
-          <div
-            style={{ ...styles.navItem, ...(activePage === 'fees' ? styles.activeNav : {}) }}
-            onClick={() => setActivePage('fees')}>
-            💰 Fees
-          </div>
+          {[
+            { icon: '🏠', label: 'Dashboard', page: 'dashboard' },
+            { icon: '👥', label: 'Players', page: 'players' },
+            { icon: '📋', label: 'Attendance', page: 'attendance' },
+            { icon: '💰', label: 'Fees', page: 'fees' },
+          ].map((item) => (
+            <div key={item.page}
+              style={{ ...styles.navItem, ...(activePage === item.page ? styles.activeNav : {}) }}
+              onClick={() => navigateTo(item.page)}>
+              {item.icon} {item.label}
+            </div>
+          ))}
         </nav>
-        <div style={styles.logoutBtn} onClick={handleLogout}>
-          🚪 Logout
-        </div>
+        <div style={styles.logoutBtn} onClick={handleLogout}>🚪 Logout</div>
       </div>
 
       {/* Main Content */}
-      <div style={styles.main}>
+      <div className="main-content">
         {renderContent()}
       </div>
     </div>
@@ -155,27 +137,19 @@ function Dashboard({ session }) {
 }
 
 const styles = {
-  container: { display: 'flex', height: '100vh', fontFamily: 'Arial, sans-serif' },
-  sidebar: {
-    width: '220px', backgroundColor: '#1a73e8', color: 'white',
-    padding: '24px 16px', display: 'flex', flexDirection: 'column',
-  },
   logo: { fontSize: '24px', fontWeight: 'bold', marginBottom: '40px', textAlign: 'center' },
   navItem: { padding: '12px 16px', borderRadius: '8px', marginBottom: '8px', cursor: 'pointer', fontSize: '15px' },
   activeNav: { backgroundColor: 'rgba(255,255,255,0.25)' },
   logoutBtn: { marginTop: 'auto', padding: '12px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '15px', backgroundColor: 'rgba(255,255,255,0.15)' },
-  main: { flex: 1, backgroundColor: '#f0f4f8', padding: '32px', overflowY: 'auto' },
-  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px' },
+  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px', flexWrap: 'wrap', gap: '12px' },
   headerTitle: { fontSize: '28px', color: '#333', margin: '0 0 4px 0' },
   headerSub: { color: '#666', margin: 0, fontSize: '14px' },
   userEmail: { color: '#666', fontSize: '14px' },
-  statsGrid: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '32px' },
   card: { backgroundColor: 'white', padding: '24px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', textAlign: 'center' },
   cardIcon: { fontSize: '28px', marginBottom: '8px' },
-  cardNumber: { fontSize: '36px', color: '#1a73e8', margin: '0 0 8px 0' },
+  cardNumber: { fontSize: '36px', margin: '0 0 8px 0' },
   cardLabel: { color: '#666', margin: 0, fontSize: '14px' },
-  sectionTitle: { fontSize: '18px', color: '#333', marginBottom: '16px' },
-  quickActions: { display: 'flex', gap: '16px' },
+  sectionTitle: { fontSize: '18px', color: '#333', marginBottom: '16px', marginTop: '8px' },
   actionCard: { backgroundColor: 'white', padding: '24px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', textAlign: 'center', cursor: 'pointer', flex: 1 },
   actionIcon: { fontSize: '32px' },
   actionLabel: { color: '#333', fontWeight: '600', margin: '12px 0 0 0' },
