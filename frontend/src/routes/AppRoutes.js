@@ -1,4 +1,15 @@
-import React from "react";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate
+} from "react-router-dom";
+
+import ProtectedRoute from "../components/ProtectedRoute";
+
+import Login from "../pages/Login";
+import Dashboard from "../pages/Dashboard";
+import Academy from "../pages/Academy";
 import Centers from "../pages/Centers";
 import Batches from "../pages/Batches";
 import Players from "../pages/Players";
@@ -8,43 +19,127 @@ import SubscriptionPlans from "../pages/SubscriptionPlans";
 import PlayerSubscriptions from "../pages/PlayerSubscriptions";
 import PaymentDues from "../pages/PaymentDues";
 import PaymentCollections from "../pages/PaymentCollections";
-import Dashboard from "../pages/Dashboard";
-import {
-  BrowserRouter,
-  Routes,
-  Route
-} from "react-router-dom";
 
-import Academy from "../pages/Academy";
+function AppRoutes() {
 
-const Home = () => {
-  return <h1>HOME ROUTE WORKING</h1>;
-};
-
-const AppRoutes = () => {
   return (
     <BrowserRouter>
-<Routes>
 
-  <Route path="/" element={<Home />} />
-  <Route path="/academy" element={<Academy />} />
-  <Route path="/centers" element={<Centers />} />
-  <Route path="/batches" element={<Batches />} />
-  <Route path="/players" element={<Players />} />
-  <Route path="/attendance" element={<Attendance />} />
-  <Route path="/attendance-history" element={<AttendanceHistory />} />
-  <Route path="/subscription-plans" element={<SubscriptionPlans />} />
-  <Route path="/player-subscriptions" element={<PlayerSubscriptions />} />
-  <Route path="/payment-dues" element={<PaymentDues />} />
-  <Route path="/payment-collections" element={<PaymentCollections />} />
-  <Route
-  path="/dashboard"
-  element={<Dashboard />}
-/>
+      <Routes>
 
-</Routes>
+        <Route
+          path="/"
+          element={<Navigate to="/login" />}
+        />
+
+        <Route
+          path="/login"
+          element={<Login />}
+        />
+
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/academy"
+          element={
+            <ProtectedRoute>
+              <Academy />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/centers"
+          element={
+            <ProtectedRoute>
+              <Centers />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/batches"
+          element={
+            <ProtectedRoute>
+              <Batches />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/players"
+          element={
+            <ProtectedRoute>
+              <Players />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/attendance"
+          element={
+            <ProtectedRoute>
+              <Attendance />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/attendance-history"
+          element={
+            <ProtectedRoute>
+              <AttendanceHistory />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/subscription-plans"
+          element={
+            <ProtectedRoute>
+              <SubscriptionPlans />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/player-subscriptions"
+          element={
+            <ProtectedRoute>
+              <PlayerSubscriptions />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/payment-dues"
+          element={
+            <ProtectedRoute>
+              <PaymentDues />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/payment-collections"
+          element={
+            <ProtectedRoute>
+              <PaymentCollections />
+            </ProtectedRoute>
+          }
+        />
+
+      </Routes>
+
     </BrowserRouter>
   );
-};
+}
 
 export default AppRoutes;

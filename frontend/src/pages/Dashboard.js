@@ -1,359 +1,348 @@
 import { useEffect, useState } from "react";
-import { supabase } from "../supabaseClient";
+import { useNavigate } from "react-router-dom";
+
+import { supabase } from "../services/supabase";
+
+import {
+  getLoggedInUser,
+  isAcademyOwner,
+  isSuperAdmin,
+  logoutUser,
+  getAcademyId,
+} from "../utils/auth";
 
 function Dashboard() {
+  const navigate = useNavigate();
 
-  const [totalPlayers, setTotalPlayers] = useState(0);
+  const user = getLoggedInUser();
+  const academyId = getAcademyId();
 
-  const [totalAcademies, setTotalAcademies] = useState(0);
-
-  const [totalSubscriptions, setTotalSubscriptions] = useState(0);
-
-  const [pendingAmount, setPendingAmount] = useState(0);
-
-  const [collectionsAmount, setCollectionsAmount] = useState(0);
-
-  const [recentPayments, setRecentPayments] = useState([]);
-
-  const [pendingDues, setPendingDues] = useState([]);
+  const [players, setPlayers] = useState([]);
+  const [academies, setAcademies] = useState([]);
+  const [subscriptions, setSubscriptions] = useState([]);
+  const [payments, setPayments] = useState([]);
+  const [paymentDues, setPaymentDues] = useState([]);
 
   useEffect(() => {
-
     fetchDashboardData();
-
   }, []);
 
   const fetchDashboardData = async () => {
+    try {
+      let academyPlayers = [];
 
-    /* PLAYERS */
+      // =========================
+      // PLAYERS
+      // =========================
 
-    const {
-      count: playersCount
-    } = await supabase
-      .from("players")
-      .select("*", {
-        count: "exact",
-        head: true
-      });
+      let playersQuery = supabase
+        .from("players")
+        .select("*");
 
-    setTotalPlayers(playersCount || 0);
-
-    /* ACADEMIES */
-
-    const {
-      count: academiesCount
-    } = await supabase
-      .from("academies")
-      .select("*", {
-        count: "exact",
-        head: true
-      });
-
-    setTotalAcademies(
-      academiesCount || 0
-    );
-
-    /* SUBSCRIPTIONS */
-
-    const {
-      count: subscriptionsCount
-    } = await supabase
-      .from("player_subscriptions")
-      .select("*", {
-        count: "exact",
-        head: true
-      });
-
-    setTotalSubscriptions(
-      subscriptionsCount || 0
-    );
-
-    /* PENDING DUES */
-
-    const { data: duesData } =
-      await supabase
-        .from("payment_dues")
-        .select(`
-          remaining_amount,
-
-          players (
-            full_name
-          )
-        `);
-
-    let pendingTotal = 0;
-
-    duesData?.forEach((due) => {
-
-      pendingTotal +=
-        Number(
-          due.remaining_amount || 0
+      if (isAcademyOwner()) {
+        playersQuery = playersQuery.eq(
+          "academy_id",
+          academyId
         );
-    });
+      }
 
-    setPendingAmount(
-      pendingTotal
-    );
+      const {
+        data: playersData,
+        error: playersError,
+      } = await playersQuery;
 
-    setPendingDues(duesData || []);
+      if (playersError) {
+        console.error(playersError);
+        return;
+      }
 
-    /* COLLECTIONS */
+      academyPlayers = playersData || [];
 
-    const { data: paymentsData } =
-      await supabase
-        .from("payments")
-        .select(`
-          amount_paid,
+      setPlayers(academyPlayers);
 
-          players (
-            full_name
-          ),
+      const playerIds = academyPlayers.map(
+        (player) => player.id
+      );
 
-          payment_date
-        `)
-        .order("payment_date", {
-          ascending: false
-        });
+      // =========================
+      // ACADEMIES
+      // =========================
 
-    let collected = 0;
+      if (isSuperAdmin()) {
+        const { data: academiesData } =
+          await supabase
+            .from("academies")
+            .select("*");
 
-    paymentsData?.forEach(
-      (payment) => {
+        setAcademies(academiesData || []);
+      }
 
-        collected +=
-          Number(
-            payment.amount_paid || 0
+      // =========================
+      // SUBSCRIPTIONS
+      // =========================
+
+      let subscriptionsQuery = supabase
+        .from("player_subscriptions")
+        .select("*");
+
+      if (isAcademyOwner()) {
+        subscriptionsQuery =
+          subscriptionsQuery.in(
+            "player_id",
+            playerIds
           );
       }
-    );
 
-    setCollectionsAmount(
-      collected
-    );
+      const {
+        data: subscriptionsData,
+        error: subscriptionsError,
+      } = await subscriptionsQuery;
 
-    setRecentPayments(
-      paymentsData || []
-    );
+      if (subscriptionsError) {
+        console.error(subscriptionsError);
+      }
+
+      setSubscriptions(subscriptionsData || []);
+
+      // =========================
+      // PAYMENTS
+      // =========================
+
+let paymentsQuery = supabase
+  .from("payments")
+  .select(`
+    *,
+    players(full_name)
+  `);
+
+      if (isAcademyOwner()) {
+        paymentsQuery = paymentsQuery.in(
+          "player_id",
+          playerIds
+        );
+      }
+
+      const {
+        data: paymentsData,
+        error: paymentsError,
+      } = await paymentsQuery;
+
+      if (paymentsError) {
+        console.error(paymentsError);
+      }
+
+      setPayments(paymentsData || []);
+
+      // =========================
+      // PAYMENT DUES
+      // =========================
+
+      let duesQuery = supabase
+        .from("payment_dues")
+        .select(`
+          *,
+          players(full_name)
+        `);
+
+      if (isAcademyOwner()) {
+        duesQuery = duesQuery.in(
+          "player_id",
+          playerIds
+        );
+      }
+
+      const {
+        data: duesData,
+        error: duesError,
+      } = await duesQuery;
+
+      if (duesError) {
+        console.error(duesError);
+      }
+
+      setPaymentDues(duesData || []);
+
+    } catch (error) {
+      console.error(error);
+    }
   };
 
+  const handleLogout = () => {
+    logoutUser();
+    navigate("/login");
+  };
+
+  const totalPendingAmount = paymentDues.reduce(
+    (total, due) =>
+      total + Number(due.remaining_amount || 0),
+    0
+  );
+
+  const totalCollections = payments.reduce(
+    (total, payment) =>
+      total + Number(payment.amount_paid || 0),
+    0
+  );
+
   return (
-
     <div style={{ padding: "20px" }}>
-
       <h1>AcadPro Dashboard</h1>
 
-      {/* KPI CARDS */}
+      <button onClick={handleLogout}>
+        Logout
+      </button>
+
+      <br />
+      <br />
+
+      <h2>
+        Logged In: {user?.full_name}
+      </h2>
+
+      <h3>
+        Role: {user?.role}
+      </h3>
+
+      {isAcademyOwner() && (
+        <h3>
+          Academy: {user?.academy_name}
+        </h3>
+      )}
+
+      <br />
 
       <div
         style={{
           display: "flex",
           gap: "20px",
           flexWrap: "wrap",
-          marginBottom: "30px"
         }}
       >
-
+        {/* Total Players */}
         <div
           style={{
             border: "1px solid black",
             padding: "20px",
-            width: "200px"
+            width: "220px",
           }}
         >
-
-          <h3>Total Players</h3>
-
-          <h2>{totalPlayers}</h2>
-
+          <h2>Total Players</h2>
+          <h1>{players.length}</h1>
         </div>
 
+        {/* Total Academies */}
+        {isSuperAdmin() && (
+          <div
+            style={{
+              border: "1px solid black",
+              padding: "20px",
+              width: "220px",
+            }}
+          >
+            <h2>Total Academies</h2>
+            <h1>{academies.length}</h1>
+          </div>
+        )}
+
+        {/* Subscriptions */}
         <div
           style={{
             border: "1px solid black",
             padding: "20px",
-            width: "200px"
+            width: "220px",
           }}
         >
-
-          <h3>Total Academies</h3>
-
-          <h2>{totalAcademies}</h2>
-
+          <h2>Subscriptions</h2>
+          <h1>{subscriptions.length}</h1>
         </div>
 
+        {/* Pending Amount */}
         <div
           style={{
             border: "1px solid black",
             padding: "20px",
-            width: "200px"
+            width: "220px",
           }}
         >
-
-          <h3>Subscriptions</h3>
-
-          <h2>
-            {totalSubscriptions}
-          </h2>
-
+          <h2>Pending Amount</h2>
+          <h1>₹{totalPendingAmount}</h1>
         </div>
 
+        {/* Collections */}
         <div
           style={{
             border: "1px solid black",
             padding: "20px",
-            width: "200px"
+            width: "220px",
           }}
         >
-
-          <h3>Pending Amount</h3>
-
-          <h2>
-            ₹{pendingAmount}
-          </h2>
-
+          <h2>Total Collections</h2>
+          <h1>₹{totalCollections}</h1>
         </div>
-
-        <div
-          style={{
-            border: "1px solid black",
-            padding: "20px",
-            width: "200px"
-          }}
-        >
-
-          <h3>Total Collections</h3>
-
-          <h2>
-            ₹{collectionsAmount}
-          </h2>
-
-        </div>
-
       </div>
 
-      {/* RECENT PAYMENTS */}
+      <br />
+      <br />
 
-      <h2>Recent Payments</h2>
+      {/* Recent Payments */}
+      <h1>Recent Payments</h1>
 
       <table
         border="1"
         cellPadding="10"
-        style={{
-          borderCollapse: "collapse",
-          width: "100%",
-          marginBottom: "30px"
-        }}
+        width="100%"
       >
-
         <thead>
-
           <tr>
-
             <th>Player</th>
-
             <th>Amount</th>
-
             <th>Date</th>
-
           </tr>
-
         </thead>
 
         <tbody>
-
-          {
-            recentPayments.map(
-              (payment, index) => (
-
-                <tr key={index}>
-
-                  <td>
-                    {
-                      payment.players
-                      ?.full_name
-                    }
-                  </td>
-
-                  <td>
-                    ₹
-                    {
-                      payment.amount_paid
-                    }
-                  </td>
-
-                  <td>
-                    {
-                      payment.payment_date
-                    }
-                  </td>
-
-                </tr>
-
-              )
-            )
-          }
-
+          {payments.map((payment) => (
+            <tr key={payment.id}>
+              <td>{payment.players?.full_name}</td>
+              <td>₹{payment.amount_paid}</td>
+              <td>{payment.payment_date}</td>
+            </tr>
+          ))}
         </tbody>
-
       </table>
 
-      {/* PENDING DUES */}
+      <br />
+      <br />
 
-      <h2>Pending Dues</h2>
+      {/* Pending Dues */}
+      <h1>Pending Dues</h1>
 
       <table
         border="1"
         cellPadding="10"
-        style={{
-          borderCollapse: "collapse",
-          width: "100%"
-        }}
+        width="100%"
       >
-
         <thead>
-
           <tr>
-
             <th>Player</th>
-
             <th>Remaining Amount</th>
-
           </tr>
-
         </thead>
 
         <tbody>
+          {paymentDues.map((due) => (
+            <tr key={due.id}>
+              <td>
+                {due.players?.full_name}
+              </td>
 
-          {
-            pendingDues.map(
-              (due, index) => (
-
-                <tr key={index}>
-
-                  <td>
-                    {
-                      due.players
-                      ?.full_name
-                    }
-                  </td>
-
-                  <td>
-                    ₹
-                    {
-                      due.remaining_amount
-                    }
-                  </td>
-
-                </tr>
-
-              )
-            )
-          }
-
+              <td>
+                ₹{due.remaining_amount}
+              </td>
+            </tr>
+          ))}
         </tbody>
-
       </table>
-
     </div>
   );
 }
