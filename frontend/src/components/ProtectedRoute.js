@@ -1,14 +1,32 @@
-import { Navigate } from "react-router-dom";
-import { getLoggedInUser } from "../utils/auth";
+import Sidebar from "./Sidebar";
 
-function ProtectedRoute({ children }) {
-  const user = getLoggedInUser();
+function Layout({ children }) {
 
-  if (!user) {
-    return <Navigate to="/login" />;
-  }
+  return (
 
-  return children;
+    <div
+      style={{
+        display: "flex",
+      }}
+    >
+
+      <Sidebar />
+
+      <div
+        style={{
+          flex: 1,
+          padding: "20px",
+          background: "#f1f5f9",
+          minHeight: "100vh",
+        }}
+      >
+
+        {children}
+
+      </div>
+
+    </div>
+  );
 }
 
-export default ProtectedRoute;
+export default Layout;

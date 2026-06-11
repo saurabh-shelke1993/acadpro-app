@@ -2,293 +2,446 @@ import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 
 function Attendance() {
+  const [user, setUser] = useState(null);
 
   const [academies, setAcademies] = useState([]);
-  const [selectedAcademy, setSelectedAcademy] = useState("");
-
+  const [centers, setCenters] = useState([]);
   const [batches, setBatches] = useState([]);
+  const [players, setPlayers] = useState([]);
+
+  const [selectedAcademy, setSelectedAcademy] = useState("");
+  const [selectedCenter, setSelectedCenter] = useState("");
   const [selectedBatch, setSelectedBatch] = useState("");
 
-  const [players, setPlayers] = useState([]);
+  const [attendanceDate, setAttendanceDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
 
   const [attendanceData, setAttendanceData] = useState({});
 
+  // =====================================================
+  // FETCH LOGGED IN USER
+  // =====================================================
+
   useEffect(() => {
-
-    fetchAcademies();
-
+    getLoggedInUser();
   }, []);
 
-  useEffect(() => {
+const getLoggedInUser = async () => {
+  try {
+    const {
+      data: { user: authUser },
+      error: authError,
+    } = await supabase.auth.getUser();
 
-    if (selectedAcademy) {
+    if (authError) throw authError;
 
-      fetchBatches();
-
+    if (!authUser) {
+      console.log("No authenticated user found");
+      return;
     }
 
-  }, [selectedAcademy]);
+    console.log("Supabase Auth User:", authUser);
+
+    // FETCH USER FROM USERS TABLE
+    const { data, error } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id", authUser.id)
+      .single();
+
+    if (error) throw error;
+
+    console.log("Database User:", data);
+
+    setUser(data);
+  } catch (err) {
+    console.log(err.message);
+  }
+};
+
+  // =====================================================
+  // FETCH ACADEMIES
+  // =====================================================
 
   useEffect(() => {
-
-    if (selectedBatch) {
-
-      fetchPlayers();
-
+    if (user) {
+      fetchAcademies();
     }
-
-  }, [selectedBatch]);
+  }, [user]);
 
   const fetchAcademies = async () => {
+    try {
+      let query = supabase
+        .from("academies")
+        .select("*")
+        .eq("is_active", true);
 
-    const { data, error } = await supabase
-      .from("academies")
-      .select("*");
+      // ACADEMY OWNER FILTER
+      if (user?.role === "academy_owner") {
+        query = query.eq("id", user?.academy_id);
+      }
 
-    if (error) {
+      const { data, error } = await query;
 
-      console.log(error);
+      if (error) throw error;
 
-    } else {
+      setAcademies(data || []);
 
-      setAcademies(data);
-
+      // AUTO SELECT OWNER ACADEMY
+      if (
+        user?.role === "academy_owner" &&
+        data &&
+        data.length > 0
+      ) {
+        setSelectedAcademy(data[0].id);
+      }
+    } catch (err) {
+      console.log(err.message);
     }
   };
+
+  // =====================================================
+  // FETCH CENTERS
+  // =====================================================
+
+  useEffect(() => {
+    if (selectedAcademy) {
+      fetchCenters();
+    } else {
+      setCenters([]);
+    }
+  }, [selectedAcademy]);
+
+  const fetchCenters = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("centers")
+        .select("*")
+        .eq("academy_id", selectedAcademy)
+        .eq("is_active", true);
+
+      if (error) throw error;
+
+      setCenters(data || []);
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
+
+  // =====================================================
+  // FETCH BATCHES
+  // =====================================================
+
+  useEffect(() => {
+    if (selectedCenter) {
+      fetchBatches();
+    } else {
+      setBatches([]);
+    }
+  }, [selectedCenter]);
 
   const fetchBatches = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("batches")
+        .select("*")
+        .eq("center_id", selectedCenter)
+        .eq("is_active", true);
 
-    const { data, error } = await supabase
-      .from("batches")
-      .select("*")
-      .eq("academy_id", selectedAcademy);
+      if (error) throw error;
 
-    if (error) {
-
-      console.log(error);
-
-    } else {
-
-      setBatches(data);
-
+      setBatches(data || []);
+    } catch (err) {
+      console.log(err.message);
     }
   };
+
+  // =====================================================
+  // FETCH PLAYERS
+  // =====================================================
+
+  useEffect(() => {
+    if (selectedBatch) {
+      fetchPlayers();
+    } else {
+      setPlayers([]);
+    }
+  }, [selectedBatch]);
 
   const fetchPlayers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("player_batches")
+        .select(`
+          player_id,
+          players (
+            id,
+            full_name
+          )
+        `)
+        .eq("batch_id", selectedBatch);
 
-    const { data, error } = await supabase
-      .from("player_batches")
-      .select(`
-        player_id,
-        players (
-          id,
-          full_name
-        )
-      `)
-      .eq("batch_id", selectedBatch);
+      if (error) throw error;
 
-    if (error) {
+      setPlayers(data || []);
 
-      console.log(error);
+      // DEFAULT PRESENT
+      let attendanceObj = {};
 
-    } else {
+      data.forEach((item) => {
+        attendanceObj[item.player_id] = "present";
+      });
 
-      setPlayers(data);
-
+      setAttendanceData(attendanceObj);
+    } catch (err) {
+      console.log(err.message);
     }
   };
 
-  const handleStatusChange = (
-    playerId,
-    status
-  ) => {
+  // =====================================================
+  // HANDLE ATTENDANCE CHANGE
+  // =====================================================
 
-    setAttendanceData((prev) => ({
-
-      ...prev,
-
-      [playerId]: status
-
-    }));
+  const handleAttendanceChange = (playerId, status) => {
+    setAttendanceData({
+      ...attendanceData,
+      [playerId]: status,
+    });
   };
+
+  // =====================================================
+  // SAVE ATTENDANCE
+  // =====================================================
 
   const saveAttendance = async () => {
+    try {
+      if (!selectedAcademy) {
+        alert("Please select academy");
+        return;
+      }
 
-    const attendanceRows =
-      Object.entries(attendanceData).map(
-        ([playerId, status]) => ({
+      if (!selectedCenter) {
+        alert("Please select center");
+        return;
+      }
 
-          academy_id: selectedAcademy,
+      if (!selectedBatch) {
+        alert("Please select batch");
+        return;
+      }
 
-          player_id: playerId,
+      // CHECK DUPLICATE ATTENDANCE
+      const { data: existingAttendance, error: duplicateError } =
+        await supabase
+          .from("attendance")
+          .select("*")
+          .eq("batch_id", selectedBatch)
+          .eq("attendance_date", attendanceDate);
 
-          batch_id: selectedBatch,
+      if (duplicateError) throw duplicateError;
 
-          attendance_date:
-            new Date()
-              .toISOString()
-              .split("T")[0],
+      if (existingAttendance?.length > 0) {
+        alert("Attendance already marked for this batch today.");
+        return;
+      }
 
-          status: status
+      const attendanceRows = players.map((item) => ({
+        academy_id: selectedAcademy,
+        player_id: item.player_id,
+        batch_id: selectedBatch,
+        attendance_date: attendanceDate,
+        status: attendanceData[item.player_id],
+        marked_by: user?.id,
+        remarks: "",
+      }));
 
-        })
-      );
+      const { error } = await supabase
+        .from("attendance")
+        .insert(attendanceRows);
 
-    const { error } = await supabase
-      .from("attendance")
-      .insert(attendanceRows);
+      if (error) throw error;
 
-if (error) {
-
-  if (
-    error.message.includes(
-      "unique_attendance"
-    )
-  ) {
-
-    alert(
-      "Attendance already marked for today"
-    );
-
-  } else {
-
-    alert(error.message);
-
-  }
-
-} else {
-
-  alert("Attendance Saved Successfully");
-
-}
+      alert("Attendance saved successfully.");
+    } catch (err) {
+      console.log(err.message);
+      alert(err.message);
+    }
   };
 
+  // =====================================================
+  // UI
+  // =====================================================
+
   return (
+    <div style={{ padding: "20px", width: "100%" }}>
+      <h1>Attendance Module V2</h1>
 
-    <div style={{ padding: "20px" }}>
+      {/* FILTERS */}
 
-      <h1>Attendance Module</h1>
-
-      {/* Academy Dropdown */}
-
-      <select
-        value={selectedAcademy}
-        onChange={(e) => setSelectedAcademy(e.target.value)}
+      <div
+        style={{
+          display: "flex",
+          gap: "40px",
+          marginBottom: "30px",
+        }}
       >
+        {/* ACADEMY */}
 
-        <option value="">
-          Select Academy
-        </option>
+        <div>
+          <label>Academy</label>
+          <br />
 
-        {academies.map((academy) => (
+          <select
+            value={selectedAcademy}
+            onChange={(e) => {
+              setSelectedAcademy(e.target.value);
 
-          <option key={academy.id} value={academy.id}>
+              // RESET DEPENDENCIES
+              setSelectedCenter("");
+              setSelectedBatch("");
+              setCenters([]);
+              setBatches([]);
+              setPlayers([]);
+            }}
+            disabled={user?.role === "academy_owner"}
+          >
+            <option value="">Select Academy</option>
 
-            {academy.academy_name}
+            {academies.map((academy) => (
+              <option key={academy.id} value={academy.id}>
+                {academy.academy_name}
+              </option>
+            ))}
+          </select>
+        </div>
 
-          </option>
+        {/* CENTER */}
 
-        ))}
+        <div>
+          <label>Center</label>
+          <br />
 
-      </select>
+          <select
+            value={selectedCenter}
+            onChange={(e) => {
+              setSelectedCenter(e.target.value);
 
-      <br />
-      <br />
-
-      {/* Batch Dropdown */}
-
-      <select
-        value={selectedBatch}
-        onChange={(e) => setSelectedBatch(e.target.value)}
-      >
-
-        <option value="">
-          Select Batch
-        </option>
-
-        {batches.map((batch) => (
-
-          <option key={batch.id} value={batch.id}>
-
-            {batch.batch_name}
-
-          </option>
-
-        ))}
-
-      </select>
-
-      <br />
-      <br />
-
-      <h3>Players</h3>
-
-      {
-        players.map((item) => (
-
-          <div
-            key={item.player_id}
-            style={{
-              marginBottom: "15px"
+              // RESET DEPENDENCIES
+              setSelectedBatch("");
+              setBatches([]);
+              setPlayers([]);
             }}
           >
+            <option value="">Select Center</option>
 
-            <strong>
+            {centers.map((center) => (
+              <option key={center.id} value={center.id}>
+                {center.center_name}
+              </option>
+            ))}
+          </select>
+        </div>
 
-              {item.players.full_name}
+        {/* BATCH */}
 
-            </strong>
+        <div>
+          <label>Batch</label>
+          <br />
 
-            <br />
-            <br />
+          <select
+            value={selectedBatch}
+            onChange={(e) =>
+              setSelectedBatch(e.target.value)
+            }
+          >
+            <option value="">Select Batch</option>
 
-            <button
-              onClick={() =>
-                handleStatusChange(
-                  item.player_id,
-                  "present"
-                )
-              }
-            >
-              Present
-            </button>
+            {batches.map((batch) => (
+              <option key={batch.id} value={batch.id}>
+                {batch.batch_name}
+              </option>
+            ))}
+          </select>
+        </div>
 
-            <button
-              onClick={() =>
-                handleStatusChange(
-                  item.player_id,
-                  "absent"
-                )
-              }
-              style={{
-                marginLeft: "10px"
-              }}
-            >
-              Absent
-            </button>
+        {/* DATE */}
 
-            <p>
+        <div>
+          <label>Date</label>
+          <br />
 
-              Status:
-              {" "}
-              {
-                attendanceData[item.player_id]
-                || "Not Marked"
-              }
+          <input
+            type="date"
+            value={attendanceDate}
+            onChange={(e) =>
+              setAttendanceDate(e.target.value)
+            }
+          />
+        </div>
+      </div>
 
-            </p>
+      {/* PLAYERS */}
 
-            <hr />
+      <h2>Players Attendance</h2>
 
-          </div>
+      <table border="1" cellPadding="10" width="100%">
+        <thead>
+          <tr>
+            <th>Player Name</th>
+            <th>Present</th>
+            <th>Absent</th>
+          </tr>
+        </thead>
 
-        ))
-      }
+        <tbody>
+          {players.map((item) => (
+            <tr key={item.player_id}>
+              <td>{item.players?.full_name}</td>
+
+              <td align="center">
+                <input
+                  type="radio"
+                  name={`attendance-${item.player_id}`}
+                  checked={
+                    attendanceData[item.player_id] ===
+                    "present"
+                  }
+                  onChange={() =>
+                    handleAttendanceChange(
+                      item.player_id,
+                      "present"
+                    )
+                  }
+                />
+              </td>
+
+              <td align="center">
+                <input
+                  type="radio"
+                  name={`attendance-${item.player_id}`}
+                  checked={
+                    attendanceData[item.player_id] ===
+                    "absent"
+                  }
+                  onChange={() =>
+                    handleAttendanceChange(
+                      item.player_id,
+                      "absent"
+                    )
+                  }
+                />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <br />
 
       <button onClick={saveAttendance}>
         Save Attendance
       </button>
-
     </div>
   );
 }

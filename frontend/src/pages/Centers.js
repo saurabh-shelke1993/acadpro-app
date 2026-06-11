@@ -1,11 +1,18 @@
 import React, { useEffect, useState } from "react";
 
+import { supabase } from "../services/supabase";
+
 import {
-  getAcademies,
-  createCenter
-} from "../services/academyService";
+  getLoggedInUser,
+  isSuperAdmin,
+  getAcademyId
+} from "../utils/auth";
 
 const Centers = () => {
+
+  const user = getLoggedInUser();
+
+  const [centers, setCenters] = useState([]);
 
   const [academies, setAcademies] = useState([]);
 
@@ -13,90 +20,342 @@ const Centers = () => {
 
   const [centerName, setCenterName] = useState("");
 
+  const [editingCenterId, setEditingCenterId] =
+    useState(null);
+
   useEffect(() => {
 
     fetchAcademies();
 
+    fetchCenters();
+
   }, []);
+
+  // =========================
+  // FETCH ACADEMIES
+  // =========================
 
   const fetchAcademies = async () => {
 
-    try {
+    if (!isSuperAdmin()) {
+      return;
+    }
 
-      const data = await getAcademies();
+    const { data, error } = await supabase
+      .from("academies")
+      .select("*")
+      .eq("is_active", true);
 
-      setAcademies(data);
-
-    } catch (error) {
-
-      console.error(error);
+    if (!error) {
+      setAcademies(data || []);
     }
   };
-  const handleCreateCenter = async () => {
 
-  try {
+  // =========================
+  // FETCH CENTERS
+  // =========================
 
-    await createCenter({
+  const fetchCenters = async () => {
 
-      academy_id: selectedAcademy,
+    let query = supabase
+      .from("centers")
+      .select(`
+        *,
+        academies (
+          academy_name
+        )
+      `)
+      .eq("is_active", true);
 
-      center_name: centerName
+    if (!isSuperAdmin()) {
 
-    });
+      query = query.eq(
+        "academy_id",
+        getAcademyId()
+      );
+    }
 
-    alert("Center Created Successfully");
+    const { data, error } = await query;
+
+    if (!error) {
+
+      setCenters(data || []);
+    }
+  };
+
+  // =========================
+  // CREATE / UPDATE CENTER
+  // =========================
+
+  const handleSaveCenter = async () => {
+
+    if (!centerName) {
+
+      alert("Enter center name");
+
+      return;
+    }
+
+    let academyId = selectedAcademy;
+
+    // Academy Owner auto academy mapping
+
+    if (!isSuperAdmin()) {
+
+      academyId = getAcademyId();
+    }
+
+    // ======================
+    // UPDATE CENTER
+    // ======================
+
+    if (editingCenterId) {
+
+      const { error } = await supabase
+        .from("centers")
+        .update({
+          center_name: centerName
+        })
+        .eq("id", editingCenterId);
+
+      if (error) {
+
+        alert(error.message);
+
+        return;
+      }
+
+      alert("Center Updated");
+
+      setEditingCenterId(null);
+    }
+
+    // ======================
+    // CREATE CENTER
+    // ======================
+
+    else {
+
+      const { error } = await supabase
+        .from("centers")
+        .insert([
+          {
+            academy_id: academyId,
+            center_name: centerName,
+            is_active: true
+          }
+        ]);
+
+      if (error) {
+
+        alert(error.message);
+
+        return;
+      }
+
+      alert("Center Created");
+    }
 
     setCenterName("");
 
-  } catch (error) {
+    fetchCenters();
+  };
 
-    console.error(error);
+  // =========================
+  // EDIT CENTER
+  // =========================
 
-    alert(error.message);
-  }
-};
+  const handleEdit = (center) => {
+
+    setEditingCenterId(center.id);
+
+    setCenterName(center.center_name);
+
+    setSelectedAcademy(center.academy_id);
+  };
+
+  // =========================
+  // DELETE CENTER
+  // =========================
+
+  const handleDelete = async (id) => {
+
+    const confirmDelete =
+      window.confirm(
+        "Are you sure?"
+      );
+
+    if (!confirmDelete) {
+      return;
+    }
+
+    const { error } = await supabase
+      .from("centers")
+      .update({
+        is_active: false
+      })
+      .eq("id", id);
+
+    if (error) {
+
+      alert(error.message);
+
+      return;
+    }
+
+    alert("Center Deleted");
+
+    fetchCenters();
+  };
+
   return (
+
     <div style={{ padding: "20px" }}>
 
-      <h1>Create Center</h1>
+      <h1>Centers Management</h1>
 
-      <select
-        value={selectedAcademy}
-        onChange={(e) => setSelectedAcademy(e.target.value)}
-      >
+      {/* ===================== */}
+      {/* SUPER ADMIN ONLY */}
+      {/* ===================== */}
 
-        <option value="">
-          Select Academy
-        </option>
+      {isSuperAdmin() && (
 
-        {
-          academies.map((academy) => (
-            <option
-              key={academy.id}
-              value={academy.id}
-            >
-              {academy.academy_name}
+        <>
+          <select
+            value={selectedAcademy}
+            onChange={(e) =>
+              setSelectedAcademy(
+                e.target.value
+              )
+            }
+          >
+
+            <option value="">
+              Select Academy
             </option>
-          ))
-        }
 
-      </select>
+            {
+              academies.map((academy) => (
 
-      <br />
-      <br />
+                <option
+                  key={academy.id}
+                  value={academy.id}
+                >
+                  {academy.academy_name}
+                </option>
+
+              ))
+            }
+
+          </select>
+
+          <br />
+          <br />
+        </>
+      )}
+
+      {/* CENTER NAME */}
 
       <input
         type="text"
         placeholder="Enter Center Name"
         value={centerName}
-        onChange={(e) => setCenterName(e.target.value)}
+        onChange={(e) =>
+          setCenterName(
+            e.target.value
+          )
+        }
       />
-    <br />
-    <br />
 
-    <button onClick={handleCreateCenter}>
-    Create Center
-    </button>
+      <br />
+      <br />
+
+      <button onClick={handleSaveCenter}>
+
+        {
+          editingCenterId
+            ? "Update Center"
+            : "Create Center"
+        }
+
+      </button>
+
+      <br />
+      <br />
+      <br />
+
+      {/* ========================= */}
+      {/* CENTERS TABLE */}
+      {/* ========================= */}
+
+      <table
+        border="1"
+        width="100%"
+      >
+
+        <thead>
+
+          <tr>
+
+            <th>Center Name</th>
+
+            <th>Academy</th>
+
+            <th>Actions</th>
+
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+          {
+            centers.map((center) => (
+
+              <tr key={center.id}>
+
+                <td>
+                  {center.center_name}
+                </td>
+
+                <td>
+                  {
+                    center.academies
+                      ?.academy_name
+                  }
+                </td>
+
+                <td>
+
+                  <button
+                    onClick={() =>
+                      handleEdit(center)
+                    }
+                  >
+                    Edit
+                  </button>
+
+                  {" "}
+
+                  <button
+                    onClick={() =>
+                      handleDelete(center.id)
+                    }
+                  >
+                    Delete
+                  </button>
+
+                </td>
+
+              </tr>
+
+            ))
+          }
+
+        </tbody>
+
+      </table>
+
     </div>
   );
 };

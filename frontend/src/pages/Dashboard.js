@@ -1,348 +1,278 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-
-import { supabase } from "../services/supabase";
-
+import { supabase } from "../supabaseClient";
 import {
-  getLoggedInUser,
-  isAcademyOwner,
-  isSuperAdmin,
+  getCurrentUser,
   logoutUser,
-  getAcademyId,
+  isSuperAdmin,
 } from "../utils/auth";
 
 function Dashboard() {
-  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
 
-  const user = getLoggedInUser();
-  const academyId = getAcademyId();
+  const [totalPlayers, setTotalPlayers] = useState(0);
+  const [totalCenters, setTotalCenters] = useState(0);
+  const [totalBatches, setTotalBatches] = useState(0);
+  const [todayAttendance, setTodayAttendance] = useState(0);
 
-  const [players, setPlayers] = useState([]);
-  const [academies, setAcademies] = useState([]);
-  const [subscriptions, setSubscriptions] = useState([]);
-  const [payments, setPayments] = useState([]);
-  const [paymentDues, setPaymentDues] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // =====================================================
+  // LOAD USER
+  // =====================================================
 
   useEffect(() => {
-    fetchDashboardData();
+    loadUser();
   }, []);
 
-  const fetchDashboardData = async () => {
+  const loadUser = async () => {
     try {
-      let academyPlayers = [];
+      const currentUser = await getCurrentUser();
 
-      // =========================
-      // PLAYERS
-      // =========================
+      console.log("Dashboard User:", currentUser);
 
-      let playersQuery = supabase
-        .from("players")
-        .select("*");
-
-      if (isAcademyOwner()) {
-        playersQuery = playersQuery.eq(
-          "academy_id",
-          academyId
-        );
-      }
-
-      const {
-        data: playersData,
-        error: playersError,
-      } = await playersQuery;
-
-      if (playersError) {
-        console.error(playersError);
-        return;
-      }
-
-      academyPlayers = playersData || [];
-
-      setPlayers(academyPlayers);
-
-      const playerIds = academyPlayers.map(
-        (player) => player.id
-      );
-
-      // =========================
-      // ACADEMIES
-      // =========================
-
-      if (isSuperAdmin()) {
-        const { data: academiesData } =
-          await supabase
-            .from("academies")
-            .select("*");
-
-        setAcademies(academiesData || []);
-      }
-
-      // =========================
-      // SUBSCRIPTIONS
-      // =========================
-
-      let subscriptionsQuery = supabase
-        .from("player_subscriptions")
-        .select("*");
-
-      if (isAcademyOwner()) {
-        subscriptionsQuery =
-          subscriptionsQuery.in(
-            "player_id",
-            playerIds
-          );
-      }
-
-      const {
-        data: subscriptionsData,
-        error: subscriptionsError,
-      } = await subscriptionsQuery;
-
-      if (subscriptionsError) {
-        console.error(subscriptionsError);
-      }
-
-      setSubscriptions(subscriptionsData || []);
-
-      // =========================
-      // PAYMENTS
-      // =========================
-
-let paymentsQuery = supabase
-  .from("payments")
-  .select(`
-    *,
-    players(full_name)
-  `);
-
-      if (isAcademyOwner()) {
-        paymentsQuery = paymentsQuery.in(
-          "player_id",
-          playerIds
-        );
-      }
-
-      const {
-        data: paymentsData,
-        error: paymentsError,
-      } = await paymentsQuery;
-
-      if (paymentsError) {
-        console.error(paymentsError);
-      }
-
-      setPayments(paymentsData || []);
-
-      // =========================
-      // PAYMENT DUES
-      // =========================
-
-      let duesQuery = supabase
-        .from("payment_dues")
-        .select(`
-          *,
-          players(full_name)
-        `);
-
-      if (isAcademyOwner()) {
-        duesQuery = duesQuery.in(
-          "player_id",
-          playerIds
-        );
-      }
-
-      const {
-        data: duesData,
-        error: duesError,
-      } = await duesQuery;
-
-      if (duesError) {
-        console.error(duesError);
-      }
-
-      setPaymentDues(duesData || []);
-
-    } catch (error) {
-      console.error(error);
+      setUser(currentUser);
+    } catch (err) {
+      console.log(err.message);
     }
   };
 
-  const handleLogout = () => {
-    logoutUser();
-    navigate("/login");
+  // =====================================================
+  // FETCH DASHBOARD DATA
+  // =====================================================
+
+  useEffect(() => {
+    if (user) {
+      fetchDashboardData();
+    }
+  }, [user]);
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+
+      // =====================================================
+      // PLAYERS COUNT
+      // =====================================================
+
+      let playersQuery = supabase
+        .from("players")
+        .select("*", {
+          count: "exact",
+          head: true,
+        });
+
+      if (!isSuperAdmin(user)) {
+        playersQuery = playersQuery.eq(
+          "academy_id",
+          user.academy_id
+        );
+      }
+
+      const { count: playersCount, error: playersError } =
+        await playersQuery;
+
+      if (playersError) throw playersError;
+
+      setTotalPlayers(playersCount || 0);
+
+      // =====================================================
+      // CENTERS COUNT
+      // =====================================================
+
+      let centersQuery = supabase
+        .from("centers")
+        .select("*", {
+          count: "exact",
+          head: true,
+        });
+
+      if (!isSuperAdmin(user)) {
+        centersQuery = centersQuery.eq(
+          "academy_id",
+          user.academy_id
+        );
+      }
+
+      const { count: centersCount, error: centersError } =
+        await centersQuery;
+
+      if (centersError) throw centersError;
+
+      setTotalCenters(centersCount || 0);
+
+      // =====================================================
+      // BATCHES COUNT
+      // =====================================================
+
+      let batchesQuery = supabase
+        .from("batches")
+        .select("*", {
+          count: "exact",
+          head: true,
+        });
+
+      if (!isSuperAdmin(user)) {
+        batchesQuery = batchesQuery.eq(
+          "academy_id",
+          user.academy_id
+        );
+      }
+
+      const { count: batchesCount, error: batchesError } =
+        await batchesQuery;
+
+      if (batchesError) throw batchesError;
+
+      setTotalBatches(batchesCount || 0);
+
+      // =====================================================
+      // TODAY ATTENDANCE
+      // =====================================================
+
+      const today = new Date()
+        .toISOString()
+        .split("T")[0];
+
+      let attendanceQuery = supabase
+        .from("attendance")
+        .select("*", {
+          count: "exact",
+          head: true,
+        })
+        .eq("attendance_date", today);
+
+      if (!isSuperAdmin(user)) {
+        attendanceQuery = attendanceQuery.eq(
+          "academy_id",
+          user.academy_id
+        );
+      }
+
+      const {
+        count: attendanceCount,
+        error: attendanceError,
+      } = await attendanceQuery;
+
+      if (attendanceError) throw attendanceError;
+
+      setTodayAttendance(attendanceCount || 0);
+
+      setLoading(false);
+    } catch (err) {
+      console.log(err.message);
+      setLoading(false);
+    }
   };
 
-  const totalPendingAmount = paymentDues.reduce(
-    (total, due) =>
-      total + Number(due.remaining_amount || 0),
-    0
-  );
+  // =====================================================
+  // LOADING
+  // =====================================================
 
-  const totalCollections = payments.reduce(
-    (total, payment) =>
-      total + Number(payment.amount_paid || 0),
-    0
-  );
+  if (loading) {
+    return (
+      <div style={{ padding: "20px" }}>
+        <h2>Loading Dashboard...</h2>
+      </div>
+    );
+  }
+
+  // =====================================================
+  // UI
+  // =====================================================
 
   return (
     <div style={{ padding: "20px" }}>
-      <h1>AcadPro Dashboard</h1>
-
-      <button onClick={handleLogout}>
-        Logout
-      </button>
-
-      <br />
-      <br />
-
-      <h2>
-        Logged In: {user?.full_name}
-      </h2>
-
-      <h3>
-        Role: {user?.role}
-      </h3>
-
-      {isAcademyOwner() && (
-        <h3>
-          Academy: {user?.academy_name}
-        </h3>
-      )}
-
-      <br />
-
       <div
         style={{
           display: "flex",
-          gap: "20px",
-          flexWrap: "wrap",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "30px",
         }}
       >
-        {/* Total Players */}
+        <div>
+          <h1>Dashboard</h1>
+
+          <p>
+            Welcome, {user?.full_name}
+          </p>
+
+          <p>
+            Role: {user?.role}
+          </p>
+        </div>
+
+        <button onClick={logoutUser}>
+          Logout
+        </button>
+      </div>
+
+      {/* DASHBOARD CARDS */}
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns:
+            "repeat(auto-fit, minmax(250px, 1fr))",
+          gap: "20px",
+        }}
+      >
+        {/* PLAYERS */}
+
         <div
           style={{
-            border: "1px solid black",
+            border: "1px solid #ccc",
             padding: "20px",
-            width: "220px",
+            borderRadius: "10px",
           }}
         >
           <h2>Total Players</h2>
-          <h1>{players.length}</h1>
+
+          <h1>{totalPlayers}</h1>
         </div>
 
-        {/* Total Academies */}
-        {isSuperAdmin() && (
-          <div
-            style={{
-              border: "1px solid black",
-              padding: "20px",
-              width: "220px",
-            }}
-          >
-            <h2>Total Academies</h2>
-            <h1>{academies.length}</h1>
-          </div>
-        )}
+        {/* CENTERS */}
 
-        {/* Subscriptions */}
         <div
           style={{
-            border: "1px solid black",
+            border: "1px solid #ccc",
             padding: "20px",
-            width: "220px",
+            borderRadius: "10px",
           }}
         >
-          <h2>Subscriptions</h2>
-          <h1>{subscriptions.length}</h1>
+          <h2>Total Centers</h2>
+
+          <h1>{totalCenters}</h1>
         </div>
 
-        {/* Pending Amount */}
+        {/* BATCHES */}
+
         <div
           style={{
-            border: "1px solid black",
+            border: "1px solid #ccc",
             padding: "20px",
-            width: "220px",
+            borderRadius: "10px",
           }}
         >
-          <h2>Pending Amount</h2>
-          <h1>₹{totalPendingAmount}</h1>
+          <h2>Total Batches</h2>
+
+          <h1>{totalBatches}</h1>
         </div>
 
-        {/* Collections */}
+        {/* ATTENDANCE */}
+
         <div
           style={{
-            border: "1px solid black",
+            border: "1px solid #ccc",
             padding: "20px",
-            width: "220px",
+            borderRadius: "10px",
           }}
         >
-          <h2>Total Collections</h2>
-          <h1>₹{totalCollections}</h1>
+          <h2>Today's Attendance</h2>
+
+          <h1>{todayAttendance}</h1>
         </div>
       </div>
-
-      <br />
-      <br />
-
-      {/* Recent Payments */}
-      <h1>Recent Payments</h1>
-
-      <table
-        border="1"
-        cellPadding="10"
-        width="100%"
-      >
-        <thead>
-          <tr>
-            <th>Player</th>
-            <th>Amount</th>
-            <th>Date</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {payments.map((payment) => (
-            <tr key={payment.id}>
-              <td>{payment.players?.full_name}</td>
-              <td>₹{payment.amount_paid}</td>
-              <td>{payment.payment_date}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      <br />
-      <br />
-
-      {/* Pending Dues */}
-      <h1>Pending Dues</h1>
-
-      <table
-        border="1"
-        cellPadding="10"
-        width="100%"
-      >
-        <thead>
-          <tr>
-            <th>Player</th>
-            <th>Remaining Amount</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {paymentDues.map((due) => (
-            <tr key={due.id}>
-              <td>
-                {due.players?.full_name}
-              </td>
-
-              <td>
-                ₹{due.remaining_amount}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
     </div>
   );
 }
