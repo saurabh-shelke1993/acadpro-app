@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
+import Layout from "../components/Layout";
 
 function SubscriptionPlans() {
 
@@ -107,8 +108,8 @@ function SubscriptionPlans() {
     }
   };
 
-  return (
-
+return (
+  <Layout>
     <div style={{ padding: "20px" }}>
 
       <h1>Subscription Plans</h1>
@@ -288,7 +289,8 @@ function SubscriptionPlans() {
       </table>
 
     </div>
-  );
+  </Layout>
+);
 }
 
 export default SubscriptionPlans;

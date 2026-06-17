@@ -5,6 +5,7 @@ import {
   isSuperAdmin,
   getAcademyId,
 } from "../utils/auth";
+import Layout from "../components/Layout";
 
 function Players() {
   const loggedInUser = getLoggedInUser();
@@ -380,7 +381,8 @@ function Players() {
     }
   );
 
-  return (
+return (
+  <Layout>
     <div style={{ padding: "20px" }}>
       <h1>Players Module V3</h1>
 
@@ -689,7 +691,8 @@ function Players() {
         </tbody>
       </table>
     </div>
-  );
+  </Layout>
+);
 }
 
 export default Players;

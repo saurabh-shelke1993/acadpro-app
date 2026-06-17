@@ -1,48 +1,48 @@
 import React, { useEffect, useState } from "react";
+import Layout from "../components/Layout";
+import {
+  getLoggedInUser,
+  isSuperAdmin
+} from "../utils/auth";
 
 import {
   createAcademy,
-  getAcademies
+  getAcademies,
+  updateAcademy,
+  deleteAcademy
 } from "../services/academyService";
 
 const Academy = () => {
 
-  const [academyName, setAcademyName] = useState("");
+  const [user, setUser] = useState(null);
 
-  const [academies, setAcademies] = useState([]);
+  const [academyName, setAcademyName] =
+    useState("");
 
-  const handleSubmit = async (e) => {
+  const [
+    editingAcademyId,
+    setEditingAcademyId
+  ] = useState(null);
 
-    e.preventDefault();
+  const [academies, setAcademies] =
+    useState([]);
 
-    try {
+  const loadUser = async () => {
 
-      await createAcademy({
-        academy_name: academyName,
-        owner_name: "Test Owner"
-      });
+    const currentUser =
+      await getLoggedInUser();
 
-      alert("Academy Created Successfully");
-
-      setAcademyName("");
-
-      fetchAcademies();
-
-    } catch (error) {
-
-      console.error("FULL ERROR:", error);
-
-      alert(JSON.stringify(error));
-    }
+    setUser(currentUser);
   };
 
   const fetchAcademies = async () => {
 
     try {
 
-      const data = await getAcademies();
+      const data =
+        await getAcademies();
 
-      setAcademies(data);
+      setAcademies(data || []);
 
     } catch (error) {
 
@@ -50,52 +50,320 @@ const Academy = () => {
     }
   };
 
+  const handleSubmit = async (e) => {
+
+    e.preventDefault();
+
+    if (!academyName.trim()) {
+
+      alert(
+        "Please enter academy name"
+      );
+
+      return;
+    }
+
+    const existingAcademy =
+      academies.find(
+        academy =>
+          academy.academy_name
+            .trim()
+            .toLowerCase() ===
+          academyName
+            .trim()
+            .toLowerCase() &&
+          academy.id !==
+            editingAcademyId
+      );
+
+    if (existingAcademy) {
+
+      alert(
+        "Academy already exists"
+      );
+
+      return;
+    }
+
+    try {
+
+      if (editingAcademyId) {
+
+        await updateAcademy(
+          editingAcademyId,
+          academyName
+        );
+
+        alert(
+          "Academy Updated Successfully"
+        );
+
+      } else {
+
+        await createAcademy({
+          academy_name:
+            academyName,
+          owner_name:
+            "Test Owner",
+          is_active: true
+        });
+
+        alert(
+          "Academy Created Successfully"
+        );
+      }
+
+      setAcademyName("");
+
+      setEditingAcademyId(null);
+
+      fetchAcademies();
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert(
+        "Operation Failed"
+      );
+    }
+  };
+
+  const handleEdit = (
+    academy
+  ) => {
+
+    setEditingAcademyId(
+      academy.id
+    );
+
+    setAcademyName(
+      academy.academy_name
+    );
+  };
+
+  const handleDelete = async (
+    academyId
+  ) => {
+
+    const confirmDelete =
+      window.confirm(
+        "Are you sure you want to delete this academy?"
+      );
+
+    if (!confirmDelete) {
+      return;
+    }
+
+    try {
+
+      await deleteAcademy(
+        academyId
+      );
+
+      fetchAcademies();
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert(
+        "Delete Failed"
+      );
+    }
+  };
+
   useEffect(() => {
 
-    fetchAcademies();
+    loadUser();
 
   }, []);
 
+  useEffect(() => {
+
+    if (!user) return;
+
+    if (
+      !isSuperAdmin(user)
+    ) {
+
+      window.location.href =
+        "/dashboard";
+
+      return;
+    }
+
+    fetchAcademies();
+
+  }, [user]);
+
+  if (!user) {
+
+    return (
+      <Layout>
+        <div>
+          Loading...
+        </div>
+      </Layout>
+    );
+  }
+
   return (
-    <div style={{ padding: "20px" }}>
 
-      <h1>Create Academy</h1>
+    <Layout>
 
-      <form onSubmit={handleSubmit}>
+      <div
+        style={{
+          padding: "20px"
+        }}
+      >
 
-        <input
-          type="text"
-          placeholder="Enter Academy Name"
-          value={academyName}
-          onChange={(e) => setAcademyName(e.target.value)}
-        />
+        <h1>
+          Academy Management
+        </h1>
 
-        <br />
-        <br />
+        <form
+          onSubmit={
+            handleSubmit
+          }
+        >
 
-        <button type="submit">
-          Create Academy
-        </button>
+          <input
+            type="text"
+            placeholder="Enter Academy Name"
+            value={
+              academyName
+            }
+            onChange={(e) =>
+              setAcademyName(
+                e.target.value
+              )
+            }
+          />
 
-      </form>
+          <br />
+          <br />
 
-      <hr />
+          <button
+            type="submit"
+          >
+            {
+              editingAcademyId
+                ? "Update Academy"
+                : "Create Academy"
+            }
+          </button>
 
-      <h2>Academy List</h2>
+          {
+            editingAcademyId && (
+              <>
+                {" "}
 
-      {
-        academies.map((academy) => (
-          <div key={academy.id}>
+                <button
+                  type="button"
+                  onClick={() => {
 
-            <p>
-              {academy.academy_name}
-            </p>
+                    setEditingAcademyId(
+                      null
+                    );
 
-          </div>
-        ))
-      }
+                    setAcademyName(
+                      ""
+                    );
+                  }}
+                >
+                  Cancel
+                </button>
+              </>
+            )
+          }
 
-    </div>
+        </form>
+
+        <hr />
+
+        <h2>
+          Academy List
+        </h2>
+
+        <table
+          border="1"
+          width="100%"
+        >
+
+          <thead>
+
+            <tr>
+
+              <th>
+                Academy Name
+              </th>
+
+              <th>
+                Actions
+              </th>
+
+            </tr>
+
+          </thead>
+
+          <tbody>
+
+            {
+              academies.map(
+                academy => (
+
+                  <tr
+                    key={
+                      academy.id
+                    }
+                  >
+
+                    <td>
+                      {
+                        academy.academy_name
+                      }
+                    </td>
+
+                    <td>
+
+                      <button
+                        onClick={() =>
+                          handleEdit(
+                            academy
+                          )
+                        }
+                      >
+                        Edit
+                      </button>
+
+                      {" "}
+
+                      <button
+                        onClick={() =>
+                          handleDelete(
+                            academy.id
+                          )
+                        }
+                      >
+                        Delete
+                      </button>
+
+                    </td>
+
+                  </tr>
+
+                )
+              )
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </Layout>
   );
 };
 

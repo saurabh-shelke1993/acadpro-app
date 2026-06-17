@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-
+import Layout from "../components/Layout";
 import { supabase } from "../services/supabase";
 
 import {
@@ -10,9 +10,10 @@ import {
 
 const Centers = () => {
 
-  const user = getLoggedInUser();
+const [user, setUser] = useState(null);
 
-  const [centers, setCenters] = useState([]);
+const [centers, setCenters] = useState([]);
+
 
   const [academies, setAcademies] = useState([]);
 
@@ -23,21 +24,36 @@ const Centers = () => {
   const [editingCenterId, setEditingCenterId] =
     useState(null);
 
-  useEffect(() => {
+useEffect(() => {
 
-    fetchAcademies();
+  loadUser();
 
-    fetchCenters();
+}, []);
 
-  }, []);
+useEffect(() => {
+
+  if (!user) return;
+
+  fetchAcademies();
+
+  fetchCenters();
+
+}, [user, selectedAcademy]);
 
   // =========================
   // FETCH ACADEMIES
   // =========================
+const loadUser = async () => {
+
+  const currentUser =
+    await getLoggedInUser();
+
+  setUser(currentUser);
+};
 
   const fetchAcademies = async () => {
 
-    if (!isSuperAdmin()) {
+if (!isSuperAdmin(user)) {
       return;
     }
 
@@ -56,7 +72,15 @@ const Centers = () => {
   // =========================
 
   const fetchCenters = async () => {
-
+console.log("USER:", user);
+console.log(
+  "ACADEMY ID:",
+  getAcademyId(user)
+);
+console.log(
+  "IS SUPER ADMIN:",
+  isSuperAdmin(user)
+);
     let query = supabase
       .from("centers")
       .select(`
@@ -67,13 +91,23 @@ const Centers = () => {
       `)
       .eq("is_active", true);
 
-    if (!isSuperAdmin()) {
+if (isSuperAdmin(user)) {
 
-      query = query.eq(
-        "academy_id",
-        getAcademyId()
-      );
-    }
+  if (selectedAcademy) {
+
+    query = query.eq(
+      "academy_id",
+      selectedAcademy
+    );
+  }
+
+} else {
+
+  query = query.eq(
+    "academy_id",
+    getAcademyId(user)
+  );
+}
 
     const { data, error } = await query;
 
@@ -100,10 +134,31 @@ const Centers = () => {
 
     // Academy Owner auto academy mapping
 
-    if (!isSuperAdmin()) {
+if (!isSuperAdmin(user)) {
 
-      academyId = getAcademyId();
+      academyId = getAcademyId(user);
     }
+
+const { data: existingCenter } =
+  await supabase
+    .from("centers")
+    .select("id")
+    .eq("academy_id", academyId)
+    .eq("center_name", centerName)
+    .eq("is_active", true)
+    .maybeSingle();
+
+if (
+  existingCenter &&
+  existingCenter.id !== editingCenterId
+) {
+
+  alert(
+    "Center already exists in this academy"
+  );
+
+  return;
+}
 
     // ======================
     // UPDATE CENTER
@@ -207,9 +262,19 @@ const Centers = () => {
 
     fetchCenters();
   };
+if (!user) {
 
   return (
+    <Layout>
+      <div style={{ padding: "20px" }}>
+        Loading...
+      </div>
+    </Layout>
+  );
+}
 
+return (
+  <Layout>
     <div style={{ padding: "20px" }}>
 
       <h1>Centers Management</h1>
@@ -218,7 +283,7 @@ const Centers = () => {
       {/* SUPER ADMIN ONLY */}
       {/* ===================== */}
 
-      {isSuperAdmin() && (
+{isSuperAdmin(user) && (
 
         <>
           <select
@@ -297,11 +362,13 @@ const Centers = () => {
 
           <tr>
 
-            <th>Center Name</th>
+<th>Center Name</th>
 
-            <th>Academy</th>
+{isSuperAdmin(user) && (
+  <th>Academy</th>
+)}
 
-            <th>Actions</th>
+<th>Actions</th>
 
           </tr>
 
@@ -318,12 +385,14 @@ const Centers = () => {
                   {center.center_name}
                 </td>
 
-                <td>
-                  {
-                    center.academies
-                      ?.academy_name
-                  }
-                </td>
+{isSuperAdmin(user) && (
+  <td>
+    {
+      center.academies
+        ?.academy_name
+    }
+  </td>
+)}
 
                 <td>
 
@@ -357,7 +426,8 @@ const Centers = () => {
       </table>
 
     </div>
-  );
+  </Layout>
+);
 };
 
 export default Centers;

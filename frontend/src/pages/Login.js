@@ -1,91 +1,188 @@
-import { useState } from "react";
-import { supabase } from "../supabaseClient";
-import { useNavigate } from "react-router-dom";
+import { useState }
+from "react";
+
+import {
+  useNavigate
+}
+from "react-router-dom";
+
+import {
+  supabase
+}
+from "../supabaseClient";
+
+import {
+  getUserDashboard
+}
+from "../utils/auth";
+
+console.log("LOGIN COMPONENT RENDERED");
 
 function Login() {
 
-  const navigate = useNavigate();
+  const navigate =
+    useNavigate();
 
-  const [email, setEmail] = useState("");
+  const [email,
+    setEmail] =
+    useState("");
 
-  const [password, setPassword] = useState("");
+  const [password,
+    setPassword] =
+    useState("");
 
-  const handleLogin = async () => {
+  const [loading,
+    setLoading] =
+    useState(false);
 
-    if (!email || !password) {
+  // ============================================
+  // HANDLE USER SESSION
+  // ============================================
 
-      alert("Enter email and password");
+  const handleUserSession =
+    async (authUser) => {
 
-      return;
-    }
+      try {
 
-    const { data, error } =
-      await supabase.auth.signInWithPassword({
+        // FETCH USER PROFILE
 
-        email,
-        password
-      });
+        const {
+          data: profileData,
+          error: profileError
+        } = await supabase
+          .from("users")
+          .select("*")
+          .eq("id", authUser.id)
+          .single();
 
-    if (error) {
+        if (profileError) {
 
-      alert(error.message);
+          alert(
+            profileError.message
+          );
 
-    } else {
+          return;
+        }
 
-const { data: profileData } =
-  await supabase
-    .from("users")
-    .select("*")
-    .eq("id", data.user.id)
-    .single();
+        // GET DASHBOARD ROUTE
+const dashboardRoute =
+  getUserDashboard(profileData);
+
+console.log(
+  "PROFILE DATA:",
+  profileData
+);
+
+console.log(
+  "DASHBOARD ROUTE:",
+  dashboardRoute
+);
 
 localStorage.setItem(
   "acadpro_user",
   JSON.stringify(profileData)
 );
 
-      alert("Login Successful");
+navigate(dashboardRoute);
 
-      navigate("/dashboard");
-    }
-  };
 
-  return (
+      } catch (err) {
 
-    <div style={{ padding: "30px" }}>
+        console.log(err.message);
 
-      <h1>AcadPro Login</h1>
+        alert(
+          "Login failed"
+        );
+      }
+    };
 
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) =>
-          setEmail(e.target.value)
+  // ============================================
+  // LOGIN USER
+  // ============================================
+
+  const loginUser =
+    async (
+      userEmail,
+      userPassword
+    ) => {
+
+      try {
+
+        setLoading(true);
+
+        const {
+          data,
+          error
+        } = await supabase
+          .auth
+          .signInWithPassword({
+
+            email: userEmail,
+
+            password:
+              userPassword,
+
+          });
+
+        if (error) {
+
+          alert(error.message);
+
+          return;
         }
-      />
 
-      <br />
-      <br />
+        if (!data?.user) {
 
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) =>
-          setPassword(e.target.value)
+          alert(
+            "User not found"
+          );
+
+          return;
         }
-      />
 
-      <br />
-      <br />
+        await handleUserSession(
+          data.user
+        );
 
-      <button onClick={handleLogin}>
-        Login
-      </button>
+      } catch (err) {
 
-    </div>
-  );
+        console.log(err.message);
+
+        alert(
+          "Login failed"
+        );
+
+      } finally {
+
+        setLoading(false);
+      }
+    };
+
+  // ============================================
+  // NORMAL LOGIN
+  // ============================================
+
+  const handleLogin =
+    async () => {
+      console.log("HANDLE LOGIN CALLED");
+      if (
+        !email ||
+        !password
+      ) {
+
+        alert(
+          "Please enter email and password"
+        );
+
+        return;
+      }
+
+      await loginUser(
+        email,
+        password
+      );
+    };
+
 }
 
 export default Login;

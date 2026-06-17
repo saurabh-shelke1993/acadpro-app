@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
+import Layout from "../components/Layout";
 
 function Attendance() {
   const [user, setUser] = useState(null);
@@ -273,8 +274,10 @@ const getLoggedInUser = async () => {
   // UI
   // =====================================================
 
-  return (
+return (
+  <Layout>
     <div style={{ padding: "20px", width: "100%" }}>
+
       <h1>Attendance Module V2</h1>
 
       {/* FILTERS */}
@@ -443,7 +446,8 @@ const getLoggedInUser = async () => {
         Save Attendance
       </button>
     </div>
-  );
+  </Layout>
+);
 }
 
 export default Attendance;

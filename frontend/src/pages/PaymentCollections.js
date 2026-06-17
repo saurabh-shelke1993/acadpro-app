@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
-
+import Layout from "../components/Layout";
 function PaymentCollections() {
 
   const [dues, setDues] = useState([]);
@@ -204,10 +204,9 @@ function PaymentCollections() {
     }
   };
 
-  return (
-
+return (
+  <Layout>
     <div style={{ padding: "20px" }}>
-
       <h1>Payment Collections</h1>
 
       {/* Pending Dues Dropdown */}
@@ -421,7 +420,8 @@ function PaymentCollections() {
       </table>
 
     </div>
-  );
+  </Layout>
+);
 }
 
 export default PaymentCollections;

@@ -1,32 +1,120 @@
-import Sidebar from "./Sidebar";
+import {
+  useEffect,
+  useState
+}
+from "react";
 
-function Layout({ children }) {
+import {
+  Navigate
+}
+from "react-router-dom";
 
-  return (
+import {
+  getCurrentUser
+}
+from "../utils/auth";
 
-    <div
-      style={{
-        display: "flex",
-      }}
-    >
+function ProtectedRoute({
 
-      <Sidebar />
+  children,
 
+  allowedRoles = []
+
+}) {
+
+  const [loading,
+    setLoading] =
+    useState(true);
+
+  const [user,
+    setUser] =
+    useState(null);
+
+  // ============================================
+  // LOAD USER
+  // ============================================
+
+  useEffect(() => {
+
+    const loadUser =
+      async () => {
+
+        try {
+
+          const currentUser =
+            await getCurrentUser();
+
+          setUser(currentUser);
+
+        } catch (err) {
+
+          console.log(err.message);
+
+        } finally {
+
+          setLoading(false);
+        }
+      };
+
+    loadUser();
+
+  }, []);
+
+  // ============================================
+  // LOADING
+  // ============================================
+
+  if (loading) {
+
+    return (
       <div
         style={{
-          flex: 1,
-          padding: "20px",
-          background: "#f1f5f9",
-          minHeight: "100vh",
+          padding: "40px"
         }}
       >
-
-        {children}
-
+        Loading...
       </div>
+    );
+  }
 
-    </div>
-  );
+  // ============================================
+  // NOT LOGGED IN
+  // ============================================
+
+  if (!user) {
+
+    return (
+      <Navigate
+        to="/login"
+        replace
+      />
+    );
+  }
+
+  // ============================================
+  // ROLE CHECK
+  // ============================================
+
+  if (
+    allowedRoles.length > 0 &&
+    !allowedRoles.includes(
+      user.role
+    )
+  ) {
+
+    return (
+      <Navigate
+        to="/login"
+        replace
+      />
+    );
+  }
+
+  // ============================================
+  // ALLOWED
+  // ============================================
+
+  return children;
 }
 
-export default Layout;
+export default ProtectedRoute;

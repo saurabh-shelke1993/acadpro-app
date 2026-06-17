@@ -2,10 +2,10 @@ import React, {
   useEffect,
   useState
 } from "react";
-
+import Layout from "../components/Layout";
 import { supabase } from "../services/supabase";
-
 import {
+  getLoggedInUser,
   isSuperAdmin,
   getAcademyId
 } from "../utils/auth";
@@ -14,6 +14,17 @@ const Batches = () => {
 
   const [academies, setAcademies] =
     useState([]);
+  
+  
+  const [user, setUser] = useState(null);
+
+  const loadUserLoggedinUser = async () => {
+
+  const currentUser =
+    await getLoggedInUser();
+
+  setUser(currentUser);
+};
 
   const [centers, setCenters] =
     useState([]);
@@ -36,23 +47,75 @@ const Batches = () => {
   const [editingBatchId, setEditingBatchId] =
     useState(null);
 
-  useEffect(() => {
+const [startTime, setStartTime] =
+  useState("");
 
-    fetchAcademies();
+const [endTime, setEndTime] =
+  useState("");
 
-    fetchCenters();
+const [ageGroup, setAgeGroup] =
+  useState("");
 
-    fetchBatches();
+  const AGE_GROUPS = [
+  "U6",
+  "U8",
+  "U10",
+  "U12",
+  "U14",
+  "U16",
+  "U18",
+  "Adults",
+  "Elite"
+];
 
-  }, []);
+useEffect(() => {
+
+  loadUser();
+
+}, []);
+
+useEffect(() => {
+
+  loadUser();
+
+}, []);
+
+useEffect(() => {
+
+  if (!user) return;
+
+  fetchAcademies();
+
+  fetchCenters();
+
+}, [user]);
+
+useEffect(() => {
+
+  if (!user) return;
+
+  fetchBatches();
+
+}, [
+  user,
+  selectedAcademy,
+  selectedCenter
+]);
 
   // =========================
   // FETCH ACADEMIES
   // =========================
+const loadUser = async () => {
+
+  const currentUser =
+    await getLoggedInUser();
+
+  setUser(currentUser);
+};
 
   const fetchAcademies = async () => {
 
-    if (!isSuperAdmin()) {
+    if (!isSuperAdmin(user)) {
       return;
     }
 
@@ -78,11 +141,11 @@ const Batches = () => {
       .select("*")
       .eq("is_active", true);
 
-    if (!isSuperAdmin()) {
+    if (!isSuperAdmin(user)) {
 
       query = query.eq(
         "academy_id",
-        getAcademyId()
+        getAcademyId(user)
       );
     }
 
@@ -99,37 +162,63 @@ const Batches = () => {
   // =========================
   // FETCH BATCHES
   // =========================
+const fetchBatches = async () => {
 
-  const fetchBatches = async () => {
+  let query = supabase
+    .from("batches")
+    .select(`
+      *,
+      academies (
+        academy_name
+      ),
+      centers (
+        center_name
+      )
+    `)
+    .eq("is_active", true);
 
-    let query = supabase
-      .from("batches")
-      .select(`
-        *,
-        academies (
-          academy_name
-        ),
-        centers (
-          center_name
-        )
-      `)
-      .eq("is_active", true);
+  if (isSuperAdmin(user)) {
 
-    if (!isSuperAdmin()) {
+    if (selectedAcademy) {
 
       query = query.eq(
         "academy_id",
-        getAcademyId()
+        selectedAcademy
       );
     }
 
-    const { data, error } = await query;
+    if (selectedCenter) {
 
-    if (!error) {
-
-      setBatches(data || []);
+      query = query.eq(
+        "center_id",
+        selectedCenter
+      );
     }
-  };
+
+  } else {
+
+    query = query.eq(
+      "academy_id",
+      getAcademyId(user)
+    );
+
+    if (selectedCenter) {
+
+      query = query.eq(
+        "center_id",
+        selectedCenter
+      );
+    }
+  }
+
+  const { data, error } =
+    await query;
+
+  if (!error) {
+
+    setBatches(data || []);
+  }
+};
 
   // =========================
   // ACADEMY CHANGE
@@ -158,10 +247,31 @@ const Batches = () => {
 
   const handleSaveBatch = async () => {
 
-    if (
-      !selectedCenter ||
-      !batchName
-    ) {
+if (
+  !selectedCenter ||
+  !batchName ||
+  !ageGroup ||
+  !startTime ||
+  !endTime
+) {
+
+  alert(
+    "Please fill all fields"
+  );
+
+  return;
+}
+if (
+  startTime >= endTime
+) {
+
+  alert(
+    "End time must be after start time"
+  );
+
+  return;
+}
+{
 
       alert(
         "Please fill all fields"
@@ -172,10 +282,34 @@ const Batches = () => {
 
     let academyId = selectedAcademy;
 
-    if (!isSuperAdmin()) {
+    if (!isSuperAdmin(user)) {
 
-      academyId = getAcademyId();
+      academyId = getAcademyId(user);
     }
+
+const duplicateBatch =
+  batches.find(
+    batch =>
+      batch.center_id ===
+        selectedCenter &&
+      batch.batch_name
+        .trim()
+        .toLowerCase() ===
+      batchName
+        .trim()
+        .toLowerCase() &&
+      batch.id !==
+        editingBatchId
+  );
+
+if (duplicateBatch) {
+
+  alert(
+    "Batch already exists in this center"
+  );
+
+  return;
+}
 
     // =====================
     // UPDATE
@@ -185,10 +319,13 @@ const Batches = () => {
 
       const { error } = await supabase
         .from("batches")
-        .update({
-          center_id: selectedCenter,
-          batch_name: batchName
-        })
+.update({
+  center_id: selectedCenter,
+  batch_name: batchName,
+  age_group: ageGroup,
+  start_time: startTime,
+  end_time: endTime
+})
         .eq("id", editingBatchId);
 
       if (error) {
@@ -212,12 +349,15 @@ const Batches = () => {
       const { error } = await supabase
         .from("batches")
         .insert([
-          {
-            academy_id: academyId,
-            center_id: selectedCenter,
-            batch_name: batchName,
-            is_active: true
-          }
+{
+  academy_id: academyId,
+  center_id: selectedCenter,
+  batch_name: batchName,
+  age_group: ageGroup,
+  start_time: startTime,
+  end_time: endTime,
+  is_active: true
+}
         ]);
 
       if (error) {
@@ -230,9 +370,17 @@ const Batches = () => {
       alert("Batch Created");
     }
 
-    setBatchName("");
+setBatchName("");
 
-    setSelectedCenter("");
+setAgeGroup("");
+
+setStartTime("");
+
+setEndTime("");
+
+setSelectedCenter("");
+
+setEditingBatchId(null);
 
     fetchBatches();
   };
@@ -244,6 +392,18 @@ const Batches = () => {
   const handleEdit = (
     batch
   ) => {
+
+setAgeGroup(
+  batch.age_group || ""
+);
+
+setStartTime(
+  batch.start_time || ""
+);
+
+setEndTime(
+  batch.end_time || ""
+);
 
     setEditingBatchId(
       batch.id
@@ -298,17 +458,31 @@ const Batches = () => {
     fetchBatches();
   };
 
+if (!user) {
+
   return (
+    <Layout>
+      <div
+        style={{
+          padding: "20px"
+        }}
+      >
+        Loading...
+      </div>
+    </Layout>
+  );
+}
 
+return (
+  <Layout>
     <div style={{ padding: "20px" }}>
-
       <h1>Batches Management</h1>
 
       {/* ========================= */}
       {/* SUPER ADMIN */}
       {/* ========================= */}
 
-      {isSuperAdmin() && (
+      {isSuperAdmin(user) && (
 
         <>
           <select
@@ -387,16 +561,63 @@ const Batches = () => {
 
       {/* BATCH NAME */}
 
-      <input
-        type="text"
-        placeholder="Enter Batch Name"
-        value={batchName}
-        onChange={(e) =>
-          setBatchName(
-            e.target.value
-          )
-        }
-      />
+<input
+  type="text"
+  placeholder="Enter Batch Name"
+  value={batchName}
+  onChange={(e) =>
+    setBatchName(e.target.value)
+  }
+/>
+
+<br />
+<br />
+
+<select
+  value={ageGroup}
+  onChange={(e) =>
+    setAgeGroup(e.target.value)
+  }
+>
+
+  <option value="">
+    Select Age Group
+  </option>
+
+  {AGE_GROUPS.map(group => (
+
+    <option
+      key={group}
+      value={group}
+    >
+      {group}
+    </option>
+
+  ))}
+
+</select>
+
+<br />
+<br />
+
+<input
+  type="time"
+  value={startTime}
+  onChange={(e) =>
+    setStartTime(e.target.value)
+  }
+/>
+
+<br />
+<br />
+
+<input
+  type="time"
+  value={endTime}
+  onChange={(e) =>
+    setEndTime(e.target.value)
+  }
+/>
 
       <br />
       <br />
@@ -432,13 +653,17 @@ const Batches = () => {
 
           <tr>
 
-            <th>Batch</th>
+<th>Batch</th>
+<th>Age Group</th>
+<th>Start</th>
+<th>End</th>
+<th>Center</th>
 
-            <th>Center</th>
+{isSuperAdmin(user) && (
+  <th>Academy</th>
+)}
 
-            <th>Academy</th>
-
-            <th>Actions</th>
+<th>Actions</th>
 
           </tr>
 
@@ -452,11 +677,13 @@ const Batches = () => {
 
                 <tr key={batch.id}>
 
-                  <td>
-                    {
-                      batch.batch_name
-                    }
-                  </td>
+<td>{batch.batch_name}</td>
+
+<td>{batch.age_group}</td>
+
+<td>{batch.start_time}</td>
+
+<td>{batch.end_time}</td>
 
                   <td>
                     {
@@ -509,7 +736,8 @@ const Batches = () => {
       </table>
 
     </div>
-  );
+  </Layout>
+);
 };
 
 export default Batches;

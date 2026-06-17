@@ -7,7 +7,12 @@ import {
 
 import ProtectedRoute from "../components/ProtectedRoute";
 
+// ============================================
+// PAGES
+// ============================================
+
 import Login from "../pages/Login";
+
 import Dashboard from "../pages/Dashboard";
 import Academy from "../pages/Academy";
 import Centers from "../pages/Centers";
@@ -19,28 +24,55 @@ import SubscriptionPlans from "../pages/SubscriptionPlans";
 import PlayerSubscriptions from "../pages/PlayerSubscriptions";
 import PaymentDues from "../pages/PaymentDues";
 import PaymentCollections from "../pages/PaymentCollections";
+import Coaches from "../pages/Coaches";
+import CoachBatchMapping from "../pages/CoachBatchMapping";
+
+import CoachDashboard from "../pages/CoachDashboard";
+import CoachAttendance from "../pages/CoachAttendance";
+
+// ============================================
+// APP ROUTES
+// ============================================
 
 function AppRoutes() {
 
   return (
+
     <BrowserRouter>
 
       <Routes>
 
+        {/* ============================================
+            DEFAULT
+        ============================================ */}
+
         <Route
           path="/"
-          element={<Navigate to="/login" />}
+          element={<Navigate to="/login" replace />}
         />
+
+        {/* ============================================
+            LOGIN
+        ============================================ */}
 
         <Route
           path="/login"
           element={<Login />}
         />
 
+        {/* ============================================
+            SUPER ADMIN + ACADEMY OWNER
+        ============================================ */}
+
         <Route
           path="/dashboard"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute
+              allowedRoles={[
+                "super_admin",
+                "academy_owner"
+              ]}
+            >
               <Dashboard />
             </ProtectedRoute>
           }
@@ -49,7 +81,11 @@ function AppRoutes() {
         <Route
           path="/academy"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute
+              allowedRoles={[
+                "super_admin"
+              ]}
+            >
               <Academy />
             </ProtectedRoute>
           }
@@ -58,7 +94,12 @@ function AppRoutes() {
         <Route
           path="/centers"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute
+              allowedRoles={[
+                "super_admin",
+                "academy_owner"
+              ]}
+            >
               <Centers />
             </ProtectedRoute>
           }
@@ -67,7 +108,12 @@ function AppRoutes() {
         <Route
           path="/batches"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute
+              allowedRoles={[
+                "super_admin",
+                "academy_owner"
+              ]}
+            >
               <Batches />
             </ProtectedRoute>
           }
@@ -76,7 +122,12 @@ function AppRoutes() {
         <Route
           path="/players"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute
+              allowedRoles={[
+                "super_admin",
+                "academy_owner"
+              ]}
+            >
               <Players />
             </ProtectedRoute>
           }
@@ -85,7 +136,12 @@ function AppRoutes() {
         <Route
           path="/attendance"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute
+              allowedRoles={[
+                "super_admin",
+                "academy_owner"
+              ]}
+            >
               <Attendance />
             </ProtectedRoute>
           }
@@ -94,7 +150,13 @@ function AppRoutes() {
         <Route
           path="/attendance-history"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute
+              allowedRoles={[
+                "super_admin",
+                "academy_owner",
+                "coach"
+              ]}
+            >
               <AttendanceHistory />
             </ProtectedRoute>
           }
@@ -103,7 +165,12 @@ function AppRoutes() {
         <Route
           path="/subscription-plans"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute
+              allowedRoles={[
+                "super_admin",
+                "academy_owner"
+              ]}
+            >
               <SubscriptionPlans />
             </ProtectedRoute>
           }
@@ -112,7 +179,12 @@ function AppRoutes() {
         <Route
           path="/player-subscriptions"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute
+              allowedRoles={[
+                "super_admin",
+                "academy_owner"
+              ]}
+            >
               <PlayerSubscriptions />
             </ProtectedRoute>
           }
@@ -121,7 +193,12 @@ function AppRoutes() {
         <Route
           path="/payment-dues"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute
+              allowedRoles={[
+                "super_admin",
+                "academy_owner"
+              ]}
+            >
               <PaymentDues />
             </ProtectedRoute>
           }
@@ -130,10 +207,82 @@ function AppRoutes() {
         <Route
           path="/payment-collections"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute
+              allowedRoles={[
+                "super_admin",
+                "academy_owner"
+              ]}
+            >
               <PaymentCollections />
             </ProtectedRoute>
           }
+        />
+
+        <Route
+          path="/coaches"
+          element={
+            <ProtectedRoute
+              allowedRoles={[
+                "super_admin",
+                "academy_owner"
+              ]}
+            >
+              <Coaches />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/coach-batch-mapping"
+          element={
+            <ProtectedRoute
+              allowedRoles={[
+                "super_admin",
+                "academy_owner"
+              ]}
+            >
+              <CoachBatchMapping />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ============================================
+            COACH MODULES
+        ============================================ */}
+
+        <Route
+          path="/coach-dashboard"
+          element={
+            <ProtectedRoute
+              allowedRoles={[
+                "coach"
+              ]}
+            >
+              <CoachDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/coach-attendance"
+          element={
+            <ProtectedRoute
+              allowedRoles={[
+                "coach"
+              ]}
+            >
+              <CoachAttendance />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ============================================
+            FALLBACK
+        ============================================ */}
+
+        <Route
+          path="*"
+          element={<Navigate to="/login" replace />}
         />
 
       </Routes>

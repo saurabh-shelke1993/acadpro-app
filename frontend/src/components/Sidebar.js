@@ -1,17 +1,25 @@
 import { Link, useNavigate } from "react-router-dom";
 
 import {
-  isSuperAdmin,
   logoutUser,
 } from "../utils/auth";
+
+import {
+  isSuperAdmin,
+  isCoach,
+} from "../utils/roles";
 
 function Sidebar() {
 
   const navigate = useNavigate();
 
-  const handleLogout = () => {
+  const user = JSON.parse(
+    localStorage.getItem("acadpro_user")
+  );
 
-    logoutUser();
+  const handleLogout = async () => {
+
+    await logoutUser();
 
     navigate("/login");
   };
@@ -20,130 +28,187 @@ function Sidebar() {
 
     <div
       style={{
-        width: "250px",
-        background: "#1e293b",
-        color: "white",
+        width: "280px",
         minHeight: "100vh",
+        backgroundColor: "#0f172a",
+        color: "white",
         padding: "20px",
       }}
     >
 
-      <h2>AcadPro</h2>
+      {/* LOGO */}
 
-      <hr />
-
-      <div
+      <h1
         style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "15px",
-          marginTop: "20px",
+          marginBottom: "40px",
         }}
       >
+        AcadPro
+      </h1>
 
-        <Link
-          to="/dashboard"
-          style={linkStyle}
-        >
-          Dashboard
-        </Link>
+      {/* ========================================= */}
+      {/* COACH SIDEBAR */}
+      {/* ========================================= */}
 
-        {
-          isSuperAdmin() && (
+      {
+        isCoach(user) ? (
 
-            <Link
-              to="/academy"
-              style={linkStyle}
-            >
-              Academies
-            </Link>
-          )
-        }
+          <>
 
-        <Link
-          to="/centers"
-          style={linkStyle}
-        >
-          Centers
-        </Link>
+            <SidebarLink
+              to="/coach-dashboard"
+              label="Dashboard"
+            />
 
-        <Link
-          to="/batches"
-          style={linkStyle}
-        >
-          Batches
-        </Link>
+            <SidebarLink
+              to="/coach-attendance"
+              label="Coach Attendance"
+            />
 
-        <Link
-          to="/players"
-          style={linkStyle}
-        >
-          Players
-        </Link>
+            <SidebarLink
+              to="/attendance-history"
+              label="Attendance History"
+            />
 
-        <Link
-          to="/attendance"
-          style={linkStyle}
-        >
-          Attendance
-        </Link>
+          </>
 
-        <Link
-          to="/attendance-history"
-          style={linkStyle}
-        >
-          Attendance History
-        </Link>
+        ) : (
 
-        <Link
-          to="/subscription-plans"
-          style={linkStyle}
-        >
-          Subscription Plans
-        </Link>
+          <>
+            {/* DASHBOARD */}
 
-        <Link
-          to="/player-subscriptions"
-          style={linkStyle}
-        >
-          Player Subscriptions
-        </Link>
+            <SidebarLink
+              to="/dashboard"
+              label="Dashboard"
+            />
 
-        <Link
-          to="/payment-dues"
-          style={linkStyle}
-        >
-          Payment Dues
-        </Link>
+            {/* SUPER ADMIN ONLY */}
 
-        <Link
-          to="/payment-collections"
-          style={linkStyle}
-        >
-          Payment Collections
-        </Link>
+            {
+              isSuperAdmin(user) && (
 
-        <button
-          onClick={handleLogout}
-          style={{
-            marginTop: "20px",
-            padding: "10px",
-            cursor: "pointer",
-          }}
-        >
-          Logout
-        </button>
+                <SidebarLink
+                  to="/academy"
+                  label="Academies"
+                />
+              )
+            }
 
-      </div>
+            {/* COMMON ADMIN MODULES */}
+
+            <SidebarLink
+              to="/centers"
+              label="Centers"
+            />
+
+            <SidebarLink
+              to="/batches"
+              label="Batches"
+            />
+
+            <SidebarLink
+              to="/players"
+              label="Players"
+            />
+
+            <SidebarLink
+              to="/attendance"
+              label="Attendance"
+            />
+
+            <SidebarLink
+              to="/attendance-history"
+              label="Attendance History"
+            />
+
+            <SidebarLink
+              to="/coaches"
+              label="Coaches"
+            />
+
+            <SidebarLink
+              to="/coach-batch-mapping"
+              label="Coach Batch Mapping"
+            />
+
+            <SidebarLink
+              to="/subscription-plans"
+              label="Subscription Plans"
+            />
+
+            <SidebarLink
+              to="/player-subscriptions"
+              label="Player Subscriptions"
+            />
+
+            <SidebarLink
+              to="/payment-dues"
+              label="Payment Dues"
+            />
+
+            <SidebarLink
+              to="/payment-collections"
+              label="Payment Collections"
+            />
+
+          </>
+        )
+      }
+
+      {/* ========================================= */}
+      {/* LOGOUT */}
+      {/* ========================================= */}
+
+      <button
+        onClick={handleLogout}
+        style={{
+          marginTop: "40px",
+          width: "100%",
+          padding: "12px",
+          borderRadius: "10px",
+          border: "none",
+          cursor: "pointer",
+          fontWeight: "bold",
+        }}
+      >
+        Logout
+      </button>
 
     </div>
   );
 }
 
-const linkStyle = {
-  color: "white",
-  textDecoration: "none",
-  fontSize: "16px",
-};
+// =========================================
+// REUSABLE SIDEBAR LINK
+// =========================================
+
+function SidebarLink({
+  to,
+  label
+}) {
+
+  return (
+
+    <div
+      style={{
+        marginBottom: "18px",
+      }}
+    >
+
+      <Link
+        to={to}
+        style={{
+          color: "white",
+          textDecoration: "none",
+          fontSize: "17px",
+          fontWeight: "500",
+        }}
+      >
+        {label}
+      </Link>
+
+    </div>
+  );
+}
 
 export default Sidebar;

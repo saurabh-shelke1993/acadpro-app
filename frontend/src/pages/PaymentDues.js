@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
+import Layout from "../components/Layout";
 
 function PaymentDues() {
 
@@ -147,10 +148,9 @@ function PaymentDues() {
     }
   };
 
-  return (
-
+return (
+  <Layout>
     <div style={{ padding: "20px" }}>
-
       <h1>Payment Dues</h1>
 
       {/* Subscription Dropdown */}
@@ -345,7 +345,8 @@ function PaymentDues() {
       </table>
 
     </div>
-  );
+  </Layout>
+);
 }
 
 export default PaymentDues;

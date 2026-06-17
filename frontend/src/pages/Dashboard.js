@@ -1,278 +1,334 @@
-import { useEffect, useState } from "react";
-import { supabase } from "../supabaseClient";
+import { useEffect, useState }
+from "react";
+
+import { supabase }
+from "../supabaseClient";
+
+import Layout
+from "../components/Layout";
+
 import {
   getCurrentUser,
-  logoutUser,
   isSuperAdmin,
-} from "../utils/auth";
+}
+from "../utils/auth";
 
 function Dashboard() {
-  const [user, setUser] = useState(null);
 
-  const [totalPlayers, setTotalPlayers] = useState(0);
-  const [totalCenters, setTotalCenters] = useState(0);
-  const [totalBatches, setTotalBatches] = useState(0);
-  const [todayAttendance, setTodayAttendance] = useState(0);
+  const [user,
+    setUser] =
+    useState(null);
 
-  const [loading, setLoading] = useState(true);
+  const [totalPlayers,
+    setTotalPlayers] =
+    useState(0);
 
-  // =====================================================
+  const [totalCenters,
+    setTotalCenters] =
+    useState(0);
+
+  const [totalBatches,
+    setTotalBatches] =
+    useState(0);
+
+  const [todayAttendance,
+    setTodayAttendance] =
+    useState(0);
+
+  const [loading,
+    setLoading] =
+    useState(true);
+
+  // =========================================
   // LOAD USER
-  // =====================================================
+  // =========================================
 
   useEffect(() => {
+
     loadUser();
+
   }, []);
 
-  const loadUser = async () => {
-    try {
-      const currentUser = await getCurrentUser();
+  const loadUser =
+    async () => {
 
-      console.log("Dashboard User:", currentUser);
+      try {
 
-      setUser(currentUser);
-    } catch (err) {
-      console.log(err.message);
-    }
-  };
+        const currentUser =
+          await getCurrentUser();
 
-  // =====================================================
+        setUser(currentUser);
+
+      } catch (err) {
+
+        console.log(err.message);
+      }
+    };
+
+  // =========================================
   // FETCH DASHBOARD DATA
-  // =====================================================
+  // =========================================
 
   useEffect(() => {
+
     if (user) {
+
       fetchDashboardData();
     }
+
   }, [user]);
 
-  const fetchDashboardData = async () => {
-    try {
-      setLoading(true);
+  const fetchDashboardData =
+    async () => {
 
-      // =====================================================
-      // PLAYERS COUNT
-      // =====================================================
+      try {
 
-      let playersQuery = supabase
-        .from("players")
-        .select("*", {
-          count: "exact",
-          head: true,
-        });
+        setLoading(true);
 
-      if (!isSuperAdmin(user)) {
-        playersQuery = playersQuery.eq(
-          "academy_id",
-          user.academy_id
+        // PLAYERS
+
+        let playersQuery =
+          supabase
+            .from("players")
+            .select("*", {
+              count: "exact",
+              head: true,
+            });
+
+        if (!isSuperAdmin(user)) {
+
+          playersQuery =
+            playersQuery.eq(
+              "academy_id",
+              user.academy_id
+            );
+        }
+
+        const {
+          count: playersCount
+        } =
+          await playersQuery;
+
+        setTotalPlayers(
+          playersCount || 0
         );
-      }
 
-      const { count: playersCount, error: playersError } =
-        await playersQuery;
+        // CENTERS
 
-      if (playersError) throw playersError;
+        let centersQuery =
+          supabase
+            .from("centers")
+            .select("*", {
+              count: "exact",
+              head: true,
+            });
 
-      setTotalPlayers(playersCount || 0);
+        if (!isSuperAdmin(user)) {
 
-      // =====================================================
-      // CENTERS COUNT
-      // =====================================================
+          centersQuery =
+            centersQuery.eq(
+              "academy_id",
+              user.academy_id
+            );
+        }
 
-      let centersQuery = supabase
-        .from("centers")
-        .select("*", {
-          count: "exact",
-          head: true,
-        });
+        const {
+          count: centersCount
+        } =
+          await centersQuery;
 
-      if (!isSuperAdmin(user)) {
-        centersQuery = centersQuery.eq(
-          "academy_id",
-          user.academy_id
+        setTotalCenters(
+          centersCount || 0
         );
-      }
 
-      const { count: centersCount, error: centersError } =
-        await centersQuery;
+        // BATCHES
 
-      if (centersError) throw centersError;
+        let batchesQuery =
+          supabase
+            .from("batches")
+            .select("*", {
+              count: "exact",
+              head: true,
+            });
 
-      setTotalCenters(centersCount || 0);
+        if (!isSuperAdmin(user)) {
 
-      // =====================================================
-      // BATCHES COUNT
-      // =====================================================
+          batchesQuery =
+            batchesQuery.eq(
+              "academy_id",
+              user.academy_id
+            );
+        }
 
-      let batchesQuery = supabase
-        .from("batches")
-        .select("*", {
-          count: "exact",
-          head: true,
-        });
+        const {
+          count: batchesCount
+        } =
+          await batchesQuery;
 
-      if (!isSuperAdmin(user)) {
-        batchesQuery = batchesQuery.eq(
-          "academy_id",
-          user.academy_id
+        setTotalBatches(
+          batchesCount || 0
         );
-      }
 
-      const { count: batchesCount, error: batchesError } =
-        await batchesQuery;
+        // ATTENDANCE
 
-      if (batchesError) throw batchesError;
+        const today =
+          new Date()
+            .toISOString()
+            .split("T")[0];
 
-      setTotalBatches(batchesCount || 0);
+        let attendanceQuery =
+          supabase
+            .from("attendance")
+            .select("*", {
+              count: "exact",
+              head: true,
+            })
+            .eq(
+              "attendance_date",
+              today
+            );
 
-      // =====================================================
-      // TODAY ATTENDANCE
-      // =====================================================
+        if (!isSuperAdmin(user)) {
 
-      const today = new Date()
-        .toISOString()
-        .split("T")[0];
+          attendanceQuery =
+            attendanceQuery.eq(
+              "academy_id",
+              user.academy_id
+            );
+        }
 
-      let attendanceQuery = supabase
-        .from("attendance")
-        .select("*", {
-          count: "exact",
-          head: true,
-        })
-        .eq("attendance_date", today);
+        const {
+          count: attendanceCount
+        } =
+          await attendanceQuery;
 
-      if (!isSuperAdmin(user)) {
-        attendanceQuery = attendanceQuery.eq(
-          "academy_id",
-          user.academy_id
+        setTodayAttendance(
+          attendanceCount || 0
         );
+
+      } catch (err) {
+
+        console.log(err.message);
+
+      } finally {
+
+        setLoading(false);
       }
+    };
 
-      const {
-        count: attendanceCount,
-        error: attendanceError,
-      } = await attendanceQuery;
-
-      if (attendanceError) throw attendanceError;
-
-      setTodayAttendance(attendanceCount || 0);
-
-      setLoading(false);
-    } catch (err) {
-      console.log(err.message);
-      setLoading(false);
-    }
-  };
-
-  // =====================================================
+  // =========================================
   // LOADING
-  // =====================================================
+  // =========================================
 
   if (loading) {
+
     return (
-      <div style={{ padding: "20px" }}>
-        <h2>Loading Dashboard...</h2>
-      </div>
+
+      <Layout>
+
+        <h2>
+          Loading Dashboard...
+        </h2>
+
+      </Layout>
     );
   }
 
-  // =====================================================
+  // =========================================
   // UI
-  // =====================================================
+  // =========================================
 
   return (
-    <div style={{ padding: "20px" }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "30px",
-        }}
-      >
-        <div>
-          <h1>Dashboard</h1>
 
-          <p>
-            Welcome, {user?.full_name}
-          </p>
+    <Layout>
 
-          <p>
-            Role: {user?.role}
-          </p>
+      <div>
+
+        <h1>
+          Dashboard
+        </h1>
+
+        <p>
+          Welcome,
+          {" "}
+          {user?.full_name}
+        </p>
+
+        <p>
+          Role:
+          {" "}
+          {user?.role}
+        </p>
+
+        {/* DASHBOARD CARDS */}
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns:
+              "repeat(auto-fit, minmax(250px, 1fr))",
+            gap: "20px",
+            marginTop: "30px",
+          }}
+        >
+
+          <DashboardCard
+            title="Total Players"
+            value={totalPlayers}
+          />
+
+          <DashboardCard
+            title="Total Centers"
+            value={totalCenters}
+          />
+
+          <DashboardCard
+            title="Total Batches"
+            value={totalBatches}
+          />
+
+          <DashboardCard
+            title="Today's Attendance"
+            value={todayAttendance}
+          />
+
         </div>
 
-        <button onClick={logoutUser}>
-          Logout
-        </button>
       </div>
 
-      {/* DASHBOARD CARDS */}
+    </Layout>
+  );
+}
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns:
-            "repeat(auto-fit, minmax(250px, 1fr))",
-          gap: "20px",
-        }}
-      >
-        {/* PLAYERS */}
+// =========================================
+// DASHBOARD CARD
+// =========================================
 
-        <div
-          style={{
-            border: "1px solid #ccc",
-            padding: "20px",
-            borderRadius: "10px",
-          }}
-        >
-          <h2>Total Players</h2>
+function DashboardCard({
+  title,
+  value
+}) {
 
-          <h1>{totalPlayers}</h1>
-        </div>
+  return (
 
-        {/* CENTERS */}
+    <div
+      style={{
+        background: "white",
+        padding: "25px",
+        borderRadius: "12px",
+        boxShadow:
+          "0 2px 10px rgba(0,0,0,0.1)",
+      }}
+    >
 
-        <div
-          style={{
-            border: "1px solid #ccc",
-            padding: "20px",
-            borderRadius: "10px",
-          }}
-        >
-          <h2>Total Centers</h2>
+      <h3>
+        {title}
+      </h3>
 
-          <h1>{totalCenters}</h1>
-        </div>
+      <h1>
+        {value}
+      </h1>
 
-        {/* BATCHES */}
-
-        <div
-          style={{
-            border: "1px solid #ccc",
-            padding: "20px",
-            borderRadius: "10px",
-          }}
-        >
-          <h2>Total Batches</h2>
-
-          <h1>{totalBatches}</h1>
-        </div>
-
-        {/* ATTENDANCE */}
-
-        <div
-          style={{
-            border: "1px solid #ccc",
-            padding: "20px",
-            borderRadius: "10px",
-          }}
-        >
-          <h2>Today's Attendance</h2>
-
-          <h1>{todayAttendance}</h1>
-        </div>
-      </div>
     </div>
   );
 }
