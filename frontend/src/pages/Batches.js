@@ -18,14 +18,6 @@ const Batches = () => {
   
   const [user, setUser] = useState(null);
 
-  const loadUserLoggedinUser = async () => {
-
-  const currentUser =
-    await getLoggedInUser();
-
-  setUser(currentUser);
-};
-
   const [centers, setCenters] =
     useState([]);
 
@@ -68,11 +60,6 @@ const [ageGroup, setAgeGroup] =
   "Elite"
 ];
 
-useEffect(() => {
-
-  loadUser();
-
-}, []);
 
 useEffect(() => {
 
@@ -261,6 +248,7 @@ if (
 
   return;
 }
+
 if (
   startTime >= endTime
 ) {
@@ -271,21 +259,13 @@ if (
 
   return;
 }
-{
 
-      alert(
-        "Please fill all fields"
-      );
+let academyId = selectedAcademy;
 
-      return;
-    }
+if (!isSuperAdmin(user)) {
 
-    let academyId = selectedAcademy;
-
-    if (!isSuperAdmin(user)) {
-
-      academyId = getAcademyId(user);
-    }
+  academyId = getAcademyId(user);
+}
 
 const duplicateBatch =
   batches.find(

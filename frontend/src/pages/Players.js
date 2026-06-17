@@ -8,8 +8,11 @@ import {
 import Layout from "../components/Layout";
 
 function Players() {
+ 
   const loggedInUser = getLoggedInUser();
-
+   console.log("IS SUPER ADMIN =", isSuperAdmin());
+console.log("USER =", loggedInUser);
+  
   const [players, setPlayers] = useState([]);
 
   const [academies, setAcademies] = useState([]);
@@ -22,7 +25,12 @@ function Players() {
 
   const [fullName, setFullName] = useState("");
   const [dob, setDob] = useState("");
-  const [phone, setPhone] = useState("");
+  const [gender, setGender] = useState("");
+
+  const [joiningDate, setJoiningDate] = useState(
+  new Date().toISOString().split("T")[0]
+);
+
 
   const [parentName, setParentName] = useState("");
   const [parentPhone, setParentPhone] = useState("");
@@ -35,14 +43,14 @@ function Players() {
 
   const [searchTerm, setSearchTerm] = useState("");
 
-  const [filterCenter, setFilterCenter] = useState("");
-  const [filterBatch, setFilterBatch] = useState("");
-
-  useEffect(() => {
-    fetchAcademies();
-    fetchPlayers();
-  }, []);
-
+useEffect(() => {
+  fetchPlayers();
+}, [
+  selectedAcademy,
+  selectedCenter,
+  selectedBatch,
+  searchTerm
+]);
   useEffect(() => {
     if (selectedAcademy) {
       fetchCenters(selectedAcademy);
@@ -54,6 +62,10 @@ function Players() {
       fetchBatches(selectedCenter);
     }
   }, [selectedCenter]);
+
+  useEffect(() => {
+  fetchAcademies();
+}, []);
 
   const calculateAge = (dob) => {
     if (!dob) return "";
@@ -78,7 +90,9 @@ function Players() {
   };
 
   const fetchAcademies = async () => {
+  
     if (isSuperAdmin()) {
+        console.log("ACADEMIES =", data);
       const { data } = await supabase
         .from("academies")
         .select("*")
@@ -146,6 +160,18 @@ function Players() {
       );
     }
 
+    if (selectedAcademy) {
+  query = query.eq("academy_id", selectedAcademy);
+}
+
+if (selectedCenter) {
+  query = query.eq("center_id", selectedCenter);
+}
+
+if (selectedBatch) {
+  query = query.eq("batch_id", selectedBatch);
+}
+
     const { data } = await query;
 
     setPlayers(data || []);
@@ -162,12 +188,6 @@ function Players() {
       return false;
     }
 
-    if (!/^\d{10}$/.test(phone)) {
-      alert(
-        "Player phone must be exactly 10 digits"
-      );
-      return false;
-    }
 
     if (!/^\d{10}$/.test(parentPhone)) {
       alert(
@@ -219,7 +239,6 @@ function Players() {
             parent_id: parentId,
             full_name: fullName,
             dob: dob,
-            phone: phone,
             is_active: true,
           },
         ])
@@ -260,7 +279,6 @@ function Players() {
 
     setFullName(player.full_name);
     setDob(player.dob || "");
-    setPhone(player.phone || "");
 
     setParentName(
       player.parents?.parent_name || ""
@@ -300,8 +318,7 @@ function Players() {
         center_id: selectedCenter,
         batch_id: selectedBatch,
         full_name: fullName,
-        dob: dob,
-        phone: phone,
+        dob: dob
       })
       .eq("id", editingPlayerId);
 
@@ -338,7 +355,7 @@ function Players() {
       return;
     }
 
-    alert("Player Deleted");
+    alert("Player Deactivated");
 
     fetchPlayers();
   };
@@ -346,7 +363,6 @@ function Players() {
   const resetForm = () => {
     setFullName("");
     setDob("");
-    setPhone("");
 
     setParentName("");
     setParentPhone("");
@@ -365,18 +381,8 @@ function Players() {
           ?.toLowerCase()
           .includes(searchTerm.toLowerCase());
 
-      const matchesCenter = filterCenter
-        ? player.center_id === filterCenter
-        : true;
-
-      const matchesBatch = filterBatch
-        ? player.batch_id === filterBatch
-        : true;
-
       return (
-        matchesSearch &&
-        matchesCenter &&
-        matchesBatch
+        matchesSearch
       );
     }
   );
@@ -404,44 +410,6 @@ return (
 
       <br />
       <br />
-
-      {/* FILTER CENTER */}
-      <select
-        value={filterCenter}
-        onChange={(e) =>
-          setFilterCenter(e.target.value)
-        }
-      >
-        <option value="">All Centers</option>
-
-        {centers.map((center) => (
-          <option
-            key={center.id}
-            value={center.id}
-          >
-            {center.center_name}
-          </option>
-        ))}
-      </select>
-
-      <br />
-      <br />
-
-      {/* FILTER BATCH */}
-      <select
-        value={filterBatch}
-        onChange={(e) =>
-          setFilterBatch(e.target.value)
-        }
-      >
-        <option value="">All Batches</option>
-
-        {batches.map((batch) => (
-          <option key={batch.id} value={batch.id}>
-            {batch.batch_name}
-          </option>
-        ))}
-      </select>
 
       <hr />
 
@@ -553,13 +521,6 @@ return (
       <br />
       <br />
 
-      <input
-        type="text"
-        placeholder="Player Phone"
-        value={phone}
-        onChange={(e) => setPhone(e.target.value)}
-      />
-
       <hr />
 
       <h2>Parent Information</h2>
@@ -634,15 +595,15 @@ return (
 
       <table border="1" width="100%">
         <thead>
-          <tr>
-            <th>Player</th>
-            <th>Academy</th>
-            <th>Center</th>
-            <th>Batch</th>
-            <th>Age</th>
-            <th>Phone</th>
-            <th>Action</th>
-          </tr>
+<tr>
+  <th>Player</th>
+  <th>Academy</th>
+  <th>Center</th>
+  <th>Batch</th>
+  <th>Age</th>
+  <th>Phone</th>
+  <th>Actions</th>
+</tr>
         </thead>
 
         <tbody>
@@ -666,26 +627,20 @@ return (
                 {calculateAge(player.dob)}
               </td>
 
-              <td>{player.phone}</td>
+              <td>{player.parents?.phone}</td>
 
-              <td>
-                <button
-                  onClick={() =>
-                    handleEditPlayer(player)
-                  }
-                >
-                  Edit
-                </button>
+<td>
+  <button onClick={() => handleEditPlayer(player)}>
+    Edit
+  </button>
 
-                <button
-                  onClick={() =>
-                    handleDeletePlayer(player.id)
-                  }
-                  style={{ marginLeft: "10px" }}
-                >
-                  Delete
-                </button>
-              </td>
+  <button
+    onClick={() => handleDeletePlayer(player.id)}
+    style={{ marginLeft: "10px" }}
+  >
+    Deactivate
+  </button>
+</td>
             </tr>
           ))}
         </tbody>
