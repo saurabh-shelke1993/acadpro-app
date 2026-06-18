@@ -8,9 +8,9 @@ import {
 import Layout from "../components/Layout";
 
 function Players() {
- 
-  const loggedInUser = getLoggedInUser();
-   console.log("IS SUPER ADMIN =", isSuperAdmin());
+ const [loggedInUser, setLoggedInUser] =
+  useState(null);
+   console.log("IS SUPER ADMIN =", isSuperAdmin(loggedInUser));
 console.log("USER =", loggedInUser);
   
   const [players, setPlayers] = useState([]);
@@ -44,6 +44,18 @@ console.log("USER =", loggedInUser);
   const [searchTerm, setSearchTerm] = useState("");
 
 useEffect(() => {
+  loadUser();
+}, []);
+
+const loadUser = async () => {
+  const user = await getLoggedInUser();
+
+  console.log("PLAYERS USER =", user);
+
+  setLoggedInUser(user);
+};
+
+useEffect(() => {
   fetchPlayers();
 }, [
   selectedAcademy,
@@ -63,9 +75,11 @@ useEffect(() => {
     }
   }, [selectedCenter]);
 
-  useEffect(() => {
-  fetchAcademies();
-}, []);
+useEffect(() => {
+  if (loggedInUser) {
+    fetchAcademies();
+  }
+}, [loggedInUser]);
 
   const calculateAge = (dob) => {
     if (!dob) return "";
@@ -88,19 +102,25 @@ useEffect(() => {
 
     return age;
   };
-
+  console.log("PLAYERS COMPONENT RENDERED");
   const fetchAcademies = async () => {
-  
-    if (isSuperAdmin()) {
-        console.log("ACADEMIES =", data);
-      const { data } = await supabase
-        .from("academies")
-        .select("*")
-        .eq("is_active", true);
+  if (!loggedInUser) return;
+
+  console.log("FETCHING ACADEMIES");
+
+  if (isSuperAdmin(loggedInUser)) {
+
+const { data, error } = await supabase
+  .from("academies")
+  .select("*")
+  .eq("is_active", true);
+
+console.log("ACADEMIES =", data);
+console.log("ACADEMIES ERROR =", error);
 
       setAcademies(data || []);
     } else {
-      const academyId = getAcademyId();
+      const academyId = getAcademyId(loggedInUser);
 
       const { data } = await supabase
         .from("academies")
@@ -153,11 +173,11 @@ useEffect(() => {
       `)
       .eq("is_active", true);
 
-    if (!isSuperAdmin()) {
+    if (!isSuperAdmin(loggedInUser)) {
       query = query.eq(
         "academy_id",
-        getAcademyId()
-      );
+        getAcademyId(loggedInUser))
+      ;
     }
 
     if (selectedAcademy) {
@@ -188,6 +208,18 @@ if (selectedBatch) {
       return false;
     }
 
+    if (!gender) {
+  alert("Please select gender");
+  return false;
+}
+if (!dob) {
+  alert("Please select Date of Birth");
+  return false;
+}
+if (!joiningDate) {
+  alert("Please select Joining Date");
+  return false;
+}
 
     if (!/^\d{10}$/.test(parentPhone)) {
       alert(
@@ -207,19 +239,20 @@ if (selectedBatch) {
   const handleCreatePlayer = async () => {
     if (!validateForm()) return;
 
-    const { data: parentData, error: parentError } =
-      await supabase
-        .from("parents")
-        .insert([
-          {
-            academy_id: selectedAcademy,
-            parent_name: parentName,
-            phone: parentPhone,
-            email: parentEmail,
-            address: parentAddress,
-          },
-        ])
-        .select();
+const { data: parentData, error: parentError } =
+  await supabase
+    .from("parents")
+    .insert([
+      {
+        academy_id: selectedAcademy,
+        parent_name: parentName,
+        phone: parentPhone,
+        email: parentEmail,
+        address: parentAddress,
+        is_active: true,
+      },
+    ])
+    .select();
 
     if (parentError) {
       alert(parentError.message);
@@ -232,15 +265,19 @@ if (selectedBatch) {
       await supabase
         .from("players")
         .insert([
-          {
-            academy_id: selectedAcademy,
-            center_id: selectedCenter,
-            batch_id: selectedBatch,
-            parent_id: parentId,
-            full_name: fullName,
-            dob: dob,
-            is_active: true,
-          },
+{
+  academy_id: selectedAcademy,
+  center_id: selectedCenter,
+  batch_id: selectedBatch,
+  parent_id: parentId,
+  full_name: fullName,
+  dob: dob,
+  gender: gender,
+  joining_date: joiningDate,
+  player_status: "active",
+  phone: parentPhone,
+  is_active: true,
+},
         ])
         .select();
 
@@ -279,7 +316,8 @@ if (selectedBatch) {
 
     setFullName(player.full_name);
     setDob(player.dob || "");
-
+    setGender(player.gender || "");
+    setJoiningDate(player.joining_date || "");
     setParentName(
       player.parents?.parent_name || ""
     );
@@ -296,31 +334,34 @@ if (selectedBatch) {
   const handleUpdatePlayer = async () => {
     if (!validateForm()) return;
 
-    const { error: parentError } = await supabase
-      .from("parents")
-      .update({
-        parent_name: parentName,
-        phone: parentPhone,
-        email: parentEmail,
-        address: parentAddress,
-      })
-      .eq("id", editingParentId);
+const { error: parentError } = await supabase
+  .from("parents")
+  .update({
+    academy_id: selectedAcademy,
+    parent_name: parentName,
+    phone: parentPhone,
+    email: parentEmail,
+    address: parentAddress
+  })
+  .eq("id", editingParentId);
 
     if (parentError) {
       alert(parentError.message);
       return;
     }
 
-    const { error: playerError } = await supabase
-      .from("players")
-      .update({
-        academy_id: selectedAcademy,
-        center_id: selectedCenter,
-        batch_id: selectedBatch,
-        full_name: fullName,
-        dob: dob
-      })
-      .eq("id", editingPlayerId);
+const { error: playerError } = await supabase
+  .from("players")
+  .update({
+    academy_id: selectedAcademy,
+    center_id: selectedCenter,
+    batch_id: selectedBatch,
+    full_name: fullName,
+    dob: dob,
+    gender: gender,
+    joining_date: joiningDate
+  })
+  .eq("id", editingPlayerId);
 
     if (playerError) {
       alert(playerError.message);
@@ -338,7 +379,7 @@ if (selectedBatch) {
 
   const handleDeletePlayer = async (id) => {
     const confirmed = window.confirm(
-      "Are you sure you want to delete this player?"
+      "Are you sure you want to deactivate this player?"
     );
 
     if (!confirmed) return;
@@ -360,19 +401,27 @@ if (selectedBatch) {
     fetchPlayers();
   };
 
-  const resetForm = () => {
-    setFullName("");
-    setDob("");
+const resetForm = () => {
+  setFullName("");
+  setDob("");
 
-    setParentName("");
-    setParentPhone("");
-    setParentEmail("");
-    setParentAddress("");
+  setGender("");
 
-    setIsEditing(false);
-    setEditingPlayerId(null);
-    setEditingParentId(null);
-  };
+  setJoiningDate(
+    new Date().toISOString().split("T")[0]
+  );
+
+  setParentName("");
+  setParentPhone("");
+  setParentEmail("");
+  setParentAddress("");
+
+  setIsEditing(false);
+  setEditingPlayerId(null);
+  setEditingParentId(null);
+  setSelectedCenter("");
+setSelectedBatch("");
+};
 
   const filteredPlayers = players.filter(
     (player) => {
@@ -424,7 +473,7 @@ return (
           onChange={(e) =>
             setSelectedAcademy(e.target.value)
           }
-          disabled={!isSuperAdmin()}
+          disabled={!isSuperAdmin(loggedInUser)}
         >
           <option value="">
             Select Academy
@@ -512,12 +561,34 @@ return (
       <br />
       <br />
 
-      <input
-        type="date"
-        value={dob}
-        onChange={(e) => setDob(e.target.value)}
-      />
+<div>
+  <label>Date of Birth *</label>
+  <br />
+  <input
+    type="date"
+    value={dob}
+    onChange={(e) => setDob(e.target.value)}
+  />
+</div>
 
+<div>
+  <label>Joining Date *</label>
+  <br />
+  <input
+    type="date"
+    value={joiningDate}
+    onChange={(e) => setJoiningDate(e.target.value)}
+  />
+</div>
+
+<select
+  value={gender}
+  onChange={(e) => setGender(e.target.value)}
+>
+  <option value="">Select Gender</option>
+  <option value="Male">Male</option>
+  <option value="Female">Female</option>
+</select>
       <br />
       <br />
 
@@ -572,15 +643,15 @@ return (
       <br />
       <br />
 
-      {isEditing ? (
-        <button onClick={handleUpdatePlayer}>
-          Update Player
-        </button>
-      ) : (
-        <button onClick={handleCreatePlayer}>
-          Create Player
-        </button>
-      )}
+{isEditing ? (
+  <button onClick={handleUpdatePlayer}>
+    Update Player
+  </button>
+) : (
+  <button onClick={handleCreatePlayer}>
+    Create Player
+  </button>
+)}
 
       <button
         onClick={resetForm}
@@ -594,17 +665,20 @@ return (
       <h2>Players List</h2>
 
       <table border="1" width="100%">
-        <thead>
-<tr>
-  <th>Player</th>
-  <th>Academy</th>
-  <th>Center</th>
-  <th>Batch</th>
-  <th>Age</th>
-  <th>Phone</th>
-  <th>Actions</th>
-</tr>
-        </thead>
+<thead>
+  <tr>
+    <th>Player</th>
+    <th>Academy</th>
+    <th>Center</th>
+    <th>Batch</th>
+    <th>Age</th>
+    <th>Gender</th>
+    <th>Joining Date</th>
+    <th>Status</th>
+    <th>Parent Phone</th>
+    <th>Actions</th>
+  </tr>
+</thead>
 
         <tbody>
           {filteredPlayers.map((player) => (
@@ -626,6 +700,9 @@ return (
               <td>
                 {calculateAge(player.dob)}
               </td>
+              <td>{player.gender}</td>
+<td>{player.joining_date}</td>
+<td>{player.player_status}</td>
 
               <td>{player.parents?.phone}</td>
 

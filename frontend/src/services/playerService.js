@@ -4,6 +4,11 @@ import { supabase } from "./supabase";
 // GET PLAYERS
 // ============================================
 
+export const getAcademies = async () => {}
+export const getCenters = async (academyId) => {}
+export const getBatches = async (centerId) => {}
+export const getNextPlayerCode = async () => {}
+
 export const getPlayers = async (
   academyId = null
 ) => {
