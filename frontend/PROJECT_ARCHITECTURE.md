@@ -53,3 +53,26 @@ src/
 - attendance
 - coaches
 - coach_batch_mapping
+
+### Players Module V4
+
+Features:
+
+* Player CRUD
+* Parent CRUD Integration
+* Academy Filtering
+* Center Filtering
+* Batch Filtering
+* Search
+* Role Based Visibility
+* Soft Delete (is_active)
+* Age Calculation from DOB
+
+Tables Used:
+
+* players
+* parents
+* academies
+* centers
+* batches
+* player_batches

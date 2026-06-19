@@ -1,113 +1,298 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import Layout from "../components/Layout";
+import {
+  getLoggedInUser,
+  isSuperAdmin,
+  getAcademyId
+} from "../utils/auth";
 
 function PlayerSubscriptions() {
 
   const [players, setPlayers] = useState([]);
 
-  const [plans, setPlans] = useState([]);
+const [academies, setAcademies] = useState([]);
+const [centers, setCenters] = useState([]);
+const [batches, setBatches] = useState([]);
 
-  const [selectedPlayer, setSelectedPlayer] = useState("");
+const [selectedAcademy, setSelectedAcademy] = useState("");
+const [selectedCenter, setSelectedCenter] = useState("");
+const [selectedBatch, setSelectedBatch] = useState("");
+const [loggedInUser, setLoggedInUser] = useState(null);
 
-  const [selectedPlayerAcademy, setSelectedPlayerAcademy] = useState("");
+const [plans, setPlans] = useState([]);
 
-  const [selectedPlan, setSelectedPlan] = useState("");
+const [subscriptions, setSubscriptions] = useState([]);
 
-  const [startDate, setStartDate] = useState("");
+const [selectedPlayer, setSelectedPlayer] = useState("");
 
-  const [subscriptions, setSubscriptions] = useState([]);
+const [selectedPlan, setSelectedPlan] = useState("");
 
-  useEffect(() => {
+const [isEditing, setIsEditing] = useState(false);
 
-    fetchPlayers();
+const [editingSubscriptionId,
+  setEditingSubscriptionId] = useState(null);
 
-    fetchPlans();
+const [startDate, setStartDate] = useState(
+  new Date().toISOString().split("T")[0]
+);
 
-    fetchSubscriptions();
+useEffect(() => {
+  fetchAcademies();
+  fetchPlayers();
+  fetchPlans();
+  fetchSubscriptions();
+}, []);
 
-  }, []);
+useEffect(() => {
 
-  const fetchPlayers = async () => {
+  fetchPlayers();
 
-    const { data, error } = await supabase
-      .from("players")
-      .select(`
+}, [
+  selectedAcademy,
+  selectedCenter,
+  selectedBatch
+]);
+
+useEffect(() => {
+  loadUser();
+}, []);
+
+const loadUser = async () => {
+  const user = await getLoggedInUser();
+  console.log("SUBSCRIPTION USER =", user);
+  setLoggedInUser(user);
+};
+
+useEffect(() => {
+
+  if (loggedInUser) {
+    fetchAcademies();
+  }
+
+}, [loggedInUser]);
+
+useEffect(() => {
+
+  if (selectedAcademy) {
+    fetchCenters(selectedAcademy);
+  }
+
+}, [selectedAcademy]);
+
+useEffect(() => {
+
+  if (selectedCenter) {
+    fetchBatches(selectedCenter);
+  }
+
+}, [selectedCenter]);
+
+useEffect(() => {
+
+  fetchSubscriptions();
+
+}, [
+  selectedAcademy,
+  selectedCenter,
+  selectedBatch,
+  selectedPlayer
+]);
+
+const fetchAcademies = async () => {
+
+  if (isSuperAdmin(loggedInUser)) {
+
+    const { data } = await supabase
+      .from("academies")
+      .select("*")
+      .eq("is_active", true);
+
+    setAcademies(data || []);
+
+  } else {
+
+    const academyId = getAcademyId(loggedInUser);
+
+    const { data } = await supabase
+      .from("academies")
+      .select("*")
+      .eq("id", academyId);
+
+    setAcademies(data || []);
+
+    if (data?.length > 0) {
+      setSelectedAcademy(data[0].id);
+    }
+  }
+};
+
+const fetchCenters = async (academyId) => {
+
+  const { data } = await supabase
+    .from("centers")
+    .select("*")
+    .eq("academy_id", academyId)
+    .eq("is_active", true);
+
+  setCenters(data || []);
+};
+
+const fetchBatches = async (centerId) => {
+
+  const { data } = await supabase
+    .from("batches")
+    .select("*")
+    .eq("center_id", centerId)
+    .eq("is_active", true);
+
+  setBatches(data || []);
+};
+
+const fetchPlayers = async () => {
+
+  let query = supabase
+    .from("players")
+    .select(`
+      id,
+      full_name,
+      academy_id,
+      center_id,
+      batch_id
+    `)
+    .eq("is_active", true);
+
+  if (selectedAcademy) {
+    query = query.eq("academy_id", selectedAcademy);
+  }
+
+  if (selectedCenter) {
+    query = query.eq("center_id", selectedCenter);
+  }
+
+  if (selectedBatch) {
+    query = query.eq("batch_id", selectedBatch);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.log(error);
+  } else {
+    setPlayers(data || []);
+  }
+};
+
+const fetchPlans = async () => {
+
+  let query = supabase
+    .from("subscription_plans")
+    .select(`
+      id,
+      academy_id,
+      plan_name,
+      amount
+    `)
+    .eq("is_active", true);
+
+  if (selectedAcademy) {
+    query = query.eq(
+      "academy_id",
+      selectedAcademy
+    );
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.log(error);
+  } else {
+    setPlans(data || []);
+  }
+};
+
+
+const fetchSubscriptions = async () => {
+
+  let query = supabase
+    .from("player_subscriptions")
+    .select(`
+  id,
+  player_id,
+  subscription_plan_id,
+  start_date,
+  end_date,
+  status,
+
+      players (
         id,
         full_name,
         academy_id,
+        center_id,
+        batch_id,
 
         academies (
           academy_name
-        )
-      `);
-
-    if (error) {
-
-      console.log(error);
-
-    } else {
-
-      setPlayers(data);
-
-    }
-  };
-
-  const fetchPlans = async () => {
-
-    const { data, error } = await supabase
-      .from("subscription_plans")
-      .select(`
-        id,
-        academy_id,
-        plan_name,
-        amount,
-
-        academies (
-          academy_name
-        )
-      `);
-
-    if (error) {
-
-      console.log(error);
-
-    } else {
-
-      setPlans(data);
-
-    }
-  };
-
-  const fetchSubscriptions = async () => {
-
-    const { data, error } = await supabase
-      .from("player_subscriptions")
-      .select(`
-        id,
-        start_date,
-        status,
-
-        players (
-          full_name
         ),
 
-        subscription_plans (
-          plan_name,
-          amount
+        centers (
+          center_name
+        ),
+
+        batches (
+          batch_name
         )
-      `);
+      ),
 
-    if (error) {
+      subscription_plans (
+        plan_name,
+        amount
+      )
+    `)
+    .eq("status", "active");
 
-      console.log(error);
+  const { data, error } = await query;
 
-    } else {
+  if (error) {
 
-      setSubscriptions(data);
+    console.log(error);
 
+  } else {
+
+    let filteredData = data || [];
+
+    if (selectedAcademy) {
+      filteredData = filteredData.filter(
+        (item) =>
+          item.players?.academy_id === selectedAcademy
+      );
     }
-  };
+
+    if (selectedCenter) {
+      filteredData = filteredData.filter(
+        (item) =>
+          item.players?.center_id === selectedCenter
+      );
+    }
+
+    if (selectedBatch) {
+      filteredData = filteredData.filter(
+        (item) =>
+          item.players?.batch_id === selectedBatch
+      );
+    }
+
+    if (selectedPlayer) {
+      filteredData = filteredData.filter(
+        (item) =>
+          item.players?.id === selectedPlayer
+      );
+    }
+
+    setSubscriptions(filteredData);
+  }
+};
+
 
   const createSubscription = async () => {
 
@@ -121,6 +306,21 @@ function PlayerSubscriptions() {
 
       return;
     }
+
+    const { data: existingSubscription } =
+  await supabase
+    .from("player_subscriptions")
+    .select("id")
+    .eq("player_id", selectedPlayer)
+    .eq("subscription_plan_id", selectedPlan)
+    .eq("status", "active");
+
+    if (existingSubscription?.length > 0) {
+  alert(
+    "Player already has this active subscription"
+  );
+  return;
+}
 
     const { error } = await supabase
       .from("player_subscriptions")
@@ -148,8 +348,6 @@ function PlayerSubscriptions() {
 
       setSelectedPlayer("");
 
-      setSelectedPlayerAcademy("");
-
       setSelectedPlan("");
 
       setStartDate("");
@@ -158,10 +356,210 @@ function PlayerSubscriptions() {
     }
   };
 
+const handleEditSubscription = (
+  subscription
+) => {
+
+  setIsEditing(true);
+
+  setEditingSubscriptionId(
+    subscription.id
+  );
+
+  setSelectedPlayer(
+    subscription.player_id
+  );
+
+  setSelectedPlan(
+    subscription.subscription_plan_id
+  );
+
+  setStartDate(
+    subscription.start_date
+  );
+};
+  
+const handleUpdateSubscription = async () => {
+
+  const { error } = await supabase
+    .from("player_subscriptions")
+    .update({
+      player_id: selectedPlayer,
+      subscription_plan_id:
+        selectedPlan,
+      start_date: startDate
+    })
+    .eq(
+      "id",
+      editingSubscriptionId
+    );
+
+  if (error) {
+
+    alert(error.message);
+
+  } else {
+
+    alert(
+      "Subscription Updated Successfully"
+    );
+
+    setIsEditing(false);
+
+    setEditingSubscriptionId(null);
+
+    setSelectedPlayer("");
+
+    setSelectedPlan("");
+
+    setStartDate("");
+
+    fetchSubscriptions();
+  }
+};
+
+const handleDeactivateSubscription =
+  async (id) => {
+
+    const confirmed =
+      window.confirm(
+        "Deactivate this subscription?"
+      );
+
+    if (!confirmed) return;
+
+    const { error } =
+      await supabase
+        .from(
+          "player_subscriptions"
+        )
+        .update({
+          status: "inactive"
+        })
+        .eq("id", id);
+
+    if (error) {
+
+      alert(error.message);
+
+    } else {
+
+      alert(
+        "Subscription Deactivated"
+      );
+
+      fetchSubscriptions();
+    }
+};
+
 return (
   <Layout>
     <div style={{ padding: "20px" }}>
       <h1>Player Subscriptions</h1>
+{/* Academy */}
+
+{isSuperAdmin(loggedInUser) && (
+
+  <>
+    <select
+      value={selectedAcademy}
+      onChange={(e) =>
+        setSelectedAcademy(
+          e.target.value
+        )
+      }
+    >
+
+      <option value="">
+        Select Academy
+      </option>
+
+      {academies.map((academy) => (
+
+        <option
+          key={academy.id}
+          value={academy.id}
+        >
+
+          {academy.academy_name}
+
+        </option>
+
+      ))}
+
+    </select>
+
+    <br />
+    <br />
+  </>
+
+)}
+
+{/* Center */}
+
+<select
+  value={selectedCenter}
+  onChange={(e) =>
+    setSelectedCenter(
+      e.target.value
+    )
+  }
+>
+
+  <option value="">
+    Select Center
+  </option>
+
+  {centers.map((center) => (
+
+    <option
+      key={center.id}
+      value={center.id}
+    >
+
+      {center.center_name}
+
+    </option>
+
+  ))}
+
+</select>
+
+<br />
+<br />
+
+{/* Batch */}
+
+<select
+  value={selectedBatch}
+  onChange={(e) =>
+    setSelectedBatch(
+      e.target.value
+    )
+  }
+>
+
+  <option value="">
+    Select Batch
+  </option>
+
+  {batches.map((batch) => (
+
+    <option
+      key={batch.id}
+      value={batch.id}
+    >
+
+      {batch.batch_name}
+
+    </option>
+
+  ))}
+
+</select>
+
+<br />
+<br />
 
       {/* Player Dropdown */}
 
@@ -174,18 +572,6 @@ return (
 
           setSelectedPlayer(playerId);
 
-          const selectedPlayerData =
-            players.find(
-              (player) =>
-                player.id === playerId
-            );
-
-          if (selectedPlayerData) {
-
-            setSelectedPlayerAcademy(
-              selectedPlayerData.academy_id
-            );
-          }
         }}
       >
 
@@ -202,13 +588,6 @@ return (
             >
 
               {player.full_name}
-
-              {" - "}
-
-              {
-                player.academies
-                ?.academy_name
-              }
 
             </option>
 
@@ -237,11 +616,7 @@ return (
 
         {
           plans
-            .filter(
-              (plan) =>
-                plan.academy_id ===
-                selectedPlayerAcademy
-            )
+
             .map((plan) => (
 
               <option
@@ -256,13 +631,6 @@ return (
                 {" - ₹"}
 
                 {plan.amount}
-
-                {" - "}
-
-                {
-                  plan.academies
-                  ?.academy_name
-                }
 
               </option>
 
@@ -289,11 +657,25 @@ return (
       <br />
       <br />
 
-      <button
-        onClick={createSubscription}
-      >
-        Create Subscription
-      </button>
+{isEditing ? (
+
+  <button
+    onClick={
+      handleUpdateSubscription
+    }
+  >
+    Update Subscription
+  </button>
+
+) : (
+
+  <button
+    onClick={createSubscription}
+  >
+    Create Subscription
+  </button>
+
+)}
 
       <hr />
       <br />
@@ -313,18 +695,29 @@ return (
 
           <tr>
 
-            <th>Player</th>
+  {isSuperAdmin(loggedInUser) && (
+    <th>Academy</th>
+  )}
 
-            <th>Plan</th>
+  <th>Center</th>
 
-            <th>Amount</th>
+  <th>Batch</th>
 
-            <th>Start Date</th>
+  <th>Player</th>
 
-            <th>Status</th>
+  <th>Plan</th>
 
-          </tr>
+  <th>Amount</th>
 
+  <th>Start Date</th>
+
+  <th>End Date</th>
+
+  <th>Status</th>
+
+  <th>Actions</th>
+
+</tr>
         </thead>
 
         <tbody>
@@ -333,16 +726,42 @@ return (
             subscriptions.map(
               (subscription) => (
 
-                <tr
-                  key={subscription.id}
-                >
+<tr
+  key={subscription.id}
+>
 
-                  <td>
-                    {
-                      subscription.players
-                      ?.full_name
-                    }
-                  </td>
+  {isSuperAdmin(loggedInUser) && (
+    <td>
+      {
+        subscription.players
+          ?.academies
+          ?.academy_name
+      }
+    </td>
+  )}
+
+  <td>
+    {
+      subscription.players
+        ?.centers
+        ?.center_name
+    }
+  </td>
+
+  <td>
+    {
+      subscription.players
+        ?.batches
+        ?.batch_name
+    }
+  </td>
+
+  <td>
+    {
+      subscription.players
+        ?.full_name
+    }
+  </td>
 
                   <td>
                     {
@@ -368,11 +787,40 @@ return (
                     }
                   </td>
 
+                  <td>{subscription.end_date || "-"}</td>
+
                   <td>
                     {
                       subscription.status
                     }
                   </td>
+
+                  <td>
+
+  <button
+    onClick={() =>
+      handleEditSubscription(
+        subscription
+      )
+    }
+  >
+    Edit
+  </button>
+
+  <button
+    onClick={() =>
+      handleDeactivateSubscription(
+        subscription.id
+      )
+    }
+    style={{
+      marginLeft: "10px"
+    }}
+  >
+    Deactivate
+  </button>
+
+</td>
 
                 </tr>
 

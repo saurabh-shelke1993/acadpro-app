@@ -4,6 +4,7 @@ import Layout from "../components/Layout";
 
 function PaymentDues() {
 
+
   const [subscriptions, setSubscriptions] = useState([]);
 
   const [selectedSubscription, setSelectedSubscription] = useState("");
@@ -16,13 +17,12 @@ function PaymentDues() {
 
   const [duesList, setDuesList] = useState([]);
 
-  useEffect(() => {
+useEffect(() => {
+  fetchSubscriptions();
+  fetchPaymentDues();
+}, []);
 
-    fetchSubscriptions();
 
-    fetchPaymentDues();
-
-  }, []);
 
   const fetchSubscriptions = async () => {
 
@@ -104,6 +104,31 @@ function PaymentDues() {
     const amount =
       selectedSubscriptionData
       .subscription_plans.amount;
+
+      const { data: existingDue } =
+  await supabase
+    .from("payment_dues")
+    .select("id")
+    .eq(
+      "subscription_id",
+      selectedSubscription
+    )
+    .eq(
+      "due_date",
+      dueDate
+    );
+
+    if (
+  existingDue &&
+  existingDue.length > 0
+) {
+
+  alert(
+    "Due already exists for this subscription"
+  );
+
+  return;
+}
 
     const { error } = await supabase
       .from("payment_dues")
@@ -226,16 +251,28 @@ return (
 
       {/* Due Type */}
 
-      <input
-        type="text"
-        placeholder="Due Type"
-        value={dueType}
-        onChange={(e) =>
-          setDueType(
-            e.target.value
-          )
-        }
-      />
+<select
+  value={dueType}
+  onChange={(e) =>
+    setDueType(e.target.value)
+  }
+>
+  <option value="">
+    Select Due Type
+  </option>
+
+  <option value="monthly">
+    Monthly
+  </option>
+
+  <option value="quarterly">
+    Quarterly
+  </option>
+
+  <option value="registration">
+    Registration
+  </option>
+</select>
 
       <br />
       <br />
@@ -304,36 +341,19 @@ return (
 
               <tr key={due.id}>
 
-                <td>
-                  {
-                    due.players
-                    ?.full_name
-                  }
-                </td>
+                <td>{due.players?.full_name}</td>
 
-                <td>
-                  {due.due_type}
-                </td>
+<td>{due.due_type}</td>
 
-                <td>
-                  {due.due_date}
-                </td>
+<td>{due.due_date}</td>
 
-                <td>
-                  ₹ {due.total_amount}
-                </td>
+<td>₹ {due.total_amount}</td>
 
-                <td>
-                  ₹ {due.paid_amount}
-                </td>
+<td>₹ {due.paid_amount}</td>
 
-                <td>
-                  ₹ {due.remaining_amount}
-                </td>
+<td>₹ {due.remaining_amount}</td>
 
-                <td>
-                  {due.due_status}
-                </td>
+<td>{due.due_status}</td>
 
               </tr>
 
