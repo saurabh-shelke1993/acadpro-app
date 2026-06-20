@@ -4,7 +4,15 @@ import Layout from "../components/Layout";
 
 function PaymentDues() {
 
+  const [academies, setAcademies] = useState([]);
+const [centers, setCenters] = useState([]);
+const [batches, setBatches] = useState([]);
+const [players, setPlayers] = useState([]);
 
+const [selectedAcademy, setSelectedAcademy] = useState("");
+const [selectedCenter, setSelectedCenter] = useState("");
+const [selectedBatch, setSelectedBatch] = useState("");
+const [selectedPlayer, setSelectedPlayer] = useState("");
   const [subscriptions, setSubscriptions] = useState([]);
 
   const [selectedSubscription, setSelectedSubscription] = useState("");
@@ -17,12 +25,112 @@ function PaymentDues() {
 
   const [duesList, setDuesList] = useState([]);
 
+  const [editingDue, setEditingDue] =
+  useState(null);
+
+const [editDueDate, setEditDueDate] =
+  useState("");
+
+const [editDueType, setEditDueType] =
+  useState("");
+
+const [statusFilter, setStatusFilter] =
+  useState("");
+
 useEffect(() => {
-  fetchSubscriptions();
+  fetchAcademies();
   fetchPaymentDues();
-}, []);
 
+}, [statusFilter]);
 
+useEffect(() => {
+
+  if (selectedAcademy) {
+
+    fetchCenters(selectedAcademy);
+
+  } else {
+
+    setCenters([]);
+    setSelectedCenter("");
+
+  }
+
+}, [selectedAcademy]);
+
+useEffect(() => {
+
+  if (selectedCenter) {
+
+    fetchBatches(selectedCenter);
+
+  } else {
+
+    setBatches([]);
+    setSelectedBatch("");
+
+  }
+
+}, [selectedCenter]);
+
+useEffect(() => {
+
+  if (selectedBatch) {
+
+    fetchPlayers(selectedBatch);
+
+  } else {
+
+    setPlayers([]);
+    setSelectedPlayer("");
+
+  }
+
+}, [selectedBatch]);
+
+useEffect(() => {
+
+  if (selectedPlayer) {
+
+    fetchSubscriptionsByPlayer(
+      selectedPlayer
+    );
+
+  } else {
+
+    setSubscriptions([]);
+
+    setSelectedSubscription("");
+
+    setSelectedSubscriptionData(
+      null
+    );
+
+  }
+
+}, [selectedPlayer]);
+
+useEffect(() => {
+
+  if (selectedPlayer) {
+
+    fetchPaymentDues(
+      selectedPlayer
+    );
+
+  } else {
+
+    fetchPaymentDues();
+
+  }
+
+}, [
+  selectedAcademy,
+  selectedCenter,
+  selectedBatch,
+  selectedPlayer,
+  statusFilter
+]);
 
   const fetchSubscriptions = async () => {
 
@@ -53,37 +161,213 @@ useEffect(() => {
     }
   };
 
-  const fetchPaymentDues = async () => {
+  const fetchAcademies = async () => {
 
-    const { data, error } = await supabase
-      .from("payment_dues")
+  const { data, error } = await supabase
+    .from("academies")
+    .select("id, academy_name")
+    .order("academy_name");
+
+  if (error) {
+
+    console.log(error);
+
+  } else {
+
+    setAcademies(data);
+
+  }
+};
+
+const fetchCenters = async (academyId) => {
+
+  const { data, error } = await supabase
+    .from("centers")
+    .select("id, center_name")
+    .eq("academy_id", academyId)
+    .order("center_name");
+
+  if (error) {
+
+    console.log(error);
+
+  } else {
+
+    setCenters(data);
+
+  }
+};
+
+const fetchBatches = async (centerId) => {
+
+  const { data, error } = await supabase
+    .from("batches")
+    .select("id, batch_name")
+    .eq("center_id", centerId)
+    .order("batch_name");
+
+  if (error) {
+
+    console.log(error);
+
+  } else {
+
+    setBatches(data);
+
+  }
+};
+
+const fetchPlayers = async (batchId) => {
+
+  const { data, error } = await supabase
+    .from("players")
+    .select(`
+      id,
+      full_name
+    `)
+    .eq("batch_id", batchId)
+    .order("full_name");
+
+  if (error) {
+
+    console.log(error);
+
+  } else {
+
+    setPlayers(data);
+
+  }
+};
+
+
+const fetchSubscriptionsByPlayer = async (
+  playerId
+) => {
+
+  const { data, error } =
+    await supabase
+      .from("player_subscriptions")
       .select(`
         id,
-        due_type,
-        due_date,
-        total_amount,
-        paid_amount,
-        remaining_amount,
-        due_status,
+        player_id,
 
         players (
           full_name
+        ),
+
+        subscription_plans (
+          plan_name,
+          amount
         )
       `)
-      .order("due_date", {
+      .eq("player_id", playerId);
+
+  if (error) {
+
+    console.log(error);
+
+  } else {
+
+    setSubscriptions(data);
+
+  }
+};
+
+
+const fetchPaymentDues = async (
+  playerId = null
+) => {
+
+  let query = supabase
+    .from("payment_dues")
+    .select(`
+      id,
+      due_type,
+      due_date,
+      total_amount,
+      paid_amount,
+      remaining_amount,
+    due_status,
+
+player_subscriptions (
+  subscription_plans (
+    plan_name
+  )
+),
+
+players (
+  id,
+  full_name,
+  academy_id,
+  center_id,
+  batch_id,
+
+  academies (
+    academy_name
+  )
+
+)
+    `);
+
+  if (playerId) {
+
+    query = query.eq(
+      "player_id",
+      playerId
+    );
+
+}
+
+
+
+  const { data, error } =
+    await query.order(
+      "due_date",
+      {
         ascending: false
-      });
+      }
+    );
 
-    if (error) {
+  if (error) {
 
-      console.log(error);
+    console.log(error);
 
-    } else {
+  } else {
+ let filteredData = data || [];
+ if (selectedAcademy) {
 
-      setDuesList(data);
+  filteredData =
+    filteredData.filter(
+      (due) =>
+        due.players?.academy_id ===
+        selectedAcademy
+    );
 
-    }
-  };
+}
+console.log(
+  "STATUS FILTER:",
+  statusFilter
+);
+
+if (statusFilter) {
+
+  filteredData =
+    filteredData.filter(
+      (due) =>
+        due.due_status ===
+        statusFilter.toLowerCase()
+    );
+console.log(
+  "FILTERED DATA:",
+  filteredData
+);
+}
+
+   setDuesList(filteredData);
+
+  }
+
+};
 
   const createPaymentDue = async () => {
 
@@ -161,23 +445,274 @@ useEffect(() => {
         "Payment Due Generated Successfully"
       );
 
-      setSelectedSubscription("");
+setSelectedAcademy("");
+setSelectedCenter("");
+setSelectedBatch("");
+setSelectedPlayer("");
 
-      setSelectedSubscriptionData(null);
+setSubscriptions([]);
+setSelectedSubscription("");
+setSelectedSubscriptionData(null);
 
-      setDueType("");
+setDueType("");
+setDueDate("");
 
-      setDueDate("");
-
-      fetchPaymentDues();
+fetchPaymentDues();
     }
   };
+
+const recordPayment = async (due) => {
+
+  const amountPaid = prompt(
+    `Enter payment amount (Remaining ₹${due.remaining_amount})`
+  );
+
+  if (!amountPaid) return;
+
+  const paymentValue = Number(amountPaid);
+
+  if (
+    isNaN(paymentValue) ||
+    paymentValue <= 0
+  ) {
+    alert("Invalid amount");
+    return;
+  }
+
+  const newPaidAmount =
+    Number(due.paid_amount || 0) +
+    paymentValue;
+
+  const newRemainingAmount =
+    Number(due.total_amount) -
+    newPaidAmount;
+
+  let newStatus = "pending";
+
+  if (newRemainingAmount <= 0) {
+
+    newStatus = "paid";
+
+  } else if (
+    newPaidAmount > 0
+  ) {
+
+    newStatus = "partial";
+
+  }
+
+const { error } = await supabase
+  .from("payment_dues")
+  .update({
+    paid_amount: newPaidAmount,
+    due_status: newStatus
+  })
+  .eq("id", due.id);
+
+  if (error) {
+
+    console.log(error);
+    alert(error.message);
+console.log(error);
+
+  } else {
+
+    fetchPaymentDues();
+
+  }
+};
+
+
+const markAsPaid = async (
+  dueId
+) => {
+
+  const due =
+    duesList.find(
+      d => d.id === dueId
+    );
+
+  if (!due) return;
+
+  const { error } =
+    await supabase
+      .from("payment_dues")
+      .update({
+        paid_amount:
+          due.total_amount,
+
+        due_status:
+          "paid"
+      })
+      .eq(
+        "id",
+        dueId
+      );
+
+  if (error) {
+
+    alert(error.message);
+
+  } else {
+
+    alert(
+      "Payment marked as paid"
+    );
+
+    fetchPaymentDues();
+  }
+};
+
+const startEdit = (due) => {
+
+  setEditingDue(due);
+
+  setEditDueDate(
+    due.due_date
+  );
+
+  setEditDueType(
+    due.due_type
+  );
+
+};
+
+const saveEdit = async () => {
+
+  const { error } =
+    await supabase
+      .from("payment_dues")
+      .update({
+
+        due_date:
+          editDueDate,
+
+        due_type:
+          editDueType
+
+      })
+      .eq(
+        "id",
+        editingDue.id
+      );
+
+  if (error) {
+
+    alert(error.message);
+
+  } else {
+
+    setEditingDue(null);
+
+    fetchPaymentDues();
+
+  }
+
+};
 
 return (
   <Layout>
     <div style={{ padding: "20px" }}>
       <h1>Payment Dues</h1>
+      {/* Academy */}
 
+<select
+  value={selectedAcademy}
+  onChange={(e) =>
+    setSelectedAcademy(e.target.value)
+  }
+>
+  <option value="">
+    Select Academy
+  </option>
+
+  {academies.map((academy) => (
+    <option
+      key={academy.id}
+      value={academy.id}
+    >
+      {academy.academy_name}
+    </option>
+  ))}
+</select>
+
+<br />
+<br />
+
+{/* Center */}
+
+<select
+  value={selectedCenter}
+  onChange={(e) =>
+    setSelectedCenter(e.target.value)
+  }
+>
+  <option value="">
+    Select Center
+  </option>
+
+  {centers.map((center) => (
+    <option
+      key={center.id}
+      value={center.id}
+    >
+      {center.center_name}
+    </option>
+  ))}
+</select>
+
+<br />
+<br />
+
+{/* Batch */}
+
+<select
+  value={selectedBatch}
+  onChange={(e) =>
+    setSelectedBatch(e.target.value)
+  }
+>
+  <option value="">
+    Select Batch
+  </option>
+
+  {batches.map((batch) => (
+    <option
+      key={batch.id}
+      value={batch.id}
+    >
+      {batch.batch_name}
+    </option>
+  ))}
+</select>
+
+<br />
+<br />
+
+{/* Player */}
+
+<select
+  value={selectedPlayer}
+  onChange={(e) =>
+    setSelectedPlayer(e.target.value)
+  }
+>
+  <option value="">
+    Select Player
+  </option>
+
+  {players.map((player) => (
+    <option
+      key={player.id}
+      value={player.id}
+    >
+      {player.full_name}
+    </option>
+  ))}
+</select>
+
+<br />
+<br />
       {/* Subscription Dropdown */}
 
       <select
@@ -300,8 +835,38 @@ return (
 
       <hr />
       <br />
+      
+      
+   <h2>Payment Dues List</h2>
 
-      <h2>Payment Dues List</h2>
+<div style={{ marginBottom: "10px" }}>
+
+  <select
+    value={statusFilter}
+    onChange={(e) =>
+      setStatusFilter(e.target.value)
+    }
+  >
+
+    <option value="">
+      All Statuses
+    </option>
+
+    <option value="pending">
+      Pending
+    </option>
+
+    <option value="partial">
+      Partial
+    </option>
+
+    <option value="paid">
+      Paid
+    </option>
+
+  </select>
+
+</div>
 
       <table
         border="1"
@@ -316,9 +881,15 @@ return (
 
           <tr>
 
-            <th>Player</th>
+<th>Academy</th>
 
-            <th>Due Type</th>
+<th>Center</th>
+
+<th>Player</th>
+
+<th>Plan</th>
+
+<th>Due Type</th>
 
             <th>Due Date</th>
 
@@ -330,6 +901,8 @@ return (
 
             <th>Status</th>
 
+            <th>Actions</th>
+
           </tr>
 
         </thead>
@@ -339,11 +912,37 @@ return (
           {
             duesList.map((due) => (
 
-              <tr key={due.id}>
+  <tr key={due.id}>
+<td>
+  {
+    due.players?.academies
+      ?.academy_name
+  }
+</td>
 
-                <td>{due.players?.full_name}</td>
+<td>
+  {
+    due.players?.centers
+      ?.center_name
+  }
+</td>
+
+<td>
+  {
+    due.players?.full_name
+  }
+</td>
+
+<td>
+  {
+    due.player_subscriptions
+      ?.subscription_plans
+      ?.plan_name
+  }
+</td>
 
 <td>{due.due_type}</td>
+
 
 <td>{due.due_date}</td>
 
@@ -353,7 +952,39 @@ return (
 
 <td>₹ {due.remaining_amount}</td>
 
-<td>{due.due_status}</td>
+<td>
+
+  {due.due_status === "paid" && "✅ Paid"}
+
+  {due.due_status === "partial" && "🟡 Partial"}
+
+  {due.due_status === "pending" && "🔴 Pending"}
+
+</td>
+
+<td>
+
+{due.due_status !== "paid" && (
+
+  <button
+    onClick={() =>
+      recordPayment(due)
+    }
+  >
+    Record Payment
+  </button>
+
+)}
+
+  <button
+    onClick={() =>
+      startEdit(due)
+    }
+  >
+    Edit
+  </button>
+
+</td>
 
               </tr>
 
@@ -365,6 +996,91 @@ return (
       </table>
 
     </div>
+    {editingDue && (
+
+  <div
+    style={{
+      position: "fixed",
+      top: "30%",
+      left: "40%",
+      background: "white",
+      padding: "20px",
+      border: "1px solid black",
+      zIndex: 9999
+    }}
+  >
+
+    <h3>Edit Due</h3>
+
+    <div>
+
+      <label>Due Date</label>
+
+      <br />
+
+      <input
+        type="date"
+        value={editDueDate}
+        onChange={(e) =>
+          setEditDueDate(
+            e.target.value
+          )
+        }
+      />
+
+    </div>
+
+    <br />
+
+    <div>
+
+      <label>Due Type</label>
+
+      <br />
+
+      <select
+        value={editDueType}
+        onChange={(e) =>
+          setEditDueType(
+            e.target.value
+          )
+        }
+      >
+        <option value="monthly">
+          Monthly
+        </option>
+
+        <option value="quarterly">
+          Quarterly
+        </option>
+
+        <option value="registration">
+          Registration
+        </option>
+
+      </select>
+
+    </div>
+
+    <br />
+
+    <button
+      onClick={saveEdit}
+    >
+      Save
+    </button>
+
+    <button
+      onClick={() =>
+        setEditingDue(null)
+      }
+    >
+      Cancel
+    </button>
+
+  </div>
+
+)}
   </Layout>
 );
 }

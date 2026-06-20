@@ -45,9 +45,30 @@
 * Coaches Module
 * Coach Batch Mapping
 
-## In Progress
 
 * Player Subscriptions
+## In Progress
+
+## Completed
+
+- Payment Dues V1
+  - Subscription selection
+  - Due Type selection
+  - Due Date selection
+  - Generate Due
+  - Duplicate Due Prevention
+  - Pending Status
+  - Remaining Amount Calculation
+
+## In Progress
+
+- Payment Dues V1.1
+  - Academy Filter
+  - Center Filter
+  - Batch Filter
+  - Player Filter
+  - Subscription Filter
+
 
 ## Pending
 

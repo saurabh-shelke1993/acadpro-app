@@ -76,3 +76,21 @@ Tables Used:
 * centers
 * batches
 * player_batches
+
+## Financial Module
+### Payment Dues
+
+Purpose:
+Track subscription-based dues for players.
+
+Current Features:
+- Manual Due Generation
+- Duplicate Prevention
+- Pending Status Tracking
+- Remaining Amount Calculation
+
+Planned:
+- Academy/Center/Batch/Player Filters
+- Mark Paid
+- Edit Due
+- Automated Monthly Due Generation
