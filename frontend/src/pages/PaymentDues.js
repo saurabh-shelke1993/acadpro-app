@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import Layout from "../components/Layout";
+import {
+  getLoggedInUser,
+  isSuperAdmin
+} from "../utils/auth";
 
 function PaymentDues() {
 
@@ -37,11 +41,20 @@ const [editDueType, setEditDueType] =
 const [statusFilter, setStatusFilter] =
   useState("");
 
+ const [loggedInUser, setLoggedInUser] =
+  useState(null); 
+
 useEffect(() => {
   fetchAcademies();
   fetchPaymentDues();
 
-}, [statusFilter]);
+},[
+  statusFilter,
+  selectedAcademy,
+  selectedCenter,
+  selectedBatch,
+  selectedPlayer
+]);
 
 useEffect(() => {
 
@@ -112,24 +125,25 @@ useEffect(() => {
 
 useEffect(() => {
 
-  if (selectedPlayer) {
+  fetchLoggedInUser();
 
-    fetchPaymentDues(
-      selectedPlayer
-    );
+}, []);
 
-  } else {
+useEffect(() => {
 
-    fetchPaymentDues();
+  if (!loggedInUser) return;
 
-  }
+  fetchAcademies();
+
+  fetchPaymentDues();
 
 }, [
+  loggedInUser,
+  statusFilter,
   selectedAcademy,
   selectedCenter,
   selectedBatch,
-  selectedPlayer,
-  statusFilter
+  selectedPlayer
 ]);
 
   const fetchSubscriptions = async () => {
@@ -161,12 +175,45 @@ useEffect(() => {
     }
   };
 
-  const fetchAcademies = async () => {
+  const fetchLoggedInUser =
+async () => {
 
-  const { data, error } = await supabase
+  const user =
+    await getLoggedInUser();
+
+  setLoggedInUser(user);
+
+};
+
+  const fetchAcademies =
+async () => {
+
+  if (!loggedInUser)
+    return;
+let query =
+  supabase
     .from("academies")
-    .select("id, academy_name")
-    .order("academy_name");
+    .select("id, academy_name");
+
+if (
+  loggedInUser &&
+  !isSuperAdmin(loggedInUser)
+) {
+
+  query =
+    query.eq(
+      "id",
+      loggedInUser.academy_id
+    );
+
+}
+
+const {
+  data,
+  error
+} = await query.order(
+  "academy_name"
+);
 
   if (error) {
 
@@ -296,16 +343,23 @@ player_subscriptions (
 ),
 
 players (
-  id,
-  full_name,
-  academy_id,
-  center_id,
-  batch_id,
+    id,
+    full_name,
+    academy_id,
+    center_id,
+    batch_id,
 
-  academies (
-    academy_name
-  )
+    academies (
+        academy_name
+    ),
 
+    centers (
+        center_name
+    ),
+
+    batches (
+        batch_name
+    )
 )
     `);
 
@@ -317,8 +371,6 @@ players (
     );
 
 }
-
-
 
   const { data, error } =
     await query.order(
@@ -334,16 +386,66 @@ players (
 
   } else {
  let filteredData = data || [];
- if (selectedAcademy) {
 
-  filteredData =
-    filteredData.filter(
-      (due) =>
-        due.players?.academy_id ===
-        selectedAcademy
-    );
+ if (loggedInUser) {
+
+  if (isSuperAdmin(loggedInUser)) {
+
+    if (selectedAcademy) {
+
+      filteredData =
+        filteredData.filter(
+          due =>
+            due.players?.academy_id ===
+            selectedAcademy
+        );
+
+    }
+
+  } else {
+
+    filteredData =
+      filteredData.filter(
+        due =>
+          due.players?.academy_id ===
+          loggedInUser.academy_id
+      );
+
+  }
 
 }
+
+
+if (selectedCenter) {
+
+  filteredData = filteredData.filter(
+    (due) =>
+      due.players?.center_id ===
+      selectedCenter
+  );
+
+}
+
+if (selectedBatch) {
+
+  filteredData = filteredData.filter(
+    (due) =>
+      due.players?.batch_id ===
+      selectedBatch
+  );
+
+}
+
+if (selectedPlayer) {
+
+  filteredData = filteredData.filter(
+    (due) =>
+      due.players?.id ===
+      selectedPlayer
+  );
+
+}
+
 console.log(
   "STATUS FILTER:",
   statusFilter
@@ -608,6 +710,44 @@ const saveEdit = async () => {
 
   }
 
+};
+
+const deleteDue = async (due) => {
+
+  const confirmDelete =
+    window.confirm(
+      "Are you sure you want to delete this due?"
+    );
+
+if (!confirmDelete) return;
+
+if (
+  Number(due.paid_amount) > 0
+) {
+  alert(
+    "Cannot delete a due that already has payments recorded."
+  );
+  return;
+}
+
+  const { error } =
+    await supabase
+      .from("payment_dues")
+      .delete()
+      .eq("id", due.id);
+
+  if (error) {
+
+    console.log(error);
+
+    alert("Failed to delete due");
+
+  } else {
+
+    alert("Due deleted successfully");
+
+    fetchPaymentDues();
+  }
 };
 
 return (
@@ -913,25 +1053,14 @@ return (
             duesList.map((due) => (
 
   <tr key={due.id}>
-<td>
-  {
-    due.players?.academies
-      ?.academy_name
-  }
-</td>
 
-<td>
-  {
-    due.players?.centers
-      ?.center_name
-  }
-</td>
+<td>{due.players?.academies?.academy_name}</td>
 
-<td>
-  {
-    due.players?.full_name
-  }
-</td>
+<td>{due.players?.centers?.center_name}</td>
+
+<td>{due.players?.batches?.batch_name}</td>
+
+<td>{due.players?.full_name}</td>
 
 <td>
   {
@@ -975,7 +1104,7 @@ return (
   </button>
 
 )}
-
+  
   <button
     onClick={() =>
       startEdit(due)
@@ -983,6 +1112,14 @@ return (
   >
     Edit
   </button>
+
+  <button
+  onClick={() =>
+    deleteDue(due)
+  }
+>
+  Delete
+</button>
 
 </td>
 

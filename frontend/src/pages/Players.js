@@ -44,25 +44,19 @@ console.log("USER =", loggedInUser);
   const [searchTerm, setSearchTerm] = useState("");
 
 useEffect(() => {
-  loadUser();
+  fetchLoggedInUser();
 }, []);
 
-const loadUser = async () => {
-  const user = await getLoggedInUser();
+const fetchLoggedInUser =
+async () => {
 
-  console.log("PLAYERS USER =", user);
+  const user =
+    await getLoggedInUser();
 
   setLoggedInUser(user);
+
 };
 
-useEffect(() => {
-  fetchPlayers();
-}, [
-  selectedAcademy,
-  selectedCenter,
-  selectedBatch,
-  searchTerm
-]);
   useEffect(() => {
     if (selectedAcademy) {
       fetchCenters(selectedAcademy);
@@ -76,10 +70,19 @@ useEffect(() => {
   }, [selectedCenter]);
 
 useEffect(() => {
-  if (loggedInUser) {
-    fetchAcademies();
-  }
-}, [loggedInUser]);
+
+  if (!loggedInUser) return;
+
+  fetchAcademies();
+  fetchPlayers();
+
+}, [
+  loggedInUser,
+  selectedAcademy,
+  selectedCenter,
+  selectedBatch,
+  searchTerm
+]);
 
   const calculateAge = (dob) => {
     if (!dob) return "";

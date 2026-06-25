@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { supabase } from "../supabaseClient";
 import Layout from "../components/Layout";
+import { supabase } from "../services/supabase";
+
 import {
   getLoggedInUser,
   isSuperAdmin,
@@ -38,11 +39,13 @@ const [startDate, setStartDate] = useState(
 );
 
 useEffect(() => {
+
+  if (!loggedInUser) return;
   fetchAcademies();
   fetchPlayers();
   fetchPlans();
   fetchSubscriptions();
-}, []);
+}, [loggedInUser]);
 
 useEffect(() => {
 
@@ -55,7 +58,9 @@ useEffect(() => {
 ]);
 
 useEffect(() => {
-  loadUser();
+
+  fetchLoggedInUser();
+
 }, []);
 
 const loadUser = async () => {
@@ -99,32 +104,54 @@ useEffect(() => {
   selectedPlayer
 ]);
 
+const fetchLoggedInUser =
+async () => {
+
+  const user =
+    await getLoggedInUser();
+
+  setLoggedInUser(user);
+
+};
+
 const fetchAcademies = async () => {
+
+  if (!loggedInUser) return;
 
   if (isSuperAdmin(loggedInUser)) {
 
-    const { data } = await supabase
-      .from("academies")
-      .select("*")
-      .eq("is_active", true);
+    const { data } =
+      await supabase
+        .from("academies")
+        .select("*")
+        .eq("is_active", true);
 
     setAcademies(data || []);
 
   } else {
 
-    const academyId = getAcademyId(loggedInUser);
+    const academyId =
+      getAcademyId(loggedInUser);
 
-    const { data } = await supabase
-      .from("academies")
-      .select("*")
-      .eq("id", academyId);
+    const { data } =
+      await supabase
+        .from("academies")
+        .select("*")
+        .eq("id", academyId)
+        .eq("is_active", true);
 
     setAcademies(data || []);
 
     if (data?.length > 0) {
-      setSelectedAcademy(data[0].id);
+
+      setSelectedAcademy(
+        data[0].id
+      );
+
     }
+
   }
+
 };
 
 const fetchCenters = async (academyId) => {
@@ -260,6 +287,21 @@ const fetchSubscriptions = async () => {
   } else {
 
     let filteredData = data || [];
+
+if (loggedInUser) {
+
+  if (!isSuperAdmin(loggedInUser)) {
+
+    filteredData =
+      filteredData.filter(
+        subscription =>
+          subscription.players?.academy_id ===
+          loggedInUser.academy_id
+      );
+
+  }
+
+}
 
     if (selectedAcademy) {
       filteredData = filteredData.filter(
