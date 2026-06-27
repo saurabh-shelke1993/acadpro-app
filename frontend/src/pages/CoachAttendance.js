@@ -6,11 +6,14 @@ function CoachAttendance() {
   const user = JSON.parse(localStorage.getItem("acadpro_user"));
 
   const [batches, setBatches] = useState([]);
+
   const [selectedBatch, setSelectedBatch] = useState("");
   const [players, setPlayers] = useState([]);
   const [attendanceDate, setAttendanceDate] = useState(
     new Date().toISOString().split("T")[0]
   );
+  const [isEditMode, setIsEditMode] = useState(false);
+const [existingAttendance, setExistingAttendance] = useState([]);
 
   useEffect(() => {
     loadCoachBatches();
@@ -26,45 +29,112 @@ function CoachAttendance() {
   // LOAD COACH ASSIGNED BATCHES
   // =========================
 
-  const loadCoachBatches = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("coach_batch_mapping")
-        .select(
-          `
-          batch_id,
-          batches (
-            id,
-            name
-          )
-        `
+ const loadCoachBatches = async () => {
+
+  // Step 1
+  const { data: coachData, error: coachError } =
+    await supabase
+      .from("coaches")
+      .select("id")
+      .eq("user_id", user.id)
+      .single();
+
+  if (coachError) {
+    console.log(coachError);
+    return;
+  }
+
+  // Step 2
+  const coachId = coachData.id;
+
+  // Step 3
+  const { data, error } =
+    await supabase
+      .from("coach_batch_assignments")
+      .select(`
+        batch_id,
+        batches (
+          id,
+          batch_name
         )
-        .eq("coach_id", user.id);
+      `)
+      .eq("coach_id", coachId)
+      .eq("is_active", true);
 
-      if (error) {
-        console.log("Coach batch fetch error:", error);
-        return;
-      }
+  if (error) {
+    console.log(error);
+    return;
+  }
 
-      const formattedBatches =
-        data?.map((item) => ({
-          id: item.batches?.id,
-          name: item.batches?.name,
-        })) || [];
+  const formattedBatches =
+    data?.map(item => ({
+      id: item.batches.id,
+      name: item.batches.batch_name
+    })) || [];
 
-      setBatches(formattedBatches);
-    } catch (err) {
-      console.log(err);
+  setBatches(formattedBatches);
+};
+
+// =========================
+// CHECK EXISTING ATTENDANCE
+// =========================
+
+const checkExistingAttendance = async () => {
+
+  try {
+
+    const { data, error } = await supabase
+      .from("attendance")
+      .select("*")
+      .eq("batch_id", selectedBatch)
+      .eq("attendance_date", attendanceDate);
+
+    if (error) {
+
+      console.log(error);
+      return false;
+
     }
-  };
+
+    if (data && data.length > 0) {
+
+      setIsEditMode(true);
+      setExistingAttendance(data);
+
+      return true;
+
+    }
+
+    setIsEditMode(false);
+    setExistingAttendance([]);
+
+    return false;
+
+  } catch (err) {
+
+    console.log(err);
+
+    return false;
+
+  }
+
+};
 
   // =========================
   // LOAD PLAYERS
   // =========================
 
   const loadPlayers = async () => {
-    try {
-      const { data, error } = await supabase
+  try {
+
+    const attendanceExists =
+      await checkExistingAttendance();
+          console.log(
+      "Attendance Exists:",
+      attendanceExists
+    );
+
+    const { data, error } = await supabase
         .from("players")
         .select("*")
         .eq("batch_id", selectedBatch);
@@ -109,31 +179,80 @@ function CoachAttendance() {
   // SAVE ATTENDANCE
   // =========================
 
-  const saveAttendance = async () => {
-    try {
-      const attendanceRecords = players.map((player) => ({
+ const saveAttendance = async () => {
+
+  try {
+
+    // =========================
+    // CHECK DUPLICATE ATTENDANCE
+    // =========================
+
+    const { data: existingAttendance, error: checkError } =
+      await supabase
+        .from("attendance")
+        .select("id")
+        .eq("batch_id", selectedBatch)
+        .eq("attendance_date", attendanceDate);
+
+    if (checkError) {
+
+      console.log(checkError);
+      alert("Error checking attendance");
+      return;
+
+    }
+
+    if (existingAttendance.length > 0) {
+
+      alert("Attendance already marked for this batch on selected date.");
+      return;
+
+    }
+
+    // =========================
+    // SAVE ATTENDANCE
+    // =========================
+
+    const attendanceRecords =
+      players.map((player) => ({
+academy_id: user.academy_id,
+
         player_id: player.id,
+
         batch_id: selectedBatch,
+
         attendance_date: attendanceDate,
+
         status: player.status,
+
         marked_by: user.id,
+
       }));
 
-      const { error } = await supabase
+    const { error } =
+      await supabase
         .from("attendance")
         .insert(attendanceRecords);
 
-      if (error) {
-        console.log(error);
-        alert("Error saving attendance");
-        return;
-      }
+    if (error) {
 
-      alert("Attendance saved successfully");
-    } catch (err) {
-      console.log(err);
+      console.log(error);
+
+      alert("Error saving attendance");
+
+      return;
+
     }
-  };
+
+    alert("Attendance saved successfully");
+
+  } catch (err) {
+
+    console.log(err);
+
+  }
+
+};
 
 return (
   <Layout>

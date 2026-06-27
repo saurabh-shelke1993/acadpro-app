@@ -50,12 +50,15 @@ function CoachDashboard() {
 
       const { data, error } = await supabase
         .from("coach_batch_assignments")
-        .select(`
-          *,
-          batches (
-            batch_name
-          )
-        `)
+.select(`
+  *,
+  batches (
+    batch_name,
+    centers (
+      center_name
+    )
+  )
+`)
         .eq("coach_id", coachId)
         .eq("is_active", true);
 
@@ -89,11 +92,12 @@ function CoachDashboard() {
         width="100%"
       >
 
-        <thead>
-          <tr>
-            <th>Batch</th>
-          </tr>
-        </thead>
+<thead>
+  <tr>
+    <th>Center</th>
+    <th>Batch</th>
+  </tr>
+</thead>
 
         <tbody>
 
@@ -101,21 +105,25 @@ function CoachDashboard() {
 
             assignments.map((item) => (
 
-              <tr key={item.id}>
-                <td>
-                  {item.batches?.batch_name}
-                </td>
-              </tr>
+<tr key={item.id}>
+  <td>
+    {item.batches?.centers?.center_name}
+  </td>
+
+  <td>
+    {item.batches?.batch_name}
+  </td>
+</tr>
 
             ))
 
           ) : (
 
-            <tr>
-              <td align="center">
-                No Batches Assigned
-              </td>
-            </tr>
+ <tr>
+  <td colSpan="2" align="center">
+    No Batches Assigned
+  </td>
+</tr>
 
           )}
 

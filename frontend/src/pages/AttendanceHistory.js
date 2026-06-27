@@ -177,9 +177,12 @@ console.log(
           players (
             full_name
           ),
-          batches (
-            batch_name
-          ),
+batches (
+  batch_name,
+  centers (
+    center_name
+  )
+),
           users (
             full_name
           )
@@ -196,6 +199,13 @@ console.log(
           selectedAcademy
         );
       }
+
+      if (selectedCenter) {
+  query = query.eq(
+    "center_id",
+    selectedCenter
+  );
+}
 
       if (selectedBatch) {
         query = query.eq(
@@ -235,6 +245,7 @@ console.log(
     }
   }, [
     selectedAcademy,
+     selectedCenter,
     selectedBatch,
     selectedDate,
   ]);
@@ -403,13 +414,14 @@ return (
         >
 
           <thead>
-            <tr>
-              <th>Date</th>
-              <th>Player Name</th>
-              <th>Batch</th>
-              <th>Status</th>
-              <th>Marked By</th>
-            </tr>
+<tr>
+  <th>Date</th>
+  <th>Player Name</th>
+  <th>Center</th>
+  <th>Batch</th>
+  <th>Status</th>
+  <th>Marked By</th>
+</tr>
           </thead>
 
           <tbody>
@@ -424,6 +436,11 @@ return (
 
                   <td>
                     {item.players?.full_name}
+                  </td>
+
+                  
+                  <td>
+                    {item.batches?.centers?.center_name}
                   </td>
 
                   <td>
