@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import { supabase } from "../supabaseClient";
+import {
+  getAccessiblePlayers,
+} from "../utils/dataScope";
 
 function CoachAttendance() {
   const user = JSON.parse(localStorage.getItem("acadpro_user"));
@@ -86,6 +89,7 @@ const checkExistingAttendance = async () => {
     const { data, error } = await supabase
       .from("attendance")
       .select("*")
+      .eq("is_deleted", false)
       .eq("batch_id", selectedBatch)
       .eq("attendance_date", attendanceDate);
 
@@ -134,23 +138,18 @@ const checkExistingAttendance = async () => {
       attendanceExists
     );
 
-    const { data, error } = await supabase
-        .from("players")
-        .select("*")
-        .eq("batch_id", selectedBatch);
+const data = await getAccessiblePlayers(
+  selectedBatch
+);
 
-      if (error) {
-        console.log(error);
-        return;
-      }
+const formattedPlayers =
+  data?.map((item) => ({
+    id: item.player_id,
+    full_name: item.players?.full_name,
+    status: "present",
+  })) || [];
 
-      const formattedPlayers =
-        data?.map((player) => ({
-          ...player,
-          status: "present",
-        })) || [];
-
-      setPlayers(formattedPlayers);
+setPlayers(formattedPlayers);
     } catch (err) {
       console.log(err);
     }

@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import Layout from "../components/Layout";
+import {
+  getAccessiblePlayers,
+  getAccessibleBatches,
+} from "../utils/dataScope";
 
 function Attendance() {
   const [user, setUser] = useState(null);
@@ -144,15 +148,12 @@ const getLoggedInUser = async () => {
 
   const fetchBatches = async () => {
     try {
-      const { data, error } = await supabase
-        .from("batches")
-        .select("*")
-        .eq("center_id", selectedCenter)
-        .eq("is_active", true);
+   const data = await getAccessibleBatches(
+  user,
+  selectedCenter
+);
 
-      if (error) throw error;
-
-      setBatches(data || []);
+setBatches(data || []);
     } catch (err) {
       console.log(err.message);
     }
@@ -171,35 +172,28 @@ const getLoggedInUser = async () => {
   }, [selectedBatch]);
 
   const fetchPlayers = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("player_batches")
-        .select(`
-          player_id,
-          players (
-            id,
-            full_name
-          )
-        `)
-        .eq("batch_id", selectedBatch);
+  try {
 
-      if (error) throw error;
+    const data = await getAccessiblePlayers(
+      selectedBatch
+    );
 
-      setPlayers(data || []);
+    setPlayers(data || []);
 
-      // DEFAULT PRESENT
-      let attendanceObj = {};
+    // DEFAULT PRESENT
 
-      data.forEach((item) => {
-        attendanceObj[item.player_id] = "present";
-      });
+    let attendanceObj = {};
 
-      setAttendanceData(attendanceObj);
-    } catch (err) {
-      console.log(err.message);
-    }
-  };
+    data.forEach((item) => {
+      attendanceObj[item.player_id] = "present";
+    });
 
+    setAttendanceData(attendanceObj);
+
+  } catch (err) {
+    console.log(err.message);
+  }
+};
   // =====================================================
   // HANDLE ATTENDANCE CHANGE
   // =====================================================

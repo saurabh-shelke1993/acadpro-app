@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
+import {
+  getAccessibleCenters,
+  getAccessibleBatches
+} from "../utils/dataScope";
+
 
 import {
   getCurrentUser,
@@ -36,6 +41,9 @@ function AttendanceHistory() {
     useState([]);
 
   const [loading, setLoading] = useState(false);
+
+  const [editingAttendanceId, setEditingAttendanceId] = useState(null);
+const [editingStatus, setEditingStatus] = useState("");
 
   // =====================================================
   // LOAD USER
@@ -116,22 +124,34 @@ console.log(
   }, [selectedAcademy]);
 
   const fetchCenters = async () => {
-    try {
 
-      const { data, error } = await supabase
-        .from("centers")
-        .select("*")
-        .eq("academy_id", selectedAcademy)
-        .eq("is_active", true);
+  try {
 
-      if (error) throw error;
+    const centers =
+      await getAccessibleCenters(user);
 
-      setCenters(data || []);
+    setCenters(centers || []);
 
-    } catch (err) {
-      console.log(err.message);
+    // Auto-select if only one center is available
+
+    if (
+      centers &&
+      centers.length === 1
+    ) {
+
+      setSelectedCenter(
+        centers[0].id
+      );
+
     }
-  };
+
+  } catch (err) {
+
+    console.log(err.message);
+
+  }
+
+};
 
   // =====================================================
   // FETCH BATCHES
@@ -143,23 +163,25 @@ console.log(
     }
   }, [selectedCenter]);
 
-  const fetchBatches = async () => {
-    try {
+const fetchBatches = async () => {
 
-      const { data, error } = await supabase
-        .from("batches")
-        .select("*")
-        .eq("center_id", selectedCenter)
-        .eq("is_active", true);
+  try {
 
-      if (error) throw error;
+    const batches =
+      await getAccessibleBatches(
+        user,
+        selectedCenter
+      );
 
-      setBatches(data || []);
+    setBatches(batches || []);
 
-    } catch (err) {
-      console.log(err.message);
-    }
-  };
+  } catch (err) {
+
+    console.log(err.message);
+
+  }
+
+};
 
   // =====================================================
   // FETCH ATTENDANCE HISTORY
@@ -183,10 +205,11 @@ batches (
     center_name
   )
 ),
-          users (
-            full_name
-          )
+  users!attendance_marked_by_fkey (
+    full_name
+  )
         `)
+          .eq("is_deleted", false)
         .order("attendance_date", {
           ascending: false,
         });
@@ -200,10 +223,30 @@ batches (
         );
       }
 
-      if (selectedCenter) {
-  query = query.eq(
-    "center_id",
-    selectedCenter
+if (selectedCenter) {
+
+  const centerBatches =
+    await getAccessibleBatches(
+      user,
+      selectedCenter
+    );
+
+  const batchIds =
+    centerBatches.map(
+      batch => batch.id
+    );
+
+  if (batchIds.length === 0) {
+
+    setAttendanceHistory([]);
+    setLoading(false);
+    return;
+
+  }
+
+  query = query.in(
+    "batch_id",
+    batchIds
   );
 }
 
@@ -222,6 +265,9 @@ batches (
       }
 
       const { data, error } = await query;
+      
+      console.log("Attendance History Data:", data);
+console.log("Attendance History Error:", error);
 
       if (error) throw error;
 
@@ -236,19 +282,90 @@ batches (
   };
 
   // =====================================================
+// UPDATE ATTENDANCE
+// =====================================================
+
+const updateAttendance = async (attendanceId) => {
+
+  try {
+
+    const { error } = await supabase
+      .from("attendance")
+      .update({
+        status: editingStatus
+      })
+      .eq("id", attendanceId);
+
+    if (error) throw error;
+
+    // Exit edit mode
+
+    setEditingAttendanceId(null);
+    setEditingStatus("");
+
+    // Reload history
+
+    fetchAttendanceHistory();
+
+  } catch (err) {
+
+    console.log(err.message);
+
+  }
+
+};
+
+// =====================================================
+// SOFT DELETE ATTENDANCE
+// =====================================================
+
+const deleteAttendance = async (attendanceId) => {
+
+  const confirmDelete = window.confirm(
+    "Are you sure you want to delete this attendance record?"
+  );
+
+  if (!confirmDelete) return;
+
+  try {
+
+    const { error } = await supabase
+      .from("attendance")
+      .update({
+        is_deleted: true,
+        deleted_at: new Date().toISOString(),
+        deleted_by: user.id,
+      })
+      .eq("id", attendanceId);
+
+    if (error) throw error;
+
+    await fetchAttendanceHistory();
+
+    alert("Attendance deleted successfully.");
+
+  } catch (err) {
+
+    console.log(err);
+
+    alert("Unable to delete attendance.");
+
+  }
+
+};
+
+  // =====================================================
   // LOAD HISTORY WHEN FILTERS CHANGE
   // =====================================================
 
-  useEffect(() => {
-    if (selectedAcademy) {
-      fetchAttendanceHistory();
-    }
-  }, [
-    selectedAcademy,
-     selectedCenter,
-    selectedBatch,
-    selectedDate,
-  ]);
+useEffect(() => {
+  fetchAttendanceHistory();
+}, [
+  selectedAcademy,
+  selectedCenter,
+  selectedBatch,
+  selectedDate,
+]);
 
   // =====================================================
   // UI
@@ -421,6 +538,7 @@ return (
   <th>Batch</th>
   <th>Status</th>
   <th>Marked By</th>
+  <th>Action</th>
 </tr>
           </thead>
 
@@ -447,20 +565,93 @@ return (
                     {item.batches?.batch_name}
                   </td>
 
-                  <td>
-                    {item.status}
-                  </td>
+<td>
+  {editingAttendanceId === item.id ? (
+    <select
+      value={editingStatus}
+      onChange={(e) =>
+        setEditingStatus(e.target.value)
+      }
+    >
+      <option value="present">Present</option>
+      <option value="absent">Absent</option>
+    </select>
+  ) : (
+    item.status
+  )}
+</td>
 
                   <td>
                     {item.users?.full_name}
                   </td>
+<td>
+
+{editingAttendanceId === item.id ? (
+
+    <>
+
+        <button
+            onClick={() =>
+                updateAttendance(item.id)
+            }
+        >
+            Save
+        </button>
+
+        {" "}
+
+        <button
+            onClick={() => {
+
+                setEditingAttendanceId(null);
+                setEditingStatus("");
+
+            }}
+        >
+            Cancel
+        </button>
+
+    </>
+
+) : (
+
+    <>
+
+        <button
+            onClick={() => {
+
+                setEditingAttendanceId(item.id);
+                setEditingStatus(item.status);
+
+            }}
+            title="Edit Attendance"
+        >
+            ✏️
+        </button>
+
+        {" "}
+
+        <button
+            onClick={() =>
+                deleteAttendance(item.id)
+            }
+            title="Delete Attendance"
+        >
+            🗑️
+        </button>
+
+    </>
+
+)}
+
+</td>
 
                 </tr>
               ))
             ) : (
               <tr>
                 <td
-                  colSpan="5"
+                  colSpan="7"
                   align="center"
                 >
                   No attendance found
