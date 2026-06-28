@@ -5,11 +5,26 @@ import {
   getAccessibleBatches
 } from "../utils/dataScope";
 
+import {
+ MESSAGES
+} from '../utils/messages';
 
 import {
   getCurrentUser,
-  isSuperAdmin,
 } from "../utils/auth";
+
+import {
+  isSuperAdmin,
+  isAcademyOwner,
+  isCoach,
+  canEditAttendance,
+  canDeleteAttendance,
+} from "../utils/permissions";
+
+import {
+  updateAttendanceStatus,
+  softDeleteAttendance,
+} from "../services/attendanceService";
 
 import Layout from "../components/Layout";
 
@@ -90,12 +105,8 @@ const [editingStatus, setEditingStatus] = useState("");
       if (error) throw error;
 
       setAcademies(data || []);
-      console.log("Academies:", data);
 
-console.log(
-  "Auto Selected Academy:",
-  data[0]?.id
-);
+
       // AUTO SELECT OWNER ACADEMY
       if (
         !isSuperAdmin(user) &&
@@ -103,9 +114,7 @@ console.log(
         data.length > 0
       ) {
         setSelectedAcademy(data[0].id);
-        console.log(
-  "Selected Academy State Updated"
-);
+
       }
 
     } catch (err) {
@@ -265,9 +274,7 @@ if (selectedCenter) {
       }
 
       const { data, error } = await query;
-      
-      console.log("Attendance History Data:", data);
-console.log("Attendance History Error:", error);
+    
 
       if (error) throw error;
 
@@ -289,14 +296,17 @@ const updateAttendance = async (attendanceId) => {
 
   try {
 
-    const { error } = await supabase
-      .from("attendance")
-      .update({
-        status: editingStatus
-      })
-      .eq("id", attendanceId);
+    if (!canEditAttendance(user)) {
 
-    if (error) throw error;
+  alert("You are not authorized to edit attendance.");
+
+  return;
+
+}
+await updateAttendanceStatus(
+  attendanceId,
+  editingStatus
+);
 
     // Exit edit mode
 
@@ -326,23 +336,24 @@ const deleteAttendance = async (attendanceId) => {
   );
 
   if (!confirmDelete) return;
+  if (!canDeleteAttendance(user)) {
+
+  alert("You are not authorized to delete attendance.");
+
+  return;
+
+}
 
   try {
 
-    const { error } = await supabase
-      .from("attendance")
-      .update({
-        is_deleted: true,
-        deleted_at: new Date().toISOString(),
-        deleted_by: user.id,
-      })
-      .eq("id", attendanceId);
-
-    if (error) throw error;
+await softDeleteAttendance(
+  attendanceId,
+  user.id
+);
 
     await fetchAttendanceHistory();
 
-    alert("Attendance deleted successfully.");
+    alert(MESSAGES.ATTENDANCE_DELETED);
 
   } catch (err) {
 
@@ -590,13 +601,17 @@ return (
 
     <>
 
-        <button
-            onClick={() =>
-                updateAttendance(item.id)
-            }
-        >
-            Save
-        </button>
+{canEditAttendance(user) && (
+
+<button
+    onClick={() =>
+        updateAttendance(item.id)
+    }
+>
+    Save
+</button>
+
+)}
 
         {" "}
 
@@ -617,28 +632,36 @@ return (
 
     <>
 
-        <button
-            onClick={() => {
+{canEditAttendance(user) && (
 
-                setEditingAttendanceId(item.id);
-                setEditingStatus(item.status);
+<button
+    onClick={() => {
 
-            }}
-            title="Edit Attendance"
-        >
-            ✏️
-        </button>
+        setEditingAttendanceId(item.id);
+        setEditingStatus(item.status);
+
+    }}
+    title="Edit Attendance"
+>
+    ✏️
+</button>
+
+)}
 
         {" "}
 
-        <button
-            onClick={() =>
-                deleteAttendance(item.id)
-            }
-            title="Delete Attendance"
-        >
-            🗑️
-        </button>
+{canDeleteAttendance(user) && (
+
+<button
+    onClick={() =>
+        deleteAttendance(item.id)
+    }
+    title="Delete Attendance"
+>
+    🗑️
+</button>
+
+)}
 
     </>
 

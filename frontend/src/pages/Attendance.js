@@ -2,9 +2,26 @@ import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import Layout from "../components/Layout";
 import {
+  getAccessibleAcademies,
+  getAccessibleCenters,
   getAccessiblePlayers,
   getAccessibleBatches,
 } from "../utils/dataScope";
+
+import {
+ MESSAGES
+} from '../utils/messages';
+
+import {
+  isAcademyOwner,
+  isCoach,
+  canManageAttendance,
+  canAccessBatch,
+} from "../utils/permissions";
+
+import {
+  saveAttendanceRecords,
+} from "../services/attendanceService";
 
 function Attendance() {
   const [user, setUser] = useState(null);
@@ -13,6 +30,7 @@ function Attendance() {
   const [centers, setCenters] = useState([]);
   const [batches, setBatches] = useState([]);
   const [players, setPlayers] = useState([]);
+  const [assignedBatchIds, setAssignedBatchIds] = useState([]);
 
   const [selectedAcademy, setSelectedAcademy] = useState("");
   const [selectedCenter, setSelectedCenter] = useState("");
@@ -42,11 +60,9 @@ const getLoggedInUser = async () => {
     if (authError) throw authError;
 
     if (!authUser) {
-      console.log("No authenticated user found");
       return;
     }
 
-    console.log("Supabase Auth User:", authUser);
 
     // FETCH USER FROM USERS TABLE
     const { data, error } = await supabase
@@ -57,55 +73,79 @@ const getLoggedInUser = async () => {
 
     if (error) throw error;
 
-    console.log("Database User:", data);
-
     setUser(data);
   } catch (err) {
     console.log(err.message);
   }
 };
 
+const loadAssignedBatches = async () => {
+
+  if (!isCoach(user)) {
+    return;
+  }
+
+  try {
+
+    const { data: coachData, error: coachError } =
+      await supabase
+        .from("coaches")
+        .select("id")
+        .eq("user_id", user.id)
+        .single();
+
+    if (coachError) throw coachError;
+
+    const { data, error } =
+      await supabase
+        .from("coach_batch_assignments")
+        .select("batch_id")
+        .eq("coach_id", coachData.id)
+        .eq("is_active", true);
+
+    if (error) throw error;
+
+    setAssignedBatchIds(
+      data.map(item => item.batch_id)
+    );
+
+  } catch (err) {
+    console.log(err.message);
+  }
+
+};
+
   // =====================================================
   // FETCH ACADEMIES
   // =====================================================
 
-  useEffect(() => {
-    if (user) {
-      fetchAcademies();
-    }
-  }, [user]);
+useEffect(() => {
+
+  if (!user) return;
+
+  fetchAcademies();
+
+  loadAssignedBatches();
+
+}, [user]);
 
   const fetchAcademies = async () => {
-    try {
-      let query = supabase
-        .from("academies")
-        .select("*")
-        .eq("is_active", true);
+  try {
+    const data = await getAccessibleAcademies(user);
 
-      // ACADEMY OWNER FILTER
-      if (user?.role === "academy_owner") {
-        query = query.eq("id", user?.academy_id);
-      }
+    setAcademies(data || []);
 
-      const { data, error } = await query;
-
-      if (error) throw error;
-
-      setAcademies(data || []);
-
-      // AUTO SELECT OWNER ACADEMY
-      if (
-        user?.role === "academy_owner" &&
-        data &&
-        data.length > 0
-      ) {
-        setSelectedAcademy(data[0].id);
-      }
-    } catch (err) {
-      console.log(err.message);
+    if (
+      (isAcademyOwner(user) || isCoach(user)) &&
+      data &&
+      data.length > 0
+    ) {
+      setSelectedAcademy(data[0].id);
     }
-  };
-
+  } catch (err) {
+    console.log(err.message);
+  }
+};
   // =====================================================
   // FETCH CENTERS
   // =====================================================
@@ -118,21 +158,19 @@ const getLoggedInUser = async () => {
     }
   }, [selectedAcademy]);
 
-  const fetchCenters = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("centers")
-        .select("*")
-        .eq("academy_id", selectedAcademy)
-        .eq("is_active", true);
+ const fetchCenters = async () => {
+  try {
+    const data = await getAccessibleCenters(user);
 
-      if (error) throw error;
+    const filteredCenters = (data || []).filter(
+      (center) => center.academy_id === selectedAcademy
+    );
 
-      setCenters(data || []);
-    } catch (err) {
-      console.log(err.message);
-    }
-  };
+    setCenters(filteredCenters);
+  } catch (err) {
+    console.log(err.message);
+  }
+};
 
   // =====================================================
   // FETCH BATCHES
@@ -211,6 +249,21 @@ setBatches(data || []);
 
   const saveAttendance = async () => {
     try {
+
+              if (!canManageAttendance(user)) {
+            alert("You are not authorized to mark attendance.");
+            return;
+        }
+        if (
+  !canAccessBatch(
+    user,
+    selectedBatch,
+    assignedBatchIds
+  )
+) {
+  alert("You are not authorized for this batch.");
+  return;
+}
       if (!selectedAcademy) {
         alert("Please select academy");
         return;
@@ -225,8 +278,9 @@ setBatches(data || []);
         alert("Please select batch");
         return;
       }
-
-      // CHECK DUPLICATE ATTENDANCE
+// =====================================================
+  // CHECK DUPLICATE ATTENDANCE
+  // =====================================================
       const { data: existingAttendance, error: duplicateError } =
         await supabase
           .from("attendance")
@@ -237,9 +291,13 @@ setBatches(data || []);
       if (duplicateError) throw duplicateError;
 
       if (existingAttendance?.length > 0) {
-        alert("Attendance already marked for this batch today.");
+        alert(MESSAGES.DUPLICATE_ATTENDANCE);
         return;
       }
+if (players.length === 0) {
+  alert(MESSAGES.NO_PLAYERS);
+  return;
+}
 
       const attendanceRows = players.map((item) => ({
         academy_id: selectedAcademy,
@@ -251,13 +309,11 @@ setBatches(data || []);
         remarks: "",
       }));
 
-      const { error } = await supabase
-        .from("attendance")
-        .insert(attendanceRows);
+await saveAttendanceRecords(
+  attendanceRows
+);
 
-      if (error) throw error;
-
-      alert("Attendance saved successfully.");
+      alert(MESSAGES.ATTENDANCE_SAVED);
     } catch (err) {
       console.log(err.message);
       alert(err.message);
@@ -301,7 +357,10 @@ return (
               setBatches([]);
               setPlayers([]);
             }}
-            disabled={user?.role === "academy_owner"}
+            disabled={
+    isAcademyOwner(user) ||
+    isCoach(user)
+}
           >
             <option value="">Select Academy</option>
 
@@ -436,9 +495,11 @@ return (
 
       <br />
 
-      <button onClick={saveAttendance}>
+{canManageAttendance(user) && (
+    <button onClick={saveAttendance}>
         Save Attendance
-      </button>
+    </button>
+)}
     </div>
   </Layout>
 );

@@ -12,6 +12,12 @@
 - Batches
 - Players
 - Attendance
+✓ CRUD
+✓ History
+✓ Edit
+✓ Soft Delete
+✓ Role Security
+✓ Service Layer
 - Attendance History
 - Coaches
 - Coach Batch Mapping
@@ -25,7 +31,12 @@ src/
   pages/
   routes/
   services/
+   - attendanceService.js
   utils/
+   - permissions.js
+   - dataScope.js
+   - constants.js
+   - messages.js
 
 ## Important Rules
 
@@ -44,6 +55,12 @@ src/
 ## Shared Utilities
 - auth.js handles role checks
 - Sidebar.js handles role menus
+- permissions.js
+- Centralized role checks
+- attendanceService.js
+- Attendance business logic
+- dataScope.js
+- Centralized data filtering
 
 ## Tables
 - academies
