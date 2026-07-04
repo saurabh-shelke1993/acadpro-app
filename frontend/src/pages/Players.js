@@ -291,15 +291,27 @@ const { data: parentData, error: parentError } =
 
     const playerId = playerData[0].id;
 
-    await supabase
-      .from("player_batches")
-      .insert([
-        {
-          player_id: playerId,
-          batch_id: selectedBatch,
-        },
-      ]);
+const { error: playerBatchError } =
+  await supabase
+    .from("player_batches")
+    .insert([
+      {
+        player_id: playerId,
+        batch_id: selectedBatch,
+      },
+    ]);
 
+if (playerBatchError) {
+
+  console.log(playerBatchError);
+
+  alert(
+    "Player created, but batch mapping failed."
+  );
+
+  return;
+
+}
     alert("Player Created Successfully");
 
     resetForm();
@@ -370,6 +382,26 @@ const { error: playerError } = await supabase
       alert(playerError.message);
       return;
     }
+
+const { error: playerBatchError } =
+  await supabase
+    .from("player_batches")
+    .update({
+      batch_id: selectedBatch
+    })
+    .eq("player_id", editingPlayerId);
+
+if (playerBatchError) {
+
+  console.log(playerBatchError);
+
+  alert(
+    "Player updated, but batch mapping update failed."
+  );
+
+  return;
+
+}
 
     alert("Player Updated Successfully");
 

@@ -2,12 +2,33 @@ import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import Layout from "../components/Layout";
 import {
-  getLoggedInUser,
-  isSuperAdmin
+  getLoggedInUser
 } from "../utils/auth";
 
-function PaymentDues() {
+import {
+  isSuperAdmin,
+  isAcademyOwner,
+  canGenerateDue,
+} from "../utils/permissions";
 
+import {
+  getAccessibleAcademies,
+  getAccessibleCenters,
+  getAccessibleBatches,
+  getAccessiblePlayers
+} from "../utils/dataScope";
+
+import {
+  fetchPaymentDuesService,
+  createPaymentDueService,
+  updatePaymentDueService,
+  deletePaymentDueService
+} from "../services/paymentService";
+
+import { useNavigate } from "react-router-dom";
+
+function PaymentDues() {
+const navigate = useNavigate();
   const [academies, setAcademies] = useState([]);
 const [centers, setCenters] = useState([]);
 const [batches, setBatches] = useState([]);
@@ -60,7 +81,7 @@ useEffect(() => {
 
   if (selectedAcademy) {
 
-    fetchCenters(selectedAcademy);
+    fetchCenters();
 
   } else {
 
@@ -75,7 +96,7 @@ useEffect(() => {
 
   if (selectedCenter) {
 
-    fetchBatches(selectedCenter);
+    fetchBatches();
 
   } else {
 
@@ -90,6 +111,11 @@ useEffect(() => {
 
   if (selectedBatch) {
 
+    console.log(
+      "Selected Batch:",
+      selectedBatch
+    );
+
     fetchPlayers(selectedBatch);
 
   } else {
@@ -100,6 +126,7 @@ useEffect(() => {
   }
 
 }, [selectedBatch]);
+
 
 useEffect(() => {
 
@@ -185,107 +212,130 @@ async () => {
 
 };
 
-  const fetchAcademies =
-async () => {
+const fetchAcademies = async () => {
 
-  if (!loggedInUser)
-    return;
-let query =
-  supabase
-    .from("academies")
-    .select("id, academy_name");
+  if (!loggedInUser) return;
 
-if (
-  loggedInUser &&
-  !isSuperAdmin(loggedInUser)
-) {
+  try {
 
-  query =
-    query.eq(
-      "id",
-      loggedInUser.academy_id
-    );
+    const data =
+      await getAccessibleAcademies(
+        loggedInUser
+      );
 
-}
+    setAcademies(data || []);
 
-const {
-  data,
-  error
-} = await query.order(
-  "academy_name"
-);
+    if (
+      !isSuperAdmin(loggedInUser) &&
+      data.length > 0
+    ) {
 
-  if (error) {
+      setSelectedAcademy(
+        data[0].id
+      );
 
-    console.log(error);
+    }
 
-  } else {
+  } catch (err) {
 
-    setAcademies(data);
+    console.log(err.message);
 
   }
+
 };
 
-const fetchCenters = async (academyId) => {
 
-  const { data, error } = await supabase
-    .from("centers")
-    .select("id, center_name")
-    .eq("academy_id", academyId)
-    .order("center_name");
+const fetchCenters = async () => {
 
-  if (error) {
+  try {
 
-    console.log(error);
+    const data =
+      await getAccessibleCenters(
+        loggedInUser
+      );
 
-  } else {
+    if (selectedAcademy) {
 
-    setCenters(data);
+      setCenters(
+
+        data.filter(
+          center =>
+            center.academy_id ===
+            selectedAcademy
+        )
+
+      );
+
+    } else {
+
+      setCenters(data);
+
+    }
+
+  } catch (err) {
+
+    console.log(err.message);
 
   }
+
 };
 
-const fetchBatches = async (centerId) => {
 
-  const { data, error } = await supabase
-    .from("batches")
-    .select("id, batch_name")
-    .eq("center_id", centerId)
-    .order("batch_name");
+const fetchBatches = async () => {
 
-  if (error) {
+  try {
 
-    console.log(error);
+    const data =
+      await getAccessibleBatches(
+        loggedInUser,
+        selectedCenter
+      );
 
-  } else {
+    setBatches(data || []);
 
-    setBatches(data);
+  } catch (err) {
+
+    console.log(err.message);
 
   }
+
 };
+
 
 const fetchPlayers = async (batchId) => {
 
-  const { data, error } = await supabase
-    .from("players")
-    .select(`
-      id,
-      full_name
-    `)
-    .eq("batch_id", batchId)
-    .order("full_name");
+  try {
 
-  if (error) {
+    const data =
+      await getAccessiblePlayers(batchId);
 
-    console.log(error);
+console.log(
+    "Raw Data:",
+    data
+);
 
-  } else {
+const playersList =
+    data.map(item => item.players);
 
-    setPlayers(data);
+console.log(
+    "Mapped Players:",
+    playersList
+);
+
+    console.log(
+      "Loaded Players:",
+      playersList
+    );
+
+    setPlayers(playersList);
+
+  } catch (err) {
+
+    console.log(err.message);
 
   }
-};
 
+};
 
 const fetchSubscriptionsByPlayer = async (
   playerId
@@ -320,12 +370,15 @@ const fetchSubscriptionsByPlayer = async (
   }
 };
 
+////////////////////////////////////////////
 
 const fetchPaymentDues = async (
   playerId = null
 ) => {
 
-  let query = supabase
+  try {
+
+ let query = supabase
     .from("payment_dues")
     .select(`
       id,
@@ -363,29 +416,28 @@ players (
 )
     `);
 
-  if (playerId) {
+    if (playerId) {
 
-    query = query.eq(
-      "player_id",
-      playerId
-    );
+      query = query.eq(
+        "player_id",
+        playerId
+      );
 
-}
+    }
 
-  const { data, error } =
-    await query.order(
-      "due_date",
-      {
-        ascending: false
-      }
-    );
+    const data =
+      await fetchPaymentDuesService(
 
-  if (error) {
+        query.order(
+          "due_date",
+          {
+            ascending: false
+          }
+        )
 
-    console.log(error);
+      );
 
-  } else {
- let filteredData = data || [];
+let filteredData = data || [];
 
  if (loggedInUser) {
 
@@ -469,9 +521,26 @@ console.log(
 
   }
 
+  catch (error) {
+
+    console.log(error);
+
+  }
+
 };
 
+//////////////////////////////////////////////////////
   const createPaymentDue = async () => {
+
+    if (!canGenerateDue(loggedInUser)) {
+
+  alert(
+    "You are not authorized to generate payment dues."
+  );
+
+  return;
+
+}
 
     if (
       !selectedSubscription ||
@@ -490,6 +559,25 @@ console.log(
     const amount =
       selectedSubscriptionData
       .subscription_plans.amount;
+
+      const dueData = {
+
+  player_id: playerId,
+
+  subscription_id:
+    selectedSubscription,
+
+  due_type: dueType,
+
+  due_date: dueDate,
+
+  total_amount: amount,
+
+  paid_amount: 0,
+
+  due_status: "pending"
+
+};
 
       const { data: existingDue } =
   await supabase
@@ -516,154 +604,39 @@ console.log(
   return;
 }
 
-    const { error } = await supabase
-      .from("payment_dues")
-      .insert([
-        {
-          player_id: playerId,
+try {
 
-          subscription_id:
-            selectedSubscription,
-
-          due_type: dueType,
-
-          due_date: dueDate,
-
-          total_amount: amount,
-
-          paid_amount: 0,
-
-          due_status: "pending"
-        }
-      ]);
-
-    if (error) {
-
-      alert(error.message);
-
-    } else {
-
-      alert(
-        "Payment Due Generated Successfully"
-      );
-
-setSelectedAcademy("");
-setSelectedCenter("");
-setSelectedBatch("");
-setSelectedPlayer("");
-
-setSubscriptions([]);
-setSelectedSubscription("");
-setSelectedSubscriptionData(null);
-
-setDueType("");
-setDueDate("");
-
-fetchPaymentDues();
-    }
-  };
-
-const recordPayment = async (due) => {
-
-  const amountPaid = prompt(
-    `Enter payment amount (Remaining ₹${due.remaining_amount})`
-  );
-
-  if (!amountPaid) return;
-
-  const paymentValue = Number(amountPaid);
-
-  if (
-    isNaN(paymentValue) ||
-    paymentValue <= 0
-  ) {
-    alert("Invalid amount");
-    return;
-  }
-
-  const newPaidAmount =
-    Number(due.paid_amount || 0) +
-    paymentValue;
-
-  const newRemainingAmount =
-    Number(due.total_amount) -
-    newPaidAmount;
-
-  let newStatus = "pending";
-
-  if (newRemainingAmount <= 0) {
-
-    newStatus = "paid";
-
-  } else if (
-    newPaidAmount > 0
-  ) {
-
-    newStatus = "partial";
-
-  }
-
-const { error } = await supabase
-  .from("payment_dues")
-  .update({
-    paid_amount: newPaidAmount,
-    due_status: newStatus
-  })
-  .eq("id", due.id);
-
-  if (error) {
-
-    console.log(error);
-    alert(error.message);
-console.log(error);
-
-  } else {
-
-    fetchPaymentDues();
-
-  }
-};
-
-
-const markAsPaid = async (
-  dueId
-) => {
-
-  const due =
-    duesList.find(
-      d => d.id === dueId
+    await createPaymentDueService(
+        dueData
     );
-
-  if (!due) return;
-
-  const { error } =
-    await supabase
-      .from("payment_dues")
-      .update({
-        paid_amount:
-          due.total_amount,
-
-        due_status:
-          "paid"
-      })
-      .eq(
-        "id",
-        dueId
-      );
-
-  if (error) {
-
-    alert(error.message);
-
-  } else {
 
     alert(
-      "Payment marked as paid"
+        "Payment Due Generated Successfully"
     );
 
+    setSelectedAcademy("");
+    setSelectedCenter("");
+    setSelectedBatch("");
+    setSelectedPlayer("");
+
+    setSubscriptions([]);
+    setSelectedSubscription("");
+    setSelectedSubscriptionData(null);
+
+    setDueType("");
+    setDueDate("");
+
     fetchPaymentDues();
-  }
-};
+
+} catch (error) {
+
+    alert(error.message);
+
+}
+
+  };
+
+
 
 const startEdit = (due) => {
 
@@ -679,40 +652,58 @@ const startEdit = (due) => {
 
 };
 
+
 const saveEdit = async () => {
 
-  const { error } =
-    await supabase
-      .from("payment_dues")
-      .update({
+  if (!canGenerateDue(loggedInUser)) {
 
-        due_date:
-          editDueDate,
+    alert(
+      "You are not authorized to edit payment dues."
+    );
 
-        due_type:
-          editDueType
+    return;
 
-      })
-      .eq(
-        "id",
-        editingDue.id
-      );
+  }
 
-  if (error) {
+  try {
 
-    alert(error.message);
+    await updatePaymentDueService(
 
-  } else {
+      editingDue.id,
+
+      {
+
+        due_date: editDueDate,
+
+        due_type: editDueType
+
+      }
+
+    );
 
     setEditingDue(null);
 
     fetchPaymentDues();
+
+  } catch (error) {
+
+    alert(error.message);
 
   }
 
 };
 
 const deleteDue = async (due) => {
+
+  if (!canGenerateDue(loggedInUser)) {
+
+  alert(
+    "You are not authorized to delete payment dues."
+  );
+
+  return;
+
+}
 
   const confirmDelete =
     window.confirm(
@@ -730,24 +721,26 @@ if (
   return;
 }
 
-  const { error } =
-    await supabase
-      .from("payment_dues")
-      .delete()
-      .eq("id", due.id);
+  try {
 
-  if (error) {
+    await deletePaymentDueService(
+      due.id
+    );
+
+    alert(
+      "Due deleted successfully"
+    );
+
+    fetchPaymentDues();
+
+  } catch (error) {
 
     console.log(error);
 
-    alert("Failed to delete due");
+    alert(error.message);
 
-  } else {
-
-    alert("Due deleted successfully");
-
-    fetchPaymentDues();
   }
+
 };
 
 return (
@@ -967,11 +960,15 @@ return (
       <br />
       <br />
 
-      <button
-        onClick={createPaymentDue}
-      >
-        Generate Due
-      </button>
+{canGenerateDue(loggedInUser) && (
+
+<button
+  onClick={createPaymentDue}
+>
+  Generate Due
+</button>
+
+)}
 
       <hr />
       <br />
@@ -1095,31 +1092,48 @@ return (
 
 {due.due_status !== "paid" && (
 
-  <button
-    onClick={() =>
-      recordPayment(due)
-    }
-  >
+<button
+    onClick={() => {
+
+        navigate(
+            "/payment-collections",
+            {
+                state: {
+                    dueId: due.id
+                }
+            }
+        );
+
+    }}
+>
     Record Payment
-  </button>
+</button>
 
 )}
   
-  <button
-    onClick={() =>
-      startEdit(due)
-    }
-  >
-    Edit
-  </button>
+{canGenerateDue(loggedInUser) && (
 
-  <button
+<button
+  onClick={() =>
+    startEdit(due)
+  }
+>
+  Edit
+</button>
+
+)}
+
+{canGenerateDue(loggedInUser) && (
+
+<button
   onClick={() =>
     deleteDue(due)
   }
 >
   Delete
 </button>
+
+)}
 
 </td>
 
@@ -1201,11 +1215,15 @@ return (
 
     <br />
 
-    <button
-      onClick={saveEdit}
-    >
-      Save
-    </button>
+{canGenerateDue(loggedInUser) && (
+
+<button
+  onClick={saveEdit}
+>
+  Save
+</button>
+
+)}
 
     <button
       onClick={() =>

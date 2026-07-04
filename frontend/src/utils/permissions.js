@@ -52,6 +52,27 @@ export const canManagePayments = (user) =>
   isSuperAdmin(user) ||
   isAcademyOwner(user);
 
+// ========================================
+// PAYMENT PERMISSIONS
+// ========================================
+
+export const canGenerateDue = (user) =>
+    isSuperAdmin(user) ||
+    isAcademyOwner(user);
+
+export const canEditDue = (user) =>
+    isSuperAdmin(user) ||
+    isAcademyOwner(user);
+
+export const canDeleteDue = (user) =>
+    isSuperAdmin(user) ||
+    isAcademyOwner(user);
+
+export const canCollectPayment = (user) =>
+    isSuperAdmin(user) ||
+    isAcademyOwner(user);
+    
+
 export const canManagePlayers = (user) =>
   isSuperAdmin(user) ||
   isAcademyOwner(user) ||

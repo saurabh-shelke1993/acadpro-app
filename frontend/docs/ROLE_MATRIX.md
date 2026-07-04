@@ -70,7 +70,7 @@ Legend
 | Action | Super Admin | Academy Owner | Coach | Parent |
 |---------|-------------|---------------|---------|---------|
 | View | ✅ | 👁 Own Academy | 👁 Assigned Batches | 👁 Own Child |
-| Create | ✅ | ✅ | ✅ | ❌ |
+| Create | ✅ | ✅ | ❌ | ❌ |
 | Edit | ✅ | ✅ | ✅ Assigned Players | ❌ |
 | Soft Delete | ✅ | ✅ | ❌ | ❌ |
 
@@ -103,7 +103,7 @@ Legend
 | Action | Super Admin | Academy Owner | Coach | Parent |
 |---------|-------------|---------------|---------|---------|
 | View | ✅ | 👁 Own Academy | 👁 Assigned Batches | 👁 Own Child |
-| Mark Attendance | ✅ | ✅ | ✅ Assigned Batches | ❌ |
+| Mark Attendance | ❌ | ✅ | ✅ Assigned Batches | ❌ |
 | Edit Attendance | ✅ | ✅ | ✅ Assigned Batches | ❌ |
 | Soft Delete | ✅ | ✅ | ❌ | ❌ |
 
@@ -114,7 +114,7 @@ Legend
 | Action | Super Admin | Academy Owner | Coach | Parent |
 |---------|-------------|---------------|---------|---------|
 | View | ✅ | 👁 Own Academy | 👁 Assigned Batches | 👁 Own Child |
-| Edit | ✅ | ✅ | ✅ Assigned Batches | ❌ |
+| Edit | ✅ | ✅ | ✅ Edit Assigned Batches (Within 7 Days) | ❌ |
 | Soft Delete | ✅ | ✅ | ❌ | ❌ |
 
 ---
@@ -145,7 +145,7 @@ Legend
 | View | ✅ | 👁 Own Academy | 👁 Assigned Players | 👁 Own Child |
 | Create | ✅ | ✅ | ❌ | ❌ |
 | Edit | ✅ | ✅ | ❌ | ❌ |
-| Delete | ✅ | ✅ | ❌ | ❌ |
+| Delete | ❌ | ❌ | ❌ | ❌ |
 
 ---
 
@@ -155,8 +155,25 @@ Legend
 |---------|-------------|---------------|---------|---------|
 | View | ✅ | 👁 Own Academy | 👁 Assigned Players | 👁 Own Child |
 | Collect Payment | ✅ | ✅ | ❌ | ❌ |
+| Partial Payment | ✅ | ✅ | ❌ | ❌ |
+| Full Payment | ✅ | ✅ | ❌ | ❌ |
+| Print Receipt | ✅ | ✅ | ❌ | 👁 Own Receipt |
 
 ---
+## Receipt Management
+
+| Action | Super Admin | Academy Owner | Coach | Parent |
+|---------|-------------|---------------|---------|---------|
+| View Receipt | ✅ | ✅ | ❌ | 👁 Own Receipt |
+| Print Receipt | ✅ | ✅ | ❌ | 👁 Own Receipt |
+
+## Reports (Future)
+
+| Action | Super Admin | Academy Owner | Coach | Parent |
+|---------|-------------|---------------|---------|---------|
+| Revenue Reports | ✅ | 👁 Own Academy | ❌ | ❌ |
+| Attendance Reports | ✅ | 👁 Own Academy | 👁 Assigned | 👁 Own Child |
+| Payment Reports | ✅ | 👁 Own Academy | ❌ | 👁 Own Child |
 
 # Global Security Rules
 
@@ -178,10 +195,22 @@ Legend
 - Cannot view players outside assigned batches.
 - Cannot modify academy configuration.
 - Cannot delete records.
-- Can mark and edit attendance only for assigned batches.
+Can mark attendance only for assigned batches.
+Can edit attendance only within 7 days.
+Cannot delete attendance.
+Cannot collect payments.
+Cannot generate dues.
 
 ## Parent
 
 - Can only view own child's information.
 - No administrative permissions.
-- Read-only access.
+Read-only access.
+
+Can view attendance.
+
+Can view payment dues.
+
+Can view payment history.
+
+Can print receipts (future enhancement).

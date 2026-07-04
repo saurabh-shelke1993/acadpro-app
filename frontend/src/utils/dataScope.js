@@ -286,13 +286,15 @@ export const getAccessiblePlayers = async (
   const { data, error } = await supabase
     .from("player_batches")
     .select(`
-      player_id,
-      players (
-        id,
-        full_name
-      )
-    `)
-    .eq("batch_id", batchId);
+    player_id,
+    players!inner(
+      id,
+      full_name,
+      is_active
+    )
+  `)
+  .eq("batch_id", batchId)
+  .eq("players.is_active", true);
 
   if (error) throw error;
 

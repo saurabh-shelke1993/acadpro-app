@@ -1,5 +1,11 @@
-import { useEffect, useState } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef
+} from "react";
 import { supabase } from "../services/supabase";
+import { generateReceiptNumber } from "../utils/receiptGenerator";
+import "./PaymentCollections.css";
 
 import {
   getLoggedInUser,
@@ -7,6 +13,9 @@ import {
   getAcademyId
 } from "../utils/auth";
 import Layout from "../components/Layout";
+
+import { useLocation } from "react-router-dom";
+
 function PaymentCollections() {
   const [academies, setAcademies] =
   useState([]);
@@ -70,6 +79,39 @@ useState("");
 setLoggedInUser] =
 useState(null);
 
+const [showReceiptModal, setShowReceiptModal] =
+  useState(false);
+
+const [receiptData, setReceiptData] =
+  useState(null);
+
+const receiptRef = useRef(null);
+
+const location = useLocation();
+
+//////////
+useEffect(() => {
+
+  const testReceipt = async () => {
+
+    const receipt =
+      await generateReceiptNumber();
+
+    console.log(
+      "Generated Receipt:",
+      receipt
+    );
+
+  };
+
+  testReceipt();
+
+}, []);
+//////////
+
+const dueId =
+  location.state?.dueId;
+
 const fetchLoggedInUser =
 async () => {
 
@@ -85,6 +127,21 @@ useEffect(() => {
   fetchLoggedInUser();
 
 }, []);
+
+useEffect(() => {
+
+  console.log(
+    "Received Due Id:",
+    dueId
+  );
+
+}, [dueId]);
+
+useEffect(() => {
+
+  loadDueFromNavigation();
+
+}, [dueId]);
 
 useEffect(() => {
 
@@ -246,38 +303,68 @@ const fetchCenters = async (academyId) => {
     .eq("academy_id", academyId)
     .order("center_name");
 
-  if (error) {
+if (error) {
 
     console.log(error);
 
-  } else {
+    return [];
+
+} else {
+
+    console.log(
+        "Loaded Centers:",
+        data
+    );
 
     setCenters(data);
 
-  }
+    return data;
+
+}
 };
 
 const fetchBatches = async (centerId) => {
 
-  const { data, error } = await supabase
-    .from("batches")
-    .select("id, batch_name")
-    .eq("center_id", centerId)
-    .order("batch_name");
+    const { data, error } = await supabase
 
-  if (error) {
+        .from("batches")
+
+        .select(`
+            id,
+            batch_name
+        `)
+
+        .eq("center_id", centerId)
+
+        .order("batch_name");
+
+if (error) {
 
     console.log(error);
 
-  } else {
+    return [];
+
+} else {
+
+    console.log(
+        "Loaded Batches:",
+        data
+    );
 
     setBatches(data);
 
-  }
+    return data;
+
+}
+
 };
 
 const fetchPlayers = async (batchId) => {
 
+      console.log(
+        "fetchPlayers called with:",
+        batchId
+    );
   const { data, error } = await supabase
     .from("players")
     .select(`
@@ -285,17 +372,30 @@ const fetchPlayers = async (batchId) => {
       full_name
     `)
     .eq("batch_id", batchId)
+      .eq("is_active", true)
     .order("full_name");
-
-  if (error) {
+  
+    console.log(
+    "Running player query..."
+);
+if (error) {
 
     console.log(error);
 
-  } else {
+    return [];
+
+} else {
+
+    console.log(
+        "Loaded Players:",
+        data
+    );
 
     setPlayers(data);
 
-  }
+    return data;
+
+}
 };
 
 const fetchPendingDues =
@@ -309,6 +409,8 @@ let query =
 .select(`
   id,
   player_id,
+  due_type,
+  due_date,
   total_amount,
   paid_amount,
   remaining_amount,
@@ -344,17 +446,105 @@ const { data, error } =
 
 if (error) {
 
-  console.log(error);
+    console.log(error);
+
+    return [];
 
 } else {
-console.log(
-  "PENDING DUES:",
-  data
-);
-  setDues(data);
+
+    console.log(
+        "Pending Dues:",
+        data
+    );
+
+    setDues(data);
+
+    return data;
 
 }
   };
+
+
+
+const loadDueFromNavigation = async () => {
+
+  if (!dueId) return;
+
+  const { data, error } =
+    await supabase
+      .from("payment_dues")
+      .select(`
+        *,
+        players(
+          id,
+          academy_id,
+          center_id,
+          batch_id,
+          full_name
+        )
+      `)
+      .eq("id", dueId)
+      .single();
+
+  if (error) {
+
+    console.log(error);
+    return;
+
+  }
+
+  console.log("Loaded Due:", data);
+
+// Academy
+
+setSelectedAcademy(
+    data.players.academy_id
+);
+
+await fetchCenters(
+    data.players.academy_id
+);
+
+// Center
+
+setSelectedCenter(
+    data.players.center_id
+);
+
+await fetchBatches(
+    data.players.center_id
+);
+
+// Batch
+
+setSelectedBatch(
+    data.players.batch_id
+);
+
+await fetchPlayers(
+    data.players.batch_id
+);
+
+// Player
+
+setSelectedPlayer(
+    data.player_id
+);
+
+await fetchPendingDues(
+    data.player_id
+);
+
+setSelectedDue(
+    data.id
+);
+
+setSelectedDueData(
+    data
+);
+
+};
+
 
 const fetchPayments = async () => {
 
@@ -431,22 +621,33 @@ players (
 
 const resetCollectionForm = () => {
 
-    setSelectedAcademy("");
-    setSelectedCenter("");
-    setSelectedBatch("");
-    setSelectedPlayer("");
+  setSelectedAcademy("");
 
-    setSelectedDue("");
-    setSelectedDueData(null);
+  setSelectedCenter("");
 
-    setAmountPaid("");
-    setPaymentMode("");
+  setSelectedBatch("");
 
-    setTransactionReference("");
+  setSelectedPlayer("");
 
-    setDues([]);
+  setSelectedDue("");
 
-  };
+  setSelectedDueData(null);
+
+  setAmountPaid("");
+
+  setPaymentMode("");
+
+  setTransactionReference("");
+
+  setCenters([]);
+
+  setBatches([]);
+
+  setPlayers([]);
+
+  setDues([]);
+
+};
 
   const collectPayment = async () => {
 
@@ -460,7 +661,18 @@ const resetCollectionForm = () => {
 
       return;
     }
+if (
+  paymentMode !== "cash" &&
+  !transactionReference.trim()
+) {
 
+  alert(
+    "Transaction Reference is required."
+  );
+
+  return;
+
+}
     const currentPaid =
       Number(
         selectedDueData.paid_amount
@@ -471,44 +683,58 @@ const resetCollectionForm = () => {
         selectedDueData.total_amount
       );
 
-    const newPaidAmount =
-      currentPaid +
-      Number(amountPaid);
+const paymentAmount =
+  Number(amountPaid);
 
-    const remainingAmount =
-      totalAmount -
-      newPaidAmount;
+const newPaidAmount =
+  currentPaid + paymentAmount;
 
-const payment = Number(amountPaid);
+const remainingAmount =
+  totalAmount - newPaidAmount;
 
-if (payment > Number(selectedDueData.remaining_amount)) {
+console.log("Current Paid:", currentPaid);
+console.log("Total Amount:", totalAmount);
+console.log("Entered Payment:", paymentAmount);
+console.log("New Paid Amount:", newPaidAmount);
+console.log("Remaining Amount:", remainingAmount);
+
+if (remainingAmount < 0) {
+
+  const maximumAllowed =
+    totalAmount - currentPaid;
 
   alert(
-    `Maximum payable amount is ₹${selectedDueData.remaining_amount}`
+    `Maximum payable amount is ₹${maximumAllowed}`
   );
 
   return;
+
 }
 
-    let dueStatus = "pending";
 
-    if (
-      remainingAmount <= 0
-    ) {
+let dueStatus = "pending";
 
-      dueStatus = "paid";
+if (
+    newPaidAmount === totalAmount
+) {
 
-    } else if (
-      newPaidAmount > 0
-    ) {
+    dueStatus = "paid";
 
-      dueStatus = "partial";
-    }
+}
+else if (
+    newPaidAmount > 0
+) {
 
+    dueStatus = "partial";
 
-    
-    /* INSERT PAYMENT */
+}
+/////
 
+const receiptNumber =
+  await generateReceiptNumber();
+
+        /* INSERT PAYMENT */
+   
     const { error: paymentError } =
       await supabase
         .from("payments")
@@ -527,7 +753,9 @@ if (payment > Number(selectedDueData.remaining_amount)) {
               paymentMode,
 
             transaction_reference:
-              transactionReference
+              transactionReference,
+
+            receipt_number: receiptNumber
           }
         ]);
 
@@ -548,9 +776,6 @@ if (payment > Number(selectedDueData.remaining_amount)) {
     paid_amount:
       newPaidAmount,
 
-    remaining_amount:
-      remainingAmount,
-
     due_status:
       dueStatus
 
@@ -560,14 +785,82 @@ if (payment > Number(selectedDueData.remaining_amount)) {
           selectedDueData.id
         );
 
-    if (dueError) {
+ if (dueError) {
 
-      alert(dueError.message);
+  alert(dueError.message);
 
-    } else {
+} else {
 
+  const receiptNumber =
+    await generateReceiptNumber();
 
-    }
+  const selectedAcademyName =
+    academies.find(
+      academy =>
+        academy.id === selectedAcademy
+    )?.academy_name;
+
+  const selectedCenterName =
+    centers.find(
+      center =>
+        center.id === selectedCenter
+    )?.center_name;
+
+  const selectedBatchName =
+    batches.find(
+      batch =>
+        batch.id === selectedBatch
+    )?.batch_name;
+
+  setReceiptData({
+
+    receiptNumber,
+
+    player:
+      selectedDueData.players.full_name,
+
+    academy:
+      selectedAcademyName,
+
+    center:
+      selectedCenterName,
+
+    batch:
+      selectedBatchName,
+
+    amountPaid:
+      paymentAmount,
+
+    paymentMode:
+      paymentMode,
+
+    transactionReference:
+      transactionReference,
+
+    remainingAmount:
+      remainingAmount,
+
+paymentDate:
+new Date().toLocaleDateString(
+  "en-IN",
+  {
+    day: "2-digit",
+    month: "short",
+    year: "numeric"
+  }
+)
+
+  });
+
+  setShowReceiptModal(true);
+
+  resetCollectionForm();
+
+  fetchPendingDues(selectedPlayer);
+
+  fetchPayments();
+
+}
   };
 
 useEffect(() => {
@@ -595,6 +888,238 @@ useEffect(() => {
   selectedPlayer
 ]);
 
+const printReceipt = () => {
+  console.log("Print button clicked");
+  console.log(receiptRef.current);
+const printContents = `
+
+<div
+style="padding:40px;
+font-family:Arial;">
+
+<h1
+style="
+text-align:center;
+margin-bottom:5px;">
+AcadPro
+</h1>
+
+<h2
+style="
+text-align:center;
+margin-top:0;">
+PAYMENT RECEIPT
+</h2>
+
+<hr>
+
+<p>
+<strong>
+Receipt Number:
+</strong>
+
+${receiptData.receiptNumber}
+</p>
+
+<p>
+<strong>
+Date:
+</strong>
+
+${receiptData.paymentDate}
+</p>
+
+<br>
+
+<p>
+<strong>
+Player:
+</strong>
+
+${receiptData.player}
+</p>
+
+<p>
+<strong>
+Academy:
+</strong>
+
+${receiptData.academy}
+</p>
+
+<p>
+<strong>
+Center:
+</strong>
+
+${receiptData.center}
+</p>
+
+<p>
+<strong>
+Batch:
+</strong>
+
+${receiptData.batch}
+</p>
+
+<br>
+
+<p>
+<strong>
+Payment Mode:
+</strong>
+
+${receiptData.paymentMode}
+</p>
+
+<p>
+<strong>
+Reference:
+</strong>
+
+${receiptData.transactionReference || "-"}
+</p>
+
+<hr>
+
+<h3>
+
+Amount Paid :
+₹${receiptData.amountPaid}
+
+</h3>
+
+<h3>
+
+Remaining :
+₹${receiptData.remainingAmount}
+
+</h3>
+
+<hr>
+
+<div
+style="
+margin-top:80px;
+display:flex;
+justify-content:space-between;
+">
+
+<div>
+
+____________________
+
+<br>
+
+Received By
+
+</div>
+
+<div>
+
+____________________
+
+<br>
+
+Parent Signature
+
+</div>
+
+</div>
+
+<br><br>
+
+<center>
+
+Thank you for your payment.
+
+</center>
+
+</div>
+
+`;
+ console.log(printContents);
+  const printWindow =
+    window.open(
+      "",
+      "",
+      "width=700,height=800"
+    );
+  console.log(printWindow);
+  printWindow.document.write(`
+
+    <html>
+
+      <head>
+
+        <title>
+          Payment Receipt
+        </title>
+
+        <style>
+
+body{
+    font-family: Arial, sans-serif;
+    padding: 40px;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+          h2{
+
+            text-align:center;
+
+          }
+
+          p{
+
+            font-size:16px;
+
+            margin:10px 0;
+
+          }
+
+          strong{
+
+            display:inline-block;
+
+            width:150px;
+
+          }
+
+        </style>
+
+      </head>
+
+      <body>
+
+        ${printContents}
+
+      </body>
+
+    </html>
+
+  `);
+
+printWindow.document.close();
+
+printWindow.onload = () => {
+
+  printWindow.focus();
+
+  printWindow.print();
+
+  printWindow.onafterprint = () => {
+
+    printWindow.close();
+
+  };
+
+};
+
+};
+
 return (
   <Layout>
     <div style={{ padding: "20px" }}>
@@ -602,11 +1127,35 @@ return (
 
       <select
   value={selectedAcademy}
-  onChange={(e) =>
-    setSelectedAcademy(
-      e.target.value
-    )
+onChange={(e) => {
+
+  const academyId = e.target.value;
+
+  setSelectedAcademy(academyId);
+
+  // Clear lower selections
+
+  setSelectedCenter("");
+  setSelectedBatch("");
+  setSelectedPlayer("");
+
+  setCenters([]);
+  setBatches([]);
+  setPlayers([]);
+  setDues([]);
+
+  setSelectedDue("");
+  setSelectedDueData(null);
+
+  // Load centers
+
+  if (academyId) {
+
+    fetchCenters(academyId);
+
   }
+
+}}
 >
   <option value="">
     Select Academy
@@ -628,11 +1177,35 @@ return (
 
 <select
   value={selectedCenter}
-  onChange={(e) =>
-    setSelectedCenter(
-      e.target.value
-    )
-  }
+onChange={(e) => {
+
+    const centerId = e.target.value;
+
+    setSelectedCenter(centerId);
+
+    // Reset lower hierarchy
+
+    setSelectedBatch("");
+
+    setSelectedPlayer("");
+
+    setSelectedDue("");
+
+    setSelectedDueData(null);
+
+    setBatches([]);
+
+    setPlayers([]);
+
+    setDues([]);
+
+    if (centerId) {
+
+        fetchBatches(centerId);
+
+    }
+
+}}
 >
   <option value="">
     Select Center
@@ -654,11 +1227,35 @@ return (
 
 <select
   value={selectedBatch}
-  onChange={(e) =>
-    setSelectedBatch(
-      e.target.value
-    )
-  }
+onChange={(e) => {
+
+    const batchId = e.target.value;
+
+    setSelectedBatch(batchId);
+
+    // Clear lower hierarchyf
+
+    setSelectedPlayer("");
+
+    setSelectedDue("");
+
+    setSelectedDueData(null);
+
+    setPlayers([]);
+
+    setDues([]);
+
+    if (batchId) {
+
+          console.log(
+        "Selected Batch:",
+        batchId
+    );
+        fetchPlayers(batchId);
+
+    }
+
+}}
 >
   <option value="">
     Select Batch
@@ -743,29 +1340,26 @@ setPaymentMode("");
   }
 </option>
 
-        {
-          dues.map((due) => (
+        {dues.map((due) => (
 
-            <option
-              key={due.id}
-              value={due.id}
-            >
+<option
+    key={due.id}
+    value={due.id}
+>
 
-              {
-                due.players
-                ?.full_name
-              }
+{due.due_type}
 
-              {" - Remaining ₹"}
+{" | Due: "}
 
-              {
-                due.remaining_amount
-              }
+{due.due_date}
 
-            </option>
+{" | Remaining ₹"}
 
-          ))
-        }
+{due.remaining_amount}
+
+</option>
+
+))}
 
       </select>
 
@@ -937,6 +1531,128 @@ setPaymentMode("");
       </table>
 
     </div>
+
+    {showReceiptModal &&
+      receiptData && (
+
+      <div className="receipt-modal-overlay">
+
+<div
+  className="receipt-modal"
+  ref={receiptRef}
+>
+
+          <h2>
+            Payment Receipt
+          </h2>
+
+          <p>
+            <strong>
+              Receipt Number:
+            </strong>{" "}
+            {receiptData.receiptNumber}
+          </p>
+
+          <p>
+            <strong>
+              Player:
+            </strong>{" "}
+            {receiptData.player}
+          </p>
+
+          <p>
+            <strong>
+              Academy:
+            </strong>{" "}
+            {receiptData.academy}
+          </p>
+
+          <p>
+            <strong>
+              Center:
+            </strong>{" "}
+            {receiptData.center}
+          </p>
+
+          <p>
+            <strong>
+              Batch:
+            </strong>{" "}
+            {receiptData.batch}
+          </p>
+
+          <p>
+            <strong>
+              Amount Paid:
+            </strong>{" "}
+            ₹{receiptData.amountPaid}
+          </p>
+
+          <p>
+            <strong>
+              Payment Mode:
+            </strong>{" "}
+            {receiptData.paymentMode}
+          </p>
+
+          <p>
+            <strong>
+              Reference:
+            </strong>{" "}
+            {
+              receiptData.transactionReference ||
+              "N/A"
+            }
+          </p>
+
+          <p>
+            <strong>
+              Remaining:
+            </strong>{" "}
+            ₹{receiptData.remainingAmount}
+          </p>
+
+          <p>
+            <strong>
+              Date:
+            </strong>{" "}
+            {receiptData.paymentDate}
+          </p>
+
+<div
+  style={{
+    marginTop: "25px",
+    display: "flex",
+    gap: "10px"
+  }}
+>
+
+<button
+  onClick={printReceipt}
+>
+
+Print Receipt
+
+</button>
+
+<button
+  onClick={() =>
+    setShowReceiptModal(false)
+  }
+>
+
+Close
+
+</button>
+
+</div>
+
+        </div>
+
+      </div>
+
+    )}
+
   </Layout>
 );
 }
