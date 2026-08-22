@@ -1,10 +1,15 @@
 # AcadPro Architecture
 
+---
+
 ## Roles
+
 - super_admin
 - academy_owner
 - coach
 - parent
+
+---
 
 ## Current Modules
 
@@ -22,206 +27,204 @@
 - Player Subscriptions
 - Payment Dues
 - Payment Collections
+- Parent Portal
+
+---
+
+## Authentication & RBAC
+
+AcadPro uses Supabase Authentication for user authentication and a
+public.users table for application-level user and role information.
+
+### Supported Roles
+
+| Role | Scope |
+|---|---|
+| Super Admin | Entire system |
+| Academy Owner | Own academy |
+| Coach | Assigned batches |
+| Parent | Own parent account and linked player(s) |
+
+Role detection is centralized through the authentication and utility layer.
+
+Dashboard routing is role-aware:
+
+- Super Admin → `/dashboard`
+- Academy Owner → `/dashboard`
+- Coach → `/coach-dashboard`
+- Parent → `/parent-portal`
+
+---
+
+## Multi-Tenant Architecture
+
+AcadPro follows academy-level multi-tenant data isolation.
+
+### Tenant Hierarchy
+
+Academy
+↓
+Center
+↓
+Batch
+↓
+Player
+↓
+Parent
+
+A player belongs to an academy and may be associated with a center,
+batch and parent.
+
+Parents are linked to players through:
+
+- `players.parent_id`
+- `parents.id`
+
+The parent portal must only expose data belonging to the authenticated
+parent and their linked player(s).
+
+---
+
+## Current Modules
 
 ### Attendance Module
-✓ CRUD
-✓ History
-✓ Edit
-✓ Soft Delete
-✓ Duplicate Prevention
-✓ Role Security
+
+✓ CRUD  
+✓ History  
+✓ Edit  
+✓ Soft Delete  
+✓ Duplicate Prevention  
+✓ Role Security  
 ✓ Service Layer
 
 ### Payment Dues
-✓ Due Generation
-✓ Remaining Amount Calculation
-✓ Partial Payment Support
+
+✓ Due Generation  
+✓ Remaining Amount Calculation  
+✓ Partial Payment Support  
 ✓ Full Payment Support
 
 ### Payment Collections
-✓ Payment History
-✓ Receipt Generation
-✓ Printable Receipts
-✓ Sequential Receipt Numbers
+
+✓ Payment History  
+✓ Receipt Generation  
+✓ Printable Receipts  
+✓ Sequential Receipt Numbers  
 ✓ Multi-level Filters
 
+### Parent Portal
+
+✓ Parent Role  
+✓ Parent Authentication  
+✓ Parent Route Protection  
+✓ Parent Dashboard Route  
+✓ Parent-to-Player Relationship  
+✓ Basic Parent Portal Page
+
+---
+
 ## Folder Structure
+
 src/
-  components/
-  pages/
-  routes/
-services/
-  - attendanceService.js
-  - paymentDueService.js
-  - paymentCollectionService.js
-  utils/
-   - auth.js
-   - permissions.js
-   - dataScope.js
-   - constants.js
-   - messages.js
+│
+├── components/
+├── pages/
+├── routes/
+├── services/
+│   ├── attendanceService.js
+│   ├── paymentDueService.js
+│   └── paymentCollectionService.js
+│
+└── utils/
+    ├── auth.js
+    ├── permissions.js
+    ├── dataScope.js
+    ├── constants.js
+    └── messages.js
+
+---
 
 ## Important Rules
 
 ### Super Admin
+
 - Can see all academies
 - Can filter by academy
 - Can create academy
-- Can see all data
+- Can see all system data
+- Can manage system-level configuration
+- Cannot be restricted to a single academy
 
 ### Academy Owner
+
 - Can only see own academy data
+- Can manage centers within own academy
+- Can manage batches within own academy
+- Can manage players within own academy
+- Can manage academy-level financial data
 
 ### Coach
+
 - Can only see assigned batches
+- Can see players belonging to assigned batches
+- Can mark attendance
+- Can edit attendance according to the defined attendance editing rules
+- Cannot access unrelated academy data
 
-## Shared Utilities
+### Parent
 
-### Authentication
-- auth.js
-- Role Detection
-- Logged-in User Helper
-
-### Permissions
-- permissions.js
-- Centralized Role Checks
-
-### Data Scope
-- dataScope.js
-- Academy Filtering
-- Center Filtering
-- Batch Filtering
-- Player Filtering
-
-### Services
-- attendanceService.js
-- paymentDueService.js
-- paymentCollectionService.js
-
-Business logic is kept inside the service layer while UI components remain focused on rendering and user interaction.
-
-## Tables
-
-- users
-- academies
-- centers
-- batches
-- players
-- player_batches
-- coaches
-- coach_batch_mapping
-- attendance
-- attendance_history
-- subscription_plans
-- player_subscriptions
-- payment_dues
-- payments
-
-### Players Module V4
-
-Features:
-
-* Player CRUD
-* Parent CRUD Integration
-* Academy Filtering
-* Center Filtering
-* Batch Filtering
-* Search
-* Role Based Visibility
-* Soft Delete (is_active)
-* Age Calculation from DOB
-
-Tables Used:
-
-* players
-* parents
-* academies
-* centers
-* batches
-* player_batches
-
-
-## Financial Module
-
-### Payment Dues
-
-Purpose
-
-Track all outstanding subscription dues for players.
-
-Features
-
-- Manual Due Generation
-- Duplicate Prevention
-- Pending / Partial / Paid Status
-- Remaining Amount Calculation
-- Multi-level Filtering
-- Role Based Visibility
-
-Technical Notes
-
-remaining_amount is a PostgreSQL generated column.
-
-Formula
-
-remaining_amount = total_amount - paid_amount
-
-The frontend never updates remaining_amount directly.
-
-Only paid_amount is updated.
-
-The database automatically recalculates remaining_amount.
+- Can only access the authenticated parent account
+- Can only see player(s) linked to that parent
+- Cannot see other parents
+- Cannot see unrelated players
+- Cannot access academy administration
+- Cannot access coach functionality
+- Cannot modify academy/player master data
+- Parent-facing financial and attendance data must be restricted to
+  the linked player(s)
 
 ---
 
-### Payment Collections
+## Parent Portal Architecture
 
-Purpose
+The Parent Portal is a role-specific application area.
 
-Record player payments against outstanding dues.
+### Route
 
-Features
+`/parent-portal`
 
-- Partial Payments
-- Full Payments
-- Overpayment Validation
-- Payment History
-- Sequential Receipt Numbers
-- Printable Receipt
-- Receipt Modal
-- Transaction Reference
-- Payment Mode Tracking
+### Access
 
-Future Enhancements
+The route is protected using `ProtectedRoute` with:
 
-- Download PDF
-- Email Receipt
-- Razorpay Integration
+`allowedRoles = ["parent"]`
 
+### Parent Data Relationship
 
-## Architecture Principles
+The expected relationship is:
 
-AcadPro follows a layered architecture.
-
-UI Layer
+users
 ↓
-
-Service Layer
-
+parents
 ↓
+players
 
-Supabase Database
+The authenticated user's ID is associated with the parent account.
 
-↓
+The parent record is then used to identify the linked player(s).
 
-PostgreSQL
+Example:
 
-Business logic is placed inside the service layer.
-
-Role validation is centralized through permissions.js.
-
-Data filtering is centralized through dataScope.js.
-
-Generated database columns are never updated directly from the frontend.
-
-This architecture minimizes duplicate code and keeps business rules consistent across modules.
+```text
+Authenticated User
+        |
+        v
+public.users
+        |
+        | email / user relationship
+        v
+public.parents
+        |
+        | parent_id
+        v
+public.players
