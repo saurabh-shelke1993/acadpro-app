@@ -1,335 +1,206 @@
-import { useEffect, useState }
-from "react";
+import { useEffect, useState } from "react";
+import DashboardCard from "../components/Dashboard/DashboardCard";
+import DashboardCharts from "../components/DashboardCharts";
+import Layout from "../components/Layout";
+import { getDashboardSummary } from "../services/dashboardService";
+import "../styles/dashboard.css";
+import { getCurrentUser } from "../utils/auth";
 
-import { supabase }
-from "../supabaseClient";
+const initialSummary = {
+  totalPlayers: 0,
+  totalCenters: 0,
+  totalBatches: 0,
+  totalAcademies: 0,
+  attendanceTaken: 0,
+  presentPlayers: 0,
+  absentPlayers: 0,
+  attendancePercentage: 0,
+  pendingDues: 0,
+  outstandingAmount: 0,
+  collectionsThisMonth: 0
+};
 
-import Layout
-from "../components/Layout";
-
-import {
-  getCurrentUser,
-  isSuperAdmin,
-}
-from "../utils/auth";
+const formatCurrency = (amount) =>
+  `₹${Number(amount || 0).toLocaleString("en-IN")}`;
 
 function Dashboard() {
-
-  const [user,
-    setUser] =
-    useState(null);
-
-  const [totalPlayers,
-    setTotalPlayers] =
-    useState(0);
-
-  const [totalCenters,
-    setTotalCenters] =
-    useState(0);
-
-  const [totalBatches,
-    setTotalBatches] =
-    useState(0);
-
-  const [todayAttendance,
-    setTodayAttendance] =
-    useState(0);
-
-  const [loading,
-    setLoading] =
-    useState(true);
-
-  // =========================================
-  // LOAD USER
-  // =========================================
+  const [user, setUser] = useState(null);
+  const [summary, setSummary] = useState(initialSummary);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
+    let isMounted = true;
 
-    loadUser();
-
-  }, []);
-
-  const loadUser =
-    async () => {
-
+    const loadDashboard = async () => {
       try {
+        setLoading(true);
+        setError("");
 
-        const currentUser =
-          await getCurrentUser();
+        const currentUser = await getCurrentUser();
+
+        if (!currentUser) {
+          throw new Error("Unable to load the current user.");
+        }
+
+        const dashboardSummary = await getDashboardSummary(currentUser);
+
+        if (!isMounted) return;
 
         setUser(currentUser);
+        setSummary(dashboardSummary);
+      } catch (loadError) {
+        if (!isMounted) return;
 
-      } catch (err) {
-
-        console.log(err.message);
-      }
-    };
-
-  // =========================================
-  // FETCH DASHBOARD DATA
-  // =========================================
-
-  useEffect(() => {
-
-    if (user) {
-
-      fetchDashboardData();
-    }
-
-  }, [user]);
-
-  const fetchDashboardData =
-    async () => {
-
-      try {
-
-        setLoading(true);
-
-        // PLAYERS
-
-        let playersQuery =
-          supabase
-            .from("players")
-            .select("*", {
-              count: "exact",
-              head: true,
-            });
-
-        if (!isSuperAdmin(user)) {
-
-          playersQuery =
-            playersQuery.eq(
-              "academy_id",
-              user.academy_id
-            );
-        }
-
-        const {
-          count: playersCount
-        } =
-          await playersQuery;
-
-        setTotalPlayers(
-          playersCount || 0
-        );
-
-        // CENTERS
-
-        let centersQuery =
-          supabase
-            .from("centers")
-            .select("*", {
-              count: "exact",
-              head: true,
-            });
-
-        if (!isSuperAdmin(user)) {
-
-          centersQuery =
-            centersQuery.eq(
-              "academy_id",
-              user.academy_id
-            );
-        }
-
-        const {
-          count: centersCount
-        } =
-          await centersQuery;
-
-        setTotalCenters(
-          centersCount || 0
-        );
-
-        // BATCHES
-
-        let batchesQuery =
-          supabase
-            .from("batches")
-            .select("*", {
-              count: "exact",
-              head: true,
-            });
-
-        if (!isSuperAdmin(user)) {
-
-          batchesQuery =
-            batchesQuery.eq(
-              "academy_id",
-              user.academy_id
-            );
-        }
-
-        const {
-          count: batchesCount
-        } =
-          await batchesQuery;
-
-        setTotalBatches(
-          batchesCount || 0
-        );
-
-        // ATTENDANCE
-
-        const today =
-          new Date()
-            .toISOString()
-            .split("T")[0];
-
-        let attendanceQuery =
-          supabase
-            .from("attendance")
-            .select("*", {
-              count: "exact",
-              head: true,
-            })
-            .eq(
-              "attendance_date",
-              today
-            );
-
-        if (!isSuperAdmin(user)) {
-
-          attendanceQuery =
-            attendanceQuery.eq(
-              "academy_id",
-              user.academy_id
-            );
-        }
-
-        const {
-          count: attendanceCount
-        } =
-          await attendanceQuery;
-
-        setTodayAttendance(
-          attendanceCount || 0
-        );
-
-      } catch (err) {
-
-        console.log(err.message);
-
+        console.error("Dashboard load error:", loadError);
+        setError("Unable to load dashboard data. Please try again.");
       } finally {
-
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
 
-  // =========================================
-  // LOADING
-  // =========================================
+    loadDashboard();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   if (loading) {
-
     return (
-
       <Layout>
-
-        <h2>
-          Loading Dashboard...
-        </h2>
-
+        <h2>Loading Dashboard...</h2>
       </Layout>
     );
   }
 
-  // =========================================
-  // UI
-  // =========================================
+  if (error) {
+    return (
+      <Layout>
+        <div className="dashboard-section">
+          <h1>Dashboard</h1>
+          <p role="alert">{error}</p>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
-
     <Layout>
-
       <div>
-
-        <h1>
-          Dashboard
-        </h1>
+        <h1>Dashboard</h1>
 
         <p>
-          Welcome,
-          {" "}
-          {user?.full_name}
+          Welcome, {user?.full_name}
         </p>
 
-        <p>
-          Role:
-          {" "}
-          {user?.role}
-        </p>
-
-        {/* DASHBOARD CARDS */}
-
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns:
-              "repeat(auto-fit, minmax(250px, 1fr))",
-            gap: "20px",
-            marginTop: "30px",
-          }}
-        >
-
-          <DashboardCard
-            title="Total Players"
-            value={totalPlayers}
-          />
-
-          <DashboardCard
-            title="Total Centers"
-            value={totalCenters}
-          />
-
-          <DashboardCard
-            title="Total Batches"
-            value={totalBatches}
-          />
-
-          <DashboardCard
-            title="Today's Attendance"
-            value={todayAttendance}
-          />
-
+        <div className="dashboard-role">
+          {user?.role?.replace("_", " ")}
         </div>
 
+        <div className="dashboard-section">
+          <h2>Master Data</h2>
+
+          <div className="dashboard-grid">
+            <DashboardCard
+              title="Players"
+              value={summary.totalPlayers}
+              icon="👤"
+              color="#2563eb"
+            />
+
+            <DashboardCard
+              title="Centers"
+              value={summary.totalCenters}
+              icon="🏟️"
+              color="#16a34a"
+            />
+
+            <DashboardCard
+              title="Batches"
+              value={summary.totalBatches}
+              icon="⚽"
+              color="#f97316"
+            />
+
+            <DashboardCard
+              title="Academies"
+              value={summary.totalAcademies}
+              icon="🏢"
+              color="#9333ea"
+            />
+          </div>
+        </div>
+
+        <div className="dashboard-section">
+          <h2>Today's Attendance</h2>
+
+          <div className="dashboard-grid-small">
+            <DashboardCard
+              title="Total"
+              value={summary.attendanceTaken}
+              icon="📋"
+              color="#0ea5e9"
+            />
+
+            <DashboardCard
+              title="Present"
+              value={summary.presentPlayers}
+              icon="✅"
+              color="#22c55e"
+            />
+
+            <DashboardCard
+              title="Absent"
+              value={summary.absentPlayers}
+              icon="❌"
+              color="#ef4444"
+            />
+
+            <DashboardCard
+              title="Present %"
+              value={`${summary.attendancePercentage}%`}
+              icon="📈"
+              color="#8b5cf6"
+            />
+          </div>
+        </div>
+
+        <div className="dashboard-section">
+          <h2>Financial Summary</h2>
+
+          <div className="dashboard-grid-small">
+            <DashboardCard
+              title="Outstanding Dues"
+              value={formatCurrency(summary.outstandingAmount)}
+              icon="📉"
+              color="#ef4444"
+            />
+
+            <DashboardCard
+              title="Monthly Collections"
+              value={formatCurrency(summary.collectionsThisMonth)}
+              icon="💵"
+              color="#22c55e"
+            />
+
+            <DashboardCard
+              title="Pending Dues"
+              value={summary.pendingDues}
+              icon="💰"
+              color="#f59e0b"
+            />
+          </div>
+        </div>
+
+                <div className="dashboard-section">
+          <DashboardCharts
+            attendanceTrend={summary.attendanceTrend}
+            collectionsTrend={summary.collectionsTrend}
+          />
+        </div>
       </div>
-
     </Layout>
-  );
-}
-
-// =========================================
-// DASHBOARD CARD
-// =========================================
-
-function DashboardCard({
-  title,
-  value
-}) {
-
-  return (
-
-    <div
-      style={{
-        background: "white",
-        padding: "25px",
-        borderRadius: "12px",
-        boxShadow:
-          "0 2px 10px rgba(0,0,0,0.1)",
-      }}
-    >
-
-      <h3>
-        {title}
-      </h3>
-
-      <h1>
-        {value}
-      </h1>
-
-    </div>
   );
 }
 

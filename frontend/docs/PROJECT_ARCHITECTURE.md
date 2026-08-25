@@ -28,7 +28,8 @@
 - Payment Dues
 - Payment Collections
 - Parent Portal
-
+- Dashboard
+- Dashboard Analytics
 ---
 
 ## Authentication & RBAC
@@ -112,6 +113,34 @@ parent and their linked player(s).
 ✓ Sequential Receipt Numbers  
 ✓ Multi-level Filters
 
+## Dashboard & Analytics
+
+The Dashboard provides role-aware operational and financial analytics.
+
+### Analytics Components
+
+- Attendance KPI summary
+- Attendance trend
+- Attendance percentage
+- Collections KPI summary
+- Collections trend
+- Empty-state handling
+- Tooltip-based data inspection
+- Chart data labels
+
+### Data Scope
+
+Dashboard analytics use the centralized dashboard data scope.
+
+| Role | Analytics Scope |
+|---|---|
+| Super Admin | Entire platform |
+| Academy Owner | Own academy |
+| Coach | Assigned batches |
+| Parent | Own linked player(s) |
+
+Dashboard analytics must never bypass centralized data-scope rules.
+
 ### Parent Portal
 
 ✓ Parent Role  
@@ -128,10 +157,14 @@ parent and their linked player(s).
 src/
 │
 ├── components/
+│
 ├── pages/
+│
 ├── routes/
+│
 ├── services/
 │   ├── attendanceService.js
+│   ├── dashboardService.js
 │   ├── paymentDueService.js
 │   └── paymentCollectionService.js
 │

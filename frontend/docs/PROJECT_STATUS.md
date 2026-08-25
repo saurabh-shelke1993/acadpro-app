@@ -23,33 +23,35 @@ V1.0 Beta
 payment-module-finalization
 
 **Last Updated:**
-05 July 2026
+25 August 2026
 ---
 
 # 2. Current Sprint
 
 **Sprint Name:**
-Sprint 6 – Payment Module Finalization
+Sprint 6 – Dashboard Analytics & Platform Finalization
 
 **Sprint Goal:**
-Complete the Financial Module to production quality by implementing:
+Complete and stabilize the Dashboard Analytics experience across all
+supported roles and prepare the platform for the next highest-priority
+development phase.
 
 **Current Module:**
-Payment Module Finalization
+Dashboard & Analytics
 
 **Current Task:**
-Receipt Management Completed
+Dashboard Analytics Phase 4 completed
 
 **Next Task:**
-Reporting & Analytics Module
+Platform hardening and security validation
 ---
 
 # 3. Module Status
 
 | Module | Status | Progress | Last Tested | Remarks |
 |----------|---------|----------|-------------|---------|
-| Authentication |🟡| 95% | 01-Jun-2026 | Parent login to be added and tested |
-| RBAC |🟡| 95% |01-Jun-2026 |Parent roles to be tested |
+| Authentication |🟡| 95% | 01-Jun-2026 | Parent login is implemented |
+| RBAC |🟡| 95% |01-Jun-2026 |Parent role/RBAC implemented and tested |
 | Academy Management |✅|100%|10-Jun-2026 |CRUD Completed|
 | Center Management |✅|100%|10-Jun-2026 |CRUD Completed|
 | Batch Management |✅|100%|10-Jun-2026 |CRUD Completed|
@@ -61,17 +63,15 @@ Reporting & Analytics Module
 | Player Subscriptions |✅|100%|15-Jun-2026 |CRUD Completed|
 | Payment Dues |✅|100%|05-Jul-2026|Production Ready|
 | Payment Collections | ✅ |100%|05-Jul-2026|Receipt Management Completed|
-| Dashboard |🟡|85%|25-Jun-2026|Needs polish across roles| 
-| Parent Portal |⚪|0%| |Not started|
+| Dashboard |🟢|95%|25-Aug-2026|Core analytics, role-aware data scope, charts, KPI cards and empty states implemented; final production hardening remains|
+| Parent Portal |🟡|10%| |In Progress|
 | Reports |⚪|0%| |Not started|
 
 ---
 
 # 4. Current Known Issues
 ## Authentication
-- Parent login is not yet implemented.
 - Forgot Password flow pending.
-- Parent authentication testing pending.
 
 ---
 
@@ -79,6 +79,10 @@ Reporting & Analytics Module
 - Final role validation required across all modules.
 - Verify Academy Owner permissions in all screens.
 - Verify Coach permissions in all screens.
+- Verify Parent read-only restrictions across Parent Portal and
+  financial/attendance views.
+- Verify data-scope isolation for dashboard analytics.
+- Verify Super Admin cross-academy visibility.
 
 ---
 
@@ -94,7 +98,30 @@ Future enhancements:
 ---
 
 ## Dashboard
-- Dashboard consistency across Super Admin, Academy Owner and Coach.
+
+
+### Completed
+- Role-aware dashboard data scope
+- Attendance KPI cards
+- Attendance trend chart
+- Attendance percentage visualization
+- Collections KPI cards
+- Collections trend chart
+- Currency formatting
+- Attendance tooltip improvements
+- Collections tooltip improvements
+- Chart data labels
+- Empty-state handling
+- Academy Owner data isolation
+- Coach batch-level data isolation
+- Super Admin cross-academy visibility
+- Dashboard analytics verified across supported roles
+
+### Remaining
+- Final production hardening
+- Final RBAC/data-scope audit
+- Responsive layout review
+- Performance review
 ---
 
 # 5. Recently Completed
@@ -163,41 +190,53 @@ Future enhancements:
 ✅ Receipt Modal
 
 ✅ Receipt Management
+
+✅Parent Role
+
+✅Parent Authentication
+
+✅Parent Login
+
+✅Parent Route
+
+✅Parent RBAC Protection
+
+✅Parent → Player Data Association
+
+✅Basic Parent Portal Page
+
+✅ Dashboard Analytics Phase 4
+✅ Dashboard KPI Cards
+✅ Attendance Trend Analytics
+✅ Attendance Percentage Visualization
+✅ Collections Trend Analytics
+✅ Analytics Empty States
+✅ Analytics Tooltip Improvements
+✅ Analytics Data Labels
+✅ Role-Aware Dashboard Analytics
+✅ Dashboard Analytics Role Verification
 ---
 
 # 6. Upcoming Milestones
 
-## Sprint 5
-- Complete Attendance Module
-- Complete Attendance History
-- Complete Payment Dues
-- Complete Payment Collections
+## Current Phase
+- Dashboard Analytics Phase 4 completed
+- Final dashboard validation
+- Platform hardening
+- RBAC and data-scope audit
 
-## Sprint 6
-- Parent Portal
-- Parent Login
-- Parent Dashboard
+## Next Development Phase
+- Highest-priority production hardening tasks
+- Parent Portal completion
+- Reporting Module planning
 
-## Sprint 7
-- Player Performance Module
-- Coach Performance Reports
-
-## Sprint 8
-- Reporting Module
-- Revenue Reports
-- Payment Reports
-- Attendance Reports
-- Dashboard Analytics
-
-## Sprint 9
+## Future
 - Notifications
 - WhatsApp Integration
 - Email Notifications
-
-## Sprint 10
-- Beta Launch
-- Academy Onboarding
-- Bug Fixes
+- Online Payments
+- Performance Analytics
+- Tournament Management
 ---
 
 # 7. Database Status
@@ -237,9 +276,11 @@ Supabase PostgreSQL
 # 8. Technical Debt
 ## High Priority
 
-- Centralize role-based permission logic.
-- Move reusable business logic into service layer.
-- Complete coachService.js.
+- Final RBAC validation across all modules.
+- Final data-scope security validation.
+- Review Supabase RLS policies before production.
+- Complete coachService.js if remaining functionality requires it.
+- Review duplicated service/query logic.
 
 ---
 
@@ -270,13 +311,13 @@ Fix attendance history initial load and center filtering
 
 **Current Working Branch**
 
-attendance-history-module-v1
+payment-module-finalization
 
 ---
 
 **Next Planned Commit**
 
-Project documentation restructuring and development roadmap
+latest Parent Portal/documentation work.
 
 # 10. Notes
 # 10. Notes

@@ -89,7 +89,36 @@
 
 ---
 
-# 🚧 Current Sprint
+# ✅ Completed Recently
+
+## Dashboard Analytics
+
+- Dashboard KPI Cards
+- Attendance KPI Cards
+- Attendance Trend
+- Attendance Percentage
+- Collections KPI Cards
+- Collections Trend
+- Currency Formatting
+- Analytics Tooltips
+- Chart Data Labels
+- Empty-State Handling
+- Role-Aware Analytics
+- Super Admin Analytics Scope
+- Academy Owner Analytics Scope
+- Coach Analytics Scope
+
+# 🚧 Current Priority
+
+## Platform Hardening
+
+- Final RBAC validation
+- Final data-scope validation
+- Supabase RLS review
+- Cross-role regression testing
+- Responsive dashboard review
+- Performance review
+- Code cleanup / duplicated query review
 
 ## Reporting & Analytics
 
@@ -125,8 +154,19 @@
 
 ## Parent Portal
 
+### Completed
+- Parent Role
+- Parent Authentication
 - Parent Login
-- Dashboard
+- Parent Route
+- Parent RBAC Protection
+- Parent → Player Data Association
+- Basic Parent Portal Page
+
+### In Progress
+- Parent Dashboard
+
+### Pending
 - Attendance History
 - Payment History
 - Pending Dues
@@ -207,4 +247,4 @@ AcadPro V1.0 aims to provide football academies with a complete academy manageme
 - Receipt Management
 - Reporting & Analytics
 
-Future releases will focus on Parent Portal, Online Payments, Notifications, Performance Analytics and Tournament Management.
+Future releases will focus on completing the Parent Portal, Online Payments, Notifications, Performance Analytics and Tournament Management.

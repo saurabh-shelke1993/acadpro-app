@@ -35,6 +35,76 @@ export const applyAcademyFilter = (
   return query.eq("academy_id", user.academy_id);
 };
 
+// =============================================
+// GET COACH ASSIGNED BATCH IDS
+// =============================================
+
+export const getCoachAssignedBatchIds = async (
+  user
+) => {
+
+  if (!isCoach(user) || !user?.id) {
+    return [];
+  }
+
+  const { data: coach, error: coachError } =
+    await supabase
+      .from("coaches")
+      .select("id")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+  if (coachError) throw coachError;
+
+  if (!coach) {
+    return [];
+  }
+
+  const { data, error } = await supabase
+    .from("coach_batch_assignments")
+    .select("batch_id")
+    .eq("coach_id", coach.id)
+    .eq("is_active", true);
+
+  if (error) throw error;
+
+  return [...new Set(
+    (data || [])
+      .map((assignment) => assignment.batch_id)
+      .filter(Boolean)
+  )];
+};
+
+// =============================================
+// GET DASHBOARD DATA SCOPE
+// =============================================
+
+export const getDashboardDataScope = async (
+  user
+) => {
+
+  if (isSuperAdmin(user)) {
+    return { type: "all" };
+  }
+
+  if (isAcademyOwner(user) && user?.academy_id) {
+    return {
+      type: "academy",
+      academyId: user.academy_id
+    };
+  }
+
+  if (isCoach(user)) {
+    return {
+      type: "batches",
+      batchIds: await getCoachAssignedBatchIds(user)
+    };
+  }
+
+  // Parent analytics are intentionally outside Dashboard Analytics V2 Phase 1.
+  return { type: "none" };
+};
+
 
 // =============================================
 // GET ACCESSIBLE CENTERS

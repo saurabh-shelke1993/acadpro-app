@@ -31,6 +31,8 @@ localStorage.setItem(
 
 if (profileData?.role === "coach") {
   window.location.href = "/coach-dashboard";
+} else if (profileData?.role === "parent") {
+  window.location.href = "/parent-portal";
 } else {
   window.location.href = "/dashboard";
 }

@@ -7,7 +7,7 @@
 | Super Admin | Full access to entire platform |
 | Academy Owner | Full access within own academy |
 | Coach | Limited access to assigned batches |
-| Parent | Read-only access to own child |
+| Parent | Read-only access to own linked player(s) |
 
 ---
 
@@ -69,7 +69,7 @@ Legend
 
 | Action | Super Admin | Academy Owner | Coach | Parent |
 |---------|-------------|---------------|---------|---------|
-| View | ✅ | 👁 Own Academy | 👁 Assigned Batches | 👁 Own Child |
+| View | ✅ | 👁 Own Academy | 👁 Assigned Batches | 👁 Own Linked Player(s) |
 | Create | ✅ | ✅ | ❌ | ❌ |
 | Edit | ✅ | ✅ | ✅ Assigned Players | ❌ |
 | Soft Delete | ✅ | ✅ | ❌ | ❌ |
@@ -81,9 +81,9 @@ Legend
 | Action | Super Admin | Academy Owner | Coach | Parent |
 |---------|-------------|---------------|---------|---------|
 | View | ✅ | 👁 Own Academy | 👁 Self | ❌ |
-| Create | ✅ | ✅ | ❌ | ❌ |
-| Edit | ✅ | ✅ | ❌ | ❌ |
-| Delete | ✅ | ✅ | ❌ | ❌ |
+| Create | ✅ | ✅ | ❌ | ❌ |❌
+| Edit | ✅ | ✅ | ❌ | ❌ |❌
+| Delete | ✅ | ✅ | ❌ | ❌ |❌
 
 ---
 
@@ -113,7 +113,7 @@ Legend
 
 | Action | Super Admin | Academy Owner | Coach | Parent |
 |---------|-------------|---------------|---------|---------|
-| View | ✅ | 👁 Own Academy | 👁 Assigned Batches | 👁 Own Child |
+| View | ✅ | 👁 Own Academy | 👁 Assigned Batches | 👁 Own Linked Player(s) |
 | Edit | ✅ | ✅ | ✅ Edit Assigned Batches (Within 7 Days) | ❌ |
 | Soft Delete | ✅ | ✅ | ❌ | ❌ |
 
@@ -131,7 +131,7 @@ Legend
 
 | Action | Super Admin | Academy Owner | Coach | Parent |
 |---------|-------------|---------------|---------|---------|
-| View | ✅ | 👁 Own Academy | 👁 Assigned | 👁 Own Child |
+| View | ✅ | 👁 Own Academy | 👁 Assigned | 👁 Own Linked Player(s) |
 | Create | ✅ | ✅ | ❌ | ❌ |
 | Edit | ✅ | ✅ | ❌ | ❌ |
 | Delete | ✅ | ✅ | ❌ | ❌ |
@@ -142,7 +142,7 @@ Legend
 
 | Action | Super Admin | Academy Owner | Coach | Parent |
 |---------|-------------|---------------|---------|---------|
-| View | ✅ | 👁 Own Academy | 👁 Assigned Players | 👁 Own Child |
+| View | ✅ | 👁 Own Academy | 👁 Assigned Players | 👁 Own Linked Player(s) |
 | Create | ✅ | ✅ | ❌ | ❌ |
 | Edit | ✅ | ✅ | ❌ | ❌ |
 | Delete | ❌ | ❌ | ❌ | ❌ |
@@ -153,11 +153,12 @@ Legend
 
 | Action | Super Admin | Academy Owner | Coach | Parent |
 |---------|-------------|---------------|---------|---------|
-| View | ✅ | 👁 Own Academy | 👁 Assigned Players | 👁 Own Child |
+| View | ✅ | 👁 Own Academy | 👁 Assigned Players | 👁 Own Linked Player(s) |
 | Collect Payment | ✅ | ✅ | ❌ | ❌ |
 | Partial Payment | ✅ | ✅ | ❌ | ❌ |
 | Full Payment | ✅ | ✅ | ❌ | ❌ |
 | Print Receipt | ✅ | ✅ | ❌ | 👁 Own Receipt |
+| View Payment History |✅| 👁 Own Academy | 👁 Assigned Players| 👁 Own Linked Player(s) |
 
 ---
 ## Receipt Management
@@ -175,6 +176,14 @@ Legend
 | Attendance Reports | ✅ | 👁 Own Academy | 👁 Assigned | 👁 Own Child |
 | Payment Reports | ✅ | 👁 Own Academy | ❌ | 👁 Own Child |
 
+## Dashboard Analytics
+
+| Action | Super Admin | Academy Owner | Coach | Parent |
+|---------|-------------|---------------|-------|--------|
+| View Dashboard | ✅ | ✅ | ✅ | ✅ |
+| View Attendance Analytics | ✅ All | 👁 Own Academy | 👁 Assigned Batches | 👁 Own Linked Player(s) |
+| View Collection Analytics | ✅ All | 👁 Own Academy | 👁 Assigned Players | 👁 Own Linked Player(s) |
+| View Financial KPIs | ✅ All | 👁 Own Academy | 👁 Assigned Players | 👁 Own Linked Player(s) |
 # Global Security Rules
 
 ## Super Admin

@@ -29,6 +29,7 @@ import CoachBatchMapping from "../pages/CoachBatchMapping";
 
 import CoachDashboard from "../pages/CoachDashboard";
 import CoachAttendance from "../pages/CoachAttendance";
+import ParentPortal from "../pages/ParentPortal";
 
 // ============================================
 // APP ROUTES
@@ -275,7 +276,20 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
+ {/* ============================================
+    PARENT MODULES
+============================================ */}
 
+<Route
+  path="/parent-portal"
+  element={
+    <ProtectedRoute
+      allowedRoles={["parent"]}
+    >
+      <ParentPortal />
+    </ProtectedRoute>
+  }
+/>
         {/* ============================================
             FALLBACK
         ============================================ */}

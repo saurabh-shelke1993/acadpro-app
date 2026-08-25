@@ -112,3 +112,54 @@
 .logout-btn:hover {
   background: #dc2626;
 }
+
+.dashboard-grid {
+    display: grid;
+
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+
+    gap: 20px;
+}
+
+.dashboard-grid-small {
+    display: grid;
+
+    grid-template-columns: repeat(4, 1fr);
+
+    gap: 20px;
+}
+
+.dashboard-container {
+    padding: 24px;
+}
+
+.dashboard-section {
+    margin-top: 40px;
+}
+
+.dashboard-section h2 {
+    margin-bottom: 18px;
+    font-size: 22px;
+    font-weight: 600;
+}
+
+@media (max-width: 1200px) {
+
+    .dashboard-grid-small {
+
+        grid-template-columns: repeat(2, 1fr);
+
+    }
+
+}
+
+@media (max-width: 768px) {
+
+    .dashboard-grid,
+    .dashboard-grid-small {
+
+        grid-template-columns: 1fr;
+
+    }
+
+}

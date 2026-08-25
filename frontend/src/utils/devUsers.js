@@ -20,10 +20,10 @@ export const DEV_USERS = {
     role: "coach",
   },
 
-  parent: {
-    label: "Parent",
-    email: "parent@test.com",
-    password: "123456",
-    role: "parent",
-  },
+parent: {
+  label: "Parent",
+  email: "rahul@test.com",
+  password: "123456",
+  role: "parent",
+},
 };

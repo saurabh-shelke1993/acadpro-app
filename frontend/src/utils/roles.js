@@ -47,13 +47,14 @@ export const isParent = (user) => {
 // DASHBOARD ROUTING
 // ========================================
 
-export const getDashboardRoute = (
-  user
-) => {
+export const getDashboardRoute = (user) => {
 
   if (isCoach(user)) {
-
     return "/coach-dashboard";
+  }
+
+  if (isParent(user)) {
+    return "/parent-portal";
   }
 
   return "/dashboard";
