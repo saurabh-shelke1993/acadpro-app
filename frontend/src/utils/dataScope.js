@@ -206,6 +206,9 @@ if (isCoach(user)) {
         batch_name,
         center_id,
         academy_id,
+        age_group,
+        start_time,
+        end_time,
         is_active
       )
     `)
