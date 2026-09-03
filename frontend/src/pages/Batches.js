@@ -1,4 +1,5 @@
 import React, {
+  useCallback,
   useEffect,
   useState
 } from "react";
@@ -6,9 +7,17 @@ import Layout from "../components/Layout";
 import { supabase } from "../services/supabase";
 import {
   getLoggedInUser,
-  isSuperAdmin,
-  getAcademyId
+  isSuperAdmin
 } from "../utils/auth";
+
+import {
+  isAcademyOwner
+} from "../utils/roles";
+
+import {
+  getAccessibleCenters,
+  getAccessibleBatches
+} from "../utils/dataScope";
 
 const Batches = () => {
 
@@ -67,28 +76,18 @@ useEffect(() => {
 
 }, []);
 
-useEffect(() => {
+// useEffect(() => {
 
-  if (!user) return;
+//   if (!user) return;
 
-  fetchAcademies();
+//   fetchAcademies();
+//   fetchCenters();
 
-  fetchCenters();
+// }, [user, fetchAcademies, fetchCenters]);
 
-}, [user]);
-
-useEffect(() => {
-
-  if (!user) return;
-
-  fetchBatches();
-
-}, [
-  user,
-  selectedAcademy,
-  selectedCenter
-]);
-
+// useEffect(() => {
+//   fetchBatches();
+// }, [fetchBatches]);
   // =========================
   // FETCH ACADEMIES
   // =========================
@@ -100,139 +99,289 @@ const loadUser = async () => {
   setUser(currentUser);
 };
 
-  const fetchAcademies = async () => {
+const fetchAcademies = useCallback(async () => {
 
-    if (!isSuperAdmin(user)) {
-      return;
-    }
+  if (!isSuperAdmin(user)) {
+    return;
+  }
+
+  try {
 
     const { data, error } = await supabase
       .from("academies")
       .select("*")
-      .eq("is_active", true);
+      .eq("is_active", true)
+      .order("academy_name");
 
-    if (!error) {
-
-      setAcademies(data || []);
+    if (error) {
+      throw error;
     }
-  };
 
+    setAcademies(data || []);
+
+  } catch (error) {
+
+    console.error(
+      "Failed to load academies:",
+      error
+    );
+
+    setAcademies([]);
+  }
+}, [user]);
   // =========================
   // FETCH CENTERS
   // =========================
 
-  const fetchCenters = async () => {
+const fetchCenters = useCallback(async () => {
 
-    let query = supabase
-      .from("centers")
-      .select("*")
-      .eq("is_active", true);
+  try {
+    const data = await getAccessibleCenters(user);
 
-    if (!isSuperAdmin(user)) {
+    setCenters(data || []);
+    setFilteredCenters(data || []);
 
-      query = query.eq(
-        "academy_id",
-        getAcademyId(user)
-      );
-    }
+setSelectedCenter((currentCenter) => {
 
-    const { data, error } = await query;
+  if (
+    currentCenter &&
+    !(data || []).some(
+      (center) => center.id === currentCenter
+    )
+  ) {
+    return "";
+  }
 
-    if (!error) {
+  return currentCenter;
+});
 
-      setCenters(data || []);
+  } catch (error) {
 
-      setFilteredCenters(data || []);
-    }
-  };
+    console.error(
+      "Failed to load accessible centers:",
+      error
+    );
 
+    setCenters([]);
+    setFilteredCenters([]);
+  }
+
+}, [user]);
   // =========================
   // FETCH BATCHES
   // =========================
-const fetchBatches = async () => {
+const fetchBatches = useCallback(async () => {
 
-  let query = supabase
-    .from("batches")
-    .select(`
-      *,
-      academies (
-        academy_name
-      ),
-      centers (
-        center_name
+  if (!user) {
+    return;
+  }
+
+  try {
+
+    // ========================================
+    // SUPER ADMIN
+    // ========================================
+
+    if (isSuperAdmin(user)) {
+
+      let query = supabase
+        .from("batches")
+        .select("*")
+        .eq("is_active", true)
+        .order("batch_name");
+
+      // Academy filter
+      if (selectedAcademy) {
+        query = query.eq(
+          "academy_id",
+          selectedAcademy
+        );
+      }
+
+      // Center filter
+      if (selectedCenter) {
+        query = query.eq(
+          "center_id",
+          selectedCenter
+        );
+      }
+
+      const {
+        data,
+        error
+      } = await query;
+
+      if (error) {
+        throw error;
+      }
+
+      const centerById = new Map(
+        (centers || []).map(
+          (center) => [
+            center.id,
+            center
+          ]
+        )
+      );
+
+      const academyById = new Map(
+        (academies || []).map(
+          (academy) => [
+            academy.id,
+            academy
+          ]
+        )
+      );
+
+      const displayBatches =
+        (data || []).map(
+          (batch) => ({
+
+            ...batch,
+
+            centers:
+              centerById.get(
+                batch.center_id
+              ) || null,
+
+            academies:
+              academyById.get(
+                batch.academy_id
+              ) || null
+
+          })
+        );
+
+      setBatches(
+        displayBatches
+      );
+
+      return;
+    }
+
+    // ========================================
+    // ACADEMY OWNER / COACH
+    // ========================================
+
+const scopedBatches =
+  await getAccessibleBatches(
+    user,
+    selectedCenter || null
+  );
+
+    const centerById = new Map(
+      (centers || []).map(
+        (center) => [
+          center.id,
+          center
+        ]
       )
-    `)
-    .eq("is_active", true);
-
-  if (isSuperAdmin(user)) {
-
-    if (selectedAcademy) {
-
-      query = query.eq(
-        "academy_id",
-        selectedAcademy
-      );
-    }
-
-    if (selectedCenter) {
-
-      query = query.eq(
-        "center_id",
-        selectedCenter
-      );
-    }
-
-  } else {
-
-    query = query.eq(
-      "academy_id",
-      getAcademyId(user)
     );
 
-    if (selectedCenter) {
+    const academyById = new Map(
+      (academies || []).map(
+        (academy) => [
+          academy.id,
+          academy
+        ]
+      )
+    );
 
-      query = query.eq(
-        "center_id",
-        selectedCenter
+    const displayBatches =
+      scopedBatches.map(
+        (batch) => ({
+
+          ...batch,
+
+          centers:
+            centerById.get(
+              batch.center_id
+            ) || null,
+
+          academies:
+            academyById.get(
+              batch.academy_id
+            ) || null
+
+        })
       );
-    }
+
+    setBatches(
+      displayBatches
+    );
+
+  } catch (error) {
+
+    console.error(
+      "Failed to load batches:",
+      error
+    );
+
+     setBatches([]);
+
   }
 
-  const { data, error } =
-    await query;
+}, [
+  user,
+  selectedAcademy,
+  selectedCenter,
+  centers,
+  academies
+]);
 
-  if (!error) {
+useEffect(() => {
 
-    setBatches(data || []);
-  }
-};
+  if (!user) return;
 
+  fetchAcademies();
+  fetchCenters();
+
+}, [user, fetchAcademies, fetchCenters]);
+
+useEffect(() => {
+  fetchBatches();
+}, [fetchBatches]);
   // =========================
   // ACADEMY CHANGE
   // =========================
 
-  const handleAcademyChange = (
-    academyId
-  ) => {
+const handleAcademyChange = (
+  academyId
+) => {
 
-    setSelectedAcademy(academyId);
+  setSelectedAcademy(academyId);
+  setSelectedCenter("");
 
-    const relatedCenters =
-      centers.filter(
-        (center) =>
-          center.academy_id === academyId
-      );
+  if (!academyId) {
 
     setFilteredCenters(
-      relatedCenters
+      centers || []
     );
-  };
+
+    return;
+  }
+
+  const relatedCenters =
+    centers.filter(
+      (center) =>
+        center.academy_id === academyId
+    );
+
+  setFilteredCenters(
+    relatedCenters
+  );
+};
 
   // =========================
   // CREATE / UPDATE
   // =========================
 
   const handleSaveBatch = async () => {
+
+      if (!isSuperAdmin(user) && !isAcademyOwner(user)) {
+    alert("You do not have permission to manage batches.");
+    return;
+  }
 
 if (
   !selectedCenter ||
@@ -263,8 +412,7 @@ if (
 let academyId = selectedAcademy;
 
 if (!isSuperAdmin(user)) {
-
-  academyId = getAcademyId(user);
+  academyId = user?.academy_id;
 }
 
 const duplicateBatch =
@@ -369,9 +517,13 @@ setEditingBatchId(null);
   // EDIT
   // =========================
 
-  const handleEdit = (
-    batch
-  ) => {
+const handleEdit = (
+  batch
+) => {
+
+  if (!isSuperAdmin(user) && !isAcademyOwner(user)) {
+    return;
+  }
 
 setAgeGroup(
   batch.age_group || ""
@@ -406,9 +558,15 @@ setEndTime(
   // DELETE
   // =========================
 
-  const handleDelete = async (
-    id
-  ) => {
+const handleDelete = async (
+  id
+) => {
+
+  if (!isSuperAdmin(user) && !isAcademyOwner(user)) {
+    alert("You do not have permission to manage batches.");
+    return;
+  }
+
 
     const confirmDelete =
       window.confirm(
@@ -475,7 +633,7 @@ return (
           >
 
             <option value="">
-              Select Academy
+              All Academies
             </option>
 
             {
@@ -514,7 +672,7 @@ return (
       >
 
         <option value="">
-          Select Center
+          All Centers
         </option>
 
         {
@@ -538,6 +696,9 @@ return (
 
       <br />
       <br />
+
+{(isSuperAdmin(user) || isAcademyOwner(user)) && (
+  <>
 
       {/* BATCH NAME */}
 
@@ -615,7 +776,7 @@ return (
         }
 
       </button>
-
+</>)}
       <br />
       <br />
       <br />
@@ -643,7 +804,9 @@ return (
   <th>Academy</th>
 )}
 
-<th>Actions</th>
+{(isSuperAdmin(user) || isAcademyOwner(user)) && (
+  <th>Actions</th>
+)}
 
           </tr>
 
@@ -672,13 +835,12 @@ return (
                     }
                   </td>
 
-                  <td>
-                    {
-                      batch.academies
-                        ?.academy_name
-                    }
-                  </td>
-
+{isSuperAdmin(user) && (
+  <td>
+    {batch.academies?.academy_name}
+  </td>
+)}
+{(isSuperAdmin(user) || isAcademyOwner(user)) && (
                   <td>
 
                     <button
@@ -704,6 +866,7 @@ return (
                     </button>
 
                   </td>
+                  )}
 
                 </tr>
 
