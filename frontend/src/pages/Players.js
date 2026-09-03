@@ -1,10 +1,23 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../services/supabase";
+
 import {
   getLoggedInUser,
   isSuperAdmin,
-  getAcademyId,
 } from "../utils/auth";
+
+import {
+  isAcademyOwner,
+  isCoach,
+} from "../utils/roles";
+
+import {
+  getAccessibleCenters,
+  getAccessibleBatches,
+  getAccessibleAcademies,
+  getCoachAssignedBatchIds,
+} from "../utils/dataScope";
+
 import Layout from "../components/Layout";
 
 function Players() {
@@ -107,99 +120,324 @@ useEffect(() => {
   };
   console.log("PLAYERS COMPONENT RENDERED");
   const fetchAcademies = async () => {
+
   if (!loggedInUser) return;
 
-  console.log("FETCHING ACADEMIES");
+  try {
 
-  if (isSuperAdmin(loggedInUser)) {
+    const data =
+      await getAccessibleAcademies(
+        loggedInUser
+      );
 
-const { data, error } = await supabase
-  .from("academies")
-  .select("*")
-  .eq("is_active", true);
+    setAcademies(data || []);
 
-console.log("ACADEMIES =", data);
-console.log("ACADEMIES ERROR =", error);
-
-      setAcademies(data || []);
-    } else {
-      const academyId = getAcademyId(loggedInUser);
-
-      const { data } = await supabase
-        .from("academies")
-        .select("*")
-        .eq("id", academyId)
-        .eq("is_active", true);
-
-      setAcademies(data || []);
-
-      if (data && data.length > 0) {
-        setSelectedAcademy(data[0].id);
-      }
+    // Non-Super Admin users have only
+    // one accessible academy.
+    if (
+      !isSuperAdmin(loggedInUser) &&
+      data &&
+      data.length > 0
+    ) {
+      setSelectedAcademy(data[0].id);
     }
-  };
 
-  const fetchCenters = async (academyId) => {
-    const { data } = await supabase
-      .from("centers")
-      .select("*")
-      .eq("academy_id", academyId)
-      .eq("is_active", true);
+  } catch (error) {
 
-    setCenters(data || []);
-  };
+    console.error(
+      "Failed to load accessible academies:",
+      error
+    );
 
-  const fetchBatches = async (centerId) => {
-    const { data } = await supabase
-      .from("batches")
-      .select("*")
-      .eq("center_id", centerId)
-      .eq("is_active", true);
+    setAcademies([]);
+  }
+};
+
+ const fetchCenters = async () => {
+  if (!loggedInUser || !selectedAcademy) {
+    setCenters([]);
+    return;
+  }
+
+  try {
+    const data = await getAccessibleCenters(
+      loggedInUser
+    );
+
+    const filtered = (data || []).filter(
+      (center) =>
+        center.academy_id === selectedAcademy
+    );
+
+    setCenters(filtered);
+
+    if (
+      selectedCenter &&
+      !filtered.some(
+        (center) =>
+          center.id === selectedCenter
+      )
+    ) {
+      setSelectedCenter("");
+      setSelectedBatch("");
+    }
+  } catch (error) {
+    console.error(
+      "Failed to load accessible centers:",
+      error
+    );
+
+    setCenters([]);
+  }
+};
+const fetchBatches = async () => {
+  if (
+    !loggedInUser ||
+    !selectedCenter
+  ) {
+    setBatches([]);
+    setSelectedBatch("");
+    return;
+  }
+
+  try {
+    const data =
+      await getAccessibleBatches(
+        loggedInUser,
+        selectedCenter
+      );
 
     setBatches(data || []);
-  };
 
+    if (
+      selectedBatch &&
+      !(data || []).some(
+        (batch) =>
+          batch.id === selectedBatch
+      )
+    ) {
+      setSelectedBatch("");
+    }
+  } catch (error) {
+    console.error(
+      "Failed to load accessible batches:",
+      error
+    );
+
+    setBatches([]);
+    setSelectedBatch("");
+  }
+};
   const fetchPlayers = async () => {
-    let query = supabase
-      .from("players")
-      .select(`
-        *,
-        academies(academy_name),
-        centers(center_name),
-        batches(batch_name),
-        parents(
-          parent_name,
-          phone,
-          email,
-          address
-        )
-      `)
-      .eq("is_active", true);
+  if (!loggedInUser) {
+    return;
+  }
 
-    if (!isSuperAdmin(loggedInUser)) {
-      query = query.eq(
-        "academy_id",
-        getAcademyId(loggedInUser))
-      ;
+  try {
+    // ========================================
+    // COACH
+    // ========================================
+
+    if (isCoach(loggedInUser)) {
+      const assignedBatchIds =
+        await getCoachAssignedBatchIds(loggedInUser);
+
+      if (!assignedBatchIds.length) {
+        setPlayers([]);
+        return;
+      }
+
+      let query = supabase
+        .from("players")
+        .select(`
+          *,
+          academies(academy_name),
+          centers(center_name),
+          batches(batch_name),
+          parents(
+            parent_name,
+            phone,
+            email,
+            address
+          ),
+          player_batches!inner(
+            batch_id
+          )
+        `)
+        .eq("is_active", true)
+        .in(
+          "player_batches.batch_id",
+          assignedBatchIds
+        );
+
+      if (selectedAcademy) {
+        query = query.eq(
+          "academy_id",
+          selectedAcademy
+        );
+      }
+
+      if (selectedCenter) {
+        query = query.eq(
+          "center_id",
+          selectedCenter
+        );
+      }
+
+      if (selectedBatch) {
+        query = query.eq(
+          "batch_id",
+          selectedBatch
+        );
+      }
+
+      const {
+        data,
+        error
+      } = await query;
+
+      if (error) {
+        throw error;
+      }
+
+      setPlayers(data || []);
+      return;
     }
 
-    if (selectedAcademy) {
-  query = query.eq("academy_id", selectedAcademy);
-}
+    // ========================================
+    // SUPER ADMIN
+    // ========================================
 
-if (selectedCenter) {
-  query = query.eq("center_id", selectedCenter);
-}
+    if (isSuperAdmin(loggedInUser)) {
+      let query = supabase
+        .from("players")
+        .select(`
+          *,
+          academies(academy_name),
+          centers(center_name),
+          batches(batch_name),
+          parents(
+            parent_name,
+            phone,
+            email,
+            address
+          )
+        `)
+        .eq("is_active", true);
 
-if (selectedBatch) {
-  query = query.eq("batch_id", selectedBatch);
-}
+      if (selectedAcademy) {
+        query = query.eq(
+          "academy_id",
+          selectedAcademy
+        );
+      }
 
-    const { data } = await query;
+      if (selectedCenter) {
+        query = query.eq(
+          "center_id",
+          selectedCenter
+        );
+      }
 
-    setPlayers(data || []);
-  };
+      if (selectedBatch) {
+        query = query.eq(
+          "batch_id",
+          selectedBatch
+        );
+      }
 
+      const {
+        data,
+        error
+      } = await query;
+
+      if (error) {
+        throw error;
+      }
+
+      setPlayers(data || []);
+      return;
+    }
+
+    // ========================================
+    // ACADEMY OWNER
+    // ========================================
+
+    if (isAcademyOwner(loggedInUser)) {
+      const academyId = loggedInUser.academy_id;
+
+      if (!academyId) {
+        console.error(
+          "Academy Owner has no academy_id"
+        );
+        setPlayers([]);
+        return;
+      }
+
+      let query = supabase
+        .from("players")
+        .select(`
+          *,
+          academies(academy_name),
+          centers(center_name),
+          batches(batch_name),
+          parents(
+            parent_name,
+            phone,
+            email,
+            address
+          )
+        `)
+        .eq("is_active", true)
+        .eq("academy_id", academyId);
+
+      if (selectedCenter) {
+        query = query.eq(
+          "center_id",
+          selectedCenter
+        );
+      }
+
+      if (selectedBatch) {
+        query = query.eq(
+          "batch_id",
+          selectedBatch
+        );
+      }
+
+      const {
+        data,
+        error
+      } = await query;
+
+      if (error) {
+        throw error;
+      }
+
+      setPlayers(data || []);
+      return;
+    }
+
+    // ========================================
+    // UNKNOWN ROLE
+    // ========================================
+
+    console.error(
+      "Unsupported user role:",
+      loggedInUser.role
+    );
+
+    setPlayers([]);
+
+  } catch (error) {
+    console.error(
+      "Failed to load players:",
+      error
+    );
+
+    setPlayers([]);
+  }
+};
   const validateForm = () => {
     if (
       !selectedAcademy ||
@@ -239,15 +477,24 @@ if (!joiningDate) {
     return true;
   };
 
-  const handleCreatePlayer = async () => {
-    if (!validateForm()) return;
+ const handleCreatePlayer = async () => {
+  if (!validateForm()) return;
+
+  const academyId = isAcademyOwner(loggedInUser)
+    ? loggedInUser.academy_id
+    : selectedAcademy;
+
+  if (!academyId) {
+    alert("Academy is required");
+    return;
+  }
 
 const { data: parentData, error: parentError } =
   await supabase
     .from("parents")
     .insert([
       {
-        academy_id: selectedAcademy,
+        academy_id: academyId,
         parent_name: parentName,
         phone: parentPhone,
         email: parentEmail,
@@ -269,7 +516,7 @@ const { data: parentData, error: parentError } =
         .from("players")
         .insert([
 {
-  academy_id: selectedAcademy,
+  academy_id: academyId,
   center_id: selectedCenter,
   batch_id: selectedBatch,
   parent_id: parentId,
@@ -346,13 +593,22 @@ if (playerBatchError) {
     );
   };
 
-  const handleUpdatePlayer = async () => {
-    if (!validateForm()) return;
+const handleUpdatePlayer = async () => {
+  if (!validateForm()) return;
+
+  const academyId = isAcademyOwner(loggedInUser)
+    ? loggedInUser.academy_id
+    : selectedAcademy;
+
+  if (!academyId) {
+    alert("Academy is required");
+    return;
+  }
 
 const { error: parentError } = await supabase
   .from("parents")
   .update({
-    academy_id: selectedAcademy,
+    academy_id: academyId,
     parent_name: parentName,
     phone: parentPhone,
     email: parentEmail,
@@ -368,7 +624,7 @@ const { error: parentError } = await supabase
 const { error: playerError } = await supabase
   .from("players")
   .update({
-    academy_id: selectedAcademy,
+    academy_id: academyId,
     center_id: selectedCenter,
     batch_id: selectedBatch,
     full_name: fullName,
@@ -476,225 +732,242 @@ return (
     <div style={{ padding: "20px" }}>
       <h1>Players Module V3</h1>
 
-      <h2>
-        {isEditing
-          ? "Edit Player"
-          : "Create Player"}
-      </h2>
+      {!isCoach(loggedInUser) && (
+  <>
+    <h2>
+      {isEditing
+        ? "Edit Player"
+        : "Create Player"}
+    </h2>
 
-      {/* SEARCH */}
-      <input
-        type="text"
-        placeholder="Search Player"
-        value={searchTerm}
-        onChange={(e) =>
-          setSearchTerm(e.target.value)
-        }
-      />
+    <hr />
 
-      <br />
-      <br />
+    <h2>Player Information</h2>
 
-      <hr />
+<input
+  type="text"
+  placeholder="Player Name"
+  value={fullName}
+  onChange={(e) =>
+    setFullName(e.target.value)
+  }
+/>
 
-      {/* ACADEMY */}
-      <div>
-        <label>Academy</label>
+<br />
+<br />
 
-        <br />
+{/* =========================
+    ACADEMY
+========================= */}
 
-        <select
-          value={selectedAcademy}
-          onChange={(e) =>
-            setSelectedAcademy(e.target.value)
-          }
-          disabled={!isSuperAdmin(loggedInUser)}
+{isSuperAdmin(loggedInUser) ? (
+  <>
+    <label>Academy *</label>
+    <br />
+
+    <select
+      value={selectedAcademy}
+      onChange={(e) => {
+        setSelectedAcademy(e.target.value);
+        setSelectedCenter("");
+        setSelectedBatch("");
+      }}
+    >
+      <option value="">Select Academy</option>
+
+      {academies.map((academy) => (
+        <option
+          key={academy.id}
+          value={academy.id}
         >
-          <option value="">
-            Select Academy
-          </option>
-
-          {academies.map((academy) => (
-            <option
-              key={academy.id}
-              value={academy.id}
-            >
-              {academy.academy_name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <br />
-
-      {/* CENTER */}
-      <div>
-        <label>Center</label>
-
-        <br />
-
-        <select
-          value={selectedCenter}
-          onChange={(e) =>
-            setSelectedCenter(e.target.value)
-          }
-        >
-          <option value="">
-            Select Center
-          </option>
-
-          {centers.map((center) => (
-            <option
-              key={center.id}
-              value={center.id}
-            >
-              {center.center_name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <br />
-
-      {/* BATCH */}
-      <div>
-        <label>Batch</label>
-
-        <br />
-
-        <select
-          value={selectedBatch}
-          onChange={(e) =>
-            setSelectedBatch(e.target.value)
-          }
-        >
-          <option value="">
-            Select Batch
-          </option>
-
-          {batches.map((batch) => (
-            <option key={batch.id} value={batch.id}>
-              {batch.batch_name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <hr />
-
-      <h2>Player Information</h2>
-
-      <input
-        type="text"
-        placeholder="Player Name"
-        value={fullName}
-        onChange={(e) =>
-          setFullName(e.target.value)
-        }
-      />
-
-      <br />
-      <br />
-
-<div>
-  <label>Date of Birth *</label>
-  <br />
-  <input
-    type="date"
-    value={dob}
-    onChange={(e) => setDob(e.target.value)}
-  />
-</div>
-
-<div>
-  <label>Joining Date *</label>
-  <br />
-  <input
-    type="date"
-    value={joiningDate}
-    onChange={(e) => setJoiningDate(e.target.value)}
-  />
-</div>
-
-<select
-  value={gender}
-  onChange={(e) => setGender(e.target.value)}
->
-  <option value="">Select Gender</option>
-  <option value="Male">Male</option>
-  <option value="Female">Female</option>
-</select>
-      <br />
-      <br />
-
-      <hr />
-
-      <h2>Parent Information</h2>
-
-      <input
-        type="text"
-        placeholder="Parent Name"
-        value={parentName}
-        onChange={(e) =>
-          setParentName(e.target.value)
-        }
-      />
-
-      <br />
-      <br />
-
-      <input
-        type="text"
-        placeholder="Parent Phone"
-        value={parentPhone}
-        onChange={(e) =>
-          setParentPhone(e.target.value)
-        }
-      />
-
-      <br />
-      <br />
-
-      <input
-        type="email"
-        placeholder="Parent Email"
-        value={parentEmail}
-        onChange={(e) =>
-          setParentEmail(e.target.value)
-        }
-      />
-
-      <br />
-      <br />
-
-      <textarea
-        placeholder="Parent Address"
-        value={parentAddress}
-        onChange={(e) =>
-          setParentAddress(e.target.value)
-        }
-      />
-
-      <br />
-      <br />
-
-{isEditing ? (
-  <button onClick={handleUpdatePlayer}>
-    Update Player
-  </button>
+          {academy.academy_name}
+        </option>
+      ))}
+    </select>
+  </>
 ) : (
-  <button onClick={handleCreatePlayer}>
-    Create Player
-  </button>
+  <>
+    <label>Academy</label>
+    <br />
+
+    <input
+      type="text"
+      value={
+        academies.find(
+          (academy) =>
+            academy.id === selectedAcademy
+        )?.academy_name ||
+        loggedInUser?.academy_name ||
+        ""
+      }
+      disabled
+    />
+  </>
 )}
 
-      <button
-        onClick={resetForm}
-        style={{ marginLeft: "10px" }}
-      >
-        Clear
-      </button>
+<br />
+<br />
 
+{/* =========================
+    CENTER
+========================= */}
+
+<label>Center *</label>
+<br />
+
+<select
+  value={selectedCenter}
+  onChange={(e) => {
+    setSelectedCenter(e.target.value);
+    setSelectedBatch("");
+  }}
+  disabled={!selectedAcademy}
+>
+  <option value="">Select Center</option>
+
+  {centers.map((center) => (
+    <option
+      key={center.id}
+      value={center.id}
+    >
+      {center.center_name}
+    </option>
+  ))}
+</select>
+
+<br />
+<br />
+
+{/* =========================
+    BATCH
+========================= */}
+
+<label>Batch *</label>
+<br />
+
+<select
+  value={selectedBatch}
+  onChange={(e) =>
+    setSelectedBatch(e.target.value)
+  }
+  disabled={!selectedCenter}
+>
+  <option value="">Select Batch</option>
+
+  {batches.map((batch) => (
+    <option
+      key={batch.id}
+      value={batch.id}
+    >
+      {batch.batch_name}
+    </option>
+  ))}
+</select>
+
+<br />
+<br />
+
+    <div>
+      <label>Date of Birth *</label>
+      <br />
+      <input
+        type="date"
+        value={dob}
+        onChange={(e) => setDob(e.target.value)}
+      />
+    </div>
+
+    <div>
+      <label>Joining Date *</label>
+      <br />
+      <input
+        type="date"
+        value={joiningDate}
+        onChange={(e) => setJoiningDate(e.target.value)}
+      />
+    </div>
+
+    <select
+      value={gender}
+      onChange={(e) => setGender(e.target.value)}
+    >
+      <option value="">Select Gender</option>
+      <option value="Male">Male</option>
+      <option value="Female">Female</option>
+    </select>
+
+    <br />
+    <br />
+
+    <hr />
+
+    <h2>Parent Information</h2>
+
+    <input
+      type="text"
+      placeholder="Parent Name"
+      value={parentName}
+      onChange={(e) =>
+        setParentName(e.target.value)
+      }
+    />
+
+    <br />
+    <br />
+
+    <input
+      type="text"
+      placeholder="Parent Phone"
+      value={parentPhone}
+      onChange={(e) =>
+        setParentPhone(e.target.value)
+      }
+    />
+
+    <br />
+    <br />
+
+    <input
+      type="email"
+      placeholder="Parent Email"
+      value={parentEmail}
+      onChange={(e) =>
+        setParentEmail(e.target.value)
+      }
+    />
+
+    <br />
+    <br />
+
+    <textarea
+      placeholder="Parent Address"
+      value={parentAddress}
+      onChange={(e) =>
+        setParentAddress(e.target.value)
+      }
+    />
+
+    <br />
+    <br />
+
+    {isEditing ? (
+      <button onClick={handleUpdatePlayer}>
+        Update Player
+      </button>
+    ) : (
+      <button onClick={handleCreatePlayer}>
+        Create Player
+      </button>
+    )}
+
+    <button
+      onClick={resetForm}
+      style={{ marginLeft: "10px" }}
+    >
+      Clear
+    </button>
+  </>
+)}
       <hr />
 
       <h2>Players List</h2>
@@ -711,7 +984,9 @@ return (
     <th>Joining Date</th>
     <th>Status</th>
     <th>Parent Phone</th>
-    <th>Actions</th>
+    {!isCoach(loggedInUser) && (
+  <th>Actions</th>
+)}
   </tr>
 </thead>
 
@@ -741,18 +1016,20 @@ return (
 
               <td>{player.parents?.phone}</td>
 
-<td>
-  <button onClick={() => handleEditPlayer(player)}>
-    Edit
-  </button>
+{!isCoach(loggedInUser) && (
+  <td>
+    <button onClick={() => handleEditPlayer(player)}>
+      Edit
+    </button>
 
-  <button
-    onClick={() => handleDeletePlayer(player.id)}
-    style={{ marginLeft: "10px" }}
-  >
-    Deactivate
-  </button>
-</td>
+    <button
+      onClick={() => handleDeletePlayer(player.id)}
+      style={{ marginLeft: "10px" }}
+    >
+      Deactivate
+    </button>
+  </td>
+)}
             </tr>
           ))}
         </tbody>

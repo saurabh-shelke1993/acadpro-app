@@ -6,24 +6,38 @@ export const DEV_USERS = {
     role: "super_admin",
   },
 
-  academyOwner: {
-    label: "Academy Owner",
+  academyOwnerTCFC: {
+    label: "AcadOTCFC",
+    email: "tcfc@gmail.com",
+    password: "tcfc@123",
+    role: "academy_owner",
+  },
+
+  academyOwnerFW: {
+    label: "AcadOFW",
     email: "footballworld@gmail.com",
     password: "footballworld@123",
     role: "academy_owner",
   },
 
-  coach: {
-    label: "Coach",
+  coachTCFC: {
+    label: "TCFC Coach",
+    email: "fessi@gmail.com",
+    password: "fessi@123",
+    role: "coach",
+  },
+
+  coachFW: {
+    label: "FW Coach",
     email: "pras@gmail.com",
     password: "pras@123",
     role: "coach",
   },
 
-parent: {
-  label: "Parent",
-  email: "rahul@test.com",
-  password: "123456",
-  role: "parent",
-},
+  parent: {
+    label: "Parent",
+    email: "rahul@test.com",
+    password: "123456",
+    role: "parent",
+  },
 };

@@ -4,9 +4,16 @@ import { supabase } from "../services/supabase";
 
 import {
   getLoggedInUser,
-  isSuperAdmin,
-  getAcademyId
+  isSuperAdmin
 } from "../utils/auth";
+
+import {
+  isAcademyOwner
+} from "../utils/roles";
+
+import {
+  getAccessibleCenters
+} from "../utils/dataScope";
 
 const Centers = () => {
 
@@ -14,7 +21,8 @@ const [user, setUser] = useState(null);
 
 const [centers, setCenters] = useState([]);
 
-
+const [filteredCenters, setFilteredCenters] =
+  useState([]);
   const [academies, setAcademies] = useState([]);
 
   const [selectedAcademy, setSelectedAcademy] = useState("");
@@ -38,7 +46,7 @@ useEffect(() => {
 
   fetchCenters();
 
-}, [user, selectedAcademy]);
+}, [user]);
 
   // =========================
   // FETCH ACADEMIES
@@ -71,57 +79,73 @@ if (!isSuperAdmin(user)) {
   // FETCH CENTERS
   // =========================
 
-  const fetchCenters = async () => {
-console.log("USER:", user);
-console.log(
-  "ACADEMY ID:",
-  getAcademyId(user)
-);
-console.log(
-  "IS SUPER ADMIN:",
-  isSuperAdmin(user)
-);
-    let query = supabase
-      .from("centers")
-      .select(`
-        *,
-        academies (
-          academy_name
-        )
-      `)
-      .eq("is_active", true);
+const fetchCenters = async () => {
 
-if (isSuperAdmin(user)) {
-
-  if (selectedAcademy) {
-
-    query = query.eq(
-      "academy_id",
-      selectedAcademy
-    );
+  if (!user) {
+    return;
   }
 
-} else {
+  try {
 
-  query = query.eq(
-    "academy_id",
-    getAcademyId(user)
+    const data =
+      await getAccessibleCenters(user);
+
+    setCenters(data || []);
+    setFilteredCenters(data || []);
+
+  } catch (error) {
+
+    console.error(
+      "Failed to load centers:",
+      error
+    );
+
+    setCenters([]);
+  }
+};
+
+// =========================
+// ACADEMY CHANGE
+// =========================
+
+const handleAcademyChange = (academyId) => {
+
+  setSelectedAcademy(academyId);
+
+  if (!academyId) {
+
+    setFilteredCenters(
+      centers || []
+    );
+
+    return;
+  }
+
+  const relatedCenters =
+    (centers || []).filter(
+      (center) =>
+        center.academy_id === academyId
+    );
+
+  setFilteredCenters(
+    relatedCenters
   );
-}
-
-    const { data, error } = await query;
-
-    if (!error) {
-
-      setCenters(data || []);
-    }
-  };
-
+};
   // =========================
   // CREATE / UPDATE CENTER
   // =========================
 
   const handleSaveCenter = async () => {
+
+    if (
+    !isSuperAdmin(user) &&
+    !isAcademyOwner(user)
+  ) {
+    alert(
+      "You do not have permission to manage centers."
+    );
+    return;
+  }
 
     if (!centerName) {
 
@@ -136,7 +160,7 @@ if (isSuperAdmin(user)) {
 
 if (!isSuperAdmin(user)) {
 
-      academyId = getAcademyId(user);
+      academyId = user?.academy_id;
     }
 
 const { data: existingCenter } =
@@ -286,14 +310,14 @@ return (
 {isSuperAdmin(user) && (
 
         <>
-          <select
-            value={selectedAcademy}
-            onChange={(e) =>
-              setSelectedAcademy(
-                e.target.value
-              )
-            }
-          >
+<select
+  value={selectedAcademy}
+  onChange={(e) =>
+    handleAcademyChange(
+      e.target.value
+    )
+  }
+>
 
             <option value="">
               Select Academy
@@ -320,35 +344,37 @@ return (
       )}
 
       {/* CENTER NAME */}
+{(isSuperAdmin(user) || isAcademyOwner(user)) && (
 
-      <input
-        type="text"
-        placeholder="Enter Center Name"
-        value={centerName}
-        onChange={(e) =>
-          setCenterName(
-            e.target.value
-          )
-        }
-      />
+  <>
+    {/* CENTER NAME */}
 
-      <br />
-      <br />
+    <input
+      type="text"
+      placeholder="Enter Center Name"
+      value={centerName}
+      onChange={(e) =>
+        setCenterName(e.target.value)
+      }
+    />
 
-      <button onClick={handleSaveCenter}>
+    <br />
+    <br />
 
-        {
-          editingCenterId
-            ? "Update Center"
-            : "Create Center"
-        }
+    <button onClick={handleSaveCenter}>
+      {
+        editingCenterId
+          ? "Update Center"
+          : "Create Center"
+      }
+    </button>
 
-      </button>
+    <br />
+    <br />
+    <br />
+  </>
 
-      <br />
-      <br />
-      <br />
-
+)}
       {/* ========================= */}
       {/* CENTERS TABLE */}
       {/* ========================= */}
@@ -360,69 +386,74 @@ return (
 
         <thead>
 
-          <tr>
+  <tr>
 
-<th>Center Name</th>
+    <th>Center Name</th>
 
-{isSuperAdmin(user) && (
-  <th>Academy</th>
-)}
+    {isSuperAdmin(user) && (
+      <th>Academy</th>
+    )}
 
-<th>Actions</th>
+    {(isSuperAdmin(user) || isAcademyOwner(user)) && (
+      <th>Actions</th>
+    )}
 
-          </tr>
+  </tr>
 
-        </thead>
+</thead>
 
-        <tbody>
+<tbody>
 
-          {
-            centers.map((center) => (
+  {
+    filteredCenters.map((center) => (
 
-              <tr key={center.id}>
+      <tr key={center.id}>
 
-                <td>
-                  {center.center_name}
-                </td>
+        <td>
+          {center.center_name}
+        </td>
 
-{isSuperAdmin(user) && (
-  <td>
-    {
-      center.academies
-        ?.academy_name
-    }
-  </td>
-)}
+        {isSuperAdmin(user) && (
+          <td>
+            {
+              academies.find(
+                (academy) =>
+                  academy.id === center.academy_id
+              )?.academy_name || ""
+            }
+          </td>
+        )}
 
-                <td>
+        {(isSuperAdmin(user) || isAcademyOwner(user)) && (
+          <td>
 
-                  <button
-                    onClick={() =>
-                      handleEdit(center)
-                    }
-                  >
-                    Edit
-                  </button>
+            <button
+              onClick={() =>
+                handleEdit(center)
+              }
+            >
+              Edit
+            </button>
 
-                  {" "}
+            {" "}
 
-                  <button
-                    onClick={() =>
-                      handleDelete(center.id)
-                    }
-                  >
-                    Delete
-                  </button>
+            <button
+              onClick={() =>
+                handleDelete(center.id)
+              }
+            >
+              Delete
+            </button>
 
-                </td>
+          </td>
+        )}
 
-              </tr>
+      </tr>
 
-            ))
-          }
+    ))
+  }
 
-        </tbody>
-
+</tbody>
       </table>
 
     </div>

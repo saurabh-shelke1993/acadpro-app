@@ -98,7 +98,8 @@ function AppRoutes() {
             <ProtectedRoute
               allowedRoles={[
                 "super_admin",
-                "academy_owner"
+                "academy_owner",
+                "coach"
               ]}
             >
               <Centers />
@@ -112,7 +113,8 @@ function AppRoutes() {
             <ProtectedRoute
               allowedRoles={[
                 "super_admin",
-                "academy_owner"
+                "academy_owner",
+                "coach"
               ]}
             >
               <Batches />
@@ -120,19 +122,20 @@ function AppRoutes() {
           }
         />
 
-        <Route
-          path="/players"
-          element={
-            <ProtectedRoute
-              allowedRoles={[
-                "super_admin",
-                "academy_owner"
-              ]}
-            >
-              <Players />
-            </ProtectedRoute>
-          }
-        />
+<Route
+  path="/players"
+  element={
+    <ProtectedRoute
+      allowedRoles={[
+        "super_admin",
+        "academy_owner",
+        "coach"
+      ]}
+    >
+      <Players />
+    </ProtectedRoute>
+  }
+/>
 
         <Route
           path="/attendance"

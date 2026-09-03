@@ -50,29 +50,44 @@ function Sidebar() {
       {/* COACH SIDEBAR */}
       {/* ========================================= */}
 
-      {
-        isCoach(user) ? (
+{
+  isCoach(user) ? (
 
-          <>
+    <>
 
-            <SidebarLink
-              to="/coach-dashboard"
-              label="Dashboard"
-            />
+      <SidebarLink
+        to="/coach-dashboard"
+        label="Dashboard"
+      />
 
-            <SidebarLink
-              to="/coach-attendance"
-              label="Coach Attendance"
-            />
+      <SidebarLink
+        to="/coach-attendance"
+        label="Coach Attendance"
+      />
 
-            <SidebarLink
-              to="/attendance-history"
-              label="Attendance History"
-            />
+      <SidebarLink
+        to="/attendance-history"
+        label="Attendance History"
+      />
 
-          </>
+      <SidebarLink
+        to="/centers"
+        label="Centers"
+      />
 
-        ) : (
+      <SidebarLink
+        to="/batches"
+        label="Batches"
+      />
+
+      <SidebarLink
+        to="/players"
+        label="Players"
+      />
+
+    </>
+
+  ) : (
 
           <>
             {/* DASHBOARD */}

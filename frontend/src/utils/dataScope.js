@@ -203,17 +203,18 @@ if (isCoach(user)) {
 // GET ACCESSIBLE BATCHES
 // =============================================
 
+// =============================================
+// GET ACCESSIBLE BATCHES
+// =============================================
+
 export const getAccessibleBatches = async (
   user,
-  selectedCenter
+  selectedCenter = ""
 ) => {
 
-  if (!selectedCenter) {
+  if (!user) {
     return [];
   }
-  if (!user) {
-  return [];
-}
 
   // ==========================
   // Super Admin
@@ -221,18 +222,26 @@ export const getAccessibleBatches = async (
 
   if (isSuperAdmin(user)) {
 
-    const { data, error } = await supabase
+    let query = supabase
       .from("batches")
       .select("*")
-      .eq("center_id", selectedCenter)
-      .eq("is_active", true)
+      .eq("is_active", true);
+
+    // Optional center filter
+    if (selectedCenter) {
+      query = query.eq(
+        "center_id",
+        selectedCenter
+      );
+    }
+
+    const { data, error } = await query
       .order("batch_name");
 
     if (error) throw error;
 
-    return data;
+    return data || [];
   }
-
 
   // ==========================
   // Academy Owner
@@ -240,70 +249,90 @@ export const getAccessibleBatches = async (
 
   if (isAcademyOwner(user)) {
 
-    const { data, error } = await supabase
+    if (!user?.academy_id) {
+      return [];
+    }
+
+    let query = supabase
       .from("batches")
       .select("*")
-      .eq("center_id", selectedCenter)
-      .eq("academy_id", user.academy_id)
-      .eq("is_active", true)
+      .eq(
+        "academy_id",
+        user.academy_id
+      )
+      .eq("is_active", true);
+
+    // Optional center filter
+    if (selectedCenter) {
+      query = query.eq(
+        "center_id",
+        selectedCenter
+      );
+    }
+
+    const { data, error } = await query
       .order("batch_name");
 
     if (error) throw error;
 
-    return data;
+    return data || [];
   }
 
   // ==========================
   // Coach
   // ==========================
 
-if (isCoach(user)) {
+  if (isCoach(user)) {
 
-  const { data: coachData, error: coachError } =
-    await supabase
-      .from("coaches")
-      .select("id")
-      .eq("user_id", user.id)
-      .single();
+    const { data: coachData, error: coachError } =
+      await supabase
+        .from("coaches")
+        .select("id")
+        .eq("user_id", user.id)
+        .single();
 
-  if (coachError) throw coachError;
+    if (coachError) throw coachError;
 
-  const { data, error } = await supabase
-    .from("coach_batch_assignments")
-    .select(`
-      batches (
-        id,
-        batch_name,
-        center_id,
-        academy_id,
-        age_group,
-        start_time,
-        end_time,
-        is_active
+const { data, error } = await supabase
+  .from("coach_batch_assignments")
+  .select(`
+    batches (
+      id,
+      batch_name,
+      center_id,
+      academy_id,
+      age_group,
+      start_time,
+      end_time,
+      is_active
+    )
+  `)
+      .eq("coach_id", coachData.id)
+      .eq("is_active", true);
+
+    if (error) throw error;
+
+    const accessibleBatches = (data || [])
+      .map(item => item.batches)
+      .filter(batch =>
+        batch &&
+        batch.is_active &&
+        (
+          !selectedCenter ||
+          batch.center_id === selectedCenter
+        )
       )
-    `)
-    .eq("coach_id", coachData.id)
-    .eq("is_active", true);
+      .sort((a, b) =>
+        a.batch_name.localeCompare(
+          b.batch_name
+        )
+      );
 
-  if (error) throw error;
-
-const accessibleBatches = data
-  .map(item => item.batches)
-  .filter(batch =>
-    batch &&
-    batch.center_id === selectedCenter &&
-    batch.is_active
-  )
-  .sort((a, b) =>
-    a.batch_name.localeCompare(b.batch_name)
-  );
-
-return accessibleBatches;
-}
+    return accessibleBatches;
+  }
 
   return [];
 };
-
 // =============================================
 // GET ACCESSIBLE ACADEMIES
 // =============================================
