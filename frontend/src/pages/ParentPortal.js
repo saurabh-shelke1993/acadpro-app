@@ -9,6 +9,7 @@ const ParentPortal = () => {
   const [attendanceByChildId, setAttendanceByChildId] = useState({});
   const [attendanceHistoryByChildId, setAttendanceHistoryByChildId] = useState({});
   const [paymentHistoryByChildId, setPaymentHistoryByChildId] = useState({});
+  const [pendingDuesByChildId, setPendingDuesByChildId] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -115,6 +116,7 @@ const ParentPortal = () => {
       const nextAttendanceByChildId = {};
       const nextAttendanceHistoryByChildId = {};
       const nextPaymentHistoryByChildId = {};
+      const nextPendingDuesByChildId = {};
 
       childIds.forEach((childId) => {
         nextAttendanceByChildId[childId] = {
@@ -125,6 +127,7 @@ const ParentPortal = () => {
         };
         nextAttendanceHistoryByChildId[childId] = [];
         nextPaymentHistoryByChildId[childId] = [];
+        nextPendingDuesByChildId[childId] = [];
       });
 
       if (childIds.length > 0) {
@@ -173,6 +176,28 @@ const ParentPortal = () => {
             if (history) history.push(record);
           });
         }
+
+        const { data: dueRecords, error: duesError } = await supabase
+          .from("payment_dues")
+          .select(
+            "id, player_id, subscription_id, due_type, due_date, total_amount, paid_amount, remaining_amount, due_status, remarks"
+          )
+          .in("player_id", childIds)
+          .order("due_date", { ascending: true });
+
+        if (!duesError) {
+          (dueRecords || []).forEach((record) => {
+            const remainingAmount = Number(record.remaining_amount);
+            const dueStatus = String(record.due_status || "").toLowerCase();
+            const isClearlySettled = ["paid", "settled", "fully paid", "fully_paid"].includes(dueStatus);
+            const isOutstanding =
+              remainingAmount > 0 ||
+              (record.remaining_amount === null && !isClearlySettled);
+            const dues = nextPendingDuesByChildId[record.player_id];
+
+            if (isOutstanding && dues) dues.push(record);
+          });
+        }
       }
 
       if (mounted) {
@@ -181,6 +206,7 @@ const ParentPortal = () => {
         setAttendanceByChildId(nextAttendanceByChildId);
         setAttendanceHistoryByChildId(nextAttendanceHistoryByChildId);
         setPaymentHistoryByChildId(nextPaymentHistoryByChildId);
+        setPendingDuesByChildId(nextPendingDuesByChildId);
         setSelectedChildId(safeChildren[0]?.id || null);
         setLoading(false);
       }
@@ -208,6 +234,13 @@ const ParentPortal = () => {
   const selectedPaymentHistory = selectedChild
     ? paymentHistoryByChildId[selectedChild.id] || []
     : [];
+  const selectedPendingDues = selectedChild
+    ? pendingDuesByChildId[selectedChild.id] || []
+    : [];
+  const totalOutstandingAmount = selectedPendingDues.reduce(
+    (total, due) => total + (Number(due.remaining_amount) || 0),
+    0
+  );
 
   const formatDate = (value) => {
     if (!value) return "Not available";
@@ -421,6 +454,56 @@ const ParentPortal = () => {
                 )}
               </div>
 
+              <div style={styles.subsection}>
+                <h3 style={styles.subsectionTitle}>Pending dues</h3>
+                {selectedPendingDues.length > 0 ? (
+                  <>
+                    <p style={styles.outstandingAmount}>
+                      Total outstanding: {formatAmount(totalOutstandingAmount)}
+                    </p>
+                    <div style={styles.historyList}>
+                      {selectedPendingDues.map((due) => (
+                        <div key={due.id} style={styles.historyRow}>
+                          <div>
+                            <p style={styles.historyDate}>
+                              {due.due_type || "Fee due"}
+                            </p>
+                            <p style={styles.historyRemarks}>
+                              Due date: {formatDate(due.due_date)}
+                            </p>
+                            <p style={styles.paymentAmount}>
+                              Remaining amount: {formatAmount(due.remaining_amount)}
+                            </p>
+                            {due.total_amount != null ? (
+                              <p style={styles.historyRemarks}>
+                                Total amount: {formatAmount(due.total_amount)}
+                              </p>
+                            ) : null}
+                            {due.paid_amount != null ? (
+                              <p style={styles.historyRemarks}>
+                                Paid amount: {formatAmount(due.paid_amount)}
+                              </p>
+                            ) : null}
+                            <p style={styles.historyRemarks}>
+                              Status: {due.due_status || "Pending"}
+                            </p>
+                            {due.remarks ? (
+                              <p style={styles.historyRemarks}>
+                                Remarks: {due.remarks}
+                              </p>
+                            ) : null}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  <p style={styles.message}>
+                    No pending dues are available for this child.
+                  </p>
+                )}
+              </div>
+
               <div style={styles.futureSections}>
                 <div style={styles.futureSection}>Payments</div>
                 <div style={styles.futureSection}>Profile</div>
@@ -466,6 +549,7 @@ const styles = {
   historyRow: { display: "flex", justifyContent: "space-between", alignItems: "center", gap: "16px", padding: "14px 16px", border: "1px solid #e5e7eb", borderRadius: "10px", background: "#fafafa" },
   historyDate: { margin: 0, fontWeight: "bold" },
   paymentAmount: { margin: "5px 0 0", fontWeight: "bold" },
+  outstandingAmount: { margin: "0 0 16px", fontSize: "17px", fontWeight: "bold", color: "#991b1b" },
   historyRemarks: { margin: "5px 0 0", color: "#666", fontSize: "14px" },
   statusBadge: { padding: "5px 10px", borderRadius: "999px", background: "#e5e7eb", color: "#374151", fontSize: "13px", fontWeight: "bold", whiteSpace: "nowrap" },
   presentBadge: { background: "#dcfce7", color: "#166534" },
