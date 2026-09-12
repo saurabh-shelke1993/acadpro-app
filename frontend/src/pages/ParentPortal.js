@@ -4,6 +4,7 @@ import { supabase } from "../supabaseClient";
 const ParentPortal = () => {
   const [parent, setParent] = useState(null);
   const [children, setChildren] = useState([]);
+  const [selectedChildId, setSelectedChildId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -65,9 +66,12 @@ const ParentPortal = () => {
         return;
       }
 
+      const safeChildren = childRecords || [];
+
       if (mounted) {
         setParent(parentRecord);
-        setChildren(childRecords || []);
+        setChildren(safeChildren);
+        setSelectedChildId(safeChildren[0]?.id || null);
         setLoading(false);
       }
     };
@@ -82,6 +86,8 @@ const ParentPortal = () => {
   const handleLogout = async () => {
     await supabase.auth.signOut();
   };
+
+  const selectedChild = children.find((child) => child.id === selectedChildId) || null;
 
   if (loading) {
     return <main style={styles.container}>Loading your parent portal…</main>;
@@ -115,23 +121,71 @@ const ParentPortal = () => {
           </p>
         </section>
       ) : (
-        <section>
-          <h2 style={styles.sectionTitle}>Your children</h2>
-          <div style={styles.grid}>
-            {children.map((child) => (
-              <article key={child.id} style={styles.card}>
-                <div style={styles.avatar} aria-hidden="true">
-                  {(child.full_name || "?").charAt(0).toUpperCase()}
-                </div>
-                <h3 style={styles.childName}>{child.full_name}</h3>
-                {child.dob && <p style={styles.detail}>Date of birth: {child.dob}</p>}
-                {child.player_status && (
-                  <p style={styles.detail}>Status: {child.player_status}</p>
+        <>
+          <section aria-labelledby="children-heading">
+            <h2 id="children-heading" style={styles.sectionTitle}>
+              Your children
+            </h2>
+            <div style={styles.grid}>
+              {children.map((child) => {
+                const isSelected = child.id === selectedChildId;
+
+                return (
+                  <button
+                    key={child.id}
+                    type="button"
+                    onClick={() => setSelectedChildId(child.id)}
+                    aria-pressed={isSelected}
+                    style={{
+                      ...styles.childCard,
+                      ...(isSelected ? styles.selectedChildCard : {}),
+                    }}
+                  >
+                    <div style={styles.avatar} aria-hidden="true">
+                      {(child.full_name || "?").charAt(0).toUpperCase()}
+                    </div>
+                    <span style={styles.childName}>{child.full_name}</span>
+                    <span style={styles.childCardHint}>
+                      {isSelected ? "Selected child" : "View dashboard"}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+
+          {selectedChild && (
+            <section aria-labelledby="selected-child-heading" style={styles.dashboardCard}>
+              <p style={styles.eyebrow}>Selected child</p>
+              <h2 id="selected-child-heading" style={styles.dashboardTitle}>
+                {selectedChild.full_name}
+              </h2>
+              <div style={styles.detailsGrid}>
+                {selectedChild.dob && (
+                  <div>
+                    <span style={styles.detailLabel}>Date of birth</span>
+                    <p style={styles.detailValue}>{selectedChild.dob}</p>
+                  </div>
                 )}
-              </article>
-            ))}
-          </div>
-        </section>
+                {selectedChild.player_status && (
+                  <div>
+                    <span style={styles.detailLabel}>Status</span>
+                    <p style={styles.detailValue}>{selectedChild.player_status}</p>
+                  </div>
+                )}
+              </div>
+              <div style={styles.futureSections}>
+                <div style={styles.futureSection}>Attendance</div>
+                <div style={styles.futureSection}>Payments</div>
+                <div style={styles.futureSection}>Profile</div>
+              </div>
+              <p style={styles.message}>
+                Additional child information will be added in the upcoming Parent
+                Portal phases.
+              </p>
+            </section>
+          )}
+        </>
       )}
     </main>
   );
@@ -164,15 +218,25 @@ const styles = {
   sectionTitle: { margin: "0 0 16px", fontSize: "22px" },
   grid: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
     gap: "16px",
   },
-  card: {
-    padding: "24px",
+  childCard: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-start",
+    textAlign: "left",
+    padding: "20px",
     border: "1px solid #e5e7eb",
     borderRadius: "14px",
     background: "#fff",
     boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+    cursor: "pointer",
+  },
+  selectedChildCard: {
+    border: "2px solid #1a73e8",
+    padding: "19px",
+    background: "#f5f9ff",
   },
   avatar: {
     width: "52px",
@@ -187,8 +251,52 @@ const styles = {
     fontWeight: "bold",
     marginBottom: "14px",
   },
-  childName: { margin: "0 0 12px", fontSize: "20px" },
-  detail: { margin: "6px 0", color: "#555" },
+  childName: { fontSize: "20px", fontWeight: "bold" },
+  childCardHint: { marginTop: "8px", color: "#666", fontSize: "14px" },
+  dashboardCard: {
+    marginTop: "28px",
+    padding: "24px",
+    border: "1px solid #e5e7eb",
+    borderRadius: "14px",
+    background: "#fff",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+  },
+  eyebrow: {
+    margin: "0 0 6px",
+    color: "#666",
+    fontSize: "13px",
+    textTransform: "uppercase",
+    letterSpacing: "0.06em",
+  },
+  dashboardTitle: { margin: "0 0 20px", fontSize: "26px" },
+  detailsGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+    gap: "16px",
+  },
+  detailLabel: { color: "#666", fontSize: "14px" },
+  detailValue: { margin: "6px 0 0", fontSize: "16px", fontWeight: "bold" },
+  futureSections: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+    gap: "12px",
+    margin: "24px 0 16px",
+  },
+  futureSection: {
+    padding: "14px",
+    border: "1px dashed #cbd5e1",
+    borderRadius: "8px",
+    color: "#64748b",
+    background: "#f8fafc",
+    textAlign: "center",
+  },
+  card: {
+    padding: "24px",
+    border: "1px solid #e5e7eb",
+    borderRadius: "14px",
+    background: "#fff",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+  },
   message: { margin: 0, color: "#555", lineHeight: 1.5 },
 };
 
