@@ -29,7 +29,7 @@ const ParentPortal = () => {
 
       const { data: parentRecord, error: parentError } = await supabase
         .from("parents")
-        .select("id, name, email")
+        .select("id, parent_name, email")
         .eq("email", user.email)
         .maybeSingle();
 
@@ -43,7 +43,9 @@ const ParentPortal = () => {
 
       if (!parentRecord) {
         if (mounted) {
-          setError("No parent profile is linked to this login. Please contact your academy administrator.");
+          setError(
+            "No parent profile is linked to this login. Please contact your academy administrator."
+          );
           setLoading(false);
         }
         return;
@@ -51,9 +53,9 @@ const ParentPortal = () => {
 
       const { data: childRecords, error: childrenError } = await supabase
         .from("players")
-        .select("id, name, age, position, batch")
+        .select("id, full_name, dob, player_status")
         .eq("parent_id", parentRecord.id)
-        .order("name", { ascending: true });
+        .order("full_name", { ascending: true });
 
       if (childrenError) {
         if (mounted) {
@@ -91,7 +93,7 @@ const ParentPortal = () => {
         <div>
           <h1 style={styles.title}>Parent Portal</h1>
           <p style={styles.subtitle}>
-            {parent ? `Welcome, ${parent.name || "Parent"}` : "AcadPro"}
+            {parent ? `Welcome, ${parent.parent_name || "Parent"}` : "AcadPro"}
           </p>
         </div>
         <button type="button" onClick={handleLogout} style={styles.logoutButton}>
@@ -119,12 +121,13 @@ const ParentPortal = () => {
             {children.map((child) => (
               <article key={child.id} style={styles.card}>
                 <div style={styles.avatar} aria-hidden="true">
-                  {(child.name || "?").charAt(0).toUpperCase()}
+                  {(child.full_name || "?").charAt(0).toUpperCase()}
                 </div>
-                <h3 style={styles.childName}>{child.name}</h3>
-                {child.age != null && <p style={styles.detail}>Age: {child.age}</p>}
-                {child.position && <p style={styles.detail}>Position: {child.position}</p>}
-                {child.batch && <p style={styles.detail}>Batch: {child.batch}</p>}
+                <h3 style={styles.childName}>{child.full_name}</h3>
+                {child.dob && <p style={styles.detail}>Date of birth: {child.dob}</p>}
+                {child.player_status && (
+                  <p style={styles.detail}>Status: {child.player_status}</p>
+                )}
               </article>
             ))}
           </div>
