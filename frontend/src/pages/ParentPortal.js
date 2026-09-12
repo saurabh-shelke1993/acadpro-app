@@ -29,8 +29,8 @@ const ParentPortal = () => {
 
       const { data: parentRecord, error: parentError } = await supabase
         .from("parents")
-        .select("id, parent_name, email")
-        .eq("email", user.email)
+        .select("id, parent_name, email, user_id")
+        .eq("user_id", user.id)
         .maybeSingle();
 
       if (parentError) {
