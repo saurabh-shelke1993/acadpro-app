@@ -55,7 +55,9 @@ const ParentPortal = () => {
 
       const { data: childRecords, error: childrenError } = await supabase
         .from("players")
-        .select("id, full_name, dob, player_status")
+        .select(
+          "id, full_name, dob, player_status, gender, registration_number, joining_date, player_code, academy_id, center_id, batch_id, academies(academy_name), centers(center_name), batches(batch_name, age_group, start_time, end_time)"
+        )
         .eq("parent_id", parentRecord.id)
         .order("full_name", { ascending: true });
 
@@ -67,7 +69,50 @@ const ParentPortal = () => {
         return;
       }
 
-      const safeChildren = childRecords || [];
+      const safeChildren = (childRecords || []).map((child) => ({
+        ...child,
+        academy: child.academies || null,
+        center: child.centers || null,
+        batch: child.batches || null,
+        coach: null,
+      }));
+
+      const batchIds = [
+        ...new Set(safeChildren.map((child) => child.batch_id).filter(Boolean)),
+      ];
+
+      if (batchIds.length > 0) {
+        const { data: assignments } = await supabase
+          .from("coach_batch_assignments")
+          .select("batch_id, coach_id")
+          .in("batch_id", batchIds)
+          .eq("is_active", true);
+
+        const coachIds = [
+          ...new Set((assignments || []).map((assignment) => assignment.coach_id)),
+        ].filter(Boolean);
+
+        if (coachIds.length > 0) {
+          const { data: coaches } = await supabase
+            .from("coaches")
+            .select("id, full_name")
+            .in("id", coachIds);
+
+          const coachById = new Map(
+            (coaches || []).map((coach) => [coach.id, coach])
+          );
+          const coachByBatchId = new Map(
+            (assignments || []).map((assignment) => [
+              assignment.batch_id,
+              coachById.get(assignment.coach_id) || null,
+            ])
+          );
+
+          safeChildren.forEach((child) => {
+            child.coach = coachByBatchId.get(child.batch_id) || null;
+          });
+        }
+      }
 
       if (mounted) {
         setParent(parentRecord);
@@ -84,11 +129,31 @@ const ParentPortal = () => {
     };
   }, []);
 
-const handleLogout = async () => {
-  await logoutUser();
-};
+  const handleLogout = async () => {
+    await logoutUser();
+  };
 
-  const selectedChild = children.find((child) => child.id === selectedChildId) || null;
+  const selectedChild =
+    children.find((child) => child.id === selectedChildId) || null;
+
+  const formatDate = (value) => {
+    if (!value) return "Not available";
+
+    const date = new Date(`${value}T00:00:00`);
+    if (Number.isNaN(date.getTime())) return value;
+
+    return date.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
+  const formatTime = (value) => {
+    if (!value) return "Not available";
+
+    return value.slice(0, 5);
+  };
 
   if (loading) {
     return <main style={styles.container}>Loading your parent portal…</main>;
@@ -161,28 +226,63 @@ const handleLogout = async () => {
               <h2 id="selected-child-heading" style={styles.dashboardTitle}>
                 {selectedChild.full_name}
               </h2>
+
               <div style={styles.detailsGrid}>
-                {selectedChild.dob && (
-                  <div>
-                    <span style={styles.detailLabel}>Date of birth</span>
-                    <p style={styles.detailValue}>{selectedChild.dob}</p>
-                  </div>
-                )}
-                {selectedChild.player_status && (
-                  <div>
-                    <span style={styles.detailLabel}>Status</span>
-                    <p style={styles.detailValue}>{selectedChild.player_status}</p>
-                  </div>
-                )}
+                <Detail label="Date of birth" value={formatDate(selectedChild.dob)} />
+                <Detail label="Joining date" value={formatDate(selectedChild.joining_date)} />
+                <Detail label="Status" value={selectedChild.player_status || "Not available"} />
+                <Detail label="Gender" value={selectedChild.gender || "Not available"} />
+                <Detail
+                  label="Registration number"
+                  value={selectedChild.registration_number || "Not available"}
+                />
+                <Detail label="Player code" value={selectedChild.player_code || "Not available"} />
               </div>
+
+              <div style={styles.subsection}>
+                <h3 style={styles.subsectionTitle}>Academy details</h3>
+                <div style={styles.detailsGrid}>
+                  <Detail
+                    label="Academy"
+                    value={selectedChild.academy?.academy_name || "Not available"}
+                  />
+                  <Detail
+                    label="Center"
+                    value={selectedChild.center?.center_name || "Not assigned"}
+                  />
+                  <Detail
+                    label="Batch"
+                    value={selectedChild.batch?.batch_name || "Not assigned"}
+                  />
+                  <Detail
+                    label="Age group"
+                    value={selectedChild.batch?.age_group || "Not available"}
+                  />
+                  <Detail
+                    label="Training time"
+                    value={
+                      selectedChild.batch
+                        ? `${formatTime(selectedChild.batch.start_time)} – ${formatTime(
+                            selectedChild.batch.end_time
+                          )}`
+                        : "Not available"
+                    }
+                  />
+                  <Detail
+                    label="Coach"
+                    value={selectedChild.coach?.full_name || "Not assigned"}
+                  />
+                </div>
+              </div>
+
               <div style={styles.futureSections}>
                 <div style={styles.futureSection}>Attendance</div>
                 <div style={styles.futureSection}>Payments</div>
                 <div style={styles.futureSection}>Profile</div>
               </div>
               <p style={styles.message}>
-                Additional child information will be added in the upcoming Parent
-                Portal phases.
+                Attendance and payment information will be added in the upcoming
+                Parent Portal phases.
               </p>
             </section>
           )}
@@ -191,6 +291,13 @@ const handleLogout = async () => {
     </main>
   );
 };
+
+const Detail = ({ label, value }) => (
+  <div>
+    <span style={styles.detailLabel}>{label}</span>
+    <p style={styles.detailValue}>{value}</p>
+  </div>
+);
 
 const styles = {
   container: {
@@ -277,6 +384,12 @@ const styles = {
   },
   detailLabel: { color: "#666", fontSize: "14px" },
   detailValue: { margin: "6px 0 0", fontSize: "16px", fontWeight: "bold" },
+  subsection: {
+    marginTop: "28px",
+    paddingTop: "22px",
+    borderTop: "1px solid #e5e7eb",
+  },
+  subsectionTitle: { margin: "0 0 16px", fontSize: "20px" },
   futureSections: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
