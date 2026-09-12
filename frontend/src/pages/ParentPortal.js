@@ -6,6 +6,7 @@ const ParentPortal = () => {
   const [parent, setParent] = useState(null);
   const [children, setChildren] = useState([]);
   const [selectedChildId, setSelectedChildId] = useState(null);
+  const [attendanceByChildId, setAttendanceByChildId] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -35,18 +36,12 @@ const ParentPortal = () => {
         .eq("user_id", user.id)
         .maybeSingle();
 
-      if (parentError) {
-        if (mounted) {
-          setError("We could not load your parent profile.");
-          setLoading(false);
-        }
-        return;
-      }
-
-      if (!parentRecord) {
+      if (parentError || !parentRecord) {
         if (mounted) {
           setError(
-            "No parent profile is linked to this login. Please contact your academy administrator."
+            parentError
+              ? "We could not load your parent profile."
+              : "No parent profile is linked to this login. Please contact your academy administrator."
           );
           setLoading(false);
         }
@@ -114,9 +109,47 @@ const ParentPortal = () => {
         }
       }
 
+      const childIds = safeChildren.map((child) => child.id);
+      const nextAttendanceByChildId = {};
+
+      childIds.forEach((childId) => {
+        nextAttendanceByChildId[childId] = {
+          total: 0,
+          present: 0,
+          absent: 0,
+          percentage: null,
+        };
+      });
+
+      if (childIds.length > 0) {
+        const { data: attendanceRecords } = await supabase
+          .from("attendance")
+          .select("player_id, status")
+          .in("player_id", childIds)
+          .or("is_deleted.is.null,is_deleted.eq.false");
+
+        (attendanceRecords || []).forEach((record) => {
+          const summary = nextAttendanceByChildId[record.player_id];
+          if (!summary) return;
+
+          const status = String(record.status || "").toLowerCase();
+          summary.total += 1;
+          if (status === "present") summary.present += 1;
+          if (status === "absent") summary.absent += 1;
+        });
+
+        Object.values(nextAttendanceByChildId).forEach((summary) => {
+          summary.percentage =
+            summary.total > 0
+              ? Math.round((summary.present / summary.total) * 100)
+              : null;
+        });
+      }
+
       if (mounted) {
         setParent(parentRecord);
         setChildren(safeChildren);
+        setAttendanceByChildId(nextAttendanceByChildId);
         setSelectedChildId(safeChildren[0]?.id || null);
         setLoading(false);
       }
@@ -135,13 +168,14 @@ const ParentPortal = () => {
 
   const selectedChild =
     children.find((child) => child.id === selectedChildId) || null;
+  const selectedAttendance = selectedChild
+    ? attendanceByChildId[selectedChild.id]
+    : null;
 
   const formatDate = (value) => {
     if (!value) return "Not available";
-
     const date = new Date(`${value}T00:00:00`);
     if (Number.isNaN(date.getTime())) return value;
-
     return date.toLocaleDateString("en-IN", {
       day: "2-digit",
       month: "short",
@@ -149,11 +183,7 @@ const ParentPortal = () => {
     });
   };
 
-  const formatTime = (value) => {
-    if (!value) return "Not available";
-
-    return value.slice(0, 5);
-  };
+  const formatTime = (value) => (value ? value.slice(0, 5) : "Not available");
 
   if (loading) {
     return <main style={styles.container}>Loading your parent portal…</main>;
@@ -189,13 +219,10 @@ const ParentPortal = () => {
       ) : (
         <>
           <section aria-labelledby="children-heading">
-            <h2 id="children-heading" style={styles.sectionTitle}>
-              Your children
-            </h2>
+            <h2 id="children-heading" style={styles.sectionTitle}>Your children</h2>
             <div style={styles.grid}>
               {children.map((child) => {
                 const isSelected = child.id === selectedChildId;
-
                 return (
                   <button
                     key={child.id}
@@ -232,57 +259,51 @@ const ParentPortal = () => {
                 <Detail label="Joining date" value={formatDate(selectedChild.joining_date)} />
                 <Detail label="Status" value={selectedChild.player_status || "Not available"} />
                 <Detail label="Gender" value={selectedChild.gender || "Not available"} />
-                <Detail
-                  label="Registration number"
-                  value={selectedChild.registration_number || "Not available"}
-                />
+                <Detail label="Registration number" value={selectedChild.registration_number || "Not available"} />
                 <Detail label="Player code" value={selectedChild.player_code || "Not available"} />
               </div>
 
               <div style={styles.subsection}>
                 <h3 style={styles.subsectionTitle}>Academy details</h3>
                 <div style={styles.detailsGrid}>
-                  <Detail
-                    label="Academy"
-                    value={selectedChild.academy?.academy_name || "Not available"}
-                  />
-                  <Detail
-                    label="Center"
-                    value={selectedChild.center?.center_name || "Not assigned"}
-                  />
-                  <Detail
-                    label="Batch"
-                    value={selectedChild.batch?.batch_name || "Not assigned"}
-                  />
-                  <Detail
-                    label="Age group"
-                    value={selectedChild.batch?.age_group || "Not available"}
-                  />
+                  <Detail label="Academy" value={selectedChild.academy?.academy_name || "Not available"} />
+                  <Detail label="Center" value={selectedChild.center?.center_name || "Not assigned"} />
+                  <Detail label="Batch" value={selectedChild.batch?.batch_name || "Not assigned"} />
+                  <Detail label="Age group" value={selectedChild.batch?.age_group || "Not available"} />
                   <Detail
                     label="Training time"
                     value={
                       selectedChild.batch
-                        ? `${formatTime(selectedChild.batch.start_time)} – ${formatTime(
-                            selectedChild.batch.end_time
-                          )}`
+                        ? `${formatTime(selectedChild.batch.start_time)} – ${formatTime(selectedChild.batch.end_time)}`
                         : "Not available"
                     }
                   />
-                  <Detail
-                    label="Coach"
-                    value={selectedChild.coach?.full_name || "Not assigned"}
-                  />
+                  <Detail label="Coach" value={selectedChild.coach?.full_name || "Not assigned"} />
                 </div>
               </div>
 
+              <div style={styles.subsection}>
+                <h3 style={styles.subsectionTitle}>Attendance summary</h3>
+                {selectedAttendance?.total > 0 ? (
+                  <div style={styles.attendanceGrid}>
+                    <Detail label="Total sessions" value={selectedAttendance.total} />
+                    <Detail label="Present" value={selectedAttendance.present} />
+                    <Detail label="Absent" value={selectedAttendance.absent} />
+                    <Detail label="Attendance percentage" value={`${selectedAttendance.percentage}%`} />
+                  </div>
+                ) : (
+                  <p style={styles.message}>
+                    No attendance records are available for this child yet.
+                  </p>
+                )}
+              </div>
+
               <div style={styles.futureSections}>
-                <div style={styles.futureSection}>Attendance</div>
                 <div style={styles.futureSection}>Payments</div>
                 <div style={styles.futureSection}>Profile</div>
               </div>
               <p style={styles.message}>
-                Attendance and payment information will be added in the upcoming
-                Parent Portal phases.
+                Payment information and attendance history will be added in the upcoming Parent Portal phases.
               </p>
             </section>
           )}
@@ -300,117 +321,30 @@ const Detail = ({ label, value }) => (
 );
 
 const styles = {
-  container: {
-    maxWidth: "1000px",
-    margin: "0 auto",
-    padding: "32px 20px",
-    fontFamily: "Arial, sans-serif",
-  },
-  header: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    gap: "16px",
-    flexWrap: "wrap",
-    marginBottom: "28px",
-  },
+  container: { maxWidth: "1000px", margin: "0 auto", padding: "32px 20px", fontFamily: "Arial, sans-serif" },
+  header: { display: "flex", justifyContent: "space-between", alignItems: "center", gap: "16px", flexWrap: "wrap", marginBottom: "28px" },
   title: { margin: 0, fontSize: "30px" },
   subtitle: { margin: "6px 0 0", color: "#666" },
-  logoutButton: {
-    padding: "10px 16px",
-    border: "1px solid #ccc",
-    borderRadius: "8px",
-    background: "white",
-    cursor: "pointer",
-  },
+  logoutButton: { padding: "10px 16px", border: "1px solid #ccc", borderRadius: "8px", background: "white", cursor: "pointer" },
   sectionTitle: { margin: "0 0 16px", fontSize: "22px" },
-  grid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-    gap: "16px",
-  },
-  childCard: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "flex-start",
-    textAlign: "left",
-    padding: "20px",
-    border: "1px solid #e5e7eb",
-    borderRadius: "14px",
-    background: "#fff",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-    cursor: "pointer",
-  },
-  selectedChildCard: {
-    border: "2px solid #1a73e8",
-    padding: "19px",
-    background: "#f5f9ff",
-  },
-  avatar: {
-    width: "52px",
-    height: "52px",
-    borderRadius: "50%",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    background: "#e8f0fe",
-    color: "#1a73e8",
-    fontSize: "24px",
-    fontWeight: "bold",
-    marginBottom: "14px",
-  },
+  grid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "16px" },
+  childCard: { display: "flex", flexDirection: "column", alignItems: "flex-start", textAlign: "left", padding: "20px", border: "1px solid #e5e7eb", borderRadius: "14px", background: "#fff", boxShadow: "0 2px 8px rgba(0,0,0,0.05)", cursor: "pointer" },
+  selectedChildCard: { border: "2px solid #1a73e8", padding: "19px", background: "#f5f9ff" },
+  avatar: { width: "52px", height: "52px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: "#e8f0fe", color: "#1a73e8", fontSize: "24px", fontWeight: "bold", marginBottom: "14px" },
   childName: { fontSize: "20px", fontWeight: "bold" },
   childCardHint: { marginTop: "8px", color: "#666", fontSize: "14px" },
-  dashboardCard: {
-    marginTop: "28px",
-    padding: "24px",
-    border: "1px solid #e5e7eb",
-    borderRadius: "14px",
-    background: "#fff",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-  },
-  eyebrow: {
-    margin: "0 0 6px",
-    color: "#666",
-    fontSize: "13px",
-    textTransform: "uppercase",
-    letterSpacing: "0.06em",
-  },
+  dashboardCard: { marginTop: "28px", padding: "24px", border: "1px solid #e5e7eb", borderRadius: "14px", background: "#fff", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" },
+  eyebrow: { margin: "0 0 6px", color: "#666", fontSize: "13px", textTransform: "uppercase", letterSpacing: "0.06em" },
   dashboardTitle: { margin: "0 0 20px", fontSize: "26px" },
-  detailsGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-    gap: "16px",
-  },
+  detailsGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "16px" },
+  attendanceGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "16px" },
   detailLabel: { color: "#666", fontSize: "14px" },
   detailValue: { margin: "6px 0 0", fontSize: "16px", fontWeight: "bold" },
-  subsection: {
-    marginTop: "28px",
-    paddingTop: "22px",
-    borderTop: "1px solid #e5e7eb",
-  },
+  subsection: { marginTop: "28px", paddingTop: "22px", borderTop: "1px solid #e5e7eb" },
   subsectionTitle: { margin: "0 0 16px", fontSize: "20px" },
-  futureSections: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
-    gap: "12px",
-    margin: "24px 0 16px",
-  },
-  futureSection: {
-    padding: "14px",
-    border: "1px dashed #cbd5e1",
-    borderRadius: "8px",
-    color: "#64748b",
-    background: "#f8fafc",
-    textAlign: "center",
-  },
-  card: {
-    padding: "24px",
-    border: "1px solid #e5e7eb",
-    borderRadius: "14px",
-    background: "#fff",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-  },
+  futureSections: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "12px", margin: "24px 0 16px" },
+  futureSection: { padding: "14px", border: "1px dashed #cbd5e1", borderRadius: "8px", color: "#64748b", background: "#f8fafc", textAlign: "center" },
+  card: { padding: "24px", border: "1px solid #e5e7eb", borderRadius: "14px", background: "#fff", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" },
   message: { margin: 0, color: "#555", lineHeight: 1.5 },
 };
 
