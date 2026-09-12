@@ -8,6 +8,7 @@ const ParentPortal = () => {
   const [selectedChildId, setSelectedChildId] = useState(null);
   const [attendanceByChildId, setAttendanceByChildId] = useState({});
   const [attendanceHistoryByChildId, setAttendanceHistoryByChildId] = useState({});
+  const [paymentHistoryByChildId, setPaymentHistoryByChildId] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -113,6 +114,7 @@ const ParentPortal = () => {
       const childIds = safeChildren.map((child) => child.id);
       const nextAttendanceByChildId = {};
       const nextAttendanceHistoryByChildId = {};
+      const nextPaymentHistoryByChildId = {};
 
       childIds.forEach((childId) => {
         nextAttendanceByChildId[childId] = {
@@ -122,6 +124,7 @@ const ParentPortal = () => {
           percentage: null,
         };
         nextAttendanceHistoryByChildId[childId] = [];
+        nextPaymentHistoryByChildId[childId] = [];
       });
 
       if (childIds.length > 0) {
@@ -155,6 +158,21 @@ const ParentPortal = () => {
               ? Math.round((summary.present / summary.total) * 100)
               : null;
         });
+
+        const { data: paymentRecords, error: paymentsError } = await supabase
+          .from("payments")
+          .select(
+            "id, player_id, payment_date, amount_paid, payment_mode, transaction_reference, receipt_number, remarks, due_id"
+          )
+          .in("player_id", childIds)
+          .order("payment_date", { ascending: false });
+
+        if (!paymentsError) {
+          (paymentRecords || []).forEach((record) => {
+            const history = nextPaymentHistoryByChildId[record.player_id];
+            if (history) history.push(record);
+          });
+        }
       }
 
       if (mounted) {
@@ -162,6 +180,7 @@ const ParentPortal = () => {
         setChildren(safeChildren);
         setAttendanceByChildId(nextAttendanceByChildId);
         setAttendanceHistoryByChildId(nextAttendanceHistoryByChildId);
+        setPaymentHistoryByChildId(nextPaymentHistoryByChildId);
         setSelectedChildId(safeChildren[0]?.id || null);
         setLoading(false);
       }
@@ -186,6 +205,9 @@ const ParentPortal = () => {
   const selectedAttendanceHistory = selectedChild
     ? attendanceHistoryByChildId[selectedChild.id] || []
     : [];
+  const selectedPaymentHistory = selectedChild
+    ? paymentHistoryByChildId[selectedChild.id] || []
+    : [];
 
   const formatDate = (value) => {
     if (!value) return "Not available";
@@ -199,6 +221,13 @@ const ParentPortal = () => {
   };
 
   const formatTime = (value) => (value ? value.slice(0, 5) : "Not available");
+
+  const formatAmount = (value) => {
+    const amount = Number(value);
+    return Number.isFinite(amount)
+      ? amount.toLocaleString("en-IN", { style: "currency", currency: "INR" })
+      : value || "Not recorded";
+  };
 
   if (loading) {
     return <main style={styles.container}>Loading your parent portal…</main>;
@@ -350,13 +379,52 @@ const ParentPortal = () => {
                 )}
               </div>
 
+              <div style={styles.subsection}>
+                <h3 style={styles.subsectionTitle}>Payment history</h3>
+                {selectedPaymentHistory.length > 0 ? (
+                  <div style={styles.historyList}>
+                    {selectedPaymentHistory.map((payment) => (
+                      <div key={payment.id} style={styles.historyRow}>
+                        <div>
+                          <p style={styles.historyDate}>
+                            {formatDate(payment.payment_date)}
+                          </p>
+                          <p style={styles.paymentAmount}>
+                            Amount paid: {formatAmount(payment.amount_paid)}
+                          </p>
+                          <p style={styles.historyRemarks}>
+                            Payment mode: {payment.payment_mode || "Not recorded"}
+                          </p>
+                          {payment.receipt_number ? (
+                            <p style={styles.historyRemarks}>
+                              Receipt number: {payment.receipt_number}
+                            </p>
+                          ) : null}
+                          {payment.transaction_reference ? (
+                            <p style={styles.historyRemarks}>
+                              Transaction reference: {payment.transaction_reference}
+                            </p>
+                          ) : null}
+                          {payment.remarks ? (
+                            <p style={styles.historyRemarks}>
+                              Remarks: {payment.remarks}
+                            </p>
+                          ) : null}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p style={styles.message}>
+                    No payment history is available for this child yet.
+                  </p>
+                )}
+              </div>
+
               <div style={styles.futureSections}>
                 <div style={styles.futureSection}>Payments</div>
                 <div style={styles.futureSection}>Profile</div>
               </div>
-              <p style={styles.message}>
-                Payment information will be added in the upcoming Parent Portal phases.
-              </p>
             </section>
           )}
         </>
@@ -397,6 +465,7 @@ const styles = {
   historyList: { display: "flex", flexDirection: "column", gap: "10px" },
   historyRow: { display: "flex", justifyContent: "space-between", alignItems: "center", gap: "16px", padding: "14px 16px", border: "1px solid #e5e7eb", borderRadius: "10px", background: "#fafafa" },
   historyDate: { margin: 0, fontWeight: "bold" },
+  paymentAmount: { margin: "5px 0 0", fontWeight: "bold" },
   historyRemarks: { margin: "5px 0 0", color: "#666", fontSize: "14px" },
   statusBadge: { padding: "5px 10px", borderRadius: "999px", background: "#e5e7eb", color: "#374151", fontSize: "13px", fontWeight: "bold", whiteSpace: "nowrap" },
   presentBadge: { background: "#dcfce7", color: "#166534" },
