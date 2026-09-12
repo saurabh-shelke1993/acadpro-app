@@ -1,414 +1,194 @@
 # AcadPro Product Backlog
 
-**Last Updated:** 08 September 2026  
+**Last Updated:** 12 September 2026  
 **Current Branch:** `payment-module-finalization`
 
-This backlog reflects the current development order. Security and data isolation are treated as prerequisites for production rather than optional polish.
-
----
+Security and data isolation are prerequisites for production.
 
 # ✅ Completed
 
-## Authentication & Core Security Foundation
+## Authentication and Core Security Foundation
 
-- Login System
+- Login system
 - Supabase Authentication
-- Role Based Access Control foundation
-- Multi-tenant academy model
-- Centralized Permission Model
-- Centralized Data Scope
+- RBAC foundation
+- Academy-level multi-tenancy
+- Centralized permissions and data scope
 - Protected role-aware routes
 
-## Academy Management
+## Academy, Player and Coach Management
 
 - Academy CRUD
 - Center CRUD
 - Batch CRUD
-- Academy Owner batch creation
-
-## Player Management
-
 - Player CRUD
 - Parent CRUD
-- Player Search
-- Player Batch Mapping
-- Soft Delete
-- Multi Batch Support
-
-## Coach Management
-
+- Player search
+- Player-batch mapping
+- Soft delete
+- Multi-batch support
 - Coach CRUD
-- Coach Batch Assignment
+- Coach-batch assignment
 
-## Attendance
+## Attendance and Subscriptions
 
-- Mark Attendance
-- Edit Attendance
-- Attendance History
-- Soft Delete
-- Duplicate Prevention
-- 7-Day Coach Editing Rule
-- Attendance Role Security
-- Attendance Service Layer
+- Attendance marking, editing and history
+- Soft delete
+- Duplicate prevention
+- Seven-day coach editing rule
+- Attendance role security
+- Subscription plans
+- Player subscriptions
 
-## Subscription Management
+## Payment and Receipt Modules
 
-- Subscription Plans
-- Player Subscriptions
-
-## Payment Module
-
-### Payment Dues
-
-- Due Generation
-- Duplicate Due Prevention
-- Remaining Amount Calculation
-- Pending / Partial / Paid Status
-- Due Editing
-- Multi-level Filtering
-
-### Payment Collections
-
-- Collect Payment
-- Partial Payment
-- Full Payment
-- Overpayment Validation
-- Payment History
-- Transaction Reference
-- Automatic Remaining Amount
-- Automatic Status Update
-
-### Receipt Management
-
-- Sequential Receipt Numbers
-- Receipt Modal
-- Printable Receipts
-- Receipt Management
+- Payment due generation and editing
+- Duplicate due prevention
+- Pending/partial/paid status
+- Remaining amount calculation
+- Partial/full payments
+- Overpayment validation
+- Payment history and transaction reference
+- Automatic status updates
+- Sequential receipt numbers
+- Receipt modal and printable receipts
 
 ## Dashboard Analytics
 
-- Dashboard KPI Cards
-- Attendance KPI Cards
-- Attendance Trend
-- Attendance Percentage
-- Collections KPI Cards
-- Collections Trend
-- Currency Formatting
-- Analytics Tooltips
-- Chart Data Labels
-- Empty-State Handling
-- Role-Aware Analytics
-- Academy Owner Scope
-- Coach Batch Scope
-- Super Admin Cross-Academy Scope
-- Dashboard Analytics Role Verification
+- Role-aware KPI cards
+- Attendance and collection analytics
+- Trends, percentages, formatting, tooltips and labels
+- Empty states
+- Academy Owner, Coach and Super Admin data scope
 
 ## Parent Portal Foundation
 
-- Parent Role
-- Parent Authentication
-- Parent Login
-- Parent Route
-- Parent RBAC Protection
-- Parent → Player Data Association
-- Basic Parent Portal Page
+- Parent role
+- Parent authentication and login
+- Parent route and RBAC protection
+- Parent-to-player association
+- Basic Parent Portal page
 
----
+## Phase 5.1 — Role Security and RLS Validation
+
+- [x] 5.1.1 Role and academy access review
+- [x] 5.1.2 Centers and player-batches mutation-policy hardening
+- [x] 5.1.3 Cross-academy isolation tests
+- [x] 5.1.4 Coach assignment isolation validation
+- [x] 5.1.5 Parent isolation foundation and validation
+- [x] 5.1.6 Database policy and security-findings review
+
+Validation covered role scenarios, cross-academy access, mutation attempts and direct ID/URL tampering.
 
 # 🔴 HIGH PRIORITY
 
-## 1. Finalize Role Security + RLS Validation
+## 1. Parent Portal Completion
 
-### RBAC validation
-
-- [ ] Final Super Admin validation
-- [ ] Final Academy Owner validation
-- [ ] Final Coach validation
-- [ ] Final Parent validation
-- [ ] Route protection validation
-- [ ] UI permission vs actual authorization validation
-
-### Data-scope validation
-
-- [ ] Super Admin → all permitted data
-- [ ] Academy Owner → own academy only
-- [ ] Coach → assigned batches/players only
-- [ ] Parent → linked player(s) only
-- [ ] Cross-academy leakage testing
-- [ ] Cross-parent/player leakage testing
-
-### RLS validation
-
-- [ ] Review all role-sensitive tables
-- [ ] Verify SELECT policies
-- [ ] Verify INSERT policies
-- [ ] Verify UPDATE policies
-- [ ] Verify DELETE policies
-- [ ] Validate Parent attendance access
-- [ ] Validate Coach assignment scope
-- [ ] Validate payment data scope
-- [ ] Review `inquiries` RLS status
-- [ ] Review `trial_attendance` RLS status
-- [ ] Review Supabase Security Advisor findings
-
----
-
-## 2. Parent Portal Completion
-
-### In Progress
-
-- [ ] Parent Dashboard
-
-### Pending
-
-- [ ] Attendance History
-- [ ] Payment History
-- [ ] Pending Dues
+- [ ] Parent dashboard
+- [ ] Linked children/player summary
+- [ ] Attendance history
+- [ ] Pending dues
+- [ ] Payment history
 - [ ] Receipt access
 - [ ] Receipt download
 - [ ] Parent-specific RLS validation
 - [ ] Parent end-to-end regression
 
----
+## 2. Player Performance
 
-## 3. Player Performance
+- [ ] Player performance profile
+- [ ] Performance metrics
+- [ ] Player-level analytics
+- [ ] Historical performance tracking
+- [ ] Role-aware performance visibility
+- [ ] Functional requirements and data model
 
-**Status:** Not started.
+## 3. Payment Module Regression
 
-Planned capabilities:
-
-- Player performance profile
-- Performance metrics
-- Player-level analytics
-- Historical performance tracking
-- Role-aware performance visibility
-
-Detailed functional requirements to be finalized before implementation.
-
----
-
-## 4. Payment Module Regression
-
-Run complete regression after security validation:
-
-- [ ] Payment Dues
-- [ ] Due generation
+- [ ] Payment dues and generation
 - [ ] Duplicate prevention
 - [ ] Due editing
-- [ ] Partial payment
-- [ ] Full payment
+- [ ] Partial/full payments
 - [ ] Overpayment validation
-- [ ] Remaining amount
-- [ ] Status transitions
+- [ ] Remaining amount and status transitions
 - [ ] Payment history
-- [ ] Receipt generation
-- [ ] Receipt numbering
-- [ ] Printable receipt
+- [ ] Receipt generation and numbering
 - [ ] Role restrictions
 - [ ] Academy/data-scope isolation
 - [ ] Negative authorization testing
 
----
-
-## 5. Automated Payment Reminders
-
-**Status:** Not started.
-
-Planned:
+## 4. Automated Payment Reminders
 
 - [ ] Reminder eligibility rules
-- [ ] Reminder scheduling
-- [ ] Due-date based reminders
+- [ ] Scheduling and due-date rules
 - [ ] Parent recipient resolution
 - [ ] Notification delivery abstraction
-- [ ] Delivery status / failure tracking
-- [ ] Duplicate reminder prevention
+- [ ] Delivery/failure tracking
+- [ ] Duplicate prevention
 - [ ] Reminder history
 
----
+## 5. Razorpay Production Flow
 
-## 6. Razorpay Production Flow
-
-**Status:** Not started.
-
-Planned:
-
-- [ ] Razorpay account/configuration
-- [ ] Payment order creation
-- [ ] Checkout integration
-- [ ] Server-side payment verification
-- [ ] Success callback
-- [ ] Failed payment handling
-- [ ] Webhook handling
+- [ ] Account/configuration
+- [ ] Order creation and checkout
+- [ ] Server-side verification
+- [ ] Success/failure handling
+- [ ] Webhooks
 - [ ] Payment finalization
-- [ ] Idempotency / duplicate protection
+- [ ] Idempotency and duplicate protection
 - [ ] Receipt generation
-- [ ] Production credentials
-- [ ] Production webhook configuration
-- [ ] End-to-end production-like testing
-
----
+- [ ] Production credentials and testing
 
 # 🟡 MEDIUM PRIORITY
 
-## Dashboard Functional Enhancements
+## Dashboard Enhancements
 
 - [ ] Additional operational actions
-- [ ] Dashboard UX polish
+- [ ] UX polish
 - [ ] Performance optimization
-- [ ] Responsive dashboard refinement
+- [ ] Responsive refinement
 
 ## Notification Infrastructure
 
-- [ ] Notification data model
+- [ ] Notification model
 - [ ] Notification service abstraction
-- [ ] Due reminders
-- [ ] Attendance notifications
-- [ ] Email notifications
-- [ ] WhatsApp notifications
-- [ ] Push notifications
+- [ ] Due and attendance notifications
+- [ ] Email, WhatsApp and push planning
 
-## Error / Loading Handling
+## Error, Loading and Responsive Quality
 
-- [ ] Standard loading states
-- [ ] Standard empty states
-- [ ] Consistent error messages
-- [ ] Retry handling
+- [ ] Standard loading and empty states
+- [ ] Consistent error and retry handling
 - [ ] Form validation consistency
-- [ ] Network/API error handling
-
-## Mobile / Responsive Refinement
-
-- [ ] Responsive navigation
-- [ ] Responsive tables
-- [ ] Responsive forms
-- [ ] Responsive dashboard
-- [ ] Tablet support
-- [ ] Mobile usability review
-
----
+- [ ] Responsive navigation, tables, forms and dashboard
+- [ ] Tablet/mobile usability review
 
 # 🔵 BEFORE PRODUCTION
 
-## Full QA Regression
-
-- [ ] Authentication
-- [ ] RBAC
-- [ ] Academy Management
-- [ ] Centers
-- [ ] Batches
-- [ ] Players
-- [ ] Coaches
-- [ ] Attendance
-- [ ] Attendance History
-- [ ] Subscriptions
-- [ ] Payment Dues
-- [ ] Payment Collections
-- [ ] Receipts
-- [ ] Dashboard
-- [ ] Parent Portal
-- [ ] Razorpay
-- [ ] Notifications
-
-## Production Security Audit
-
-- [ ] RBAC audit
-- [ ] RLS audit
-- [ ] Cross-academy isolation
-- [ ] Parent/player isolation
-- [ ] Authentication/session review
-- [ ] Environment variable review
-- [ ] Supabase Security Advisor
-- [ ] Development-only access review
-
-## Remove Development Features
-
-- [ ] Dev Toolbar
-- [ ] Dev login
-- [ ] Development-only shortcuts
-- [ ] Development-only test data/behavior
-
-## Environment / Deployment Hardening
-
-- [ ] Production Supabase configuration
-- [ ] Production environment variables
-- [ ] Razorpay production credentials
-- [ ] Webhook configuration
-- [ ] Vercel production configuration
-- [ ] Error monitoring
-- [ ] Backup/recovery process
-
-## Documentation Synchronization
-
-- [ ] ROLE_MATRIX.md
-- [ ] PROJECT_STATUS.md
-- [ ] PROJECT_ARCHITECTURE.md
-- [ ] PRODUCT_BACKLOG.md
-
----
+- [ ] Full module and role regression
+- [ ] Negative authorization testing
+- [ ] Parent/player isolation review
+- [ ] Authentication and session review
+- [ ] Environment and deployment hardening
+- [ ] Supabase Security Advisor review
+- [ ] Remove Dev Toolbar and development-only access
+- [ ] Error monitoring and backup/recovery plan
+- [ ] Documentation synchronization
 
 # ⚪ FUTURE / LOWER PRIORITY
 
-## Reporting
-
-- Revenue Reports
-- Daily Collections
-- Monthly Collections
-- Yearly Collections
-- Pending Dues Reports
-- Paid Dues Reports
-- Partial Payment Reports
-- Outstanding Revenue
-- Player Attendance %
-- Batch Attendance
-- Coach Attendance Summary
-
-## Reports Export
-
-- Export Excel
-- Export PDF
-- Printable Reports
-
-## Administration
-
-- Audit Logs
-- System Settings
-- Backup & Restore
-- User Activity Logs
-
-## Receipt Enhancements
-
-- Download PDF receipts
-- Email receipts
-
-## Future Product Features
-
-- Academy Branding
-- QR Code Attendance
-- QR Code Receipt
-- Digital ID Cards
-- Coach Performance Dashboard
-- Tournament Management
-- Match Scheduling
-- Ground Booking
-- Inventory Management
-
----
+- Reporting and exports
+- Audit logs and system settings
+- PDF/email receipt enhancements
+- Academy branding
+- QR attendance and receipts
+- Digital ID cards
+- Coach performance dashboard
+- Tournament management
+- Match scheduling
+- Ground booking
+- Inventory management
 
 # Product Vision — V1.0
 
-AcadPro V1.0 aims to provide football academies with a complete operational platform covering:
-
-- Academy Administration
-- Center Management
-- Batch Management
-- Player Management
-- Coach Management
-- Attendance Management
-- Subscription Management
-- Payment Management
-- Receipt Management
-- Dashboard Analytics
-- Parent Portal
-
-The immediate roadmap is intentionally focused on security, Parent Portal completion, Player Performance, payment reliability, automated reminders and production-grade online payments before broader feature expansion.
+AcadPro V1.0 aims to provide academy administration, center and batch management, player and coach management, attendance, subscriptions, payments, receipts, dashboard analytics and a secure Parent Portal. The immediate roadmap is Parent Portal completion, Player Performance, payment reliability, automated reminders, Razorpay and production QA.
