@@ -266,7 +266,11 @@ const ParentPortal = () => {
   };
 
   if (loading) {
-    return <main style={styles.container}>Loading your parent portal…</main>;
+    return (
+      <main style={{ ...styles.container, ...styles.loadingState }}>
+        Loading your parent portal…
+      </main>
+    );
   }
 
   return (
@@ -387,7 +391,7 @@ const ParentPortal = () => {
                         key={`${record.attendance_date}-${index}`}
                         style={styles.historyRow}
                       >
-                        <div>
+                        <div style={styles.historyContent}>
                           <p style={styles.historyDate}>{formatDate(record.attendance_date)}</p>
                           {record.remarks ? (
                             <p style={styles.historyRemarks}>{record.remarks}</p>
@@ -421,7 +425,7 @@ const ParentPortal = () => {
                   <div style={styles.historyList}>
                     {selectedPaymentHistory.map((payment) => (
                       <div key={payment.id} style={styles.historyRow}>
-                        <div>
+                        <div style={styles.historyContent}>
                           <p style={styles.historyDate}>
                             {formatDate(payment.payment_date)}
                           </p>
@@ -463,7 +467,7 @@ const ParentPortal = () => {
                   <div style={styles.historyList}>
                     {selectedReceiptPayments.map((payment) => (
                       <div key={`receipt-${payment.id}`} style={styles.historyRow}>
-                        <div>
+                        <div style={styles.historyContent}>
                           <p style={styles.historyDate}>
                             Receipt number: {payment.receipt_number}
                           </p>
@@ -502,7 +506,7 @@ const ParentPortal = () => {
                     <div style={styles.historyList}>
                       {selectedPendingDues.map((due) => (
                         <div key={due.id} style={styles.historyRow}>
-                          <div>
+                          <div style={styles.historyContent}>
                             <p style={styles.historyDate}>
                               {due.due_type || "Fee due"}
                             </p>
@@ -522,15 +526,24 @@ const ParentPortal = () => {
                                 Paid amount: {formatAmount(due.paid_amount)}
                               </p>
                             ) : null}
-                            <p style={styles.historyRemarks}>
-                              Status: {due.due_status || "Pending"}
-                            </p>
                             {due.remarks ? (
                               <p style={styles.historyRemarks}>
                                 Remarks: {due.remarks}
                               </p>
                             ) : null}
                           </div>
+                          <span
+                            style={{
+                              ...styles.statusBadge,
+                              ...(String(due.due_status || "pending").toLowerCase().includes("partial")
+                                ? styles.partialBadge
+                                : String(due.due_status || "pending").toLowerCase().includes("paid")
+                                  ? styles.paidBadge
+                                  : styles.pendingBadge),
+                            }}
+                          >
+                            {due.due_status || "Pending"}
+                          </span>
                         </div>
                       ))}
                     </div>
@@ -562,37 +575,42 @@ const Detail = ({ label, value }) => (
 );
 
 const styles = {
-  container: { maxWidth: "1000px", margin: "0 auto", padding: "32px 20px", fontFamily: "Arial, sans-serif" },
+  container: { width: "100%", maxWidth: "1000px", margin: "0 auto", padding: "32px 20px", boxSizing: "border-box", fontFamily: "Arial, sans-serif", color: "#1f2937" },
+  loadingState: { minHeight: "40vh", display: "flex", alignItems: "center", justifyContent: "center", color: "#4b5563", fontSize: "17px" },
   header: { display: "flex", justifyContent: "space-between", alignItems: "center", gap: "16px", flexWrap: "wrap", marginBottom: "28px" },
   title: { margin: 0, fontSize: "30px" },
   subtitle: { margin: "6px 0 0", color: "#666" },
-  logoutButton: { padding: "10px 16px", border: "1px solid #ccc", borderRadius: "8px", background: "white", cursor: "pointer" },
-  sectionTitle: { margin: "0 0 16px", fontSize: "22px" },
-  grid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "16px" },
-  childCard: { display: "flex", flexDirection: "column", alignItems: "flex-start", textAlign: "left", padding: "20px", border: "1px solid #e5e7eb", borderRadius: "14px", background: "#fff", boxShadow: "0 2px 8px rgba(0,0,0,0.05)", cursor: "pointer" },
-  selectedChildCard: { border: "2px solid #1a73e8", padding: "19px", background: "#f5f9ff" },
+  logoutButton: { padding: "10px 16px", border: "1px solid #cbd5e1", borderRadius: "8px", background: "white", color: "#1f2937", fontWeight: "bold", cursor: "pointer" },
+  sectionTitle: { margin: "0 0 16px", fontSize: "22px", lineHeight: 1.25 },
+  grid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(220px, 100%), 1fr))", gap: "16px" },
+  childCard: { display: "flex", flexDirection: "column", alignItems: "flex-start", minWidth: 0, textAlign: "left", padding: "20px", border: "1px solid #dbe3ee", borderRadius: "14px", background: "#fff", boxShadow: "0 2px 8px rgba(0,0,0,0.05)", cursor: "pointer", transition: "border-color 150ms ease, box-shadow 150ms ease, background 150ms ease" },
+  selectedChildCard: { border: "2px solid #1a73e8", padding: "19px", background: "#eff6ff", boxShadow: "0 4px 12px rgba(26,115,232,0.16)" },
   avatar: { width: "52px", height: "52px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: "#e8f0fe", color: "#1a73e8", fontSize: "24px", fontWeight: "bold", marginBottom: "14px" },
-  childName: { fontSize: "20px", fontWeight: "bold" },
+  childName: { maxWidth: "100%", fontSize: "20px", fontWeight: "bold", overflowWrap: "anywhere" },
   childCardHint: { marginTop: "8px", color: "#666", fontSize: "14px" },
-  dashboardCard: { marginTop: "28px", padding: "24px", border: "1px solid #e5e7eb", borderRadius: "14px", background: "#fff", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" },
+  dashboardCard: { minWidth: 0, marginTop: "28px", padding: "24px", border: "1px solid #e5e7eb", borderRadius: "14px", background: "#fff", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" },
   eyebrow: { margin: "0 0 6px", color: "#666", fontSize: "13px", textTransform: "uppercase", letterSpacing: "0.06em" },
   dashboardTitle: { margin: "0 0 20px", fontSize: "26px" },
-  detailsGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "16px" },
-  attendanceGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "16px" },
+  detailsGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(180px, 100%), 1fr))", gap: "16px" },
+  attendanceGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(150px, 100%), 1fr))", gap: "16px" },
   detailLabel: { color: "#666", fontSize: "14px" },
-  detailValue: { margin: "6px 0 0", fontSize: "16px", fontWeight: "bold" },
+  detailValue: { margin: "6px 0 0", fontSize: "16px", fontWeight: "bold", overflowWrap: "anywhere" },
   subsection: { marginTop: "28px", paddingTop: "22px", borderTop: "1px solid #e5e7eb" },
   subsectionTitle: { margin: "0 0 16px", fontSize: "20px" },
   historyList: { display: "flex", flexDirection: "column", gap: "10px" },
-  historyRow: { display: "flex", justifyContent: "space-between", alignItems: "center", gap: "16px", padding: "14px 16px", border: "1px solid #e5e7eb", borderRadius: "10px", background: "#fafafa" },
-  historyDate: { margin: 0, fontWeight: "bold" },
+  historyRow: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "12px 16px", padding: "14px 16px", border: "1px solid #e5e7eb", borderRadius: "10px", background: "#fafafa" },
+  historyContent: { minWidth: 0, flex: "1 1 220px" },
+  historyDate: { margin: 0, fontWeight: "bold", overflowWrap: "anywhere", wordBreak: "break-word" },
   paymentAmount: { margin: "5px 0 0", fontWeight: "bold" },
   outstandingAmount: { margin: "0 0 16px", fontSize: "17px", fontWeight: "bold", color: "#991b1b" },
-  historyRemarks: { margin: "5px 0 0", color: "#666", fontSize: "14px" },
-  statusBadge: { padding: "5px 10px", borderRadius: "999px", background: "#e5e7eb", color: "#374151", fontSize: "13px", fontWeight: "bold", whiteSpace: "nowrap" },
+  historyRemarks: { margin: "5px 0 0", color: "#666", fontSize: "14px", overflowWrap: "anywhere", wordBreak: "break-word" },
+  statusBadge: { flex: "0 1 auto", maxWidth: "100%", padding: "5px 10px", borderRadius: "999px", background: "#e5e7eb", color: "#374151", fontSize: "13px", fontWeight: "bold", lineHeight: 1.25, overflowWrap: "anywhere", textAlign: "center" },
   presentBadge: { background: "#dcfce7", color: "#166534" },
   absentBadge: { background: "#fee2e2", color: "#991b1b" },
-  futureSections: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "12px", margin: "24px 0 16px" },
+  paidBadge: { background: "#dcfce7", color: "#166534" },
+  partialBadge: { background: "#fef3c7", color: "#92400e" },
+  pendingBadge: { background: "#fee2e2", color: "#991b1b" },
+  futureSections: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(150px, 100%), 1fr))", gap: "12px", margin: "24px 0 16px" },
   futureSection: { padding: "14px", border: "1px dashed #cbd5e1", borderRadius: "8px", color: "#64748b", background: "#f8fafc", textAlign: "center" },
   card: { padding: "24px", border: "1px solid #e5e7eb", borderRadius: "14px", background: "#fff", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" },
   message: { margin: 0, color: "#555", lineHeight: 1.5 },
