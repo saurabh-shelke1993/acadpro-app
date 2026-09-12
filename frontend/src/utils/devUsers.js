@@ -34,10 +34,17 @@ export const DEV_USERS = {
     role: "coach",
   },
 
-  parent: {
-    label: "Parent",
-    email: "rahul@test.com",
-    password: "123456",
-    role: "parent",
-  },
+parentFW: {
+  label: "ParentFW",
+  email: "rahul@test.com",
+  password: "123456",
+  role: "parent",
+},
+
+parentTCFC: {
+  label: "ParentTCFC",
+  email: "parent.tcfc@test.com",
+  password: "ParentTCFC@12345",
+  role: "parent",
+},
 };

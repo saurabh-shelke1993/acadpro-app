@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
+import { logoutUser } from "../utils/auth";
 
 const ParentPortal = () => {
   const [parent, setParent] = useState(null);
@@ -79,9 +80,9 @@ const ParentPortal = () => {
     };
   }, []);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-  };
+const handleLogout = async () => {
+  await logoutUser();
+};
 
   if (loading) {
     return <main style={styles.container}>Loading your parent portal…</main>;
