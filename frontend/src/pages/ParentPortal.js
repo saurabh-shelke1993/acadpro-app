@@ -7,6 +7,7 @@ const ParentPortal = () => {
   const [children, setChildren] = useState([]);
   const [selectedChildId, setSelectedChildId] = useState(null);
   const [attendanceByChildId, setAttendanceByChildId] = useState({});
+  const [attendanceHistoryByChildId, setAttendanceHistoryByChildId] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -111,6 +112,7 @@ const ParentPortal = () => {
 
       const childIds = safeChildren.map((child) => child.id);
       const nextAttendanceByChildId = {};
+      const nextAttendanceHistoryByChildId = {};
 
       childIds.forEach((childId) => {
         nextAttendanceByChildId[childId] = {
@@ -119,23 +121,32 @@ const ParentPortal = () => {
           absent: 0,
           percentage: null,
         };
+        nextAttendanceHistoryByChildId[childId] = [];
       });
 
       if (childIds.length > 0) {
         const { data: attendanceRecords } = await supabase
           .from("attendance")
-          .select("player_id, status")
+          .select("player_id, attendance_date, status, remarks")
           .in("player_id", childIds)
-          .or("is_deleted.is.null,is_deleted.eq.false");
+          .or("is_deleted.is.null,is_deleted.eq.false")
+          .order("attendance_date", { ascending: false });
 
         (attendanceRecords || []).forEach((record) => {
           const summary = nextAttendanceByChildId[record.player_id];
-          if (!summary) return;
+          const history = nextAttendanceHistoryByChildId[record.player_id];
+          if (!summary || !history) return;
 
           const status = String(record.status || "").toLowerCase();
           summary.total += 1;
           if (status === "present") summary.present += 1;
           if (status === "absent") summary.absent += 1;
+
+          history.push({
+            attendance_date: record.attendance_date,
+            status: record.status || "Not recorded",
+            remarks: record.remarks || "",
+          });
         });
 
         Object.values(nextAttendanceByChildId).forEach((summary) => {
@@ -150,6 +161,7 @@ const ParentPortal = () => {
         setParent(parentRecord);
         setChildren(safeChildren);
         setAttendanceByChildId(nextAttendanceByChildId);
+        setAttendanceHistoryByChildId(nextAttendanceHistoryByChildId);
         setSelectedChildId(safeChildren[0]?.id || null);
         setLoading(false);
       }
@@ -171,6 +183,9 @@ const ParentPortal = () => {
   const selectedAttendance = selectedChild
     ? attendanceByChildId[selectedChild.id]
     : null;
+  const selectedAttendanceHistory = selectedChild
+    ? attendanceHistoryByChildId[selectedChild.id] || []
+    : [];
 
   const formatDate = (value) => {
     if (!value) return "Not available";
@@ -298,12 +313,49 @@ const ParentPortal = () => {
                 )}
               </div>
 
+              <div style={styles.subsection}>
+                <h3 style={styles.subsectionTitle}>Attendance history</h3>
+                {selectedAttendanceHistory.length > 0 ? (
+                  <div style={styles.historyList}>
+                    {selectedAttendanceHistory.map((record, index) => (
+                      <div
+                        key={`${record.attendance_date}-${index}`}
+                        style={styles.historyRow}
+                      >
+                        <div>
+                          <p style={styles.historyDate}>{formatDate(record.attendance_date)}</p>
+                          {record.remarks ? (
+                            <p style={styles.historyRemarks}>{record.remarks}</p>
+                          ) : null}
+                        </div>
+                        <span
+                          style={{
+                            ...styles.statusBadge,
+                            ...(String(record.status).toLowerCase() === "present"
+                              ? styles.presentBadge
+                              : String(record.status).toLowerCase() === "absent"
+                                ? styles.absentBadge
+                                : {}),
+                          }}
+                        >
+                          {record.status}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p style={styles.message}>
+                    No attendance history is available for this child yet.
+                  </p>
+                )}
+              </div>
+
               <div style={styles.futureSections}>
                 <div style={styles.futureSection}>Payments</div>
                 <div style={styles.futureSection}>Profile</div>
               </div>
               <p style={styles.message}>
-                Payment information and attendance history will be added in the upcoming Parent Portal phases.
+                Payment information will be added in the upcoming Parent Portal phases.
               </p>
             </section>
           )}
@@ -342,6 +394,13 @@ const styles = {
   detailValue: { margin: "6px 0 0", fontSize: "16px", fontWeight: "bold" },
   subsection: { marginTop: "28px", paddingTop: "22px", borderTop: "1px solid #e5e7eb" },
   subsectionTitle: { margin: "0 0 16px", fontSize: "20px" },
+  historyList: { display: "flex", flexDirection: "column", gap: "10px" },
+  historyRow: { display: "flex", justifyContent: "space-between", alignItems: "center", gap: "16px", padding: "14px 16px", border: "1px solid #e5e7eb", borderRadius: "10px", background: "#fafafa" },
+  historyDate: { margin: 0, fontWeight: "bold" },
+  historyRemarks: { margin: "5px 0 0", color: "#666", fontSize: "14px" },
+  statusBadge: { padding: "5px 10px", borderRadius: "999px", background: "#e5e7eb", color: "#374151", fontSize: "13px", fontWeight: "bold", whiteSpace: "nowrap" },
+  presentBadge: { background: "#dcfce7", color: "#166534" },
+  absentBadge: { background: "#fee2e2", color: "#991b1b" },
   futureSections: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "12px", margin: "24px 0 16px" },
   futureSection: { padding: "14px", border: "1px dashed #cbd5e1", borderRadius: "8px", color: "#64748b", background: "#f8fafc", textAlign: "center" },
   card: { padding: "24px", border: "1px solid #e5e7eb", borderRadius: "14px", background: "#fff", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" },
