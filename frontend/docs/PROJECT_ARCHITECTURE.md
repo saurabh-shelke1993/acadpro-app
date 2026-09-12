@@ -1,464 +1,108 @@
 # AcadPro Architecture
 
-**Last Updated:** 08 September 2026  
+**Last Updated:** 12 September 2026  
 **Current Branch:** `payment-module-finalization`
 
----
+## 1. Platform
 
-# 1. Platform Overview
+AcadPro is a football academy management SaaS platform built with React, JavaScript, React Router, Supabase Authentication, Supabase PostgreSQL, Git/GitHub and Vercel. The system is multi-tenant at the academy level.
 
-AcadPro is a football academy management SaaS platform designed for academy operations in India.
-
-The architecture is based on:
-
-- React frontend
-- Supabase Authentication
-- Supabase PostgreSQL
-- React Router
-- Centralized role/permission utilities
-- Centralized data-scope utilities
-- Supabase Row Level Security
-- Git/GitHub
-- Vercel
-
-The system is multi-tenant at the academy level.
-
----
-
-# 2. Roles
-
-- `super_admin`
-- `academy_owner`
-- `coach`
-- `parent`
-
-### Scope model
+## 2. Roles and scope
 
 | Role | Scope |
 |---|---|
-| Super Admin | Entire platform |
-| Academy Owner | Own academy |
-| Coach | Assigned batches / players |
-| Parent | Own account + linked player(s) |
+| `super_admin` | Entire platform |
+| `academy_owner` | Own academy |
+| `coach` | Assigned batches and players |
+| `parent` | Own account and linked player(s) |
 
----
-
-# 3. Multi-Tenant Data Hierarchy
+## 3. Data hierarchy
 
 ```text
-Academy
-   ↓
-Center
-   ↓
-Batch
-   ↓
-Player
-   ↓
-Parent
+Academy → Center → Batch → Player → Parent
 ```
 
-A player belongs to an academy and can be associated with a center, batch and parent.
+Parent linkage is represented by `players.parent_id → parents.id`. Parent authorization is player-scoped, not merely academy-scoped.
 
-Parent linkage:
+## 4. Authentication and routing
+
+- Super Admin / Academy Owner: `/dashboard`
+- Coach: `/coach-dashboard`
+- Parent: `/parent-portal`
+
+The Parent Portal is protected by a parent-only route guard. Supabase Auth handles authentication; role and academy information is stored in `public.users`.
+
+## 5. Authorization layers
 
 ```text
-auth.users
-   ↓
-public.users
-   ↓
-public.parents
-   ↓
-public.players
+Role Matrix → Frontend permissions → Route guards → Centralized data scope → Supabase RLS → PostgreSQL
 ```
 
-The player relationship is represented by:
+Frontend filtering is not a security boundary. Database policies enforce role, academy, assignment and parent/player restrictions.
 
-```text
-players.parent_id → parents.id
-```
+## 6. Data-scope model
 
-Parent access is therefore **player-scoped**, not simply academy-scoped.
+- Super Admin: platform-wide permitted data
+- Academy Owner: own academy
+- Coach: assigned batches and their players
+- Parent: linked player(s)
 
----
+This scope applies to players, attendance, subscriptions, payment dues, payments, receipts, analytics and the Parent Portal.
 
-# 4. Authentication & RBAC Architecture
+## 7. Implemented modules
 
-Supabase Authentication handles authentication.
-
-Application-level user and role information is stored in `public.users`.
-
-Role detection and permission checks are centralized through the authentication/utility layer.
-
-### Role-aware routing
-
-- Super Admin → `/dashboard`
-- Academy Owner → `/dashboard`
-- Coach → `/coach-dashboard`
-- Parent → `/parent-portal`
-
-Parent Portal is protected by:
-
-```text
-ProtectedRoute
-allowedRoles = ["parent"]
-```
-
----
-
-# 5. Authorization Architecture
-
-AcadPro uses layered authorization:
-
-```text
-                 Role Matrix
-                     ↓
-             Frontend Permissions
-                     ↓
-               Route Guards
-                     ↓
-             Data-Scope Utilities
-                     ↓
-              Supabase RLS
-                     ↓
-                PostgreSQL
-```
-
-Each layer has a different responsibility:
-
-### Role Matrix
-Defines intended business authorization.
-
-### Frontend Permissions
-Controls permitted UI actions and navigation.
-
-### Route Guards
-Prevent unauthorized navigation.
-
-### Data Scope
-Limits application queries to the user's permitted academy, batches or linked players.
-
-### Supabase RLS
-Provides the database-level authorization boundary.
-
-**Frontend filtering is never sufficient security by itself.**
-
----
-
-# 6. Current Data-Scope Model
-
-Dashboard and operational modules use centralized data-scope rules.
-
-| Role | Data Scope |
-|---|---|
-| Super Admin | Entire platform |
-| Academy Owner | Own academy |
-| Coach | Assigned batches and their players |
-| Parent | Own linked player(s) |
-
-The scope must be preserved across:
-
+- Authentication and RBAC foundation
+- Academy, center and batch management
+- Player and coach management
+- Coach-batch assignments
+- Attendance and attendance history
+- Subscription plans and player subscriptions
+- Payment dues and payment collections
+- Receipt management
 - Dashboard analytics
-- Players
-- Attendance
-- Subscriptions
-- Payment dues
-- Payment history
-- Receipts
-- Parent Portal
-
----
-
-# 7. Current Modules
-
-## Core
-
-- Authentication
-- RBAC
-- Academy Management
-- Center Management
-- Batch Management
-- Player Management
-- Coach Management
-- Coach Batch Mapping
-- Attendance
-- Attendance History
-
-## Subscription
-
-- Subscription Plans
-- Player Subscriptions
-
-## Financial
-
-- Payment Dues
-- Payment Collections
-- Receipt Management
-
-## Analytics
-
-- Dashboard
-- Dashboard Analytics
-
-## Parent
-
 - Parent Portal foundation
 
-## Planned
+Planned modules include Parent Portal completion, Player Performance, Reports, Notifications and Razorpay/online payments.
 
-- Player Performance
-- Reports
-- Notifications
-- Razorpay / Online Payments
-- Tournament Management
+## 8. Security and RLS status
 
----
+Phase 5.1 security validation is complete:
 
-# 8. Attendance Architecture
+- Role and academy access review
+- Centers and player-batches mutation-policy hardening
+- Cross-academy isolation testing
+- Coach assignment isolation validation
+- Parent isolation foundation and validation
+- Database policy and Security Advisor findings review
 
-Implemented capabilities:
+RLS is enabled on the major role-sensitive tables, including `academies`, `attendance`, `batches`, `centers`, `coach_batch_assignments`, `coach_batches`, `coaches`, `parents`, `payment_dues`, `payments`, `player_batches`, `player_subscriptions`, `players`, `subscription_plans` and `users`.
 
-- Attendance marking
-- Attendance editing
-- Attendance history
-- Soft delete
-- Duplicate prevention
-- Role security
-- Service layer
-- Coach 7-day editing rule
+Known documented limitations:
 
-Business authorization:
+- `inquiries` and `trial_attendance` are unused legacy tables and remain outside the active authorization scope; RLS is intentionally unchanged for now.
+- Leaked-password protection is unavailable on the current Supabase Free plan and is deferred until a plan upgrade is justified.
+- Performance-advisor findings are tracked separately from authorization completion.
 
-- Super Admin can manage/edit/delete attendance but must not mark attendance.
-- Academy Owner can manage attendance for the own academy.
-- Coach can mark attendance for assigned batches and edit within the defined 7-day rule.
-- Parent can view attendance for linked player(s).
+## 9. Parent Portal architecture
 
----
+Current foundation:
 
-# 9. Payment Architecture
-
-## Payment Dues
-
-Implemented:
-
-- Due generation
-- Duplicate prevention
-- Pending / Partial / Paid status
-- Remaining amount calculation
-- Due editing
-- Multi-level filtering
-
-## Payment Collections
-
-Implemented:
-
-- Full payment
-- Partial payment
-- Overpayment validation
-- Payment history
-- Transaction reference
-- Automatic remaining amount
-- Automatic status update
-
-## Receipt Management
-
-Implemented:
-
-- Sequential receipt numbers
-- Receipt modal
-- Printable receipts
-- Receipt management
-
-Pending:
-
-- Receipt download
-- Email receipt delivery
-- Online payment integration
-
----
-
-# 10. Dashboard & Analytics Architecture
-
-Dashboard analytics are role-aware.
-
-### KPI / analytics areas
-
-- Total Players
-- Total Centers
-- Total Batches
-- Total Academies
-- Attendance summary
-- Attendance trend
-- Attendance percentage
-- Collections summary
-- Collections trend
-- Financial KPIs
-- Empty states
-- Tooltips
-- Chart data labels
-
-The dashboard must consume centralized data-scope rules and must not bypass authorization.
-
----
-
-# 11. Parent Portal Architecture
-
-### Route
-
-`/parent-portal`
-
-### Current implementation
-
-- Parent role
-- Parent authentication
+- Parent role and authentication
 - Parent login
 - Parent route protection
-- Parent → Player relationship
+- Parent-to-player association
 - Basic Parent Portal page
 
-### Pending
+Next implementation scope:
 
-- Parent Dashboard
-- Attendance History
-- Payment History
-- Pending Dues
+- Parent dashboard
+- Linked children/player summary
+- Attendance history
+- Pending dues
+- Payment history
 - Receipt access/download
-- Final parent-specific RLS validation
+- Parent-specific RLS validation and end-to-end regression
 
-### Parent security principle
+## 10. Production principles
 
-A parent can only access data associated with the authenticated parent account and linked player(s).
-
-The portal must never rely solely on a client-side `parent_id` or player filter for security; database policies must enforce the relationship.
-
----
-
-# 12. Supabase / RLS Architecture
-
-RLS is enabled on the major role-sensitive tables.
-
-Current live database inspection shows RLS enabled for:
-
-- academies
-- attendance
-- batches
-- centers
-- coach_batch_assignments
-- coach_batches
-- coaches
-- parents
-- payment_dues
-- payments
-- player_batches
-- player_subscriptions
-- players
-- subscription_plans
-- users
-
-Current exceptions requiring review:
-
-- `inquiries` — RLS disabled
-- `trial_attendance` — RLS disabled
-
-These tables must be reviewed before production.
-
-The security review must also verify that RLS policies implement the same boundaries defined in `ROLE_MATRIX.md`, especially:
-
-- Academy Owner → own academy
-- Coach → assigned batches
-- Parent → linked players
-- Payment data → appropriate role/data scope
-- Attendance → appropriate role/data scope
-
----
-
-# 13. Folder Structure
-
-```text
-frontend/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   ├── routes/
-│   ├── services/
-│   │   ├── attendanceService.js
-│   │   ├── dashboardService.js
-│   │   ├── paymentDueService.js
-│   │   └── paymentCollectionService.js
-│   └── utils/
-│       ├── auth.js
-│       ├── permissions.js
-│       ├── dataScope.js
-│       ├── roles.js
-│       ├── constants.js
-│       └── messages.js
-│
-├── docs/
-│   ├── ROLE_MATRIX.md
-│   ├── PROJECT_STATUS.md
-│   ├── PROJECT_ARCHITECTURE.md
-│   └── PRODUCT_BACKLOG.md
-│
-└── ...
-```
-
-Supabase migrations are maintained under the project Supabase directory.
-
----
-
-# 14. Important Security Rules
-
-## Super Admin
-
-- Full platform visibility.
-- Cross-academy access.
-- System-level management.
-- Can manage/edit/delete attendance.
-- Must not mark attendance.
-
-## Academy Owner
-
-- Own academy only.
-- Own centers, batches and players.
-- Own academy financial records.
-- No cross-academy access.
-
-## Coach
-
-- Assigned batches only.
-- Assigned players only.
-- Can mark attendance.
-- Can edit attendance within 7 days.
-- Cannot delete attendance.
-- Cannot collect payments.
-- Cannot generate dues.
-- Cannot manage academy configuration.
-
-## Parent
-
-- Own parent account only.
-- Own linked player(s) only.
-- Read-only.
-- No academy administration.
-- No player master-data modification.
-- No attendance modification.
-- No payment modification.
-- Own linked attendance/payment/dues/receipt information only.
-
----
-
-# 15. Production Security Principles
-
-Before production:
-
-1. Validate RBAC.
-2. Validate data scope.
-3. Validate RLS.
-4. Test negative authorization paths.
-5. Test cross-academy isolation.
-6. Test parent-to-player isolation.
-7. Review Supabase Security Advisor.
-8. Remove development-only access mechanisms.
-9. Harden environment/deployment configuration.
-10. Run full regression.
-
+Before production, AcadPro must complete full module regression, negative authorization testing, parent/player isolation testing, authentication/session review, environment hardening, development-feature removal and production security review.
