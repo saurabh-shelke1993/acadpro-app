@@ -234,6 +234,9 @@ const ParentPortal = () => {
   const selectedPaymentHistory = selectedChild
     ? paymentHistoryByChildId[selectedChild.id] || []
     : [];
+  const selectedReceiptPayments = selectedPaymentHistory.filter(
+    (payment) => Boolean(payment.receipt_number)
+  );
   const selectedPendingDues = selectedChild
     ? pendingDuesByChildId[selectedChild.id] || []
     : [];
@@ -450,6 +453,41 @@ const ParentPortal = () => {
                 ) : (
                   <p style={styles.message}>
                     No payment history is available for this child yet.
+                  </p>
+                )}
+              </div>
+
+              <div style={styles.subsection}>
+                <h3 style={styles.subsectionTitle}>Receipt details</h3>
+                {selectedReceiptPayments.length > 0 ? (
+                  <div style={styles.historyList}>
+                    {selectedReceiptPayments.map((payment) => (
+                      <div key={`receipt-${payment.id}`} style={styles.historyRow}>
+                        <div>
+                          <p style={styles.historyDate}>
+                            Receipt number: {payment.receipt_number}
+                          </p>
+                          <p style={styles.historyRemarks}>
+                            Payment date: {formatDate(payment.payment_date)}
+                          </p>
+                          <p style={styles.paymentAmount}>
+                            Amount paid: {formatAmount(payment.amount_paid)}
+                          </p>
+                          <p style={styles.historyRemarks}>
+                            Payment mode: {payment.payment_mode || "Not recorded"}
+                          </p>
+                          {payment.transaction_reference ? (
+                            <p style={styles.historyRemarks}>
+                              Transaction reference: {payment.transaction_reference}
+                            </p>
+                          ) : null}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p style={styles.message}>
+                    No receipt details are available for this child yet.
                   </p>
                 )}
               </div>
