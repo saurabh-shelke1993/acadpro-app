@@ -7,6 +7,7 @@ import {
 import {
   isSuperAdmin,
   isCoach,
+  isParent,
 } from "../utils/roles";
 
 function Sidebar() {
@@ -66,6 +67,16 @@ function Sidebar() {
       />
 
       <SidebarLink
+        to="/coach-performance-assessments"
+        label="Performance Assessments"
+      />
+
+      <SidebarLink
+        to="/player-performance-report"
+        label="Performance Report"
+      />
+
+      <SidebarLink
         to="/attendance-history"
         label="Attendance History"
       />
@@ -83,6 +94,17 @@ function Sidebar() {
       <SidebarLink
         to="/players"
         label="Players"
+      />
+
+    </>
+
+  ) : isParent(user) ? (
+
+    <>
+
+      <SidebarLink
+        to="/player-performance-report"
+        label="Performance Report"
       />
 
     </>
@@ -124,6 +146,11 @@ function Sidebar() {
             <SidebarLink
               to="/players"
               label="Players"
+            />
+
+            <SidebarLink
+              to="/player-performance-report"
+              label="Performance Report"
             />
 
             <SidebarLink

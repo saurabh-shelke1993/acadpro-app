@@ -1,0 +1,425 @@
+import { useEffect, useState } from "react";
+import Layout from "../components/Layout";
+import { supabase } from "../supabaseClient";
+import { getCurrentUser } from "../utils/auth";
+import { getCoachAssignedBatchIds } from "../utils/dataScope";
+
+const scoreFields = [
+  ["ball_control_score", "Ball control"],
+  ["passing_score", "Passing"],
+  ["dribbling_score", "Dribbling"],
+  ["shooting_score", "Shooting"],
+  ["defending_score", "Defending"],
+  ["speed_score", "Speed"],
+  ["stamina_score", "Stamina"],
+  ["teamwork_score", "Teamwork"],
+  ["discipline_score", "Discipline"],
+];
+
+const createEmptyForm = () => ({
+  assessment_date: new Date().toISOString().slice(0, 10),
+  ball_control_score: "",
+  passing_score: "",
+  dribbling_score: "",
+  shooting_score: "",
+  defending_score: "",
+  speed_score: "",
+  stamina_score: "",
+  teamwork_score: "",
+  discipline_score: "",
+  coach_remarks: "",
+});
+
+const formatDate = (value) => {
+  if (!value) return "Not recorded";
+  const date = new Date(`${value}T00:00:00`);
+  return Number.isNaN(date.getTime())
+    ? value
+    : date.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+};
+
+function CoachPerformanceAssessments() {
+  const [coach, setCoach] = useState(null);
+  const [players, setPlayers] = useState([]);
+  const [selectedPlayerId, setSelectedPlayerId] = useState("");
+  const [assessments, setAssessments] = useState([]);
+  const [form, setForm] = useState(createEmptyForm);
+  const [editingAssessmentId, setEditingAssessmentId] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [validationErrors, setValidationErrors] = useState({});
+  const [success, setSuccess] = useState("");
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadCoachAndPlayers = async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        const currentUser = await getCurrentUser();
+        if (!currentUser || currentUser.role !== "coach") {
+          throw new Error("Your coach account could not be verified.");
+        }
+
+        const { data: coachRecord, error: coachError } = await supabase
+          .from("coaches")
+          .select("id")
+          .eq("user_id", currentUser.id)
+          .maybeSingle();
+
+        if (coachError) throw coachError;
+        if (!coachRecord) {
+          throw new Error("No coach profile is linked to this account.");
+        }
+
+        const batchIds = await getCoachAssignedBatchIds(currentUser);
+        let assignedPlayers = [];
+
+        if (batchIds.length > 0) {
+          const { data, error: playersError } = await supabase
+            .from("players")
+            .select("id, full_name, academy_id, batch_id, batches(batch_name)")
+            .in("batch_id", batchIds)
+            .order("full_name", { ascending: true });
+
+          if (playersError) throw playersError;
+          assignedPlayers = data || [];
+        }
+
+        if (!isMounted) return;
+        setCoach(coachRecord);
+        setPlayers(assignedPlayers);
+      } catch (loadError) {
+        if (!isMounted) return;
+        console.error("Coach performance assessment load error:", loadError);
+        setError(loadError.message || "Unable to load your assigned players.");
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    loadCoachAndPlayers();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadAssessmentHistory = async () => {
+      if (!selectedPlayerId || !coach?.id) {
+        setAssessments([]);
+        return;
+      }
+
+      try {
+        setHistoryLoading(true);
+        setError("");
+        const { data, error: historyError } = await supabase
+          .from("player_performance_assessments")
+          .select(
+            "id, assessment_date, ball_control_score, passing_score, dribbling_score, shooting_score, defending_score, speed_score, stamina_score, teamwork_score, discipline_score, coach_remarks, created_at, updated_at"
+          )
+          .eq("player_id", selectedPlayerId)
+          .eq("coach_id", coach.id)
+          .order("assessment_date", { ascending: false });
+
+        if (historyError) throw historyError;
+        if (isMounted) setAssessments(data || []);
+      } catch (historyLoadError) {
+        if (!isMounted) return;
+        console.error("Performance assessment history error:", historyLoadError);
+        setAssessments([]);
+        setError("Unable to load assessment history. Please try again.");
+      } finally {
+        if (isMounted) setHistoryLoading(false);
+      }
+    };
+
+    loadAssessmentHistory();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [selectedPlayerId, coach]);
+
+  const selectedPlayer = players.find((player) => player.id === selectedPlayerId);
+
+  const resetForm = () => {
+    setForm(createEmptyForm());
+    setEditingAssessmentId(null);
+    setValidationErrors({});
+  };
+
+  const handlePlayerChange = (event) => {
+    setSelectedPlayerId(event.target.value);
+    resetForm();
+    setSuccess("");
+  };
+
+  const handleFormChange = (event) => {
+    const { name, value } = event.target;
+    setForm((currentForm) => ({ ...currentForm, [name]: value }));
+    setValidationErrors((currentErrors) => ({ ...currentErrors, [name]: "" }));
+    setSuccess("");
+  };
+
+  const validateForm = () => {
+    const nextErrors = {};
+
+    if (!form.assessment_date) {
+      nextErrors.assessment_date = "Assessment date is required.";
+    }
+
+    scoreFields.forEach(([name, label]) => {
+      const value = form[name].trim();
+      if (!value) return;
+
+      const score = Number(value);
+      if (!Number.isFinite(score)) {
+        nextErrors[name] = `${label} must be a number.`;
+      } else if (score < 0 || score > 10) {
+        nextErrors[name] = `${label} must be between 0 and 10.`;
+      }
+    });
+
+    setValidationErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
+  };
+
+  const buildAssessmentPayload = () => {
+    const scores = scoreFields.reduce((payload, [name]) => ({
+      ...payload,
+      [name]: form[name].trim() === "" ? null : Number(form[name]),
+    }), {});
+
+    return {
+      assessment_date: form.assessment_date,
+      ...scores,
+      coach_remarks: form.coach_remarks.trim() || null,
+    };
+  };
+
+  const loadAssessmentHistory = async () => {
+    if (!selectedPlayerId || !coach?.id) return;
+
+    const { data, error: historyError } = await supabase
+      .from("player_performance_assessments")
+      .select(
+        "id, assessment_date, ball_control_score, passing_score, dribbling_score, shooting_score, defending_score, speed_score, stamina_score, teamwork_score, discipline_score, coach_remarks, created_at, updated_at"
+      )
+      .eq("player_id", selectedPlayerId)
+      .eq("coach_id", coach.id)
+      .order("assessment_date", { ascending: false });
+
+    if (historyError) throw historyError;
+    setAssessments(data || []);
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setSuccess("");
+    setError("");
+
+    if (!selectedPlayer) {
+      setError("Select a player before saving an assessment.");
+      return;
+    }
+
+    if (!validateForm()) return;
+
+    try {
+      setSaving(true);
+      const payload = buildAssessmentPayload();
+
+      if (editingAssessmentId) {
+        const { error: updateError } = await supabase
+          .from("player_performance_assessments")
+          .update({ ...payload, updated_at: new Date().toISOString() })
+          .eq("id", editingAssessmentId)
+          .eq("coach_id", coach.id);
+
+        if (updateError) throw updateError;
+        setSuccess("Assessment updated successfully.");
+      } else {
+        const { error: insertError } = await supabase
+          .from("player_performance_assessments")
+          .insert({
+            ...payload,
+            player_id: selectedPlayer.id,
+            coach_id: coach.id,
+            academy_id: selectedPlayer.academy_id,
+          });
+
+        if (insertError) throw insertError;
+        setSuccess("Assessment saved successfully.");
+      }
+
+      resetForm();
+      await loadAssessmentHistory();
+    } catch (saveError) {
+      console.error("Performance assessment save error:", saveError);
+      setError("Unable to save the assessment. Please try again.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleEdit = (assessment) => {
+    const nextForm = scoreFields.reduce(
+      (currentForm, [name]) => ({
+        ...currentForm,
+        [name]: assessment[name] ?? "",
+      }),
+      {
+        assessment_date: assessment.assessment_date || "",
+        coach_remarks: assessment.coach_remarks || "",
+      }
+    );
+
+    setForm(nextForm);
+    setEditingAssessmentId(assessment.id);
+    setValidationErrors({});
+    setSuccess("");
+  };
+
+  if (loading) {
+    return <Layout><h2>Loading performance assessments...</h2></Layout>;
+  }
+
+  return (
+    <Layout>
+      <main style={styles.page}>
+        <header style={styles.header}>
+          <div>
+            <h1 style={styles.title}>Player Performance Assessments</h1>
+            <p style={styles.subtitle}>Record and review assessments for your assigned players.</p>
+          </div>
+        </header>
+
+        {error ? <p role="alert" style={styles.error}>{error}</p> : null}
+        {success ? <p role="status" style={styles.success}>{success}</p> : null}
+
+        <section style={styles.card}>
+          <label htmlFor="assessment-player" style={styles.label}>Select player</label>
+          <select id="assessment-player" value={selectedPlayerId} onChange={handlePlayerChange} style={styles.input}>
+            <option value="">Select an assigned player</option>
+            {players.map((player) => (
+              <option key={player.id} value={player.id}>
+                {player.full_name} — {player.batches?.batch_name || "No batch"}
+              </option>
+            ))}
+          </select>
+          {!players.length ? <p style={styles.message}>No players are currently available in your assigned batches.</p> : null}
+        </section>
+
+        {selectedPlayer ? (
+          <>
+            <section style={styles.card} aria-labelledby="assessment-form-heading">
+              <p style={styles.eyebrow}>{editingAssessmentId ? "Edit mode" : "Create mode"}</p>
+              <h2 id="assessment-form-heading" style={styles.sectionTitle}>
+                {editingAssessmentId ? "Edit assessment" : "New assessment"}
+              </h2>
+              <p style={styles.message}>
+                Player: <strong>{selectedPlayer.full_name}</strong> · Batch: <strong>{selectedPlayer.batches?.batch_name || "Not assigned"}</strong>
+              </p>
+
+              <form onSubmit={handleSubmit} style={styles.form} noValidate>
+                <div style={styles.field}>
+                  <label htmlFor="assessment-date" style={styles.label}>Assessment date</label>
+                  <input id="assessment-date" name="assessment_date" type="date" value={form.assessment_date} onChange={handleFormChange} style={styles.input} aria-invalid={Boolean(validationErrors.assessment_date)} />
+                  {validationErrors.assessment_date ? <span style={styles.fieldError}>{validationErrors.assessment_date}</span> : null}
+                </div>
+
+                <div style={styles.scoreGrid}>
+                  {scoreFields.map(([name, label]) => (
+                    <div key={name} style={styles.field}>
+                      <label htmlFor={name} style={styles.label}>{label} (0–10)</label>
+                      <input id={name} name={name} type="number" min="0" max="10" step="0.1" inputMode="decimal" value={form[name]} onChange={handleFormChange} style={styles.input} aria-invalid={Boolean(validationErrors[name])} aria-describedby={validationErrors[name] ? `${name}-error` : undefined} />
+                      {validationErrors[name] ? <span id={`${name}-error`} style={styles.fieldError}>{validationErrors[name]}</span> : null}
+                    </div>
+                  ))}
+                </div>
+
+                <div style={styles.field}>
+                  <label htmlFor="coach-remarks" style={styles.label}>Coach remarks</label>
+                  <textarea id="coach-remarks" name="coach_remarks" value={form.coach_remarks} onChange={handleFormChange} rows="4" style={{ ...styles.input, ...styles.textarea }} />
+                </div>
+
+                <div style={styles.actions}>
+                  <button type="submit" disabled={saving} style={styles.primaryButton}>
+                    {saving ? "Saving..." : editingAssessmentId ? "Update assessment" : "Save assessment"}
+                  </button>
+                  {editingAssessmentId ? <button type="button" onClick={resetForm} disabled={saving} style={styles.secondaryButton}>Cancel edit</button> : null}
+                </div>
+              </form>
+            </section>
+
+            <section style={styles.card} aria-labelledby="history-heading">
+              <h2 id="history-heading" style={styles.sectionTitle}>Assessment history</h2>
+              {historyLoading ? <p style={styles.message}>Loading assessment history...</p> : assessments.length ? (
+                <div style={styles.historyList}>
+                  {assessments.map((assessment) => (
+                    <article key={assessment.id} style={styles.historyItem}>
+                      <div style={styles.historyHeader}>
+                        <strong>{formatDate(assessment.assessment_date)}</strong>
+                        <button type="button" onClick={() => handleEdit(assessment)} style={styles.editButton}>Edit</button>
+                      </div>
+                      <div style={styles.historyScores}>
+                        {scoreFields.map(([name, label]) => (
+                          <span key={name}><strong>{label}:</strong> {assessment[name] ?? "—"}</span>
+                        ))}
+                      </div>
+                      {assessment.coach_remarks ? <p style={styles.remarks}>{assessment.coach_remarks}</p> : null}
+                    </article>
+                  ))}
+                </div>
+              ) : <p style={styles.message}>No performance assessments are available for this player yet.</p>}
+            </section>
+          </>
+        ) : null}
+      </main>
+    </Layout>
+  );
+}
+
+const styles = {
+  page: { width: "100%", maxWidth: "1000px", margin: "0 auto", padding: "4px 0 30px", boxSizing: "border-box" },
+  header: { marginBottom: "24px" },
+  title: { margin: 0, color: "#0f172a", fontSize: "30px" },
+  subtitle: { margin: "8px 0 0", color: "#475569" },
+  card: { marginTop: "18px", padding: "24px", borderRadius: "12px", background: "#fff", boxShadow: "0 2px 8px rgba(15, 23, 42, 0.08)", boxSizing: "border-box" },
+  eyebrow: { margin: "0 0 6px", color: "#2563eb", fontSize: "13px", fontWeight: "bold", letterSpacing: "0.05em", textTransform: "uppercase" },
+  sectionTitle: { margin: "0 0 12px", color: "#0f172a", fontSize: "22px" },
+  label: { display: "block", marginBottom: "6px", color: "#334155", fontSize: "14px", fontWeight: "bold" },
+  input: { width: "100%", padding: "10px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", boxSizing: "border-box", background: "#fff", color: "#0f172a", font: "inherit" },
+  textarea: { resize: "vertical", minHeight: "96px" },
+  form: { marginTop: "20px" },
+  scoreGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(180px, 100%), 1fr))", gap: "16px", margin: "18px 0" },
+  field: { minWidth: 0 },
+  fieldError: { display: "block", marginTop: "5px", color: "#b91c1c", fontSize: "13px" },
+  actions: { display: "flex", flexWrap: "wrap", gap: "12px", marginTop: "20px" },
+  primaryButton: { padding: "10px 16px", border: 0, borderRadius: "8px", background: "#2563eb", color: "#fff", fontWeight: "bold", cursor: "pointer" },
+  secondaryButton: { padding: "10px 16px", border: "1px solid #94a3b8", borderRadius: "8px", background: "#fff", color: "#334155", fontWeight: "bold", cursor: "pointer" },
+  editButton: { padding: "7px 12px", border: "1px solid #2563eb", borderRadius: "7px", background: "#eff6ff", color: "#1d4ed8", fontWeight: "bold", cursor: "pointer" },
+  error: { margin: "0 0 16px", padding: "12px 14px", borderRadius: "8px", background: "#fee2e2", color: "#991b1b" },
+  success: { margin: "0 0 16px", padding: "12px 14px", borderRadius: "8px", background: "#dcfce7", color: "#166534" },
+  message: { margin: "10px 0 0", color: "#475569", lineHeight: 1.5, overflowWrap: "anywhere" },
+  historyList: { display: "flex", flexDirection: "column", gap: "12px" },
+  historyItem: { padding: "16px", border: "1px solid #e2e8f0", borderRadius: "10px", background: "#f8fafc", minWidth: 0 },
+  historyHeader: { display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", flexWrap: "wrap" },
+  historyScores: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(140px, 100%), 1fr))", gap: "8px 16px", marginTop: "14px", color: "#334155", fontSize: "14px" },
+  remarks: { margin: "14px 0 0", color: "#475569", lineHeight: 1.5, overflowWrap: "anywhere", whiteSpace: "pre-wrap" },
+};
+
+export default CoachPerformanceAssessments;

@@ -29,6 +29,8 @@ import CoachBatchMapping from "../pages/CoachBatchMapping";
 
 import CoachDashboard from "../pages/CoachDashboard";
 import CoachAttendance from "../pages/CoachAttendance";
+import CoachPerformanceAssessments from "../pages/CoachPerformanceAssessments";
+import PlayerPerformanceReport from "../pages/PlayerPerformanceReport";
 import ParentPortal from "../pages/ParentPortal";
 
 // ============================================
@@ -276,6 +278,35 @@ function AppRoutes() {
               ]}
             >
               <CoachAttendance />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/coach-performance-assessments"
+          element={
+            <ProtectedRoute
+              allowedRoles={[
+                "coach"
+              ]}
+            >
+              <CoachPerformanceAssessments />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/player-performance-report"
+          element={
+            <ProtectedRoute
+              allowedRoles={[
+                "super_admin",
+                "academy_owner",
+                "coach",
+                "parent"
+              ]}
+            >
+              <PlayerPerformanceReport />
             </ProtectedRoute>
           }
         />
