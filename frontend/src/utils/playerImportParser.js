@@ -148,18 +148,24 @@ export const parsePlayerImportWorkbook = async (file) => {
   const firstSheetName = workbook.SheetNames[0];
   const worksheet = workbook.Sheets[firstSheetName];
 
+  // Read rows as arrays so the physical worksheet row index is preserved.
+  // `blankrows: true` is required so blank rows inside the worksheet are not
+  // removed before sourceRowNumber is calculated.
   const rawRows = XLSX.utils.sheet_to_json(worksheet, {
+    header: 1,
     defval: "",
     raw: true,
+    blankrows: true,
   });
 
-  if (!rawRows.length) {
+  if (rawRows.length <= 1) {
     throw new Error("The first worksheet does not contain any data rows.");
   }
 
   const headerMap = createHeaderMap();
+  const headerRow = rawRows[0] || [];
 
-  const actualHeaders = Object.keys(rawRows[0] || {});
+  const actualHeaders = headerRow.map((header) => normalizeText(header));
   const normalizedActualHeaders = actualHeaders.map(normalizeHeader);
 
   const missingRequiredColumns = REQUIRED_PLAYER_IMPORT_COLUMNS.filter(
@@ -174,10 +180,27 @@ export const parsePlayerImportWorkbook = async (file) => {
   }
 
   const normalizedRows = rawRows
-    .filter((row) => !isEmptyRow(row))
+    .slice(1)
     .map((row, index) => {
-      const mappedRow = {
+      const rowObject = {};
+
+      actualHeaders.forEach((rawHeader, columnIndex) => {
+        if (!rawHeader) {
+          return;
+        }
+
+        rowObject[rawHeader] = row[columnIndex] ?? "";
+      });
+
+      return {
+        rowObject,
         sourceRowNumber: index + 2,
+      };
+    })
+    .filter(({ rowObject }) => !isEmptyRow(rowObject))
+    .map(({ rowObject, sourceRowNumber }) => {
+      const mappedRow = {
+        sourceRowNumber,
         playerName: "",
         dateOfBirth: "",
         parentName: "",
@@ -189,7 +212,7 @@ export const parsePlayerImportWorkbook = async (file) => {
         parentEmail: "",
       };
 
-      Object.entries(row).forEach(([rawHeader, rawValue]) => {
+      Object.entries(rowObject).forEach(([rawHeader, rawValue]) => {
         const canonicalHeader = headerMap[normalizeHeader(rawHeader)];
 
         if (!canonicalHeader) {
