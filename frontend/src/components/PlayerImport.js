@@ -40,6 +40,7 @@ function PlayerImport({
     useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [importResult, setImportResult] = useState(null);
+  const [isInstructionSheet, setIsInstructionSheet] = useState(false);
 
   useEffect(() => {
     const loadAcademies = async () => {
@@ -78,6 +79,7 @@ function PlayerImport({
     setNormalizedRows([]);
     resetRowValidation();
     setImportResult(null);
+    setIsInstructionSheet(false);
     setFileName("");
   };
 
@@ -194,6 +196,7 @@ function PlayerImport({
     setNormalizedRows([]);
     resetRowValidation();
     setImportResult(null);
+    setIsInstructionSheet(false);
 
     if (!file) {
       resetImportState();
@@ -246,9 +249,10 @@ function PlayerImport({
 
       const rows = result.rows || [];
 
+      setIsInstructionSheet(Boolean(result.isInstructionSheet));
       setNormalizedRows(rows);
 
-      if (selectedAcademy) {
+      if (selectedAcademy && !result.isInstructionSheet) {
         await validateRowsForAcademy(
           rows,
           selectedAcademy
@@ -322,6 +326,7 @@ function PlayerImport({
     setNormalizedRows([]);
     resetRowValidation();
     setImportResult(null);
+    setIsInstructionSheet(false);
 
     if (!selectedFile || !worksheetName) {
       return;
@@ -335,9 +340,10 @@ function PlayerImport({
 
       const rows = result.rows || [];
 
+      setIsInstructionSheet(Boolean(result.isInstructionSheet));
       setNormalizedRows(rows);
 
-      if (selectedAcademy) {
+      if (selectedAcademy && !result.isInstructionSheet) {
         await validateRowsForAcademy(
           rows,
           selectedAcademy
@@ -350,6 +356,16 @@ function PlayerImport({
       );
     }
   };
+
+  const canImport =
+    selectedAcademy &&
+    normalizedRows.length > 0 &&
+    rowValidationErrors.length === 0 &&
+    validRows.length > 0 &&
+    !isLoadingReferenceData &&
+    !validationError &&
+    !importResult &&
+    !isInstructionSheet;
 
   return (
     <section
@@ -490,31 +506,41 @@ function PlayerImport({
                     : "s") +
                   " found."}
             </strong>
+
+            {canImport && (
+              <div style={{ marginTop: "12px" }}>
+                <button
+                  type="button"
+                  onClick={handleImport}
+                  disabled={isImporting}
+                >
+                  {isImporting
+                    ? "Importing..."
+                    : "Import " +
+                      validRows.length +
+                      " Player" +
+                      (validRows.length === 1 ? "" : "s")}
+                </button>
+              </div>
+            )}
           </div>
         )}
 
-      {selectedAcademy &&
-        normalizedRows.length > 0 &&
-        rowValidationErrors.length === 0 &&
-        validRows.length > 0 &&
-        !isLoadingReferenceData &&
-        !validationError &&
-        !importResult && (
-          <div style={{ marginTop: "15px" }}>
-            <button
-              type="button"
-              onClick={handleImport}
-              disabled={isImporting}
-            >
-              {isImporting
-                ? "Importing..."
-                : "Import " +
-                  validRows.length +
-                  " Player" +
-                  (validRows.length === 1 ? "" : "s")}
-            </button>
-          </div>
-        )}
+      {isInstructionSheet && !validationError && (
+        <div
+          role="status"
+          style={{
+            marginTop: "20px",
+            padding: "12px",
+            border: "1px solid #cbd5e1",
+            borderRadius: "8px",
+          }}
+        >
+          <strong>Instructions worksheet selected.</strong>{" "}
+          Select the "Player Import Template" worksheet to
+          preview and import player data.
+        </div>
+      )}
 
       {importResult && (
         <div
@@ -573,7 +599,9 @@ function PlayerImport({
         </div>
       )}
 
-      {selectedFile && !validationError && (
+      {selectedFile &&
+        !validationError &&
+        !isInstructionSheet && (
         <div style={{ marginTop: "20px" }}>
           <h3>Normalized Preview</h3>
 
