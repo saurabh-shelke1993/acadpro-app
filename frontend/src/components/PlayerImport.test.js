@@ -361,6 +361,12 @@ describe("PlayerImport", () => {
     expect(
       screen.getByText("1 row ready for import.")
     ).toBeInTheDocument();
+
+    expect(
+      screen.getByRole("button", {
+        name: "Import 1 Player",
+      })
+    ).toBeInTheDocument();
   });
 
   test("imports validated players and shows the import result", async () => {
