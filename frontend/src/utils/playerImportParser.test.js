@@ -48,7 +48,7 @@ describe("parsePlayerImportWorkbook", () => {
   test("parses and normalizes a valid player row", async () => {
     const file = createMockExcelFile([
       {
-        "Player Name": "  Rahul   Sharma ",
+        "Player Name": "  Test   Player ",
         "Date of Birth": "2010-04-04",
         "Parent Name": " Test Parent ",
         "Parent Phone": "90000 00000",
