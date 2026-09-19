@@ -3,15 +3,14 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import PlayerImport from "./PlayerImport";
 
 const mockDownloadPlayerImportTemplate = jest.fn();
-
 const mockParsePlayerImportWorkbook = jest.fn();
 
 jest.mock("../utils/playerImportTemplate", () => ({
-  downloadPlayerImportTemplate: mockDownloadPlayerImportTemplate,
+  downloadPlayerImportTemplate: jest.requireMock("../utils/playerImportTemplate").downloadPlayerImportTemplate,
 }));
 
 jest.mock("../utils/playerImportParser", () => ({
-  parsePlayerImportWorkbook: mockParsePlayerImportWorkbook,
+  parsePlayerImportWorkbook: jest.fn(),
 }));
 
 jest.mock("xlsx", () => ({
