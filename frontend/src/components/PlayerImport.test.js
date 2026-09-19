@@ -183,7 +183,7 @@ describe("PlayerImport", () => {
     });
   });
 
-  test("downloads the player import template when requested", () => {
+  test("downloads the player import template when requested", async () => {
     render(
       <PlayerImport
         loggedInUser={{
@@ -192,6 +192,14 @@ describe("PlayerImport", () => {
         }}
       />
     );
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("option", {
+          name: "Thane City FC",
+        })
+      ).toBeInTheDocument();
+    });
 
     fireEvent.click(
       screen.getByRole("button", {
@@ -479,6 +487,14 @@ describe("PlayerImport", () => {
         }}
       />
     );
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("option", {
+          name: "Thane City FC",
+        })
+      ).toBeInTheDocument();
+    });
 
     const file = createMockFile(
       [
