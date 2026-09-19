@@ -63,12 +63,12 @@ const formatDate = (value) => {
   }
 
   if (value instanceof Date && !Number.isNaN(value.getTime())) {
-    // Excel date cells are interpreted in the local timezone by SheetJS.
-    // Avoid toISOString() here because converting local midnight to UTC can
-    // shift the displayed date back by one day in IST and other timezones.
-    const year = String(value.getFullYear()).padStart(4, "0");
-    const month = String(value.getMonth() + 1).padStart(2, "0");
-    const day = String(value.getDate()).padStart(2, "0");
+    // SheetJS may materialize Excel date cells as Date objects whose local
+    // getters can differ from the calendar date encoded by the workbook.
+    // Use UTC calendar parts so the stored date does not shift with timezone.
+    const year = String(value.getUTCFullYear()).padStart(4, "0");
+    const month = String(value.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(value.getUTCDate()).padStart(2, "0");
 
     return `${year}-${month}-${day}`;
   }
