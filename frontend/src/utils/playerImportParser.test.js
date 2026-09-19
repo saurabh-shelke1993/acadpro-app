@@ -84,12 +84,12 @@ describe("parsePlayerImportWorkbook", () => {
     const file = createMockExcelFile([
       {
         "Player Name": "Excel Date Player",
-        "Date of Birth": new Date(2012, 4, 15),
+        "Date of Birth": new Date(Date.UTC(2012, 4, 15)),
         "Parent Name": "Test Parent",
         "Parent Phone": "9000000004",
         Center: "Wakad",
         Batch: "U14",
-        "Date of joining": new Date(2026, 8, 19),
+        "Date of joining": new Date(Date.UTC(2026, 8, 19)),
       },
     ]);
 
