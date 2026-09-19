@@ -80,7 +80,7 @@ begin
        or v_center_name is null
        or v_batch_name is null
        or v_date_of_birth is null
-       or v_parent_phone !~ '^\\d{10}$' then
+       or v_parent_phone !~ '^[0-9]{10}$' then
       raise exception
         'Import validation failed for source row %.',
         coalesce(v_row->>'sourceRowNumber', '?');
@@ -94,7 +94,7 @@ begin
     end if;
 
     if v_parent_email is not null
-       and v_parent_email !~ '^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$' then
+       and v_parent_email !~ '^[^[:space:]@]+@[^[:space:]@]+\.[^[:space:]@]+$' then
       raise exception
         'Import validation failed for source row %: invalid parent email.',
         coalesce(v_row->>'sourceRowNumber', '?');
