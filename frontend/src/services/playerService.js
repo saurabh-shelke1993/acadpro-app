@@ -251,3 +251,24 @@ export const assignPlayerBatch =
 
     return data;
   };
+
+// ============================================
+// BULK PLAYER IMPORT
+// ============================================
+
+export const importPlayersBulk = async (
+  academyId,
+  rows
+) => {
+  const { data, error } = await supabase.rpc(
+    "import_players_bulk",
+    {
+      p_academy_id: academyId,
+      p_rows: rows,
+    }
+  );
+
+  if (error) throw error;
+
+  return data;
+};
