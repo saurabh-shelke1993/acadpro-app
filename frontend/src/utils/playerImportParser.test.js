@@ -25,6 +25,25 @@ const createMockExcelFile = (rows, fileName = "players.xlsx") => {
   };
 };
 
+const createMockWorkbookFile = (sheets, fileName = "players.xlsx") => {
+  const workbook = XLSX.utils.book_new();
+
+  sheets.forEach(({ name, rows }) => {
+    const worksheet = XLSX.utils.json_to_sheet(rows);
+    XLSX.utils.book_append_sheet(workbook, worksheet, name);
+  });
+
+  const arrayBuffer = XLSX.write(workbook, {
+    bookType: "xlsx",
+    type: "array",
+  });
+
+  return {
+    name: fileName,
+    arrayBuffer: async () => arrayBuffer,
+  };
+};
+
 describe("parsePlayerImportWorkbook", () => {
   test("parses and normalizes a valid player row", async () => {
     const file = createMockExcelFile([
@@ -91,7 +110,6 @@ describe("parsePlayerImportWorkbook", () => {
         "Parent Name": "Amit Sharma",
         "Parent Phone": "9876543210",
         Center: "Wakad",
-        // Batch intentionally missing
       },
     ]);
 
@@ -130,5 +148,69 @@ describe("parsePlayerImportWorkbook", () => {
 
     expect(result.totalRows).toBe(1);
     expect(result.rows).toHaveLength(1);
+  });
+
+  test("parses the selected worksheet when worksheetName is provided", async () => {
+    const file = createMockWorkbookFile([
+      {
+        name: "First Sheet",
+        rows: [
+          {
+            "Player Name": "Wrong Player",
+            "Date of Birth": "2010-01-01",
+            "Parent Name": "Wrong Parent",
+            "Parent Phone": "9999999999",
+            Center: "Wrong Center",
+            Batch: "Wrong Batch",
+          },
+        ],
+      },
+      {
+        name: "Player Import",
+        rows: [
+          {
+            "Player Name": "Selected Player",
+            "Date of Birth": "2011-02-02",
+            "Parent Name": "Selected Parent",
+            "Parent Phone": "8888888888",
+            Center: "Selected Center",
+            Batch: "Selected Batch",
+          },
+        ],
+      },
+    ]);
+
+    const result = await parsePlayerImportWorkbook(
+      file,
+      "Player Import"
+    );
+
+    expect(result.worksheetName).toBe("Player Import");
+    expect(result.rows).toHaveLength(1);
+    expect(result.rows[0].playerName).toBe("Selected Player");
+  });
+
+  test("rejects an unknown worksheet name", async () => {
+    const file = createMockWorkbookFile([
+      {
+        name: "Player Import",
+        rows: [
+          {
+            "Player Name": "Test Player",
+            "Date of Birth": "2010-01-01",
+            "Parent Name": "Test Parent",
+            "Parent Phone": "9999999999",
+            Center: "Test Center",
+            Batch: "Test Batch",
+          },
+        ],
+      },
+    ]);
+
+    await expect(
+      parsePlayerImportWorkbook(file, "Does Not Exist")
+    ).rejects.toThrow(
+      'Worksheet "Does Not Exist" was not found in the workbook.'
+    );
   });
 });
