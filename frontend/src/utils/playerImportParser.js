@@ -27,11 +27,16 @@ const normalizeHeader = (value) => {
     .toLowerCase();
 };
 
+const HEADER_ALIASES = {
+  "date of birth (dd-mm-yyyy)": "Date of Birth",
+  "date of joining (dd-mm-yyyy)": "Date of joining",
+};
+
 const createHeaderMap = () => {
   return ALL_SUPPORTED_COLUMNS.reduce((map, column) => {
     map[normalizeHeader(column)] = column;
     return map;
-  }, {});
+  }, HEADER_ALIASES);
 };
 
 const normalizeText = (value) => {
