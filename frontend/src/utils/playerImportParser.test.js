@@ -80,6 +80,25 @@ describe("parsePlayerImportWorkbook", () => {
     });
   });
 
+  test("preserves Excel date-cell values without timezone day shifts", async () => {
+    const file = createMockExcelFile([
+      {
+        "Player Name": "Excel Date Player",
+        "Date of Birth": new Date(2012, 4, 15),
+        "Parent Name": "Test Parent",
+        "Parent Phone": "9000000004",
+        Center: "Wakad",
+        Batch: "U14",
+        "Date of joining": new Date(2026, 8, 19),
+      },
+    ]);
+
+    const result = await parsePlayerImportWorkbook(file);
+
+    expect(result.rows[0].dateOfBirth).toBe("2012-05-15");
+    expect(result.rows[0].joiningDate).toBe("2026-09-19");
+  });
+
   test("accepts DD-MM-YYYY display headers and normalizes their values", async () => {
     const file = createMockExcelFile([
       {
@@ -207,6 +226,41 @@ describe("parsePlayerImportWorkbook", () => {
     expect(result.worksheetName).toBe("Player Import");
     expect(result.rows).toHaveLength(1);
     expect(result.rows[0].playerName).toBe("Selected Test Player");
+  });
+
+  test("ignores the template Instructions worksheet", async () => {
+    const file = createMockWorkbookFile([
+      {
+        name: "Player Import Template",
+        rows: [
+          {
+            "Player Name": "Test Player",
+            "Date of Birth": "2010-04-04",
+            "Parent Name": "Test Parent",
+            "Parent Phone": "9000000002",
+            Center: "Test Center",
+            Batch: "Test Batch",
+          },
+        ],
+      },
+      {
+        name: "Instructions",
+        rows: [
+          {
+            Step: "Use the Player Import Template worksheet.",
+          },
+        ],
+      },
+    ]);
+
+    const result = await parsePlayerImportWorkbook(
+      file,
+      "Instructions"
+    );
+
+    expect(result.isInstructionSheet).toBe(true);
+    expect(result.rows).toEqual([]);
+    expect(result.totalRows).toBe(0);
   });
 
   test("rejects an unknown worksheet name", async () => {
