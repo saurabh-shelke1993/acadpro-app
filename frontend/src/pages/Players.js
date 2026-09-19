@@ -969,7 +969,9 @@ return (
     </button>
   </>
 )}
-      {isSuperAdmin(loggedInUser) && <PlayerImport />}
+      {isSuperAdmin(loggedInUser) && (
+        <PlayerImport loggedInUser={loggedInUser} />
+      )}
 
       <hr />
 
