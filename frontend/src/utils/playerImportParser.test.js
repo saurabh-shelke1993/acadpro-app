@@ -80,6 +80,25 @@ describe("parsePlayerImportWorkbook", () => {
     });
   });
 
+  test("accepts DD-MM-YYYY display headers and normalizes their values", async () => {
+    const file = createMockExcelFile([
+      {
+        "Player Name": "Date Format Player",
+        "Date of Birth (DD-MM-YYYY)": "21-08-2014",
+        "Parent Name": "Test Parent",
+        "Parent Phone": "9000000000",
+        Center: "Wakad",
+        Batch: "U14",
+        "Date of joining (DD-MM-YYYY)": "01-06-2026",
+      },
+    ]);
+
+    const result = await parsePlayerImportWorkbook(file);
+
+    expect(result.rows[0].dateOfBirth).toBe("2014-08-21");
+    expect(result.rows[0].joiningDate).toBe("2026-06-01");
+  });
+
   test("allows optional fields to remain blank", async () => {
     const file = createMockExcelFile([
       {
