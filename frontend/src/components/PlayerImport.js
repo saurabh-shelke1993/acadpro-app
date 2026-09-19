@@ -79,7 +79,6 @@ function PlayerImport({
     resetRowValidation();
     setImportResult(null);
     setFileName("");
-    setImportResult(null);
   };
 
   const validateRowsForAcademy = async (
