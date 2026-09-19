@@ -970,7 +970,10 @@ return (
   </>
 )}
       {isSuperAdmin(loggedInUser) && (
-        <PlayerImport loggedInUser={loggedInUser} />
+        <PlayerImport
+          loggedInUser={loggedInUser}
+          onImportComplete={fetchPlayers}
+        />
       )}
 
       <hr />
