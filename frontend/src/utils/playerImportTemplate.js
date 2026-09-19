@@ -10,20 +10,27 @@ export const PLAYER_IMPORT_TEMPLATE_SHEET_NAME = "Player Import Template";
 export const PLAYER_IMPORT_INSTRUCTIONS_SHEET_NAME = "Instructions";
 
 const PLAYER_IMPORT_HEADERS = [
-  ...REQUIRED_PLAYER_IMPORT_COLUMNS,
-  ...OPTIONAL_PLAYER_IMPORT_COLUMNS,
+  "Player Name",
+  "Date of Birth (DD-MM-YYYY)",
+  "Parent Name",
+  "Parent Phone",
+  "Center",
+  "Batch",
+  "Gender",
+  "Date of joining (DD-MM-YYYY)",
+  "Parent Email Address",
 ];
 
 const EXAMPLE_ROWS = [
   [
     "Test Player",
-    "2010-04-04",
+    "04-04-2010",
     "Test Parent",
     "9000000000",
     "Wakad",
     "U14",
     "Male",
-    "2026-06-01",
+    "01-06-2026",
     "test.parent@example.com",
   ],
   [
@@ -51,7 +58,7 @@ const INSTRUCTION_ROWS = [
   ["Instructions"],
   ["1. Keep the column headers in Row 1 unchanged."],
   ["2. Enter one player per row starting from Row 2."],
-  ["3. Date of Birth and Date of joining should use YYYY-MM-DD format when possible."],
+  ["3. Date of Birth and Date of joining should use DD-MM-YYYY format (for example, 21-08-2014)."],
   ["4. Parent Phone should contain a 10-digit mobile number."],
   ["5. Center and Batch must match existing AcadPro records."],
   ["6. Delete the example player before uploading real data."],
