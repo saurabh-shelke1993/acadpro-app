@@ -63,7 +63,14 @@ const formatDate = (value) => {
   }
 
   if (value instanceof Date && !Number.isNaN(value.getTime())) {
-    return value.toISOString().slice(0, 10);
+    // Excel date cells are interpreted in the local timezone by SheetJS.
+    // Avoid toISOString() here because converting local midnight to UTC can
+    // shift the displayed date back by one day in IST and other timezones.
+    const year = String(value.getFullYear()).padStart(4, "0");
+    const month = String(value.getMonth() + 1).padStart(2, "0");
+    const day = String(value.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
   }
 
   if (typeof value === "number") {
@@ -159,6 +166,19 @@ export const parsePlayerImportWorkbook = async (file, worksheetName) => {
   }
 
   const worksheet = workbook.Sheets[selectedWorksheetName];
+
+  // The downloadable template intentionally includes an Instructions sheet.
+  // It is not an import-data worksheet, so selecting it should not trigger
+  // required-column validation.
+  if (normalizeHeader(selectedWorksheetName) === "instructions") {
+    return {
+      fileName: file.name,
+      worksheetName: selectedWorksheetName,
+      totalRows: 0,
+      rows: [],
+      isInstructionSheet: true,
+    };
+  }
 
   // Read rows as arrays so the physical worksheet row index is preserved.
   // `blankrows: true` is required so blank rows inside the worksheet are not
