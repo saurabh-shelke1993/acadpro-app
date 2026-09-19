@@ -49,14 +49,14 @@ describe("parsePlayerImportWorkbook", () => {
     const file = createMockExcelFile([
       {
         "Player Name": "  Rahul   Sharma ",
-        "Date of Birth": "2014-08-21",
-        "Parent Name": " Amit Sharma ",
-        "Parent Phone": "98765 43210",
+        "Date of Birth": "2010-04-04",
+        "Parent Name": " Test Parent ",
+        "Parent Phone": "90000 00000",
         Center: " Wakad ",
         Batch: " U14 ",
         Gender: "Male",
         "Date of joining": "2026-06-01",
-        "Parent Email Address": " AMIT@EXAMPLE.COM ",
+        "Parent Email Address": " TEST.PARENT@EXAMPLE.COM ",
       },
     ]);
 
@@ -68,25 +68,25 @@ describe("parsePlayerImportWorkbook", () => {
 
     expect(result.rows[0]).toEqual({
       sourceRowNumber: 2,
-      playerName: "Rahul Sharma",
-      dateOfBirth: "2014-08-21",
-      parentName: "Amit Sharma",
-      parentPhone: "9876543210",
+      playerName: "Test Player",
+      dateOfBirth: "2010-04-04",
+      parentName: "Test Parent",
+      parentPhone: "9000000000",
       center: "Wakad",
       batch: "U14",
       gender: "Male",
       joiningDate: "2026-06-01",
-      parentEmail: "amit@example.com",
+      parentEmail: "test.parent@example.com",
     });
   });
 
   test("allows optional fields to remain blank", async () => {
     const file = createMockExcelFile([
       {
-        "Player Name": "Rohan Patil",
-        "Date of Birth": "2013-04-10",
-        "Parent Name": "Suresh Patil",
-        "Parent Phone": "9123456789",
+        "Player Name": "Sample Player",
+        "Date of Birth": "2011-03-03",
+        "Parent Name": "Sample Parent",
+        "Parent Phone": "9000000001",
         Center: "Pimple Saudagar",
         Batch: "U13",
         Gender: "",
@@ -105,10 +105,10 @@ describe("parsePlayerImportWorkbook", () => {
   test("rejects a workbook with missing required columns", async () => {
     const file = createMockExcelFile([
       {
-        "Player Name": "Rahul Sharma",
-        "Date of Birth": "2014-08-21",
-        "Parent Name": "Amit Sharma",
-        "Parent Phone": "9876543210",
+        "Player Name": "Test Player",
+        "Date of Birth": "2010-04-04",
+        "Parent Name": "Test Parent",
+        "Parent Phone": "9000000000",
         Center: "Wakad",
       },
     ]);
@@ -134,10 +134,10 @@ describe("parsePlayerImportWorkbook", () => {
   test("ignores completely empty rows", async () => {
     const file = createMockExcelFile([
       {
-        "Player Name": "Rahul Sharma",
-        "Date of Birth": "2014-08-21",
-        "Parent Name": "Amit Sharma",
-        "Parent Phone": "9876543210",
+        "Player Name": "Test Player",
+        "Date of Birth": "2010-04-04",
+        "Parent Name": "Test Parent",
+        "Parent Phone": "9000000000",
         Center: "Wakad",
         Batch: "U14",
       },
@@ -156,10 +156,10 @@ describe("parsePlayerImportWorkbook", () => {
         name: "First Sheet",
         rows: [
           {
-            "Player Name": "Wrong Player",
-            "Date of Birth": "2010-01-01",
-            "Parent Name": "Wrong Parent",
-            "Parent Phone": "9999999999",
+            "Player Name": "Wrong Test Player",
+            "Date of Birth": "2010-04-04",
+            "Parent Name": "Wrong Test Parent",
+            "Parent Phone": "9000000002",
             Center: "Wrong Center",
             Batch: "Wrong Batch",
           },
@@ -169,10 +169,10 @@ describe("parsePlayerImportWorkbook", () => {
         name: "Player Import",
         rows: [
           {
-            "Player Name": "Selected Player",
-            "Date of Birth": "2011-02-02",
-            "Parent Name": "Selected Parent",
-            "Parent Phone": "8888888888",
+            "Player Name": "Selected Test Player",
+            "Date of Birth": "2011-03-03",
+            "Parent Name": "Selected Test Parent",
+            "Parent Phone": "9000000003",
             Center: "Selected Center",
             Batch: "Selected Batch",
           },
@@ -187,7 +187,7 @@ describe("parsePlayerImportWorkbook", () => {
 
     expect(result.worksheetName).toBe("Player Import");
     expect(result.rows).toHaveLength(1);
-    expect(result.rows[0].playerName).toBe("Selected Player");
+    expect(result.rows[0].playerName).toBe("Selected Test Player");
   });
 
   test("rejects an unknown worksheet name", async () => {
@@ -197,9 +197,9 @@ describe("parsePlayerImportWorkbook", () => {
         rows: [
           {
             "Player Name": "Test Player",
-            "Date of Birth": "2010-01-01",
+            "Date of Birth": "2010-04-04",
             "Parent Name": "Test Parent",
-            "Parent Phone": "9999999999",
+            "Parent Phone": "9000000002",
             Center: "Test Center",
             Batch: "Test Batch",
           },
