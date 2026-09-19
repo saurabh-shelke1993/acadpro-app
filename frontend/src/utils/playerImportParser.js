@@ -150,7 +150,10 @@ export const parsePlayerImportWorkbook = async (file, worksheetName) => {
 
   const workbook = XLSX.read(arrayBuffer, {
     type: "array",
-    cellDates: true,
+    // Keep Excel date cells as serial numbers. Converting them to JavaScript
+    // Date objects introduces timezone-dependent day shifts for date-only data.
+    // formatDate() converts the serial using the Excel calendar date directly.
+    cellDates: false,
   });
 
   if (!workbook.SheetNames.length) {
