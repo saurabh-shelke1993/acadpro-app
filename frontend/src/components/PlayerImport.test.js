@@ -1,12 +1,11 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 import PlayerImport from "./PlayerImport";
-
-const mockDownloadPlayerImportTemplate = jest.fn();
-const mockParsePlayerImportWorkbook = jest.fn();
+import { downloadPlayerImportTemplate } from "../utils/playerImportTemplate";
+import { parsePlayerImportWorkbook } from "../utils/playerImportParser";
 
 jest.mock("../utils/playerImportTemplate", () => ({
-  downloadPlayerImportTemplate: jest.requireMock("../utils/playerImportTemplate").downloadPlayerImportTemplate,
+  downloadPlayerImportTemplate: jest.fn(),
 }));
 
 jest.mock("../utils/playerImportParser", () => ({
@@ -28,7 +27,7 @@ describe("PlayerImport", () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    mockParsePlayerImportWorkbook.mockResolvedValue({
+    parsePlayerImportWorkbook.mockResolvedValue({
       rows: [
         {
           sourceRowNumber: 2,
@@ -69,7 +68,7 @@ describe("PlayerImport", () => {
       })
     );
 
-    expect(mockDownloadPlayerImportTemplate).toHaveBeenCalledTimes(1);
+    expect(downloadPlayerImportTemplate).toHaveBeenCalledTimes(1);
   });
 
   test("shows worksheet selection and normalized preview after upload", async () => {
@@ -102,7 +101,7 @@ describe("PlayerImport", () => {
     ).toBeInTheDocument();
 
     expect(
-      mockParsePlayerImportWorkbook
+      parsePlayerImportWorkbook
     ).toHaveBeenCalledWith(
       expect.objectContaining({ name: "players.xlsx" }),
       "Player Data"
@@ -110,7 +109,7 @@ describe("PlayerImport", () => {
   });
 
   test("shows parser validation errors", async () => {
-    mockParsePlayerImportWorkbook.mockRejectedValueOnce(
+    parsePlayerImportWorkbook.mockRejectedValueOnce(
       new Error(
         "Missing required columns: Batch"
       )
@@ -159,7 +158,7 @@ describe("PlayerImport", () => {
     );
 
     expect(
-      mockParsePlayerImportWorkbook
+      parsePlayerImportWorkbook
     ).not.toHaveBeenCalled();
   });
 });
