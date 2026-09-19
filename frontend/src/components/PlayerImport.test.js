@@ -442,13 +442,15 @@ describe("PlayerImport", () => {
       );
     });
 
-    expect(
-      screen.getByText("Import completed successfully.")
-    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(
+        screen.getByText("Import completed successfully.")
+      ).toBeInTheDocument();
 
-    expect(
-      screen.getByText(/Players imported: 1/)
-    ).toBeInTheDocument();
+      expect(
+        screen.getByText(/Players imported: 1/)
+      ).toBeInTheDocument();
+    });
   });
 
   test("shows row-level validation errors", async () => {
