@@ -16,15 +16,15 @@ const PLAYER_IMPORT_HEADERS = [
 
 const EXAMPLE_ROWS = [
   [
-    "Rahul Sharma",
-    "2014-08-21",
-    "Amit Sharma",
-    "9876543210",
+    "Test Player",
+    "2010-04-04",
+    "Test Parent",
+    "9000000000",
     "Wakad",
     "U14",
     "Male",
     "2026-06-01",
-    "amit@example.com",
+    "test.parent@example.com",
   ],
   [
     "",
