@@ -1,5 +1,9 @@
-import { useState } from "react";
-import * as XLSX from "xlsx";
+import { useEffect, useState } from "react";
+import { supabase } from "../services/supabase";
+
+import {
+  getAccessibleAcademies,
+} from "../utils/dataScope";
 
 import {
   parsePlayerImportWorkbook,
@@ -9,13 +13,52 @@ import {
   downloadPlayerImportTemplate,
 } from "../utils/playerImportTemplate";
 
-function PlayerImport() {
+import {
+  validatePlayerImportRows,
+} from "../utils/playerImportValidator";
+
+function PlayerImport({ loggedInUser }) {
+  const [academies, setAcademies] = useState([]);
+  const [selectedAcademy, setSelectedAcademy] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
   const [worksheetNames, setWorksheetNames] = useState([]);
   const [selectedWorksheet, setSelectedWorksheet] = useState("");
   const [validationError, setValidationError] = useState("");
   const [normalizedRows, setNormalizedRows] = useState([]);
+  const [rowValidationErrors, setRowValidationErrors] = useState([]);
+  const [validRows, setValidRows] = useState([]);
   const [fileName, setFileName] = useState("");
+  const [isLoadingReferenceData, setIsLoadingReferenceData] =
+    useState(false);
+
+  useEffect(() => {
+    const loadAcademies = async () => {
+      if (!loggedInUser) {
+        return;
+      }
+
+      try {
+        const data = await getAccessibleAcademies(
+          loggedInUser
+        );
+
+        setAcademies(data || []);
+      } catch (error) {
+        setAcademies([]);
+        setValidationError(
+          error?.message ||
+            "Unable to load academies for player import."
+        );
+      }
+    };
+
+    loadAcademies();
+  }, [loggedInUser]);
+
+  const resetRowValidation = () => {
+    setRowValidationErrors([]);
+    setValidRows([]);
+  };
 
   const resetImportState = () => {
     setSelectedFile(null);
@@ -23,7 +66,113 @@ function PlayerImport() {
     setSelectedWorksheet("");
     setValidationError("");
     setNormalizedRows([]);
+    resetRowValidation();
     setFileName("");
+  };
+
+  const validateRowsForAcademy = async (
+    rows,
+    academyId
+  ) => {
+    if (!academyId || !rows.length) {
+      resetRowValidation();
+      return;
+    }
+
+    setIsLoadingReferenceData(true);
+    setValidationError("");
+
+    try {
+      const [
+        centersResult,
+        batchesResult,
+        parentsResult,
+        playersResult,
+      ] = await Promise.all([
+        supabase
+          .from("centers")
+          .select(
+            "id, academy_id, center_name, is_active"
+          )
+          .eq("academy_id", academyId)
+          .eq("is_active", true),
+
+        supabase
+          .from("batches")
+          .select(
+            "id, academy_id, center_id, batch_name, is_active"
+          )
+          .eq("academy_id", academyId)
+          .eq("is_active", true),
+
+        supabase
+          .from("parents")
+          .select(
+            "id, academy_id, parent_name, phone, email, is_active"
+          )
+          .eq("academy_id", academyId)
+          .eq("is_active", true),
+
+        supabase
+          .from("players")
+          .select(
+            "id, academy_id, full_name, phone, is_active"
+          )
+          .eq("academy_id", academyId)
+          .eq("is_active", true),
+      ]);
+
+      const firstError =
+        centersResult.error ||
+        batchesResult.error ||
+        parentsResult.error ||
+        playersResult.error;
+
+      if (firstError) {
+        throw firstError;
+      }
+
+      const data = {
+        centers: centersResult.data || [],
+        batches: batchesResult.data || [],
+        parents: parentsResult.data || [],
+        players: playersResult.data || [],
+      };
+
+      const result = validatePlayerImportRows(
+        rows,
+        {
+          academyId,
+          ...data,
+        }
+      );
+
+      setRowValidationErrors(result.errors || []);
+      setValidRows(result.validRows || []);
+    } catch (error) {
+      resetRowValidation();
+      setValidationError(
+        error?.message ||
+          "Unable to validate the player import against AcadPro data."
+      );
+    } finally {
+      setIsLoadingReferenceData(false);
+    }
+  };
+
+  const handleAcademyChange = async (event) => {
+    const academyId = event.target.value;
+
+    setSelectedAcademy(academyId);
+    resetRowValidation();
+    setValidationError("");
+
+    if (academyId && normalizedRows.length > 0) {
+      await validateRowsForAcademy(
+        normalizedRows,
+        academyId
+      );
+    }
   };
 
   const handleFileChange = async (event) => {
@@ -31,13 +180,16 @@ function PlayerImport() {
 
     setValidationError("");
     setNormalizedRows([]);
+    resetRowValidation();
 
     if (!file) {
       resetImportState();
       return;
     }
 
-    const lowerFileName = String(file.name || "").toLowerCase();
+    const lowerFileName = String(
+      file.name || ""
+    ).toLowerCase();
 
     if (
       !lowerFileName.endsWith(".xlsx") &&
@@ -79,15 +231,26 @@ function PlayerImport() {
         firstWorksheet
       );
 
-      setNormalizedRows(result.rows || []);
+      const rows = result.rows || [];
+
+      setNormalizedRows(rows);
+
+      if (selectedAcademy) {
+        await validateRowsForAcademy(
+          rows,
+          selectedAcademy
+        );
+      }
     } catch (error) {
       setSelectedFile(file);
       setFileName(file.name);
       setWorksheetNames([]);
       setSelectedWorksheet("");
       setNormalizedRows([]);
+      resetRowValidation();
       setValidationError(
-        error?.message || "Unable to read the Excel file."
+        error?.message ||
+          "Unable to read the Excel file."
       );
     }
   };
@@ -98,6 +261,7 @@ function PlayerImport() {
     setSelectedWorksheet(worksheetName);
     setValidationError("");
     setNormalizedRows([]);
+    resetRowValidation();
 
     if (!selectedFile || !worksheetName) {
       return;
@@ -109,10 +273,20 @@ function PlayerImport() {
         worksheetName
       );
 
-      setNormalizedRows(result.rows || []);
+      const rows = result.rows || [];
+
+      setNormalizedRows(rows);
+
+      if (selectedAcademy) {
+        await validateRowsForAcademy(
+          rows,
+          selectedAcademy
+        );
+      }
     } catch (error) {
       setValidationError(
-        error?.message || "Unable to validate the selected worksheet."
+        error?.message ||
+          "Unable to validate the selected worksheet."
       );
     }
   };
@@ -132,9 +306,32 @@ function PlayerImport() {
       <h2>Player Import</h2>
 
       <p>
-        Download the template, prepare the player data, then upload the
-        completed Excel file for validation and preview.
+        Download the template, prepare the player data, then
+        upload the completed Excel file for validation and
+        preview.
       </p>
+
+      <div style={{ marginBottom: "20px" }}>
+        <label htmlFor="player-import-academy">
+          Academy *
+        </label>
+        <br />
+        <select
+          id="player-import-academy"
+          value={selectedAcademy}
+          onChange={handleAcademyChange}
+        >
+          <option value="">Select Academy</option>
+          {academies.map((academy) => (
+            <option
+              key={academy.id}
+              value={academy.id}
+            >
+              {academy.academy_name}
+            </option>
+          ))}
+        </select>
+      </div>
 
       <button
         type="button"
@@ -201,19 +398,87 @@ function PlayerImport() {
         </div>
       )}
 
+      {isLoadingReferenceData && (
+        <p role="status">
+          Validating rows against the selected academy...
+        </p>
+      )}
+
+      {selectedAcademy &&
+        normalizedRows.length > 0 &&
+        !isLoadingReferenceData &&
+        !validationError && (
+          <div
+            role="status"
+            style={{
+              marginTop: "20px",
+              padding: "12px",
+              border: "1px solid #cbd5e1",
+              borderRadius: "8px",
+            }}
+          >
+            <strong>
+              {rowValidationErrors.length === 0
+                ? validRows.length +
+                  " row" +
+                  (validRows.length === 1 ? "" : "s") +
+                  " ready for import."
+                : rowValidationErrors.length +
+                  " validation error" +
+                  (rowValidationErrors.length === 1
+                    ? ""
+                    : "s") +
+                  " found."}
+            </strong>
+          </div>
+        )}
+
+      {rowValidationErrors.length > 0 && (
+        <div
+          role="alert"
+          style={{
+            marginTop: "15px",
+            padding: "12px",
+            border: "1px solid #ef4444",
+            borderRadius: "8px",
+            backgroundColor: "#fef2f2",
+          }}
+        >
+          <strong>Row validation errors</strong>
+
+          <ul>
+            {rowValidationErrors.map((error, index) => (
+              <li
+                key={error.sourceRowNumber + "-" + index}
+              >
+                {error.sourceRowNumber
+                  ? "Row " + error.sourceRowNumber + ": "
+                  : ""}
+                {error.message}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {selectedFile && !validationError && (
         <div style={{ marginTop: "20px" }}>
           <h3>Normalized Preview</h3>
 
           {normalizedRows.length === 0 ? (
-            <p>No player data rows found in the selected worksheet.</p>
+            <p>
+              No player data rows found in the selected
+              worksheet.
+            </p>
           ) : (
             <div style={{ overflowX: "auto" }}>
               <table
                 border="1"
                 width="100%"
                 cellPadding="6"
-                style={{ borderCollapse: "collapse" }}
+                style={{
+                  borderCollapse: "collapse",
+                }}
               >
                 <thead>
                   <tr>
@@ -232,7 +497,13 @@ function PlayerImport() {
 
                 <tbody>
                   {normalizedRows.map((row) => (
-                    <tr key={`${row.sourceRowNumber}-${row.playerName}`}>
+                    <tr
+                      key={
+                        row.sourceRowNumber +
+                        "-" +
+                        row.playerName
+                      }
+                    >
                       <td>{row.sourceRowNumber}</td>
                       <td>{row.playerName}</td>
                       <td>{row.dateOfBirth}</td>
