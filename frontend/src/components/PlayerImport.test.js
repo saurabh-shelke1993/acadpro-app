@@ -25,6 +25,10 @@ jest.mock("../services/supabase", () => ({
   },
 }));
 
+jest.mock("../services/playerService", () => ({
+  importPlayersBulk: jest.fn(),
+}));
+
 const getTemplateMock = () =>
   jest.requireMock("../utils/playerImportTemplate")
     .downloadPlayerImportTemplate;
@@ -44,6 +48,10 @@ const getAcademiesMock = () =>
 const getSupabaseMock = () =>
   jest.requireMock("../services/supabase")
     .supabase;
+
+const getImportPlayersBulkMock = () =>
+  jest.requireMock("../services/playerService")
+    .importPlayersBulk;
 
 const createMockFile = (
   rows,
@@ -118,6 +126,12 @@ describe("PlayerImport", () => {
           parentEmail: "test.parent@example.com",
         },
       ],
+    });
+
+    getImportPlayersBulkMock().mockResolvedValue({
+      importedPlayerCount: 1,
+      createdParentCount: 1,
+      reusedParentCount: 0,
     });
 
     getValidatorMock().mockReturnValue({
@@ -346,6 +360,94 @@ describe("PlayerImport", () => {
 
     expect(
       screen.getByText("1 row ready for import.")
+    ).toBeInTheDocument();
+  });
+
+  test("imports validated players and shows the import result", async () => {
+    window.confirm = jest.fn(() => true);
+
+    render(
+      <PlayerImport
+        loggedInUser={{
+          id: "user-1",
+          role: "super_admin",
+        }}
+      />
+    );
+
+    const file = createMockFile([
+      [
+        "Player Name",
+        "Date of Birth",
+        "Parent Name",
+        "Parent Phone",
+        "Center",
+        "Batch",
+      ],
+      [
+        "Test Player",
+        "2010-04-04",
+        "Test Parent",
+        "9000000000",
+        "Wakad",
+        "U14",
+      ],
+    ]);
+
+    fireEvent.change(
+      screen.getByLabelText("Excel File"),
+      {
+        target: {
+          files: [file],
+        },
+      }
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByLabelText("Worksheet")
+      ).toBeInTheDocument();
+    });
+
+    fireEvent.change(
+      screen.getByLabelText("Academy *"),
+      {
+        target: {
+          value: "academy-1",
+        },
+      }
+    );
+
+    const importButton = await screen.findByRole(
+      "button",
+      {
+        name: "Import 1 Player",
+      }
+    );
+
+    fireEvent.click(importButton);
+
+    await waitFor(() => {
+      expect(
+        getImportPlayersBulkMock()
+      ).toHaveBeenCalledWith(
+        "academy-1",
+        expect.arrayContaining([
+          expect.objectContaining({
+            playerName: "Test Player",
+            resolvedCenterId: "center-1",
+            resolvedBatchId: "batch-1",
+          }),
+        ])
+      );
+    });
+
+    expect(
+      screen.getByText("Import completed successfully.")
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByText(/Players imported: 1/)
     ).toBeInTheDocument();
   });
 
