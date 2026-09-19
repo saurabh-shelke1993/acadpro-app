@@ -4,12 +4,17 @@ import PlayerImport from "./PlayerImport";
 import { downloadPlayerImportTemplate } from "../utils/playerImportTemplate";
 import { parsePlayerImportWorkbook } from "../utils/playerImportParser";
 
+const mockDownloadPlayerImportTemplate = jest.fn();
+const mockParsePlayerImportWorkbook = jest.fn();
+
 jest.mock("../utils/playerImportTemplate", () => ({
-  downloadPlayerImportTemplate: jest.fn(),
+  downloadPlayerImportTemplate: (...args) =>
+    mockDownloadPlayerImportTemplate(...args),
 }));
 
 jest.mock("../utils/playerImportParser", () => ({
-  parsePlayerImportWorkbook: jest.fn(),
+  parsePlayerImportWorkbook: (...args) =>
+    mockParsePlayerImportWorkbook(...args),
 }));
 
 jest.mock("xlsx", () => ({
@@ -27,7 +32,7 @@ describe("PlayerImport", () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    parsePlayerImportWorkbook.mockResolvedValue({
+    mockParsePlayerImportWorkbook.mockResolvedValue({
       rows: [
         {
           sourceRowNumber: 2,
@@ -101,7 +106,7 @@ describe("PlayerImport", () => {
     ).toBeInTheDocument();
 
     expect(
-      parsePlayerImportWorkbook
+      mockParsePlayerImportWorkbook
     ).toHaveBeenCalledWith(
       expect.objectContaining({ name: "players.xlsx" }),
       "Player Data"
@@ -109,7 +114,7 @@ describe("PlayerImport", () => {
   });
 
   test("shows parser validation errors", async () => {
-    parsePlayerImportWorkbook.mockRejectedValueOnce(
+    mockParsePlayerImportWorkbook.mockRejectedValueOnce(
       new Error(
         "Missing required columns: Batch"
       )
