@@ -257,5 +257,5 @@ begin
 end;
 $function$;
 
+revoke execute on function public.import_players_bulk(uuid, jsonb) from public;
 grant execute on function public.import_players_bulk(uuid, jsonb) to authenticated;
-revoke execute on function public.import_players_bulk(uuid, jsonb) from anon;
