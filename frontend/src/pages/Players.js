@@ -19,6 +19,7 @@ import {
 } from "../utils/dataScope";
 
 import Layout from "../components/Layout";
+import PlayerImport from "../components/PlayerImport";
 
 function Players() {
  const [loggedInUser, setLoggedInUser] =
@@ -968,6 +969,8 @@ return (
     </button>
   </>
 )}
+      {isSuperAdmin(loggedInUser) && <PlayerImport />}
+
       <hr />
 
       <h2>Players List</h2>
