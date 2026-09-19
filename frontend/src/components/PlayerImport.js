@@ -22,7 +22,10 @@ import {
   importPlayersBulk,
 } from "../services/playerService";
 
-function PlayerImport({ loggedInUser }) {
+function PlayerImport({
+  loggedInUser,
+  onImportComplete,
+}) {
   const [academies, setAcademies] = useState([]);
   const [selectedAcademy, setSelectedAcademy] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
@@ -175,6 +178,7 @@ function PlayerImport({ loggedInUser }) {
     setSelectedAcademy(academyId);
     resetRowValidation();
     setValidationError("");
+    setImportResult(null);
 
     if (academyId && normalizedRows.length > 0) {
       await validateRowsForAcademy(
@@ -190,6 +194,7 @@ function PlayerImport({ loggedInUser }) {
     setValidationError("");
     setNormalizedRows([]);
     resetRowValidation();
+    setImportResult(null);
 
     if (!file) {
       resetImportState();
@@ -296,6 +301,10 @@ function PlayerImport({ loggedInUser }) {
       );
 
       setImportResult(result);
+
+      if (onImportComplete) {
+        onImportComplete();
+      }
     } catch (error) {
       setValidationError(
         error?.message ||
@@ -313,6 +322,7 @@ function PlayerImport({ loggedInUser }) {
     setValidationError("");
     setNormalizedRows([]);
     resetRowValidation();
+    setImportResult(null);
 
     if (!selectedFile || !worksheetName) {
       return;
