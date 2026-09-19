@@ -82,7 +82,7 @@ const findExistingPlayerMatches = (
       player.academy_id === academyId &&
       normalizeKey(player.full_name) === normalizedPlayerName &&
       normalizePhone(
-        player.parent_phone ?? player.parents?.phone
+        player.parent_phone ?? player.phone ?? player.parents?.phone
       ) === normalizedParentPhone
   );
 };
