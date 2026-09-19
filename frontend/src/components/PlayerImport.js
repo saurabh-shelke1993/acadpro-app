@@ -18,6 +18,10 @@ import {
   validatePlayerImportRows,
 } from "../utils/playerImportValidator";
 
+import {
+  importPlayersBulk,
+} from "../services/playerService";
+
 function PlayerImport({ loggedInUser }) {
   const [academies, setAcademies] = useState([]);
   const [selectedAcademy, setSelectedAcademy] = useState("");
@@ -31,6 +35,8 @@ function PlayerImport({ loggedInUser }) {
   const [fileName, setFileName] = useState("");
   const [isLoadingReferenceData, setIsLoadingReferenceData] =
     useState(false);
+  const [isImporting, setIsImporting] = useState(false);
+  const [importResult, setImportResult] = useState(null);
 
   useEffect(() => {
     const loadAcademies = async () => {
@@ -68,7 +74,9 @@ function PlayerImport({ loggedInUser }) {
     setValidationError("");
     setNormalizedRows([]);
     resetRowValidation();
+    setImportResult(null);
     setFileName("");
+    setImportResult(null);
   };
 
   const validateRowsForAcademy = async (
@@ -256,6 +264,48 @@ function PlayerImport({ loggedInUser }) {
     }
   };
 
+  const handleImport = async () => {
+    if (
+      !selectedAcademy ||
+      rowValidationErrors.length > 0 ||
+      validRows.length === 0
+    ) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      "Import " +
+        validRows.length +
+        " player" +
+        (validRows.length === 1 ? "" : "s") +
+        " into the selected academy?"
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setIsImporting(true);
+    setValidationError("");
+    setImportResult(null);
+
+    try {
+      const result = await importPlayersBulk(
+        selectedAcademy,
+        validRows
+      );
+
+      setImportResult(result);
+    } catch (error) {
+      setValidationError(
+        error?.message ||
+          "Unable to import the players."
+      );
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
   const handleWorksheetChange = async (event) => {
     const worksheetName = event.target.value;
 
@@ -433,6 +483,58 @@ function PlayerImport({ loggedInUser }) {
             </strong>
           </div>
         )}
+
+      {selectedAcademy &&
+        normalizedRows.length > 0 &&
+        rowValidationErrors.length === 0 &&
+        validRows.length > 0 &&
+        !isLoadingReferenceData &&
+        !validationError &&
+        !importResult && (
+          <div style={{ marginTop: "15px" }}>
+            <button
+              type="button"
+              onClick={handleImport}
+              disabled={isImporting}
+            >
+              {isImporting
+                ? "Importing..."
+                : "Import " +
+                  validRows.length +
+                  " Player" +
+                  (validRows.length === 1 ? "" : "s")}
+            </button>
+          </div>
+        )}
+
+      {importResult && (
+        <div
+          role="status"
+          style={{
+            marginTop: "15px",
+            padding: "12px",
+            border: "1px solid #16a34a",
+            borderRadius: "8px",
+            backgroundColor: "#f0fdf4",
+          }}
+        >
+          <strong>Import completed successfully.</strong>
+          <ul>
+            <li>
+              Players imported:{" "}
+              {importResult.importedPlayerCount}
+            </li>
+            <li>
+              New parents created:{" "}
+              {importResult.createdParentCount}
+            </li>
+            <li>
+              Existing parents reused:{" "}
+              {importResult.reusedParentCount}
+            </li>
+          </ul>
+        </div>
+      )}
 
       {rowValidationErrors.length > 0 && (
         <div
