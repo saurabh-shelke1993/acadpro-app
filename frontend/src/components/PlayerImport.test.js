@@ -51,15 +51,15 @@ describe("PlayerImport", () => {
       rows: [
         {
           sourceRowNumber: 2,
-          playerName: "Rahul Sharma",
-          dateOfBirth: "2014-08-21",
-          parentName: "Amit Sharma",
-          parentPhone: "9876543210",
+          playerName: "Test Player",
+          dateOfBirth: "2010-04-04",
+          parentName: "Test Parent",
+          parentPhone: "9000000000",
           center: "Wakad",
           batch: "U14",
           gender: "Male",
           joiningDate: "2026-06-01",
-          parentEmail: "amit@example.com",
+          parentEmail: "test.parent@example.com",
         },
       ],
     });
@@ -106,10 +106,10 @@ describe("PlayerImport", () => {
         "Batch",
       ],
       [
-        "Rahul Sharma",
-        "2014-08-21",
-        "Amit Sharma",
-        "9876543210",
+        "Test Player",
+        "2010-04-04",
+        "Test Parent",
+        "9000000000",
         "Wakad",
         "U14",
       ],
@@ -137,7 +137,7 @@ describe("PlayerImport", () => {
     ).toBeInTheDocument();
 
     expect(
-      screen.getByText("Rahul Sharma")
+      screen.getByText("Test Player")
     ).toBeInTheDocument();
 
     expect(
@@ -168,10 +168,10 @@ describe("PlayerImport", () => {
         "Center",
       ],
       [
-        "Rahul Sharma",
-        "2014-08-21",
-        "Amit Sharma",
-        "9876543210",
+        "Test Player",
+        "2010-04-04",
+        "Test Parent",
+        "9000000000",
         "Wakad",
       ],
     ]);
@@ -194,7 +194,7 @@ describe("PlayerImport", () => {
     });
 
     expect(
-      screen.queryByText("Rahul Sharma")
+      screen.queryByText("Test Player")
     ).not.toBeInTheDocument();
   });
 
@@ -212,10 +212,10 @@ describe("PlayerImport", () => {
           "Batch",
         ],
         [
-          "Rahul Sharma",
-          "2014-08-21",
-          "Amit Sharma",
-          "9876543210",
+          "Test Player",
+          "2010-04-04",
+          "Test Parent",
+          "9000000000",
           "Wakad",
           "U14",
         ],
