@@ -45,15 +45,15 @@ describe("buildPlayerImportTemplateWorkbook", () => {
 
     expect(rows).toHaveLength(3);
     expect(rows[1]).toEqual([
-      "Rahul Sharma",
-      "2014-08-21",
-      "Amit Sharma",
-      "9876543210",
+      "Test Player",
+      "2010-04-04",
+      "Test Parent",
+      "9000000000",
       "Wakad",
       "U14",
       "Male",
       "2026-06-01",
-      "amit@example.com",
+      "test.parent@example.com",
     ]);
   });
 
@@ -61,7 +61,7 @@ describe("buildPlayerImportTemplateWorkbook", () => {
     const workbook = buildPlayerImportTemplateWorkbook();
     const worksheet = workbook.Sheets[PLAYER_IMPORT_TEMPLATE_SHEET_NAME];
 
-    expect(worksheet.D2.v).toBe("9876543210");
+    expect(worksheet.D2.v).toBe("9000000000");
     expect(worksheet.D2.t).toBe("s");
     expect(worksheet.D2.z).toBe("@");
   });
