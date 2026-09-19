@@ -74,7 +74,7 @@ describe("PlayerImport", () => {
       })
     );
 
-    expect(downloadPlayerImportTemplate).toHaveBeenCalledTimes(1);
+    expect(getTemplateMock()).toHaveBeenCalledTimes(1);
   });
 
   test("shows worksheet selection and normalized preview after upload", async () => {
@@ -163,8 +163,6 @@ describe("PlayerImport", () => {
       "Only .xlsx and .xls files are supported."
     );
 
-    expect(
-      parsePlayerImportWorkbook
-    ).not.toHaveBeenCalled();
+    expect(getParserMock()).not.toHaveBeenCalled();
   });
 });
