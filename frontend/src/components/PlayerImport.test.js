@@ -11,6 +11,20 @@ jest.mock("../utils/playerImportParser", () => ({
   parsePlayerImportWorkbook: jest.fn(),
 }));
 
+jest.mock("../utils/playerImportValidator", () => ({
+  validatePlayerImportRows: jest.fn(),
+}));
+
+jest.mock("../utils/dataScope", () => ({
+  getAccessibleAcademies: jest.fn(),
+}));
+
+jest.mock("../services/supabase", () => ({
+  supabase: {
+    from: jest.fn(),
+  },
+}));
+
 const getTemplateMock = () =>
   jest.requireMock("../utils/playerImportTemplate")
     .downloadPlayerImportTemplate;
@@ -18,6 +32,18 @@ const getTemplateMock = () =>
 const getParserMock = () =>
   jest.requireMock("../utils/playerImportParser")
     .parsePlayerImportWorkbook;
+
+const getValidatorMock = () =>
+  jest.requireMock("../utils/playerImportValidator")
+    .validatePlayerImportRows;
+
+const getAcademiesMock = () =>
+  jest.requireMock("../utils/dataScope")
+    .getAccessibleAcademies;
+
+const getSupabaseMock = () =>
+  jest.requireMock("../services/supabase")
+    .supabase;
 
 const createMockFile = (
   rows,
@@ -43,9 +69,39 @@ const createMockFile = (
   };
 };
 
+const createSupabaseQueryMock = (data = []) => {
+  const query = {
+    select: jest.fn(),
+    eq: jest.fn(),
+    then: jest.fn(),
+  };
+
+  query.select.mockReturnValue(query);
+  query.eq.mockReturnValue(query);
+  query.then.mockImplementation((resolve, reject) =>
+    Promise.resolve({
+      data,
+      error: null,
+    }).then(resolve, reject)
+  );
+
+  return query;
+};
+
 describe("PlayerImport", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+
+    getAcademiesMock().mockResolvedValue([
+      {
+        id: "academy-1",
+        academy_name: "Thane City FC",
+      },
+    ]);
+
+    getSupabaseMock().from.mockImplementation(() =>
+      createSupabaseQueryMock([])
+    );
 
     getParserMock().mockResolvedValue({
       rows: [
@@ -63,10 +119,54 @@ describe("PlayerImport", () => {
         },
       ],
     });
+
+    getValidatorMock().mockReturnValue({
+      isValid: true,
+      errors: [],
+      validRows: [
+        {
+          sourceRowNumber: 2,
+          playerName: "Test Player",
+          resolvedCenterId: "center-1",
+          resolvedBatchId: "batch-1",
+          existingParentId: null,
+        },
+      ],
+    });
   });
 
-  test("renders template download and Excel upload controls", () => {
-    render(<PlayerImport />);
+  test("renders academy selection for the import", async () => {
+    render(
+      <PlayerImport
+        loggedInUser={{
+          id: "user-1",
+          role: "super_admin",
+        }}
+      />
+    );
+
+    expect(
+      screen.getByLabelText("Academy *")
+    ).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("option", {
+          name: "Thane City FC",
+        })
+      ).toBeInTheDocument();
+    });
+  });
+
+  test("renders template download and Excel upload controls", async () => {
+    render(
+      <PlayerImport
+        loggedInUser={{
+          id: "user-1",
+          role: "super_admin",
+        }}
+      />
+    );
 
     expect(
       screen.getByRole("button", {
@@ -77,10 +177,21 @@ describe("PlayerImport", () => {
     expect(
       screen.getByLabelText("Excel File")
     ).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(getAcademiesMock()).toHaveBeenCalled();
+    });
   });
 
   test("downloads the player import template when requested", () => {
-    render(<PlayerImport />);
+    render(
+      <PlayerImport
+        loggedInUser={{
+          id: "user-1",
+          role: "super_admin",
+        }}
+      />
+    );
 
     fireEvent.click(
       screen.getByRole("button", {
@@ -94,7 +205,14 @@ describe("PlayerImport", () => {
   });
 
   test("shows worksheet selection and normalized preview after upload", async () => {
-    render(<PlayerImport />);
+    render(
+      <PlayerImport
+        loggedInUser={{
+          id: "user-1",
+          role: "super_admin",
+        }}
+      />
+    );
 
     const file = createMockFile([
       [
@@ -150,6 +268,153 @@ describe("PlayerImport", () => {
     );
   });
 
+  test("validates uploaded rows against the selected academy", async () => {
+    render(
+      <PlayerImport
+        loggedInUser={{
+          id: "user-1",
+          role: "super_admin",
+        }}
+      />
+    );
+
+    const file = createMockFile([
+      [
+        "Player Name",
+        "Date of Birth",
+        "Parent Name",
+        "Parent Phone",
+        "Center",
+        "Batch",
+      ],
+      [
+        "Test Player",
+        "2010-04-04",
+        "Test Parent",
+        "9000000000",
+        "Wakad",
+        "U14",
+      ],
+    ]);
+
+    fireEvent.change(
+      screen.getByLabelText("Excel File"),
+      {
+        target: {
+          files: [file],
+        },
+      }
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByLabelText("Worksheet")
+      ).toBeInTheDocument();
+    });
+
+    fireEvent.change(
+      screen.getByLabelText("Academy *"),
+      {
+        target: {
+          value: "academy-1",
+        },
+      }
+    );
+
+    await waitFor(() => {
+      expect(
+        getValidatorMock()
+      ).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({
+            playerName: "Test Player",
+          }),
+        ]),
+        expect.objectContaining({
+          academyId: "academy-1",
+        })
+      );
+    });
+
+    expect(
+      screen.getByText("1 row ready for import.")
+    ).toBeInTheDocument();
+  });
+
+  test("shows row-level validation errors", async () => {
+    getValidatorMock().mockReturnValue({
+      isValid: false,
+      validRows: [],
+      errors: [
+        {
+          sourceRowNumber: 4,
+          message:
+            'Center "Unknown Center" was not found in the selected academy.',
+        },
+      ],
+    });
+
+    render(
+      <PlayerImport
+        loggedInUser={{
+          id: "user-1",
+          role: "super_admin",
+        }}
+      />
+    );
+
+    const file = createMockFile([
+      [
+        "Player Name",
+        "Date of Birth",
+        "Parent Name",
+        "Parent Phone",
+        "Center",
+        "Batch",
+      ],
+      [
+        "Test Player",
+        "2010-04-04",
+        "Test Parent",
+        "9000000000",
+        "Unknown Center",
+        "U14",
+      ],
+    ]);
+
+    fireEvent.change(
+      screen.getByLabelText("Excel File"),
+      {
+        target: {
+          files: [file],
+        },
+      }
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByLabelText("Worksheet")
+      ).toBeInTheDocument();
+    });
+
+    fireEvent.change(
+      screen.getByLabelText("Academy *"),
+      {
+        target: {
+          value: "academy-1",
+        },
+      }
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          'Row 4: Center "Unknown Center" was not found in the selected academy.'
+        )
+      ).toBeInTheDocument();
+    });
+  });
+
   test("shows parser validation errors", async () => {
     getParserMock().mockRejectedValueOnce(
       new Error(
@@ -157,7 +422,14 @@ describe("PlayerImport", () => {
       )
     );
 
-    render(<PlayerImport />);
+    render(
+      <PlayerImport
+        loggedInUser={{
+          id: "user-1",
+          role: "super_admin",
+        }}
+      />
+    );
 
     const file = createMockFile([
       [
@@ -199,7 +471,14 @@ describe("PlayerImport", () => {
   });
 
   test("rejects unsupported file extensions before parsing", async () => {
-    render(<PlayerImport />);
+    render(
+      <PlayerImport
+        loggedInUser={{
+          id: "user-1",
+          role: "super_admin",
+        }}
+      />
+    );
 
     const file = createMockFile(
       [
