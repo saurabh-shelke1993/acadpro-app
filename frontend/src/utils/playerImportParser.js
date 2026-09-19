@@ -182,9 +182,13 @@ export const parsePlayerImportWorkbook = async (file, worksheetName) => {
   const actualHeaders = headerRow.map((header) => normalizeText(header));
   const normalizedActualHeaders = actualHeaders.map(normalizeHeader);
 
+  const canonicalHeaders = normalizedActualHeaders
+    .map((header) => headerMap[header])
+    .filter(Boolean);
+
   const missingRequiredColumns = REQUIRED_PLAYER_IMPORT_COLUMNS.filter(
     (requiredColumn) =>
-      !normalizedActualHeaders.includes(normalizeHeader(requiredColumn))
+      !canonicalHeaders.includes(requiredColumn)
   );
 
   if (missingRequiredColumns.length > 0) {
