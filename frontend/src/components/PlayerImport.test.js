@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import * as XLSX from "xlsx";
 
 import PlayerImport from "./PlayerImport";
 
@@ -10,12 +11,6 @@ jest.mock("../utils/playerImportParser", () => ({
   parsePlayerImportWorkbook: jest.fn(),
 }));
 
-jest.mock("xlsx", () => ({
-  read: jest.fn(() => ({
-    SheetNames: ["Player Data", "Instructions"],
-  })),
-}));
-
 const getTemplateMock = () =>
   jest.requireMock("../utils/playerImportTemplate")
     .downloadPlayerImportTemplate;
@@ -24,10 +19,29 @@ const getParserMock = () =>
   jest.requireMock("../utils/playerImportParser")
     .parsePlayerImportWorkbook;
 
-const createMockFile = (name = "players.xlsx") => ({
-  name,
-  arrayBuffer: async () => new ArrayBuffer(8),
-});
+const createMockFile = (
+  rows,
+  fileName = "players.xlsx"
+) => {
+  const worksheet = XLSX.utils.aoa_to_sheet(rows);
+  const workbook = XLSX.utils.book_new();
+
+  XLSX.utils.book_append_sheet(
+    workbook,
+    worksheet,
+    "Player Data"
+  );
+
+  const arrayBuffer = XLSX.write(workbook, {
+    bookType: "xlsx",
+    type: "array",
+  });
+
+  return {
+    name: fileName,
+    arrayBuffer: async () => arrayBuffer,
+  };
+};
 
 describe("PlayerImport", () => {
   beforeEach(() => {
@@ -74,19 +88,41 @@ describe("PlayerImport", () => {
       })
     );
 
-    expect(getTemplateMock()).toHaveBeenCalledTimes(1);
+    expect(
+      getTemplateMock()
+    ).toHaveBeenCalledTimes(1);
   });
 
   test("shows worksheet selection and normalized preview after upload", async () => {
     render(<PlayerImport />);
 
-    const fileInput = screen.getByLabelText("Excel File");
+    const file = createMockFile([
+      [
+        "Player Name",
+        "Date of Birth",
+        "Parent Name",
+        "Parent Phone",
+        "Center",
+        "Batch",
+      ],
+      [
+        "Rahul Sharma",
+        "2014-08-21",
+        "Amit Sharma",
+        "9876543210",
+        "Wakad",
+        "U14",
+      ],
+    ]);
 
-    fireEvent.change(fileInput, {
-      target: {
-        files: [createMockFile()],
-      },
-    });
+    fireEvent.change(
+      screen.getByLabelText("Excel File"),
+      {
+        target: {
+          files: [file],
+        },
+      }
+    );
 
     await waitFor(() => {
       expect(
@@ -95,11 +131,9 @@ describe("PlayerImport", () => {
     });
 
     expect(
-      screen.getByRole("option", { name: "Player Data" })
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByRole("option", { name: "Instructions" })
+      screen.getByRole("option", {
+        name: "Player Data",
+      })
     ).toBeInTheDocument();
 
     expect(
@@ -109,7 +143,9 @@ describe("PlayerImport", () => {
     expect(
       getParserMock()
     ).toHaveBeenCalledWith(
-      expect.objectContaining({ name: "players.xlsx" }),
+      expect.objectContaining({
+        name: "players.xlsx",
+      }),
       "Player Data"
     );
   });
@@ -123,11 +159,28 @@ describe("PlayerImport", () => {
 
     render(<PlayerImport />);
 
+    const file = createMockFile([
+      [
+        "Player Name",
+        "Date of Birth",
+        "Parent Name",
+        "Parent Phone",
+        "Center",
+      ],
+      [
+        "Rahul Sharma",
+        "2014-08-21",
+        "Amit Sharma",
+        "9876543210",
+        "Wakad",
+      ],
+    ]);
+
     fireEvent.change(
       screen.getByLabelText("Excel File"),
       {
         target: {
-          files: [createMockFile()],
+          files: [file],
         },
       }
     );
@@ -148,11 +201,33 @@ describe("PlayerImport", () => {
   test("rejects unsupported file extensions before parsing", async () => {
     render(<PlayerImport />);
 
+    const file = createMockFile(
+      [
+        [
+          "Player Name",
+          "Date of Birth",
+          "Parent Name",
+          "Parent Phone",
+          "Center",
+          "Batch",
+        ],
+        [
+          "Rahul Sharma",
+          "2014-08-21",
+          "Amit Sharma",
+          "9876543210",
+          "Wakad",
+          "U14",
+        ],
+      ],
+      "players.csv"
+    );
+
     fireEvent.change(
       screen.getByLabelText("Excel File"),
       {
         target: {
-          files: [createMockFile("players.csv")],
+          files: [file],
         },
       }
     );
@@ -163,6 +238,8 @@ describe("PlayerImport", () => {
       "Only .xlsx and .xls files are supported."
     );
 
-    expect(getParserMock()).not.toHaveBeenCalled();
+    expect(
+      getParserMock()
+    ).not.toHaveBeenCalled();
   });
 });
