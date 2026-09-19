@@ -65,7 +65,7 @@ begin
     v_parent_name := nullif(trim(v_row->>'parentName'), '');
     v_parent_phone := regexp_replace(
       coalesce(v_row->>'parentPhone', ''),
-      '\\D',
+      '[^0-9]',
       '',
       'g'
     );
