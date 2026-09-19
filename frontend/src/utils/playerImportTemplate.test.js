@@ -29,8 +29,15 @@ describe("buildPlayerImportTemplateWorkbook", () => {
     });
 
     expect(rows[0]).toEqual([
-      ...REQUIRED_PLAYER_IMPORT_COLUMNS,
-      ...OPTIONAL_PLAYER_IMPORT_COLUMNS,
+      "Player Name",
+      "Date of Birth (DD-MM-YYYY)",
+      "Parent Name",
+      "Parent Phone",
+      "Center",
+      "Batch",
+      "Gender",
+      "Date of joining (DD-MM-YYYY)",
+      "Parent Email Address",
     ]);
   });
 
@@ -46,13 +53,13 @@ describe("buildPlayerImportTemplateWorkbook", () => {
     expect(rows).toHaveLength(3);
     expect(rows[1]).toEqual([
       "Test Player",
-      "2010-04-04",
+      "04-04-2010",
       "Test Parent",
       "9000000000",
       "Wakad",
       "U14",
       "Male",
-      "2026-06-01",
+      "01-06-2026",
       "test.parent@example.com",
     ]);
   });
