@@ -123,7 +123,7 @@ const isEmptyRow = (row) => {
   );
 };
 
-export const parsePlayerImportWorkbook = async (file) => {
+export const parsePlayerImportWorkbook = async (file, worksheetName) => {
   if (!file) {
     throw new Error("Please select an Excel file.");
   }
@@ -145,8 +145,15 @@ export const parsePlayerImportWorkbook = async (file) => {
     throw new Error("The workbook does not contain any worksheets.");
   }
 
-  const firstSheetName = workbook.SheetNames[0];
-  const worksheet = workbook.Sheets[firstSheetName];
+  const selectedWorksheetName = worksheetName || workbook.SheetNames[0];
+
+  if (!workbook.SheetNames.includes(selectedWorksheetName)) {
+    throw new Error(
+      `Worksheet "${selectedWorksheetName}" was not found in the workbook.`
+    );
+  }
+
+  const worksheet = workbook.Sheets[selectedWorksheetName];
 
   // Read rows as arrays so the physical worksheet row index is preserved.
   // `blankrows: true` is required so blank rows inside the worksheet are not
@@ -159,7 +166,9 @@ export const parsePlayerImportWorkbook = async (file) => {
   });
 
   if (rawRows.length <= 1) {
-    throw new Error("The first worksheet does not contain any data rows.");
+    throw new Error(
+      `The worksheet "${selectedWorksheetName}" does not contain any data rows.`
+    );
   }
 
   const headerMap = createHeaderMap();
@@ -266,7 +275,7 @@ export const parsePlayerImportWorkbook = async (file) => {
 
   return {
     fileName: file.name,
-    worksheetName: firstSheetName,
+    worksheetName: selectedWorksheetName,
     totalRows: normalizedRows.length,
     rows: normalizedRows,
   };
