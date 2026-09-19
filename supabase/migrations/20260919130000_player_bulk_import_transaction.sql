@@ -147,12 +147,24 @@ begin
       )
     );
 
-    select count(*), min(id)
-    into v_parent_count, v_parent_id
+    select count(*)
+    into v_parent_count
     from public.parents
     where academy_id = p_academy_id
       and phone = v_parent_phone
       and is_active = true;
+
+    if v_parent_count = 1 then
+      select id
+      into v_parent_id
+      from public.parents
+      where academy_id = p_academy_id
+        and phone = v_parent_phone
+        and is_active = true
+      limit 1;
+    else
+      v_parent_id := null;
+    end if;
 
     if v_parent_count > 1 then
       raise exception
