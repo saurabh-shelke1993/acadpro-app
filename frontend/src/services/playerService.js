@@ -56,6 +56,87 @@ export const getPlayers = async (
   return data || [];
 };
 
+
+// ============================================
+// CREATE PLAYER TRANSACTIONALLY
+// ============================================
+
+export const createPlayerTransactional = async ({
+  academyId,
+  parentName,
+  parentPhone,
+  parentEmail,
+  parentAddress,
+  fullName,
+  dob,
+  gender,
+  joiningDate,
+  centerId,
+  batchId,
+}) => {
+  const { data, error } = await supabase.rpc(
+    "create_player_transactional",
+    {
+      p_academy_id: academyId,
+      p_parent_name: parentName,
+      p_parent_phone: parentPhone,
+      p_parent_email: parentEmail,
+      p_parent_address: parentAddress,
+      p_full_name: fullName,
+      p_dob: dob,
+      p_gender: gender,
+      p_joining_date: joiningDate,
+      p_center_id: centerId,
+      p_batch_id: batchId,
+    }
+  );
+
+  if (error) throw error;
+  return data;
+};
+
+// ============================================
+// UPDATE PLAYER TRANSACTIONALLY
+// ============================================
+
+export const updatePlayerTransactional = async ({
+  playerId,
+  academyId,
+  parentId,
+  parentName,
+  parentPhone,
+  parentEmail,
+  parentAddress,
+  fullName,
+  dob,
+  gender,
+  joiningDate,
+  centerId,
+  batchId,
+}) => {
+  const { data, error } = await supabase.rpc(
+    "update_player_transactional",
+    {
+      p_player_id: playerId,
+      p_academy_id: academyId,
+      p_parent_id: parentId,
+      p_parent_name: parentName,
+      p_parent_phone: parentPhone,
+      p_parent_email: parentEmail,
+      p_parent_address: parentAddress,
+      p_full_name: fullName,
+      p_dob: dob,
+      p_gender: gender,
+      p_joining_date: joiningDate,
+      p_center_id: centerId,
+      p_batch_id: batchId,
+    }
+  );
+
+  if (error) throw error;
+  return data;
+};
+
 // ============================================
 // CREATE PARENT
 // ============================================
