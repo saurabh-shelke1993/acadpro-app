@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../services/supabase";
+import {
+  createPlayerTransactional,
+  updatePlayerTransactional,
+} from "../services/playerService";
 
 import {
   getLoggedInUser,
@@ -490,82 +494,30 @@ if (!joiningDate) {
     return;
   }
 
-const { data: parentData, error: parentError } =
-  await supabase
-    .from("parents")
-    .insert([
-      {
-        academy_id: academyId,
-        parent_name: parentName,
-        phone: parentPhone,
-        email: parentEmail,
-        address: parentAddress,
-        is_active: true,
-      },
-    ])
-    .select();
+  try {
+    await createPlayerTransactional({
+      academyId,
+      parentName,
+      parentPhone,
+      parentEmail,
+      parentAddress,
+      fullName,
+      dob,
+      gender,
+      joiningDate,
+      centerId: selectedCenter,
+      batchId: selectedBatch,
+    });
 
-    if (parentError) {
-      alert(parentError.message);
-      return;
-    }
-
-    const parentId = parentData[0].id;
-
-    const { data: playerData, error: playerError } =
-      await supabase
-        .from("players")
-        .insert([
-{
-  academy_id: academyId,
-  center_id: selectedCenter,
-  batch_id: selectedBatch,
-  parent_id: parentId,
-  full_name: fullName,
-  dob: dob,
-  gender: gender,
-  joining_date: joiningDate,
-  player_status: "active",
-  phone: parentPhone,
-  is_active: true,
-},
-        ])
-        .select();
-
-    if (playerError) {
-      alert(playerError.message);
-      return;
-    }
-
-    const playerId = playerData[0].id;
-
-const { error: playerBatchError } =
-  await supabase
-    .from("player_batches")
-    .insert([
-      {
-        player_id: playerId,
-        batch_id: selectedBatch,
-      },
-    ]);
-
-if (playerBatchError) {
-
-  console.log(playerBatchError);
-
-  alert(
-    "Player created, but batch mapping failed."
-  );
-
-  return;
-
-}
     alert("Player Created Successfully");
 
     resetForm();
-
     fetchPlayers();
-  };
+  } catch (error) {
+    console.error("Failed to create player:", error);
+    alert(error.message || "Failed to create player.");
+  }
+};
 
   const handleEditPlayer = (player) => {
     setIsEditing(true);
@@ -606,68 +558,33 @@ const handleUpdatePlayer = async () => {
     return;
   }
 
-const { error: parentError } = await supabase
-  .from("parents")
-  .update({
-    academy_id: academyId,
-    parent_name: parentName,
-    phone: parentPhone,
-    email: parentEmail,
-    address: parentAddress
-  })
-  .eq("id", editingParentId);
-
-    if (parentError) {
-      alert(parentError.message);
-      return;
-    }
-
-const { error: playerError } = await supabase
-  .from("players")
-  .update({
-    academy_id: academyId,
-    center_id: selectedCenter,
-    batch_id: selectedBatch,
-    full_name: fullName,
-    dob: dob,
-    gender: gender,
-    joining_date: joiningDate
-  })
-  .eq("id", editingPlayerId);
-
-    if (playerError) {
-      alert(playerError.message);
-      return;
-    }
-
-const { error: playerBatchError } =
-  await supabase
-    .from("player_batches")
-    .update({
-      batch_id: selectedBatch
-    })
-    .eq("player_id", editingPlayerId);
-
-if (playerBatchError) {
-
-  console.log(playerBatchError);
-
-  alert(
-    "Player updated, but batch mapping update failed."
-  );
-
-  return;
-
-}
+  try {
+    await updatePlayerTransactional({
+      playerId: editingPlayerId,
+      academyId,
+      parentId: editingParentId,
+      parentName,
+      parentPhone,
+      parentEmail,
+      parentAddress,
+      fullName,
+      dob,
+      gender,
+      joiningDate,
+      centerId: selectedCenter,
+      batchId: selectedBatch,
+    });
 
     alert("Player Updated Successfully");
 
     resetForm();
-
     setIsEditing(false);
-
     fetchPlayers();
-  };
+  } catch (error) {
+    console.error("Failed to update player:", error);
+    alert(error.message || "Failed to update player.");
+  }
+};
 
   const handleDeletePlayer = async (id) => {
     const confirmed = window.confirm(
