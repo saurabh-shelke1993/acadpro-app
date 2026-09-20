@@ -51,12 +51,20 @@ returns trigger
 language plpgsql
 set search_path = public, private, pg_catalog
 as $function$
+declare
+  v_player_id uuid;
 begin
   if current_setting('acadpro.player_batch_transaction', true) = 'on' then
     return coalesce(NEW, OLD);
   end if;
 
-  perform public.assert_player_batch_invariant(coalesce(NEW.player_id, OLD.player_id));
+  if TG_TABLE_NAME = 'players' then
+    v_player_id := coalesce(NEW.id, OLD.id);
+  else
+    v_player_id := coalesce(NEW.player_id, OLD.player_id);
+  end if;
+
+  perform public.assert_player_batch_invariant(v_player_id);
   return coalesce(NEW, OLD);
 end;
 $function$;
