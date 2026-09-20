@@ -321,12 +321,18 @@ export const assignPlayerBatch =
       error
     } = await supabase
       .from("player_batches")
-      .insert([
+      .upsert(
         {
           player_id: playerId,
-          batch_id: batchId
+          batch_id: batchId,
+          assigned_date: new Date().toISOString().split("T")[0],
+        },
+        {
+          onConflict: "player_id",
         }
-      ]);
+      )
+      .select()
+      .single();
 
     if (error) throw error;
 
