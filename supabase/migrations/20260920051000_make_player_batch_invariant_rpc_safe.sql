@@ -363,5 +363,5 @@ revoke execute on function public.import_players_bulk(uuid,jsonb) from public;
 
 grant execute on function public.assert_player_batch_invariant(uuid) to authenticated;
 grant execute on function public.create_player_transactional(uuid,text,text,text,text,text,date,text,date,uuid,uuid) to authenticated;
-grant execute on function public.update_player_transactional(uuid,uuid,uuid,text,text,text,text,date,text,date,uuid,uuid) to authenticated;
+grant execute on function public.update_player_transactional(uuid,uuid,uuid,text,text,text,text,text,date,text,date,uuid,uuid) to authenticated;
 grant execute on function public.import_players_bulk(uuid,jsonb) to authenticated;
