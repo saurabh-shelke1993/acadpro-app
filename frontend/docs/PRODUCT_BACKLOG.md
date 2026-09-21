@@ -1,6 +1,6 @@
 # AcadPro Product Backlog
 
-**Last Updated:** 12 September 2026  
+**Last Updated:** 21 September 2026  
 **Current Branch:** `payment-module-finalization`
 
 Security and data isolation are prerequisites for production.
@@ -25,10 +25,65 @@ Security and data isolation are prerequisites for production.
 - Parent CRUD
 - Player search
 - Player-batch mapping
+- Current player-batch integrity enforcement
+- Transactional player create/update
 - Soft delete
-- Multi-batch support
 - Coach CRUD
 - Coach-batch assignment
+- Bulk Player Import for Super Admin
+
+## Player Module Hardening and Bulk Import
+
+### Player hardening
+
+- Transactional player creation and update through secured PostgreSQL functions
+- Server-side validation for academy, center, batch, parent, phone, email and gender
+- Academy Owner scope enforcement and Super Admin authorization
+- Advisory locking for player/parent-sensitive writes
+- Duplicate player protection
+- Current player-batch invariant:
+  - Active player with a current batch must have exactly one matching `player_batches` row
+  - Active player with no current batch must have zero `player_batches` rows
+  - Inactive players are excluded from the active invariant
+- Deferred database constraint validation for player/batch consistency
+- Unique active mapping enforcement
+- Reconciliation of previously inconsistent active player mappings
+- Cleanup of duplicate active parent records without deleting player rows
+- Transaction rollback regression validation
+- PostgreSQL function EXECUTE privilege hardening for transactional player functions and invariant validation
+
+### Bulk Player Import
+
+- Excel template generation
+- Dedicated import instructions sheet
+- Worksheet selection
+- Column aliases and normalization
+- Excel date handling
+- Phone normalization
+- Source-row tracking for validation errors
+- Row-level validation before database writes
+- Academy, center and batch scope validation
+- Parent reuse/create logic
+- Duplicate player detection
+- Super Admin-only import access
+- Transactional bulk insertion
+- Maximum 1000 rows per import request
+- Advisory locking by academy/parent phone
+- Atomic player + player-batch creation
+- Transactional rollback when any row fails
+- Import summary showing imported, created-parent and reused-parent counts
+
+### Verification
+
+- Browser regression for player create/edit/batch-change/RBAC scenarios
+- Invalid center/batch rejection verified
+- Duplicate player rejection verified
+- Forced transaction rollback verified
+- Academy Owner cross-academy create/edit restrictions verified
+- Super Admin bulk import verified
+- Bulk import rollback verified
+- Jest: 34/34 tests passed
+- Production build completed successfully
 
 ## Attendance and Subscriptions
 

@@ -1,6 +1,6 @@
 # AcadPro Project Status
 
-**Last Updated:** 12 September 2026  
+**Last Updated:** 21 September 2026  
 **Current Version:** V1.0 Beta  
 **Current Git Branch:** `payment-module-finalization`
 
@@ -27,6 +27,33 @@ Completed:
 
 Manual validation covered Super Admin, Academy Owner, Coach and Parent scenarios, cross-academy access, mutation attempts and direct ID/URL tampering.
 
+### Phase 5.2 — Player Module Hardening & Bulk Import: COMPLETE
+
+Completed:
+
+- Transactional player create/update functions
+- Server-side validation and role/academy scope enforcement
+- Player/parent duplicate protection
+- Player-batch invariant enforcement
+- Deferred invariant validation and unique current mapping protection
+- Reconciliation of active player-batch inconsistencies
+- Cleanup of duplicate active parent records without deleting player rows
+- Function EXECUTE privilege hardening
+- Excel-based Bulk Player Import
+- Import parser, validator, template and preview workflow
+- Super Admin-only import authorization
+- Transactional bulk insert with parent reuse/create
+- Bulk import rollback and duplicate rejection testing
+
+Verification baseline:
+
+- Browser player create/edit/batch-change regression passed
+- Academy Owner cross-academy authorization tests passed
+- Forced transaction rollback test passed
+- Bulk Player Import success and rollback tests passed
+- Jest: 5 suites passed, 34 tests passed
+- Production build completed successfully
+
 ## 3. Module Status
 
 | Module | Status | Current State |
@@ -37,7 +64,8 @@ Manual validation covered Super Admin, Academy Owner, Coach and Parent scenarios
 | Center Management | Complete | CRUD implemented |
 | Batch Management | Complete | CRUD implemented; Academy Owner creation verified |
 | Coach Management | Core complete | Coach assignment implemented |
-| Player Management | Complete | CRUD and player/batch relationships implemented |
+| Player Management | Hardened | CRUD, transactional writes and current player-batch integrity implemented |
+| Bulk Player Import | Complete | Super Admin-only Excel import with validation and transactional rollback |
 | Attendance | Core complete | Marking, editing, history, soft delete and role rules implemented |
 | Subscription Plans | Complete | CRUD and role security implemented |
 | Player Subscriptions | Complete | Assignment and management implemented |
@@ -104,4 +132,5 @@ Frontend filtering must never be treated as the primary security boundary.
 ## 9. Working Baseline
 
 **Branch:** `payment-module-finalization`  
+**Recent verified commit:** `e3c51de`  
 **Direction:** Parent Portal completion → Player Performance → Payment regression → Reminders → Razorpay → production QA.

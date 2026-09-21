@@ -1,6 +1,6 @@
 # AcadPro Architecture
 
-**Last Updated:** 12 September 2026  
+**Last Updated:** 21 September 2026  
 **Current Branch:** `payment-module-finalization`
 
 ## 1. Platform
@@ -49,12 +49,76 @@ Frontend filtering is not a security boundary. Database policies enforce role, a
 
 This scope applies to players, attendance, subscriptions, payment dues, payments, receipts, analytics and the Parent Portal.
 
-## 7. Implemented modules
+## 7. Player data integrity architecture
+
+The Player module uses the following current-batch model:
+
+```text
+players.batch_id
+      ↓
+current player batch
+
+player_batches
+      ↓
+current operational mapping
+```
+
+For active players:
+
+- A non-null `players.batch_id` requires exactly one matching `player_batches` row.
+- A null `players.batch_id` requires zero `player_batches` rows.
+- Inactive players are excluded from this active invariant.
+- A unique constraint prevents duplicate current player-batch mappings.
+
+Player create/update operations use secured transactional PostgreSQL functions so that player, parent and current batch mapping changes are committed atomically.
+
+The database also validates the invariant through deferred constraint validation and uses advisory locking around sensitive player/parent writes.
+
+## 8. Bulk Player Import architecture
+
+Bulk import is a Super Admin-only workflow.
+
+```text
+Excel workbook
+    ↓
+Parser
+    ↓
+Row normalization
+    ↓
+Validation
+    ↓
+Preview / confirmation
+    ↓
+import_players_bulk RPC
+    ↓
+Atomic parent + player + player_batch writes
+```
+
+The import layer includes:
+
+- Excel template and instructions
+- Worksheet selection
+- Required-column validation and aliases
+- Excel date and phone normalization
+- Row-level validation with source-row references
+- Center/batch scope validation
+- Parent reuse/create logic
+- Duplicate player protection
+- Maximum 1000 rows per request
+- Advisory locking by academy/parent phone
+- Atomic rollback if any row fails
+- Import summary for imported players and parent reuse/creation
+
+No database writes occur during parsing or validation/preview.
+
+## 9. Implemented modules
 
 - Authentication and RBAC foundation
 - Academy, center and batch management
 - Player and coach management
 - Coach-batch assignments
+- Player transactional CRUD and data-integrity hardening
+- Bulk Player Import
 - Attendance and attendance history
 - Subscription plans and player subscriptions
 - Payment dues and payment collections
@@ -64,7 +128,7 @@ This scope applies to players, attendance, subscriptions, payment dues, payments
 
 Planned modules include Parent Portal completion, Player Performance, Reports, Notifications and Razorpay/online payments.
 
-## 8. Security and RLS status
+## 10. Security and RLS status
 
 Phase 5.1 security validation is complete:
 
@@ -83,7 +147,7 @@ Known documented limitations:
 - Leaked-password protection is unavailable on the current Supabase Free plan and is deferred until a plan upgrade is justified.
 - Performance-advisor findings are tracked separately from authorization completion.
 
-## 9. Parent Portal architecture
+## 11. Parent Portal architecture
 
 Current foundation:
 
@@ -103,6 +167,6 @@ Next implementation scope:
 - Receipt access/download
 - Parent-specific RLS validation and end-to-end regression
 
-## 10. Production principles
+## 12. Production principles
 
 Before production, AcadPro must complete full module regression, negative authorization testing, parent/player isolation testing, authentication/session review, environment hardening, development-feature removal and production security review.

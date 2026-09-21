@@ -1,6 +1,6 @@
 # AcadPro Role Matrix
 
-**Last Updated:** 12 September 2026  
+**Last Updated:** 21 September 2026  
 **Status:** Current product authorization reference  
 **Scope:** Super Admin, Academy Owner, Coach, Parent
 
@@ -23,6 +23,7 @@ Frontend visibility is not the security boundary; Supabase RLS must enforce thes
 | Centers | Full CRUD | Own academy CRUD | Assigned-scope read access | No access |
 | Batches | Full CRUD | Own academy CRUD | Assigned batches read-only | No access |
 | Players | Full CRUD | Own academy CRUD | Assigned-player read/edit scope | Linked players read-only |
+| Bulk Player Import | Full import | No access | No access | No access |
 | Coaches | Full CRUD | Own academy CRUD | Self read access | No access |
 | Coach assignments | Full CRUD | Own academy CRUD | Own assignments read-only | No access |
 | Attendance | Manage/edit/delete; cannot mark | Own academy management | Mark assigned batches; edit within 7 days; no delete | Linked-player read-only |
@@ -32,7 +33,41 @@ Frontend visibility is not the security boundary; Supabase RLS must enforce thes
 | Payments | Full access | Own academy collection and history | Assigned-player read-only | Linked-player history and own receipts |
 | Receipts | View/print | View/print own academy receipts | No access | View/print linked-player receipts |
 
-## 3. Global security rules
+## 3. Player module authorization and integrity rules
+
+### Super Admin
+
+- Can create and update players across permitted academies.
+- Can use Bulk Player Import.
+- Bulk import is server-authorized and transactional.
+- Duplicate player and invalid center/batch combinations are rejected.
+
+### Academy Owner
+
+- Can create and update players only within the own academy.
+- Cannot perform the Super Admin-only Bulk Player Import workflow.
+- Player create/update operations enforce academy scope in the database.
+
+### Coach
+
+- Cannot create players through the transactional player management path unless a future role policy explicitly grants it.
+- Player visibility remains limited to assigned batches/players.
+
+### Parent
+
+- Read-only access to linked players.
+- Cannot create, update or import players.
+
+### Current player-batch invariant
+
+For active players:
+
+- A non-null `players.batch_id` must have exactly one matching `player_batches` mapping.
+- A null `players.batch_id` must have zero `player_batches` mappings.
+- Inactive players are excluded from the active invariant.
+- Duplicate current mappings are prevented at the database layer.
+
+## 4. Global security rules
 
 ### Super Admin
 
@@ -61,7 +96,7 @@ Frontend visibility is not the security boundary; Supabase RLS must enforce thes
 - Cannot modify academy, player, attendance, subscription, due or payment records.
 - Parent access is player-scoped through `players.parent_id → parents.id`.
 
-## 4. Authorization model
+## 5. Authorization model
 
 ```text
 Role Matrix
@@ -75,7 +110,7 @@ Supabase RLS
 PostgreSQL
 ```
 
-## 5. Phase 5.1 validation status
+## 6. Phase 5.1 validation status
 
 - [x] 5.1.1 Role and academy access review
 - [x] 5.1.2 Centers and player-batches mutation-policy hardening
@@ -86,7 +121,22 @@ PostgreSQL
 
 Validation covered Academy Owners, Coaches, Parents, Super Admin, cross-academy access, mutation attempts and direct ID/URL tampering.
 
-## 6. Known documented limitations
+## 7. Player hardening validation
+
+The Player module hardening validation covered:
+
+- Player create without batch change
+- Player edit with batch change
+- Invalid center/batch rejection
+- Duplicate player rejection
+- Forced transaction rollback
+- Academy Owner own-academy create/edit
+- Academy Owner cross-academy create/edit rejection
+- Super Admin bulk import success
+- Bulk import rollback
+- Database invariant checks for active player mappings
+
+## 8. Known documented limitations
 
 - `inquiries` and `trial_attendance` are unused legacy tables and remain outside the active authorization scope; their RLS-disabled status is documented for future production review.
 - Supabase leaked-password protection is unavailable on the current Free plan and is deferred until a plan upgrade is justified.
