@@ -248,8 +248,8 @@ function CoachPerformanceAssessments() {
     }
 
     scoreFields.forEach(([name, label]) => {
-      const value = form[name].trim();
-      if (!value) return;
+      const value = form[name];
+      if (value === "" || value === null || value === undefined) return;
 
       const score = Number(value);
       if (!Number.isFinite(score)) {
@@ -266,7 +266,7 @@ function CoachPerformanceAssessments() {
   const buildAssessmentPayload = () => {
     const scores = scoreFields.reduce((payload, [name]) => ({
       ...payload,
-      [name]: form[name].trim() === "" ? null : Number(form[name]),
+      [name]: form[name] === "" || form[name] === null || form[name] === undefined ? null : Number(form[name]),
     }), {});
 
     return {
@@ -280,14 +280,20 @@ function CoachPerformanceAssessments() {
   const loadAssessmentHistory = async () => {
     if (!selectedPlayerId || !currentUser) return;
 
-    const { data, error: historyError } = await supabase
+    let historyQuery = supabase
       .from("player_performance_assessments")
       .select(
-        "id, assessment_date, ball_control_score, passing_score, dribbling_score, shooting_score, defending_score, speed_score, stamina_score, teamwork_score, discipline_score, coach_remarks, coach_id, created_at, updated_at"
+        "id, assessment_date, ball_control_score, passing_score, dribbling_score, shooting_score, defending_score, speed_score, stamina_score, teamwork_score, discipline_score, coach_remarks, coach_id, coaches(full_name), created_at, updated_at"
       )
       .eq("player_id", selectedPlayerId)
-      .eq("coach_id", coach.id)
-      .order("assessment_date", { ascending: false });
+      .order("assessment_date", { ascending: false })
+      .order("created_at", { ascending: false });
+
+    if (isCoach(currentUser)) {
+      historyQuery = historyQuery.eq("coach_id", coach.id);
+    }
+
+    const { data, error: historyError } = await historyQuery;
 
     if (historyError) throw historyError;
     setAssessments(data || []);
@@ -335,7 +341,6 @@ function CoachPerformanceAssessments() {
           .insert({
             ...payload,
             player_id: selectedPlayer.id,
-            coach_id: coach.id,
             academy_id: selectedPlayer.academy_id,
           });
 
