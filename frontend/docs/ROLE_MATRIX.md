@@ -24,8 +24,8 @@ Frontend visibility is not the security boundary; Supabase RLS must enforce thes
 | Batches | Full CRUD | Own academy CRUD | Assigned batches read-only | No access |
 | Players | Full CRUD | Own academy CRUD | Assigned-player read/edit scope | Linked players read-only |
 | Bulk Player Import | Full import | No access | No access | No access |
-| Coaches | Full CRUD | Own academy CRUD | Self read access | No access |
-| Coach assignments | Full CRUD | Own academy CRUD | Own assignments read-only | No access |
+| Coaches | Full CRUD | Own academy CRUD | Self read access | Assigned coach names surfaced through Parent Portal only |
+| Coach assignments | Full CRUD | Own academy CRUD | Own assignments read-only | No direct assignment-table access; current assigned coach names only |
 | Attendance | Manage/edit/delete; cannot mark | Own academy management | Mark assigned batches; edit within 7 days; no delete | Linked-player read-only |
 | Subscription plans | Full CRUD | Own academy CRUD | Read-only where exposed | No access |
 | Player subscriptions | Full CRUD | Own academy CRUD | Assigned-scope read-only | Linked-player read-only |
