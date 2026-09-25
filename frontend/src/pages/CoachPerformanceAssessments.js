@@ -29,6 +29,7 @@ const createEmptyForm = () => ({
   teamwork_score: "",
   discipline_score: "",
   coach_remarks: "",
+  coach_id: "",
 });
 
 const formatDate = (value) => {
