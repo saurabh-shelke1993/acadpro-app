@@ -287,8 +287,6 @@ function AppRoutes() {
           element={
             <ProtectedRoute
               allowedRoles={[
-                "super_admin",
-                "academy_owner",
                 "coach"
               ]}
             >
