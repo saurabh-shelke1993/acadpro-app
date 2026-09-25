@@ -145,21 +145,7 @@ Security and data isolation are prerequisites for production.
 
 Validation covered role scenarios, cross-academy access, mutation attempts and direct ID/URL tampering.
 
-# 🔴 HIGH PRIORITY
-
-## 1. Parent Portal Completion
-
-- [x] Parent dashboard
-- [x] Linked children/player summary
-- [x] Attendance history
-- [x] Pending dues
-- [x] Payment history
-- [x] Receipt access
-- [x] Receipt print / Save PDF
-- [x] Parent-specific RLS validation
-- [x] Parent end-to-end regression
-
-## 2. Player Performance
+## Player Performance V1 — COMPLETE
 
 - [x] Player performance profile
 - [x] Performance metrics
@@ -172,8 +158,27 @@ Validation covered role scenarios, cross-academy access, mutation attempts and d
 - [x] Coach assessment ownership enforced in UI and database
 - [x] Role-aware assessment management
 - [x] Parent read-only performance visibility
+- [x] Cross-academy RLS regression
+- [x] Coach-to-coach mutation isolation
+- [x] Parent mutation denial
+- [x] Super Admin cross-academy management
+- [x] Coach attribution verification
 
-## 3. Payment Module Regression
+# 🔴 HIGH PRIORITY
+
+## 1. Payment Module Regression
+
+- [x] Parent dashboard
+- [x] Linked children/player summary
+- [x] Attendance history
+- [x] Pending dues
+- [x] Payment history
+- [x] Receipt access
+- [x] Receipt print / Save PDF
+- [x] Parent-specific RLS validation
+- [x] Parent end-to-end regression
+
+## 2. Payment Module Regression
 
 - [ ] Payment dues and generation
 - [ ] Duplicate prevention
