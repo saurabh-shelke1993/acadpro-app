@@ -45,6 +45,7 @@ Frontend filtering is not a security boundary. Database policies enforce role, a
 - Super Admin: platform-wide permitted data
 - Academy Owner: own academy
 - Coach: assigned batches and their players
+- A batch may have multiple active coach assignments; each active assigned coach can work with that batch.
 - Parent: linked player(s)
 
 This scope applies to players, attendance, subscriptions, payment dues, payments, receipts, analytics and the Parent Portal.
@@ -156,6 +157,7 @@ Current foundation:
 - Parent route protection
 - Parent-to-player association
 - Basic Parent Portal page
+- Parent-safe coach lookup for linked players' current batches; only coach ID/name are returned and no direct parent access is granted to coach-management tables.
 
 Next implementation scope:
 
