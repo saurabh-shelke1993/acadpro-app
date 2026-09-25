@@ -3,7 +3,7 @@ import Layout from "../components/Layout";
 import { supabase } from "../supabaseClient";
 import { getCurrentUser } from "../utils/auth";
 import { getCoachAssignedBatchIds } from "../utils/dataScope";
-import { isAcademyOwner, isCoach } from "../utils/roles";
+import { isCoach } from "../utils/roles";
 
 const scoreFields = [
   ["ball_control_score", "Ball control"],
@@ -67,56 +67,33 @@ function CoachPerformanceAssessments() {
         setError("");
 
         const loadedUser = await getCurrentUser();
-        if (!loadedUser || !["super_admin", "academy_owner", "coach"].includes(loadedUser.role)) {
-          throw new Error("Your account is not authorized to manage performance assessments.");
+        if (!loadedUser || !isCoach(loadedUser)) {
+          throw new Error("Only coaches can manage performance assessments.");
         }
 
-        let coachRecord = null;
+        const { data: coachRecord, error: coachError } = await supabase
+          .from("coaches")
+          .select("id")
+          .eq("user_id", loadedUser.id)
+          .maybeSingle();
+
+        if (coachError) throw coachError;
+        if (!coachRecord) {
+          throw new Error("No coach profile is linked to this account.");
+        }
+
+        const batchIds = await getCoachAssignedBatchIds(loadedUser);
         let assignedPlayers = [];
 
-        if (isCoach(loadedUser)) {
-          const { data, error: coachError } = await supabase
-            .from("coaches")
-            .select("id")
-            .eq("user_id", loadedUser.id)
-            .maybeSingle();
-
-          if (coachError) throw coachError;
-          if (!data) {
-            throw new Error("No coach profile is linked to this account.");
-          }
-
-          coachRecord = data;
-          const batchIds = await getCoachAssignedBatchIds(loadedUser);
-
-          if (batchIds.length > 0) {
-            const { data: playersData, error: playersError } = await supabase
-              .from("players")
-              .select("id, full_name, academy_id, batch_id, batches!inner(batch_name, is_active)")
-              .in("batch_id", batchIds)
-              .eq("is_active", true)
-              .eq("batches.is_active", true)
-              .order("full_name", { ascending: true });
-
-            if (playersError) throw playersError;
-            assignedPlayers = playersData || [];
-          }
-        } else {
-          let playersQuery = supabase
+        if (batchIds.length > 0) {
+          const { data, error: playersError } = await supabase
             .from("players")
             .select("id, full_name, academy_id, batch_id, batches!inner(batch_name, is_active)")
+            .in("batch_id", batchIds)
             .eq("is_active", true)
             .eq("batches.is_active", true)
             .order("full_name", { ascending: true });
 
-          if (isAcademyOwner(loadedUser)) {
-            if (!loadedUser.academy_id) {
-              throw new Error("No academy is linked to this academy owner account.");
-            }
-            playersQuery = playersQuery.eq("academy_id", loadedUser.academy_id);
-          }
-
-          const { data, error: playersError } = await playersQuery;
           if (playersError) throw playersError;
           assignedPlayers = data || [];
         }
@@ -159,14 +136,12 @@ function CoachPerformanceAssessments() {
             "id, assessment_date, ball_control_score, passing_score, dribbling_score, shooting_score, defending_score, speed_score, stamina_score, teamwork_score, discipline_score, coach_remarks, coach_id, created_at, updated_at"
           )
           .eq("player_id", selectedPlayerId)
+          .eq("coach_id", coach.id)
           .order("assessment_date", { ascending: false })
           .order("created_at", { ascending: false });
 
         if (historyError) throw historyError;
-        const scopedAssessments = isCoach(currentUser)
-          ? (data || []).filter((assessment) => assessment.coach_id === coach.id)
-          : (data || []);
-        if (isMounted) setAssessments(scopedAssessments);
+        if (isMounted) setAssessments(data || []);
       } catch (historyLoadError) {
         if (!isMounted) return;
         console.error("Performance assessment history error:", historyLoadError);
@@ -254,10 +229,7 @@ function CoachPerformanceAssessments() {
       .order("assessment_date", { ascending: false });
 
     if (historyError) throw historyError;
-    const scopedAssessments = isCoach(currentUser)
-      ? (data || []).filter((assessment) => assessment.coach_id === coach.id)
-      : (data || []);
-    setAssessments(scopedAssessments);
+    setAssessments(data || []);
   };
 
   const handleSubmit = async (event) => {
@@ -296,7 +268,7 @@ function CoachPerformanceAssessments() {
           .insert({
             ...payload,
             player_id: selectedPlayer.id,
-            coach_id: coach?.id || null,
+            coach_id: coach.id,
             academy_id: selectedPlayer.academy_id,
           });
 
@@ -378,7 +350,7 @@ function CoachPerformanceAssessments() {
         <header style={styles.header}>
           <div>
             <h1 style={styles.title}>Player Performance Assessments</h1>
-            <p style={styles.subtitle}>{isCoach(currentUser) ? "Record and review assessments for your assigned active players." : "Manage performance assessments for active players in your accessible scope."}</p>
+            <p style={styles.subtitle}>Record and review assessments for your assigned active players.</p>
           </div>
         </header>
 
