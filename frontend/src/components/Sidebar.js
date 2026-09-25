@@ -154,6 +154,11 @@ function Sidebar() {
             />
 
             <SidebarLink
+              to="/coach-performance-assessments"
+              label="Performance Assessments"
+            />
+
+            <SidebarLink
               to="/attendance"
               label="Attendance"
             />
