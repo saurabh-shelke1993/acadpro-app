@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import { logoutUser } from "../utils/auth";
 
@@ -12,6 +13,7 @@ const ParentPortal = () => {
   const [pendingDuesByChildId, setPendingDuesByChildId] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     let mounted = true;
@@ -708,9 +710,20 @@ const ParentPortal = () => {
                 )}
               </div>
 
-              <div style={styles.futureSections}>
-                <div style={styles.futureSection}>Payments</div>
-                <div style={styles.futureSection}>Profile</div>
+              <div style={styles.performanceSection}>
+                <div>
+                  <h3 style={styles.performanceTitle}>Player Performance Assessments</h3>
+                  <p style={styles.performanceMessage}>
+                    View the performance assessments and coach remarks recorded for {selectedChild.full_name}.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => navigate("/player-performance-report")}
+                  style={styles.performanceButton}
+                >
+                  View Performance Assessments
+                </button>
               </div>
             </section>
           )}
@@ -764,8 +777,10 @@ const styles = {
   partialBadge: { background: "#fef3c7", color: "#92400e" },
   pendingBadge: { background: "#fee2e2", color: "#991b1b" },
   receiptButton: { marginTop: "12px", padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", background: "#fff", color: "#1f2937", fontWeight: "bold", cursor: "pointer" },
-  futureSections: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(150px, 100%), 1fr))", gap: "12px", margin: "24px 0 16px" },
-  futureSection: { padding: "14px", border: "1px dashed #cbd5e1", borderRadius: "8px", color: "#64748b", background: "#f8fafc", textAlign: "center" },
+  performanceSection: { display: "flex", justifyContent: "space-between", alignItems: "center", gap: "16px", flexWrap: "wrap", marginTop: "28px", padding: "18px", border: "1px solid #dbeafe", borderRadius: "12px", background: "#eff6ff" },
+  performanceTitle: { margin: 0, fontSize: "19px", color: "#1e3a8a" },
+  performanceMessage: { margin: "6px 0 0", color: "#475569", lineHeight: 1.5 },
+  performanceButton: { padding: "10px 16px", border: "1px solid #2563eb", borderRadius: "8px", background: "#2563eb", color: "#fff", fontWeight: "bold", cursor: "pointer" },
   card: { padding: "24px", border: "1px solid #e5e7eb", borderRadius: "14px", background: "#fff", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" },
   message: { margin: 0, color: "#555", lineHeight: 1.5 },
 };
