@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   Bar,
   BarChart,
@@ -138,6 +139,7 @@ function PlayerPerformanceReport() {
   const [loading, setLoading] = useState(true);
   const [assessmentLoading, setAssessmentLoading] = useState(false);
   const [error, setError] = useState("");
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
     let isMounted = true;
@@ -231,6 +233,11 @@ function PlayerPerformanceReport() {
         if (!isMounted) return;
         setCurrentUser(currentUser);
         setPlayers(accessiblePlayers);
+
+        const requestedPlayerId = searchParams.get("player");
+        if (requestedPlayerId && accessiblePlayers.some((player) => player.id === requestedPlayerId)) {
+          setSelectedPlayerId(requestedPlayerId);
+        }
       } catch (loadError) {
         if (!isMounted) return;
         console.error("Player performance report load error:", loadError);
@@ -245,7 +252,7 @@ function PlayerPerformanceReport() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [searchParams]);
 
   useEffect(() => {
     let isMounted = true;
