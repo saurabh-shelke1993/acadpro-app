@@ -1,6 +1,6 @@
 # AcadPro Project Status
 
-**Last Updated:** 21 September 2026  
+**Last Updated:** 25 September 2026  
 **Current Version:** V1.0 Beta  
 **Current Git Branch:** `payment-module-finalization`
 
@@ -73,7 +73,7 @@ Verification baseline:
 | Payment Collections | Core complete | Partial/full payments, validation, history and receipts implemented |
 | Receipt Management | Core complete | Sequential receipt numbers, modal and printable receipts implemented |
 | Dashboard Analytics | Complete | Role-aware KPIs, attendance and collection analytics implemented |
-| Parent Portal | Foundation only | Authentication, route protection, parent-to-player mapping and basic page exist; feature work pending |
+| Parent Portal | Complete for current V1 scope | Dashboard, linked child summary, batch details, multiple active coaches, attendance, dues, payment history, receipt print/PDF workflow, parent RLS isolation and E2E regression verified |
 | Player Performance | Not started | High priority |
 | Reports | Planned | Not started |
 | Notifications | Planned | Not started |
@@ -81,23 +81,32 @@ Verification baseline:
 
 ## 4. Current High-Priority Work
 
-1. **Parent Portal completion**
-2. **Player Performance**
-3. **Payment Module regression**
-4. **Automated payment reminders**
-5. **Razorpay production flow**
+1. **Player Performance**
+2. **Payment Module regression**
+3. **Automated payment reminders**
+4. **Razorpay production flow**
+5. **Production QA and hardening**
 6. Medium-priority UX, error/loading and responsive improvements
 
-## 5. Parent Portal Next Scope
+## 5. Parent Portal Completion Status
 
-- Parent dashboard
-- Linked children/player summary
-- Attendance history
+Complete for the current V1 scope.
+
+Verified:
+
+- Parent authentication and protected routing
+- Linked children and player summary
+- Academy, center, batch, age group and training-time details
+- Multiple active coaches per batch
+- Attendance summary and history
 - Pending dues
 - Payment history
-- Receipt access and download
+- Receipt details and Print / Save PDF workflow
 - Parent-specific RLS validation
-- Parent end-to-end regression
+- Cross-parent isolation
+- Parent end-to-end browser regression
+
+Parent-safe coach visibility uses a dedicated RPC rather than direct parent access to coach-management tables.
 
 ## 6. Database and Security Status
 
@@ -113,7 +122,6 @@ Known documented exceptions:
 ## 7. Current Technical Debt
 
 - Forgot Password flow
-- Parent Portal feature completion
 - Player Performance
 - Payment regression
 - Automated reminders
