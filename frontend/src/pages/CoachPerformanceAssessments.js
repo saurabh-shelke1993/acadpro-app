@@ -3,6 +3,7 @@ import Layout from "../components/Layout";
 import { supabase } from "../supabaseClient";
 import { getCurrentUser } from "../utils/auth";
 import { getCoachAssignedBatchIds } from "../utils/dataScope";
+import { isAcademyOwner, isCoach, isSuperAdmin } from "../utils/roles";
 
 const scoreFields = [
   ["ball_control_score", "Ball control"],
@@ -44,6 +45,7 @@ const formatDate = (value) => {
 
 function CoachPerformanceAssessments() {
   const [coach, setCoach] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
   const [players, setPlayers] = useState([]);
   const [selectedPlayerId, setSelectedPlayerId] = useState("");
   const [assessments, setAssessments] = useState([]);
@@ -64,37 +66,63 @@ function CoachPerformanceAssessments() {
         setLoading(true);
         setError("");
 
-        const currentUser = await getCurrentUser();
-        if (!currentUser || currentUser.role !== "coach") {
-          throw new Error("Your coach account could not be verified.");
+        const loadedUser = await getCurrentUser();
+        if (!loadedUser || !["super_admin", "academy_owner", "coach"].includes(loadedUser.role)) {
+          throw new Error("Your account is not authorized to manage performance assessments.");
         }
 
-        const { data: coachRecord, error: coachError } = await supabase
-          .from("coaches")
-          .select("id")
-          .eq("user_id", currentUser.id)
-          .maybeSingle();
-
-        if (coachError) throw coachError;
-        if (!coachRecord) {
-          throw new Error("No coach profile is linked to this account.");
-        }
-
-        const batchIds = await getCoachAssignedBatchIds(currentUser);
+        let coachRecord = null;
         let assignedPlayers = [];
 
-        if (batchIds.length > 0) {
-          const { data, error: playersError } = await supabase
+        if (isCoach(loadedUser)) {
+          const { data, error: coachError } = await supabase
+            .from("coaches")
+            .select("id")
+            .eq("user_id", loadedUser.id)
+            .maybeSingle();
+
+          if (coachError) throw coachError;
+          if (!data) {
+            throw new Error("No coach profile is linked to this account.");
+          }
+
+          coachRecord = data;
+          const batchIds = await getCoachAssignedBatchIds(loadedUser);
+
+          if (batchIds.length > 0) {
+            const { data: playersData, error: playersError } = await supabase
+              .from("players")
+              .select("id, full_name, academy_id, batch_id, batches!inner(batch_name, is_active)")
+              .in("batch_id", batchIds)
+              .eq("is_active", true)
+              .eq("batches.is_active", true)
+              .order("full_name", { ascending: true });
+
+            if (playersError) throw playersError;
+            assignedPlayers = playersData || [];
+          }
+        } else {
+          let playersQuery = supabase
             .from("players")
-            .select("id, full_name, academy_id, batch_id, batches(batch_name)")
-            .in("batch_id", batchIds)
+            .select("id, full_name, academy_id, batch_id, batches!inner(batch_name, is_active)")
+            .eq("is_active", true)
+            .eq("batches.is_active", true)
             .order("full_name", { ascending: true });
 
+          if (isAcademyOwner(loadedUser)) {
+            if (!loadedUser.academy_id) {
+              throw new Error("No academy is linked to this academy owner account.");
+            }
+            playersQuery = playersQuery.eq("academy_id", loadedUser.academy_id);
+          }
+
+          const { data, error: playersError } = await playersQuery;
           if (playersError) throw playersError;
           assignedPlayers = data || [];
         }
 
         if (!isMounted) return;
+        setCurrentUser(loadedUser);
         setCoach(coachRecord);
         setPlayers(assignedPlayers);
       } catch (loadError) {
@@ -128,14 +156,17 @@ function CoachPerformanceAssessments() {
         const { data, error: historyError } = await supabase
           .from("player_performance_assessments")
           .select(
-            "id, assessment_date, ball_control_score, passing_score, dribbling_score, shooting_score, defending_score, speed_score, stamina_score, teamwork_score, discipline_score, coach_remarks, created_at, updated_at"
+            "id, assessment_date, ball_control_score, passing_score, dribbling_score, shooting_score, defending_score, speed_score, stamina_score, teamwork_score, discipline_score, coach_remarks, coach_id, created_at, updated_at"
           )
           .eq("player_id", selectedPlayerId)
-          .eq("coach_id", coach.id)
-          .order("assessment_date", { ascending: false });
+          .order("assessment_date", { ascending: false })
+          .order("created_at", { ascending: false });
 
         if (historyError) throw historyError;
-        if (isMounted) setAssessments(data || []);
+        const scopedAssessments = isCoach(currentUser)
+          ? (data || []).filter((assessment) => assessment.coach_id === coach.id)
+          : (data || []);
+        if (isMounted) setAssessments(scopedAssessments);
       } catch (historyLoadError) {
         if (!isMounted) return;
         console.error("Performance assessment history error:", historyLoadError);
@@ -151,7 +182,7 @@ function CoachPerformanceAssessments() {
     return () => {
       isMounted = false;
     };
-  }, [selectedPlayerId, coach]);
+  }, [selectedPlayerId, coach, currentUser]);
 
   const selectedPlayer = players.find((player) => player.id === selectedPlayerId);
 
@@ -216,14 +247,17 @@ function CoachPerformanceAssessments() {
     const { data, error: historyError } = await supabase
       .from("player_performance_assessments")
       .select(
-        "id, assessment_date, ball_control_score, passing_score, dribbling_score, shooting_score, defending_score, speed_score, stamina_score, teamwork_score, discipline_score, coach_remarks, created_at, updated_at"
+        "id, assessment_date, ball_control_score, passing_score, dribbling_score, shooting_score, defending_score, speed_score, stamina_score, teamwork_score, discipline_score, coach_remarks, coach_id, created_at, updated_at"
       )
       .eq("player_id", selectedPlayerId)
       .eq("coach_id", coach.id)
       .order("assessment_date", { ascending: false });
 
     if (historyError) throw historyError;
-    setAssessments(data || []);
+    const scopedAssessments = isCoach(currentUser)
+      ? (data || []).filter((assessment) => assessment.coach_id === coach.id)
+      : (data || []);
+    setAssessments(scopedAssessments);
   };
 
   const handleSubmit = async (event) => {
@@ -243,11 +277,16 @@ function CoachPerformanceAssessments() {
       const payload = buildAssessmentPayload();
 
       if (editingAssessmentId) {
-        const { error: updateError } = await supabase
+        let updateQuery = supabase
           .from("player_performance_assessments")
           .update({ ...payload, updated_at: new Date().toISOString() })
-          .eq("id", editingAssessmentId)
-          .eq("coach_id", coach.id);
+          .eq("id", editingAssessmentId);
+
+        if (isCoach(currentUser)) {
+          updateQuery = updateQuery.eq("coach_id", coach.id);
+        }
+
+        const { error: updateError } = await updateQuery;
 
         if (updateError) throw updateError;
         setSuccess("Assessment updated successfully.");
@@ -257,7 +296,7 @@ function CoachPerformanceAssessments() {
           .insert({
             ...payload,
             player_id: selectedPlayer.id,
-            coach_id: coach.id,
+            coach_id: coach?.id || null,
             academy_id: selectedPlayer.academy_id,
           });
 
@@ -270,6 +309,42 @@ function CoachPerformanceAssessments() {
     } catch (saveError) {
       console.error("Performance assessment save error:", saveError);
       setError("Unable to save the assessment. Please try again.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async (assessment) => {
+    if (!window.confirm("Delete this performance assessment? This action cannot be undone.")) {
+      return;
+    }
+
+    setError("");
+    setSuccess("");
+
+    try {
+      setSaving(true);
+      let deleteQuery = supabase
+        .from("player_performance_assessments")
+        .delete()
+        .eq("id", assessment.id);
+
+      if (isCoach(currentUser)) {
+        deleteQuery = deleteQuery.eq("coach_id", coach.id);
+      }
+
+      const { error: deleteError } = await deleteQuery;
+      if (deleteError) throw deleteError;
+
+      if (editingAssessmentId === assessment.id) {
+        resetForm();
+      }
+
+      setSuccess("Assessment deleted successfully.");
+      await loadAssessmentHistory();
+    } catch (deleteError) {
+      console.error("Performance assessment delete error:", deleteError);
+      setError("Unable to delete the assessment. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -303,7 +378,7 @@ function CoachPerformanceAssessments() {
         <header style={styles.header}>
           <div>
             <h1 style={styles.title}>Player Performance Assessments</h1>
-            <p style={styles.subtitle}>Record and review assessments for your assigned players.</p>
+            <p style={styles.subtitle}>{isCoach(currentUser) ? "Record and review assessments for your assigned active players." : "Manage performance assessments for active players in your accessible scope."}</p>
           </div>
         </header>
 
@@ -373,7 +448,10 @@ function CoachPerformanceAssessments() {
                     <article key={assessment.id} style={styles.historyItem}>
                       <div style={styles.historyHeader}>
                         <strong>{formatDate(assessment.assessment_date)}</strong>
-                        <button type="button" onClick={() => handleEdit(assessment)} style={styles.editButton}>Edit</button>
+                        <div style={styles.historyActions}>
+                          <button type="button" onClick={() => handleEdit(assessment)} disabled={saving} style={styles.editButton}>Edit</button>
+                          <button type="button" onClick={() => handleDelete(assessment)} disabled={saving} style={styles.deleteButton}>Delete</button>
+                        </div>
                       </div>
                       <div style={styles.historyScores}>
                         {scoreFields.map(([name, label]) => (
@@ -411,7 +489,9 @@ const styles = {
   actions: { display: "flex", flexWrap: "wrap", gap: "12px", marginTop: "20px" },
   primaryButton: { padding: "10px 16px", border: 0, borderRadius: "8px", background: "#2563eb", color: "#fff", fontWeight: "bold", cursor: "pointer" },
   secondaryButton: { padding: "10px 16px", border: "1px solid #94a3b8", borderRadius: "8px", background: "#fff", color: "#334155", fontWeight: "bold", cursor: "pointer" },
+  historyActions: { display: "flex", gap: "8px", flexWrap: "wrap" },
   editButton: { padding: "7px 12px", border: "1px solid #2563eb", borderRadius: "7px", background: "#eff6ff", color: "#1d4ed8", fontWeight: "bold", cursor: "pointer" },
+  deleteButton: { padding: "7px 12px", border: "1px solid #dc2626", borderRadius: "7px", background: "#fef2f2", color: "#b91c1c", fontWeight: "bold", cursor: "pointer" },
   error: { margin: "0 0 16px", padding: "12px 14px", borderRadius: "8px", background: "#fee2e2", color: "#991b1b" },
   success: { margin: "0 0 16px", padding: "12px 14px", borderRadius: "8px", background: "#dcfce7", color: "#166534" },
   message: { margin: "10px 0 0", color: "#475569", lineHeight: 1.5, overflowWrap: "anywhere" },
