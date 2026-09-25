@@ -145,7 +145,7 @@ function CoachPerformanceAssessments() {
     let isMounted = true;
 
     const loadAssessmentHistory = async () => {
-      if (!selectedPlayerId || !coach?.id) {
+      if (!selectedPlayerId || !currentUser) {
         setAssessments([]);
         return;
       }
@@ -242,7 +242,7 @@ function CoachPerformanceAssessments() {
   };
 
   const loadAssessmentHistory = async () => {
-    if (!selectedPlayerId || !coach?.id) return;
+    if (!selectedPlayerId || !currentUser) return;
 
     const { data, error: historyError } = await supabase
       .from("player_performance_assessments")
