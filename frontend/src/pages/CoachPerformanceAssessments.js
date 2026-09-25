@@ -3,7 +3,7 @@ import Layout from "../components/Layout";
 import { supabase } from "../supabaseClient";
 import { getCurrentUser } from "../utils/auth";
 import { getCoachAssignedBatchIds } from "../utils/dataScope";
-import { isAcademyOwner, isCoach, isSuperAdmin } from "../utils/roles";
+import { isAcademyOwner, isCoach } from "../utils/roles";
 
 const scoreFields = [
   ["ball_control_score", "Ball control"],
