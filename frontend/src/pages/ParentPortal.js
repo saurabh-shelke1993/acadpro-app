@@ -262,6 +262,145 @@ const ParentPortal = () => {
       : value || "Not recorded";
   };
 
+  const escapeHtml = (value) =>
+    String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+
+  const printReceipt = (payment) => {
+    if (!selectedChild || !payment?.receipt_number) return;
+
+    const receiptWindow = window.open(
+      "",
+      "_blank",
+      "width=760,height=900"
+    );
+
+    if (!receiptWindow) {
+      alert("Please allow pop-ups to print the receipt.");
+      return;
+    }
+
+    const academyName = selectedChild.academy?.academy_name || "Not available";
+    const centerName = selectedChild.center?.center_name || "Not available";
+    const batchName = selectedChild.batch?.batch_name || "Not assigned";
+
+    receiptWindow.document.write(`
+      <!doctype html>
+      <html>
+        <head>
+          <title>AcadPro Receipt - ${escapeHtml(payment.receipt_number)}</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              margin: 0;
+              padding: 32px;
+              color: #1f2937;
+              background: #ffffff;
+            }
+            .receipt {
+              max-width: 680px;
+              margin: 0 auto;
+            }
+            h1, h2 { text-align: center; margin: 0; }
+            h1 { font-size: 28px; }
+            h2 { margin-top: 6px; font-size: 18px; }
+            hr { border: 0; border-top: 1px solid #d1d5db; margin: 22px 0; }
+            .row {
+              display: flex;
+              justify-content: space-between;
+              gap: 20px;
+              padding: 8px 0;
+            }
+            .label { color: #6b7280; }
+            .value { font-weight: 600; text-align: right; }
+            .amount {
+              margin: 22px 0;
+              padding: 16px;
+              border: 1px solid #d1d5db;
+              border-radius: 8px;
+              text-align: center;
+              font-size: 22px;
+              font-weight: 700;
+            }
+            .footer {
+              margin-top: 50px;
+              text-align: center;
+              color: #6b7280;
+              font-size: 13px;
+            }
+            @media print {
+              body { padding: 0; }
+            }
+          </style>
+        </head>
+        <body>
+          <main class="receipt">
+            <h1>AcadPro</h1>
+            <h2>Payment Receipt</h2>
+            <hr />
+
+            <div class="row">
+              <span class="label">Receipt Number</span>
+              <span class="value">${escapeHtml(payment.receipt_number)}</span>
+            </div>
+            <div class="row">
+              <span class="label">Payment Date</span>
+              <span class="value">${escapeHtml(formatDate(payment.payment_date))}</span>
+            </div>
+
+            <hr />
+
+            <div class="row">
+              <span class="label">Player</span>
+              <span class="value">${escapeHtml(selectedChild.full_name)}</span>
+            </div>
+            <div class="row">
+              <span class="label">Academy</span>
+              <span class="value">${escapeHtml(academyName)}</span>
+            </div>
+            <div class="row">
+              <span class="label">Center</span>
+              <span class="value">${escapeHtml(centerName)}</span>
+            </div>
+            <div class="row">
+              <span class="label">Batch</span>
+              <span class="value">${escapeHtml(batchName)}</span>
+            </div>
+
+            <hr />
+
+            <div class="row">
+              <span class="label">Payment Mode</span>
+              <span class="value">${escapeHtml(payment.payment_mode || "Not recorded")}</span>
+            </div>
+            <div class="row">
+              <span class="label">Transaction Reference</span>
+              <span class="value">${escapeHtml(payment.transaction_reference || "-")}</span>
+            </div>
+
+            <div class="amount">
+              Amount Paid: ${escapeHtml(formatAmount(payment.amount_paid))}
+            </div>
+
+            <div class="footer">
+              Thank you for your payment.
+            </div>
+          </main>
+        </body>
+      </html>
+    `);
+
+    receiptWindow.document.close();
+    receiptWindow.focus();
+    receiptWindow.onload = () => {
+      receiptWindow.print();
+    };
+  };
+
   if (loading) {
     return (
       <main style={{ ...styles.container, ...styles.loadingState }}>
@@ -492,6 +631,13 @@ const ParentPortal = () => {
                               Transaction reference: {payment.transaction_reference}
                             </p>
                           ) : null}
+                          <button
+                            type="button"
+                            onClick={() => printReceipt(payment)}
+                            style={styles.receiptButton}
+                          >
+                            Print / Save PDF
+                          </button>
                         </div>
                       </div>
                     ))}
@@ -617,6 +763,7 @@ const styles = {
   paidBadge: { background: "#dcfce7", color: "#166534" },
   partialBadge: { background: "#fef3c7", color: "#92400e" },
   pendingBadge: { background: "#fee2e2", color: "#991b1b" },
+  receiptButton: { marginTop: "12px", padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", background: "#fff", color: "#1f2937", fontWeight: "bold", cursor: "pointer" },
   futureSections: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(150px, 100%), 1fr))", gap: "12px", margin: "24px 0 16px" },
   futureSection: { padding: "14px", border: "1px dashed #cbd5e1", borderRadius: "8px", color: "#64748b", background: "#f8fafc", textAlign: "center" },
   card: { padding: "24px", border: "1px solid #e5e7eb", borderRadius: "14px", background: "#fff", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" },
