@@ -55,12 +55,34 @@ This ensures that performance assessment visibility can be built on a consistent
 - Multiple active coaches per batch are compatible with the current `is_coach_assigned_to_batch` authorization model.
 - No direct assessment mutation route is exposed to parents.
 
-### Decisions / items to resolve before implementation changes
+### Player Performance V1 Specification — Confirmed 25 September 2026
 
-1. **Assessment uniqueness:** the database currently permits multiple assessments for the same player, coach and assessment date. Confirm whether multiple assessments on one date are valid or whether a uniqueness rule is required.
-2. **Historical visibility:** current Coach SELECT scope is based on the player's current assigned batch, not the coach who originally created the assessment. Confirm whether a newly assigned coach should see the player's historical assessments.
-3. **Inactive players/batches:** the report and coach entry queries do not consistently filter inactive players/batches at the frontend. Confirm the intended behavior before tightening this.
-4. **Assessment ownership:** `coach_id` is retained on assessments and is used for coach edit/delete authorization. Confirm whether only the creating coach may edit/delete or whether academy owners/super admins should manage historical assessments.
-5. **Assessment data model:** confirm whether the current nine 0–10 skill scores and free-text remarks are the complete V1 metric set before adding more fields.
+1. **Assessment uniqueness:** Multiple assessments for the same player on the same date are valid. No uniqueness constraint is required for player/coach/date.
+2. **Historical visibility:** A coach can view a player's historical assessments when the coach is currently authorized to access that player's current active batch. Historical visibility is player-centric, not creator-centric.
+3. **Inactive players/batches:** Inactive players and inactive batches are excluded from normal assessment entry/report selection. Existing assessment records are preserved.
+4. **Assessment ownership:** Coaches may edit/delete only their own assessments. Academy Owners and Super Admins may manage assessments within their authorized scope.
+5. **Assessment data model:** V1 is frozen at nine 0–10 metrics plus coach remarks.
 
-No Player Performance code changes were made during this audit.
+### Implementation status after V1 decisions
+
+- Coach assessment entry is limited to active players in currently assigned active batches.
+- Super Admin and Academy Owner can manage assessments for active players in their authorized scope.
+- Coach assessment history is creator-scoped for coach users; owner/admin history is player-scoped across assessments.
+- Assessment delete is available and protected by database RLS.
+- Multiple same-day assessments remain supported.
+- Report player selection excludes inactive players and inactive current batches while preserving historical assessment rows in the database.
+- Parent remains read-only through the report route and RLS.
+
+The nine V1 metrics are:
+
+- Ball control
+- Passing
+- Dribbling
+- Shooting
+- Defending
+- Speed
+- Stamina
+- Teamwork
+- Discipline
+
+No database uniqueness change is required for the confirmed V1 model.
