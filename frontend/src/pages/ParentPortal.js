@@ -719,7 +719,7 @@ const ParentPortal = () => {
                 </div>
                 <button
                   type="button"
-                  onClick={() => navigate("/player-performance-report")}
+                  onClick={() => navigate(`/player-performance-report?player=${encodeURIComponent(selectedChild.id)}`)}
                   style={styles.performanceButton}
                 >
                   View Performance Assessments
