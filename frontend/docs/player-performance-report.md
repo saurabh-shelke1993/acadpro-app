@@ -34,15 +34,15 @@ This ensures that performance assessment visibility can be built on a consistent
 - Coach assessment entry exists at `/coach-performance-assessments`.
 - Live RLS policies exist for Super Admin, Academy Owner, Coach and Parent access.
 - Parent report visibility is linked to the parent's current linked players.
-- Player Performance remains a high-priority feature workstream and is now in code/data-model audit before further implementation changes.
+- Player Performance V1 implementation is now aligned with the confirmed business rules; functional and RBAC regression testing remains pending.
 
 ## Code Audit — 25 September 2026
 
 ### Current implementation
 
 - `PlayerPerformanceReport.js` is read-only and supports Super Admin, Academy Owner, Coach and Parent player selection.
-- `CoachPerformanceAssessments.js` allows coaches to create and edit assessments for players in their currently assigned active batches.
-- Assessment history in the coach entry page is filtered by both `player_id` and the logged-in coach's `coach_id`.
+- `CoachPerformanceAssessments.js` supports Coach, Academy Owner and Super Admin assessment management for active players within each role's authorized scope.
+- Coach assessment history is filtered to the logged-in coach's own assessments; Academy Owner and Super Admin history is player-scoped across assessments.
 - The report page loads all assessments for the selected player, which supports historical player reporting.
 - Scores are validated in the UI and the database enforces the 0–10 range.
 - Current player/batch integrity hardening provides the authoritative operational scope for coach access.
