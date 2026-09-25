@@ -1,6 +1,6 @@
 # AcadPro Product Backlog
 
-**Last Updated:** 21 September 2026  
+**Last Updated:** 25 September 2026  
 **Current Branch:** `payment-module-finalization`
 
 Security and data isolation are prerequisites for production.
@@ -116,13 +116,23 @@ Security and data isolation are prerequisites for production.
 - Empty states
 - Academy Owner, Coach and Super Admin data scope
 
-## Parent Portal Foundation
+## Parent Portal
 
-- Parent role
-- Parent authentication and login
+- Parent role and authentication
 - Parent route and RBAC protection
 - Parent-to-player association
-- Basic Parent Portal page
+- Linked children/player summary
+- Academy, center, batch, age group and training-time details
+- Multiple active coach visibility
+- Attendance summary and attendance history
+- Pending dues and outstanding amount
+- Payment history and transaction reference
+- Receipt details
+- Parent receipt Print / Save PDF workflow
+- Parent-specific RLS isolation
+- Parent-safe coach lookup RPC
+- Cross-parent isolation validation
+- Parent end-to-end regression
 
 ## Phase 5.1 — Role Security and RLS Validation
 
@@ -139,15 +149,15 @@ Validation covered role scenarios, cross-academy access, mutation attempts and d
 
 ## 1. Parent Portal Completion
 
-- [ ] Parent dashboard
-- [ ] Linked children/player summary
-- [ ] Attendance history
-- [ ] Pending dues
-- [ ] Payment history
-- [ ] Receipt access
-- [ ] Receipt download
-- [ ] Parent-specific RLS validation
-- [ ] Parent end-to-end regression
+- [x] Parent dashboard
+- [x] Linked children/player summary
+- [x] Attendance history
+- [x] Pending dues
+- [x] Payment history
+- [x] Receipt access
+- [x] Receipt print / Save PDF
+- [x] Parent-specific RLS validation
+- [x] Parent end-to-end regression
 
 ## 2. Player Performance
 
@@ -246,4 +256,4 @@ Validation covered role scenarios, cross-academy access, mutation attempts and d
 
 # Product Vision — V1.0
 
-AcadPro V1.0 aims to provide academy administration, center and batch management, player and coach management, attendance, subscriptions, payments, receipts, dashboard analytics and a secure Parent Portal. The immediate roadmap is Parent Portal completion, Player Performance, payment reliability, automated reminders, Razorpay and production QA.
+AcadPro V1.0 aims to provide academy administration, center and batch management, player and coach management, attendance, subscriptions, payments, receipts, dashboard analytics and a secure Parent Portal. The immediate roadmap is Player Performance, payment reliability, automated reminders, Razorpay and production QA.
