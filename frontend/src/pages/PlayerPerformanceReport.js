@@ -174,6 +174,7 @@ function PlayerPerformanceReport() {
             .select(playerColumns)
             .eq("academy_id", currentUser.academy_id)
             .eq("is_active", true)
+            .eq("batches.is_active", true)
             .order("full_name", { ascending: true });
 
           if (playersError) throw playersError;
