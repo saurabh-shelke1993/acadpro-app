@@ -74,15 +74,14 @@ Verification baseline:
 | Receipt Management | Core complete | Sequential receipt numbers, modal and printable receipts implemented |
 | Dashboard Analytics | Complete | Role-aware KPIs, attendance and collection analytics implemented |
 | Parent Portal | Complete for current V1 scope | Dashboard, linked child summary, batch details, multiple active coaches, attendance, dues, payment history, receipt print/PDF workflow, parent RLS isolation and E2E regression verified |
-| Player Performance | V1 implementation | Assessment entry/report, role-aware mutation scope, historical tracking and RLS model implemented; regression pending |
+| Player Performance | V1 complete | Assessment entry/report, role-aware mutation scope, historical tracking, parent read-only access and RLS/RBAC regression verified |
 | Reports | Planned | Not started |
 | Notifications | Planned | Not started |
 | Online Payments / Razorpay | Planned | Production flow pending |
 
 ## 4. Current High-Priority Work
 
-1. **Player Performance**
-2. **Payment Module regression**
+1. **Payment Module regression**
 3. **Automated payment reminders**
 4. **Razorpay production flow**
 5. **Production QA and hardening**
@@ -141,4 +140,4 @@ Frontend filtering must never be treated as the primary security boundary.
 
 **Branch:** `payment-module-finalization`  
 **Recent verified baseline:** Parent Portal completion and Player Performance implementation updates are committed on this branch.  
-**Direction:** Player Performance regression → Payment regression → Reminders → Razorpay → production QA.
+**Direction:** Payment regression → Reminders → Razorpay → production QA.
