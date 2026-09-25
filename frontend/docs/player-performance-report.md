@@ -60,15 +60,16 @@ This ensures that performance assessment visibility can be built on a consistent
 1. **Assessment uniqueness:** Multiple assessments for the same player on the same date are valid. No uniqueness constraint is required for player/coach/date.
 2. **Historical visibility:** A coach can view a player's historical assessments when the coach is currently authorized to access that player's current active batch. Historical visibility is player-centric, not creator-centric.
 3. **Inactive players/batches:** Inactive players and inactive batches are excluded from normal assessment entry/report selection. Existing assessment records are preserved.
-4. **Assessment ownership:** Coaches may edit/delete only their own assessments. Academy Owners and Super Admins may manage assessments within their authorized scope.
+4. **Assessment ownership:** Coaches are the only role allowed to create, edit or delete assessments. A coach may edit/delete only their own assessments.
 5. **Assessment data model:** V1 is frozen at nine 0–10 metrics plus coach remarks.
 
 ### Implementation status after V1 decisions
 
 - Coach assessment entry is limited to active players in currently assigned active batches.
-- Super Admin and Academy Owner can manage assessments for active players in their authorized scope.
+- Only coaches can create, edit or delete assessments; Academy Owners and Super Admins are read-only for performance data.
 - Coach assessment history is creator-scoped for coach users; owner/admin history is player-scoped across assessments.
-- Assessment delete is available and protected by database RLS.
+- Assessment delete is available to coaches and protected by database RLS.
+- Live RLS INSERT/UPDATE/DELETE policies were restricted to the coach role; Academy Owner and Super Admin mutation access was removed.
 - Multiple same-day assessments remain supported.
 - Report player selection excludes inactive players and inactive current batches while preserving historical assessment rows in the database.
 - Parent remains read-only through the report route and RLS.
