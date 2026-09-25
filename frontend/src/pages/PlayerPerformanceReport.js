@@ -45,7 +45,7 @@ const assessmentColumns = [
 ].join(", ");
 
 const playerColumns =
-  "id, full_name, academy_id, batch_id, academies(academy_name), batches(batch_name, is_active)";
+  "id, full_name, academy_id, batch_id, academies(academy_name), batches!inner(batch_name, is_active)";
 
 const getReportCopy = (user) => {
   if (isSuperAdmin(user)) {
@@ -159,6 +159,7 @@ function PlayerPerformanceReport() {
             .from("players")
             .select(playerColumns)
             .eq("is_active", true)
+            .eq("batches.is_active", true)
             .order("full_name", { ascending: true });
 
           if (playersError) throw playersError;
@@ -218,6 +219,8 @@ function PlayerPerformanceReport() {
             .from("players")
             .select(playerColumns)
             .eq("parent_id", parentRecord.id)
+            .eq("is_active", true)
+            .eq("batches.is_active", true)
             .order("full_name", { ascending: true });
 
           if (playersError) throw playersError;
