@@ -170,7 +170,7 @@ Validation covered role scenarios, cross-academy access, mutation attempts and d
 - [x] Multiple same-day assessments supported
 - [x] Inactive players/batches excluded from operational selection
 - [x] Coach assessment ownership enforced in UI and database
-- [x] Coach-only assessment management
+- [x] Role-aware assessment management
 - [x] Parent read-only performance visibility
 
 ## 3. Payment Module Regression
