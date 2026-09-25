@@ -34,7 +34,7 @@ This ensures that performance assessment visibility can be built on a consistent
 - Coach assessment entry exists at `/coach-performance-assessments`.
 - Live RLS policies exist for Super Admin, Academy Owner, Coach and Parent access.
 - Parent report visibility is linked to the parent's current linked players.
-- Player Performance V1 implementation is now aligned with the confirmed business rules; functional and RBAC regression testing remains pending.
+- Player Performance V1 implementation is aligned with the confirmed business rules; functional and RBAC/security regression testing is complete.
 
 ## Code Audit — 25 September 2026
 
@@ -75,6 +75,16 @@ This ensures that performance assessment visibility can be built on a consistent
 - Multiple same-day assessments remain supported.
 - Report player selection excludes inactive players and inactive current batches while preserving historical assessment rows in the database.
 - Parent remains read-only through the report route and RLS.
+
+### Player Performance V1 Security / RLS Regression — 25 September 2026
+
+The following negative and cross-scope scenarios were manually verified and passed:
+
+- Academy Owner cannot access or mutate assessments outside their academy.
+- Coach cannot edit or delete another coach's assessment, including when coaches share a batch.
+- Parent can view linked-player assessments but cannot create, edit or delete assessments.
+- Super Admin can manage assessments across academies while retaining academy/player/coach consistency.
+- Owner/Admin-created assessments retain the selected coach attribution through `coach_id`.
 
 The nine V1 metrics are:
 
