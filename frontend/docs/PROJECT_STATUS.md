@@ -74,7 +74,7 @@ Verification baseline:
 | Receipt Management | Core complete | Sequential receipt numbers, modal and printable receipts implemented |
 | Dashboard Analytics | Complete | Role-aware KPIs, attendance and collection analytics implemented |
 | Parent Portal | Complete for current V1 scope | Dashboard, linked child summary, batch details, multiple active coaches, attendance, dues, payment history, receipt print/PDF workflow, parent RLS isolation and E2E regression verified |
-| Player Performance | V1 implementation | Assessment entry/report, coach-only mutation scope, historical tracking and RLS model implemented; regression pending |
+| Player Performance | V1 implementation | Assessment entry/report, role-aware mutation scope, historical tracking and RLS model implemented; regression pending |
 | Reports | Planned | Not started |
 | Notifications | Planned | Not started |
 | Online Payments / Razorpay | Planned | Production flow pending |
