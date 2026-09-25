@@ -161,12 +161,17 @@ Validation covered role scenarios, cross-academy access, mutation attempts and d
 
 ## 2. Player Performance
 
-- [ ] Player performance profile
-- [ ] Performance metrics
-- [ ] Player-level analytics
-- [ ] Historical performance tracking
-- [ ] Role-aware performance visibility
-- [ ] Functional requirements and data model
+- [x] Player performance profile
+- [x] Performance metrics
+- [x] Player-level analytics
+- [x] Historical performance tracking
+- [x] Role-aware performance visibility
+- [x] Functional requirements and V1 data model
+- [x] Multiple same-day assessments supported
+- [x] Inactive players/batches excluded from operational selection
+- [x] Coach assessment ownership enforced in UI and database
+- [x] Academy Owner and Super Admin assessment management
+- [x] Parent read-only performance visibility
 
 ## 3. Payment Module Regression
 
