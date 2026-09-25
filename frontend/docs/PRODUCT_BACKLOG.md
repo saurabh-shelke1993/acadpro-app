@@ -168,18 +168,6 @@ Validation covered role scenarios, cross-academy access, mutation attempts and d
 
 ## 1. Payment Module Regression
 
-- [x] Parent dashboard
-- [x] Linked children/player summary
-- [x] Attendance history
-- [x] Pending dues
-- [x] Payment history
-- [x] Receipt access
-- [x] Receipt print / Save PDF
-- [x] Parent-specific RLS validation
-- [x] Parent end-to-end regression
-
-## 2. Payment Module Regression
-
 - [ ] Payment dues and generation
 - [ ] Duplicate prevention
 - [ ] Due editing
@@ -192,7 +180,7 @@ Validation covered role scenarios, cross-academy access, mutation attempts and d
 - [ ] Academy/data-scope isolation
 - [ ] Negative authorization testing
 
-## 4. Automated Payment Reminders
+## 2. Automated Payment Reminders
 
 - [ ] Reminder eligibility rules
 - [ ] Scheduling and due-date rules
@@ -202,7 +190,7 @@ Validation covered role scenarios, cross-academy access, mutation attempts and d
 - [ ] Duplicate prevention
 - [ ] Reminder history
 
-## 5. Razorpay Production Flow
+## 3. Razorpay Production Flow
 
 - [ ] Account/configuration
 - [ ] Order creation and checkout
