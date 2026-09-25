@@ -72,7 +72,7 @@ const ParentPortal = () => {
         academy: child.academies || null,
         center: child.centers || null,
         batch: child.batches || null,
-        coach: null,
+        coaches: [],
       }));
 
       const batchIds = [
@@ -80,34 +80,31 @@ const ParentPortal = () => {
       ];
 
       if (batchIds.length > 0) {
-        const { data: assignments } = await supabase
-          .from("coach_batch_assignments")
-          .select("batch_id, coach_id")
-          .in("batch_id", batchIds)
-          .eq("is_active", true);
+        const { data: coachRecords, error: coachesError } = await supabase.rpc(
+          "get_parent_child_coaches"
+        );
 
-        const coachIds = [
-          ...new Set((assignments || []).map((assignment) => assignment.coach_id)),
-        ].filter(Boolean);
-
-        if (coachIds.length > 0) {
-          const { data: coaches } = await supabase
-            .from("coaches")
-            .select("id, full_name")
-            .in("id", coachIds);
-
-          const coachById = new Map(
-            (coaches || []).map((coach) => [coach.id, coach])
+        if (coachesError) {
+          console.error(
+            "Unable to load parent coach assignments:",
+            coachesError
           );
-          const coachByBatchId = new Map(
-            (assignments || []).map((assignment) => [
-              assignment.batch_id,
-              coachById.get(assignment.coach_id) || null,
-            ])
-          );
+        } else {
+          const coachesByBatchId = new Map();
+
+          (coachRecords || []).forEach((coachRecord) => {
+            if (!coachRecord?.batch_id || !coachRecord?.coach_id) return;
+
+            const batchCoaches = coachesByBatchId.get(coachRecord.batch_id) || [];
+            batchCoaches.push({
+              id: coachRecord.coach_id,
+              full_name: coachRecord.coach_name,
+            });
+            coachesByBatchId.set(coachRecord.batch_id, batchCoaches);
+          });
 
           safeChildren.forEach((child) => {
-            child.coach = coachByBatchId.get(child.batch_id) || null;
+            child.coaches = coachesByBatchId.get(child.batch_id) || [];
           });
         }
       }
@@ -362,7 +359,17 @@ const ParentPortal = () => {
                         : "Not available"
                     }
                   />
-                  <Detail label="Coach" value={selectedChild.coach?.full_name || "Not assigned"} />
+                  <Detail
+                  label="Coaches"
+                  value={
+                    selectedChild.coaches.length > 0
+                      ? selectedChild.coaches
+                          .map((coach) => coach.full_name)
+                          .filter(Boolean)
+                          .join(", ")
+                      : "Not assigned"
+                  }
+                />
                 </div>
               </div>
 
