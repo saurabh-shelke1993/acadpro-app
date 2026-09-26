@@ -168,6 +168,30 @@ Validation covered role scenarios, cross-academy access, mutation attempts and d
 
 ## 1. Payment Module Regression
 
+### P1 — Database Financial Foundation: COMPLETE
+
+- [x] Immutable payment-event foundation
+- [x] System-generated transaction references
+- [x] System-generated receipt numbering with unique database enforcement
+- [x] Legacy manual transaction references preserved as external references
+- [x] Collector identity support via application user ID
+- [x] Atomic payment collection database function
+- [x] Payment overpayment guardrail
+- [x] Coach assigned-player payment read scope
+- [x] Payment correction request/approval/rejection workflow foundation
+- [x] Direct payment INSERT/UPDATE/DELETE removed from authenticated RLS path
+- [x] Legacy receipt numbers backfilled where missing
+- [ ] Reconcile 4 pre-existing overpaid dues
+
+### P2 — Frontend Payment Collections Regression
+
+- [ ] Replace direct payment INSERT/UPDATE flow with collect_payment RPC
+- [ ] Remove manual transaction-reference input
+- [ ] Display generated transaction reference
+- [ ] Use stored receipt number for receipt modal/print
+- [ ] Correction request UI
+- [ ] Correction approval/rejection UI
+
 - [ ] Payment dues and generation
 - [ ] Duplicate prevention
 - [ ] Due editing
