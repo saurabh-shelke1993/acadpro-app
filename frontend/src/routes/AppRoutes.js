@@ -216,8 +216,7 @@ function AppRoutes() {
             <ProtectedRoute
               allowedRoles={[
                 "super_admin",
-                "academy_owner",
-                "coach"
+                "academy_owner"
               ]}
             >
               <PaymentCollections />
