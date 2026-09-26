@@ -7,10 +7,10 @@ function DashboardCard({
   color = "#2563eb"
 }) {
   return (
-    <div className="dashboard-card">
+    <div className="dashboard-card" data-color={color}>
       <div
         className="dashboard-card-icon"
-        style={{ backgroundColor: color }}
+        style={{ backgroundColor: `var(--ap-${color}-600, ${color})` }}
       >
         {icon}
       </div>
