@@ -193,11 +193,6 @@ function Sidebar() {
               label="Payment Dues"
             />
 
-            <SidebarLink
-              to="/payment-collections"
-              label="Payment Collections"
-            />
-
           </>
         )
       }
