@@ -340,7 +340,6 @@ begin
     if (
       old.total_amount is distinct from new.total_amount
       or old.paid_amount is distinct from new.paid_amount
-      or old.remaining_amount is distinct from new.remaining_amount
       or old.due_status is distinct from new.due_status
     ) then
       v_operation := current_setting(
@@ -356,8 +355,6 @@ begin
   end if;
 
   new.paid_amount := coalesce(new.paid_amount, 0);
-  new.remaining_amount := new.total_amount - new.paid_amount;
-
   new.due_status :=
     case
       when new.paid_amount = 0 then 'pending'
@@ -535,7 +532,6 @@ begin
   update public.payment_dues
   set
     paid_amount = v_new_paid,
-    remaining_amount = v_remaining,
     due_status = v_status
   where id = v_due.id;
 
@@ -809,7 +805,6 @@ begin
   update public.payment_dues
   set
     paid_amount = v_new_paid,
-    remaining_amount = v_remaining,
     due_status = v_status
   where id = v_due.id;
 
