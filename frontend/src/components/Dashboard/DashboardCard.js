@@ -1,16 +1,25 @@
 import "./DashboardCard.css";
 
+const colorMap = {
+  blue: "var(--ap-primary-600)",
+  green: "var(--ap-success-600)",
+  orange: "var(--ap-warning-600)",
+  purple: "#9333ea",
+  sky: "var(--ap-info-600)",
+  red: "var(--ap-danger-600)"
+};
+
 function DashboardCard({
   title,
   value,
   icon,
-  color = "#2563eb"
+  color = "blue"
 }) {
   return (
     <div className="dashboard-card" data-color={color}>
       <div
         className="dashboard-card-icon"
-        style={{ backgroundColor: `var(--ap-${color}-600, ${color})` }}
+        style={{ backgroundColor: colorMap[color] || colorMap.blue }}
       >
         {icon}
       </div>
