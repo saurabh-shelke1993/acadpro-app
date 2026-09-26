@@ -1,11 +1,11 @@
 .dashboard-card {
-  background: white;
-  border-radius: 12px;
-  padding: 20px;
+  background: var(--ap-surface);
+  border-radius: var(--ap-radius-lg);
+  padding: var(--ap-space-5);
 
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: var(--ap-space-4);
 
   box-shadow: 0 2px 10px rgba(0,0,0,0.08);
 
@@ -36,7 +36,7 @@
 
 .dashboard-card-content h4 {
   margin: 0;
-  color: #666;
+  color: var(--ap-slate-500);
   font-weight: 500;
 }
 
@@ -46,7 +46,7 @@
 
   font-size: 28px;
 
-  color: #111827;
+  color: var(--ap-slate-900);
 }
 
 /* ================================
@@ -63,7 +63,7 @@
 .dashboard-chart-card {
   background: #ffffff;
   border-radius: 10px;
-  padding: 20px;
+  padding: var(--ap-space-5);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   min-width: 0;
 }
@@ -135,7 +135,7 @@
 
 .dashboard-insight-label {
   display: block;
-  color: #666;
+  color: var(--ap-slate-500);
   font-size: 13px;
   margin-bottom: 8px;
 }
@@ -144,7 +144,7 @@
   display: block;
   font-size: 22px;
   font-weight: 600;
-  color: #111827;
+  color: var(--ap-slate-900);
 }
 
 @media (max-width: 1200px) {
