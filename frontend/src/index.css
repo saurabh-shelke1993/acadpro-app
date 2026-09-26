@@ -7,21 +7,10 @@
 }
 
 body {
-  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--ap-slate-900);
+  background-color: var(--ap-page-bg);
+  font-family: var(--ap-font-sans);
   -webkit-font-smoothing: antialiased;
-  background-color: #f0f4f8;
-}
-
-button:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-  transition: all 0.2s ease;
-}
-
-input:focus, select:focus {
-  outline: none;
-  border-color: #1a73e8 !important;
-  box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.15);
 }
 
 ::-webkit-scrollbar {
