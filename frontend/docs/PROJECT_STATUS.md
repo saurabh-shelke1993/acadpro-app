@@ -70,7 +70,7 @@ Verification baseline:
 | Subscription Plans | Complete | CRUD and role security implemented |
 | Player Subscriptions | Complete | Assignment and management implemented |
 | Payment Dues | Complete | Generation, status, remaining amount, editing and filtering implemented |
-| Payment Collections | P2 COMPLETE | Atomic collection RPC, generated references, stored receipt usage, correction workflow, admin-only financial access and Coach denial verified |
+| Payment Collections | P3 COMPLETE | Atomic collection RPC, generated references, stored receipt usage, correction workflow, admin-only financial access, Coach denial and legacy reconciliation verified |
 | Receipt Management | P2 COMPLETE | Database-generated unique receipt numbers, legacy receipt backfill and frontend receipt display/print integration are implemented |
 | Dashboard Analytics | Complete | Role-aware KPIs, attendance and collection analytics implemented |
 | Parent Portal | Complete for current V1 scope | Dashboard, linked child summary, batch details, multiple active coaches, attendance, dues, payment history, receipt print/PDF workflow, parent RLS isolation and E2E regression verified |
@@ -81,7 +81,7 @@ Verification baseline:
 
 ## 4. Current High-Priority Work
 
-1. **Payment Module regression — P2 COMPLETE; 4 legacy overpaid dues require controlled reconciliation**
+1. **Payment Module regression — P3 COMPLETE; legacy overpaid dues reconciled**
 2. **Automated payment reminders**
 4. **Razorpay production flow**
 5. **Production QA and hardening**
@@ -122,7 +122,7 @@ Known documented exceptions:
 
 - Forgot Password flow
 - Player Performance
-- Payment regression (P1 database foundation + P2 frontend integration complete; Coach denial verified; 4 legacy overpaid dues require controlled reconciliation)
+- Payment regression (P1 database foundation + P2 frontend integration + P3 legacy reconciliation complete; zero overpaid dues remain)
 - Automated reminders
 - Razorpay production integration
 - Performance-advisor optimization
