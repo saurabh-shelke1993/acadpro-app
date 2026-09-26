@@ -29,8 +29,8 @@ Frontend visibility is not the security boundary; Supabase RLS must enforce thes
 | Attendance | Manage/edit/delete; cannot mark | Own academy management | Mark assigned batches; edit within 7 days; no delete | Linked-player read-only |
 | Subscription plans | Full CRUD | Own academy CRUD | Read-only where exposed | No access |
 | Player subscriptions | Full CRUD | Own academy CRUD | Assigned-scope read-only | Linked-player read-only |
-| Payment dues | Full access according to current payment policies | Own academy management | Assigned-player read-only | Linked-player read-only |
-| Payments | Full access | Own academy collection and history | Assigned-player read-only | Linked-player history and own receipts |
+| Payment dues | Full access | Own academy management | No access | Linked-player read-only |
+| Payments | Full access | Own academy collection and history | No access | Linked-player history and own receipts |
 | Receipts | View/print | View/print own academy receipts | No access | View/print linked-player receipts |
 
 ## 3. Player module authorization and integrity rules
@@ -88,6 +88,12 @@ For active players:
 - Can mark attendance for assigned batches.
 - Can edit attendance within the defined seven-day rule.
 - Cannot delete attendance, manage academy configuration, collect payments or generate dues.
+
+### Payment responsibility
+
+- Payment collection is restricted to Super Admin and Academy Owner.
+- Payment correction requests and approvals are restricted to Super Admin and Academy Owner.
+- Coaches do not have payment-ledger access or payment-collection access. If a coach receives cash during a session, the operational process is to hand it to the Academy Owner and inform them; the Owner/Admin records and reconciles the payment in AcadPro.
 
 ### Parent
 
