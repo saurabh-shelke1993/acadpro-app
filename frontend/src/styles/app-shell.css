@@ -1,0 +1,235 @@
+/* D1 Phase 2 — shared application shell */
+
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+  background: var(--ap-page-bg);
+}
+
+.app-sidebar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  width: 248px;
+  height: 100vh;
+  flex: 0 0 248px;
+  flex-direction: column;
+  padding: var(--ap-space-5);
+  overflow-y: auto;
+  background: var(--ap-slate-950);
+  color: var(--ap-white);
+}
+
+.app-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--ap-space-3);
+  padding: 0.25rem var(--ap-space-2) var(--ap-space-6);
+}
+
+.app-brand-mark {
+  display: flex;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--ap-radius-lg);
+  background: var(--ap-primary-600);
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.28);
+  font-size: 1.1rem;
+}
+
+.app-brand-name {
+  color: var(--ap-white);
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.app-brand-caption {
+  margin-top: 1px;
+  color: var(--ap-slate-400);
+  font-size: 0.6875rem;
+}
+
+.app-nav {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.app-nav-group-title {
+  margin: var(--ap-space-4) var(--ap-space-2) var(--ap-space-2);
+  color: var(--ap-slate-500);
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.app-nav-group-title:first-child {
+  margin-top: 0;
+}
+
+.app-nav-link {
+  display: flex;
+  min-height: 40px;
+  align-items: center;
+  gap: var(--ap-space-3);
+  padding: 0.5rem 0.625rem;
+  border: 1px solid transparent;
+  border-radius: var(--ap-radius-md);
+  color: var(--ap-slate-300);
+  font-size: var(--ap-font-size-sm);
+  font-weight: 550;
+  text-decoration: none;
+  transition: background-color var(--ap-transition-fast), color var(--ap-transition-fast), border-color var(--ap-transition-fast);
+}
+
+.app-nav-link:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--ap-white);
+}
+
+.app-nav-link-active {
+  border-color: rgba(96, 165, 250, 0.16);
+  background: rgba(37, 99, 235, 0.18);
+  color: var(--ap-white);
+  font-weight: 700;
+}
+
+.app-nav-icon {
+  display: inline-flex;
+  width: 22px;
+  flex: 0 0 22px;
+  align-items: center;
+  justify-content: center;
+  color: var(--ap-slate-400);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.app-nav-link-active .app-nav-icon {
+  color: #60a5fa;
+}
+
+.app-sidebar-footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ap-space-3);
+  padding-top: var(--ap-space-5);
+  border-top: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.app-user-chip {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: var(--ap-space-3);
+  padding: 0.5rem;
+  border-radius: var(--ap-radius-md);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.app-user-avatar {
+  display: flex;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--ap-radius-full);
+  background: var(--ap-primary-600);
+  color: var(--ap-white);
+  font-size: var(--ap-font-size-sm);
+  font-weight: 800;
+}
+
+.app-user-meta {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.app-user-meta strong {
+  overflow: hidden;
+  color: var(--ap-slate-100);
+  font-size: var(--ap-font-size-xs);
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-user-meta span {
+  margin-top: 2px;
+  overflow: hidden;
+  color: var(--ap-slate-500);
+  font-size: 0.625rem;
+  text-transform: capitalize;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-logout {
+  display: flex;
+  width: 100%;
+  min-height: 38px;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ap-space-2);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: var(--ap-radius-md);
+  background: transparent;
+  color: var(--ap-slate-300);
+  font-size: var(--ap-font-size-sm);
+  font-weight: 650;
+  transition: background-color var(--ap-transition-fast), color var(--ap-transition-fast);
+}
+
+.app-logout:hover {
+  background: rgba(239, 68, 68, 0.12);
+  color: #fca5a5;
+}
+
+.app-main {
+  min-width: 0;
+  flex: 1;
+}
+
+.app-content {
+  width: 100%;
+  min-height: 100vh;
+  padding: var(--ap-space-8);
+}
+
+@media (max-width: 900px) {
+  .app-sidebar {
+    width: 220px;
+    flex-basis: 220px;
+  }
+
+  .app-content {
+    padding: var(--ap-space-6);
+  }
+}
+
+@media (max-width: 640px) {
+  .app-shell {
+    display: block;
+  }
+
+  .app-sidebar {
+    position: relative;
+    width: 100%;
+    height: auto;
+    min-height: auto;
+    flex-basis: auto;
+  }
+
+  .app-content {
+    min-height: auto;
+    padding: var(--ap-space-5);
+  }
+}
