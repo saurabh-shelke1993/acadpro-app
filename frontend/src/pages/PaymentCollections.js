@@ -4,7 +4,6 @@ import React, {
   useRef
 } from "react";
 import { supabase } from "../services/supabase";
-import { generateReceiptNumber } from "../utils/receiptGenerator";
 import "./PaymentCollections.css";
 
 import {
@@ -55,7 +54,6 @@ const [selectedPlayer,
 
   const [paymentMode, setPaymentMode] = useState("");
 
-  const [transactionReference, setTransactionReference] = useState("");
 
   const [payments, setPayments] = useState([]);
 
@@ -89,25 +87,7 @@ const receiptRef = useRef(null);
 
 const location = useLocation();
 
-//////////
-useEffect(() => {
 
-  const testReceipt = async () => {
-
-    const receipt =
-      await generateReceiptNumber();
-
-    console.log(
-      "Generated Receipt:",
-      receipt
-    );
-
-  };
-
-  testReceipt();
-
-}, []);
-//////////
 
 const dueId =
   location.state?.dueId;
@@ -149,6 +129,7 @@ useEffect(() => {
 
   fetchAcademies();
   fetchPayments();
+  fetchCorrections();
 
 }, [loggedInUser]);
 
@@ -556,6 +537,9 @@ const fetchPayments = async () => {
       amount_paid,
       payment_mode,
       transaction_reference,
+      receipt_number,
+      payment_entry_type,
+      related_payment_id,
       payment_date,
 
 players (
@@ -619,6 +603,32 @@ players (
 
 };
 
+const fetchCorrections = async () => {
+  const { data, error } = await supabase
+    .from("payment_corrections")
+    .select(`
+      id,
+      payment_id,
+      due_id,
+      player_id,
+      original_amount,
+      corrected_amount,
+      adjustment_amount,
+      reason,
+      status,
+      requested_by,
+      requested_at,
+      approved_by,
+      approved_at,
+      rejection_reason,
+      players ( id, full_name ),
+      payments ( transaction_reference, receipt_number, payment_date )
+    `)
+    .order("requested_at", { ascending: false });
+  if (error) { console.log(error); return; }
+  setCorrections(data || []);
+};
+
 const resetCollectionForm = () => {
 
   setSelectedAcademy("");
@@ -637,7 +647,6 @@ const resetCollectionForm = () => {
 
   setPaymentMode("");
 
-  setTransactionReference("");
 
   setCenters([]);
 
@@ -650,217 +659,61 @@ const resetCollectionForm = () => {
 };
 
   const collectPayment = async () => {
-
-    if (
-      !selectedDue ||
-      !amountPaid ||
-      !paymentMode
-    ) {
-
+    if (!selectedDue || !amountPaid || !paymentMode) {
       alert("Please fill all fields");
-
-      return;
-    }
-if (
-  paymentMode !== "cash" &&
-  !transactionReference.trim()
-) {
-
-  alert(
-    "Transaction Reference is required."
-  );
-
-  return;
-
-}
-    const currentPaid =
-      Number(
-        selectedDueData.paid_amount
-      );
-
-    const totalAmount =
-      Number(
-        selectedDueData.total_amount
-      );
-
-const paymentAmount =
-  Number(amountPaid);
-
-const newPaidAmount =
-  currentPaid + paymentAmount;
-
-const remainingAmount =
-  totalAmount - newPaidAmount;
-
-console.log("Current Paid:", currentPaid);
-console.log("Total Amount:", totalAmount);
-console.log("Entered Payment:", paymentAmount);
-console.log("New Paid Amount:", newPaidAmount);
-console.log("Remaining Amount:", remainingAmount);
-
-if (remainingAmount < 0) {
-
-  const maximumAllowed =
-    totalAmount - currentPaid;
-
-  alert(
-    `Maximum payable amount is ₹${maximumAllowed}`
-  );
-
-  return;
-
-}
-
-
-let dueStatus = "pending";
-
-if (
-    newPaidAmount === totalAmount
-) {
-
-    dueStatus = "paid";
-
-}
-else if (
-    newPaidAmount > 0
-) {
-
-    dueStatus = "partial";
-
-}
-/////
-
-const receiptNumber =
-  await generateReceiptNumber();
-
-        /* INSERT PAYMENT */
-   
-    const { error: paymentError } =
-      await supabase
-        .from("payments")
-        .insert([
-          {
-            due_id:
-              selectedDueData.id,
-
-            player_id:
-              selectedDueData.player_id,
-
-            amount_paid:
-              Number(amountPaid),
-
-            payment_mode:
-              paymentMode,
-
-            transaction_reference:
-              transactionReference,
-
-            receipt_number: receiptNumber
-          }
-        ]);
-
-    if (paymentError) {
-
-      alert(paymentError.message);
-
       return;
     }
 
-    /* UPDATE DUE */
+    const paymentAmount = Number(amountPaid);
+    if (!Number.isFinite(paymentAmount) || paymentAmount <= 0) {
+      alert("Payment amount must be greater than zero.");
+      return;
+    }
 
-    const { error: dueError } =
-      await supabase
-  .from("payment_dues")
-  .update({
+    const { data, error } = await supabase.rpc("collect_payment", {
+      p_due_id: selectedDue,
+      p_amount: paymentAmount,
+      p_payment_mode: paymentMode,
+      p_remarks: null
+    });
 
-    paid_amount:
-      newPaidAmount,
+    if (error) {
+      alert(error.message);
+      return;
+    }
 
-    due_status:
-      dueStatus
+    const result = Array.isArray(data) ? data[0] : data;
+    if (!result) {
+      alert("Payment collection did not return a payment result.");
+      return;
+    }
 
-  })
-        .eq(
-          "id",
-          selectedDueData.id
-        );
+    const selectedAcademyName = academies.find(a => a.id === selectedAcademy)?.academy_name;
+    const selectedCenterName = centers.find(c => c.id === selectedCenter)?.center_name;
+    const selectedBatchName = batches.find(b => b.id === selectedBatch)?.batch_name;
 
- if (dueError) {
+    setReceiptData({
+      receiptNumber: result.receipt_number,
+      player: selectedDueData?.players?.full_name || "-", 
+      academy: selectedAcademyName,
+      center: selectedCenterName,
+      batch: selectedBatchName,
+      amountPaid: result.amount_paid,
+      paymentMode: result.payment_mode,
+      transactionReference: result.transaction_reference,
+      remainingAmount: result.remaining_amount,
+      paymentDate: new Date(result.payment_date).toLocaleDateString("en-IN", {
+        day: "2-digit", month: "short", year: "numeric"
+      })
+    });
 
-  alert(dueError.message);
+    setShowReceiptModal(true);
 
-} else {
-
-  const receiptNumber =
-    await generateReceiptNumber();
-
-  const selectedAcademyName =
-    academies.find(
-      academy =>
-        academy.id === selectedAcademy
-    )?.academy_name;
-
-  const selectedCenterName =
-    centers.find(
-      center =>
-        center.id === selectedCenter
-    )?.center_name;
-
-  const selectedBatchName =
-    batches.find(
-      batch =>
-        batch.id === selectedBatch
-    )?.batch_name;
-
-  setReceiptData({
-
-    receiptNumber,
-
-    player:
-      selectedDueData.players.full_name,
-
-    academy:
-      selectedAcademyName,
-
-    center:
-      selectedCenterName,
-
-    batch:
-      selectedBatchName,
-
-    amountPaid:
-      paymentAmount,
-
-    paymentMode:
-      paymentMode,
-
-    transactionReference:
-      transactionReference,
-
-    remainingAmount:
-      remainingAmount,
-
-paymentDate:
-new Date().toLocaleDateString(
-  "en-IN",
-  {
-    day: "2-digit",
-    month: "short",
-    year: "numeric"
-  }
-)
-
-  });
-
-  setShowReceiptModal(true);
-
-  resetCollectionForm();
-
-  fetchPendingDues(selectedPlayer);
-
-  fetchPayments();
-
-}
+    const playerId = selectedDueData?.player_id;
+    resetCollectionForm();
+    await fetchPendingDues(playerId);
+    await fetchPayments();
+    await fetchCorrections();
   };
 
 useEffect(() => {
@@ -887,6 +740,78 @@ useEffect(() => {
   payments,
   selectedPlayer
 ]);
+
+const openCorrectionModal = (payment) => {
+  setCorrectionPayment(payment);
+  setCorrectionAmount(String(payment.amount_paid ?? ""));
+  setCorrectionReason("");
+  setShowCorrectionModal(true);
+};
+
+const closeCorrectionModal = () => {
+  setShowCorrectionModal(false);
+  setCorrectionPayment(null);
+  setCorrectionAmount("");
+  setCorrectionReason("");
+};
+
+const requestCorrection = async () => {
+  if (!correctionPayment) return;
+  const correctedAmount = Number(correctionAmount);
+  if (!Number.isFinite(correctedAmount) || correctedAmount <= 0) {
+    alert("Corrected amount must be greater than zero.");
+    return;
+  }
+  if (correctionReason.trim().length < 5) {
+    alert("Please provide a correction reason of at least 5 characters.");
+    return;
+  }
+  const { error } = await supabase.rpc("request_payment_correction", {
+    p_payment_id: correctionPayment.id,
+    p_corrected_amount: correctedAmount,
+    p_reason: correctionReason.trim()
+  });
+  if (error) { alert(error.message); return; }
+  alert("Payment correction request submitted.");
+  closeCorrectionModal();
+  await fetchCorrections();
+};
+
+const approveCorrection = async (correctionId) => {
+  if (!window.confirm("Approve this payment correction? This will create an adjustment ledger entry and update the due.")) return;
+  const { data, error } = await supabase.rpc("approve_payment_correction", { p_correction_id: correctionId });
+  if (error) { alert(error.message); return; }
+  const result = Array.isArray(data) ? data[0] : data;
+  alert(result ? `Correction approved. Adjustment reference: ${result.transaction_reference}` : "Correction approved.");
+  await fetchCorrections();
+  await fetchPayments();
+};
+
+const openRejectionModal = (correction) => {
+  setRejectionCorrection(correction);
+  setRejectionReason("");
+};
+
+const closeRejectionModal = () => {
+  setRejectionCorrection(null);
+  setRejectionReason("");
+};
+
+const rejectCorrection = async () => {
+  if (!rejectionCorrection) return;
+  if (rejectionReason.trim().length < 5) {
+    alert("Please provide a rejection reason of at least 5 characters.");
+    return;
+  }
+  const { error } = await supabase.rpc("reject_payment_correction", {
+    p_correction_id: rejectionCorrection.id,
+    p_rejection_reason: rejectionReason.trim()
+  });
+  if (error) { alert(error.message); return; }
+  alert("Payment correction rejected.");
+  closeRejectionModal();
+  await fetchCorrections();
+};
 
 const printReceipt = () => {
   console.log("Print button clicked");
@@ -1322,13 +1247,8 @@ onChange={(e) => {
     dueData
   );
 
-  setAmountPaid(
-    dueData
-      ? dueData.remaining_amount
-      : ""
-  );
-  setTransactionReference("");
-setPaymentMode("");
+  setAmountPaid(dueData ? dueData.remaining_amount : "");
+  setPaymentMode("");
 }}
       >
 
@@ -1414,20 +1334,10 @@ setPaymentMode("");
       <br />
       <br />
 
-      {/* Transaction Reference */}
+      <p style={{ marginTop: "10px" }}>
+        Transaction reference and receipt number are generated automatically after payment collection.
+      </p>
 
-      <input
-        type="text"
-        placeholder="Transaction Reference"
-        value={transactionReference}
-        onChange={(e) =>
-          setTransactionReference(
-            e.target.value
-          )
-        }
-      />
-
-      <br />
       <br />
 
 <button
@@ -1513,12 +1423,14 @@ setPaymentMode("");
   {payment.payment_mode}
 </td>
 
+<td>{payment.transaction_reference}</td>
+<td>{payment.receipt_number || "-"}</td>
+<td>{payment.payment_entry_type === "adjustment" ? "Adjustment" : "Payment"}</td>
+<td>{new Date(payment.payment_date).toLocaleDateString()}</td>
 <td>
-  {payment.transaction_reference}
-</td>
-
-<td>
-  {new Date(payment.payment_date).toLocaleDateString()}
+  {payment.payment_entry_type === "payment" && (
+    <button onClick={() => openCorrectionModal(payment)}>Request Correction</button>
+  )}
 </td>
 
 </tr>
@@ -1530,7 +1442,65 @@ setPaymentMode("");
 
       </table>
 
+      <hr />
+      <br />
+      <h2>Payment Corrections</h2>
+      <table border="1" cellPadding="10" style={{ borderCollapse: "collapse", width: "100%" }}>
+        <thead><tr>
+          <th>Player</th><th>Original</th><th>Corrected</th><th>Adjustment</th><th>Reason</th><th>Status</th><th>Requested</th>
+          {(isSuperAdmin(loggedInUser) || loggedInUser?.role === "academy_owner") && <th>Actions</th>}
+        </tr></thead>
+        <tbody>
+          {corrections.map(correction => (
+            <tr key={correction.id}>
+              <td>{correction.players?.full_name || "-"}</td>
+              <td>₹{correction.original_amount}</td>
+              <td>₹{correction.corrected_amount}</td>
+              <td>₹{correction.adjustment_amount}</td>
+              <td>{correction.reason}</td>
+              <td>{correction.status}</td>
+              <td>{new Date(correction.requested_at).toLocaleDateString()}</td>
+              {(isSuperAdmin(loggedInUser) || loggedInUser?.role === "academy_owner") && <td>
+                {correction.status === "pending" && <>
+                  <button onClick={() => approveCorrection(correction.id)}>Approve</button>
+                  <button onClick={() => openRejectionModal(correction)}>Reject</button>
+                </>}
+                {correction.status === "rejected" && correction.rejection_reason}
+              </td>}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
     </div>
+
+    {showCorrectionModal && correctionPayment && (
+      <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.35)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 10000 }}>
+        <div style={{ background: "white", padding: "24px", minWidth: "360px" }}>
+          <h3>Request Payment Correction</h3>
+          <p>Player: {correctionPayment.players?.full_name || "-"}</p>
+          <p>Original Amount: ₹{correctionPayment.amount_paid}</p>
+          <input type="number" min="0.01" step="0.01" placeholder="Corrected Amount" value={correctionAmount} onChange={e => setCorrectionAmount(e.target.value)} />
+          <br /><br />
+          <textarea placeholder="Reason for correction" value={correctionReason} onChange={e => setCorrectionReason(e.target.value)} rows="4" style={{ width: "100%" }} />
+          <br /><br />
+          <button onClick={requestCorrection}>Submit Correction</button>
+          <button onClick={closeCorrectionModal}>Cancel</button>
+        </div>
+      </div>
+    )}
+
+    {rejectionCorrection && (
+      <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.35)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 10000 }}>
+        <div style={{ background: "white", padding: "24px", minWidth: "360px" }}>
+          <h3>Reject Payment Correction</h3>
+          <textarea placeholder="Rejection reason" value={rejectionReason} onChange={e => setRejectionReason(e.target.value)} rows="4" style={{ width: "100%" }} />
+          <br /><br />
+          <button onClick={rejectCorrection}>Reject Correction</button>
+          <button onClick={closeRejectionModal}>Cancel</button>
+        </div>
+      </div>
+    )}
 
     {showReceiptModal &&
       receiptData && (
