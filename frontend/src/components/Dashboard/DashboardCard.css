@@ -7,7 +7,7 @@
   align-items: center;
   gap: var(--ap-space-4);
 
-  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  box-shadow: var(--ap-shadow-md);
 
   transition: 0.25s;
   min-height: 110px;
@@ -16,7 +16,7 @@
 .dashboard-card:hover {
   transform: translateY(-3px);
 
-  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  box-shadow: var(--ap-shadow-lg);
 }
 
 .dashboard-card-icon {
@@ -61,10 +61,10 @@
 }
 
 .dashboard-chart-card {
-  background: #ffffff;
+  background: var(--ap-surface);
   border-radius: 10px;
   padding: var(--ap-space-5);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--ap-shadow-md);
   min-width: 0;
 }
 
@@ -75,7 +75,7 @@
 
 .dashboard-chart-description {
   margin: 0 0 16px;
-  color: #555;
+  color: var(--ap-slate-600);
   font-size: 14px;
 }
 
@@ -91,13 +91,13 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  color: #777;
+  color: var(--ap-slate-500);
   font-size: 14px;
   text-align: center;
 }
 
 .dashboard-chart-empty strong {
-  color: #444;
+  color: var(--ap-slate-700);
   font-size: 16px;
 }
 
