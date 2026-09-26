@@ -185,12 +185,16 @@ Validation covered role scenarios, cross-academy access, mutation attempts and d
 
 ### P2 — Frontend Payment Collections Regression
 
-- [ ] Replace direct payment INSERT/UPDATE flow with collect_payment RPC
-- [ ] Remove manual transaction-reference input
-- [ ] Display generated transaction reference
-- [ ] Use stored receipt number for receipt modal/print
-- [ ] Correction request UI
-- [ ] Correction approval/rejection UI
+- [x] Replace direct payment INSERT/UPDATE flow with collect_payment RPC
+- [x] Remove manual transaction-reference input
+- [x] Display generated transaction reference
+- [x] Use stored receipt number for receipt modal/print
+- [x] Correction request UI
+- [x] Correction approval/rejection UI
+- [x] Restrict payment collection and correction requests to Super Admin / Academy Owner
+- [x] Remove Coach payment collection route and sidebar access
+- [x] Remove Coach payment ledger/correction RLS access
+- [ ] Negative authorization testing for Coach payment access
 
 - [ ] Payment dues and generation
 - [ ] Duplicate prevention
