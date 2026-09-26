@@ -37,7 +37,6 @@ $$;
 update public.payment_dues
 set
   paid_amount = total_amount,
-  remaining_amount = 0,
   due_status = 'paid',
   updated_at = now()
 where id in (
