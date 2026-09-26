@@ -818,6 +818,13 @@ const approveCorrection = async (correctionId) => {
   const { data, error } = await supabase.rpc("approve_payment_correction", { p_correction_id: correctionId });
   if (error) { alert(error.message); return; }
   const result = Array.isArray(data) ? data[0] : data;
+  setCorrections(prev =>
+    prev.map(correction =>
+      correction.id === correctionId
+        ? { ...correction, status: "approved", approved_at: new Date().toISOString() }
+        : correction
+    )
+  );
   alert(result ? `Correction approved. Adjustment reference: ${result.transaction_reference}` : "Correction approved.");
   await fetchCorrections();
   await fetchPayments();
@@ -844,6 +851,17 @@ const rejectCorrection = async () => {
     p_rejection_reason: rejectionReason.trim()
   });
   if (error) { alert(error.message); return; }
+  setCorrections(prev =>
+    prev.map(correction =>
+      correction.id === rejectionCorrection.id
+        ? {
+            ...correction,
+            status: "rejected",
+            rejection_reason: rejectionReason.trim()
+          }
+        : correction
+    )
+  );
   alert("Payment correction rejected.");
   closeRejectionModal();
   await fetchCorrections();
