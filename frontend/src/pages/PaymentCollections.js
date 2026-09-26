@@ -83,6 +83,14 @@ const [showReceiptModal, setShowReceiptModal] =
 const [receiptData, setReceiptData] =
   useState(null);
 
+const [corrections, setCorrections] = useState([]);
+const [correctionPayment, setCorrectionPayment] = useState(null);
+const [correctionAmount, setCorrectionAmount] = useState("");
+const [correctionReason, setCorrectionReason] = useState("");
+const [showCorrectionModal, setShowCorrectionModal] = useState(false);
+const [rejectionCorrection, setRejectionCorrection] = useState(null);
+const [rejectionReason, setRejectionReason] = useState("");
+
 const receiptRef = useRef(null);
 
 const location = useLocation();
