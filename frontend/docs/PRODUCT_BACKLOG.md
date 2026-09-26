@@ -194,19 +194,24 @@ Validation covered role scenarios, cross-academy access, mutation attempts and d
 - [x] Restrict payment collection and correction requests to Super Admin / Academy Owner
 - [x] Remove Coach payment collection route and sidebar access
 - [x] Remove Coach payment ledger/correction RLS access
-- [ ] Negative authorization testing for Coach payment access
+- [x] Negative authorization testing for Coach payment access
 
-- [ ] Payment dues and generation
-- [ ] Duplicate prevention
-- [ ] Due editing
-- [ ] Partial/full payments
-- [ ] Overpayment validation
-- [ ] Remaining amount and status transitions
-- [ ] Payment history
-- [ ] Receipt generation and numbering
-- [ ] Role restrictions
-- [ ] Academy/data-scope isolation
-- [ ] Negative authorization testing
+### P2 verification: COMPLETE
+
+- [x] Payment dues and generation
+- [x] Duplicate prevention
+- [x] Due editing
+- [x] Partial/full payments
+- [x] Overpayment validation
+- [x] Remaining amount and status transitions
+- [x] Payment history
+- [x] Receipt generation and numbering
+- [x] Role restrictions
+- [x] Academy/data-scope isolation
+- [x] Negative authorization testing
+- [x] Coach protected-route denial verified
+- [x] Coach payment sidebar access removed
+- [x] Production build passed after P2 role changes
 
 ## 2. Automated Payment Reminders
 
