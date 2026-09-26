@@ -1,0 +1,338 @@
+/*
+ * AcadPro Design System — D1 foundation
+ *
+ * This file contains shared visual tokens and low-level UI primitives.
+ * Feature/module-specific styles should build on these tokens rather than
+ * introducing new one-off colors, spacing, radii, or shadows.
+ */
+
+:root {
+  /* Brand */
+  --ap-primary-50: #eff6ff;
+  --ap-primary-100: #dbeafe;
+  --ap-primary-500: #3b82f6;
+  --ap-primary-600: #2563eb;
+  --ap-primary-700: #1d4ed8;
+
+  /* Semantic */
+  --ap-success-50: #f0fdf4;
+  --ap-success-500: #22c55e;
+  --ap-success-600: #16a34a;
+  --ap-warning-50: #fffbeb;
+  --ap-warning-500: #f59e0b;
+  --ap-warning-600: #d97706;
+  --ap-danger-50: #fef2f2;
+  --ap-danger-500: #ef4444;
+  --ap-danger-600: #dc2626;
+  --ap-info-50: #f0f9ff;
+  --ap-info-500: #0ea5e9;
+  --ap-info-600: #0284c7;
+
+  /* Neutrals */
+  --ap-slate-950: #020617;
+  --ap-slate-900: #0f172a;
+  --ap-slate-800: #1e293b;
+  --ap-slate-700: #334155;
+  --ap-slate-600: #475569;
+  --ap-slate-500: #64748b;
+  --ap-slate-400: #94a3b8;
+  --ap-slate-300: #cbd5e1;
+  --ap-slate-200: #e2e8f0;
+  --ap-slate-100: #f1f5f9;
+  --ap-slate-50: #f8fafc;
+  --ap-white: #ffffff;
+
+  /* Surfaces */
+  --ap-page-bg: #f8fafc;
+  --ap-surface: #ffffff;
+  --ap-surface-muted: #f1f5f9;
+  --ap-border: #e2e8f0;
+  --ap-border-strong: #cbd5e1;
+
+  /* Typography */
+  --ap-font-sans: "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --ap-font-size-xs: 0.75rem;
+  --ap-font-size-sm: 0.875rem;
+  --ap-font-size-md: 1rem;
+  --ap-font-size-lg: 1.125rem;
+  --ap-font-size-xl: 1.25rem;
+  --ap-font-size-2xl: 1.5rem;
+  --ap-font-size-3xl: 1.875rem;
+
+  /* Spacing */
+  --ap-space-1: 0.25rem;
+  --ap-space-2: 0.5rem;
+  --ap-space-3: 0.75rem;
+  --ap-space-4: 1rem;
+  --ap-space-5: 1.25rem;
+  --ap-space-6: 1.5rem;
+  --ap-space-8: 2rem;
+  --ap-space-10: 2.5rem;
+
+  /* Radius */
+  --ap-radius-sm: 0.375rem;
+  --ap-radius-md: 0.5rem;
+  --ap-radius-lg: 0.75rem;
+  --ap-radius-xl: 1rem;
+  --ap-radius-full: 9999px;
+
+  /* Elevation */
+  --ap-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --ap-shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+  --ap-shadow-lg: 0 10px 24px rgba(15, 23, 42, 0.10);
+
+  /* Motion */
+  --ap-transition-fast: 150ms ease;
+  --ap-transition-base: 200ms ease;
+}
+
+/* ================================
+   Base UI primitives
+   ================================ */
+
+body {
+  color: var(--ap-slate-900);
+  background: var(--ap-page-bg);
+  font-family: var(--ap-font-sans);
+  font-size: var(--ap-font-size-md);
+  line-height: 1.5;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+input,
+select,
+textarea {
+  border: 1px solid var(--ap-border-strong);
+  border-radius: var(--ap-radius-md);
+  background: var(--ap-surface);
+  color: var(--ap-slate-900);
+  transition:
+    border-color var(--ap-transition-fast),
+    box-shadow var(--ap-transition-fast);
+}
+
+input,
+select {
+  min-height: 40px;
+  padding: 0.5rem 0.75rem;
+}
+
+textarea {
+  min-height: 96px;
+  padding: 0.625rem 0.75rem;
+  resize: vertical;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--ap-slate-400);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--ap-primary-600) !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
+}
+
+/* ================================
+   Reusable buttons
+   ================================ */
+
+.ui-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ap-space-2);
+  min-height: 40px;
+  padding: 0.5rem 0.875rem;
+  border: 1px solid transparent;
+  border-radius: var(--ap-radius-md);
+  font-weight: 600;
+  line-height: 1.25;
+  transition:
+    background-color var(--ap-transition-fast),
+    border-color var(--ap-transition-fast),
+    box-shadow var(--ap-transition-fast),
+    transform var(--ap-transition-fast);
+}
+
+.ui-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.ui-button-primary {
+  background: var(--ap-primary-600);
+  color: var(--ap-white);
+}
+
+.ui-button-primary:hover:not(:disabled) {
+  background: var(--ap-primary-700);
+}
+
+.ui-button-secondary {
+  background: var(--ap-white);
+  border-color: var(--ap-border-strong);
+  color: var(--ap-slate-700);
+}
+
+.ui-button-secondary:hover:not(:disabled) {
+  background: var(--ap-slate-50);
+}
+
+.ui-button-success {
+  background: var(--ap-success-600);
+  color: var(--ap-white);
+}
+
+.ui-button-danger {
+  background: var(--ap-danger-600);
+  color: var(--ap-white);
+}
+
+/* ================================
+   Status badges
+   ================================ */
+
+.ui-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0.125rem 0.625rem;
+  border-radius: var(--ap-radius-full);
+  font-size: var(--ap-font-size-xs);
+  font-weight: 600;
+}
+
+.ui-badge-success {
+  background: var(--ap-success-50);
+  color: var(--ap-success-600);
+}
+
+.ui-badge-warning {
+  background: var(--ap-warning-50);
+  color: var(--ap-warning-600);
+}
+
+.ui-badge-danger {
+  background: var(--ap-danger-50);
+  color: var(--ap-danger-600);
+}
+
+.ui-badge-info {
+  background: var(--ap-primary-50);
+  color: var(--ap-primary-700);
+}
+
+.ui-badge-neutral {
+  background: var(--ap-slate-100);
+  color: var(--ap-slate-600);
+}
+
+/* ================================
+   Cards / sections
+   ================================ */
+
+.ui-card {
+  background: var(--ap-surface);
+  border: 1px solid var(--ap-border);
+  border-radius: var(--ap-radius-lg);
+  box-shadow: var(--ap-shadow-sm);
+}
+
+.ui-card-elevated {
+  box-shadow: var(--ap-shadow-md);
+}
+
+.ui-section {
+  margin-top: var(--ap-space-8);
+}
+
+.ui-section-title {
+  margin: 0 0 var(--ap-space-4);
+  color: var(--ap-slate-900);
+  font-size: var(--ap-font-size-xl);
+  font-weight: 700;
+}
+
+/* ================================
+   Tables
+   ================================ */
+
+.ui-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--ap-border);
+  border-radius: var(--ap-radius-lg);
+  background: var(--ap-surface);
+}
+
+.ui-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.ui-table th {
+  padding: 0.75rem 1rem;
+  background: var(--ap-slate-50);
+  border-bottom: 1px solid var(--ap-border);
+  color: var(--ap-slate-600);
+  font-size: var(--ap-font-size-xs);
+  font-weight: 700;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.ui-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--ap-border);
+  color: var(--ap-slate-700);
+  font-size: var(--ap-font-size-sm);
+}
+
+.ui-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.ui-table tbody tr:hover {
+  background: var(--ap-slate-50);
+}
+
+/* ================================
+   Accessibility / motion
+   ================================ */
+
+:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.35);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
