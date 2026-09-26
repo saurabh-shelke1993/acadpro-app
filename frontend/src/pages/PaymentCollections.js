@@ -143,6 +143,34 @@ useEffect(() => {
 
 useEffect(() => {
 
+  if (!selectedAcademy) {
+    setCenters([]);
+    setSelectedCenter("");
+    setBatches([]);
+    setSelectedBatch("");
+    setPlayers([]);
+    setSelectedPlayer("");
+    setDues([]);
+    setSelectedDue("");
+    setSelectedDueData(null);
+    return;
+  }
+
+  setSelectedCenter("");
+  setSelectedBatch("");
+  setSelectedPlayer("");
+  setBatches([]);
+  setPlayers([]);
+  setDues([]);
+  setSelectedDue("");
+  setSelectedDueData(null);
+
+  fetchCenters(selectedAcademy);
+
+}, [selectedAcademy]);
+
+useEffect(() => {
+
   let filtered =
     payments || [];
 
@@ -1081,12 +1109,6 @@ onChange={(e) => {
   setSelectedDueData(null);
 
   // Load centers
-
-  if (academyId) {
-
-    fetchCenters(academyId);
-
-  }
 
 }}
 >
