@@ -70,8 +70,8 @@ Verification baseline:
 | Subscription Plans | Complete | CRUD and role security implemented |
 | Player Subscriptions | Complete | Assignment and management implemented |
 | Payment Dues | Complete | Generation, status, remaining amount, editing and filtering implemented |
-| Payment Collections | P2 frontend integration implemented | Atomic collection RPC, generated references, stored receipt usage, correction workflow and admin-only financial access are implemented; browser/RBAC regression remains |
-| Receipt Management | P2 frontend integration implemented | Database-generated unique receipt numbers, legacy receipt backfill and frontend receipt display/print integration are implemented |
+| Payment Collections | P2 COMPLETE | Atomic collection RPC, generated references, stored receipt usage, correction workflow, admin-only financial access and Coach denial verified |
+| Receipt Management | P2 COMPLETE | Database-generated unique receipt numbers, legacy receipt backfill and frontend receipt display/print integration are implemented |
 | Dashboard Analytics | Complete | Role-aware KPIs, attendance and collection analytics implemented |
 | Parent Portal | Complete for current V1 scope | Dashboard, linked child summary, batch details, multiple active coaches, attendance, dues, payment history, receipt print/PDF workflow, parent RLS isolation and E2E regression verified |
 | Player Performance | V1 complete | Assessment entry/report, role-aware mutation scope, historical tracking, parent read-only access and RLS/RBAC regression verified |
@@ -81,8 +81,8 @@ Verification baseline:
 
 ## 4. Current High-Priority Work
 
-1. **Payment Module regression — P1 database foundation and P2 frontend integration implemented; final RBAC/financial regression remains**
-3. **Automated payment reminders**
+1. **Payment Module regression — P2 COMPLETE; 4 legacy overpaid dues require controlled reconciliation**
+2. **Automated payment reminders**
 4. **Razorpay production flow**
 5. **Production QA and hardening**
 6. Medium-priority UX, error/loading and responsive improvements
@@ -122,7 +122,7 @@ Known documented exceptions:
 
 - Forgot Password flow
 - Player Performance
-- Payment regression (P1 database foundation + P2 frontend integration complete; 4 legacy overpaid dues require reconciliation; final Coach denial/RBAC regression pending)
+- Payment regression (P1 database foundation + P2 frontend integration complete; Coach denial verified; 4 legacy overpaid dues require controlled reconciliation)
 - Automated reminders
 - Razorpay production integration
 - Performance-advisor optimization
