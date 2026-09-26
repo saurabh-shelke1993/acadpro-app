@@ -181,7 +181,7 @@ Validation covered role scenarios, cross-academy access, mutation attempts and d
 - [x] Payment correction request/approval/rejection workflow foundation
 - [x] Direct payment INSERT/UPDATE/DELETE removed from authenticated RLS path
 - [x] Legacy receipt numbers backfilled where missing
-- [ ] Reconcile 4 pre-existing overpaid dues
+- [x] Reconcile 4 pre-existing overpaid dues
 
 ### P2 — Frontend Payment Collections Regression
 
@@ -197,6 +197,16 @@ Validation covered role scenarios, cross-academy access, mutation attempts and d
 - [x] Negative authorization testing for Coach payment access
 
 ### P2 verification: COMPLETE
+
+### P3 — Legacy Payment Data Reconciliation: COMPLETE
+
+- [x] Audited all four pre-existing overpaid dues
+- [x] Confirmed the anomalies had no corresponding payment ledger rows
+- [x] Normalized paid amount to total amount
+- [x] Cleared negative remaining amounts through the database-generated value
+- [x] Preserved the payment ledger without inventing historical payment events
+- [x] Verified zero remaining overpaid dues
+- [x] Verified zero negative remaining amounts
 
 - [x] Payment dues and generation
 - [x] Duplicate prevention
