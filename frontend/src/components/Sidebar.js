@@ -1,255 +1,103 @@
-import { Link, useNavigate } from "react-router-dom";
-
-import {
-  logoutUser,
-} from "../utils/auth";
-
-import {
-  isSuperAdmin,
-  isCoach,
-  isParent,
-} from "../utils/roles";
+import { NavLink, useNavigate } from "react-router-dom";
+import { logoutUser } from "../utils/auth";
+import { isCoach, isParent, isSuperAdmin } from "../utils/roles";
 
 function Sidebar() {
-
   const navigate = useNavigate();
-
-  const user = JSON.parse(
-    localStorage.getItem("acadpro_user")
-  );
+  const user = JSON.parse(localStorage.getItem("acadpro_user"));
 
   const handleLogout = async () => {
-
     await logoutUser();
-
     navigate("/login");
   };
 
-  return (
+  const linkClass = ({ isActive }) =>
+    `app-nav-link${isActive ? " app-nav-link-active" : ""}`;
 
-    <div
-      style={{
-        width: "280px",
-        minHeight: "100vh",
-        backgroundColor: "#0f172a",
-        color: "white",
-        padding: "20px",
-      }}
-    >
-
-      {/* LOGO */}
-
-      <h1
-        style={{
-          marginBottom: "40px",
-        }}
-      >
-        AcadPro
-      </h1>
-
-      {/* ========================================= */}
-      {/* COACH SIDEBAR */}
-      {/* ========================================= */}
-
-{
-  isCoach(user) ? (
-
-    <>
-
-      <SidebarLink
-        to="/coach-dashboard"
-        label="Dashboard"
-      />
-
-      <SidebarLink
-        to="/coach-attendance"
-        label="Coach Attendance"
-      />
-
-      <SidebarLink
-        to="/coach-performance-assessments"
-        label="Performance Assessments"
-      />
-
-      <SidebarLink
-        to="/player-performance-report"
-        label="Performance Report"
-      />
-
-      <SidebarLink
-        to="/attendance-history"
-        label="Attendance History"
-      />
-
-      <SidebarLink
-        to="/centers"
-        label="Centers"
-      />
-
-      <SidebarLink
-        to="/batches"
-        label="Batches"
-      />
-
-      <SidebarLink
-        to="/players"
-        label="Players"
-      />
-
-    </>
-
-  ) : isParent(user) ? (
-
-    <>
-
-      <SidebarLink
-        to="/player-performance-report"
-        label="Performance Report"
-      />
-
-    </>
-
-  ) : (
-
-          <>
-            {/* DASHBOARD */}
-
-            <SidebarLink
-              to="/dashboard"
-              label="Dashboard"
-            />
-
-            {/* SUPER ADMIN ONLY */}
-
-            {
-              isSuperAdmin(user) && (
-
-                <SidebarLink
-                  to="/academy"
-                  label="Academies"
-                />
-              )
-            }
-
-            {/* COMMON ADMIN MODULES */}
-
-            <SidebarLink
-              to="/centers"
-              label="Centers"
-            />
-
-            <SidebarLink
-              to="/batches"
-              label="Batches"
-            />
-
-            <SidebarLink
-              to="/players"
-              label="Players"
-            />
-
-            <SidebarLink
-              to="/player-performance-report"
-              label="Performance Report"
-            />
-
-            <SidebarLink
-              to="/coach-performance-assessments"
-              label="Performance Assessments"
-            />
-
-            <SidebarLink
-              to="/attendance"
-              label="Attendance"
-            />
-
-            <SidebarLink
-              to="/attendance-history"
-              label="Attendance History"
-            />
-
-            <SidebarLink
-              to="/coaches"
-              label="Coaches"
-            />
-
-            <SidebarLink
-              to="/coach-batch-mapping"
-              label="Coach Batch Mapping"
-            />
-
-            <SidebarLink
-              to="/subscription-plans"
-              label="Subscription Plans"
-            />
-
-            <SidebarLink
-              to="/player-subscriptions"
-              label="Player Subscriptions"
-            />
-
-            <SidebarLink
-              to="/payment-dues"
-              label="Payment Dues"
-            />
-
-          </>
-        )
-      }
-
-      {/* ========================================= */}
-      {/* LOGOUT */}
-      {/* ========================================= */}
-
-      <button
-        onClick={handleLogout}
-        style={{
-          marginTop: "40px",
-          width: "100%",
-          padding: "12px",
-          borderRadius: "10px",
-          border: "none",
-          cursor: "pointer",
-          fontWeight: "bold",
-        }}
-      >
-        Logout
-      </button>
-
-    </div>
+  const renderLink = (to, label, icon) => (
+    <NavLink to={to} className={linkClass}>
+      <span className="app-nav-icon" aria-hidden="true">{icon}</span>
+      <span>{label}</span>
+    </NavLink>
   );
-}
-
-// =========================================
-// REUSABLE SIDEBAR LINK
-// =========================================
-
-function SidebarLink({
-  to,
-  label
-}) {
 
   return (
+    <aside className="app-sidebar">
+      <div className="app-brand">
+        <div className="app-brand-mark">⚽</div>
+        <div>
+          <div className="app-brand-name">AcadPro</div>
+          <div className="app-brand-caption">Academy management</div>
+        </div>
+      </div>
 
-    <div
-      style={{
-        marginBottom: "18px",
-      }}
-    >
+      <nav className="app-nav" aria-label="Primary navigation">
+        {isCoach(user) ? (
+          <>
+            <div className="app-nav-group-title">Overview</div>
+            {renderLink("/coach-dashboard", "Dashboard", "⌂")}
 
-      <Link
-        to={to}
-        style={{
-          color: "white",
-          textDecoration: "none",
-          fontSize: "17px",
-          fontWeight: "500",
-        }}
-      >
-        {label}
-      </Link>
+            <div className="app-nav-group-title">Coaching</div>
+            {renderLink("/coach-attendance", "Attendance", "✓")}
+            {renderLink("/coach-performance-assessments", "Performance Assessments", "◈")}
+            {renderLink("/player-performance-report", "Performance Report", "▥")}
+            {renderLink("/attendance-history", "Attendance History", "◷")}
 
-    </div>
+            <div className="app-nav-group-title">Academy</div>
+            {renderLink("/centers", "Centers", "⌂")}
+            {renderLink("/batches", "Batches", "◆")}
+            {renderLink("/players", "Players", "●")}
+          </>
+        ) : isParent(user) ? (
+          <>
+            <div className="app-nav-group-title">My Family</div>
+            {renderLink("/player-performance-report", "Performance Report", "▥")}
+          </>
+        ) : (
+          <>
+            <div className="app-nav-group-title">Overview</div>
+            {renderLink("/dashboard", "Dashboard", "⌂")}
+
+            <div className="app-nav-group-title">Academy</div>
+            {isSuperAdmin(user) && renderLink("/academy", "Academies", "▦")}
+            {renderLink("/centers", "Centers", "⌂")}
+            {renderLink("/batches", "Batches", "◆")}
+            {renderLink("/players", "Players", "●")}
+            {renderLink("/coaches", "Coaches", "♟")}
+            {renderLink("/coach-batch-mapping", "Coach Batch Mapping", "↔")}
+
+            <div className="app-nav-group-title">Performance</div>
+            {renderLink("/player-performance-report", "Performance Report", "▥")}
+            {renderLink("/coach-performance-assessments", "Performance Assessments", "◈")}
+            {renderLink("/attendance", "Attendance", "✓")}
+            {renderLink("/attendance-history", "Attendance History", "◷")}
+
+            <div className="app-nav-group-title">Finance</div>
+            {renderLink("/subscription-plans", "Subscription Plans", "◇")}
+            {renderLink("/player-subscriptions", "Player Subscriptions", "▤")}
+            {renderLink("/payment-dues", "Payment Dues", "₹")}
+            {renderLink("/payment-collections", "Payment Collections", "↗")}
+          </>
+        )}
+      </nav>
+
+      <div className="app-sidebar-footer">
+        <div className="app-user-chip">
+          <span className="app-user-avatar">
+            {(user?.full_name || user?.email || "U").charAt(0).toUpperCase()}
+          </span>
+          <div className="app-user-meta">
+            <strong>{user?.full_name || "User"}</strong>
+            <span>{user?.role?.replaceAll("_", " ") || ""}</span>
+          </div>
+        </div>
+
+        <button type="button" className="app-logout" onClick={handleLogout}>
+          <span aria-hidden="true">↪</span>
+          Logout
+        </button>
+      </div>
+    </aside>
   );
 }
 
