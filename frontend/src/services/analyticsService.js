@@ -1,4 +1,5 @@
 import { supabase } from "../supabaseClient";
+import { getDashboardDataScope } from "../utils/dataScope";
 
 const getDateRange = (days) => {
   const dates = [];
@@ -173,4 +174,19 @@ export async function getCollectionsTrend(suppliedScope) {
         0
       )
   }));
+}
+
+
+export async function getAnalyticsSummary(user) {
+  const scope = await getDashboardDataScope(user);
+
+  const [attendanceTrend, collectionsTrend] = await Promise.all([
+    getAttendanceTrend(scope),
+    getCollectionsTrend(scope)
+  ]);
+
+  return {
+    attendanceTrend,
+    collectionsTrend
+  };
 }
