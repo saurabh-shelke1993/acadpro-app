@@ -1,0 +1,10 @@
+
+.performance-page{max-width:1100px!important;padding:4px 0 36px!important}
+.performance-header{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:24px!important}
+.performance-eyebrow{margin-bottom:6px;color:#2563eb;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.performance-header-badge{display:inline-flex;align-items:center;justify-content:center;padding:8px 12px;border:1px solid #dbeafe;border-radius:999px;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:800;white-space:nowrap}
+.performance-card{border:1px solid #e2e8f0!important;box-shadow:0 3px 12px rgba(15,23,42,.05)!important;transition:box-shadow .15s ease,border-color .15s ease}
+.performance-card:hover{border-color:#cbd5e1;box-shadow:0 5px 16px rgba(15,23,42,.07)!important}
+.performance-card select:focus,.performance-card input:focus,.performance-card textarea:focus{outline:2px solid rgba(37,99,235,.18);outline-offset:1px;border-color:#2563eb!important}
+.performance-card button:focus-visible{outline:2px solid rgba(37,99,235,.35);outline-offset:2px}
+@media(max-width:700px){.performance-page{padding:0 0 24px!important}.performance-header{align-items:stretch;flex-direction:column;gap:12px}.performance-header-badge{align-self:flex-start}.performance-card{padding:18px!important}.performance-card h2{font-size:20px!important}}
