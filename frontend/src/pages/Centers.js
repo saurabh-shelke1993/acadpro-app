@@ -362,19 +362,20 @@ return (
 
       <div className="centers-table-wrap">
       <table className="centers-table">
+        <caption className="sr-only">Centers and available management actions</caption>
 
         <thead>
 
   <tr>
 
-    <th>Center Name</th>
+    <th scope="col">Center Name</th>
 
     {isSuperAdmin(user) && (
-      <th>Academy</th>
+      <th scope="col">Academy</th>
     )}
 
     {(isSuperAdmin(user) || isAcademyOwner(user)) && (
-      <th>Actions</th>
+      <th scope="col">Actions</th>
     )}
 
   </tr>
