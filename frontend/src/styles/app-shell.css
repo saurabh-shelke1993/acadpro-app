@@ -350,3 +350,32 @@
     padding: var(--ap-space-5);
   }
 }
+
+
+/* D7.2 — Accessible mobile navigation behavior */
+@media (max-width: 640px) {
+  body.app-sidebar-open {
+    overflow: hidden;
+  }
+
+  .app-sidebar,
+  .app-sidebar-overlay,
+  .app-menu-button,
+  .app-sidebar-close,
+  .app-nav-link,
+  .app-logout {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .app-menu-button:focus-visible,
+  .app-sidebar-close:focus-visible,
+  .app-nav-link:focus-visible,
+  .app-logout:focus-visible {
+    outline: 3px solid #93c5fd;
+    outline-offset: 2px;
+  }
+
+  .app-sidebar-overlay {
+    cursor: pointer;
+  }
+}
