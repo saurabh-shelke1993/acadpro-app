@@ -385,6 +385,18 @@
 @media (min-width: 901px) {
   .app-sidebar {
     padding: var(--ap-space-4);
+    overflow: hidden;
+  }
+
+  .app-nav {
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--ap-slate-700) transparent;
+  }
+
+  .app-sidebar-footer {
+    flex: 0 0 auto;
   }
 
   .app-brand {
