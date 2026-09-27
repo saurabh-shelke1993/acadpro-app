@@ -11,6 +11,7 @@ import {
   updateAcademy,
   deleteAcademy
 } from "../services/academyService";
+import "./Academy.css";
 
 const Academy = () => {
 
