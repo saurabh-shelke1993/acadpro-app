@@ -296,6 +296,7 @@ const Academy = () => {
 
         <div className="academy-table-wrap">
         <table className="academy-table">
+            <caption className="sr-only">Academies and available management actions</caption>
 
           <thead>
 
