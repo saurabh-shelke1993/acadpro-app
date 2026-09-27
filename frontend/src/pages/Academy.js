@@ -212,21 +212,26 @@ const Academy = () => {
 
     <Layout>
 
-      <div
-        style={{
-          padding: "20px"
-        }}
-      >
+      <div className="academy-page">
 
-        <h1>
-          Academy Management
-        </h1>
+        <div className="academy-page-header">
+          <div>
+            <span className="academy-page-eyebrow">Academy management</span>
+            <h1>Academies</h1>
+            <p>Create and manage active academies.</p>
+          </div>
+          <div className="academy-page-count">
+            <strong>{academies.length}</strong>
+            <span>active academies</span>
+          </div>
+        </div>
 
-        <form
-          onSubmit={
-            handleSubmit
-          }
-        >
+        <section className="academy-form-card">
+          <div className="academy-section-heading">
+            <h2>{editingAcademyId ? "Edit Academy" : "Create Academy"}</h2>
+            <p>{editingAcademyId ? "Update the academy name and save your changes." : "Add a new academy to the platform."}</p>
+          </div>
+          <form onSubmit={handleSubmit}>
 
           <input
             type="text"
@@ -278,18 +283,18 @@ const Academy = () => {
             )
           }
 
-        </form>
+          </form>
+        </section>
 
-        <hr />
+        <div className="academy-list-header">
+          <div>
+            <h2>Academy List</h2>
+            <p>{academies.length} {academies.length === 1 ? "academy" : "academies"} shown</p>
+          </div>
+        </div>
 
-        <h2>
-          Academy List
-        </h2>
-
-        <table
-          border="1"
-          width="100%"
-        >
+        <div className="academy-table-wrap">
+        <table className="academy-table">
 
           <thead>
 
@@ -308,8 +313,14 @@ const Academy = () => {
           </thead>
 
           <tbody>
-
-            {
+            {academies.length === 0 ? (
+              <tr>
+                <td className="academy-empty-state" colSpan={2}>
+                  <strong>No active academies</strong>
+                  <span>Create your first academy above.</span>
+                </td>
+              </tr>
+            ) : (
               academies.map(
                 academy => (
 
@@ -355,11 +366,10 @@ const Academy = () => {
 
                 )
               )
-            }
-
+            )}
           </tbody>
-
         </table>
+        </div>
 
       </div>
 
