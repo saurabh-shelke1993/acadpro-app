@@ -55,6 +55,12 @@
   font-weight: 700;
 }
 
+.analytics-filter-summary {
+  margin: 0.35rem 0 0;
+  color: var(--ap-slate-500);
+  font-size: var(--ap-font-size-xs);
+}
+
 .analytics-period-controls {
   display: flex;
   align-items: flex-end;
@@ -186,6 +192,7 @@
 
   .analytics-period-controls label {
     flex: 1;
+    min-width: 0;
   }
 
   .analytics-insights {
