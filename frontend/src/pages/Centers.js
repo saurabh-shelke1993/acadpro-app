@@ -315,86 +315,47 @@ return (
       </div>
 
       {/* ===================== */}
-      {/* SUPER ADMIN ONLY */}
+      {/* CENTER WORKSPACE */}
       {/* ===================== */}
 
-{isSuperAdmin(user) && (
-
+      {(isSuperAdmin(user) || isAcademyOwner(user)) && (
         <section className="centers-form-card">
-        <div className="centers-section-heading">
-          <h2>Center workspace</h2>
-          <p>{isSuperAdmin(user) ? "Select an academy, then create or edit a center." : "Create or edit centers within your academy."}</p>
-        </div>
-        <div className="centers-form-grid">
-        {isSuperAdmin(user) && (
-          <>
-<select
-  value={selectedAcademy}
-  onChange={(e) =>
-    handleAcademyChange(
-      e.target.value
-    )
-  }
->
+          <div className="centers-section-heading">
+            <h2>{editingCenterId ? "Edit Center" : "Center workspace"}</h2>
+            <p>{isSuperAdmin(user) ? "Select an academy, then create or edit a center." : "Create or edit centers within your academy."}</p>
+          </div>
 
-            <option value="">
-              Select Academy
-            </option>
+          <div className="centers-form-grid">
+            {isSuperAdmin(user) && (
+              <select
+                value={selectedAcademy}
+                onChange={(e) =>
+                  handleAcademyChange(e.target.value)
+                }
+              >
+                <option value="">Select Academy</option>
+                {academies.map((academy) => (
+                  <option key={academy.id} value={academy.id}>
+                    {academy.academy_name}
+                  </option>
+                ))}
+              </select>
+            )}
 
-            {
-              academies.map((academy) => (
+            <input
+              type="text"
+              placeholder="Enter Center Name"
+              value={centerName}
+              onChange={(e) => setCenterName(e.target.value)}
+            />
 
-                <option
-                  key={academy.id}
-                  value={academy.id}
-                >
-                  {academy.academy_name}
-                </option>
+            <button className="centers-primary-button" onClick={handleSaveCenter}>
+              {editingCenterId ? "Update Center" : "Create Center"}
+            </button>
+          </div>
+        </section>
+      )}
 
-              ))
-            }
-
-          </select>
-
-          <br />
-          <br />
-          </>
-        )}
-
-      {/* CENTER NAME */}
-{(isSuperAdmin(user) || isAcademyOwner(user)) && (
-
-  <>
-    {/* CENTER NAME */}
-
-    <input
-      type="text"
-      placeholder="Enter Center Name"
-      value={centerName}
-      onChange={(e) =>
-        setCenterName(e.target.value)
-      }
-    />
-
-    <br />
-    <br />
-
-    <button className="centers-primary-button" onClick={handleSaveCenter}>
-      {
-        editingCenterId
-          ? "Update Center"
-          : "Create Center"
-      }
-    </button>
-
-    <br />
-    <br />
-    <br />
-  </>
-
-)}
-        </div>
-      </section>
       {/* ========================= */}
       {/* CENTERS TABLE */}
       {/* ========================= */}
