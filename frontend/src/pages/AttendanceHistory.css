@@ -23,7 +23,7 @@
 .attendance-history-status-select{min-height:34px;padding:.35rem .55rem}
 .attendance-history-actions{display:flex;align-items:center;gap:.4rem}
 .attendance-icon-button,.attendance-action-button{min-height:34px;padding:.4rem .65rem;border:1px solid var(--ap-border);border-radius:var(--ap-radius-md);background:var(--ap-surface);color:var(--ap-slate-700);font-size:var(--ap-font-size-xs);font-weight:700}
-.attendance-icon-button:hover{border-color:var(--ap-primary-200);background:var(--ap-primary-50)}.attendance-delete-button:hover{border-color:var(--ap-danger-200);background:var(--ap-danger-50);color:var(--ap-danger-600)}
+.attendance-icon-button:hover{border-color:var(--ap-primary-100);background:var(--ap-primary-50)}.attendance-delete-button:hover{border-color:var(--ap-danger-200);background:var(--ap-danger-50);color:var(--ap-danger-600)}
 .attendance-action-save{border-color:var(--ap-primary-600);background:var(--ap-primary-600);color:var(--ap-white)}.attendance-action-cancel:hover{background:var(--ap-slate-50)}
 .attendance-icon-button:focus-visible,.attendance-action-button:focus-visible,.attendance-history-field input:focus-visible,.attendance-history-field select:focus-visible{outline:2px solid var(--ap-primary-500);outline-offset:2px}
 .attendance-history-state,.attendance-history-empty-state{padding:3rem 1rem;text-align:center}.attendance-history-state{margin-top:var(--ap-space-6);border:1px dashed var(--ap-border-strong);border-radius:var(--ap-radius-xl);background:var(--ap-slate-50)}
