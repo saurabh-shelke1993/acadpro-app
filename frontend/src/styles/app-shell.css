@@ -1,4 +1,4 @@
-/* D1 Phase 2 — shared application shell */
+/* D2 — Application Shell / Navigation */
 
 .app-shell {
   display: flex;
@@ -9,7 +9,7 @@
 .app-sidebar {
   position: sticky;
   top: 0;
-  z-index: 20;
+  z-index: 40;
   display: flex;
   width: 248px;
   height: 100vh;
@@ -19,6 +19,8 @@
   overflow-y: auto;
   background: var(--ap-slate-950);
   color: var(--ap-white);
+  scrollbar-width: thin;
+  scrollbar-color: var(--ap-slate-700) transparent;
 }
 
 .app-brand {
@@ -34,6 +36,7 @@
   height: 40px;
   align-items: center;
   justify-content: center;
+  flex: 0 0 40px;
   border-radius: var(--ap-radius-lg);
   background: var(--ap-primary-600);
   box-shadow: 0 6px 18px rgba(37, 99, 235, 0.28);
@@ -51,6 +54,19 @@
   margin-top: 1px;
   color: var(--ap-slate-400);
   font-size: 0.6875rem;
+}
+
+.app-sidebar-close {
+  display: none;
+  margin-left: auto;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: var(--ap-radius-md);
+  background: transparent;
+  color: var(--ap-slate-300);
+  font-size: 1.5rem;
+  line-height: 1;
 }
 
 .app-nav {
@@ -85,7 +101,10 @@
   font-size: var(--ap-font-size-sm);
   font-weight: 550;
   text-decoration: none;
-  transition: background-color var(--ap-transition-fast), color var(--ap-transition-fast), border-color var(--ap-transition-fast);
+  transition:
+    background-color var(--ap-transition-fast),
+    color var(--ap-transition-fast),
+    border-color var(--ap-transition-fast);
 }
 
 .app-nav-link:hover {
@@ -185,7 +204,9 @@
   color: var(--ap-slate-300);
   font-size: var(--ap-font-size-sm);
   font-weight: 650;
-  transition: background-color var(--ap-transition-fast), color var(--ap-transition-fast);
+  transition:
+    background-color var(--ap-transition-fast),
+    color var(--ap-transition-fast);
 }
 
 .app-logout:hover {
@@ -202,6 +223,14 @@
   width: 100%;
   min-height: 100vh;
   padding: var(--ap-space-8);
+}
+
+.app-mobile-header {
+  display: none;
+}
+
+.app-sidebar-overlay {
+  display: none;
 }
 
 @media (max-width: 900px) {
@@ -221,15 +250,103 @@
   }
 
   .app-sidebar {
-    position: relative;
-    width: 100%;
-    height: auto;
-    min-height: auto;
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: min(292px, 86vw);
+    height: 100dvh;
     flex-basis: auto;
+    padding: var(--ap-space-4);
+    transform: translateX(-105%);
+    transition: transform var(--ap-transition-base);
+    box-shadow: var(--ap-shadow-lg);
+  }
+
+  .app-sidebar-open {
+    transform: translateX(0);
+  }
+
+  .app-sidebar-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .app-sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    display: block;
+    background: rgba(15, 23, 42, 0.48);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--ap-transition-base);
+  }
+
+  .app-sidebar-overlay-visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .app-mobile-header {
+    position: sticky;
+    top: 0;
+    z-index: 25;
+    display: flex;
+    height: 56px;
+    align-items: center;
+    gap: var(--ap-space-3);
+    padding: 0 var(--ap-space-4);
+    border-bottom: 1px solid var(--ap-border);
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: var(--ap-shadow-sm);
+    backdrop-filter: blur(10px);
+  }
+
+  .app-menu-button {
+    display: inline-flex;
+    width: 38px;
+    height: 38px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    border: 1px solid var(--ap-border);
+    border-radius: var(--ap-radius-md);
+    background: var(--ap-surface);
+    color: var(--ap-slate-700);
+  }
+
+  .app-menu-button span {
+    display: block;
+    width: 17px;
+    height: 2px;
+    border-radius: var(--ap-radius-full);
+    background: currentColor;
+  }
+
+  .app-mobile-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--ap-space-2);
+    color: var(--ap-slate-900);
+    font-size: var(--ap-font-size-md);
+    font-weight: 800;
+  }
+
+  .app-mobile-brand-mark {
+    display: inline-flex;
+    width: 30px;
+    height: 30px;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--ap-radius-md);
+    background: var(--ap-primary-600);
+    color: var(--ap-white);
+    font-size: 0.875rem;
   }
 
   .app-content {
-    min-height: auto;
+    min-height: calc(100vh - 56px);
     padding: var(--ap-space-5);
   }
 }
