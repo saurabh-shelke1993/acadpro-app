@@ -170,6 +170,27 @@ function Analytics() {
     ? Math.round(totalCollections / collectionsTrend.length)
     : 0;
 
+  const totalDues =
+    financialHealth.pendingDues +
+    financialHealth.partialDues +
+    financialHealth.paidDues;
+
+  const paidShare = financialHealth.totalBilled
+    ? Math.min(
+        (financialHealth.totalPaid / financialHealth.totalBilled) * 100,
+        100
+      )
+    : 0;
+
+  const outstandingShare = financialHealth.totalBilled
+    ? Math.min(
+        (financialHealth.outstandingAmount / financialHealth.totalBilled) * 100,
+        100
+      )
+    : 0;
+
+  const statusTotal = totalDues || 1;
+
   return (
     <Layout>
       <div className="analytics-page">
@@ -288,6 +309,111 @@ function Analytics() {
                 <strong>{financialHealth.paidDues}</strong>
               </div>
               <small>Fully settled dues</small>
+            </div>
+          </div>
+        </section>
+
+        <section className="analytics-section">
+          <div className="dashboard-section-heading">
+            <div>
+              <span className="dashboard-section-kicker">Financial distribution</span>
+              <h2>Collection & Due Status</h2>
+            </div>
+            <span className="dashboard-section-helper">
+              Current due ledger
+            </span>
+          </div>
+
+          <div className="financial-visual-grid">
+            <div className="financial-visual-card">
+              <div className="financial-visual-header">
+                <div>
+                  <strong>Paid vs Outstanding</strong>
+                  <small>Share of billed amount</small>
+                </div>
+                <span>{financialHealth.collectionRate}% collected</span>
+              </div>
+
+              <div className="financial-progress">
+                <div
+                  className="financial-progress-paid"
+                  style={{ width: `${paidShare}%` }}
+                />
+                <div
+                  className="financial-progress-outstanding"
+                  style={{ width: `${outstandingShare}%` }}
+                />
+              </div>
+
+              <div className="financial-legend">
+                <div>
+                  <span className="financial-legend-dot financial-legend-dot-paid" />
+                  <span>Paid</span>
+                  <strong>{formatCurrency(financialHealth.totalPaid)}</strong>
+                </div>
+                <div>
+                  <span className="financial-legend-dot financial-legend-dot-outstanding" />
+                  <span>Outstanding</span>
+                  <strong>{formatCurrency(financialHealth.outstandingAmount)}</strong>
+                </div>
+              </div>
+            </div>
+
+            <div className="financial-visual-card">
+              <div className="financial-visual-header">
+                <div>
+                  <strong>Due Status Distribution</strong>
+                  <small>Current dues by status</small>
+                </div>
+                <span>{totalDues} total dues</span>
+              </div>
+
+              <div className="financial-status-bars">
+                <div className="financial-status-bar-row">
+                  <div className="financial-status-bar-label">
+                    <span>Pending</span>
+                    <strong>{financialHealth.pendingDues}</strong>
+                  </div>
+                  <div className="financial-status-track">
+                    <div
+                      className="financial-status-fill financial-status-fill-pending"
+                      style={{
+                        width: `${(financialHealth.pendingDues / statusTotal) * 100}%`
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div className="financial-status-bar-row">
+                  <div className="financial-status-bar-label">
+                    <span>Partial</span>
+                    <strong>{financialHealth.partialDues}</strong>
+                  </div>
+                  <div className="financial-status-track">
+                    <div
+                      className="financial-status-fill financial-status-fill-partial"
+                      style={{
+                        width: `${(financialHealth.partialDues / statusTotal) * 100}%`
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div className="financial-status-bar-row">
+                  <div className="financial-status-bar-label">
+                    <span>Paid</span>
+                    <strong>{financialHealth.paidDues}</strong>
+                  </div>
+                  <div className="financial-status-track">
+                    <div
+                      className="financial-status-fill financial-status-fill-paid"
+                      style={{
+                        width: `${(financialHealth.paidDues / statusTotal) * 100}%`
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
