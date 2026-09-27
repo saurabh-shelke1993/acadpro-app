@@ -1254,4 +1254,6 @@ return (
     )}
   </Layout>
 );
+}
+
 export default PaymentCollections;
