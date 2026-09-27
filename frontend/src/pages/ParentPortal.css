@@ -237,6 +237,127 @@
   line-height:1.25;
 }
 
+.parent-portal-profile-hero{
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr) auto;
+  align-items:center;
+  gap:var(--ap-space-4);
+  padding-bottom:var(--ap-space-5);
+  border-bottom:1px solid var(--ap-border);
+}
+
+.parent-portal-profile-avatar{
+  width:64px;
+  height:64px;
+  flex:0 0 64px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  background:var(--ap-primary-100);
+  color:var(--ap-primary-700);
+  font-size:1.5rem;
+  font-weight:800;
+}
+
+.parent-portal-profile-identity{
+  min-width:0;
+}
+
+.parent-portal-profile-identity .parent-portal-dashboard-title{
+  margin-bottom:.25rem;
+}
+
+.parent-portal-profile-context{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:.45rem;
+  margin:0;
+  color:var(--ap-slate-500);
+  font-size:var(--ap-font-size-sm);
+  overflow-wrap:anywhere;
+}
+
+.parent-portal-player-status{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:28px;
+  max-width:180px;
+  padding:.2rem .65rem;
+  border-radius:var(--ap-radius-full);
+  background:var(--ap-slate-100);
+  color:var(--ap-slate-700);
+  font-size:var(--ap-font-size-xs);
+  font-weight:800;
+  text-transform:capitalize;
+  text-align:center;
+}
+
+.parent-portal-player-status-active{
+  background:var(--ap-success-50);
+  color:var(--ap-success-700);
+}
+
+.parent-portal-player-status-inactive,
+.parent-portal-player-status-deactivated{
+  background:var(--ap-danger-50);
+  color:var(--ap-danger-700);
+}
+
+.parent-portal-profile-meta{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:var(--ap-space-4);
+  margin-top:var(--ap-space-5);
+}
+
+.parent-portal-profile-meta > div{
+  min-width:0;
+  padding:.8rem .9rem;
+  border:1px solid var(--ap-border);
+  border-radius:var(--ap-radius-lg);
+  background:var(--ap-slate-50);
+}
+
+.parent-portal-profile-meta span{
+  display:block;
+  color:var(--ap-slate-500);
+  font-size:var(--ap-font-size-xs);
+}
+
+.parent-portal-profile-meta strong{
+  display:block;
+  margin-top:.3rem;
+  color:var(--ap-slate-900);
+  font-size:var(--ap-font-size-sm);
+  overflow-wrap:anywhere;
+  word-break:break-word;
+}
+
+.parent-portal-profile-section{
+  margin-top:var(--ap-space-6);
+  padding-top:var(--ap-space-5);
+}
+
+.parent-portal-subsection-heading{
+  margin-bottom:var(--ap-space-4);
+}
+
+.parent-portal-section-kicker{
+  margin:0 0 .2rem;
+  color:var(--ap-primary-600);
+  font-size:var(--ap-font-size-xs);
+  font-weight:800;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+}
+
+.parent-portal-profile-section .parent-portal-subsection-title{
+  margin-bottom:0;
+}
+
 .parent-portal-details-grid{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(min(180px,100%),1fr));
@@ -491,6 +612,21 @@
 }
 
 @media(max-width:640px){
+  .parent-portal-profile-hero{
+    grid-template-columns:auto minmax(0,1fr);
+    align-items:start;
+  }
+
+  .parent-portal-player-status{
+    grid-column:1 / -1;
+    justify-self:start;
+    max-width:100%;
+  }
+
+  .parent-portal-profile-meta{
+    grid-template-columns:1fr;
+  }
+
   .parent-portal-page{
     padding:var(--ap-space-5) var(--ap-space-3) var(--ap-space-7);
   }
