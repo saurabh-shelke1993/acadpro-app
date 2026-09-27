@@ -1172,9 +1172,10 @@ return (
         ) : (
           <div className="payment-table-wrapper">
             <table className="payment-data-table">
+              <caption className="sr-only">Payment ledger history and available correction actions</caption>
               <thead><tr>
-                {isSuperAdmin(loggedInUser) && <th>Academy</th>}
-                <th>Center</th><th>Batch</th><th>Player</th><th>Amount</th><th>Mode</th><th>Reference</th><th>Receipt</th><th>Entry</th><th>Payment Date</th><th>Actions</th>
+                {isSuperAdmin(loggedInUser) && <th scope="col">Academy</th>}
+                <th scope="col">Center</th><th scope="col">Batch</th><th scope="col">Player</th><th scope="col">Amount</th><th scope="col">Mode</th><th scope="col">Reference</th><th scope="col">Receipt</th><th scope="col">Entry</th><th scope="col">Payment Date</th><th scope="col">Actions</th>
               </tr></thead>
               <tbody>{filteredPayments.map((payment)=><tr key={payment.id}>
                 {isSuperAdmin(loggedInUser) && <td>{payment.players?.academies?.academy_name || "-"}</td>}
@@ -1204,7 +1205,8 @@ return (
         ) : (
           <div className="payment-table-wrapper">
             <table className="payment-data-table payment-corrections-table">
-              <thead><tr><th>Player</th><th>Original</th><th>Corrected</th><th>Adjustment</th><th>Reason</th><th>Status</th><th>Requested</th>{(isSuperAdmin(loggedInUser)||loggedInUser?.role==="academy_owner")&&<th>Actions</th>}</tr></thead>
+              <caption className="sr-only">Payment correction requests and approval actions</caption>
+              <thead><tr><th scope="col">Player</th><th scope="col">Original</th><th scope="col">Corrected</th><th scope="col">Adjustment</th><th scope="col">Reason</th><th scope="col">Status</th><th scope="col">Requested</th>{(isSuperAdmin(loggedInUser)||loggedInUser?.role==="academy_owner")&&<th scope="col">Actions</th>}</tr></thead>
               <tbody>{corrections.map((correction)=><tr key={correction.id}>
                 <td className="payment-player-cell">{correction.players?.full_name || "-"}</td>
                 <td>₹{correction.original_amount}</td><td>₹{correction.corrected_amount}</td><td>₹{correction.adjustment_amount}</td>
