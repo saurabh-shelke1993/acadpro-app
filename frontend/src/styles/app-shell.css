@@ -379,3 +379,42 @@
     cursor: pointer;
   }
 }
+
+
+/* D7.5 — Keyboard navigation and route focus */
+.app-skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 100;
+  transform: translateY(-180%);
+  padding: 0.625rem 0.875rem;
+  border-radius: var(--ap-radius-md);
+  background: var(--ap-slate-950);
+  color: var(--ap-white);
+  font-size: var(--ap-font-size-sm);
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: var(--ap-shadow-md);
+  transition: transform var(--ap-transition-fast);
+}
+
+.app-skip-link:focus-visible {
+  transform: translateY(0);
+  outline: 3px solid #93c5fd;
+  outline-offset: 2px;
+}
+
+.app-main:focus {
+  outline: none;
+}
+
+.app-route-loading {
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ap-space-8);
+  color: var(--ap-slate-600);
+  font-size: var(--ap-font-size-md);
+}
