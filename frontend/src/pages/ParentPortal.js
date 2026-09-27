@@ -593,33 +593,64 @@ const ParentPortal = () => {
                 )}
               </div>
 
-              <div className="parent-portal-subsection">
-                <h3 className="parent-portal-subsection-title">Attendance history</h3>
-                {selectedAttendanceHistory.length > 0 ? (
-                  <div className="parent-portal-history-list">
-                    {selectedAttendanceHistory.map((record, index) => (
-                      <div
-                        key={`${record.attendance_date}-${index}`}
-                        className="parent-portal-history-row"
-                      >
-                        <div className="parent-portal-history-content">
-                          <p className="parent-portal-history-date">{formatDate(record.attendance_date)}</p>
-                          {record.remarks ? (
-                            <p className="parent-portal-history-remarks">{record.remarks}</p>
-                          ) : null}
-                        </div>
-                        <span
-                          className={`parent-portal-status-badge parent-portal-status-${String(record.status || "").toLowerCase()}`}
-                        >
-                          {record.status}
-                        </span>
-                      </div>
-                    ))}
+              <div className="parent-portal-subsection parent-portal-attendance-section">
+                <div className="parent-portal-subsection-heading">
+                  <div>
+                    <p className="parent-portal-section-kicker">Training attendance</p>
+                    <h3 className="parent-portal-subsection-title">Attendance summary</h3>
                   </div>
+                  {selectedAttendance?.total > 0 ? (
+                    <span className="parent-portal-attendance-rate">
+                      {selectedAttendance.percentage}% attendance
+                    </span>
+                  ) : null}
+                </div>
+
+                {selectedAttendance?.total > 0 ? (
+                  <>
+                    <div className="parent-portal-attendance-grid">
+                      <div className="parent-portal-attendance-stat">
+                        <span>Total sessions</span>
+                        <strong>{selectedAttendance.total}</strong>
+                      </div>
+                      <div className="parent-portal-attendance-stat is-present">
+                        <span>Present</span>
+                        <strong>{selectedAttendance.present}</strong>
+                      </div>
+                      <div className="parent-portal-attendance-stat is-absent">
+                        <span>Absent</span>
+                        <strong>{selectedAttendance.absent}</strong>
+                      </div>
+                      <div className="parent-portal-attendance-stat is-rate">
+                        <span>Attendance rate</span>
+                        <strong>{selectedAttendance.percentage}%</strong>
+                      </div>
+                    </div>
+
+                    <div
+                      className="parent-portal-attendance-progress"
+                      role="progressbar"
+                      aria-label={"Attendance rate " + selectedAttendance.percentage + "%"}
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                      aria-valuenow={Number(selectedAttendance.percentage) || 0}
+                    >
+                      <div
+                        className="parent-portal-attendance-progress-bar"
+                        style={{ width: Math.min(Math.max(Number(selectedAttendance.percentage) || 0, 0), 100) + "%" }}
+                      />
+                    </div>
+                  </>
                 ) : (
-                  <p className="parent-portal-message">
-                    No attendance history is available for this child yet.
-                  </p>
+                  <div className="parent-portal-attendance-empty">
+                    <span className="parent-portal-attendance-empty-icon" aria-hidden="true">✓</span>
+                    <div>
+                      <strong>No attendance records yet</strong>
+                      <p className="parent-portal-message">
+                        Attendance information will appear here once sessions are recorded for this child.
+                      </p>
+                    </div>
+                  </div>
                 )}
               </div>
 
