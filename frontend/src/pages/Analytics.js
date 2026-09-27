@@ -9,7 +9,16 @@ import "./Analytics.css";
 
 const initialSummary = {
   attendanceTrend: [],
-  collectionsTrend: []
+  collectionsTrend: [],
+  financialHealth: {
+    totalBilled: 0,
+    totalPaid: 0,
+    outstandingAmount: 0,
+    collectionRate: 0,
+    pendingDues: 0,
+    partialDues: 0,
+    paidDues: 0
+  }
 };
 
 const formatCurrency = (value) =>
@@ -134,6 +143,7 @@ function Analytics() {
 
   const attendanceTrend = summary.attendanceTrend || [];
   const collectionsTrend = summary.collectionsTrend || [];
+  const financialHealth = summary.financialHealth || initialSummary.financialHealth;
 
   const totalPresent = attendanceTrend.reduce(
     (total, item) => total + Number(item.present || 0),
@@ -214,6 +224,70 @@ function Analytics() {
               <span>Average Monthly</span>
               <strong>{formatCurrency(averageMonthlyCollections)}</strong>
               <small>Last {collectionsMonths} months</small>
+            </div>
+          </div>
+        </section>
+
+        <section className="analytics-section">
+          <div className="dashboard-section-heading">
+            <div>
+              <span className="dashboard-section-kicker">Financial health</span>
+              <h2>Payment Due Overview</h2>
+            </div>
+            <span className="dashboard-section-helper">
+              Current due ledger snapshot
+            </span>
+          </div>
+
+          <div className="financial-health-grid">
+            <div className="financial-health-card">
+              <span>Total Billed</span>
+              <strong>{formatCurrency(financialHealth.totalBilled)}</strong>
+              <small>Across current payment dues</small>
+            </div>
+
+            <div className="financial-health-card">
+              <span>Total Paid</span>
+              <strong>{formatCurrency(financialHealth.totalPaid)}</strong>
+              <small>Paid against current dues</small>
+            </div>
+
+            <div className="financial-health-card financial-health-card-attention">
+              <span>Outstanding</span>
+              <strong>{formatCurrency(financialHealth.outstandingAmount)}</strong>
+              <small>Remaining amount across dues</small>
+            </div>
+
+            <div className="financial-health-card">
+              <span>Collection Rate</span>
+              <strong>{financialHealth.collectionRate}%</strong>
+              <small>Paid ÷ billed</small>
+            </div>
+          </div>
+
+          <div className="financial-status-grid">
+            <div className="financial-status-card">
+              <div>
+                <span>Pending</span>
+                <strong>{financialHealth.pendingDues}</strong>
+              </div>
+              <small>Fully unpaid dues</small>
+            </div>
+
+            <div className="financial-status-card">
+              <div>
+                <span>Partial</span>
+                <strong>{financialHealth.partialDues}</strong>
+              </div>
+              <small>Dues with a remaining balance</small>
+            </div>
+
+            <div className="financial-status-card">
+              <div>
+                <span>Paid</span>
+                <strong>{financialHealth.paidDues}</strong>
+              </div>
+              <small>Fully settled dues</small>
             </div>
           </div>
         </section>
