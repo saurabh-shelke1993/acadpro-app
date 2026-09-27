@@ -514,7 +514,8 @@ return (
 {isSuperAdmin(loggedInUser) && (
 
   <>
-    <select
+    <label htmlFor="player-subscription-academy">Academy</label>
+    <select id="player-subscription-academy"
       value={selectedAcademy}
       onChange={(e) =>
         setSelectedAcademy(
