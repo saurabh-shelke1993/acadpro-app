@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
+import "./Coaches.css";
 import { supabase } from "../supabaseClient";
 
 import {
@@ -35,6 +36,8 @@ function Coaches() {
 
   const [specialization,
     setSpecialization] = useState("");
+
+  const [searchTerm, setSearchTerm] = useState("");
 
   // =====================================================
   // LOAD USER
@@ -213,196 +216,70 @@ function Coaches() {
     }
   };
 
+  const filteredCoaches = coaches.filter((coach) => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return true;
+    return [coach.full_name, coach.email, coach.phone, coach.specialization].some((value) =>
+      String(value || "").toLowerCase().includes(term)
+    );
+  });
+
   // =====================================================
   // UI
   // =====================================================
 
 return (
   <Layout>
-    <div style={{ padding: "20px" }}>
-
-
-      <h1>Coaches Module V1</h1>
-
-      {/* FILTERS */}
-
-      <div
-        style={{
-          marginBottom: "20px",
-        }}
-      >
-
-        <label>Academy</label>
-
-        <br />
-
-        <select
-          value={selectedAcademy}
-          onChange={(e) =>
-            setSelectedAcademy(
-              e.target.value
-            )
-          }
-          disabled={!isSuperAdmin(user)}
-        >
-
-          <option value="">
-            Select Academy
-          </option>
-
-          {academies.map((academy) => (
-
-            <option
-              key={academy.id}
-              value={academy.id}
-            >
-              {academy.academy_name}
-            </option>
-
-          ))}
-
-        </select>
-
+    <div className="coaches-page">
+      <div className="coaches-page-header">
+        <div>
+          <span className="coaches-page-eyebrow">Academy management</span>
+          <h1>Coaches</h1>
+          <p>Manage coach profiles and specializations for your academy.</p>
+        </div>
+        <div className="coaches-page-count"><strong>{filteredCoaches.length}</strong><span>visible coaches</span></div>
       </div>
 
-      {/* ADD COACH FORM */}
-
-      <div
-        style={{
-          border: "1px solid #ccc",
-          padding: "20px",
-          marginBottom: "30px",
-        }}
-      >
-
-        <h2>Add Coach</h2>
-
-        <input
-          type="text"
-          placeholder="Coach Name"
-          value={fullName}
-          onChange={(e) =>
-            setFullName(
-              e.target.value
-            )
-          }
-        />
-
-        <br /><br />
-
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) =>
-            setEmail(
-              e.target.value
-            )
-          }
-        />
-
-        <br /><br />
-
-        <input
-          type="text"
-          placeholder="Phone"
-          value={phone}
-          onChange={(e) =>
-            setPhone(
-              e.target.value
-            )
-          }
-        />
-
-        <br /><br />
-
-        <input
-          type="text"
-          placeholder="Specialization"
-          value={specialization}
-          onChange={(e) =>
-            setSpecialization(
-              e.target.value
-            )
-          }
-        />
-
-        <br /><br />
-
-        <button onClick={addCoach}>
-          Add Coach
-        </button>
-
+      <div className="coaches-filter-card">
+        <div className="coaches-section-heading"><div><h2>Academy</h2><p>Select the academy whose coaches you want to manage.</p></div></div>
+        <label className="coaches-field"><span>Academy</span>
+          <select value={selectedAcademy} onChange={(e) => setSelectedAcademy(e.target.value)} disabled={!isSuperAdmin(user)}>
+            <option value="">Select Academy</option>
+            {academies.map((academy) => <option key={academy.id} value={academy.id}>{academy.academy_name}</option>)}
+          </select>
+        </label>
       </div>
 
-      {/* COACHES TABLE */}
+      <div className="coaches-form-card">
+        <div className="coaches-section-heading"><div><h2>Add Coach</h2><p>Create a coach profile for the selected academy.</p></div></div>
+        <div className="coaches-form-grid">
+          <label className="coaches-field"><span>Coach Name *</span><input type="text" placeholder="Enter coach name" value={fullName} onChange={(e) => setFullName(e.target.value)} /></label>
+          <label className="coaches-field"><span>Email</span><input type="email" placeholder="Enter email" value={email} onChange={(e) => setEmail(e.target.value)} /></label>
+          <label className="coaches-field"><span>Phone</span><input type="text" placeholder="Enter phone" value={phone} onChange={(e) => setPhone(e.target.value)} /></label>
+          <label className="coaches-field"><span>Specialization</span><input type="text" placeholder="e.g. AFC B, Grassroots" value={specialization} onChange={(e) => setSpecialization(e.target.value)} /></label>
+        </div>
+        <div className="coaches-form-actions"><button className="coaches-primary-button" type="button" onClick={addCoach}>Add Coach</button></div>
+      </div>
 
-      <table
-        border="1"
-        cellPadding="10"
-        width="100%"
-      >
+      <div className="coaches-list-header">
+        <div><h2>Coaches List</h2><p>Search coaches by name, email, phone, or specialization.</p></div>
+        <label className="coaches-search"><span className="sr-only">Search coaches</span><input type="search" placeholder="Search coach..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} aria-label="Search coaches" /></label>
+      </div>
+      <div className="coaches-table-meta"><span>{filteredCoaches.length} {filteredCoaches.length === 1 ? "coach" : "coaches"} shown</span>{searchTerm && <span>Filtered by "{searchTerm}"</span>}</div>
 
-        <thead>
-
-          <tr>
-
-            <th>Name</th>
-            <th>Email</th>
-            <th>Phone</th>
-            <th>Specialization</th>
-
-          </tr>
-
-        </thead>
-
-        <tbody>
-
-          {coaches.length > 0 ? (
-
-            coaches.map((coach) => (
-
+      <div className="coaches-table-wrap">
+        <table className="coaches-table">
+          <thead><tr><th>Coach</th><th>Email</th><th>Phone</th><th>Specialization</th><th>Status</th></tr></thead>
+          <tbody>
+            {filteredCoaches.length > 0 ? filteredCoaches.map((coach) => (
               <tr key={coach.id}>
-
-                <td>
-                  {coach.full_name}
-                </td>
-
-                <td>
-                  {coach.email}
-                </td>
-
-                <td>
-                  {coach.phone}
-                </td>
-
-                <td>
-                  {coach.specialization}
-                </td>
-
+                <td className="coaches-name-cell">{coach.full_name}</td><td>{coach.email || "—"}</td><td>{coach.phone || "—"}</td><td>{coach.specialization || "—"}</td>
+                <td><span className="coach-status-badge">{coach.is_active ? "Active" : "Inactive"}</span></td>
               </tr>
-
-            ))
-
-          ) : (
-
-            <tr>
-
-              <td
-                colSpan="4"
-                align="center"
-              >
-                No Coaches Found
-              </td>
-
-            </tr>
-
-          )}
-
-        </tbody>
-
-      </table>
-
+            )) : <tr><td className="coaches-empty-state" colSpan="5"><strong>No coaches found</strong><span>{searchTerm ? "Try a different search term." : "No active coaches match the selected academy."}</span></td></tr>}
+          </tbody>
+        </table>
+      </div>
     </div>
   </Layout>
 );
