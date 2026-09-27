@@ -112,7 +112,103 @@
   font-size: var(--ap-font-size-xs);
 }
 
-.dashboard-actions {
+
+.dashboard-attention-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--ap-space-4);
+}
+
+.dashboard-attention-card {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: var(--ap-space-3);
+  padding: var(--ap-space-5);
+  border: 1px solid var(--ap-border);
+  border-radius: var(--ap-radius-xl);
+  background: var(--ap-surface);
+  color: var(--ap-slate-800);
+  text-decoration: none;
+  box-shadow: var(--ap-shadow-sm);
+  transition:
+    border-color var(--ap-transition-fast),
+    background-color var(--ap-transition-fast),
+    transform var(--ap-transition-fast),
+    box-shadow var(--ap-transition-fast);
+}
+
+.dashboard-attention-card:hover,
+.dashboard-attention-card:focus-visible {
+  border-color: var(--ap-border-strong);
+  background: var(--ap-surface);
+  box-shadow: var(--ap-shadow-md);
+  transform: translateY(-1px);
+}
+
+.dashboard-attention-card:focus-visible {
+  outline: 2px solid var(--ap-primary-500);
+  outline-offset: 2px;
+}
+
+.dashboard-attention-icon {
+  display: inline-flex;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--ap-radius-lg);
+  font-weight: 800;
+}
+
+.dashboard-attention-icon-danger {
+  background: var(--ap-danger-50);
+  color: var(--ap-danger-600);
+}
+
+.dashboard-attention-icon-info {
+  background: var(--ap-info-50);
+  color: var(--ap-info-600);
+}
+
+.dashboard-attention-content {
+  min-width: 0;
+  flex: 1;
+}
+
+.dashboard-attention-content strong,
+.dashboard-attention-content b,
+.dashboard-attention-content small {
+  display: block;
+}
+
+.dashboard-attention-content strong {
+  color: var(--ap-slate-700);
+  font-size: var(--ap-font-size-sm);
+  font-weight: 650;
+}
+
+.dashboard-attention-content b {
+  margin-top: 0.2rem;
+  color: var(--ap-slate-950);
+  font-size: 1.4rem;
+  font-weight: 750;
+}
+
+.dashboard-attention-content small {
+  margin-top: 0.2rem;
+  color: var(--ap-slate-500);
+  font-size: 0.6875rem;
+  line-height: 1.35;
+}
+
+.dashboard-attention-arrow {
+  flex: 0 0 auto;
+  color: var(--ap-slate-400);
+  font-weight: 800;
+}
+\n.dashboard-actions {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--ap-space-3);
@@ -266,6 +362,10 @@
 
   .dashboard-grid-3 {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .dashboard-attention-grid {
+    grid-template-columns: 1fr;
   }
 
   .dashboard-actions {
