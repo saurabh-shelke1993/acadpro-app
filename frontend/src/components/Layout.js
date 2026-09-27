@@ -7,10 +7,18 @@ function Layout({ children }) {
   const closeButtonRef = useRef(null);
 
   const closeSidebar = () => {
+    const shouldRestoreFocus =
+      typeof window !== "undefined" &&
+      window.matchMedia("(max-width: 640px)").matches &&
+      sidebarOpen;
+
     setSidebarOpen(false);
-    requestAnimationFrame(() => {
-      menuButtonRef.current?.focus();
-    });
+
+    if (shouldRestoreFocus) {
+      requestAnimationFrame(() => {
+        menuButtonRef.current?.focus();
+      });
+    }
   };
 
   useEffect(() => {
