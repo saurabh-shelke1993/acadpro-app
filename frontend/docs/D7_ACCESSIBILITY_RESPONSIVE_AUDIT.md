@@ -152,3 +152,23 @@ Implemented table accessibility improvements across Players, Attendance History,
 - Added a shared `.sr-only` utility to the design system.
 
 D7.4 validation should cover keyboard access to every action, visible focus, table navigation/readability, action context, and role-specific action visibility.
+
+
+## D7.5 — Keyboard Navigation & Focus Management
+
+Implemented application-level keyboard and focus behavior:
+- Added a keyboard-accessible **Skip to main content** link as the first focus target in the authenticated application shell.
+- Added a stable `main-content` landmark target with `tabIndex="-1"` so keyboard users can move directly to page content.
+- Added route-change focus management so navigation moves focus to the main content area after a page transition, while preserving the mobile sidebar's existing focus behavior.
+- Preserved the D7.2 mobile navigation focus trap, Escape-to-close behavior, and focus restoration to the menu trigger.
+- Added semantic `role="status"` and `aria-live="polite"` to the ProtectedRoute loading state and moved its presentation into the shared shell stylesheet.
+- No business logic, authentication behavior, RBAC, Supabase queries/RLS, payment ledger, attendance, or performance logic was changed.
+
+D7.5 validation should cover:
+- Skip-link activation with keyboard only.
+- Tab/Shift+Tab movement through the application shell.
+- Route navigation moving focus to the main content area.
+- Mobile sidebar focus trap, Escape close, and focus restoration.
+- No unexpected focus loss when navigating between modules.
+- Protected-route loading state announced as status without disrupting navigation.
+- Existing module action controls and form keyboard behavior remain unchanged.
