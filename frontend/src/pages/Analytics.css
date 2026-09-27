@@ -688,6 +688,33 @@
   max-width: 420px;
 }
 
+.analytics-retry-button {
+  margin-top: var(--ap-space-2);
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--ap-border);
+  border-radius: var(--ap-radius-lg);
+  background: var(--ap-surface);
+  color: var(--ap-slate-700);
+  font-size: var(--ap-font-size-sm);
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background var(--ap-transition-fast),
+    border-color var(--ap-transition-fast),
+    color var(--ap-transition-fast);
+}
+
+.analytics-retry-button:hover {
+  border-color: var(--ap-primary-300);
+  background: var(--ap-primary-50);
+  color: var(--ap-primary-700);
+}
+
+.analytics-retry-button:focus-visible {
+  outline: 2px solid var(--ap-primary-500);
+  outline-offset: 2px;
+}
+
 @media (max-width: 1200px) {
   .analytics-insights {
     grid-template-columns: repeat(3, minmax(0, 1fr));
