@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import Layout from "../components/Layout";
+import "./Attendance.css";
 import {
   getAccessibleAcademies,
   getAccessibleCenters,
@@ -326,22 +327,26 @@ await saveAttendanceRecords(
 
 return (
   <Layout>
-    <div style={{ padding: "20px", width: "100%" }}>
+    <div className="attendance-page">
 
-      <h1>Attendance Module V2</h1>
+      <div className="attendance-page-header">
+        <div>
+          <span className="attendance-page-eyebrow">Daily operations</span>
+          <h1>Attendance</h1>
+          <p>Record and manage daily player attendance by batch.</p>
+        </div>
+        <div className="attendance-date-summary">
+          <span>Date</span>
+          <strong>{attendanceDate}</strong>
+        </div>
+      </div>
 
       {/* FILTERS */}
 
-      <div
-        style={{
-          display: "flex",
-          gap: "40px",
-          marginBottom: "30px",
-        }}
-      >
+      <div className="attendance-filter-card">
         {/* ACADEMY */}
 
-        <div>
+        <div className="attendance-filter-field">
           <label>Academy</label>
           <br />
 
@@ -374,7 +379,7 @@ return (
 
         {/* CENTER */}
 
-        <div>
+        <div className="attendance-filter-field">
           <label>Center</label>
           <br />
 
@@ -401,7 +406,7 @@ return (
 
         {/* BATCH */}
 
-        <div>
+        <div className="attendance-filter-field">
           <label>Batch</label>
           <br />
 
@@ -423,7 +428,7 @@ return (
 
         {/* DATE */}
 
-        <div>
+        <div className="attendance-filter-field">
           <label>Date</label>
           <br />
 
@@ -439,9 +444,16 @@ return (
 
       {/* PLAYERS */}
 
-      <h2>Players Attendance</h2>
+      <div className="attendance-list-header">
+        <div>
+          <h2>Players Attendance</h2>
+          <p>{players.length} {players.length === 1 ? "player" : "players"} in the selected batch</p>
+        </div>
+        {selectedBatch && <span className="attendance-selection-badge">Batch selected</span>}
+      </div>
 
-      <table border="1" cellPadding="10" width="100%">
+      <div className="attendance-table-wrap">
+      <table className="attendance-table">
         <thead>
           <tr>
             <th>Player Name</th>
@@ -451,7 +463,15 @@ return (
         </thead>
 
         <tbody>
-          {players.map((item) => (
+          {players.length === 0 ? (
+            <tr>
+              <td className="attendance-empty-state" colSpan={3}>
+                <strong>No players to mark</strong>
+                <span>{selectedBatch ? "No active players are available in this batch." : "Select a batch to load players."}</span>
+              </td>
+            </tr>
+          ) : (
+            players.map((item) => (
             <tr key={item.player_id}>
               <td>{item.players?.full_name}</td>
 
@@ -489,14 +509,16 @@ return (
                 />
               </td>
             </tr>
-          ))}
+          ))
+          )}
         </tbody>
       </table>
+      </div>
 
       <br />
 
 {canManageAttendance(user) && (
-    <button onClick={saveAttendance}>
+    <button className="attendance-save-button" type="button" onClick={saveAttendance}>
         Save Attendance
     </button>
 )}
