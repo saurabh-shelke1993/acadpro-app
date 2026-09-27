@@ -2,7 +2,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { logoutUser } from "../utils/auth";
 import { isCoach, isParent, isSuperAdmin } from "../utils/roles";
 
-function Sidebar({ isOpen = false, onClose = () => {} }) {
+function Sidebar({ isOpen = false, onClose = () => {}, closeButtonRef }) {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("acadpro_user"));
 
@@ -29,7 +29,11 @@ function Sidebar({ isOpen = false, onClose = () => {} }) {
         onClick={onClose}
       />
 
-      <aside className={`app-sidebar${isOpen ? " app-sidebar-open" : ""}`}>
+      <aside
+        id="acadpro-sidebar"
+        className={`app-sidebar${isOpen ? " app-sidebar-open" : ""}`}
+        aria-label="Sidebar navigation"
+      >
         <div className="app-brand">
           <div className="app-brand-mark">⚽</div>
           <div>
@@ -38,6 +42,7 @@ function Sidebar({ isOpen = false, onClose = () => {} }) {
           </div>
 
           <button
+            ref={closeButtonRef}
             type="button"
             className="app-sidebar-close"
             onClick={onClose}
