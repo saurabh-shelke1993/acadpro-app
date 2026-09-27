@@ -464,3 +464,29 @@
   color: var(--ap-slate-600);
   font-size: var(--ap-font-size-md);
 }
+
+
+/* D7.7 — Navigation touch target normalization */
+.app-nav-link {
+  min-height: 40px;
+}
+
+.app-sidebar-close,
+.app-menu-button {
+  min-width: 40px;
+  min-height: 40px;
+}
+
+.app-logout {
+  min-height: 40px;
+}
+
+@media (min-width: 901px) {
+  .app-nav-link {
+    min-height: 40px;
+  }
+
+  .app-logout {
+    min-height: 40px;
+  }
+}
