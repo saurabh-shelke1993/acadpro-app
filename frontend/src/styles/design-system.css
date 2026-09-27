@@ -350,3 +350,20 @@ textarea:focus {
   white-space: nowrap;
   border: 0;
 }
+
+
+/* D7.7 — Typography, contrast, and touch target baseline */
+.ui-button,
+input,
+select,
+textarea {
+  min-height: 40px;
+}
+
+.ui-button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid var(--ap-primary-600);
+  outline-offset: 2px;
+}
