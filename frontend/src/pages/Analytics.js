@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import DashboardCharts from "../components/DashboardCharts";
 import { getAnalyticsSummary } from "../services/analyticsService";
+import { getAccessibleAcademies } from "../utils/dataScope";
+import { isSuperAdmin } from "../utils/roles";
 import { getCurrentUser } from "../utils/auth";
 import "./Analytics.css";
 
@@ -20,13 +22,15 @@ function Analytics() {
   const [error, setError] = useState("");
   const [attendanceDays, setAttendanceDays] = useState(7);
   const [collectionsMonths, setCollectionsMonths] = useState(6);
+  const [academies, setAcademies] = useState([]);
+  const [selectedAcademyId, setSelectedAcademyId] = useState("");
+  const [userReady, setUserReady] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
 
-    const loadAnalytics = async () => {
+    const loadContext = async () => {
       try {
-        setLoading(true);
         setError("");
 
         const currentUser = await getCurrentUser();
@@ -35,14 +39,51 @@ function Analytics() {
           throw new Error("Unable to load the current user.");
         }
 
-        const analyticsSummary = await getAnalyticsSummary(currentUser, {
-          attendanceDays,
-          collectionsMonths
-        });
+        let accessibleAcademies = [];
+
+        if (isSuperAdmin(currentUser)) {
+          accessibleAcademies = await getAccessibleAcademies(currentUser);
+        }
 
         if (!isMounted) return;
 
         setUser(currentUser);
+        setAcademies(accessibleAcademies);
+        setUserReady(true);
+      } catch (loadError) {
+        if (!isMounted) return;
+
+        console.error("Analytics context load error:", loadError);
+        setError("Unable to load analytics. Please try again.");
+        setLoading(false);
+      }
+    };
+
+    loadContext();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!userReady || !user) return;
+
+    let isMounted = true;
+
+    const loadAnalytics = async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        const analyticsSummary = await getAnalyticsSummary(user, {
+          attendanceDays,
+          collectionsMonths,
+          selectedAcademyId
+        });
+
+        if (!isMounted) return;
+
         setSummary(analyticsSummary);
       } catch (loadError) {
         if (!isMounted) return;
@@ -59,7 +100,13 @@ function Analytics() {
     return () => {
       isMounted = false;
     };
-  }, [attendanceDays, collectionsMonths]);
+  }, [
+    userReady,
+    user,
+    attendanceDays,
+    collectionsMonths,
+    selectedAcademyId
+  ]);
 
   if (loading) {
     return (
@@ -176,9 +223,32 @@ function Analytics() {
             <div>
               <span className="dashboard-section-kicker">Trends</span>
               <h2>Attendance & Collections</h2>
+              {isSuperAdmin(user) && (
+                <p className="analytics-filter-summary">
+                  {selectedAcademyId
+                    ? `Showing selected academy`
+                    : "Showing all accessible academies"}
+                </p>
+              )}
             </div>
 
-            <div className="analytics-period-controls" aria-label="Analytics time periods">
+            <div className="analytics-period-controls" aria-label="Analytics filters">
+              {isSuperAdmin(user) && (
+                <label>
+                  <span>Academy</span>
+                  <select
+                    value={selectedAcademyId}
+                    onChange={(event) => setSelectedAcademyId(event.target.value)}
+                  >
+                    <option value="">All academies</option>
+                    {academies.map((academy) => (
+                      <option key={academy.id} value={academy.id}>
+                        {academy.academy_name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
               <label>
                 <span>Attendance</span>
                 <select
