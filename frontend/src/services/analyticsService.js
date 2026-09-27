@@ -74,46 +74,70 @@ export async function getAttendanceTrend(suppliedScope, days = 7) {
   }
 
   const dates = getDateRange(days);
+  const startDate = dates[0];
+  const endDate = dates[dates.length - 1];
 
-  return Promise.all(
-    dates.map(async (date) => {
-      let query = supabase
-        .from("attendance")
-        .select("status")
-        .eq("attendance_date", date)
-        .eq("is_deleted", false);
+  let query = supabase
+    .from("attendance")
+    .select("attendance_date, status")
+    .gte("attendance_date", startDate)
+    .lte("attendance_date", endDate)
+    .eq("is_deleted", false);
 
-      if (scope.type === "academy") {
-        query = query.eq("academy_id", scope.academyId);
-      }
+  if (scope.type === "academy") {
+    query = query.eq("academy_id", scope.academyId);
+  }
 
-      if (scope.type === "batches") {
-        query = query.in("batch_id", scope.batchIds);
-      }
+  if (scope.type === "batches") {
+    query = query.in("batch_id", scope.batchIds);
+  }
 
-      const { data, error } = await query;
+  const { data, error } = await query;
 
-      if (error) throw error;
+  if (error) throw error;
 
-      const attendance = data || [];
-      const present = attendance.filter((record) => record.status === "present").length;
-      const absent = attendance.filter((record) => record.status === "absent").length;
-      const total = present + absent;
+  const attendanceByDate = (data || []).reduce((result, record) => {
+    const date = record.attendance_date;
 
-      return {
-        date,
-        label: new Date(`${date}T00:00:00`).toLocaleDateString("en-IN", {
-          day: "numeric",
-          month: "short"
-        }),
-        present,
-        absent,
-        attendancePercentage: total
-          ? Math.round((present / total) * 100)
-          : 0
+    if (!result[date]) {
+      result[date] = {
+        present: 0,
+        absent: 0
       };
-    })
-  );
+    }
+
+    if (record.status === "present") {
+      result[date].present += 1;
+    }
+
+    if (record.status === "absent") {
+      result[date].absent += 1;
+    }
+
+    return result;
+  }, {});
+
+  return dates.map((date) => {
+    const daily = attendanceByDate[date] || {
+      present: 0,
+      absent: 0
+    };
+
+    const total = daily.present + daily.absent;
+
+    return {
+      date,
+      label: new Date(`${date}T00:00:00`).toLocaleDateString("en-IN", {
+        day: "numeric",
+        month: "short"
+      }),
+      present: daily.present,
+      absent: daily.absent,
+      attendancePercentage: total
+        ? Math.round((daily.present / total) * 100)
+        : 0
+    };
+  });
 }
 
 export async function getCollectionsTrend(suppliedScope, monthsCount = 6) {
@@ -135,9 +159,13 @@ export async function getCollectionsTrend(suppliedScope, monthsCount = 6) {
     return [];
   }
 
+  const months = getMonthRange(monthsCount);
+
   let query = supabase
     .from("payments")
-    .select("amount_paid, payment_date");
+    .select("amount_paid, payment_date")
+    .gte("payment_date", months[0].monthStart)
+    .lt("payment_date", months[months.length - 1].nextMonthStart);
 
   if (scope.type === "academy") {
     query = supabase
@@ -147,7 +175,9 @@ export async function getCollectionsTrend(suppliedScope, monthsCount = 6) {
         payment_date,
         players!inner(academy_id)
       `)
-      .eq("players.academy_id", scope.academyId);
+      .eq("players.academy_id", scope.academyId)
+      .gte("payment_date", months[0].monthStart)
+      .lt("payment_date", months[months.length - 1].nextMonthStart);
   }
 
   if (scope.type === "batches") {
@@ -159,7 +189,6 @@ export async function getCollectionsTrend(suppliedScope, monthsCount = 6) {
   if (error) throw error;
 
   const payments = data || [];
-  const months = getMonthRange(monthsCount);
 
   return months.map((month) => ({
     month: month.label,
@@ -175,7 +204,6 @@ export async function getCollectionsTrend(suppliedScope, monthsCount = 6) {
       )
   }));
 }
-
 
 export async function getAnalyticsSummary(
   user,
