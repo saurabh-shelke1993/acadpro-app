@@ -17,7 +17,9 @@ const formatCurrency = (value) =>
 
 function DashboardCharts({
   attendanceTrend = [],
-  collectionsTrend = []
+  collectionsTrend = [],
+  attendancePeriodLabel = "Last 7 days",
+  collectionsPeriodLabel = "Last 6 months"
 }) {
   const hasAttendanceData = attendanceTrend.some(
     (item) =>
@@ -61,7 +63,7 @@ const averageMonthlyCollections = collectionsTrend.length
     <div className="dashboard-insights">
 <div className="dashboard-insight-card">
   <span className="dashboard-insight-label">
-    Attendance Rate — Last 7 Days
+    Attendance Rate — ${attendancePeriodLabel}
   </span>
 
 <strong
@@ -80,7 +82,7 @@ const averageMonthlyCollections = collectionsTrend.length
 
   <div className="dashboard-insight-card">
     <span className="dashboard-insight-label">
-      Present — Last 7 Days
+      Present — ${attendancePeriodLabel}
     </span>
 <strong
   className={
@@ -98,7 +100,7 @@ const averageMonthlyCollections = collectionsTrend.length
 
   <div className="dashboard-insight-card">
     <span className="dashboard-insight-label">
-      Absent — Last 7 Days
+      Absent — ${attendancePeriodLabel}
     </span>
 <strong
   className={
@@ -116,7 +118,7 @@ const averageMonthlyCollections = collectionsTrend.length
 
   <div className="dashboard-insight-card">
     <span className="dashboard-insight-label">
-      Collections — Last 6 Months
+      Collections — ${collectionsPeriodLabel}
     </span>
     <strong>{formatCurrency(totalCollections)}</strong>
     <span className="dashboard-insight-description">
@@ -126,7 +128,7 @@ const averageMonthlyCollections = collectionsTrend.length
 
   <div className="dashboard-insight-card">
     <span className="dashboard-insight-label">
-      Avg. Monthly — Last 6 Months
+      Avg. Monthly — ${collectionsPeriodLabel}
     </span>
     <strong>{formatCurrency(averageMonthlyCollections)}</strong>
     <span className="dashboard-insight-description">
@@ -141,7 +143,7 @@ const averageMonthlyCollections = collectionsTrend.length
         <h2>Attendance Trend</h2>
 
         <p className="dashboard-chart-description">
-          Present and absent attendance over the last 7 days
+          Present and absent attendance over the selected period
         </p>
 
         <div className="dashboard-chart">
@@ -208,7 +210,7 @@ const averageMonthlyCollections = collectionsTrend.length
             <div className="dashboard-chart-empty">
               <strong>No attendance data available</strong>
               <span>
-                Attendance has not been recorded during the last 7 days.
+                Attendance has not been recorded during the selected period.
               </span>
             </div>
           )}
@@ -220,7 +222,7 @@ const averageMonthlyCollections = collectionsTrend.length
   <h2>Collections Trend</h2>
 
   <p className="dashboard-chart-description">
-    Monthly payment collections over the last 6 months
+    Monthly payment collections over the selected period
   </p>
 
   <div className="dashboard-chart">
@@ -279,7 +281,7 @@ const averageMonthlyCollections = collectionsTrend.length
       <div className="dashboard-chart-empty">
         <strong>No collections data available</strong>
         <span>
-          No payments have been collected during the last 6 months.
+          No payments have been collected during the selected period.
         </span>
       </div>
     )}
