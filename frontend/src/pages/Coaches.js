@@ -269,7 +269,8 @@ return (
 
       <div className="coaches-table-wrap">
         <table className="coaches-table">
-          <thead><tr><th>Coach</th><th>Email</th><th>Phone</th><th>Specialization</th><th>Status</th></tr></thead>
+          <caption className="sr-only">Coaches and their contact, specialization, and status</caption>
+          <thead><tr><th scope="col">Coach</th><th scope="col">Email</th><th scope="col">Phone</th><th scope="col">Specialization</th><th scope="col">Status</th></tr></thead>
           <tbody>
             {filteredCoaches.length > 0 ? filteredCoaches.map((coach) => (
               <tr key={coach.id}>
