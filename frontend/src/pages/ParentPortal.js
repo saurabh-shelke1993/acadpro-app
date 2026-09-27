@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import { logoutUser } from "../utils/auth";
+import Layout from "../components/Layout";
+import "./ParentPortal.css";
 
 const ParentPortal = () => {
   const [parent, setParent] = useState(null);
@@ -405,14 +407,21 @@ const ParentPortal = () => {
 
   if (loading) {
     return (
-      <main style={{ ...styles.container, ...styles.loadingState }}>
-        Loading your parent portal…
-      </main>
+      <Layout>
+        <main className="parent-portal-page parent-portal-loading">
+          <div className="parent-portal-loading-card">
+            <div className="parent-portal-loading-spinner" aria-hidden="true" />
+            <h1>Loading your parent portal</h1>
+            <p>Preparing your family overview…</p>
+          </div>
+        </main>
+      </Layout>
     );
   }
 
   return (
-    <main style={styles.container}>
+    <Layout>
+      <main className="parent-portal-page">
       <header style={styles.header}>
         <div>
           <h1 style={styles.title}>Parent Portal</h1>
@@ -420,9 +429,14 @@ const ParentPortal = () => {
             {parent ? `Welcome, ${parent.parent_name || "Parent"}` : "AcadPro"}
           </p>
         </div>
-        <button type="button" onClick={handleLogout} style={styles.logoutButton}>
-          Sign out
-        </button>
+        <div className="parent-portal-header-actions">
+          <span className="parent-portal-child-count">
+            {children.length} {children.length === 1 ? "child" : "children"} linked
+          </span>
+          <button type="button" onClick={handleLogout} style={styles.logoutButton}>
+            Sign out
+          </button>
+        </div>
       </header>
 
       {error ? (
@@ -729,7 +743,8 @@ const ParentPortal = () => {
           )}
         </>
       )}
-    </main>
+      </main>
+    </Layout>
   );
 };
 
