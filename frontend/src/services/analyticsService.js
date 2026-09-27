@@ -141,6 +141,90 @@ export async function getAttendanceTrend(suppliedScope, days = 7) {
   });
 }
 
+export async function getAttendanceInsights(suppliedScope, days = 30) {
+  const scope = suppliedScope;
+
+  if (
+    !scope ||
+    scope.type === "none" ||
+    (scope.type === "batches" && !scope.batchIds.length)
+  ) {
+    return [];
+  }
+
+  const dates = getDateRange(days);
+
+  let query = supabase
+    .from("attendance")
+    .select(`
+      player_id,
+      status,
+      players!inner(
+        full_name,
+        is_active
+      )
+    `)
+    .gte("attendance_date", dates[0])
+    .lte("attendance_date", dates[dates.length - 1])
+    .eq("is_deleted", false)
+    .eq("players.is_active", true);
+
+  if (scope.type === "academy") {
+    query = query.eq("academy_id", scope.academyId);
+  }
+
+  if (scope.type === "batches") {
+    query = query.in("batch_id", scope.batchIds);
+  }
+
+  const { data, error } = await query;
+
+  if (error) throw error;
+
+  const playerStats = (data || []).reduce((result, record) => {
+    if (!record.player_id) return result;
+
+    if (!result[record.player_id]) {
+      result[record.player_id] = {
+        playerId: record.player_id,
+        playerName: record.players?.full_name || "Unknown player",
+        present: 0,
+        absent: 0
+      };
+    }
+
+    if (record.status === "present") {
+      result[record.player_id].present += 1;
+    }
+
+    if (record.status === "absent") {
+      result[record.player_id].absent += 1;
+    }
+
+    return result;
+  }, {});
+
+  return Object.values(playerStats)
+    .map((player) => {
+      const total = player.present + player.absent;
+
+      return {
+        ...player,
+        total,
+        attendanceRate: total
+          ? Math.round((player.present / total) * 100)
+          : 0
+      };
+    })
+    .filter((player) => player.total >= 3)
+    .sort((a, b) =>
+      a.attendanceRate - b.attendanceRate ||
+      b.total - a.total ||
+      a.playerName.localeCompare(b.playerName)
+    )
+    .slice(0, 5);
+}
+
 export async function getCollectionsTrend(suppliedScope, monthsCount = 6) {
   const scope = suppliedScope;
 
@@ -307,15 +391,17 @@ export async function getAnalyticsSummary(
     };
   }
 
-  const [attendanceTrend, collectionsTrend, financialHealth] =
+  const [attendanceTrend, attendanceInsights, collectionsTrend, financialHealth] =
     await Promise.all([
       getAttendanceTrend(scope, attendanceDays),
+      getAttendanceInsights(scope, attendanceDays),
       getCollectionsTrend(scope, collectionsMonths),
       getFinancialHealth(scope)
     ]);
 
   return {
     attendanceTrend,
+    attendanceInsights,
     collectionsTrend,
     financialHealth
   };
