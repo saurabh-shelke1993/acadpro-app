@@ -184,3 +184,16 @@ Implemented responsive consistency improvements:
 - Preserved D7.2/D7.5 mobile navigation, focus management, route focus, RBAC, RLS, and module behavior.
 
 D7.6 validation should cover desktop widths/heights, tablet widths, mobile widths, sidebar navigation reachability, no unintended horizontal overflow, and regression of the existing dashboard and module layouts.
+
+
+## D7.7 — Typography, Contrast & Touch Targets
+
+Implemented the shared visual accessibility pass:
+- Strengthened the shared `:focus-visible` treatment to use the primary color directly for a clearer keyboard focus indicator.
+- Improved placeholder text contrast from the lighter neutral token to the stronger `slate-500` token.
+- Normalized shared controls to a 40px minimum height and normalized application navigation/menu/logout controls to at least 40px.
+- Normalized high-use Players, Attendance History, and Payment Dues action controls to 40px minimum height for more consistent touch and pointer interaction.
+- Preserved existing semantic status colors, responsive layouts, reduced-motion behavior, and module-specific interaction styling.
+- No business logic, RBAC, RLS, authentication, payment ledger, attendance, or performance logic was changed.
+
+D7.7 validation should cover focus visibility, placeholder readability, navigation/control target sizing, status-badge readability, desktop/mobile interaction, and reduced-motion behavior.
