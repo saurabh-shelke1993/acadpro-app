@@ -334,3 +334,25 @@
     width: 100%;
   }
 }
+
+
+.players-empty-state {
+  padding: 3rem 1rem !important;
+  text-align: center;
+}
+
+.players-empty-state strong,
+.players-empty-state span {
+  display: block;
+}
+
+.players-empty-state strong {
+  color: var(--ap-slate-800);
+  font-size: var(--ap-font-size-sm);
+}
+
+.players-empty-state span {
+  margin-top: 0.35rem;
+  color: var(--ap-slate-500);
+  font-size: var(--ap-font-size-xs);
+}
