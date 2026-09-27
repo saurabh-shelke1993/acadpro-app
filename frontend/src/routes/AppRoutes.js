@@ -14,6 +14,7 @@ import ProtectedRoute from "../components/ProtectedRoute";
 import Login from "../pages/Login";
 
 import Dashboard from "../pages/Dashboard";
+import Analytics from "../pages/Analytics";
 import Academy from "../pages/Academy";
 import Centers from "../pages/Centers";
 import Batches from "../pages/Batches";
@@ -77,6 +78,20 @@ function AppRoutes() {
               ]}
             >
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/analytics"
+          element={
+            <ProtectedRoute
+              allowedRoles={[
+                "super_admin",
+                "academy_owner"
+              ]}
+            >
+              <Analytics />
             </ProtectedRoute>
           }
         />
