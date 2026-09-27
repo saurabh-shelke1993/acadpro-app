@@ -577,22 +577,6 @@ const ParentPortal = () => {
                 </div>
               </div>
 
-              <div className="parent-portal-subsection">
-                <h3 className="parent-portal-subsection-title">Attendance summary</h3>
-                {selectedAttendance?.total > 0 ? (
-                  <div className="parent-portal-attendance-grid">
-                    <Detail label="Total sessions" value={selectedAttendance.total} />
-                    <Detail label="Present" value={selectedAttendance.present} />
-                    <Detail label="Absent" value={selectedAttendance.absent} />
-                    <Detail label="Attendance percentage" value={`${selectedAttendance.percentage}%`} />
-                  </div>
-                ) : (
-                  <p className="parent-portal-message">
-                    No attendance records are available for this child yet.
-                  </p>
-                )}
-              </div>
-
               <div className="parent-portal-subsection parent-portal-attendance-section">
                 <div className="parent-portal-subsection-heading">
                   <div>
@@ -654,156 +638,177 @@ const ParentPortal = () => {
                 )}
               </div>
 
-              <div className="parent-portal-subsection">
-                <h3 className="parent-portal-subsection-title">Payment history</h3>
-                {selectedPaymentHistory.length > 0 ? (
-                  <div className="parent-portal-history-list">
-                    {selectedPaymentHistory.map((payment) => (
-                      <div key={payment.id} className="parent-portal-history-row">
-                        <div className="parent-portal-history-content">
-                          <p className="parent-portal-history-date">
-                            {formatDate(payment.payment_date)}
-                          </p>
-                          <p className="parent-portal-payment-amount">
-                            Amount paid: {formatAmount(payment.amount_paid)}
-                          </p>
-                          <p className="parent-portal-history-remarks">
-                            Payment mode: {payment.payment_mode || "Not recorded"}
-                          </p>
-                          {payment.receipt_number ? (
-                            <p className="parent-portal-history-remarks">
-                              Receipt number: {payment.receipt_number}
-                            </p>
-                          ) : null}
-                          {payment.transaction_reference ? (
-                            <p className="parent-portal-history-remarks">
-                              Transaction reference: {payment.transaction_reference}
-                            </p>
-                          ) : null}
-                          {payment.remarks ? (
-                            <p className="parent-portal-history-remarks">
-                              Remarks: {payment.remarks}
-                            </p>
-                          ) : null}
-                        </div>
-                      </div>
-                    ))}
+              <div className="parent-portal-subsection parent-portal-financial-section">
+                <div className="parent-portal-subsection-heading parent-portal-financial-heading">
+                  <div>
+                    <p className="parent-portal-section-kicker">Financial overview</p>
+                    <h3 className="parent-portal-subsection-title">Fees &amp; payments</h3>
                   </div>
-                ) : (
-                  <p className="parent-portal-message">
-                    No payment history is available for this child yet.
-                  </p>
-                )}
-              </div>
-
-              <div className="parent-portal-subsection">
-                <h3 className="parent-portal-subsection-title">Receipt details</h3>
-                {selectedReceiptPayments.length > 0 ? (
-                  <div className="parent-portal-history-list">
-                    {selectedReceiptPayments.map((payment) => (
-                      <div key={`receipt-${payment.id}`} className="parent-portal-history-row">
-                        <div className="parent-portal-history-content">
-                          <p className="parent-portal-history-date">
-                            Receipt number: {payment.receipt_number}
-                          </p>
-                          <p className="parent-portal-history-remarks">
-                            Payment date: {formatDate(payment.payment_date)}
-                          </p>
-                          <p className="parent-portal-payment-amount">
-                            Amount paid: {formatAmount(payment.amount_paid)}
-                          </p>
-                          <p className="parent-portal-history-remarks">
-                            Payment mode: {payment.payment_mode || "Not recorded"}
-                          </p>
-                          {payment.transaction_reference ? (
-                            <p className="parent-portal-history-remarks">
-                              Transaction reference: {payment.transaction_reference}
-                            </p>
-                          ) : null}
-                          <button
-                            type="button"
-                            onClick={() => printReceipt(payment)}
-                            className="parent-portal-receipt-button"
-                          >
-                            Print / Save PDF
-                          </button>
-                        </div>
-                      </div>
-                    ))}
+                  <div className={`parent-portal-outstanding-summary${totalOutstandingAmount > 0 ? " has-outstanding" : ""}`}>
+                    <span>Outstanding</span>
+                    <strong>{formatAmount(totalOutstandingAmount)}</strong>
                   </div>
-                ) : (
-                  <p className="parent-portal-message">
-                    No receipt details are available for this child yet.
-                  </p>
-                )}
-              </div>
+                </div>
 
-              <div className="parent-portal-subsection">
-                <h3 className="parent-portal-subsection-title">Pending dues</h3>
-                {selectedPendingDues.length > 0 ? (
-                  <>
-                    <p className="parent-portal-outstanding">
-                      Total outstanding: {formatAmount(totalOutstandingAmount)}
-                    </p>
+                <div className="parent-portal-financial-grid">
+                  <div className="parent-portal-financial-card">
+                    <span className="parent-portal-financial-card-label">Pending dues</span>
+                    <strong>{selectedPendingDues.length}</strong>
+                    <span className="parent-portal-financial-card-meta">
+                      {selectedPendingDues.length === 1 ? "fee requires attention" : "fees require attention"}
+                    </span>
+                  </div>
+                  <div className="parent-portal-financial-card">
+                    <span className="parent-portal-financial-card-label">Payments recorded</span>
+                    <strong>{selectedPaymentHistory.length}</strong>
+                    <span className="parent-portal-financial-card-meta">
+                      {selectedPaymentHistory.length === 1 ? "payment in history" : "payments in history"}
+                    </span>
+                  </div>
+                  <div className="parent-portal-financial-card is-clear">
+                    <span className="parent-portal-financial-card-label">Payment status</span>
+                    <strong>{totalOutstandingAmount > 0 ? "Due" : "Clear"}</strong>
+                    <span className="parent-portal-financial-card-meta">
+                      {totalOutstandingAmount > 0 ? "Outstanding balance remains" : "No outstanding balance"}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="parent-portal-financial-block">
+                  <div className="parent-portal-financial-block-heading">
+                    <div>
+                      <h4>Outstanding dues</h4>
+                      <p>Fees that still have a remaining balance.</p>
+                    </div>
+                    <span className="parent-portal-financial-count">{selectedPendingDues.length}</span>
+                  </div>
+                  {selectedPendingDues.length > 0 ? (
                     <div className="parent-portal-history-list">
                       {selectedPendingDues.map((due) => (
-                        <div key={due.id} className="parent-portal-history-row">
+                        <div key={due.id} className="parent-portal-history-row parent-portal-due-row">
                           <div className="parent-portal-history-content">
-                            <p className="parent-portal-history-date">
-                              {due.due_type || "Fee due"}
-                            </p>
-                            <p className="parent-portal-history-remarks">
-                              Due date: {formatDate(due.due_date)}
-                            </p>
-                            <p className="parent-portal-payment-amount">
-                              Remaining amount: {formatAmount(due.remaining_amount)}
-                            </p>
-                            {due.total_amount != null ? (
-                              <p className="parent-portal-history-remarks">
-                                Total amount: {formatAmount(due.total_amount)}
-                              </p>
-                            ) : null}
-                            {due.paid_amount != null ? (
-                              <p className="parent-portal-history-remarks">
-                                Paid amount: {formatAmount(due.paid_amount)}
-                              </p>
-                            ) : null}
-                            {due.remarks ? (
-                              <p className="parent-portal-history-remarks">
-                                Remarks: {due.remarks}
-                              </p>
-                            ) : null}
+                            <div className="parent-portal-financial-row-topline">
+                              <p className="parent-portal-history-date">{due.due_type || "Fee due"}</p>
+                              <span className={`parent-portal-status-badge parent-portal-due-status parent-portal-due-${String(due.due_status || "pending").toLowerCase().includes("partial") ? "partial" : "pending"}`}>
+                                {due.due_status || "Pending"}
+                              </span>
+                            </div>
+                            <p className="parent-portal-history-remarks">Due date: {formatDate(due.due_date)}</p>
+                            <div className="parent-portal-due-amount-grid">
+                              <div><span>Total</span><strong>{formatAmount(due.total_amount)}</strong></div>
+                              <div><span>Paid</span><strong>{formatAmount(due.paid_amount)}</strong></div>
+                              <div className="is-remaining"><span>Remaining</span><strong>{formatAmount(due.remaining_amount)}</strong></div>
+                            </div>
+                            {due.remarks ? <p className="parent-portal-history-remarks">Remarks: {due.remarks}</p> : null}
                           </div>
-                          <span
-                            className={`parent-portal-status-badge parent-portal-due-status parent-portal-due-${String(due.due_status || "pending").toLowerCase().includes("partial") ? "partial" : String(due.due_status || "pending").toLowerCase().includes("paid") ? "paid" : "pending"}`}
-                          >
-                            {due.due_status || "Pending"}
-                          </span>
                         </div>
                       ))}
                     </div>
-                  </>
+                  ) : (
+                    <div className="parent-portal-financial-empty">
+                      <strong>No outstanding dues</strong>
+                      <p className="parent-portal-message">There are no pending balances for this child.</p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="parent-portal-financial-block">
+                  <div className="parent-portal-financial-block-heading">
+                    <div>
+                      <h4>Payment history</h4>
+                      <p>Recorded payments and their transaction references.</p>
+                    </div>
+                    <span className="parent-portal-financial-count">{selectedPaymentHistory.length}</span>
+                  </div>
+                  {selectedPaymentHistory.length > 0 ? (
+                    <div className="parent-portal-history-list">
+                      {selectedPaymentHistory.map((payment) => (
+                        <div key={payment.id} className="parent-portal-history-row parent-portal-payment-row">
+                          <div className="parent-portal-history-content">
+                            <div className="parent-portal-financial-row-topline">
+                              <p className="parent-portal-history-date">{formatDate(payment.payment_date)}</p>
+                              <strong className="parent-portal-payment-amount">{formatAmount(payment.amount_paid)}</strong>
+                            </div>
+                            <div className="parent-portal-payment-meta-grid">
+                              <div><span>Mode</span><strong>{payment.payment_mode || "Not recorded"}</strong></div>
+                              <div><span>Transaction</span><strong>{payment.transaction_reference || "Not recorded"}</strong></div>
+                              <div><span>Receipt</span><strong>{payment.receipt_number || "Not issued"}</strong></div>
+                            </div>
+                            {payment.remarks ? <p className="parent-portal-history-remarks">Remarks: {payment.remarks}</p> : null}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="parent-portal-financial-empty">
+                      <strong>No payment history yet</strong>
+                      <p className="parent-portal-message">Payments recorded for this child will appear here.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="parent-portal-subsection parent-portal-receipts-section">
+                <div className="parent-portal-subsection-heading">
+                  <div>
+                    <p className="parent-portal-section-kicker">Receipts</p>
+                    <h3 className="parent-portal-subsection-title">Payment receipts</h3>
+                  </div>
+                  <span className="parent-portal-financial-count">{selectedReceiptPayments.length}</span>
+                </div>
+                {selectedReceiptPayments.length > 0 ? (
+                  <div className="parent-portal-receipt-grid">
+                    {selectedReceiptPayments.map((payment) => (
+                      <article key={`receipt-${payment.id}`} className="parent-portal-receipt-card">
+                        <div className="parent-portal-receipt-card-topline">
+                          <div>
+                            <span className="parent-portal-receipt-label">Receipt number</span>
+                            <strong>{payment.receipt_number}</strong>
+                          </div>
+                          <span className="parent-portal-receipt-status">Issued</span>
+                        </div>
+                        <div className="parent-portal-receipt-details">
+                          <div><span>Date</span><strong>{formatDate(payment.payment_date)}</strong></div>
+                          <div><span>Amount</span><strong>{formatAmount(payment.amount_paid)}</strong></div>
+                          <div><span>Mode</span><strong>{payment.payment_mode || "Not recorded"}</strong></div>
+                          <div><span>Transaction</span><strong>{payment.transaction_reference || "Not recorded"}</strong></div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => printReceipt(payment)}
+                          className="parent-portal-receipt-button"
+                        >
+                          Print / Save PDF
+                        </button>
+                      </article>
+                    ))}
+                  </div>
                 ) : (
-                  <p className="parent-portal-message">
-                    No pending dues are available for this child.
-                  </p>
+                  <div className="parent-portal-financial-empty">
+                    <strong>No receipts available</strong>
+                    <p className="parent-portal-message">Receipts will appear here when a receipt number is issued.</p>
+                  </div>
                 )}
               </div>
 
-              <div className="parent-portal-performance">
-                <div>
-                  <h3 className="parent-portal-performance-title">Player Performance Assessments</h3>
-                  <p className="parent-portal-performance-message">
-                    View the performance assessments and coach remarks recorded for {selectedChild.full_name}.
-                  </p>
+              <div className="parent-portal-subsection parent-portal-performance-section">
+                <div className="parent-portal-performance">
+                  <div className="parent-portal-performance-icon" aria-hidden="true">★</div>
+                  <div className="parent-portal-performance-content">
+                    <p className="parent-portal-section-kicker">Development</p>
+                    <h3 className="parent-portal-performance-title">Player Performance</h3>
+                    <p className="parent-portal-performance-message">
+                      Review performance assessments, skill trends, coach remarks, strengths, and improvement areas for {selectedChild.full_name}.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/player-performance-report?player=${encodeURIComponent(selectedChild.id)}`)}
+                    className="parent-portal-performance-button"
+                  >
+                    View Performance
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => navigate(`/player-performance-report?player=${encodeURIComponent(selectedChild.id)}`)}
-                  className="parent-portal-performance-button"
-                >
-                  View Performance Assessments
-                </button>
               </div>
             </section>
           )}
