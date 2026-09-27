@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
+import "./CoachPerformanceAssessments.css";
 import { supabase } from "../supabaseClient";
 import { getCurrentUser } from "../utils/auth";
 import { getCoachAssignedBatchIds } from "../utils/dataScope";
@@ -414,18 +415,22 @@ function CoachPerformanceAssessments() {
 
   return (
     <Layout>
-      <main style={styles.page}>
-        <header style={styles.header}>
+      <main className="performance-page" style={styles.page}>
+        <header className="performance-header" style={styles.header}>
           <div>
+            <div>
+            <div className="performance-eyebrow">Performance</div>
             <h1 style={styles.title}>Player Performance Assessments</h1>
             <p style={styles.subtitle}>{isCoach(currentUser) ? "Record and review assessments for your assigned active players." : "Create, review, edit and delete performance assessments within your authorized scope."}</p>
+          </div>
+          <div className="performance-header-badge">{editingAssessmentId ? "Editing assessment" : "Assessment workspace"}</div>
           </div>
         </header>
 
         {error ? <p role="alert" style={styles.error}>{error}</p> : null}
         {success ? <p role="status" style={styles.success}>{success}</p> : null}
 
-        <section style={styles.card}>
+        <section className="performance-card" style={styles.card}>
           {!isCoach(currentUser) ? (
             <>
               <label htmlFor="assessment-academy" style={styles.label}>Select academy</label>
@@ -504,7 +509,7 @@ function CoachPerformanceAssessments() {
               </form>
             </section>
 
-            <section style={styles.card} aria-labelledby="history-heading">
+            <section className="performance-card" style={styles.card} aria-labelledby="history-heading">
               <h2 id="history-heading" style={styles.sectionTitle}>Assessment history</h2>
               {historyLoading ? <p style={styles.message}>Loading assessment history...</p> : assessments.length ? (
                 <div style={styles.historyList}>
