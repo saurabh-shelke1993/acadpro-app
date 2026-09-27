@@ -1,0 +1,135 @@
+.analytics-page {
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.analytics-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--ap-space-6);
+  padding-bottom: var(--ap-space-6);
+  border-bottom: 1px solid var(--ap-border);
+}
+
+.analytics-scope {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid var(--ap-primary-100);
+  border-radius: var(--ap-radius-full);
+  background: var(--ap-primary-50);
+  color: var(--ap-primary-700);
+  font-size: var(--ap-font-size-xs);
+  font-weight: 700;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.analytics-section {
+  margin-top: var(--ap-space-8);
+}
+
+.analytics-section-first {
+  margin-top: var(--ap-space-6);
+}
+
+.analytics-section-last {
+  margin-bottom: var(--ap-space-8);
+}
+
+.analytics-insights {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--ap-space-4);
+}
+
+.analytics-insight-card {
+  min-width: 0;
+  padding: var(--ap-space-5);
+  border: 1px solid var(--ap-border);
+  border-radius: var(--ap-radius-xl);
+  background: var(--ap-surface);
+  box-shadow: var(--ap-shadow-sm);
+}
+
+.analytics-insight-card span,
+.analytics-insight-card strong,
+.analytics-insight-card small {
+  display: block;
+}
+
+.analytics-insight-card span {
+  color: var(--ap-slate-500);
+  font-size: var(--ap-font-size-sm);
+  font-weight: 600;
+}
+
+.analytics-insight-card strong {
+  margin-top: var(--ap-space-2);
+  color: var(--ap-slate-950);
+  font-size: 1.7rem;
+  font-weight: 750;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+}
+
+.analytics-insight-card small {
+  margin-top: var(--ap-space-2);
+  color: var(--ap-slate-500);
+  font-size: var(--ap-font-size-xs);
+}
+
+.analytics-state {
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ap-space-2);
+  color: var(--ap-slate-600);
+  text-align: center;
+}
+
+.analytics-state h1,
+.analytics-state h2 {
+  margin: 0;
+  color: var(--ap-slate-900);
+}
+
+.analytics-state p {
+  margin: 0;
+  color: var(--ap-slate-500);
+}
+
+.analytics-state-error p {
+  max-width: 420px;
+}
+
+@media (max-width: 1200px) {
+  .analytics-insights {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .analytics-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .analytics-insights {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .analytics-insights {
+    grid-template-columns: 1fr;
+  }
+
+  .analytics-section {
+    margin-top: var(--ap-space-6);
+  }
+}
