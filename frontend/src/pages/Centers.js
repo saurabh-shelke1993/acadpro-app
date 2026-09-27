@@ -14,6 +14,7 @@ import {
 import {
   getAccessibleCenters
 } from "../utils/dataScope";
+import "./Centers.css";
 
 const Centers = () => {
 
@@ -290,7 +291,7 @@ if (!user) {
 
   return (
     <Layout>
-      <div style={{ padding: "20px" }}>
+      <div className="centers-page">
         Loading...
       </div>
     </Layout>
@@ -301,7 +302,17 @@ return (
   <Layout>
     <div style={{ padding: "20px" }}>
 
-      <h1>Centers Management</h1>
+      <div className="centers-page-header">
+        <div>
+          <span className="centers-page-eyebrow">Academy management</span>
+          <h1>Centers</h1>
+          <p>Manage academy locations and their active centers.</p>
+        </div>
+        <div className="centers-page-count">
+          <strong>{filteredCenters.length}</strong>
+          <span>visible centers</span>
+        </div>
+      </div>
 
       {/* ===================== */}
       {/* SUPER ADMIN ONLY */}
@@ -309,7 +320,14 @@ return (
 
 {isSuperAdmin(user) && (
 
-        <>
+        <section className="centers-form-card">
+        <div className="centers-section-heading">
+          <h2>Center workspace</h2>
+          <p>{isSuperAdmin(user) ? "Select an academy, then create or edit a center." : "Create or edit centers within your academy."}</p>
+        </div>
+        <div className="centers-form-grid">
+        {isSuperAdmin(user) && (
+          <>
 <select
   value={selectedAcademy}
   onChange={(e) =>
@@ -340,8 +358,8 @@ return (
 
           <br />
           <br />
-        </>
-      )}
+          </>
+        )}
 
       {/* CENTER NAME */}
 {(isSuperAdmin(user) || isAcademyOwner(user)) && (
@@ -361,7 +379,7 @@ return (
     <br />
     <br />
 
-    <button onClick={handleSaveCenter}>
+    <button className="centers-primary-button" onClick={handleSaveCenter}>
       {
         editingCenterId
           ? "Update Center"
@@ -375,14 +393,14 @@ return (
   </>
 
 )}
+        </div>
+      </section>
       {/* ========================= */}
       {/* CENTERS TABLE */}
       {/* ========================= */}
 
-      <table
-        border="1"
-        width="100%"
-      >
+      <div className="centers-table-wrap">
+      <table className="centers-table">
 
         <thead>
 
@@ -403,8 +421,12 @@ return (
 </thead>
 
 <tbody>
-
-  {
+  {filteredCenters.length === 0 ? (
+    <tr><td className="centers-empty-state" colSpan={isSuperAdmin(user) ? 3 : 2}>
+      <strong>No active centers</strong>
+      <span>{isSuperAdmin(user) && selectedAcademy ? "No centers match the selected academy." : "No active centers are available in your current scope."}</span>
+    </td></tr>
+  ) : (
     filteredCenters.map((center) => (
 
       <tr key={center.id}>
@@ -451,10 +473,10 @@ return (
       </tr>
 
     ))
-  }
-
+  )}
 </tbody>
       </table>
+      </div>
 
     </div>
   </Layout>
