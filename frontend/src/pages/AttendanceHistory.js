@@ -431,7 +431,8 @@ return (
       ) : (
         <div className="attendance-history-table-wrap">
           <table className="attendance-history-table">
-            <thead><tr><th>Date</th><th>Player</th><th>Center</th><th>Batch</th><th>Status</th><th>Marked By</th><th>Action</th></tr></thead>
+            <caption className="sr-only">Attendance history with status and available edit or delete actions</caption>
+            <thead><tr><th scope="col">Date</th><th scope="col">Player</th><th scope="col">Center</th><th scope="col">Batch</th><th scope="col">Status</th><th scope="col">Marked By</th><th scope="col">Actions</th></tr></thead>
             <tbody>
               {attendanceHistory.length > 0 ? attendanceHistory.map((item) => (
                 <tr key={item.id}>
@@ -453,8 +454,8 @@ return (
                     <div className="attendance-history-actions">
                       {editingAttendanceId === item.id ? (
                         <>
-                          {canEditAttendance(user) && <button className="attendance-action-button attendance-action-save" type="button" onClick={() => updateAttendance(item.id)}>Save</button>}
-                          <button className="attendance-action-button attendance-action-cancel" type="button" onClick={() => { setEditingAttendanceId(null); setEditingStatus(""); }}>Cancel</button>
+                          {canEditAttendance(user) && <button className="attendance-action-button attendance-action-save" type="button" onClick={() => updateAttendance(item.id)} aria-label={`Save attendance for ${item.players?.full_name || "player"}`}>Save</button>}
+                          <button className="attendance-action-button attendance-action-cancel" type="button" onClick={() => { setEditingAttendanceId(null); setEditingStatus(""); }} aria-label={`Cancel editing attendance for ${item.players?.full_name || "player"}`}>Cancel</button>
                         </>
                       ) : (
                         <>
