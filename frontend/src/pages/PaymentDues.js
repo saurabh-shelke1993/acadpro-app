@@ -26,6 +26,7 @@ import {
 } from "../services/paymentService";
 
 import { useNavigate } from "react-router-dom";
+import "./PaymentDues.css";
 
 function PaymentDues() {
 const navigate = useNavigate();
@@ -745,499 +746,100 @@ if (
 
 return (
   <Layout>
-    <div style={{ padding: "20px" }}>
-      <h1>Payment Dues</h1>
-      {/* Academy */}
-
-<select
-  value={selectedAcademy}
-  onChange={(e) =>
-    setSelectedAcademy(e.target.value)
-  }
->
-  <option value="">
-    Select Academy
-  </option>
-
-  {academies.map((academy) => (
-    <option
-      key={academy.id}
-      value={academy.id}
-    >
-      {academy.academy_name}
-    </option>
-  ))}
-</select>
-
-<br />
-<br />
-
-{/* Center */}
-
-<select
-  value={selectedCenter}
-  onChange={(e) =>
-    setSelectedCenter(e.target.value)
-  }
->
-  <option value="">
-    Select Center
-  </option>
-
-  {centers.map((center) => (
-    <option
-      key={center.id}
-      value={center.id}
-    >
-      {center.center_name}
-    </option>
-  ))}
-</select>
-
-<br />
-<br />
-
-{/* Batch */}
-
-<select
-  value={selectedBatch}
-  onChange={(e) =>
-    setSelectedBatch(e.target.value)
-  }
->
-  <option value="">
-    Select Batch
-  </option>
-
-  {batches.map((batch) => (
-    <option
-      key={batch.id}
-      value={batch.id}
-    >
-      {batch.batch_name}
-    </option>
-  ))}
-</select>
-
-<br />
-<br />
-
-{/* Player */}
-
-<select
-  value={selectedPlayer}
-  onChange={(e) =>
-    setSelectedPlayer(e.target.value)
-  }
->
-  <option value="">
-    Select Player
-  </option>
-
-  {players.map((player) => (
-    <option
-      key={player.id}
-      value={player.id}
-    >
-      {player.full_name}
-    </option>
-  ))}
-</select>
-
-<br />
-<br />
-      {/* Subscription Dropdown */}
-
-      <select
-        value={selectedSubscription}
-        onChange={(e) => {
-
-          const subscriptionId =
-            e.target.value;
-
-          setSelectedSubscription(
-            subscriptionId
-          );
-
-          const selectedData =
-            subscriptions.find(
-              (subscription) =>
-                subscription.id ===
-                subscriptionId
-            );
-
-          setSelectedSubscriptionData(
-            selectedData
-          );
-        }}
-      >
-
-        <option value="">
-          Select Subscription
-        </option>
-
-        {
-          subscriptions.map(
-            (subscription) => (
-
-              <option
-                key={subscription.id}
-                value={subscription.id}
-              >
-
-                {
-                  subscription.players
-                  ?.full_name
-                }
-
-                {" - "}
-
-                {
-                  subscription
-                  .subscription_plans
-                  ?.plan_name
-                }
-
-                {" - ₹"}
-
-                {
-                  subscription
-                  .subscription_plans
-                  ?.amount
-                }
-
-              </option>
-
-            )
-          )
-        }
-
-      </select>
-
-      <br />
-      <br />
-
-      {/* Due Type */}
-
-<select
-  value={dueType}
-  onChange={(e) =>
-    setDueType(e.target.value)
-  }
->
-  <option value="">
-    Select Due Type
-  </option>
-
-  <option value="monthly">
-    Monthly
-  </option>
-
-  <option value="quarterly">
-    Quarterly
-  </option>
-
-  <option value="registration">
-    Registration
-  </option>
-</select>
-
-      <br />
-      <br />
-
-      {/* Due Date */}
-
-      <input
-        type="date"
-        value={dueDate}
-        onChange={(e) =>
-          setDueDate(
-            e.target.value
-          )
-        }
-      />
-
-      <br />
-      <br />
-
-{canGenerateDue(loggedInUser) && (
-
-<button
-  onClick={createPaymentDue}
->
-  Generate Due
-</button>
-
-)}
-
-      <hr />
-      <br />
-      
-      
-   <h2>Payment Dues List</h2>
-
-<div style={{ marginBottom: "10px" }}>
-
-  <select
-    value={statusFilter}
-    onChange={(e) =>
-      setStatusFilter(e.target.value)
-    }
-  >
-
-    <option value="">
-      All Statuses
-    </option>
-
-    <option value="pending">
-      Pending
-    </option>
-
-    <option value="partial">
-      Partial
-    </option>
-
-    <option value="paid">
-      Paid
-    </option>
-
-  </select>
-
-</div>
-
-      <table
-        border="1"
-        cellPadding="10"
-        style={{
-          borderCollapse: "collapse",
-          width: "100%"
-        }}
-      >
-
-        <thead>
-
-          <tr>
-
-<th>Academy</th>
-
-<th>Center</th>
-
-<th>Player</th>
-
-<th>Plan</th>
-
-<th>Due Type</th>
-
-            <th>Due Date</th>
-
-            <th>Total Amount</th>
-
-            <th>Paid Amount</th>
-
-            <th>Remaining Amount</th>
-
-            <th>Status</th>
-
-            <th>Actions</th>
-
-          </tr>
-
-        </thead>
-
-        <tbody>
-
-          {
-            duesList.map((due) => (
-
-  <tr key={due.id}>
-
-<td>{due.players?.academies?.academy_name}</td>
-
-<td>{due.players?.centers?.center_name}</td>
-
-<td>{due.players?.batches?.batch_name}</td>
-
-<td>{due.players?.full_name}</td>
-
-<td>
-  {
-    due.player_subscriptions
-      ?.subscription_plans
-      ?.plan_name
-  }
-</td>
-
-<td>{due.due_type}</td>
-
-
-<td>{due.due_date}</td>
-
-<td>₹ {due.total_amount}</td>
-
-<td>₹ {due.paid_amount}</td>
-
-<td>₹ {due.remaining_amount}</td>
-
-<td>
-
-  {due.due_status === "paid" && "✅ Paid"}
-
-  {due.due_status === "partial" && "🟡 Partial"}
-
-  {due.due_status === "pending" && "🔴 Pending"}
-
-</td>
-
-<td>
-
-{due.due_status !== "paid" && (
-
-<button
-    onClick={() => {
-
-        navigate(
-            "/payment-collections",
-            {
-                state: {
-                    dueId: due.id
-                }
-            }
-        );
-
-    }}
->
-    Record Payment
-</button>
-
-)}
-  
-{canGenerateDue(loggedInUser) && (
-
-<button
-  onClick={() =>
-    startEdit(due)
-  }
->
-  Edit
-</button>
-
-)}
-
-{canGenerateDue(loggedInUser) && (
-
-<button
-  onClick={() =>
-    deleteDue(due)
-  }
->
-  Delete
-</button>
-
-)}
-
-</td>
-
-              </tr>
-
-            ))
-          }
-
-        </tbody>
-
-      </table>
-
+    <div className="payment-dues-page">
+      <div className="payment-page-header">
+        <div>
+          <div className="payment-page-eyebrow">Finance</div>
+          <h1>Payment Dues</h1>
+          <p>Generate, review and manage outstanding player dues.</p>
+        </div>
+        <div className="payment-page-summary">
+          <span className="payment-summary-label">Visible dues</span>
+          <strong>{duesList.length}</strong>
+        </div>
+      </div>
+
+      <section className="payment-card">
+        <div className="payment-card-header">
+          <div>
+            <h2>Generate Payment Due</h2>
+            <p>Select the player subscription and define the amount due.</p>
+          </div>
+        </div>
+
+        <div className="payment-form-grid">
+          <label className="payment-field"><span>Academy</span><select value={selectedAcademy} onChange={(e) => setSelectedAcademy(e.target.value)}><option value="">Select Academy</option>{academies.map((academy) => <option key={academy.id} value={academy.id}>{academy.academy_name}</option>)}</select></label>
+          <label className="payment-field"><span>Center</span><select value={selectedCenter} onChange={(e) => setSelectedCenter(e.target.value)}><option value="">Select Center</option>{centers.map((center) => <option key={center.id} value={center.id}>{center.center_name}</option>)}</select></label>
+          <label className="payment-field"><span>Batch</span><select value={selectedBatch} onChange={(e) => setSelectedBatch(e.target.value)}><option value="">Select Batch</option>{batches.map((batch) => <option key={batch.id} value={batch.id}>{batch.batch_name}</option>)}</select></label>
+          <label className="payment-field"><span>Player</span><select value={selectedPlayer} onChange={(e) => setSelectedPlayer(e.target.value)}><option value="">Select Player</option>{players.map((player) => <option key={player.id} value={player.id}>{player.full_name}</option>)}</select></label>
+          <label className="payment-field payment-field-wide">
+            <span>Subscription</span>
+            <select value={selectedSubscription} onChange={(e) => { const subscriptionId = e.target.value; setSelectedSubscription(subscriptionId); setSelectedSubscriptionData(subscriptions.find((subscription) => subscription.id === subscriptionId)); }}>
+              <option value="">Select Subscription</option>
+              {subscriptions.map((subscription) => <option key={subscription.id} value={subscription.id}>{subscription.players?.full_name} - {subscription.subscription_plans?.plan_name} - ₹{subscription.subscription_plans?.amount}</option>)}
+            </select>
+          </label>
+          <label className="payment-field"><span>Due Type</span><select value={dueType} onChange={(e) => setDueType(e.target.value)}><option value="">Select Due Type</option><option value="monthly">Monthly</option><option value="quarterly">Quarterly</option><option value="registration">Registration</option></select></label>
+          <label className="payment-field"><span>Due Date</span><input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} /></label>
+        </div>
+
+        <div className="payment-form-footer">
+          {selectedSubscriptionData && <div className="payment-amount-preview"><span>Plan amount</span><strong>₹{selectedSubscriptionData.subscription_plans?.amount}</strong></div>}
+          {canGenerateDue(loggedInUser) && <button type="button" className="payment-primary-button" onClick={createPaymentDue}>Generate Due</button>}
+        </div>
+      </section>
+
+      <section className="payment-card">
+        <div className="payment-card-header payment-list-header">
+          <div><h2>Payment Dues List</h2><p>{duesList.length === 0 ? "No dues match the current filters." : "Review balances and move unpaid dues to collection."}</p></div>
+          <label className="payment-filter-field"><span>Status</span><select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}><option value="">All Statuses</option><option value="pending">Pending</option><option value="partial">Partial</option><option value="paid">Paid</option></select></label>
+        </div>
+
+        {duesList.length === 0 ? (
+          <div className="payment-empty-state"><div className="payment-empty-icon">₹</div><h3>No payment dues found</h3><p>Adjust the filters or generate a new due for an eligible player subscription.</p></div>
+        ) : (
+          <div className="payment-table-wrapper">
+            <table className="payment-data-table">
+              <thead><tr><th>Academy</th><th>Center</th><th>Batch</th><th>Player</th><th>Plan</th><th>Due Type</th><th>Due Date</th><th>Total</th><th>Paid</th><th>Remaining</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody>
+                {duesList.map((due) => (
+                  <tr key={due.id}>
+                    <td>{due.players?.academies?.academy_name || "-"}</td>
+                    <td>{due.players?.centers?.center_name || "-"}</td>
+                    <td>{due.players?.batches?.batch_name || "-"}</td>
+                    <td className="payment-player-cell">{due.players?.full_name || "-"}</td>
+                    <td>{due.player_subscriptions?.subscription_plans?.plan_name || "-"}</td>
+                    <td><span className="payment-type-badge">{due.due_type}</span></td>
+                    <td>{due.due_date}</td>
+                    <td>₹ {due.total_amount}</td>
+                    <td>₹ {due.paid_amount}</td>
+                    <td className="payment-remaining-cell">₹ {due.remaining_amount}</td>
+                    <td><span className={`payment-status-badge payment-status-${due.due_status}`}>{due.due_status === "paid" ? "Paid" : due.due_status === "partial" ? "Partial" : "Pending"}</span></td>
+                    <td><div className="payment-action-group">
+                      {due.due_status !== "paid" && <button type="button" className="payment-secondary-button" onClick={() => navigate("/payment-collections", { state: { dueId: due.id } })}>Record Payment</button>}
+                      {canGenerateDue(loggedInUser) && <><button type="button" className="payment-text-button" onClick={() => startEdit(due)}>Edit</button><button type="button" className="payment-danger-button" onClick={() => deleteDue(due)}>Delete</button></>}
+                    </div></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
     </div>
+
     {editingDue && (
-
-  <div
-    style={{
-      position: "fixed",
-      top: "30%",
-      left: "40%",
-      background: "white",
-      padding: "20px",
-      border: "1px solid black",
-      zIndex: 9999
-    }}
-  >
-
-    <h3>Edit Due</h3>
-
-    <div>
-
-      <label>Due Date</label>
-
-      <br />
-
-      <input
-        type="date"
-        value={editDueDate}
-        onChange={(e) =>
-          setEditDueDate(
-            e.target.value
-          )
-        }
-      />
-
-    </div>
-
-    <br />
-
-    <div>
-
-      <label>Due Type</label>
-
-      <br />
-
-      <select
-        value={editDueType}
-        onChange={(e) =>
-          setEditDueType(
-            e.target.value
-          )
-        }
-      >
-        <option value="monthly">
-          Monthly
-        </option>
-
-        <option value="quarterly">
-          Quarterly
-        </option>
-
-        <option value="registration">
-          Registration
-        </option>
-
-      </select>
-
-    </div>
-
-    <br />
-
-{canGenerateDue(loggedInUser) && (
-
-<button
-  onClick={saveEdit}
->
-  Save
-</button>
-
-)}
-
-    <button
-      onClick={() =>
-        setEditingDue(null)
-      }
-    >
-      Cancel
-    </button>
-
-  </div>
-
-)}
+      <div className="payment-modal-overlay" role="presentation">
+        <div className="payment-modal" role="dialog" aria-modal="true" aria-labelledby="edit-due-title">
+          <div className="payment-modal-header"><div><div className="payment-page-eyebrow">Payment Dues</div><h2 id="edit-due-title">Edit Due</h2></div><button type="button" className="payment-modal-close" onClick={() => setEditingDue(null)} aria-label="Close edit due dialog">×</button></div>
+          <div className="payment-modal-body">
+            <label className="payment-field"><span>Due Date</span><input type="date" value={editDueDate} onChange={(e) => setEditDueDate(e.target.value)} /></label>
+            <label className="payment-field"><span>Due Type</span><select value={editDueType} onChange={(e) => setEditDueType(e.target.value)}><option value="monthly">Monthly</option><option value="quarterly">Quarterly</option><option value="registration">Registration</option></select></label>
+          </div>
+          <div className="payment-modal-footer">{canGenerateDue(loggedInUser) && <button type="button" className="payment-primary-button" onClick={saveEdit}>Save Changes</button>}<button type="button" className="payment-secondary-button" onClick={() => setEditingDue(null)}>Cancel</button></div>
+        </div>
+      </div>
+    )}
   </Layout>
 );
-}
-
 export default PaymentDues;
