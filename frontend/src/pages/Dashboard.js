@@ -157,10 +157,58 @@ function Dashboard() {
           </div>
 
           <div className="dashboard-grid dashboard-grid-4">
-            <DashboardCard title="Total" value={summary.attendanceTaken} icon="▤" color="sky" to="/attendance" />
+            <DashboardCard title="Recorded" value={summary.attendanceTaken} icon="▤" color="sky" to="/attendance" />
             <DashboardCard title="Present" value={summary.presentPlayers} icon="✓" color="green" to="/attendance" />
             <DashboardCard title="Absent" value={summary.absentPlayers} icon="×" color="red" to="/attendance" />
             <DashboardCard title="Present %" value={summary.attendancePercentage + "%"} icon="↗" color="purple" to="/attendance-history" />
+          </div>
+        </section>
+
+        <section className="dashboard-section">
+          <div className="dashboard-section-heading">
+            <div>
+              <span className="dashboard-section-kicker">Needs attention</span>
+              <h2>Today&apos;s Priorities</h2>
+            </div>
+            <span className="dashboard-section-helper">
+              Follow up on outstanding work
+            </span>
+          </div>
+
+          <div className="dashboard-attention-grid">
+            <Link className="dashboard-attention-card" to="/payment-dues">
+              <span className="dashboard-attention-icon dashboard-attention-icon-danger">!</span>
+              <span className="dashboard-attention-content">
+                <strong>Pending Payment Dues</strong>
+                <b>{summary.pendingDues}</b>
+                <small>Open payment dues to review outstanding items</small>
+              </span>
+              <span className="dashboard-attention-arrow" aria-hidden="true">→</span>
+            </Link>
+
+            <Link className="dashboard-attention-card" to="/payment-dues">
+              <span className="dashboard-attention-icon dashboard-attention-icon-danger">₹</span>
+              <span className="dashboard-attention-content">
+                <strong>Outstanding Amount</strong>
+                <b>{formatCurrency(summary.outstandingAmount)}</b>
+                <small>Review balances still due from players</small>
+              </span>
+              <span className="dashboard-attention-arrow" aria-hidden="true">→</span>
+            </Link>
+
+            <Link className="dashboard-attention-card" to="/attendance">
+              <span className="dashboard-attention-icon dashboard-attention-icon-info">✓</span>
+              <span className="dashboard-attention-content">
+                <strong>Attendance Recorded</strong>
+                <b>{summary.attendanceTaken}</b>
+                <small>
+                  {summary.attendanceTaken > 0
+                    ? "Today&apos;s attendance has records"
+                    : "No attendance has been recorded today"}
+                </small>
+              </span>
+              <span className="dashboard-attention-arrow" aria-hidden="true">→</span>
+            </Link>
           </div>
         </section>
 
