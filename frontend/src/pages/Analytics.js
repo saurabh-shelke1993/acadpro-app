@@ -148,13 +148,13 @@ function Analytics() {
             <div className="analytics-insight-card">
               <span>Present Records</span>
               <strong>{totalAttendance ? totalPresent : "—"}</strong>
-              <small>Last 7 days</small>
+              <small>Last {attendanceDays} days</small>
             </div>
 
             <div className="analytics-insight-card">
               <span>Absent Records</span>
               <strong>{totalAttendance ? totalAbsent : "—"}</strong>
-              <small>Last 7 days</small>
+              <small>Last {attendanceDays} days</small>
             </div>
 
             <div className="analytics-insight-card">
@@ -166,7 +166,7 @@ function Analytics() {
             <div className="analytics-insight-card">
               <span>Average Monthly</span>
               <strong>{formatCurrency(averageMonthlyCollections)}</strong>
-              <small>Last 6 months</small>
+              <small>Last {collectionsMonths} months</small>
             </div>
           </div>
         </section>
