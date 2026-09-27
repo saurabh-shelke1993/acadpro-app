@@ -1,5 +1,6 @@
 import { supabase } from "../supabaseClient";
 import { getDashboardDataScope } from "../utils/dataScope";
+import { getAttendanceTrend, getCollectionsTrend } from "./analyticsService";
 
 const EMPTY_KPIS = {
   totalPlayers: 0,
@@ -216,72 +217,6 @@ export async function getAttendanceSummary(user, suppliedScope) {
   };
 }
 
-export async function getAttendanceTrend(user, suppliedScope) {
-  const scope = suppliedScope || await getDashboardDataScope(user);
-
-  if (
-    scope.type === "none" ||
-    (scope.type === "batches" && !scope.batchIds.length)
-  ) {
-    return [];
-  }
-
-  const dates = getDateRange(7);
-
-  const results = await Promise.all(
-    dates.map(async (date) => {
-      let query = supabase
-        .from("attendance")
-        .select("status")
-        .eq("attendance_date", date)
-        .eq("is_deleted", false);
-
-      if (scope.type === "academy") {
-        query = query.eq("academy_id", scope.academyId);
-      }
-
-      if (scope.type === "batches") {
-        query = query.in("batch_id", scope.batchIds);
-      }
-
-      const { data, error } = await query;
-
-      if (error) throw error;
-
-      const attendance = data || [];
-
-      const present = attendance.filter(
-        (record) => record.status === "present"
-      ).length;
-
-      const absent = attendance.filter(
-        (record) => record.status === "absent"
-      ).length;
-
-      const total = present + absent;
-
-      return {
-        date,
-        label: new Date(`${date}T00:00:00`).toLocaleDateString(
-          "en-IN",
-          {
-            day: "numeric",
-            month: "short"
-          }
-        ),
-        present,
-        absent,
-        attendancePercentage: total
-          ? Math.round((present / total) * 100)
-          : 0
-      };
-    })
-  );
-
-  return results;
-}
-
-
 export async function getFinancialSummary(user, suppliedScope) {
   const scope = suppliedScope || await getDashboardDataScope(user);
 
@@ -429,8 +364,8 @@ export async function getDashboardSummary(user) {
     getDashboardKPIs(user, scope),
     getAttendanceSummary(user, scope),
     getFinancialSummary(user, scope),
-    getAttendanceTrend(user, scope),
-    getCollectionsTrend(user, scope)
+    getAttendanceTrend(scope),
+    getCollectionsTrend(scope)
   ]);
 
   return {
