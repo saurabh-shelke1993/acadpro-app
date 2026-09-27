@@ -497,22 +497,59 @@ const ParentPortal = () => {
 
           {selectedChild && (
             <section aria-labelledby="selected-child-heading" className="parent-portal-dashboard-card">
-              <p className="parent-portal-eyebrow">Selected child</p>
-              <h2 id="selected-child-heading" className="parent-portal-dashboard-title">
-                {selectedChild.full_name}
-              </h2>
-
-              <div className="parent-portal-details-grid">
-                <Detail label="Date of birth" value={formatDate(selectedChild.dob)} />
-                <Detail label="Joining date" value={formatDate(selectedChild.joining_date)} />
-                <Detail label="Status" value={selectedChild.player_status || "Not available"} />
-                <Detail label="Gender" value={selectedChild.gender || "Not available"} />
-                <Detail label="Registration number" value={selectedChild.registration_number || "Not available"} />
-                <Detail label="Player code" value={selectedChild.player_code || "Not available"} />
+              <div className="parent-portal-profile-hero">
+                <div className="parent-portal-profile-avatar" aria-hidden="true">
+                  {(selectedChild.full_name || "?").charAt(0).toUpperCase()}
+                </div>
+                <div className="parent-portal-profile-identity">
+                  <p className="parent-portal-eyebrow">Selected child</p>
+                  <h2 id="selected-child-heading" className="parent-portal-dashboard-title">
+                    {selectedChild.full_name}
+                  </h2>
+                  <p className="parent-portal-profile-context">
+                    {selectedChild.academy?.academy_name || "Academy not available"}
+                    <span aria-hidden="true">•</span>
+                    {selectedChild.center?.center_name || "Center not assigned"}
+                  </p>
+                </div>
+                <span className={`parent-portal-player-status parent-portal-player-status-${String(selectedChild.player_status || "").toLowerCase().replace(/\s+/g, "-")}`}>
+                  {selectedChild.player_status || "Status unavailable"}
+                </span>
               </div>
 
-              <div className="parent-portal-subsection">
-                <h3 className="parent-portal-subsection-title">Academy details</h3>
+              <div className="parent-portal-profile-meta">
+                <div>
+                  <span>Player code</span>
+                  <strong>{selectedChild.player_code || "Not available"}</strong>
+                </div>
+                <div>
+                  <span>Registration number</span>
+                  <strong>{selectedChild.registration_number || "Not available"}</strong>
+                </div>
+              </div>
+
+              <div className="parent-portal-subsection parent-portal-profile-section">
+                <div className="parent-portal-subsection-heading">
+                  <div>
+                    <p className="parent-portal-section-kicker">Player profile</p>
+                    <h3 className="parent-portal-subsection-title">Personal information</h3>
+                  </div>
+                </div>
+                <div className="parent-portal-details-grid">
+                  <Detail label="Date of birth" value={formatDate(selectedChild.dob)} />
+                  <Detail label="Joining date" value={formatDate(selectedChild.joining_date)} />
+                  <Detail label="Gender" value={selectedChild.gender || "Not available"} />
+                  <Detail label="Player status" value={selectedChild.player_status || "Not available"} />
+                </div>
+              </div>
+
+              <div className="parent-portal-subsection parent-portal-profile-section">
+                <div className="parent-portal-subsection-heading">
+                  <div>
+                    <p className="parent-portal-section-kicker">Training profile</p>
+                    <h3 className="parent-portal-subsection-title">Academy &amp; training</h3>
+                  </div>
+                </div>
                 <div className="parent-portal-details-grid">
                   <Detail label="Academy" value={selectedChild.academy?.academy_name || "Not available"} />
                   <Detail label="Center" value={selectedChild.center?.center_name || "Not assigned"} />
@@ -527,16 +564,16 @@ const ParentPortal = () => {
                     }
                   />
                   <Detail
-                  label="Coaches"
-                  value={
-                    selectedChild.coaches.length > 0
-                      ? selectedChild.coaches
-                          .map((coach) => coach.full_name)
-                          .filter(Boolean)
-                          .join(", ")
-                      : "Not assigned"
-                  }
-                />
+                    label="Coaches"
+                    value={
+                      selectedChild.coaches.length > 0
+                        ? selectedChild.coaches
+                            .map((coach) => coach.full_name)
+                            .filter(Boolean)
+                            .join(", ")
+                        : "Not assigned"
+                    }
+                  />
                 </div>
               </div>
 
