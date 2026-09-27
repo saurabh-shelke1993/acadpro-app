@@ -347,10 +347,11 @@ return (
         {/* ACADEMY */}
 
         <div className="attendance-filter-field">
-          <label>Academy</label>
+          <label htmlFor="attendance-academy">Academy</label>
           <br />
 
           <select
+            id="attendance-academy"
             value={selectedAcademy}
             onChange={(e) => {
               setSelectedAcademy(e.target.value);
@@ -380,10 +381,11 @@ return (
         {/* CENTER */}
 
         <div className="attendance-filter-field">
-          <label>Center</label>
+          <label htmlFor="attendance-center">Center</label>
           <br />
 
           <select
+            id="attendance-center"
             value={selectedCenter}
             onChange={(e) => {
               setSelectedCenter(e.target.value);
@@ -407,10 +409,11 @@ return (
         {/* BATCH */}
 
         <div className="attendance-filter-field">
-          <label>Batch</label>
+          <label htmlFor="attendance-batch">Batch</label>
           <br />
 
           <select
+            id="attendance-batch"
             value={selectedBatch}
             onChange={(e) =>
               setSelectedBatch(e.target.value)
@@ -429,7 +432,7 @@ return (
         {/* DATE */}
 
         <div className="attendance-filter-field">
-          <label>Date</label>
+          <label htmlFor="attendance-date">Date</label>
           <br />
 
           <input
