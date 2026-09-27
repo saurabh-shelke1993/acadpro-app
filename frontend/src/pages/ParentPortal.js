@@ -15,6 +15,8 @@ const ParentPortal = () => {
   const [pendingDuesByChildId, setPendingDuesByChildId] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [secondaryErrors, setSecondaryErrors] = useState([]);
+  const [loadAttempt, setLoadAttempt] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -23,6 +25,7 @@ const ParentPortal = () => {
     const loadParentPortal = async () => {
       setLoading(true);
       setError("");
+      setSecondaryErrors([]);
 
       const {
         data: { user },
@@ -132,12 +135,16 @@ const ParentPortal = () => {
       });
 
       if (childIds.length > 0) {
-        const { data: attendanceRecords } = await supabase
+        const { data: attendanceRecords, error: attendanceError } = await supabase
           .from("attendance")
           .select("player_id, attendance_date, status, remarks")
           .in("player_id", childIds)
           .or("is_deleted.is.null,is_deleted.eq.false")
           .order("attendance_date", { ascending: false });
+
+        if (attendanceError) {
+          console.error("Unable to load parent attendance:", attendanceError);
+        }
 
         (attendanceRecords || []).forEach((record) => {
           const summary = nextAttendanceByChildId[record.player_id];
@@ -171,7 +178,9 @@ const ParentPortal = () => {
           .in("player_id", childIds)
           .order("payment_date", { ascending: false });
 
-        if (!paymentsError) {
+        if (paymentsError) {
+          console.error("Unable to load parent payment history:", paymentsError);
+        } else {
           (paymentRecords || []).forEach((record) => {
             const history = nextPaymentHistoryByChildId[record.player_id];
             if (history) history.push(record);
@@ -186,7 +195,9 @@ const ParentPortal = () => {
           .in("player_id", childIds)
           .order("due_date", { ascending: true });
 
-        if (!duesError) {
+        if (duesError) {
+          console.error("Unable to load parent payment dues:", duesError);
+        } else {
           (dueRecords || []).forEach((record) => {
             const remainingAmount = Number(record.remaining_amount);
             const dueStatus = String(record.due_status || "").toLowerCase();
@@ -198,6 +209,15 @@ const ParentPortal = () => {
 
             if (isOutstanding && dues) dues.push(record);
           });
+        }
+
+        const nextSecondaryErrors = [];
+        if (attendanceError) nextSecondaryErrors.push("Attendance data could not be loaded.");
+        if (paymentsError) nextSecondaryErrors.push("Payment history could not be loaded.");
+        if (duesError) nextSecondaryErrors.push("Outstanding dues could not be loaded.");
+
+        if (mounted && nextSecondaryErrors.length > 0) {
+          setSecondaryErrors(nextSecondaryErrors);
         }
       }
 
@@ -218,10 +238,14 @@ const ParentPortal = () => {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [loadAttempt]);
 
   const handleLogout = async () => {
     await logoutUser();
+  };
+
+  const retryLoad = () => {
+    setLoadAttempt((attempt) => attempt + 1);
   };
 
   const selectedChild =
@@ -412,7 +436,7 @@ const ParentPortal = () => {
           <div className="parent-portal-loading-card">
             <div className="parent-portal-loading-spinner" aria-hidden="true" />
             <h1>Loading your parent portal</h1>
-            <p>Preparing your family overview…</p>
+            <p>Loading your profile, children, attendance and financial information…</p>
           </div>
         </main>
       </Layout>
@@ -443,18 +467,45 @@ const ParentPortal = () => {
         </div>
       </header>
 
+      {secondaryErrors.length > 0 ? (
+        <section className="parent-portal-data-warning" role="status" aria-live="polite">
+          <div className="parent-portal-data-warning-icon" aria-hidden="true">!</div>
+          <div className="parent-portal-data-warning-content">
+            <strong>Some portal data is temporarily unavailable</strong>
+            <p>{secondaryErrors.join(" ")}</p>
+          </div>
+          <button type="button" onClick={retryLoad} className="parent-portal-secondary-button">
+            Retry
+          </button>
+        </section>
+      ) : null}
+
       {error ? (
-        <section role="alert" className="parent-portal-state-card">
-          <h2 className="parent-portal-section-title">Unable to load portal</h2>
-          <p className="parent-portal-message">{error}</p>
+        <section role="alert" className="parent-portal-state-card parent-portal-error-state">
+          <div className="parent-portal-state-icon parent-portal-state-icon-error" aria-hidden="true">!</div>
+          <div className="parent-portal-state-content">
+            <p className="parent-portal-section-kicker">Something went wrong</p>
+            <h2 className="parent-portal-section-title">Unable to load portal</h2>
+            <p className="parent-portal-message">{error}</p>
+            <button type="button" onClick={retryLoad} className="parent-portal-secondary-button">
+              Try again
+            </button>
+          </div>
         </section>
       ) : children.length === 0 ? (
-        <section className="parent-portal-state-card">
-          <h2 className="parent-portal-section-title">No linked children yet</h2>
-          <p className="parent-portal-message">
+        <section className="parent-portal-state-card parent-portal-empty-state">
+          <div className="parent-portal-state-icon" aria-hidden="true">⌂</div>
+          <div className="parent-portal-state-content">
+            <p className="parent-portal-section-kicker">Family profile</p>
+            <h2 className="parent-portal-section-title">No linked children yet</h2>
+            <p className="parent-portal-message">
             Your login is valid, but no player profile is currently linked to it.
             Please contact your academy administrator.
-          </p>
+            </p>
+            <button type="button" onClick={retryLoad} className="parent-portal-secondary-button">
+              Refresh
+            </button>
+          </div>
         </section>
       ) : (
         <>
