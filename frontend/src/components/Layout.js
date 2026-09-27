@@ -108,7 +108,9 @@ function Layout({ children }) {
 
   return (
     <div className="app-shell">
-      <a className="app-skip-link" href="#main-content">Skip to main content</a>\n\n      <Sidebar
+      <a className="app-skip-link" href="#main-content">Skip to main content</a>
+
+      <Sidebar
         isOpen={sidebarOpen}
         onClose={closeSidebar}
         closeButtonRef={closeButtonRef}
