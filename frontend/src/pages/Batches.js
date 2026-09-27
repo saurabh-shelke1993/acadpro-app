@@ -803,23 +803,24 @@ return (
 
       <div className="batches-table-wrap">
       <table className="batches-table">
+      <caption className="sr-only">Batches, schedules, centers, and available management actions</caption>
 
         <thead>
 
           <tr>
 
-<th>Batch</th>
-<th>Age Group</th>
-<th>Start</th>
-<th>End</th>
-<th>Center</th>
+<th scope="col">Batch</th>
+<th scope="col">Age Group</th>
+<th scope="col">Start</th>
+<th scope="col">End</th>
+<th scope="col">Center</th>
 
 {isSuperAdmin(user) && (
-  <th>Academy</th>
+  <th scope="col">Academy</th>
 )}
 
 {(isSuperAdmin(user) || isAcademyOwner(user)) && (
-  <th>Actions</th>
+  <th scope="col">Actions</th>
 )}
 
           </tr>
