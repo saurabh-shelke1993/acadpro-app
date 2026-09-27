@@ -387,7 +387,8 @@ return (
 
       <div className="coach-mapping-table-wrap">
         <table className="coach-mapping-table">
-          <thead><tr><th>Coach</th><th>Batch</th><th>Center</th><th>Status</th></tr></thead>
+          <caption className="sr-only">Coach to batch mappings and their status</caption>
+          <thead><tr><th scope="col">Coach</th><th scope="col">Batch</th><th scope="col">Center</th><th scope="col">Status</th></tr></thead>
           <tbody>
             {assignments.length > 0 ? assignments.map((item) => (
               <tr key={item.id}>
