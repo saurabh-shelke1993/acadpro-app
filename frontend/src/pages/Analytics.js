@@ -191,6 +191,32 @@ function Analytics() {
 
   const statusTotal = totalDues || 1;
 
+  const attendanceDaysTracked = attendanceTrend.filter(
+    (item) => Number(item.present || 0) + Number(item.absent || 0) > 0
+  ).length;
+
+  const attendanceConsistentDays = attendanceTrend.filter((item) => {
+    const present = Number(item.present || 0);
+    const absent = Number(item.absent || 0);
+    const total = present + absent;
+
+    return total > 0 && Math.round((present / total) * 100) >= 75;
+  }).length;
+
+  const attendanceInconsistentDays = Math.max(
+    attendanceDaysTracked - attendanceConsistentDays,
+    0
+  );
+
+  const attendanceDistributionTotal = totalAttendance || 1;
+  const presentShare = totalAttendance
+    ? Math.min((totalPresent / totalAttendance) * 100, 100)
+    : 0;
+  const absentShare = totalAttendance
+    ? Math.min((totalAbsent / totalAttendance) * 100, 100)
+    : 0;
+  const attendanceConsistencyTotal = attendanceDaysTracked || 1;
+
   return (
     <Layout>
       <div className="analytics-page">
@@ -245,6 +271,102 @@ function Analytics() {
               <span>Average Monthly</span>
               <strong>{formatCurrency(averageMonthlyCollections)}</strong>
               <small>Last {collectionsMonths} months</small>
+            </div>
+          </div>
+        </section>
+
+        <section className="analytics-section">
+          <div className="dashboard-section-heading">
+            <div>
+              <span className="dashboard-section-kicker">Attendance distribution</span>
+              <h2>Attendance Mix & Consistency</h2>
+            </div>
+            <span className="dashboard-section-helper">
+              Last {attendanceDays} days
+            </span>
+          </div>
+
+          <div className="attendance-visual-grid">
+            <div className="attendance-visual-card">
+              <div className="attendance-visual-header">
+                <div>
+                  <strong>Present vs Absent</strong>
+                  <small>Share of attendance records</small>
+                </div>
+                <span>{attendanceRate}% present</span>
+              </div>
+
+              <div className="attendance-progress">
+                <div
+                  className="attendance-progress-present"
+                  style={{ width: `${presentShare}%` }}
+                />
+                <div
+                  className="attendance-progress-absent"
+                  style={{ width: `${absentShare}%` }}
+                />
+              </div>
+
+              <div className="attendance-legend">
+                <div>
+                  <span className="attendance-legend-dot attendance-legend-dot-present" />
+                  <span>Present</span>
+                  <strong>{totalPresent}</strong>
+                </div>
+                <div>
+                  <span className="attendance-legend-dot attendance-legend-dot-absent" />
+                  <span>Absent</span>
+                  <strong>{totalAbsent}</strong>
+                </div>
+              </div>
+            </div>
+
+            <div className="attendance-visual-card">
+              <div className="attendance-visual-header">
+                <div>
+                  <strong>Daily Attendance Consistency</strong>
+                  <small>Days at or above 75% attendance</small>
+                </div>
+                <span>
+                  {attendanceConsistentDays}/{attendanceDaysTracked} tracked
+                </span>
+              </div>
+
+              <div className="attendance-consistency-bars">
+                <div className="attendance-consistency-row">
+                  <div className="attendance-consistency-label">
+                    <span>At or above 75%</span>
+                    <strong>{attendanceConsistentDays}</strong>
+                  </div>
+                  <div className="attendance-consistency-track">
+                    <div
+                      className="attendance-consistency-fill attendance-consistency-fill-consistent"
+                      style={{
+                        width: `${(attendanceConsistentDays / attendanceConsistencyTotal) * 100}%`
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div className="attendance-consistency-row">
+                  <div className="attendance-consistency-label">
+                    <span>Below 75%</span>
+                    <strong>{attendanceInconsistentDays}</strong>
+                  </div>
+                  <div className="attendance-consistency-track">
+                    <div
+                      className="attendance-consistency-fill attendance-consistency-fill-below"
+                      style={{
+                        width: `${(attendanceInconsistentDays / attendanceConsistencyTotal) * 100}%`
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <p className="attendance-consistency-note">
+                Only days with at least one attendance record are counted.
+              </p>
             </div>
           </div>
         </section>
