@@ -223,7 +223,7 @@
 .player-action-button,
 .player-primary-button,
 .player-secondary-button {
-  min-height: 38px;
+  min-height: 40px;
   padding: 0.5rem 0.8rem;
   border-radius: var(--ap-radius-md);
   font: inherit;
