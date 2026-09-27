@@ -12,6 +12,7 @@ import {
   YAxis,
 } from "recharts";
 import Layout from "../components/Layout";
+import "./PlayerPerformanceReport.css";
 import { supabase } from "../supabaseClient";
 import { getCurrentUser } from "../utils/auth";
 import { getCoachAssignedBatchIds } from "../utils/dataScope";
@@ -337,15 +338,19 @@ function PlayerPerformanceReport() {
 
   return (
     <Layout>
-      <main style={styles.page}>
-        <header style={styles.header}>
-          <h1 style={styles.title}>Player Performance Report</h1>
-          <p style={styles.subtitle}>{reportCopy.subtitle}</p>
+      <main className="performance-page" style={styles.page}>
+        <header className="performance-header" style={styles.header}>
+          <div>
+            <div className="performance-eyebrow">Performance</div>
+            <h1 style={styles.title}>Player Performance Report</h1>
+            <p style={styles.subtitle}>{reportCopy.subtitle}</p>
+          </div>
+          {selectedPlayer ? <div className="performance-header-badge">{assessments.length} assessment{assessments.length === 1 ? "" : "s"}</div> : null}
         </header>
 
         {error ? <p role="alert" style={styles.error}>{error}</p> : null}
 
-        <section style={styles.card}>
+        <section className="performance-card" style={styles.card}>
           <label htmlFor="report-player" style={styles.label}>Select player</label>
           <select
             id="report-player"
@@ -365,7 +370,7 @@ function PlayerPerformanceReport() {
 
         {selectedPlayer ? (
           <>
-            <section style={styles.card} aria-labelledby="player-overview-heading">
+            <section className="performance-card" style={styles.card} aria-labelledby="player-overview-heading">
               <h2 id="player-overview-heading" style={styles.sectionTitle}>Player overview</h2>
               <div style={styles.overviewGrid}>
                 <OverviewItem label="Player" value={selectedPlayer.full_name} />
@@ -378,7 +383,7 @@ function PlayerPerformanceReport() {
 
             {assessmentLoading ? <section style={styles.card}><p style={styles.message}>Loading performance assessments...</p></section> : assessments.length ? (
               <>
-                <section style={styles.card} aria-labelledby="kpi-heading">
+                <section className="performance-card" style={styles.card} aria-labelledby="kpi-heading">
                   <h2 id="kpi-heading" style={styles.sectionTitle}>Latest assessment overview</h2>
                   <div style={styles.kpiGrid}>
                     <KpiCard label="Overall average" value={formatScore(latestOverall)} />
@@ -391,7 +396,7 @@ function PlayerPerformanceReport() {
                 </section>
 
                 <section style={styles.chartGrid}>
-                  <article style={styles.card} aria-labelledby="skill-chart-heading">
+                  <article className="performance-card" style={styles.card} aria-labelledby="skill-chart-heading">
                     <h2 id="skill-chart-heading" style={styles.sectionTitle}>Skill-wise scores</h2>
                     {latestSkillData.length ? (
                       <>
@@ -413,7 +418,7 @@ function PlayerPerformanceReport() {
                     ) : <p style={styles.message}>No skill scores are available in the latest assessment.</p>}
                   </article>
 
-                  <article style={styles.card} aria-labelledby="trend-chart-heading">
+                  <article className="performance-card" style={styles.card} aria-labelledby="trend-chart-heading">
                     <h2 id="trend-chart-heading" style={styles.sectionTitle}>Performance trend</h2>
                     {trendData.length > 1 ? (
                       <div style={styles.chart} aria-label="Line chart of overall average scores by assessment date on a zero to ten scale">
@@ -434,7 +439,7 @@ function PlayerPerformanceReport() {
                 </section>
 
                 <section style={styles.chartGrid}>
-                  <article style={styles.card}>
+                  <article className="performance-card" style={styles.card}>
                     <h2 style={styles.sectionTitle}>Strengths</h2>
                     {strengths.length ? <p style={styles.message}>{strengths.join(", ")}</p> : <p style={styles.message}>No standout strengths recorded yet.</p>}
                   </article>
@@ -444,12 +449,12 @@ function PlayerPerformanceReport() {
                   </article>
                 </section>
 
-                <section style={styles.card} aria-labelledby="remarks-heading">
+                <section className="performance-card" style={styles.card} aria-labelledby="remarks-heading">
                   <h2 id="remarks-heading" style={styles.sectionTitle}>Latest coach remarks</h2>
                   <p style={styles.remarks}>{latestAssessment.coach_remarks || "No coach remarks recorded."}</p>
                 </section>
 
-                <section style={styles.card} aria-labelledby="history-heading">
+                <section className="performance-card" style={styles.card} aria-labelledby="history-heading">
                   <h2 id="history-heading" style={styles.sectionTitle}>Assessment history</h2>
                   <div style={styles.historyList}>
                     {assessments.map((assessment) => (
