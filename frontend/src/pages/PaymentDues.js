@@ -842,4 +842,6 @@ return (
     )}
   </Layout>
 );
+}
+
 export default PaymentDues;
