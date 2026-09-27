@@ -341,6 +341,8 @@ const Academy = () => {
                     <td>
 
                       <button
+                        aria-label={`Delete ${academy.academy_name}`}
+                        aria-label={`Edit ${academy.academy_name}`}
                         onClick={() =>
                           handleEdit(
                             academy
