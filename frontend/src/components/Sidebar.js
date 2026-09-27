@@ -74,6 +74,7 @@ function Sidebar({ isOpen = false, onClose = () => {} }) {
             <>
               <div className="app-nav-group-title">Overview</div>
               {renderLink("/dashboard", "Dashboard", "⌂")}
+              {renderLink("/analytics", "Analytics", "▥")}
 
               <div className="app-nav-group-title">Academy</div>
               {isSuperAdmin(user) && renderLink("/academy", "Academies", "▦")}
