@@ -9,6 +9,7 @@ import "./Analytics.css";
 
 const initialSummary = {
   attendanceTrend: [],
+  attendanceInsights: [],
   collectionsTrend: [],
   financialHealth: {
     totalBilled: 0,
@@ -142,6 +143,7 @@ function Analytics() {
   }
 
   const attendanceTrend = summary.attendanceTrend || [];
+  const attendanceInsights = summary.attendanceInsights || [];
   const collectionsTrend = summary.collectionsTrend || [];
   const financialHealth = summary.financialHealth || initialSummary.financialHealth;
 
@@ -369,6 +371,68 @@ function Analytics() {
               </p>
             </div>
           </div>
+        </section>
+
+        <section className="analytics-section">
+          <div className="dashboard-section-heading">
+            <div>
+              <span className="dashboard-section-kicker">Player insights</span>
+              <h2>Attendance Attention</h2>
+            </div>
+            <span className="dashboard-section-helper">
+              Lowest attendance · Last {attendanceDays} days
+            </span>
+          </div>
+
+          {attendanceInsights.length === 0 ? (
+            <div className="analytics-empty-card">
+              <strong>No player-level attendance insight yet</strong>
+              <span>
+                Players need at least 3 attendance records in the selected period
+                to appear here.
+              </span>
+            </div>
+          ) : (
+            <div className="attendance-insights-card">
+              <div className="attendance-insights-header">
+                <span>Player</span>
+                <span>Attendance</span>
+                <span>Records</span>
+              </div>
+
+              <div className="attendance-insights-list">
+                {attendanceInsights.map((player) => (
+                  <div className="attendance-insight-row" key={player.playerId}>
+                    <div className="attendance-insight-player">
+                      <strong>{player.playerName}</strong>
+                      <small>
+                        {player.present} present · {player.absent} absent
+                      </small>
+                    </div>
+
+                    <div className="attendance-insight-rate">
+                      <div className="attendance-insight-track">
+                        <div
+                          className="attendance-insight-fill"
+                          style={{ width: `${player.attendanceRate}%` }}
+                        />
+                      </div>
+                      <strong>{player.attendanceRate}%</strong>
+                    </div>
+
+                    <span className="attendance-insight-records">
+                      {player.total}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              <p className="attendance-insights-note">
+                Shows up to 5 players with the lowest attendance rate. Players
+                with fewer than 3 records are excluded to avoid noisy results.
+              </p>
+            </div>
+          )}
         </section>
 
         <section className="analytics-section">
