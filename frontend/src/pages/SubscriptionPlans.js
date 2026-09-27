@@ -130,9 +130,8 @@ return (
           <h2>Create Plan</h2>
           <p>Configure the recurring charge and one-time registration fee.</p>
         </div>
-      {/* Academy Dropdown */}
-
-      <select
+      <label htmlFor="subscription-plan-academy">Academy</label>
+      <select id="subscription-plan-academy"
         value={selectedAcademy}
         onChange={(e) =>
           setSelectedAcademy(
@@ -166,8 +165,8 @@ return (
       <br />
 
       {/* Plan Name */}
-
-      <input
+      <label htmlFor="subscription-plan-name">Plan name</label>
+      <input id="subscription-plan-name"
         type="text"
         placeholder="Plan Name"
         value={planName}
@@ -182,8 +181,8 @@ return (
       <br />
 
       {/* Billing Cycle */}
-
-      <input
+      <label htmlFor="subscription-plan-billing-cycle">Billing cycle</label>
+      <input id="subscription-plan-billing-cycle"
         type="text"
         placeholder="Billing Cycle"
         value={billingCycle}
@@ -198,8 +197,8 @@ return (
       <br />
 
       {/* Amount */}
-
-      <input
+      <label htmlFor="subscription-plan-amount">Amount</label>
+      <input id="subscription-plan-amount"
         type="number"
         placeholder="Amount"
         value={amount}
@@ -214,8 +213,8 @@ return (
       <br />
 
       {/* Registration Fee */}
-
-      <input
+      <label htmlFor="subscription-plan-registration-fee">Registration fee</label>
+      <input id="subscription-plan-registration-fee"
         type="number"
         placeholder="Registration Fee"
         value={registrationFee}
