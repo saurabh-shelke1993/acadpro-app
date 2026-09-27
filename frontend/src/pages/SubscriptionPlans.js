@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import Layout from "../components/Layout";
+import "./SubscriptionPlans.css";
 
 function SubscriptionPlans() {
 
@@ -110,10 +111,25 @@ function SubscriptionPlans() {
 
 return (
   <Layout>
-    <div style={{ padding: "20px" }}>
+    <div className="subscription-plans-page">
 
-      <h1>Subscription Plans</h1>
+      <div className="subscription-plans-header">
+        <div>
+          <span className="subscription-plans-eyebrow">Billing configuration</span>
+          <h1>Subscription Plans</h1>
+          <p>Define academy pricing, billing cycles, and registration fees.</p>
+        </div>
+        <div className="subscription-plans-count">
+          <strong>{plans.length}</strong>
+          <span>active plans</span>
+        </div>
+      </div>
 
+      <section className="subscription-plans-form-card">
+        <div className="subscription-plans-section-heading">
+          <h2>Create Plan</h2>
+          <p>Configure the recurring charge and one-time registration fee.</p>
+        </div>
       {/* Academy Dropdown */}
 
       <select
@@ -213,23 +229,20 @@ return (
       <br />
       <br />
 
-      <button onClick={createPlan}>
+      <button className="subscription-plans-primary-button" onClick={createPlan}>
         Create Plan
       </button>
+      </section>
 
-      <hr />
-      <br />
+      <div className="subscription-plans-list-header">
+        <div>
+          <h2>Plans List</h2>
+          <p>{plans.length} {plans.length === 1 ? "plan" : "plans"} configured</p>
+        </div>
+      </div>
 
-      <h2>Plans List</h2>
-
-      <table
-        border="1"
-        cellPadding="10"
-        style={{
-          borderCollapse: "collapse",
-          width: "100%"
-        }}
-      >
+      <div className="subscription-plans-table-wrap">
+      <table className="subscription-plans-table">
 
         <thead>
 
@@ -250,8 +263,14 @@ return (
         </thead>
 
         <tbody>
-
-          {
+          {plans.length === 0 ? (
+            <tr>
+              <td className="subscription-plans-empty-state" colSpan={5}>
+                <strong>No subscription plans</strong>
+                <span>Create a plan above to make it available for player subscriptions.</span>
+              </td>
+            </tr>
+          ) : (
             plans.map((plan) => (
 
               <tr key={plan.id}>
@@ -282,11 +301,10 @@ return (
               </tr>
 
             ))
-          }
-
+          )}
         </tbody>
-
       </table>
+      </div>
 
     </div>
   </Layout>
