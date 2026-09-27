@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import DashboardCard from "../components/Dashboard/DashboardCard";
 import DashboardCharts from "../components/DashboardCharts";
 import Layout from "../components/Layout";
@@ -28,6 +29,7 @@ function Dashboard() {
   const [summary, setSummary] = useState(initialSummary);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [refreshToken, setRefreshToken] = useState(0);
 
   useEffect(() => {
     let isMounted = true;
@@ -64,7 +66,7 @@ function Dashboard() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [refreshToken]);
 
   if (loading) {
     return (
@@ -113,6 +115,14 @@ function Dashboard() {
                 year: "numeric"
               }).format(new Date())}
             </span>
+            <button
+              type="button"
+              className="dashboard-refresh-button"
+              onClick={() => setRefreshToken((value) => value + 1)}
+              disabled={loading}
+            >
+              {loading ? "Refreshing…" : "Refresh"}
+            </button>
           </div>
         </header>
 
@@ -125,10 +135,16 @@ function Dashboard() {
           </div>
 
           <div className="dashboard-grid">
-            <DashboardCard title="Players" value={summary.totalPlayers} icon="●" color="blue" />
-            <DashboardCard title="Centers" value={summary.totalCenters} icon="⌂" color="green" />
-            <DashboardCard title="Batches" value={summary.totalBatches} icon="◆" color="orange" />
-            <DashboardCard title="Academies" value={summary.totalAcademies} icon="▦" color="purple" />
+            <DashboardCard title="Players" value={summary.totalPlayers} icon="●" color="blue" to="/players" />
+            <DashboardCard title="Centers" value={summary.totalCenters} icon="⌂" color="green" to="/centers" />
+            <DashboardCard title="Batches" value={summary.totalBatches} icon="◆" color="orange" to="/batches" />
+            <DashboardCard
+              title="Academies"
+              value={summary.totalAcademies}
+              icon="▦"
+              color="purple"
+              to={user?.role === "super_admin" ? "/academy" : undefined}
+            />
           </div>
         </section>
 
@@ -141,10 +157,10 @@ function Dashboard() {
           </div>
 
           <div className="dashboard-grid dashboard-grid-4">
-            <DashboardCard title="Total" value={summary.attendanceTaken} icon="▤" color="sky" />
-            <DashboardCard title="Present" value={summary.presentPlayers} icon="✓" color="green" />
-            <DashboardCard title="Absent" value={summary.absentPlayers} icon="×" color="red" />
-            <DashboardCard title="Present %" value={`${summary.attendancePercentage}%`} icon="↗" color="purple" />
+            <DashboardCard title="Total" value={summary.attendanceTaken} icon="▤" color="sky" to="/attendance" />
+            <DashboardCard title="Present" value={summary.presentPlayers} icon="✓" color="green" to="/attendance" />
+            <DashboardCard title="Absent" value={summary.absentPlayers} icon="×" color="red" to="/attendance" />
+            <DashboardCard title="Present %" value={summary.attendancePercentage + "%"} icon="↗" color="purple" to="/attendance-history" />
           </div>
         </section>
 
@@ -162,19 +178,66 @@ function Dashboard() {
               value={formatCurrency(summary.outstandingAmount)}
               icon="₹"
               color="red"
+              to="/payment-dues"
             />
             <DashboardCard
               title="Monthly Collections"
               value={formatCurrency(summary.collectionsThisMonth)}
               icon="₹"
               color="green"
+              to="/payment-collections"
             />
             <DashboardCard
               title="Pending Dues"
               value={summary.pendingDues}
               icon="!"
               color="orange"
+              to="/payment-dues"
             />
+          </div>
+        </section>
+
+        <section className="dashboard-section dashboard-actions-section">
+          <div className="dashboard-section-heading">
+            <div>
+              <span className="dashboard-section-kicker">Shortcuts</span>
+              <h2>Quick Actions</h2>
+            </div>
+            <span className="dashboard-section-helper">Jump directly to common tasks</span>
+          </div>
+
+          <div className="dashboard-actions">
+            <Link className="dashboard-action" to="/players">
+              <span className="dashboard-action-icon">+</span>
+              <span>
+                <strong>Add / Manage Players</strong>
+                <small>Open the player workspace</small>
+              </span>
+            </Link>
+
+            <Link className="dashboard-action" to="/attendance">
+              <span className="dashboard-action-icon">✓</span>
+              <span>
+                <strong>Mark Attendance</strong>
+                <small>Record today&apos;s attendance</small>
+              </span>
+            </Link>
+
+            <Link className="dashboard-action" to="/payment-dues">
+              <span className="dashboard-action-icon">₹</span>
+              <span>
+                <strong>Review Payment Dues</strong>
+                <small>Review pending and outstanding dues</small>
+              </span>
+            </Link>
+
+            <Link className="dashboard-action" to="/payment-collections">
+              <span className="dashboard-action-icon">↗</span>
+              <span>
+                <strong>Collect Payment</strong>
+                <small>Record a payment and issue a receipt</small>
+              </span>
+            </Link>
           </div>
         </section>
 
