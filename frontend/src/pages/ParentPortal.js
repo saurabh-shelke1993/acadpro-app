@@ -422,10 +422,10 @@ const ParentPortal = () => {
   return (
     <Layout>
       <main className="parent-portal-page">
-      <header style={styles.header}>
+      <header className="parent-portal-header">
         <div>
-          <h1 style={styles.title}>Parent Portal</h1>
-          <p style={styles.subtitle}>
+          <h1 className="parent-portal-title">Parent Portal</h1>
+          <p className="parent-portal-subtitle">
             {parent ? `Welcome, ${parent.parent_name || "Parent"}` : "AcadPro"}
           </p>
         </div>
@@ -433,21 +433,21 @@ const ParentPortal = () => {
           <span className="parent-portal-child-count">
             {children.length} {children.length === 1 ? "child" : "children"} linked
           </span>
-          <button type="button" onClick={handleLogout} style={styles.logoutButton}>
+          <button type="button" onClick={handleLogout} className="parent-portal-logout">
             Sign out
           </button>
         </div>
       </header>
 
       {error ? (
-        <section role="alert" style={styles.card}>
-          <h2 style={styles.sectionTitle}>Unable to load portal</h2>
-          <p style={styles.message}>{error}</p>
+        <section role="alert" className="parent-portal-state-card">
+          <h2 className="parent-portal-section-title">Unable to load portal</h2>
+          <p className="parent-portal-message">{error}</p>
         </section>
       ) : children.length === 0 ? (
-        <section style={styles.card}>
-          <h2 style={styles.sectionTitle}>No linked children yet</h2>
-          <p style={styles.message}>
+        <section className="parent-portal-state-card">
+          <h2 className="parent-portal-section-title">No linked children yet</h2>
+          <p className="parent-portal-message">
             Your login is valid, but no player profile is currently linked to it.
             Please contact your academy administrator.
           </p>
@@ -455,8 +455,8 @@ const ParentPortal = () => {
       ) : (
         <>
           <section aria-labelledby="children-heading">
-            <h2 id="children-heading" style={styles.sectionTitle}>Your children</h2>
-            <div style={styles.grid}>
+            <h2 id="children-heading" className="parent-portal-section-title">Your children</h2>
+            <div className="parent-portal-children-grid">
               {children.map((child) => {
                 const isSelected = child.id === selectedChildId;
                 return (
@@ -465,16 +465,13 @@ const ParentPortal = () => {
                     type="button"
                     onClick={() => setSelectedChildId(child.id)}
                     aria-pressed={isSelected}
-                    style={{
-                      ...styles.childCard,
-                      ...(isSelected ? styles.selectedChildCard : {}),
-                    }}
+                    className={`parent-portal-child-card${isSelected ? " is-selected" : ""}`}
                   >
-                    <div style={styles.avatar} aria-hidden="true">
+                    <div className="parent-portal-child-avatar" aria-hidden="true">
                       {(child.full_name || "?").charAt(0).toUpperCase()}
                     </div>
-                    <span style={styles.childName}>{child.full_name}</span>
-                    <span style={styles.childCardHint}>
+                    <span className="parent-portal-child-name">{child.full_name}</span>
+                    <span className="parent-portal-child-hint">
                       {isSelected ? "Selected child" : "View dashboard"}
                     </span>
                   </button>
@@ -484,13 +481,13 @@ const ParentPortal = () => {
           </section>
 
           {selectedChild && (
-            <section aria-labelledby="selected-child-heading" style={styles.dashboardCard}>
-              <p style={styles.eyebrow}>Selected child</p>
-              <h2 id="selected-child-heading" style={styles.dashboardTitle}>
+            <section aria-labelledby="selected-child-heading" className="parent-portal-dashboard-card">
+              <p className="parent-portal-eyebrow">Selected child</p>
+              <h2 id="selected-child-heading" className="parent-portal-dashboard-title">
                 {selectedChild.full_name}
               </h2>
 
-              <div style={styles.detailsGrid}>
+              <div className="parent-portal-details-grid">
                 <Detail label="Date of birth" value={formatDate(selectedChild.dob)} />
                 <Detail label="Joining date" value={formatDate(selectedChild.joining_date)} />
                 <Detail label="Status" value={selectedChild.player_status || "Not available"} />
@@ -499,9 +496,9 @@ const ParentPortal = () => {
                 <Detail label="Player code" value={selectedChild.player_code || "Not available"} />
               </div>
 
-              <div style={styles.subsection}>
-                <h3 style={styles.subsectionTitle}>Academy details</h3>
-                <div style={styles.detailsGrid}>
+              <div className="parent-portal-subsection">
+                <h3 className="parent-portal-subsection-title">Academy details</h3>
+                <div className="parent-portal-details-grid">
                   <Detail label="Academy" value={selectedChild.academy?.academy_name || "Not available"} />
                   <Detail label="Center" value={selectedChild.center?.center_name || "Not assigned"} />
                   <Detail label="Batch" value={selectedChild.batch?.batch_name || "Not assigned"} />
@@ -528,46 +525,39 @@ const ParentPortal = () => {
                 </div>
               </div>
 
-              <div style={styles.subsection}>
-                <h3 style={styles.subsectionTitle}>Attendance summary</h3>
+              <div className="parent-portal-subsection">
+                <h3 className="parent-portal-subsection-title">Attendance summary</h3>
                 {selectedAttendance?.total > 0 ? (
-                  <div style={styles.attendanceGrid}>
+                  <div className="parent-portal-attendance-grid">
                     <Detail label="Total sessions" value={selectedAttendance.total} />
                     <Detail label="Present" value={selectedAttendance.present} />
                     <Detail label="Absent" value={selectedAttendance.absent} />
                     <Detail label="Attendance percentage" value={`${selectedAttendance.percentage}%`} />
                   </div>
                 ) : (
-                  <p style={styles.message}>
+                  <p className="parent-portal-message">
                     No attendance records are available for this child yet.
                   </p>
                 )}
               </div>
 
-              <div style={styles.subsection}>
-                <h3 style={styles.subsectionTitle}>Attendance history</h3>
+              <div className="parent-portal-subsection">
+                <h3 className="parent-portal-subsection-title">Attendance history</h3>
                 {selectedAttendanceHistory.length > 0 ? (
-                  <div style={styles.historyList}>
+                  <div className="parent-portal-history-list">
                     {selectedAttendanceHistory.map((record, index) => (
                       <div
                         key={`${record.attendance_date}-${index}`}
-                        style={styles.historyRow}
+                        className="parent-portal-history-row"
                       >
-                        <div style={styles.historyContent}>
-                          <p style={styles.historyDate}>{formatDate(record.attendance_date)}</p>
+                        <div className="parent-portal-history-content">
+                          <p className="parent-portal-history-date">{formatDate(record.attendance_date)}</p>
                           {record.remarks ? (
-                            <p style={styles.historyRemarks}>{record.remarks}</p>
+                            <p className="parent-portal-history-remarks">{record.remarks}</p>
                           ) : null}
                         </div>
                         <span
-                          style={{
-                            ...styles.statusBadge,
-                            ...(String(record.status).toLowerCase() === "present"
-                              ? styles.presentBadge
-                              : String(record.status).toLowerCase() === "absent"
-                                ? styles.absentBadge
-                                : {}),
-                          }}
+                          className={`parent-portal-status-badge parent-portal-status-${String(record.status || "").toLowerCase()}`}
                         >
                           {record.status}
                         </span>
@@ -575,40 +565,40 @@ const ParentPortal = () => {
                     ))}
                   </div>
                 ) : (
-                  <p style={styles.message}>
+                  <p className="parent-portal-message">
                     No attendance history is available for this child yet.
                   </p>
                 )}
               </div>
 
-              <div style={styles.subsection}>
-                <h3 style={styles.subsectionTitle}>Payment history</h3>
+              <div className="parent-portal-subsection">
+                <h3 className="parent-portal-subsection-title">Payment history</h3>
                 {selectedPaymentHistory.length > 0 ? (
-                  <div style={styles.historyList}>
+                  <div className="parent-portal-history-list">
                     {selectedPaymentHistory.map((payment) => (
-                      <div key={payment.id} style={styles.historyRow}>
-                        <div style={styles.historyContent}>
-                          <p style={styles.historyDate}>
+                      <div key={payment.id} className="parent-portal-history-row">
+                        <div className="parent-portal-history-content">
+                          <p className="parent-portal-history-date">
                             {formatDate(payment.payment_date)}
                           </p>
-                          <p style={styles.paymentAmount}>
+                          <p className="parent-portal-payment-amount">
                             Amount paid: {formatAmount(payment.amount_paid)}
                           </p>
-                          <p style={styles.historyRemarks}>
+                          <p className="parent-portal-history-remarks">
                             Payment mode: {payment.payment_mode || "Not recorded"}
                           </p>
                           {payment.receipt_number ? (
-                            <p style={styles.historyRemarks}>
+                            <p className="parent-portal-history-remarks">
                               Receipt number: {payment.receipt_number}
                             </p>
                           ) : null}
                           {payment.transaction_reference ? (
-                            <p style={styles.historyRemarks}>
+                            <p className="parent-portal-history-remarks">
                               Transaction reference: {payment.transaction_reference}
                             </p>
                           ) : null}
                           {payment.remarks ? (
-                            <p style={styles.historyRemarks}>
+                            <p className="parent-portal-history-remarks">
                               Remarks: {payment.remarks}
                             </p>
                           ) : null}
@@ -617,40 +607,40 @@ const ParentPortal = () => {
                     ))}
                   </div>
                 ) : (
-                  <p style={styles.message}>
+                  <p className="parent-portal-message">
                     No payment history is available for this child yet.
                   </p>
                 )}
               </div>
 
-              <div style={styles.subsection}>
-                <h3 style={styles.subsectionTitle}>Receipt details</h3>
+              <div className="parent-portal-subsection">
+                <h3 className="parent-portal-subsection-title">Receipt details</h3>
                 {selectedReceiptPayments.length > 0 ? (
-                  <div style={styles.historyList}>
+                  <div className="parent-portal-history-list">
                     {selectedReceiptPayments.map((payment) => (
-                      <div key={`receipt-${payment.id}`} style={styles.historyRow}>
-                        <div style={styles.historyContent}>
-                          <p style={styles.historyDate}>
+                      <div key={`receipt-${payment.id}`} className="parent-portal-history-row">
+                        <div className="parent-portal-history-content">
+                          <p className="parent-portal-history-date">
                             Receipt number: {payment.receipt_number}
                           </p>
-                          <p style={styles.historyRemarks}>
+                          <p className="parent-portal-history-remarks">
                             Payment date: {formatDate(payment.payment_date)}
                           </p>
-                          <p style={styles.paymentAmount}>
+                          <p className="parent-portal-payment-amount">
                             Amount paid: {formatAmount(payment.amount_paid)}
                           </p>
-                          <p style={styles.historyRemarks}>
+                          <p className="parent-portal-history-remarks">
                             Payment mode: {payment.payment_mode || "Not recorded"}
                           </p>
                           {payment.transaction_reference ? (
-                            <p style={styles.historyRemarks}>
+                            <p className="parent-portal-history-remarks">
                               Transaction reference: {payment.transaction_reference}
                             </p>
                           ) : null}
                           <button
                             type="button"
                             onClick={() => printReceipt(payment)}
-                            style={styles.receiptButton}
+                            className="parent-portal-receipt-button"
                           >
                             Print / Save PDF
                           </button>
@@ -659,57 +649,50 @@ const ParentPortal = () => {
                     ))}
                   </div>
                 ) : (
-                  <p style={styles.message}>
+                  <p className="parent-portal-message">
                     No receipt details are available for this child yet.
                   </p>
                 )}
               </div>
 
-              <div style={styles.subsection}>
-                <h3 style={styles.subsectionTitle}>Pending dues</h3>
+              <div className="parent-portal-subsection">
+                <h3 className="parent-portal-subsection-title">Pending dues</h3>
                 {selectedPendingDues.length > 0 ? (
                   <>
-                    <p style={styles.outstandingAmount}>
+                    <p className="parent-portal-outstanding">
                       Total outstanding: {formatAmount(totalOutstandingAmount)}
                     </p>
-                    <div style={styles.historyList}>
+                    <div className="parent-portal-history-list">
                       {selectedPendingDues.map((due) => (
-                        <div key={due.id} style={styles.historyRow}>
-                          <div style={styles.historyContent}>
-                            <p style={styles.historyDate}>
+                        <div key={due.id} className="parent-portal-history-row">
+                          <div className="parent-portal-history-content">
+                            <p className="parent-portal-history-date">
                               {due.due_type || "Fee due"}
                             </p>
-                            <p style={styles.historyRemarks}>
+                            <p className="parent-portal-history-remarks">
                               Due date: {formatDate(due.due_date)}
                             </p>
-                            <p style={styles.paymentAmount}>
+                            <p className="parent-portal-payment-amount">
                               Remaining amount: {formatAmount(due.remaining_amount)}
                             </p>
                             {due.total_amount != null ? (
-                              <p style={styles.historyRemarks}>
+                              <p className="parent-portal-history-remarks">
                                 Total amount: {formatAmount(due.total_amount)}
                               </p>
                             ) : null}
                             {due.paid_amount != null ? (
-                              <p style={styles.historyRemarks}>
+                              <p className="parent-portal-history-remarks">
                                 Paid amount: {formatAmount(due.paid_amount)}
                               </p>
                             ) : null}
                             {due.remarks ? (
-                              <p style={styles.historyRemarks}>
+                              <p className="parent-portal-history-remarks">
                                 Remarks: {due.remarks}
                               </p>
                             ) : null}
                           </div>
                           <span
-                            style={{
-                              ...styles.statusBadge,
-                              ...(String(due.due_status || "pending").toLowerCase().includes("partial")
-                                ? styles.partialBadge
-                                : String(due.due_status || "pending").toLowerCase().includes("paid")
-                                  ? styles.paidBadge
-                                  : styles.pendingBadge),
-                            }}
+                            className={`parent-portal-status-badge parent-portal-due-status parent-portal-due-${String(due.due_status || "pending").toLowerCase().includes("partial") ? "partial" : String(due.due_status || "pending").toLowerCase().includes("paid") ? "paid" : "pending"}`}
                           >
                             {due.due_status || "Pending"}
                           </span>
@@ -718,23 +701,23 @@ const ParentPortal = () => {
                     </div>
                   </>
                 ) : (
-                  <p style={styles.message}>
+                  <p className="parent-portal-message">
                     No pending dues are available for this child.
                   </p>
                 )}
               </div>
 
-              <div style={styles.performanceSection}>
+              <div className="parent-portal-performance">
                 <div>
-                  <h3 style={styles.performanceTitle}>Player Performance Assessments</h3>
-                  <p style={styles.performanceMessage}>
+                  <h3 className="parent-portal-performance-title">Player Performance Assessments</h3>
+                  <p className="parent-portal-performance-message">
                     View the performance assessments and coach remarks recorded for {selectedChild.full_name}.
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={() => navigate(`/player-performance-report?player=${encodeURIComponent(selectedChild.id)}`)}
-                  style={styles.performanceButton}
+                  className="parent-portal-performance-button"
                 >
                   View Performance Assessments
                 </button>
@@ -750,54 +733,10 @@ const ParentPortal = () => {
 
 const Detail = ({ label, value }) => (
   <div>
-    <span style={styles.detailLabel}>{label}</span>
-    <p style={styles.detailValue}>{value}</p>
+    <span className="parent-portal-detail-label">{label}</span>
+    <p className="parent-portal-detail-value">{value}</p>
   </div>
 );
 
-const styles = {
-  container: { width: "100%", maxWidth: "1000px", margin: "0 auto", padding: "32px 20px", boxSizing: "border-box", fontFamily: "Arial, sans-serif", color: "#1f2937" },
-  loadingState: { minHeight: "40vh", display: "flex", alignItems: "center", justifyContent: "center", color: "#4b5563", fontSize: "17px" },
-  header: { display: "flex", justifyContent: "space-between", alignItems: "center", gap: "16px", flexWrap: "wrap", marginBottom: "28px" },
-  title: { margin: 0, fontSize: "30px" },
-  subtitle: { margin: "6px 0 0", color: "#666" },
-  logoutButton: { padding: "10px 16px", border: "1px solid #cbd5e1", borderRadius: "8px", background: "white", color: "#1f2937", fontWeight: "bold", cursor: "pointer" },
-  sectionTitle: { margin: "0 0 16px", fontSize: "22px", lineHeight: 1.25 },
-  grid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(220px, 100%), 1fr))", gap: "16px" },
-  childCard: { display: "flex", flexDirection: "column", alignItems: "flex-start", minWidth: 0, textAlign: "left", padding: "20px", border: "1px solid #dbe3ee", borderRadius: "14px", background: "#fff", boxShadow: "0 2px 8px rgba(0,0,0,0.05)", cursor: "pointer", transition: "border-color 150ms ease, box-shadow 150ms ease, background 150ms ease" },
-  selectedChildCard: { border: "2px solid #1a73e8", padding: "19px", background: "#eff6ff", boxShadow: "0 4px 12px rgba(26,115,232,0.16)" },
-  avatar: { width: "52px", height: "52px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: "#e8f0fe", color: "#1a73e8", fontSize: "24px", fontWeight: "bold", marginBottom: "14px" },
-  childName: { maxWidth: "100%", fontSize: "20px", fontWeight: "bold", overflowWrap: "anywhere" },
-  childCardHint: { marginTop: "8px", color: "#666", fontSize: "14px" },
-  dashboardCard: { minWidth: 0, marginTop: "28px", padding: "24px", border: "1px solid #e5e7eb", borderRadius: "14px", background: "#fff", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" },
-  eyebrow: { margin: "0 0 6px", color: "#666", fontSize: "13px", textTransform: "uppercase", letterSpacing: "0.06em" },
-  dashboardTitle: { margin: "0 0 20px", fontSize: "26px" },
-  detailsGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(180px, 100%), 1fr))", gap: "16px" },
-  attendanceGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(150px, 100%), 1fr))", gap: "16px" },
-  detailLabel: { color: "#666", fontSize: "14px" },
-  detailValue: { margin: "6px 0 0", fontSize: "16px", fontWeight: "bold", overflowWrap: "anywhere" },
-  subsection: { marginTop: "28px", paddingTop: "22px", borderTop: "1px solid #e5e7eb" },
-  subsectionTitle: { margin: "0 0 16px", fontSize: "20px" },
-  historyList: { display: "flex", flexDirection: "column", gap: "10px" },
-  historyRow: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "12px 16px", padding: "14px 16px", border: "1px solid #e5e7eb", borderRadius: "10px", background: "#fafafa" },
-  historyContent: { minWidth: 0, flex: "1 1 220px" },
-  historyDate: { margin: 0, fontWeight: "bold", overflowWrap: "anywhere", wordBreak: "break-word" },
-  paymentAmount: { margin: "5px 0 0", fontWeight: "bold" },
-  outstandingAmount: { margin: "0 0 16px", fontSize: "17px", fontWeight: "bold", color: "#991b1b" },
-  historyRemarks: { margin: "5px 0 0", color: "#666", fontSize: "14px", overflowWrap: "anywhere", wordBreak: "break-word" },
-  statusBadge: { flex: "0 1 auto", maxWidth: "100%", padding: "5px 10px", borderRadius: "999px", background: "#e5e7eb", color: "#374151", fontSize: "13px", fontWeight: "bold", lineHeight: 1.25, overflowWrap: "anywhere", textAlign: "center" },
-  presentBadge: { background: "#dcfce7", color: "#166534" },
-  absentBadge: { background: "#fee2e2", color: "#991b1b" },
-  paidBadge: { background: "#dcfce7", color: "#166534" },
-  partialBadge: { background: "#fef3c7", color: "#92400e" },
-  pendingBadge: { background: "#fee2e2", color: "#991b1b" },
-  receiptButton: { marginTop: "12px", padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", background: "#fff", color: "#1f2937", fontWeight: "bold", cursor: "pointer" },
-  performanceSection: { display: "flex", justifyContent: "space-between", alignItems: "center", gap: "16px", flexWrap: "wrap", marginTop: "28px", padding: "18px", border: "1px solid #dbeafe", borderRadius: "12px", background: "#eff6ff" },
-  performanceTitle: { margin: 0, fontSize: "19px", color: "#1e3a8a" },
-  performanceMessage: { margin: "6px 0 0", color: "#475569", lineHeight: 1.5 },
-  performanceButton: { padding: "10px 16px", border: "1px solid #2563eb", borderRadius: "8px", background: "#2563eb", color: "#fff", fontWeight: "bold", cursor: "pointer" },
-  card: { padding: "24px", border: "1px solid #e5e7eb", borderRadius: "14px", background: "#fff", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" },
-  message: { margin: 0, color: "#555", lineHeight: 1.5 },
-};
 
 export default ParentPortal;
