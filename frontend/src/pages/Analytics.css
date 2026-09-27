@@ -103,6 +103,162 @@
 
 
 
+.attendance-visual-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ap-space-4);
+}
+
+.attendance-visual-card {
+  min-width: 0;
+  padding: var(--ap-space-5);
+  border: 1px solid var(--ap-border);
+  border-radius: var(--ap-radius-xl);
+  background: var(--ap-surface);
+  box-shadow: var(--ap-shadow-sm);
+}
+
+.attendance-visual-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ap-space-4);
+}
+
+.attendance-visual-header strong,
+.attendance-visual-header small,
+.attendance-visual-header span {
+  display: block;
+}
+
+.attendance-visual-header strong {
+  color: var(--ap-slate-800);
+  font-size: var(--ap-font-size-sm);
+}
+
+.attendance-visual-header small {
+  margin-top: 0.25rem;
+  color: var(--ap-slate-500);
+  font-size: var(--ap-font-size-xs);
+}
+
+.attendance-visual-header > span {
+  color: var(--ap-slate-600);
+  font-size: var(--ap-font-size-xs);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.attendance-progress {
+  display: flex;
+  width: 100%;
+  height: 18px;
+  margin-top: var(--ap-space-6);
+  overflow: hidden;
+  border-radius: var(--ap-radius-full);
+  background: var(--ap-slate-100);
+}
+
+.attendance-progress-present {
+  background: var(--ap-success-500);
+}
+
+.attendance-progress-absent {
+  background: var(--ap-danger-500);
+}
+
+.attendance-legend {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ap-space-4);
+  margin-top: var(--ap-space-4);
+}
+
+.attendance-legend > div {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 0.5rem;
+  align-items: center;
+}
+
+.attendance-legend-dot {
+  width: 9px;
+  height: 9px;
+  grid-row: span 2;
+  border-radius: 50%;
+}
+
+.attendance-legend-dot-present {
+  background: var(--ap-success-500);
+}
+
+.attendance-legend-dot-absent {
+  background: var(--ap-danger-500);
+}
+
+.attendance-legend span:not(.attendance-legend-dot) {
+  color: var(--ap-slate-500);
+  font-size: var(--ap-font-size-xs);
+}
+
+.attendance-legend strong {
+  color: var(--ap-slate-800);
+  font-size: var(--ap-font-size-sm);
+}
+
+.attendance-consistency-bars {
+  display: grid;
+  gap: var(--ap-space-4);
+  margin-top: var(--ap-space-5);
+}
+
+.attendance-consistency-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ap-space-3);
+  margin-bottom: 0.35rem;
+}
+
+.attendance-consistency-label span {
+  color: var(--ap-slate-600);
+  font-size: var(--ap-font-size-xs);
+  font-weight: 600;
+}
+
+.attendance-consistency-label strong {
+  color: var(--ap-slate-800);
+  font-size: var(--ap-font-size-xs);
+}
+
+.attendance-consistency-track {
+  width: 100%;
+  height: 8px;
+  overflow: hidden;
+  border-radius: var(--ap-radius-full);
+  background: var(--ap-slate-100);
+}
+
+.attendance-consistency-fill {
+  height: 100%;
+  min-width: 0;
+  border-radius: inherit;
+}
+
+.attendance-consistency-fill-consistent {
+  background: var(--ap-success-500);
+}
+
+.attendance-consistency-fill-below {
+  background: var(--ap-warning-500);
+}
+
+.attendance-consistency-note {
+  margin: var(--ap-space-4) 0 0;
+  color: var(--ap-slate-500);
+  font-size: var(--ap-font-size-xs);
+}
+
 .financial-visual-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -439,6 +595,7 @@
     min-width: 0;
   }
 
+  .attendance-visual-grid,
   .financial-visual-grid,
   .financial-health-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -464,6 +621,7 @@
     width: 100%;
   }
 
+  .attendance-visual-grid,
   .financial-visual-grid,
   .financial-health-grid,
   .financial-status-grid {
