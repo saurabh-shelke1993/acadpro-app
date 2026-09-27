@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
+import "./CoachBatchMapping.css";
 import { supabase } from "../supabaseClient";
 
 import {
@@ -333,238 +334,72 @@ useEffect(() => {
 
 return (
   <Layout>
-    <div style={{ padding: "20px" }}>
-
-
-      <h1>
-        Coach Batch Mapping
-      </h1>
-
-      {/* ACADEMY */}
-
-      <div
-        style={{
-          marginBottom: "20px",
-        }}
-      >
-
-        <label>Academy</label>
-
-        <br />
-
-        <select
-          value={selectedAcademy}
-          onChange={(e) =>
-            setSelectedAcademy(
-              e.target.value
-            )
-          }
-          disabled={!isSuperAdmin(user)}
-        >
-
-          <option value="">
-            Select Academy
-          </option>
-
-          {academies.map((academy) => (
-
-            <option
-              key={academy.id}
-              value={academy.id}
-            >
-              {academy.academy_name}
-            </option>
-
-          ))}
-
-        </select>
-
+    <div className="coach-mapping-page">
+      <div className="coach-mapping-header">
+        <div>
+          <span className="coach-mapping-eyebrow">Academy management</span>
+          <h1>Coach Batch Mapping</h1>
+          <p>Assign coaches to active batches and review current mappings.</p>
+        </div>
+        <div className="coach-mapping-count"><strong>{assignments.length}</strong><span>active mappings</span></div>
       </div>
 
-      {/* ASSIGNMENT */}
-
-      <div
-        style={{
-          border: "1px solid #ccc",
-          padding: "20px",
-          marginBottom: "30px",
-        }}
-      >
-
-        <h2>
-          Assign Coach To Batch
-        </h2>
-
-        <select
-          value={selectedCoach}
-          onChange={(e) =>
-            setSelectedCoach(
-              e.target.value
-            )
-          }
-        >
-
-          <option value="">
-            Select Coach
-          </option>
-
-          {coaches.map((coach) => (
-
-            <option
-              key={coach.id}
-              value={coach.id}
-            >
-              {coach.full_name}
-            </option>
-
-          ))}
-
-        </select>
-
-        <br /><br />
-        <select
-  value={selectedCenter}
-  onChange={(e) =>
-    setSelectedCenter(
-      e.target.value
-    )
-  }
->
-
-  <option value="">
-    Select Center
-  </option>
-
-  {centers.map((center) => (
-
-    <option
-      key={center.id}
-      value={center.id}
-    >
-      {center.center_name}
-    </option>
-
-  ))}
-
-</select>
-
-<br /><br />
-        <select
-          value={selectedBatch}
-          onChange={(e) =>
-            setSelectedBatch(
-              e.target.value
-            )
-          }
-        >
-
-          <option value="">
-            Select Batch
-          </option>
-
-          {batches.map((batch) => (
-
-            <option
-              key={batch.id}
-              value={batch.id}
-            >
-              {batch.batch_name}
-            </option>
-
-          ))}
-
-        </select>
-
-        <br /><br />
-
-        <button onClick={assignCoach}>
-          Assign Coach
-        </button>
-
+      <div className="coach-mapping-filter-card">
+        <div className="coach-mapping-section-heading"><div><h2>Academy</h2><p>Select the academy for this mapping workspace.</p></div></div>
+        <label className="coach-mapping-field"><span>Academy</span>
+          <select value={selectedAcademy} onChange={(e) => { setSelectedAcademy(e.target.value); setSelectedCenter(""); setSelectedBatch(""); }} disabled={!isSuperAdmin(user)}>
+            <option value="">Select Academy</option>
+            {academies.map((academy) => <option key={academy.id} value={academy.id}>{academy.academy_name}</option>)}
+          </select>
+        </label>
       </div>
 
-      {/* ASSIGNMENTS TABLE */}
+      <div className="coach-mapping-form-card">
+        <div className="coach-mapping-section-heading"><div><h2>Assign Coach To Batch</h2><p>Select a coach, center, and batch to create a mapping.</p></div></div>
+        <div className="coach-mapping-form-grid">
+          <label className="coach-mapping-field"><span>Coach *</span>
+            <select value={selectedCoach} onChange={(e) => setSelectedCoach(e.target.value)}>
+              <option value="">Select Coach</option>
+              {coaches.map((coach) => <option key={coach.id} value={coach.id}>{coach.full_name}</option>)}
+            </select>
+          </label>
+          <label className="coach-mapping-field"><span>Center *</span>
+            <select value={selectedCenter} onChange={(e) => { setSelectedCenter(e.target.value); setSelectedBatch(""); }}>
+              <option value="">Select Center</option>
+              {centers.map((center) => <option key={center.id} value={center.id}>{center.center_name}</option>)}
+            </select>
+          </label>
+          <label className="coach-mapping-field"><span>Batch *</span>
+            <select value={selectedBatch} onChange={(e) => setSelectedBatch(e.target.value)} disabled={!selectedCenter}>
+              <option value="">Select Batch</option>
+              {batches.map((batch) => <option key={batch.id} value={batch.id}>{batch.batch_name}</option>)}
+            </select>
+          </label>
+        </div>
+        <div className="coach-mapping-form-actions">
+          <button className="coach-mapping-primary-button" type="button" onClick={assignCoach}>Assign Coach</button>
+        </div>
+      </div>
 
-      <table
-        border="1"
-        cellPadding="10"
-        width="100%"
-      >
+      <div className="coach-mapping-list-header">
+        <div><h2>Current Mappings</h2><p>Active coach-to-batch assignments for the selected academy.</p></div>
+      </div>
 
-        <thead>
-
-          <tr>
-
-            <th>Coach</th>
-            <th>Batch</th>
-            <th>Center</th>
-            <th>Status</th>
-
-          </tr>
-
-        </thead>
-
-        <tbody>
-
-          {assignments.length > 0 ? (
-
-            assignments.map(
-              (item) => (
-
-                <tr key={item.id}>
-
-                  <td>
-                    {
-                      item.coaches
-                        ?.full_name
-                    }
-                  </td>
-
-                  <td>
-                    {
-                      item.batches
-                        ?.batch_name
-                    }
-                  </td>
-                  <td>
-  {
-    item.batches?.centers
-      ?.center_name
-  }
-</td>
-
-<td>
-  {
-    item.is_active
-      ? "Active"
-      : "Inactive"
-  }
-</td>
-
-                </tr>
-
-              )
-            )
-
-          ) : (
-
-            <tr>
-
-              <td
-                colSpan="2"
-                align="center"
-              >
-                No Assignments Found
-              </td>
-
-            </tr>
-
-          )}
-
-        </tbody>
-
-      </table>
-
+      <div className="coach-mapping-table-wrap">
+        <table className="coach-mapping-table">
+          <thead><tr><th>Coach</th><th>Batch</th><th>Center</th><th>Status</th></tr></thead>
+          <tbody>
+            {assignments.length > 0 ? assignments.map((item) => (
+              <tr key={item.id}>
+                <td className="coach-mapping-name-cell">{item.coaches?.full_name || "—"}</td>
+                <td>{item.batches?.batch_name || "—"}</td>
+                <td>{item.batches?.centers?.center_name || "—"}</td>
+                <td><span className="mapping-status-badge">{item.is_active ? "Active" : "Inactive"}</span></td>
+              </tr>
+            )) : <tr><td className="coach-mapping-empty-state" colSpan="4"><strong>No mappings found</strong><span>Create an assignment using the form above.</span></td></tr>}
+          </tbody>
+        </table>
+      </div>
     </div>
   </Layout>
 );
