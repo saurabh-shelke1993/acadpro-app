@@ -669,7 +669,9 @@ return (
 
     <h2>Player Information</h2>
 
+<label htmlFor="player-full-name">Player name *</label>
 <input
+  id="player-full-name"
   type="text"
   placeholder="Player Name"
   value={fullName}
@@ -687,10 +689,11 @@ return (
 
 {isSuperAdmin(loggedInUser) ? (
   <>
-    <label>Academy *</label>
+    <label htmlFor="player-academy">Academy *</label>
     <br />
 
     <select
+      id="player-academy"
       value={selectedAcademy}
       onChange={(e) => {
         setSelectedAcademy(e.target.value);
@@ -712,10 +715,11 @@ return (
   </>
 ) : (
   <>
-    <label>Academy</label>
+    <label htmlFor="player-academy">Academy</label>
     <br />
 
     <input
+      id="player-academy"
       type="text"
       value={
         academies.find(
@@ -737,10 +741,11 @@ return (
     CENTER
 ========================= */}
 
-<label>Center *</label>
+<label htmlFor="player-center">Center *</label>
 <br />
 
 <select
+  id="player-center"
   value={selectedCenter}
   onChange={(e) => {
     setSelectedCenter(e.target.value);
@@ -767,10 +772,11 @@ return (
     BATCH
 ========================= */}
 
-<label>Batch *</label>
+<label htmlFor="player-batch">Batch *</label>
 <br />
 
 <select
+  id="player-batch"
   value={selectedBatch}
   onChange={(e) =>
     setSelectedBatch(e.target.value)
@@ -793,9 +799,10 @@ return (
 <br />
 
     <div>
-      <label>Date of Birth *</label>
+      <label htmlFor="player-dob">Date of Birth *</label>
       <br />
       <input
+        id="player-dob"
         type="date"
         value={dob}
         onChange={(e) => setDob(e.target.value)}
@@ -803,16 +810,19 @@ return (
     </div>
 
     <div>
-      <label>Joining Date *</label>
+      <label htmlFor="player-joining-date">Joining Date *</label>
       <br />
       <input
+        id="player-joining-date"
         type="date"
         value={joiningDate}
         onChange={(e) => setJoiningDate(e.target.value)}
       />
     </div>
 
+    <label htmlFor="player-gender">Gender *</label>
     <select
+      id="player-gender"
       value={gender}
       onChange={(e) => setGender(e.target.value)}
     >
@@ -828,7 +838,9 @@ return (
 
     <h2>Parent Information</h2>
 
+    <label htmlFor="player-parent-name">Parent name</label>
     <input
+      id="player-parent-name"
       type="text"
       placeholder="Parent Name"
       value={parentName}
@@ -840,7 +852,9 @@ return (
     <br />
     <br />
 
+    <label htmlFor="player-parent-phone">Parent phone</label>
     <input
+      id="player-parent-phone"
       type="text"
       placeholder="Parent Phone"
       value={parentPhone}
@@ -852,7 +866,9 @@ return (
     <br />
     <br />
 
+    <label htmlFor="player-parent-email">Parent email</label>
     <input
+      id="player-parent-email"
       type="email"
       placeholder="Parent Email"
       value={parentEmail}
@@ -864,7 +880,9 @@ return (
     <br />
     <br />
 
+    <label htmlFor="player-parent-address">Parent address</label>
     <textarea
+      id="player-parent-address"
       placeholder="Parent Address"
       value={parentAddress}
       onChange={(e) =>
