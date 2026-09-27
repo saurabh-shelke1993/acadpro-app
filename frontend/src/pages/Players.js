@@ -945,19 +945,20 @@ return (
 
       <div className="players-table-wrap">
       <table className="players-table">
+        <caption className="sr-only">Active players and their academy, batch, status, and available actions</caption>
 <thead>
   <tr>
-    <th>Player</th>
-    <th>Academy</th>
-    <th>Center</th>
-    <th>Batch</th>
-    <th>Age</th>
-    <th>Gender</th>
-    <th>Joining Date</th>
-    <th>Status</th>
-    <th>Parent Phone</th>
+    <th scope="col">Player</th>
+    <th scope="col">Academy</th>
+    <th scope="col">Center</th>
+    <th scope="col">Batch</th>
+    <th scope="col">Age</th>
+    <th scope="col">Gender</th>
+    <th scope="col">Joining Date</th>
+    <th scope="col">Status</th>
+    <th scope="col">Parent Phone</th>
     {!isCoach(loggedInUser) && (
-  <th>Actions</th>
+  <th scope="col">Actions</th>
 )}
   </tr>
 </thead>
@@ -1002,7 +1003,7 @@ return (
 
 {!isCoach(loggedInUser) && (
   <td>
-    <button className="player-action-button player-action-edit" type="button" onClick={() => handleEditPlayer(player)}>
+    <button className="player-action-button player-action-edit" type="button" onClick={() => handleEditPlayer(player)} aria-label={`Edit ${player.full_name}`}>
       Edit
     </button>
 
