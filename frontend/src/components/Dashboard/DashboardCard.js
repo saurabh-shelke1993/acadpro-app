@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import "./DashboardCard.css";
 
 const colorMap = {
@@ -13,9 +14,10 @@ function DashboardCard({
   title,
   value,
   icon,
-  color = "blue"
+  color = "blue",
+  to
 }) {
-  return (
+  const card = (
     <div className="dashboard-card" data-color={color}>
       <div
         className="dashboard-card-icon"
@@ -28,8 +30,16 @@ function DashboardCard({
         <h4>{title}</h4>
         <h2>{value}</h2>
       </div>
+
+      {to && <span className="dashboard-card-arrow" aria-hidden="true">→</span>}
     </div>
   );
+
+  return to ? (
+    <Link className="dashboard-card-link" to={to} aria-label={"Open " + title}>
+      {card}
+    </Link>
+  ) : card;
 }
 
 export default DashboardCard;
