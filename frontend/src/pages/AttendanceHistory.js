@@ -27,6 +27,7 @@ import {
 } from "../services/attendanceService";
 
 import Layout from "../components/Layout";
+import "./AttendanceHistory.css";
 
 function AttendanceHistory() {
 
@@ -384,309 +385,93 @@ useEffect(() => {
 
 return (
   <Layout>
-    <div style={{ padding: "20px" }}>
-
-
-      <h1>Attendance History</h1>
-
-      {/* FILTERS */}
-
-      <div
-        style={{
-          display: "flex",
-          gap: "20px",
-          marginBottom: "30px",
-          flexWrap: "wrap",
-        }}
-      >
-
-        {/* ACADEMY */}
-
+    <div className="attendance-history-page">
+      <div className="attendance-history-header">
         <div>
-
-          <label>Academy</label>
-
-          <br />
-
-          <select
-            value={selectedAcademy}
-            onChange={(e) => {
-              setSelectedAcademy(
-                e.target.value
-              );
-
-              setSelectedCenter("");
-              setSelectedBatch("");
-            }}
-            disabled={!isSuperAdmin(user)}
-          >
-
-            <option value="">
-              Select Academy
-            </option>
-
-            {academies.map((academy) => (
-              <option
-                key={academy.id}
-                value={academy.id}
-              >
-                {academy.academy_name}
-              </option>
-            ))}
-
-          </select>
-
+          <span className="attendance-history-eyebrow">Attendance management</span>
+          <h1>Attendance History</h1>
+          <p>Review, edit, and manage recorded player attendance.</p>
         </div>
-
-        {/* CENTER */}
-
-        <div>
-
-          <label>Center</label>
-
-          <br />
-
-          <select
-            value={selectedCenter}
-            onChange={(e) => {
-              setSelectedCenter(
-                e.target.value
-              );
-
-              setSelectedBatch("");
-            }}
-          >
-
-            <option value="">
-              Select Center
-            </option>
-
-            {centers.map((center) => (
-              <option
-                key={center.id}
-                value={center.id}
-              >
-                {center.center_name}
-              </option>
-            ))}
-
-          </select>
-
-        </div>
-
-        {/* BATCH */}
-
-        <div>
-
-          <label>Batch</label>
-
-          <br />
-
-          <select
-            value={selectedBatch}
-            onChange={(e) =>
-              setSelectedBatch(
-                e.target.value
-              )
-            }
-          >
-
-            <option value="">
-              Select Batch
-            </option>
-
-            {batches.map((batch) => (
-              <option
-                key={batch.id}
-                value={batch.id}
-              >
-                {batch.batch_name}
-              </option>
-            ))}
-
-          </select>
-
-        </div>
-
-        {/* DATE */}
-
-        <div>
-
-          <label>Date</label>
-
-          <br />
-
-          <input
-            type="date"
-            value={selectedDate}
-            onChange={(e) =>
-              setSelectedDate(
-                e.target.value
-              )
-            }
-          />
-
-        </div>
-
+        <div className="attendance-history-count"><strong>{attendanceHistory.length}</strong><span>records shown</span></div>
       </div>
 
-      {/* TABLE */}
+      <div className="attendance-history-filter-card">
+        <div className="attendance-history-section-heading"><div><h2>Filters</h2><p>Use academy, center, batch, and date to narrow the history.</p></div></div>
+        <div className="attendance-history-filter-grid">
+          <label className="attendance-history-field"><span>Academy</span>
+            <select value={selectedAcademy} onChange={(e) => { setSelectedAcademy(e.target.value); setSelectedCenter(""); setSelectedBatch(""); }} disabled={!isSuperAdmin(user)}>
+              <option value="">Select Academy</option>
+              {academies.map((academy) => <option key={academy.id} value={academy.id}>{academy.academy_name}</option>)}
+            </select>
+          </label>
+          <label className="attendance-history-field"><span>Center</span>
+            <select value={selectedCenter} onChange={(e) => { setSelectedCenter(e.target.value); setSelectedBatch(""); }}>
+              <option value="">Select Center</option>
+              {centers.map((center) => <option key={center.id} value={center.id}>{center.center_name}</option>)}
+            </select>
+          </label>
+          <label className="attendance-history-field"><span>Batch</span>
+            <select value={selectedBatch} onChange={(e) => setSelectedBatch(e.target.value)}>
+              <option value="">Select Batch</option>
+              {batches.map((batch) => <option key={batch.id} value={batch.id}>{batch.batch_name}</option>)}
+            </select>
+          </label>
+          <label className="attendance-history-field"><span>Date</span>
+            <input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} />
+          </label>
+        </div>
+      </div>
+
+      <div className="attendance-history-list-header">
+        <div><h2>Attendance Records</h2><p>{selectedDate ? `Showing records for ${selectedDate}.` : "Latest attendance records first."}</p></div>
+      </div>
 
       {loading ? (
-        <h3>Loading...</h3>
+        <div className="attendance-history-state"><strong>Loading attendance...</strong><span>Please wait while the records are retrieved.</span></div>
       ) : (
-        <table
-          border="1"
-          cellPadding="10"
-          width="100%"
-        >
-
-          <thead>
-<tr>
-  <th>Date</th>
-  <th>Player Name</th>
-  <th>Center</th>
-  <th>Batch</th>
-  <th>Status</th>
-  <th>Marked By</th>
-  <th>Action</th>
-</tr>
-          </thead>
-
-          <tbody>
-
-            {attendanceHistory.length > 0 ? (
-              attendanceHistory.map((item) => (
+        <div className="attendance-history-table-wrap">
+          <table className="attendance-history-table">
+            <thead><tr><th>Date</th><th>Player</th><th>Center</th><th>Batch</th><th>Status</th><th>Marked By</th><th>Action</th></tr></thead>
+            <tbody>
+              {attendanceHistory.length > 0 ? attendanceHistory.map((item) => (
                 <tr key={item.id}>
-
+                  <td>{item.attendance_date}</td>
+                  <td className="attendance-history-player-cell">{item.players?.full_name || "—"}</td>
+                  <td>{item.batches?.centers?.center_name || "—"}</td>
+                  <td>{item.batches?.batch_name || "—"}</td>
                   <td>
-                    {item.attendance_date}
+                    {editingAttendanceId === item.id ? (
+                      <select className="attendance-history-status-select" value={editingStatus} onChange={(e) => setEditingStatus(e.target.value)}>
+                        <option value="present">Present</option><option value="absent">Absent</option>
+                      </select>
+                    ) : (
+                      <span className={`attendance-status-badge attendance-status-${item.status}`}>{item.status}</span>
+                    )}
                   </td>
-
+                  <td>{item.users?.full_name || "—"}</td>
                   <td>
-                    {item.players?.full_name}
+                    <div className="attendance-history-actions">
+                      {editingAttendanceId === item.id ? (
+                        <>
+                          {canEditAttendance(user) && <button className="attendance-action-button attendance-action-save" type="button" onClick={() => updateAttendance(item.id)}>Save</button>}
+                          <button className="attendance-action-button attendance-action-cancel" type="button" onClick={() => { setEditingAttendanceId(null); setEditingStatus(""); }}>Cancel</button>
+                        </>
+                      ) : (
+                        <>
+                          {canEditAttendance(user) && <button className="attendance-icon-button" type="button" onClick={() => { setEditingAttendanceId(item.id); setEditingStatus(item.status); }} title="Edit Attendance" aria-label="Edit Attendance">✏️</button>}
+                          {canDeleteAttendance(user) && <button className="attendance-icon-button attendance-delete-button" type="button" onClick={() => deleteAttendance(item.id)} title="Delete Attendance" aria-label="Delete Attendance">🗑️</button>}
+                        </>
+                      )}
+                    </div>
                   </td>
-
-                  
-                  <td>
-                    {item.batches?.centers?.center_name}
-                  </td>
-
-                  <td>
-                    {item.batches?.batch_name}
-                  </td>
-
-<td>
-  {editingAttendanceId === item.id ? (
-    <select
-      value={editingStatus}
-      onChange={(e) =>
-        setEditingStatus(e.target.value)
-      }
-    >
-      <option value="present">Present</option>
-      <option value="absent">Absent</option>
-    </select>
-  ) : (
-    item.status
-  )}
-</td>
-
-                  <td>
-                    {item.users?.full_name}
-                  </td>
-<td>
-
-{editingAttendanceId === item.id ? (
-
-    <>
-
-{canEditAttendance(user) && (
-
-<button
-    onClick={() =>
-        updateAttendance(item.id)
-    }
->
-    Save
-</button>
-
-)}
-
-        {" "}
-
-        <button
-            onClick={() => {
-
-                setEditingAttendanceId(null);
-                setEditingStatus("");
-
-            }}
-        >
-            Cancel
-        </button>
-
-    </>
-
-) : (
-
-    <>
-
-{canEditAttendance(user) && (
-
-<button
-    onClick={() => {
-
-        setEditingAttendanceId(item.id);
-        setEditingStatus(item.status);
-
-    }}
-    title="Edit Attendance"
->
-    ✏️
-</button>
-
-)}
-
-        {" "}
-
-{canDeleteAttendance(user) && (
-
-<button
-    onClick={() =>
-        deleteAttendance(item.id)
-    }
-    title="Delete Attendance"
->
-    🗑️
-</button>
-
-)}
-
-    </>
-
-)}
-
-</td>
-
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td
-                  colSpan="7"
-                  align="center"
-                >
-                  No attendance found
-                </td>
-              </tr>
-            )}
-
-          </tbody>
-
-        </table>
+              )) : (
+                <tr><td className="attendance-history-empty-state" colSpan="7"><strong>No attendance found</strong><span>Try adjusting the selected filters.</span></td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       )}
-
     </div>
   </Layout>
 );
