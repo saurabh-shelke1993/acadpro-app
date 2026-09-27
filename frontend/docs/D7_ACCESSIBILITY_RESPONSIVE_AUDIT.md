@@ -172,3 +172,15 @@ D7.5 validation should cover:
 - No unexpected focus loss when navigating between modules.
 - Protected-route loading state announced as status without disrupting navigation.
 - Existing module action controls and form keyboard behavior remain unchanged.
+
+
+## D7.6 — Responsive Consistency & Legacy CSS Cleanup
+
+Implemented responsive consistency improvements:
+- Reduced desktop-only sidebar vertical density while keeping the application navigation keyboard-accessible and preserving the existing mobile/tablet layouts.
+- Kept the sidebar as a viewport-height navigation region with overflow protection for shorter desktop viewports; the desktop density pass reduces unnecessary spacing so common laptop/desktop heights can display more navigation without scrolling.
+- Removed the unused legacy responsive rules from `src/index.css` (`dashboard-container`, `sidebar`, `main-content`, `stats-grid`, `quick-actions`, `form-grid-3`, `form-grid-4`, and `hamburger`).
+- Confirmed the active routed application uses the D2 `app-shell` navigation rather than the legacy dashboard shell.
+- Preserved D7.2/D7.5 mobile navigation, focus management, route focus, RBAC, RLS, and module behavior.
+
+D7.6 validation should cover desktop widths/heights, tablet widths, mobile widths, sidebar navigation reachability, no unintended horizontal overflow, and regression of the existing dashboard and module layouts.
