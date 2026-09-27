@@ -62,7 +62,7 @@ const getScopedPlayerIds = async (scope) => {
   )];
 };
 
-export async function getAttendanceTrend(suppliedScope) {
+export async function getAttendanceTrend(suppliedScope, days = 7) {
   const scope = suppliedScope;
 
   if (
@@ -73,7 +73,7 @@ export async function getAttendanceTrend(suppliedScope) {
     return [];
   }
 
-  const dates = getDateRange(7);
+  const dates = getDateRange(days);
 
   return Promise.all(
     dates.map(async (date) => {
@@ -116,7 +116,7 @@ export async function getAttendanceTrend(suppliedScope) {
   );
 }
 
-export async function getCollectionsTrend(suppliedScope) {
+export async function getCollectionsTrend(suppliedScope, monthsCount = 6) {
   const scope = suppliedScope;
 
   if (
@@ -159,7 +159,7 @@ export async function getCollectionsTrend(suppliedScope) {
   if (error) throw error;
 
   const payments = data || [];
-  const months = getMonthRange(6);
+  const months = getMonthRange(monthsCount);
 
   return months.map((month) => ({
     month: month.label,
@@ -177,12 +177,15 @@ export async function getCollectionsTrend(suppliedScope) {
 }
 
 
-export async function getAnalyticsSummary(user) {
+export async function getAnalyticsSummary(
+  user,
+  { attendanceDays = 7, collectionsMonths = 6 } = {}
+) {
   const scope = await getDashboardDataScope(user);
 
   const [attendanceTrend, collectionsTrend] = await Promise.all([
-    getAttendanceTrend(scope),
-    getCollectionsTrend(scope)
+    getAttendanceTrend(scope, attendanceDays),
+    getCollectionsTrend(scope, collectionsMonths)
   ]);
 
   return {
