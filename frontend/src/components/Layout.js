@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import Sidebar from "./Sidebar";
 
 function Layout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const location = useLocation();
   const menuButtonRef = useRef(null);
   const closeButtonRef = useRef(null);
 
@@ -82,6 +84,18 @@ function Layout({ children }) {
   }, [sidebarOpen]);
 
   useEffect(() => {
+    if (sidebarOpen) {
+      return undefined;
+    }
+
+    requestAnimationFrame(() => {
+      document.getElementById("main-content")?.focus();
+    });
+
+    return undefined;
+  }, [location.pathname, sidebarOpen]);
+
+  useEffect(() => {
     const handleViewportChange = () => {
       if (window.matchMedia("(min-width: 641px)").matches && sidebarOpen) {
         setSidebarOpen(false);
@@ -94,7 +108,7 @@ function Layout({ children }) {
 
   return (
     <div className="app-shell">
-      <Sidebar
+      <a className="app-skip-link" href="#main-content">Skip to main content</a>\n\n      <Sidebar
         isOpen={sidebarOpen}
         onClose={closeSidebar}
         closeButtonRef={closeButtonRef}
