@@ -67,11 +67,7 @@ function ProtectedRoute({
   if (loading) {
 
     return (
-      <div
-        style={{
-          padding: "40px"
-        }}
-      >
+      <div className="app-route-loading" role="status" aria-live="polite">
         Loading...
       </div>
     );
