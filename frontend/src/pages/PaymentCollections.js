@@ -1101,578 +1101,157 @@ printWindow.onload = () => {
 
 return (
   <Layout>
-    <div style={{ padding: "20px" }}>
-      <h1>Payment Collections</h1>
-
-      <select
-  value={selectedAcademy}
-onChange={(e) => {
-
-  const academyId = e.target.value;
-
-  setSelectedAcademy(academyId);
-
-  // Clear lower selections
-
-  setSelectedCenter("");
-  setSelectedBatch("");
-  setSelectedPlayer("");
-
-  setCenters([]);
-  setBatches([]);
-  setPlayers([]);
-  setDues([]);
-
-  setSelectedDue("");
-  setSelectedDueData(null);
-
-  // Load centers
-
-}}
->
-  <option value="">
-    Select Academy
-  </option>
-
-  {academies.map(
-    (academy) => (
-      <option
-        key={academy.id}
-        value={academy.id}
-      >
-        {academy.academy_name}
-      </option>
-    )
-  )}
-</select>
-
-<br /><br />
-
-<select
-  value={selectedCenter}
-onChange={(e) => {
-
-    const centerId = e.target.value;
-
-    setSelectedCenter(centerId);
-
-    // Reset lower hierarchy
-
-    setSelectedBatch("");
-
-    setSelectedPlayer("");
-
-    setSelectedDue("");
-
-    setSelectedDueData(null);
-
-    setBatches([]);
-
-    setPlayers([]);
-
-    setDues([]);
-
-    if (centerId) {
-
-        fetchBatches(centerId);
-
-    }
-
-}}
->
-  <option value="">
-    Select Center
-  </option>
-
-  {centers.map(
-    (center) => (
-      <option
-        key={center.id}
-        value={center.id}
-      >
-        {center.center_name}
-      </option>
-    )
-  )}
-</select>
-
-<br /><br />
-
-<select
-  value={selectedBatch}
-onChange={(e) => {
-
-    const batchId = e.target.value;
-
-    setSelectedBatch(batchId);
-
-    // Clear lower hierarchyf
-
-    setSelectedPlayer("");
-
-    setSelectedDue("");
-
-    setSelectedDueData(null);
-
-    setPlayers([]);
-
-    setDues([]);
-
-    if (batchId) {
-
-          console.log(
-        "Selected Batch:",
-        batchId
-    );
-        fetchPlayers(batchId);
-
-    }
-
-}}
->
-  <option value="">
-    Select Batch
-  </option>
-
-  {batches.map(
-    (batch) => (
-      <option
-        key={batch.id}
-        value={batch.id}
-      >
-        {batch.batch_name}
-      </option>
-    )
-  )}
-</select>
-
-<br /><br />
-
-<select
-  value={selectedPlayer}
-  onChange={(e) =>
-    setSelectedPlayer(
-      e.target.value
-    )
-  }
->
-  <option value="">
-    Select Player
-  </option>
-
-  {players.map(
-    (player) => (
-      <option
-        key={player.id}
-        value={player.id}
-      >
-        {player.full_name}
-      </option>
-    )
-  )}
-</select>
-
-<br /><br />
-
-      {/* Pending Dues Dropdown */}
-
-      <select
-        value={selectedDue}
-onChange={(e) => {
-
-  const dueId =
-    e.target.value;
-
-  setSelectedDue(dueId);
-
-  const dueData =
-    dues.find(
-      (due) =>
-        due.id === dueId
-    );
-
-  setSelectedDueData(
-    dueData
-  );
-
-  setAmountPaid(dueData ? dueData.remaining_amount : "");
-  setPaymentMode("");
-}}
-      >
-
- <option value="">
-  {
-    dues.length === 0
-      ? "No Pending Dues"
-      : "Select Pending Due"
-  }
-</option>
-
-        {dues.map((due) => (
-
-<option
-    key={due.id}
-    value={due.id}
->
-
-{due.due_type}
-
-{" | Due: "}
-
-{due.due_date}
-
-{" | Remaining ₹"}
-
-{due.remaining_amount}
-
-</option>
-
-))}
-
-      </select>
-
-      <br />
-      <br />
-
-      {/* Payment Amount */}
-
-      <input
-        type="number"
-        placeholder="Amount Paid"
-        value={amountPaid}
-        onChange={(e) =>
-          setAmountPaid(
-            e.target.value
-          )
-        }
-      />
-
-      <br />
-      <br />
-
-      {/* Payment Mode */}
-
-      <select
-        value={paymentMode}
-        onChange={(e) =>
-          setPaymentMode(
-            e.target.value
-          )
-        }
-      >
-
-        <option value="">
-          Select Payment Mode
-        </option>
-
-        <option value="cash">
-          Cash
-        </option>
-
-        <option value="upi">
-          UPI
-        </option>
-
-        <option value="bank_transfer">
-          Bank Transfer
-        </option>
-
-      </select>
-
-      <br />
-      <br />
-
-      <p style={{ marginTop: "10px" }}>
-        Transaction reference and receipt number are generated automatically after payment collection.
-      </p>
-
-      <br />
-
-<button
-  onClick={collectPayment}
-  disabled={!selectedDue}
->
-  Collect Payment
-</button>
-
-      <hr />
-      <br />
-
-      <h2>Payments History</h2>
-
-      <table
-        border="1"
-        cellPadding="10"
-        style={{
-          borderCollapse: "collapse",
-          width: "100%"
-        }}
-      >
-
-<thead>
-
-<tr>
-
-{isSuperAdmin(loggedInUser) &&
-<th>Academy</th>}
-
-<th>Center</th>
-
-<th>Batch</th>
-
-<th>Player</th>
-
-<th>Amount Paid</th>
-
-<th>Payment Mode</th>
-
-<th>Reference</th>
-
-<th>Payment Date</th>
-
-</tr>
-
-</thead>
-
-        <tbody>
-
-          {
-            filteredPayments.map(
-              (payment) => (
-
-                <tr
-                  key={payment.id}
-                >
-                  
-
-{isSuperAdmin(loggedInUser) && (
-  <td>
-    {payment.players?.academies?.academy_name}
-  </td>
-)}
-
-<td>
-  {payment.players?.centers?.center_name}
-</td>
-
-<td>
-  {payment.players?.batches?.batch_name}
-</td>
-
-<td>
-  {payment.players?.full_name}
-</td>
-
-<td>
-  ₹{payment.amount_paid}
-</td>
-
-<td>
-  {payment.payment_mode}
-</td>
-
-<td>{payment.transaction_reference}</td>
-<td>{payment.receipt_number || "-"}</td>
-<td>{payment.payment_entry_type === "adjustment" ? "Adjustment" : "Payment"}</td>
-<td>{new Date(payment.payment_date).toLocaleDateString()}</td>
-<td>
-  {payment.payment_entry_type === "payment" && (
-    <button onClick={() => openCorrectionModal(payment)}>Request Correction</button>
-  )}
-</td>
-
-</tr>
-              )
-            )
-          }
-
-        </tbody>
-
-      </table>
-
-      <hr />
-      <br />
-      <h2>Payment Corrections</h2>
-      <table border="1" cellPadding="10" style={{ borderCollapse: "collapse", width: "100%" }}>
-        <thead><tr>
-          <th>Player</th><th>Original</th><th>Corrected</th><th>Adjustment</th><th>Reason</th><th>Status</th><th>Requested</th>
-          {(isSuperAdmin(loggedInUser) || loggedInUser?.role === "academy_owner") && <th>Actions</th>}
-        </tr></thead>
-        <tbody>
-          {corrections.map(correction => (
-            <tr key={correction.id}>
-              <td>{correction.players?.full_name || "-"}</td>
-              <td>₹{correction.original_amount}</td>
-              <td>₹{correction.corrected_amount}</td>
-              <td>₹{correction.adjustment_amount}</td>
-              <td>{correction.reason}</td>
-              <td>{correction.status}</td>
-              <td>{new Date(correction.requested_at).toLocaleDateString()}</td>
-              {(isSuperAdmin(loggedInUser) || loggedInUser?.role === "academy_owner") && <td>
-                {correction.status === "pending" && <>
-                  <button onClick={() => approveCorrection(correction.id)}>Approve</button>
-                  <button onClick={() => openRejectionModal(correction)}>Reject</button>
-                </>}
-                {correction.status === "rejected" && correction.rejection_reason}
-              </td>}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
+    <div className="payment-collections-page">
+      <div className="payment-page-header">
+        <div>
+          <div className="payment-page-eyebrow">Finance</div>
+          <h1>Payment Collections</h1>
+          <p>Collect pending dues, review payment history and manage correction requests.</p>
+        </div>
+        <div className="payment-page-summary">
+          <span className="payment-summary-label">History records</span>
+          <strong>{filteredPayments.length}</strong>
+        </div>
+      </div>
+
+      <section className="payment-card">
+        <div className="payment-card-header">
+          <div>
+            <h2>Collect Payment</h2>
+            <p>Select the player and pending due, then record the payment.</p>
+          </div>
+        </div>
+
+        <div className="payment-form-grid">
+          <label className="payment-field"><span>Academy</span><select value={selectedAcademy} onChange={(e) => { const academyId=e.target.value; setSelectedAcademy(academyId); setSelectedCenter(""); setSelectedBatch(""); setSelectedPlayer(""); setCenters([]); setBatches([]); setPlayers([]); setDues([]); setSelectedDue(""); setSelectedDueData(null); }}><option value="">Select Academy</option>{academies.map((academy)=><option key={academy.id} value={academy.id}>{academy.academy_name}</option>)}</select></label>
+          <label className="payment-field"><span>Center</span><select value={selectedCenter} onChange={(e) => { const centerId=e.target.value; setSelectedCenter(centerId); setSelectedBatch(""); setSelectedPlayer(""); setSelectedDue(""); setSelectedDueData(null); setBatches([]); setPlayers([]); setDues([]); if(centerId) fetchBatches(centerId); }}><option value="">Select Center</option>{centers.map((center)=><option key={center.id} value={center.id}>{center.center_name}</option>)}</select></label>
+          <label className="payment-field"><span>Batch</span><select value={selectedBatch} onChange={(e) => { const batchId=e.target.value; setSelectedBatch(batchId); setSelectedPlayer(""); setSelectedDue(""); setSelectedDueData(null); setPlayers([]); setDues([]); if(batchId) fetchPlayers(batchId); }}><option value="">Select Batch</option>{batches.map((batch)=><option key={batch.id} value={batch.id}>{batch.batch_name}</option>)}</select></label>
+          <label className="payment-field"><span>Player</span><select value={selectedPlayer} onChange={(e)=>setSelectedPlayer(e.target.value)}><option value="">Select Player</option>{players.map((player)=><option key={player.id} value={player.id}>{player.full_name}</option>)}</select></label>
+
+          <label className="payment-field payment-field-wide"><span>Pending Due</span>
+            <select value={selectedDue} onChange={(e)=>{const dueId=e.target.value; setSelectedDue(dueId); const dueData=dues.find((due)=>due.id===dueId); setSelectedDueData(dueData); setAmountPaid(dueData ? dueData.remaining_amount : ""); setPaymentMode("");}}>
+              <option value="">{dues.length===0 ? "No Pending Dues" : "Select Pending Due"}</option>
+              {dues.map((due)=><option key={due.id} value={due.id}>{due.due_type} | Due: {due.due_date} | Remaining ₹{due.remaining_amount}</option>)}
+            </select>
+          </label>
+
+          <label className="payment-field"><span>Amount Paid</span><input type="number" min="0.01" step="0.01" placeholder="Amount Paid" value={amountPaid} onChange={(e)=>setAmountPaid(e.target.value)} /></label>
+          <label className="payment-field"><span>Payment Mode</span><select value={paymentMode} onChange={(e)=>setPaymentMode(e.target.value)}><option value="">Select Payment Mode</option><option value="cash">Cash</option><option value="upi">UPI</option><option value="bank_transfer">Bank Transfer</option></select></label>
+        </div>
+
+        <div className="payment-form-footer">
+          <div className="payment-helper-text">Transaction reference and receipt number are generated automatically after collection.</div>
+          <button type="button" className="payment-primary-button" onClick={collectPayment} disabled={!selectedDue || !amountPaid || !paymentMode}>Collect Payment</button>
+        </div>
+      </section>
+
+      <section className="payment-card">
+        <div className="payment-card-header payment-list-header">
+          <div><h2>Payments History</h2><p>Use the filters to review recorded ledger entries.</p></div>
+          <div className="payment-history-filter-grid">
+            <label className="payment-filter-field"><span>Mode</span><select value={historyPaymentMode} onChange={(e)=>setHistoryPaymentMode(e.target.value)}><option value="">All Modes</option><option value="cash">Cash</option><option value="upi">UPI</option><option value="bank_transfer">Bank Transfer</option></select></label>
+            <label className="payment-filter-field"><span>From</span><input type="date" value={historyFromDate} onChange={(e)=>setHistoryFromDate(e.target.value)} /></label>
+            <label className="payment-filter-field"><span>To</span><input type="date" value={historyToDate} onChange={(e)=>setHistoryToDate(e.target.value)} /></label>
+          </div>
+        </div>
+
+        {filteredPayments.length===0 ? (
+          <div className="payment-empty-state"><div className="payment-empty-icon">₹</div><h3>No payment history found</h3><p>Adjust the player, payment mode or date filters to view ledger entries.</p></div>
+        ) : (
+          <div className="payment-table-wrapper">
+            <table className="payment-data-table">
+              <thead><tr>
+                {isSuperAdmin(loggedInUser) && <th>Academy</th>}
+                <th>Center</th><th>Batch</th><th>Player</th><th>Amount</th><th>Mode</th><th>Reference</th><th>Receipt</th><th>Entry</th><th>Payment Date</th><th>Actions</th>
+              </tr></thead>
+              <tbody>{filteredPayments.map((payment)=><tr key={payment.id}>
+                {isSuperAdmin(loggedInUser) && <td>{payment.players?.academies?.academy_name || "-"}</td>}
+                <td>{payment.players?.centers?.center_name || "-"}</td>
+                <td>{payment.players?.batches?.batch_name || "-"}</td>
+                <td className="payment-player-cell">{payment.players?.full_name || "-"}</td>
+                <td>₹{payment.amount_paid}</td>
+                <td><span className="payment-type-badge">{payment.payment_mode}</span></td>
+                <td>{payment.transaction_reference || "-"}</td>
+                <td>{payment.receipt_number || "-"}</td>
+                <td><span className={`payment-entry-badge payment-entry-${payment.payment_entry_type}`}>{payment.payment_entry_type === "adjustment" ? "Adjustment" : "Payment"}</span></td>
+                <td>{new Date(payment.payment_date).toLocaleDateString()}</td>
+                <td>{payment.payment_entry_type==="payment" && <button type="button" className="payment-text-button" onClick={()=>openCorrectionModal(payment)}>Request Correction</button>}</td>
+              </tr>)}</tbody>
+            </table>
+          </div>
+        )}
+      </section>
+
+      <section className="payment-card">
+        <div className="payment-card-header">
+          <div><h2>Payment Corrections</h2><p>Correction requests preserve the original ledger entry and follow the approval workflow.</p></div>
+          <span className="payment-count-badge">{corrections.length} requests</span>
+        </div>
+        {corrections.length===0 ? (
+          <div className="payment-empty-state"><div className="payment-empty-icon">✓</div><h3>No correction requests</h3><p>Payment correction requests will appear here when submitted.</p></div>
+        ) : (
+          <div className="payment-table-wrapper">
+            <table className="payment-data-table payment-corrections-table">
+              <thead><tr><th>Player</th><th>Original</th><th>Corrected</th><th>Adjustment</th><th>Reason</th><th>Status</th><th>Requested</th>{(isSuperAdmin(loggedInUser)||loggedInUser?.role==="academy_owner")&&<th>Actions</th>}</tr></thead>
+              <tbody>{corrections.map((correction)=><tr key={correction.id}>
+                <td className="payment-player-cell">{correction.players?.full_name || "-"}</td>
+                <td>₹{correction.original_amount}</td><td>₹{correction.corrected_amount}</td><td>₹{correction.adjustment_amount}</td>
+                <td className="payment-reason-cell">{correction.reason}</td>
+                <td><span className={`payment-status-badge payment-status-${correction.status}`}>{correction.status}</span></td>
+                <td>{new Date(correction.requested_at).toLocaleDateString()}</td>
+                {(isSuperAdmin(loggedInUser)||loggedInUser?.role==="academy_owner")&&<td><div className="payment-action-group">{correction.status==="pending"&&<><button type="button" className="payment-primary-button payment-small-button" onClick={()=>approveCorrection(correction.id)}>Approve</button><button type="button" className="payment-danger-button" onClick={()=>openRejectionModal(correction)}>Reject</button></>}{correction.status==="rejected"&&<span className="payment-rejection-text">{correction.rejection_reason}</span>}</div></td>}
+              </tr>)}</tbody>
+            </table>
+          </div>
+        )}
+      </section>
     </div>
 
     {showCorrectionModal && correctionPayment && (
-      <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.35)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 10000 }}>
-        <div style={{ background: "white", padding: "24px", minWidth: "360px" }}>
-          <h3>Request Payment Correction</h3>
-          <p>Player: {correctionPayment.players?.full_name || "-"}</p>
-          <p>Original Amount: ₹{correctionPayment.amount_paid}</p>
-          <input type="number" min="0.01" step="0.01" placeholder="Corrected Amount" value={correctionAmount} onChange={e => setCorrectionAmount(e.target.value)} />
-          <br /><br />
-          <textarea placeholder="Reason for correction" value={correctionReason} onChange={e => setCorrectionReason(e.target.value)} rows="4" style={{ width: "100%" }} />
-          <br /><br />
-          <button onClick={requestCorrection}>Submit Correction</button>
-          <button onClick={closeCorrectionModal}>Cancel</button>
+      <div className="payment-modal-overlay">
+        <div className="payment-modal" role="dialog" aria-modal="true" aria-labelledby="correction-title">
+          <div className="payment-modal-header"><div><div className="payment-page-eyebrow">Ledger control</div><h2 id="correction-title">Request Payment Correction</h2></div><button type="button" className="payment-modal-close" onClick={closeCorrectionModal} aria-label="Close correction dialog">×</button></div>
+          <div className="payment-modal-body">
+            <div className="payment-detail-row"><span>Player</span><strong>{correctionPayment.players?.full_name || "-"}</strong></div>
+            <div className="payment-detail-row"><span>Original Amount</span><strong>₹{correctionPayment.amount_paid}</strong></div>
+            <label className="payment-field"><span>Corrected Amount</span><input type="number" min="0.01" step="0.01" placeholder="Corrected Amount" value={correctionAmount} onChange={(e)=>setCorrectionAmount(e.target.value)} /></label>
+            <label className="payment-field"><span>Correction Reason</span><textarea placeholder="Reason for correction" value={correctionReason} onChange={(e)=>setCorrectionReason(e.target.value)} rows="4" /></label>
+          </div>
+          <div className="payment-modal-footer"><button type="button" className="payment-primary-button" onClick={requestCorrection}>Submit Correction</button><button type="button" className="payment-secondary-button" onClick={closeCorrectionModal}>Cancel</button></div>
         </div>
       </div>
     )}
 
     {rejectionCorrection && (
-      <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.35)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 10000 }}>
-        <div style={{ background: "white", padding: "24px", minWidth: "360px" }}>
-          <h3>Reject Payment Correction</h3>
-          <textarea placeholder="Rejection reason" value={rejectionReason} onChange={e => setRejectionReason(e.target.value)} rows="4" style={{ width: "100%" }} />
-          <br /><br />
-          <button onClick={rejectCorrection}>Reject Correction</button>
-          <button onClick={closeRejectionModal}>Cancel</button>
+      <div className="payment-modal-overlay">
+        <div className="payment-modal" role="dialog" aria-modal="true" aria-labelledby="rejection-title">
+          <div className="payment-modal-header"><div><div className="payment-page-eyebrow">Ledger control</div><h2 id="rejection-title">Reject Payment Correction</h2></div><button type="button" className="payment-modal-close" onClick={closeRejectionModal} aria-label="Close rejection dialog">×</button></div>
+          <div className="payment-modal-body"><label className="payment-field"><span>Rejection Reason</span><textarea placeholder="Rejection reason" value={rejectionReason} onChange={(e)=>setRejectionReason(e.target.value)} rows="4" /></label></div>
+          <div className="payment-modal-footer"><button type="button" className="payment-danger-button" onClick={rejectCorrection}>Reject Correction</button><button type="button" className="payment-secondary-button" onClick={closeRejectionModal}>Cancel</button></div>
         </div>
       </div>
     )}
 
-    {showReceiptModal &&
-      receiptData && (
-
+    {showReceiptModal && receiptData && (
       <div className="receipt-modal-overlay">
-
-<div
-  className="receipt-modal"
-  ref={receiptRef}
->
-
-          <h2>
-            Payment Receipt
-          </h2>
-
-          <p>
-            <strong>
-              Receipt Number:
-            </strong>{" "}
-            {receiptData.receiptNumber}
-          </p>
-
-          <p>
-            <strong>
-              Player:
-            </strong>{" "}
-            {receiptData.player}
-          </p>
-
-          <p>
-            <strong>
-              Academy:
-            </strong>{" "}
-            {receiptData.academy}
-          </p>
-
-          <p>
-            <strong>
-              Center:
-            </strong>{" "}
-            {receiptData.center}
-          </p>
-
-          <p>
-            <strong>
-              Batch:
-            </strong>{" "}
-            {receiptData.batch}
-          </p>
-
-          <p>
-            <strong>
-              Amount Paid:
-            </strong>{" "}
-            ₹{receiptData.amountPaid}
-          </p>
-
-          <p>
-            <strong>
-              Payment Mode:
-            </strong>{" "}
-            {receiptData.paymentMode}
-          </p>
-
-          <p>
-            <strong>
-              Reference:
-            </strong>{" "}
-            {
-              receiptData.transactionReference ||
-              "N/A"
-            }
-          </p>
-
-          <p>
-            <strong>
-              Remaining:
-            </strong>{" "}
-            ₹{receiptData.remainingAmount}
-          </p>
-
-          <p>
-            <strong>
-              Date:
-            </strong>{" "}
-            {receiptData.paymentDate}
-          </p>
-
-<div
-  style={{
-    marginTop: "25px",
-    display: "flex",
-    gap: "10px"
-  }}
->
-
-<button
-  onClick={printReceipt}
->
-
-Print Receipt
-
-</button>
-
-<button
-  onClick={() =>
-    setShowReceiptModal(false)
-  }
->
-
-Close
-
-</button>
-
-</div>
-
+        <div className="receipt-modal" ref={receiptRef}>
+          <div className="receipt-modal-header"><div><div className="payment-page-eyebrow">Payment completed</div><h2>Payment Receipt</h2></div></div>
+          <div className="receipt-detail-grid">
+            <p><strong>Receipt Number</strong><span>{receiptData.receiptNumber}</span></p>
+            <p><strong>Player</strong><span>{receiptData.player}</span></p>
+            <p><strong>Academy</strong><span>{receiptData.academy || "-"}</span></p>
+            <p><strong>Center</strong><span>{receiptData.center || "-"}</span></p>
+            <p><strong>Batch</strong><span>{receiptData.batch || "-"}</span></p>
+            <p><strong>Amount Paid</strong><span>₹{receiptData.amountPaid}</span></p>
+            <p><strong>Payment Mode</strong><span>{receiptData.paymentMode}</span></p>
+            <p><strong>Reference</strong><span>{receiptData.transactionReference || "N/A"}</span></p>
+            <p><strong>Remaining</strong><span>₹{receiptData.remainingAmount}</span></p>
+            <p><strong>Date</strong><span>{receiptData.paymentDate}</span></p>
+          </div>
+          <div className="receipt-modal-actions"><button type="button" className="payment-primary-button" onClick={printReceipt}>Print Receipt</button><button type="button" className="payment-secondary-button" onClick={()=>setShowReceiptModal(false)}>Close</button></div>
         </div>
-
       </div>
-
     )}
-
   </Layout>
 );
-}
-
 export default PaymentCollections;
