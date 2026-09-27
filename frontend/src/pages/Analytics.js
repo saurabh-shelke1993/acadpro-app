@@ -18,6 +18,8 @@ function Analytics() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [attendanceDays, setAttendanceDays] = useState(7);
+  const [collectionsMonths, setCollectionsMonths] = useState(6);
 
   useEffect(() => {
     let isMounted = true;
@@ -33,7 +35,10 @@ function Analytics() {
           throw new Error("Unable to load the current user.");
         }
 
-        const analyticsSummary = await getAnalyticsSummary(currentUser);
+        const analyticsSummary = await getAnalyticsSummary(currentUser, {
+          attendanceDays,
+          collectionsMonths
+        });
 
         if (!isMounted) return;
 
@@ -54,7 +59,7 @@ function Analytics() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [attendanceDays, collectionsMonths]);
 
   if (loading) {
     return (
@@ -137,7 +142,7 @@ function Analytics() {
             <div className="analytics-insight-card">
               <span>Attendance Rate</span>
               <strong>{totalAttendance ? `${attendanceRate}%` : "—"}</strong>
-              <small>Last 7 days</small>
+              <small>Last {attendanceDays} days</small>
             </div>
 
             <div className="analytics-insight-card">
@@ -155,7 +160,7 @@ function Analytics() {
             <div className="analytics-insight-card">
               <span>Total Collections</span>
               <strong>{formatCurrency(totalCollections)}</strong>
-              <small>Last 6 months</small>
+              <small>Last {collectionsMonths} months</small>
             </div>
 
             <div className="analytics-insight-card">
@@ -167,19 +172,44 @@ function Analytics() {
         </section>
 
         <section className="analytics-section analytics-section-last">
-          <div className="dashboard-section-heading">
+          <div className="analytics-trend-header">
             <div>
               <span className="dashboard-section-kicker">Trends</span>
               <h2>Attendance & Collections</h2>
             </div>
-            <span className="dashboard-section-helper">
-              Based on your accessible academy data
-            </span>
+
+            <div className="analytics-period-controls" aria-label="Analytics time periods">
+              <label>
+                <span>Attendance</span>
+                <select
+                  value={attendanceDays}
+                  onChange={(event) => setAttendanceDays(Number(event.target.value))}
+                >
+                  <option value={7}>Last 7 days</option>
+                  <option value={30}>Last 30 days</option>
+                  <option value={90}>Last 90 days</option>
+                </select>
+              </label>
+
+              <label>
+                <span>Collections</span>
+                <select
+                  value={collectionsMonths}
+                  onChange={(event) => setCollectionsMonths(Number(event.target.value))}
+                >
+                  <option value={3}>Last 3 months</option>
+                  <option value={6}>Last 6 months</option>
+                  <option value={12}>Last 12 months</option>
+                </select>
+              </label>
+            </div>
           </div>
 
           <DashboardCharts
             attendanceTrend={attendanceTrend}
             collectionsTrend={collectionsTrend}
+            attendancePeriodLabel={`Last ${attendanceDays} days`}
+            collectionsPeriodLabel={`Last ${collectionsMonths} months`}
           />
         </section>
       </div>
