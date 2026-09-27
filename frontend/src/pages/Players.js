@@ -24,14 +24,12 @@ import {
 
 import Layout from "../components/Layout";
 import PlayerImport from "../components/PlayerImport";
+import "./Players.css";
 
 function Players() {
  const [loggedInUser, setLoggedInUser] =
   useState(null);
-   console.log("IS SUPER ADMIN =", isSuperAdmin(loggedInUser));
-console.log("USER =", loggedInUser);
-  
-  const [players, setPlayers] = useState([]);
+     const [players, setPlayers] = useState([]);
 
   const [academies, setAcademies] = useState([]);
   const [centers, setCenters] = useState([]);
@@ -123,7 +121,6 @@ useEffect(() => {
 
     return age;
   };
-  console.log("PLAYERS COMPONENT RENDERED");
   const fetchAcademies = async () => {
 
   if (!loggedInUser) return;
@@ -647,8 +644,18 @@ setSelectedBatch("");
 
 return (
   <Layout>
-    <div style={{ padding: "20px" }}>
-      <h1>Players Module V3</h1>
+    <div className="players-page">
+      <div className="players-page-header">
+        <div>
+          <span className="players-page-eyebrow">Academy management</span>
+          <h1>Players</h1>
+          <p>Manage player profiles, batches, and parent information.</p>
+        </div>
+        <div className="players-page-count">
+          <strong>{filteredPlayers.length}</strong>
+          <span>visible players</span>
+        </div>
+      </div>
 
       {!isCoach(loggedInUser) && (
   <>
@@ -869,18 +876,19 @@ return (
     <br />
 
     {isEditing ? (
-      <button onClick={handleUpdatePlayer}>
+      <button className="player-primary-button" type="button" onClick={handleUpdatePlayer}>
         Update Player
       </button>
     ) : (
-      <button onClick={handleCreatePlayer}>
+      <button className="player-primary-button" type="button" onClick={handleCreatePlayer}>
         Create Player
       </button>
     )}
 
     <button
+      className="player-secondary-button"
+      type="button"
       onClick={resetForm}
-      style={{ marginLeft: "10px" }}
     >
       Clear
     </button>
@@ -895,9 +903,30 @@ return (
 
       <hr />
 
-      <h2>Players List</h2>
+      <div className="players-list-header">
+        <div>
+          <h2>Players List</h2>
+          <p>Search active players by name.</p>
+        </div>
+        <label className="players-search">
+          <span className="sr-only">Search players</span>
+          <input
+            type="search"
+            placeholder="Search player name..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            aria-label="Search players by name"
+          />
+        </label>
+      </div>
 
-      <table border="1" width="100%">
+      <div className="players-table-meta">
+        <span>{filteredPlayers.length} {filteredPlayers.length === 1 ? "player" : "players"} shown</span>
+        {searchTerm && <span>Filtered by "{searchTerm}"</span>}
+      </div>
+
+      <div className="players-table-wrap">
+      <table className="players-table">
 <thead>
   <tr>
     <th>Player</th>
@@ -937,19 +966,20 @@ return (
               </td>
               <td>{player.gender}</td>
 <td>{player.joining_date}</td>
-<td>{player.player_status}</td>
+<td><span className="player-status-badge">{player.player_status || "Active"}</span></td>
 
               <td>{player.parents?.phone}</td>
 
 {!isCoach(loggedInUser) && (
   <td>
-    <button onClick={() => handleEditPlayer(player)}>
+    <button className="player-action-button player-action-edit" type="button" onClick={() => handleEditPlayer(player)}>
       Edit
     </button>
 
     <button
+      className="player-action-button player-action-danger"
+      type="button"
       onClick={() => handleDeletePlayer(player.id)}
-      style={{ marginLeft: "10px" }}
     >
       Deactivate
     </button>
@@ -959,6 +989,7 @@ return (
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   </Layout>
 );
