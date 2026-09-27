@@ -63,7 +63,7 @@ const averageMonthlyCollections = collectionsTrend.length
     <div className="dashboard-insights">
 <div className="dashboard-insight-card">
   <span className="dashboard-insight-label">
-    Attendance Rate — ${attendancePeriodLabel}
+    Attendance Rate — {attendancePeriodLabel}
   </span>
 
 <strong
@@ -82,7 +82,7 @@ const averageMonthlyCollections = collectionsTrend.length
 
   <div className="dashboard-insight-card">
     <span className="dashboard-insight-label">
-      Present — ${attendancePeriodLabel}
+      Present — {attendancePeriodLabel}
     </span>
 <strong
   className={
@@ -100,7 +100,7 @@ const averageMonthlyCollections = collectionsTrend.length
 
   <div className="dashboard-insight-card">
     <span className="dashboard-insight-label">
-      Absent — ${attendancePeriodLabel}
+      Absent — {attendancePeriodLabel}
     </span>
 <strong
   className={
@@ -118,7 +118,7 @@ const averageMonthlyCollections = collectionsTrend.length
 
   <div className="dashboard-insight-card">
     <span className="dashboard-insight-label">
-      Collections — ${collectionsPeriodLabel}
+      Collections — {collectionsPeriodLabel}
     </span>
     <strong>{formatCurrency(totalCollections)}</strong>
     <span className="dashboard-insight-description">
@@ -128,11 +128,11 @@ const averageMonthlyCollections = collectionsTrend.length
 
   <div className="dashboard-insight-card">
     <span className="dashboard-insight-label">
-      Avg. Monthly — ${collectionsPeriodLabel}
+      Avg. Monthly — {collectionsPeriodLabel}
     </span>
     <strong>{formatCurrency(averageMonthlyCollections)}</strong>
     <span className="dashboard-insight-description">
-  Six-month collection average
+  Collection average for selected period
 </span>
   </div>
 </div>
