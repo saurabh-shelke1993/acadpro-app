@@ -35,6 +35,7 @@ function Analytics() {
   const [academies, setAcademies] = useState([]);
   const [selectedAcademyId, setSelectedAcademyId] = useState("");
   const [userReady, setUserReady] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     let isMounted = true;
@@ -115,7 +116,8 @@ function Analytics() {
     user,
     attendanceDays,
     collectionsMonths,
-    selectedAcademyId
+    selectedAcademyId,
+    refreshKey
   ]);
 
   if (loading) {
@@ -124,7 +126,7 @@ function Analytics() {
         <div className="analytics-state">
           <div className="dashboard-state-spinner" />
           <h2>Loading analytics</h2>
-          <p>Preparing attendance and collections insights...</p>
+          <p>Preparing attendance, financial and player insights...</p>
         </div>
       </Layout>
     );
@@ -137,6 +139,13 @@ function Analytics() {
           <span className="dashboard-state-icon">!</span>
           <h1>Analytics</h1>
           <p role="alert">{error}</p>
+          <button
+            type="button"
+            className="analytics-retry-button"
+            onClick={() => setRefreshKey((value) => value + 1)}
+          >
+            Try again
+          </button>
         </div>
       </Layout>
     );
@@ -210,7 +219,6 @@ function Analytics() {
     0
   );
 
-  const attendanceDistributionTotal = totalAttendance || 1;
   const presentShare = totalAttendance
     ? Math.min((totalPresent / totalAttendance) * 100, 100)
     : 0;
