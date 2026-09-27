@@ -69,9 +69,20 @@ const [historyToDate,
 setHistoryToDate] =
 useState("");
 
+const resetHistoryFilters = () => {
+  setHistoryPaymentMode("");
+  setHistoryFromDate("");
+  setHistoryToDate("");
+};
+
   const [filteredPayments,
   setFilteredPayments] =
   useState([]);
+
+const historyTotalAmount = filteredPayments.reduce(
+  (total, payment) => total + Number(payment.amount_paid || 0),
+  0
+);
 
   const [loggedInUser,
 setLoggedInUser] =
@@ -1147,11 +1158,12 @@ return (
 
       <section className="payment-card">
         <div className="payment-card-header payment-list-header">
-          <div><h2>Payments History</h2><p>Use the filters to review recorded ledger entries.</p></div>
+          <div><h2>Payments History</h2><p>Review immutable payment and adjustment ledger entries.</p><div className="payment-history-summary"><span>{filteredPayments.length} record{filteredPayments.length === 1 ? "" : "s"}</span><span>₹{historyTotalAmount.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} total</span></div></div>
           <div className="payment-history-filter-grid">
             <label className="payment-filter-field"><span>Mode</span><select value={historyPaymentMode} onChange={(e)=>setHistoryPaymentMode(e.target.value)}><option value="">All Modes</option><option value="cash">Cash</option><option value="upi">UPI</option><option value="bank_transfer">Bank Transfer</option></select></label>
-            <label className="payment-filter-field"><span>From</span><input type="date" value={historyFromDate} onChange={(e)=>setHistoryFromDate(e.target.value)} /></label>
-            <label className="payment-filter-field"><span>To</span><input type="date" value={historyToDate} onChange={(e)=>setHistoryToDate(e.target.value)} /></label>
+            <label className="payment-filter-field"><span>From</span><input type="date" value={historyFromDate} max={historyToDate || undefined} onChange={(e)=>setHistoryFromDate(e.target.value)} /></label>
+            <label className="payment-filter-field"><span>To</span><input type="date" value={historyToDate} min={historyFromDate || undefined} onChange={(e)=>setHistoryToDate(e.target.value)} /></label>
+            <button type="button" className="payment-secondary-button payment-filter-reset-button" onClick={resetHistoryFilters} disabled={!historyPaymentMode && !historyFromDate && !historyToDate}>Reset Filters</button>
           </div>
         </div>
 
@@ -1169,12 +1181,12 @@ return (
                 <td>{payment.players?.centers?.center_name || "-"}</td>
                 <td>{payment.players?.batches?.batch_name || "-"}</td>
                 <td className="payment-player-cell">{payment.players?.full_name || "-"}</td>
-                <td>₹{payment.amount_paid}</td>
-                <td><span className="payment-type-badge">{payment.payment_mode}</span></td>
-                <td>{payment.transaction_reference || "-"}</td>
-                <td>{payment.receipt_number || "-"}</td>
+                <td className="payment-amount-cell">₹{Number(payment.amount_paid || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                <td><span className="payment-type-badge">{String(payment.payment_mode || "-").replace(/_/g, " ")}</span></td>
+                <td><span className="payment-reference-cell">{payment.transaction_reference || "-"}</span></td>
+                <td><span className="payment-reference-cell">{payment.receipt_number || "-"}</span></td>
                 <td><span className={`payment-entry-badge payment-entry-${payment.payment_entry_type}`}>{payment.payment_entry_type === "adjustment" ? "Adjustment" : "Payment"}</span></td>
-                <td>{new Date(payment.payment_date).toLocaleDateString()}</td>
+                <td>{new Date(payment.payment_date).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}</td>
                 <td>{payment.payment_entry_type==="payment" && <button type="button" className="payment-text-button" onClick={()=>openCorrectionModal(payment)}>Request Correction</button>}</td>
               </tr>)}</tbody>
             </table>
@@ -1235,17 +1247,17 @@ return (
     {showReceiptModal && receiptData && (
       <div className="receipt-modal-overlay">
         <div className="receipt-modal" ref={receiptRef}>
-          <div className="receipt-modal-header"><div><div className="payment-page-eyebrow">Payment completed</div><h2>Payment Receipt</h2></div></div>
+          <div className="receipt-modal-header"><div><div className="payment-page-eyebrow">Payment completed</div><h2>Payment Receipt</h2><p>Official AcadPro payment acknowledgement</p></div><span className="receipt-status-badge">Paid</span></div>
           <div className="receipt-detail-grid">
             <p><strong>Receipt Number</strong><span>{receiptData.receiptNumber}</span></p>
             <p><strong>Player</strong><span>{receiptData.player}</span></p>
             <p><strong>Academy</strong><span>{receiptData.academy || "-"}</span></p>
             <p><strong>Center</strong><span>{receiptData.center || "-"}</span></p>
             <p><strong>Batch</strong><span>{receiptData.batch || "-"}</span></p>
-            <p><strong>Amount Paid</strong><span>₹{receiptData.amountPaid}</span></p>
+            <p className="receipt-amount-highlight"><strong>Amount Paid</strong><span>₹{Number(receiptData.amountPaid || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></p>
             <p><strong>Payment Mode</strong><span>{receiptData.paymentMode}</span></p>
             <p><strong>Reference</strong><span>{receiptData.transactionReference || "N/A"}</span></p>
-            <p><strong>Remaining</strong><span>₹{receiptData.remainingAmount}</span></p>
+            <p className="receipt-amount-highlight"><strong>Remaining Balance</strong><span>₹{Number(receiptData.remainingAmount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></p>
             <p><strong>Date</strong><span>{receiptData.paymentDate}</span></p>
           </div>
           <div className="receipt-modal-actions"><button type="button" className="payment-primary-button" onClick={printReceipt}>Print Receipt</button><button type="button" className="payment-secondary-button" onClick={()=>setShowReceiptModal(false)}>Close</button></div>
