@@ -800,7 +800,8 @@ return (
         ) : (
           <div className="payment-table-wrapper">
             <table className="payment-data-table">
-              <thead><tr><th>Academy</th><th>Center</th><th>Batch</th><th>Player</th><th>Plan</th><th>Due Type</th><th>Due Date</th><th>Total</th><th>Paid</th><th>Remaining</th><th>Status</th><th>Actions</th></tr></thead>
+              <caption className="sr-only">Payment dues, balances, status, and available actions</caption>
+              <thead><tr><th scope="col">Academy</th><th scope="col">Center</th><th scope="col">Batch</th><th scope="col">Player</th><th scope="col">Plan</th><th scope="col">Due Type</th><th scope="col">Due Date</th><th scope="col">Total</th><th scope="col">Paid</th><th scope="col">Remaining</th><th scope="col">Status</th><th scope="col">Actions</th></tr></thead>
               <tbody>
                 {duesList.map((due) => (
                   <tr key={due.id}>
@@ -817,7 +818,7 @@ return (
                     <td><span className={`payment-status-badge payment-status-${due.due_status}`}>{due.due_status === "paid" ? "Paid" : due.due_status === "partial" ? "Partial" : "Pending"}</span></td>
                     <td><div className="payment-action-group">
                       {due.due_status !== "paid" && <button type="button" className="payment-secondary-button" onClick={() => navigate("/payment-collections", { state: { dueId: due.id } })}>Record Payment</button>}
-                      {canGenerateDue(loggedInUser) && <><button type="button" className="payment-text-button" onClick={() => startEdit(due)}>Edit</button><button type="button" className="payment-danger-button" onClick={() => deleteDue(due)}>Delete</button></>}
+                      {canGenerateDue(loggedInUser) && <><button type="button" className="payment-text-button" onClick={() => startEdit(due)} aria-label={`Edit due for ${due.players?.full_name || "player"}`}>Edit</button><button type="button" className="payment-danger-button" onClick={() => deleteDue(due)} aria-label={`Delete due for ${due.players?.full_name || "player"}`}>Delete</button></>}
                     </div></td>
                   </tr>
                 ))}
