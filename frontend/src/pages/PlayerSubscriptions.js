@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
+import "./PlayerSubscriptions.css";
 import { supabase } from "../services/supabase";
 
 import {
@@ -496,8 +497,18 @@ const handleDeactivateSubscription =
 
 return (
   <Layout>
-    <div style={{ padding: "20px" }}>
-      <h1>Player Subscriptions</h1>
+    <div className="player-subscriptions-page">
+      <div className="player-subscriptions-header">
+        <div>
+          <span className="player-subscriptions-eyebrow">Billing management</span>
+          <h1>Player Subscriptions</h1>
+          <p>Assign active plans to players and manage subscription status.</p>
+        </div>
+        <div className="player-subscriptions-count">
+          <strong>{subscriptions.length}</strong>
+          <span>active subscriptions</span>
+        </div>
+      </div>
 {/* Academy */}
 
 {isSuperAdmin(loggedInUser) && (
@@ -603,6 +614,11 @@ return (
 <br />
 <br />
 
+      <section className="player-subscriptions-form-card">
+        <div className="player-subscriptions-section-heading">
+          <h2>{isEditing ? "Edit Subscription" : "Assign Subscription"}</h2>
+          <p>Select the player, plan, and subscription start date.</p>
+        </div>
       {/* Player Dropdown */}
 
       <select
@@ -701,7 +717,7 @@ return (
 
 {isEditing ? (
 
-  <button
+  <button className="player-subscriptions-primary-button"
     onClick={
       handleUpdateSubscription
     }
@@ -711,27 +727,24 @@ return (
 
 ) : (
 
-  <button
+  <button className="player-subscriptions-primary-button"
     onClick={createSubscription}
   >
     Create Subscription
   </button>
 
 )}
+      </section>
 
-      <hr />
-      <br />
+      <div className="player-subscriptions-list-header">
+        <div>
+          <h2>Subscriptions List</h2>
+          <p>{subscriptions.length} active {subscriptions.length === 1 ? "subscription" : "subscriptions"}</p>
+        </div>
+      </div>
 
-      <h2>Subscriptions List</h2>
-
-      <table
-        border="1"
-        cellPadding="10"
-        style={{
-          borderCollapse: "collapse",
-          width: "100%"
-        }}
-      >
+      <div className="player-subscriptions-table-wrap">
+      <table className="player-subscriptions-table">
 
         <thead>
 
@@ -763,8 +776,14 @@ return (
         </thead>
 
         <tbody>
-
-          {
+          {subscriptions.length === 0 ? (
+            <tr>
+              <td className="player-subscriptions-empty-state" colSpan={isSuperAdmin(loggedInUser) ? 10 : 9}>
+                <strong>No active subscriptions</strong>
+                <span>Assign a subscription above or adjust the current filters.</span>
+              </td>
+            </tr>
+          ) : (
             subscriptions.map(
               (subscription) => (
 
@@ -868,11 +887,10 @@ return (
 
               )
             )
-          }
-
+          )}
         </tbody>
-
       </table>
+      </div>
 
     </div>
   </Layout>
