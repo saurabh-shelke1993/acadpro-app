@@ -945,7 +945,19 @@ return (
 </thead>
 
         <tbody>
-          {filteredPlayers.map((player) => (
+          {filteredPlayers.length === 0 ? (
+            <tr>
+              <td className="players-empty-state" colSpan={10}>
+                <strong>No players found</strong>
+                <span>
+                  {searchTerm
+                    ? "Try a different player name."
+                    : "No active players match the current selection."}
+                </span>
+              </td>
+            </tr>
+          ) : (
+            filteredPlayers.map((player) => (
             <tr key={player.id}>
               <td>{player.full_name}</td>
 
@@ -986,7 +998,8 @@ return (
   </td>
 )}
             </tr>
-          ))}
+            ))
+          )}
         </tbody>
       </table>
       </div>
