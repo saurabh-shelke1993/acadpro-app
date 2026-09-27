@@ -1,5 +1,6 @@
 import { supabase } from "../supabaseClient";
 import { getDashboardDataScope } from "../utils/dataScope";
+import { isSuperAdmin } from "../utils/roles";
 
 const getDateRange = (days) => {
   const dates = [];
@@ -207,9 +208,20 @@ export async function getCollectionsTrend(suppliedScope, monthsCount = 6) {
 
 export async function getAnalyticsSummary(
   user,
-  { attendanceDays = 7, collectionsMonths = 6 } = {}
+  {
+    attendanceDays = 7,
+    collectionsMonths = 6,
+    selectedAcademyId = ""
+  } = {}
 ) {
-  const scope = await getDashboardDataScope(user);
+  let scope = await getDashboardDataScope(user);
+
+  if (isSuperAdmin(user) && selectedAcademyId) {
+    scope = {
+      type: "academy",
+      academyId: selectedAcademyId
+    };
+  }
 
   const [attendanceTrend, collectionsTrend] = await Promise.all([
     getAttendanceTrend(scope, attendanceDays),
