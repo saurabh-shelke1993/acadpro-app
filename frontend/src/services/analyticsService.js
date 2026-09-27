@@ -206,6 +206,90 @@ export async function getCollectionsTrend(suppliedScope, monthsCount = 6) {
   }));
 }
 
+export async function getFinancialHealth(suppliedScope) {
+  const scope = suppliedScope;
+
+  if (
+    !scope ||
+    scope.type === "none" ||
+    (scope.type === "batches" && !scope.batchIds.length)
+  ) {
+    return {
+      totalBilled: 0,
+      totalPaid: 0,
+      outstandingAmount: 0,
+      collectionRate: 0,
+      pendingDues: 0,
+      partialDues: 0,
+      paidDues: 0
+    };
+  }
+
+  const playerIds = scope.type === "batches"
+    ? await getScopedPlayerIds(scope)
+    : null;
+
+  if (scope.type === "batches" && !playerIds.length) {
+    return {
+      totalBilled: 0,
+      totalPaid: 0,
+      outstandingAmount: 0,
+      collectionRate: 0,
+      pendingDues: 0,
+      partialDues: 0,
+      paidDues: 0
+    };
+  }
+
+  let query = supabase
+    .from("payment_dues")
+    .select("total_amount, paid_amount, due_status");
+
+  if (scope.type === "academy") {
+    query = supabase
+      .from("payment_dues")
+      .select("total_amount, paid_amount, due_status, players!inner(academy_id)")
+      .eq("players.academy_id", scope.academyId);
+  }
+
+  if (scope.type === "batches") {
+    query = query.in("player_id", playerIds);
+  }
+
+  const { data, error } = await query;
+
+  if (error) throw error;
+
+  const dues = data || [];
+
+  const totalBilled = dues.reduce(
+    (total, due) => total + Number(due.total_amount || 0),
+    0
+  );
+
+  const totalPaid = dues.reduce(
+    (total, due) => total + Math.min(
+      Number(due.paid_amount || 0),
+      Number(due.total_amount || 0)
+    ),
+    0
+  );
+
+  const outstandingAmount = Math.max(totalBilled - totalPaid, 0);
+
+  return {
+    totalBilled,
+    totalPaid,
+    outstandingAmount,
+    collectionRate: totalBilled
+      ? Math.round((totalPaid / totalBilled) * 100)
+      : 0,
+    pendingDues: dues.filter((due) => due.due_status === "pending").length,
+    partialDues: dues.filter((due) => due.due_status === "partial").length,
+    paidDues: dues.filter((due) => due.due_status === "paid").length
+  };
+}
+
 export async function getAnalyticsSummary(
   user,
   {
@@ -223,13 +307,16 @@ export async function getAnalyticsSummary(
     };
   }
 
-  const [attendanceTrend, collectionsTrend] = await Promise.all([
-    getAttendanceTrend(scope, attendanceDays),
-    getCollectionsTrend(scope, collectionsMonths)
-  ]);
+  const [attendanceTrend, collectionsTrend, financialHealth] =
+    await Promise.all([
+      getAttendanceTrend(scope, attendanceDays),
+      getCollectionsTrend(scope, collectionsMonths),
+      getFinancialHealth(scope)
+    ]);
 
   return {
     attendanceTrend,
-    collectionsTrend
+    collectionsTrend,
+    financialHealth
   };
 }
