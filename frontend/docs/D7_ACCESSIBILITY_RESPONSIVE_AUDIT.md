@@ -128,3 +128,15 @@ D7.1 is complete when:
 - the next implementation target is unambiguous.
 
 Next implementation target: **D7.2 — Navigation/sidebar accessibility.**
+
+
+## D7.3 — Forms & Input Accessibility
+
+Implemented the first form-semantics pass across the highest-impact management forms:
+- Added explicit label/control associations with stable `id` + `htmlFor` pairs for Players, Attendance, Subscription Plans, and Player Subscriptions.
+- Added an accessible name to attendance presence checkboxes.
+- Preserved existing validation, submit handlers, data fetching, RBAC, and Supabase/RLS behavior.
+- Payment Dues, Payment Collections, Coaches, and Coach Batch Mapping already use wrapping labels for their primary controls; no unnecessary behavior changes were introduced.
+- Coach Performance Assessments already contains explicit `htmlFor`/control IDs for its form fields.
+
+D7.3 validation should cover keyboard-only navigation, visible focus, label-to-control focus behavior, form submission/validation, and responsive form layout.
