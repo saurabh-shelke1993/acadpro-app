@@ -430,9 +430,13 @@ const ParentPortal = () => {
           </p>
         </div>
         <div className="parent-portal-header-actions">
-          <span className="parent-portal-child-count">
-            {children.length} {children.length === 1 ? "child" : "children"} linked
-          </span>
+          <div
+            className="parent-portal-child-count"
+            aria-label={children.length + " linked " + (children.length === 1 ? "child" : "children")}
+          >
+            <strong>{children.length}</strong>
+            <span>{children.length === 1 ? "child" : "children"} linked</span>
+          </div>
           <button type="button" onClick={handleLogout} className="parent-portal-logout">
             Sign out
           </button>
@@ -467,12 +471,23 @@ const ParentPortal = () => {
                     aria-pressed={isSelected}
                     className={`parent-portal-child-card${isSelected ? " is-selected" : ""}`}
                   >
-                    <div className="parent-portal-child-avatar" aria-hidden="true">
-                      {(child.full_name || "?").charAt(0).toUpperCase()}
+                    <div className="parent-portal-child-topline">
+                      <div className="parent-portal-child-avatar" aria-hidden="true">
+                        {(child.full_name || "?").charAt(0).toUpperCase()}
+                      </div>
+                      {isSelected ? (
+                        <span className="parent-portal-selected-badge">Selected</span>
+                      ) : null}
                     </div>
                     <span className="parent-portal-child-name">{child.full_name}</span>
+                    <span className="parent-portal-child-meta">
+                      {child.center?.center_name || child.academy?.academy_name || "Academy profile"}
+                    </span>
+                    <span className="parent-portal-child-batch">
+                      {child.batch?.batch_name || "Batch not assigned"}
+                    </span>
                     <span className="parent-portal-child-hint">
-                      {isSelected ? "Selected child" : "View dashboard"}
+                      {isSelected ? "Currently viewing dashboard" : "Select to view dashboard"}
                     </span>
                   </button>
                 );
