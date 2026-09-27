@@ -25,7 +25,7 @@
 .payment-form-footer,.payment-modal-footer{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-top:20px}
 .payment-amount-preview{margin-right:auto;display:flex;align-items:baseline;gap:10px;color:#64748b;font-size:13px}
 .payment-amount-preview strong{color:#0f172a;font-size:20px}
-.payment-primary-button,.payment-secondary-button,.payment-text-button,.payment-danger-button{min-height:36px;padding:8px 13px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;transition:.15s ease}
+.payment-primary-button,.payment-secondary-button,.payment-text-button,.payment-danger-button{min-height:40px;padding:8px 13px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;transition:.15s ease}
 .payment-primary-button{border:1px solid #2563eb;background:#2563eb;color:#fff}.payment-primary-button:hover{background:#1d4ed8}
 .payment-secondary-button{border:1px solid #cbd5e1;background:#fff;color:#334155}.payment-secondary-button:hover{background:#f8fafc}
 .payment-text-button{border:0;background:transparent;color:#2563eb;padding-left:5px;padding-right:5px}
