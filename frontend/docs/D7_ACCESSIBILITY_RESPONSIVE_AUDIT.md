@@ -140,3 +140,15 @@ Implemented the first form-semantics pass across the highest-impact management f
 - Coach Performance Assessments already contains explicit `htmlFor`/control IDs for its form fields.
 
 D7.3 validation should cover keyboard-only navigation, visible focus, label-to-control focus behavior, form submission/validation, and responsive form layout.
+
+
+## D7.4 — Tables & Action Controls
+
+Implemented table accessibility improvements across Players, Attendance History, Coaches, Coach Batch Mapping, Academy, Centers, Batches, Payment Dues, and Payment Collections:
+- Added screen-reader-only table captions describing table purpose.
+- Added `scope="col"` to table header cells for clearer column relationships.
+- Added contextual accessible names to key Edit/Delete/Deactivate/attendance action controls where the visible action text or icon alone did not identify the affected record.
+- Preserved existing action handlers, role checks, confirmation flows, financial workflows, and data access behavior.
+- Added a shared `.sr-only` utility to the design system.
+
+D7.4 validation should cover keyboard access to every action, visible focus, table navigation/readability, action context, and role-specific action visibility.
