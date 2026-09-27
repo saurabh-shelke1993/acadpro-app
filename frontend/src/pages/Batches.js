@@ -18,6 +18,7 @@ import {
   getAccessibleCenters,
   getAccessibleBatches
 } from "../utils/dataScope";
+import "./Batches.css";
 
 const Batches = () => {
 
@@ -613,14 +614,30 @@ if (!user) {
 
 return (
   <Layout>
-    <div style={{ padding: "20px" }}>
-      <h1>Batches Management</h1>
+    <div className="batches-page">
+      <div className="batches-page-header">
+        <div>
+          <span className="batches-page-eyebrow">Academy management</span>
+          <h1>Batches</h1>
+          <p>Manage coaching batches, age groups, and schedules.</p>
+        </div>
+        <div className="batches-page-count">
+          <strong>{batches.length}</strong>
+          <span>visible batches</span>
+        </div>
+      </div>
 
       {/* ========================= */}
       {/* SUPER ADMIN */}
       {/* ========================= */}
 
-      {isSuperAdmin(user) && (
+      <section className="batches-filter-card">
+        <div className="batches-section-heading">
+          <h2>Batch filters</h2>
+          <p>Use academy and center filters to narrow the batch list.</p>
+        </div>
+        <div className="batches-filter-grid">
+        {isSuperAdmin(user) && (
 
         <>
           <select
@@ -693,12 +710,11 @@ return (
         }
 
       </select>
+        </div>
+      </section>
 
-      <br />
-      <br />
-
-{(isSuperAdmin(user) || isAcademyOwner(user)) && (
-  <>
+      {(isSuperAdmin(user) || isAcademyOwner(user)) && (
+  <section className="batches-form-card">
 
       {/* BATCH NAME */}
 
@@ -776,7 +792,7 @@ return (
         }
 
       </button>
-</>)}
+</section>)}
       <br />
       <br />
       <br />
@@ -785,10 +801,8 @@ return (
       {/* BATCHES TABLE */}
       {/* ========================= */}
 
-      <table
-        border="1"
-        width="100%"
-      >
+      <div className="batches-table-wrap">
+      <table className="batches-table">
 
         <thead>
 
@@ -813,8 +827,12 @@ return (
         </thead>
 
         <tbody>
-
-          {
+          {batches.length === 0 ? (
+            <tr><td className="batches-empty-state" colSpan={isSuperAdmin(user) ? 7 : 6}>
+              <strong>No active batches</strong>
+              <span>No batches match the current academy or center selection.</span>
+            </td></tr>
+          ) : (
             batches.map(
               (batch) => (
 
@@ -872,11 +890,10 @@ return (
 
               )
             )
-          }
-
+          )}
         </tbody>
-
       </table>
+      </div>
 
     </div>
   </Layout>
