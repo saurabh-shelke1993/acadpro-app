@@ -1180,3 +1180,304 @@
     width:100%;
   }
 }
+
+/* D6.9 responsive and mobile refinement */
+@media(max-width:900px){
+  .parent-portal-dashboard-card{
+    padding:var(--ap-space-5);
+  }
+
+  .parent-portal-profile-hero{
+    grid-template-columns:auto minmax(0,1fr);
+    align-items:start;
+  }
+
+  .parent-portal-player-status{
+    grid-column:1 / -1;
+    justify-self:start;
+    max-width:100%;
+  }
+
+  .parent-portal-profile-meta{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+
+  .parent-portal-details-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+
+  .parent-portal-financial-grid{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+  }
+
+  .parent-portal-financial-block{
+    padding:var(--ap-space-4);
+  }
+
+  .parent-portal-receipt-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+
+@media(max-width:720px){
+  .parent-portal-page{
+    max-width:100%;
+    padding:var(--ap-space-5) var(--ap-space-4) var(--ap-space-7);
+  }
+
+  .parent-portal-header{
+    gap:var(--ap-space-3);
+  }
+
+  .parent-portal-header-actions{
+    width:100%;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    gap:var(--ap-space-2);
+  }
+
+  .parent-portal-child-count,
+  .parent-portal-logout{
+    width:100%;
+    min-width:0;
+  }
+
+  .parent-portal-children-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+
+  .parent-portal-child-card{
+    min-height:145px;
+    padding:1rem;
+  }
+
+  .parent-portal-child-card.is-selected{
+    padding:calc(1rem - 1px);
+  }
+
+  .parent-portal-dashboard-card{
+    padding:var(--ap-space-5);
+  }
+
+  .parent-portal-profile-meta,
+  .parent-portal-details-grid,
+  .parent-portal-financial-grid,
+  .parent-portal-receipt-grid{
+    grid-template-columns:1fr;
+  }
+
+  .parent-portal-attendance-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+
+  .parent-portal-financial-heading{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+  .parent-portal-outstanding-summary{
+    width:100%;
+    box-sizing:border-box;
+  }
+
+  .parent-portal-financial-block-heading{
+    align-items:flex-start;
+  }
+
+  .parent-portal-payment-meta-grid,
+  .parent-portal-due-amount-grid,
+  .parent-portal-receipt-details{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+
+  .parent-portal-performance{
+    grid-template-columns:auto minmax(0,1fr);
+  }
+
+  .parent-portal-performance-button{
+    grid-column:1 / -1;
+    width:100%;
+  }
+
+  .parent-portal-data-warning{
+    align-items:stretch;
+  }
+
+  .parent-portal-data-warning .parent-portal-secondary-button{
+    width:100%;
+  }
+}
+
+@media(max-width:480px){
+  .parent-portal-page{
+    padding:var(--ap-space-4) var(--ap-space-3) var(--ap-space-6);
+  }
+
+  .parent-portal-title{
+    font-size:1.4rem;
+  }
+
+  .parent-portal-subtitle{
+    font-size:var(--ap-font-size-xs);
+  }
+
+  .parent-portal-header-actions{
+    grid-template-columns:1fr;
+  }
+
+  .parent-portal-child-count{
+    align-items:center;
+  }
+
+  .parent-portal-children-grid{
+    grid-template-columns:1fr;
+  }
+
+  .parent-portal-child-card{
+    min-height:0;
+  }
+
+  .parent-portal-child-topline{
+    align-items:center;
+  }
+
+  .parent-portal-child-avatar{
+    width:44px;
+    height:44px;
+    flex:0 0 44px;
+    margin-bottom:.55rem;
+    font-size:1.1rem;
+  }
+
+  .parent-portal-dashboard-card,
+  .parent-portal-state-card{
+    padding:var(--ap-space-4);
+  }
+
+  .parent-portal-profile-hero{
+    grid-template-columns:auto minmax(0,1fr);
+    gap:var(--ap-space-3);
+  }
+
+  .parent-portal-profile-avatar{
+    width:52px;
+    height:52px;
+    flex-basis:52px;
+    font-size:1.25rem;
+  }
+
+  .parent-portal-dashboard-title{
+    font-size:1.25rem;
+  }
+
+  .parent-portal-profile-context{
+    font-size:var(--ap-font-size-xs);
+  }
+
+  .parent-portal-attendance-grid{
+    grid-template-columns:1fr 1fr;
+    gap:var(--ap-space-2);
+  }
+
+  .parent-portal-attendance-stat{
+    padding:.8rem;
+  }
+
+  .parent-portal-attendance-stat strong{
+    font-size:1.25rem;
+  }
+
+  .parent-portal-attendance-section .parent-portal-subsection-heading{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+  .parent-portal-history-row{
+    padding:.8rem;
+  }
+
+  .parent-portal-financial-block{
+    padding:var(--ap-space-3);
+  }
+
+  .parent-portal-financial-block-heading{
+    flex-wrap:wrap;
+  }
+
+  .parent-portal-financial-block-heading > div{
+    min-width:0;
+  }
+
+  .parent-portal-financial-row-topline{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+  .parent-portal-payment-meta-grid,
+  .parent-portal-due-amount-grid,
+  .parent-portal-receipt-details{
+    grid-template-columns:1fr;
+  }
+
+  .parent-portal-receipt-card{
+    padding:var(--ap-space-4);
+  }
+
+  .parent-portal-receipt-card-topline{
+    flex-direction:column;
+  }
+
+  .parent-portal-performance{
+    grid-template-columns:1fr;
+    padding:var(--ap-space-4);
+  }
+
+  .parent-portal-performance-icon{
+    width:40px;
+    height:40px;
+  }
+
+  .parent-portal-performance-button{
+    grid-column:auto;
+  }
+
+  .parent-portal-data-warning,
+  .parent-portal-state-card{
+    padding:var(--ap-space-4);
+  }
+}
+
+@media(max-width:375px){
+  .parent-portal-page{
+    padding-left:var(--ap-space-2);
+    padding-right:var(--ap-space-2);
+  }
+
+  .parent-portal-dashboard-card,
+  .parent-portal-state-card{
+    padding:var(--ap-space-3);
+  }
+
+  .parent-portal-attendance-grid{
+    grid-template-columns:1fr;
+  }
+
+  .parent-portal-attendance-stat{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:var(--ap-space-3);
+  }
+
+  .parent-portal-attendance-stat strong{
+    margin-top:0;
+  }
+
+  .parent-portal-financial-card{
+    padding:.8rem;
+  }
+
+  .parent-portal-financial-card strong{
+    font-size:1.25rem;
+  }
+}
