@@ -9,7 +9,7 @@
   align-items: flex-end;
   justify-content: space-between;
   gap: var(--ap-space-6);
-  padding-bottom: var(--ap-space-6);
+  padding-bottom: var(--ap-space-4);
   border-bottom: 1px solid var(--ap-border);
 }
 
@@ -66,8 +66,8 @@
 }
 
 .centers-form-card {
-  margin-top: var(--ap-space-6);
-  padding: var(--ap-space-5);
+  margin-top: var(--ap-space-4);
+  padding: var(--ap-space-4);
   border: 1px solid var(--ap-border);
   border-radius: var(--ap-radius-xl);
   background: var(--ap-surface);
@@ -75,14 +75,18 @@
 }
 
 .centers-section-heading {
-  margin-bottom: var(--ap-space-4);
+  margin-bottom: var(--ap-space-3);
+}
+
+.centers-section-heading h2 {
+  font-size: 1.25rem;
 }
 
 .centers-form-grid {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--ap-space-3);
+  gap: var(--ap-space-2);
 }
 
 .centers-page select,
@@ -147,7 +151,7 @@
 
 .centers-table-wrap {
   width: 100%;
-  margin-top: var(--ap-space-7);
+  margin-top: var(--ap-space-4);
   overflow-x: auto;
   border: 1px solid var(--ap-border);
   border-radius: var(--ap-radius-xl);
@@ -162,8 +166,8 @@
   text-align: left;
 }
 
-.centers-table th {
-  padding: 0.75rem 0.9rem;
+ .centers-table th {
+  padding: 0.6rem 0.8rem;
   border-bottom: 1px solid var(--ap-border);
   background: var(--ap-slate-50);
   color: var(--ap-slate-500);
@@ -173,8 +177,8 @@
   text-transform: uppercase;
 }
 
-.centers-table td {
-  padding: 0.85rem 0.9rem;
+ .centers-table td {
+  padding: 0.65rem 0.8rem;
   border-bottom: 1px solid var(--ap-border);
   color: var(--ap-slate-700);
   font-size: var(--ap-font-size-sm);
@@ -184,15 +188,72 @@
   border-bottom: 0;
 }
 
-.centers-table tbody tr:hover {
+.centers-table tbody tr {
+  cursor: pointer;
+  transition: background-color var(--ap-transition-fast), box-shadow var(--ap-transition-fast);
+}
+
+.centers-table tbody tr:hover,
+.centers-table tbody tr:focus-visible {
   background: var(--ap-slate-50);
 }
 
-.centers-table td button + button {
-  margin-left: var(--ap-space-2);
+.centers-table tbody tr:focus-visible {
+  outline: 2px solid var(--ap-primary-300);
+  outline-offset: -2px;
 }
 
-.centers-table td button:last-child {
+.centers-row-selected {
+  background: var(--ap-primary-50);
+  box-shadow: inset 3px 0 0 var(--ap-primary-600);
+}
+
+.centers-academy-cell {
+  width: 34%;
+  color: var(--ap-slate-600);
+  font-weight: 650;
+}
+
+.centers-name-cell {
+  color: var(--ap-slate-900) !important;
+  font-weight: 650;
+}
+
+.centers-actions-heading {
+  width: 150px;
+  text-align: right;
+}
+
+.centers-actions-cell {
+  width: 150px;
+  text-align: right;
+}
+
+.centers-row-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--ap-space-2);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(4px);
+  transition: opacity var(--ap-transition-fast), transform var(--ap-transition-fast);
+}
+
+.centers-table tbody tr:hover .centers-row-actions,
+.centers-table tbody tr:focus-within .centers-row-actions,
+.centers-row-selected .centers-row-actions {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(0);
+}
+
+.centers-row-actions button {
+  min-height: 32px;
+  padding: 0.35rem 0.65rem;
+}
+
+.centers-row-actions .centers-delete-button {
   border-color: var(--ap-danger-200);
   background: var(--ap-danger-50);
   color: var(--ap-danger-700);
@@ -215,6 +276,20 @@
 }
 
 @media (max-width: 700px) {
+  .centers-table {
+    min-width: 620px;
+  }
+
+  .centers-row-actions {
+    opacity: 1;
+    pointer-events: auto;
+    transform: none;
+  }
+
+  .centers-actions-heading,
+  .centers-actions-cell {
+    width: 130px;
+  }
   .centers-page-header {
     align-items: flex-start;
     flex-direction: column;
