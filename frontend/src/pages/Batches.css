@@ -580,3 +580,86 @@
     grid-column: auto;
   }
 }
+
+
+/* Compact viewport-first results layout */
+.batches-page-header {
+  padding-bottom: 0.65rem;
+}
+
+.batches-page-header h1 {
+  font-size: 1.6rem;
+}
+
+.batches-page-header p {
+  margin-top: 0.2rem;
+}
+
+.batches-page-count {
+  min-width: 110px;
+  padding: 0.55rem 0.8rem;
+}
+
+.batches-workspace {
+  margin-top: 0.65rem;
+  gap: 0.75rem;
+}
+
+.batches-workspace .batches-filter-card,
+.batches-workspace .batches-form-card {
+  padding: 0.75rem 1rem;
+}
+
+.batches-workspace .batches-section-heading {
+  margin-bottom: 0.6rem;
+}
+
+.batches-workspace .batches-section-heading h2 {
+  font-size: 1.1rem;
+}
+
+.batches-workspace .batches-section-heading p {
+  margin: 0;
+}
+
+.batches-page select,
+.batches-page input {
+  min-height: 36px;
+  padding: 0.4rem 0.65rem;
+}
+
+.batches-form-actions {
+  margin-top: 0.6rem;
+  padding-top: 0.6rem !important;
+}
+
+.batches-page button {
+  min-height: 36px;
+  padding: 0.4rem 0.7rem;
+}
+
+.batches-results-section {
+  margin-top: 0.65rem;
+}
+
+.batches-results-header {
+  padding: 0.65rem 0.8rem;
+}
+
+.batches-results-header h2 {
+  font-size: 1.1rem;
+}
+
+.batches-table th {
+  padding: 0.48rem 0.7rem;
+}
+
+.batches-table td {
+  padding: 0.48rem 0.7rem;
+  line-height: 1.2;
+}
+
+.batches-pagination {
+  min-height: 46px;
+  padding: 0.5rem 0.7rem;
+}
