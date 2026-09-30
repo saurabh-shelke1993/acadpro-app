@@ -28,6 +28,9 @@ const Academy = () => {
   const [academies, setAcademies] =
     useState([]);
 
+  const [selectedAcademyId, setSelectedAcademyId] =
+    useState(null);
+
   const loadUser = async () => {
 
     const currentUser =
@@ -117,6 +120,7 @@ const Academy = () => {
       setAcademyName("");
 
       setEditingAcademyId(null);
+      setSelectedAcademyId(null);
 
       fetchAcademies();
 
@@ -141,6 +145,8 @@ const Academy = () => {
     setAcademyName(
       academy.academy_name
     );
+
+    setSelectedAcademyId(academy.id);
   };
 
   const handleDelete = async (
@@ -227,152 +233,140 @@ const Academy = () => {
           </div>
         </div>
 
-        <section className="academy-form-card">
-          <div className="academy-section-heading">
-            <h2>{editingAcademyId ? "Edit Academy" : "Create Academy"}</h2>
-            <p>{editingAcademyId ? "Update the academy name and save your changes." : "Add a new academy to the platform."}</p>
-          </div>
-          <form onSubmit={handleSubmit}>
+        <div className="academy-workspace">
+          <section className="academy-form-card">
+            <div className="academy-section-heading">
+              <span className="academy-card-eyebrow">
+                {editingAcademyId ? "Update academy" : "New academy"}
+              </span>
+              <h2>{editingAcademyId ? "Edit Academy" : "Create Academy"}</h2>
+              <p>
+                {editingAcademyId
+                  ? "Update the academy name and save your changes."
+                  : "Add a new academy to the platform."}
+              </p>
+            </div>
 
-          <input
-            type="text"
-            placeholder="Enter Academy Name"
-            value={
-              academyName
-            }
-            onChange={(e) =>
-              setAcademyName(
-                e.target.value
-              )
-            }
-          />
+            <form onSubmit={handleSubmit}>
+              <label htmlFor="academy-name">Academy name</label>
+              <input
+                id="academy-name"
+                type="text"
+                placeholder="Enter academy name"
+                value={academyName}
+                onChange={(e) => setAcademyName(e.target.value)}
+              />
 
-          <br />
-          <br />
-
-          <button
-            type="submit"
-          >
-            {
-              editingAcademyId
-                ? "Update Academy"
-                : "Create Academy"
-            }
-          </button>
-
-          {
-            editingAcademyId && (
-              <>
-                {" "}
-
-                <button
-                  type="button"
-                  onClick={() => {
-
-                    setEditingAcademyId(
-                      null
-                    );
-
-                    setAcademyName(
-                      ""
-                    );
-                  }}
-                >
-                  Cancel
+              <div className="academy-form-actions">
+                <button type="submit" className="academy-primary-button">
+                  {editingAcademyId ? "Update Academy" : "Create Academy"}
                 </button>
-              </>
-            )
-          }
 
-          </form>
-        </section>
-
-        <div className="academy-list-header">
-          <div>
-            <h2>Academy List</h2>
-            <p>{academies.length} {academies.length === 1 ? "academy" : "academies"} shown</p>
-          </div>
-        </div>
-
-        <div className="academy-table-wrap">
-        <table className="academy-table">
-            <caption className="sr-only">Academies and available management actions</caption>
-
-          <thead>
-
-            <tr>
-
-              <th>
-                Academy Name
-              </th>
-
-              <th>
-                Actions
-              </th>
-
-            </tr>
-
-          </thead>
-
-          <tbody>
-            {academies.length === 0 ? (
-              <tr>
-                <td className="academy-empty-state" colSpan={2}>
-                  <strong>No active academies</strong>
-                  <span>Create your first academy above.</span>
-                </td>
-              </tr>
-            ) : (
-              academies.map(
-                academy => (
-
-                  <tr
-                    key={
-                      academy.id
-                    }
+                {editingAcademyId && (
+                  <button
+                    type="button"
+                    className="academy-secondary-button"
+                    onClick={() => {
+                      setEditingAcademyId(null);
+                      setAcademyName("");
+                      setSelectedAcademyId(null);
+                    }}
                   >
+                    Cancel
+                  </button>
+                )}
+              </div>
+            </form>
+          </section>
 
-                    <td>
-                      {
-                        academy.academy_name
-                      }
-                    </td>
+          <section className="academy-list-card">
+            <div className="academy-list-header">
+              <div>
+                <span className="academy-card-eyebrow">Active academies</span>
+                <h2>Academy List</h2>
+                <p>
+                  {academies.length}{" "}
+                  {academies.length === 1 ? "academy" : "academies"} shown
+                </p>
+              </div>
+              <span className="academy-list-hint">
+                Hover or select an academy for actions
+              </span>
+            </div>
 
-                    <td>
-
-                      <button
-                        aria-label={`Edit ${academy.academy_name}`}
-                        onClick={() =>
-                          handleEdit(
-                            academy
-                          )
-                        }
-                      >
-                        Edit
-                      </button>
-
-                      {" "}
-
-                      <button
-                        aria-label={`Delete ${academy.academy_name}`}
-                        onClick={() =>
-                          handleDelete(
-                            academy.id
-                          )
-                        }
-                      >
-                        Delete
-                      </button>
-
-                    </td>
-
+            <div className="academy-table-wrap">
+              <table className="academy-table">
+                <caption className="sr-only">
+                  Academies. Hover or select a row to reveal management actions.
+                </caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Academy Name</th>
+                    <th scope="col" className="academy-actions-heading">Actions</th>
                   </tr>
-
-                )
-              )
-            )}
-          </tbody>
-        </table>
+                </thead>
+                <tbody>
+                  {academies.length === 0 ? (
+                    <tr>
+                      <td className="academy-empty-state" colSpan={2}>
+                        <strong>No active academies</strong>
+                        <span>Create your first academy to get started.</span>
+                      </td>
+                    </tr>
+                  ) : (
+                    academies.map((academy) => {
+                      const isSelected = selectedAcademyId === academy.id;
+                      return (
+                        <tr
+                          key={academy.id}
+                          className={isSelected ? "academy-row-selected" : ""}
+                          tabIndex={0}
+                          onClick={() => setSelectedAcademyId(academy.id)}
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter" || event.key === " ") {
+                              event.preventDefault();
+                              setSelectedAcademyId(academy.id);
+                            }
+                          }}
+                        >
+                          <td>
+                            <span className="academy-row-name">{academy.academy_name}</span>
+                            {isSelected && (
+                              <span className="academy-row-state">Selected</span>
+                            )}
+                          </td>
+                          <td className="academy-row-actions">
+                            <div className="academy-actions">
+                              <button
+                                type="button"
+                                aria-label={`Edit ${academy.academy_name}`}
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  handleEdit(academy);
+                                }}
+                              >
+                                Edit
+                              </button>
+                              <button
+                                type="button"
+                                aria-label={`Delete ${academy.academy_name}`}
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  handleDelete(academy.id);
+                                }}
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </section>
         </div>
 
       </div>
