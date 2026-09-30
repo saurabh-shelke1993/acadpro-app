@@ -145,7 +145,11 @@ function Sidebar({ isOpen = false, onClose = () => {}, closeButtonRef }) {
         <div className="app-sidebar-footer">
           <div className="app-user-chip">
             <span className="app-user-avatar">
-              {(user?.full_name || user?.email || "U").charAt(0).toUpperCase()}
+              {academy?.academy_logo ? (
+                <img src={academy.academy_logo} alt="" />
+              ) : (
+                (user?.full_name || user?.email || "U").charAt(0).toUpperCase()
+              )}
             </span>
             <div className="app-user-meta">
               <strong>{user?.full_name || "User"}</strong>
