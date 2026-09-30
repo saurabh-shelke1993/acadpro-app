@@ -89,3 +89,47 @@ export const createCenter = async (centerData) => {
 
   return data;
 };
+
+export const uploadAcademyLogo = async (academyId, file) => {
+  const extension = file.name.split(".").pop()?.toLowerCase() || "png";
+  const path = `academies/${academyId}.${extension}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from("academy-logos")
+    .upload(path, file, {
+      cacheControl: "3600",
+      upsert: true,
+      contentType: file.type,
+    });
+
+  if (uploadError) {
+    throw uploadError;
+  }
+
+  const { data } = supabase.storage
+    .from("academy-logos")
+    .getPublicUrl(path);
+
+  if (!data?.publicUrl) {
+    throw new Error("Academy logo URL could not be generated.");
+  }
+
+  return data.publicUrl;
+};
+
+export const updateAcademyLogo = async (academyId, logoUrl) => {
+  const { data, error } = await supabase
+    .from("academies")
+    .update({
+      academy_logo: logoUrl,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", academyId)
+    .select();
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+};
