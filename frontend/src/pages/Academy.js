@@ -11,7 +11,8 @@ import {
   updateAcademy,
   deleteAcademy,
   uploadAcademyLogo,
-  updateAcademyLogo
+  updateAcademyLogo,
+  deleteAcademyLogo
 } from "../services/academyService";
 import "./Academy.css";
 
@@ -102,8 +103,31 @@ const Academy = () => {
         await updateAcademy(editingAcademyId, academyName.trim());
 
         if (academyLogoFile) {
-          const logoUrl = await uploadAcademyLogo(editingAcademyId, academyLogoFile);
-          await updateAcademyLogo(editingAcademyId, logoUrl);
+          const currentAcademy = academies.find(
+            (academy) => academy.id === editingAcademyId
+          );
+          const previousLogoUrl = currentAcademy?.academy_logo || "";
+
+          const uploadedLogo = await uploadAcademyLogo(
+            editingAcademyId,
+            academyLogoFile
+          );
+
+          await updateAcademyLogo(
+            editingAcademyId,
+            uploadedLogo.publicUrl
+          );
+
+          if (previousLogoUrl && previousLogoUrl !== uploadedLogo.publicUrl) {
+            try {
+              await deleteAcademyLogo(previousLogoUrl);
+            } catch (cleanupError) {
+              console.warn(
+                "New academy logo saved, but the previous logo could not be removed.",
+                cleanupError
+              );
+            }
+          }
         }
 
         alert("Academy Updated Successfully");
@@ -122,8 +146,14 @@ const Academy = () => {
         }
 
         try {
-          const logoUrl = await uploadAcademyLogo(createdAcademy.id, academyLogoFile);
-          await updateAcademyLogo(createdAcademy.id, logoUrl);
+          const uploadedLogo = await uploadAcademyLogo(
+            createdAcademy.id,
+            academyLogoFile
+          );
+          await updateAcademyLogo(
+            createdAcademy.id,
+            uploadedLogo.publicUrl
+          );
         } catch (logoError) {
           await deleteAcademy(createdAcademy.id);
           throw logoError;
