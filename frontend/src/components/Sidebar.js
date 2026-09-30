@@ -65,13 +65,7 @@ function Sidebar({ isOpen = false, onClose = () => {}, closeButtonRef }) {
         aria-label="Sidebar navigation"
       >
         <div className="app-brand">
-          <div className="app-brand-mark">
-            {academy?.academy_logo ? (
-              <img src={academy.academy_logo} alt="" />
-            ) : (
-              "⚽"
-            )}
-          </div>
+          <div className="app-brand-mark" aria-hidden="true">⚽</div>
           <div>
             <div className="app-brand-name">AcadPro</div>
             <div className="app-brand-caption">
@@ -144,12 +138,16 @@ function Sidebar({ isOpen = false, onClose = () => {}, closeButtonRef }) {
 
         <div className="app-sidebar-footer">
           <div className="app-user-chip">
-            <span className="app-user-avatar">
-              {academy?.academy_logo ? (
-                <img src={academy.academy_logo} alt="" />
-              ) : (
-                (user?.full_name || user?.email || "U").charAt(0).toUpperCase()
-              )}
+            <span className="app-user-avatar" aria-hidden="true">
+              {academy?.academy_name
+                ? academy.academy_name
+                    .split(/\s+/)
+                    .filter(Boolean)
+                    .slice(0, 2)
+                    .map((part) => part.charAt(0))
+                    .join("")
+                    .toUpperCase()
+                : (user?.full_name || user?.email || "U").charAt(0).toUpperCase()}
             </span>
             <div className="app-user-meta">
               <strong>{user?.full_name || "User"}</strong>
