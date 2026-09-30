@@ -61,7 +61,7 @@ const ParentPortal = () => {
       const { data: childRecords, error: childrenError } = await supabase
         .from("players")
         .select(
-          "id, full_name, dob, player_status, gender, registration_number, joining_date, player_code, academy_id, center_id, batch_id, academies(academy_name), centers(center_name), batches(batch_name, age_group, start_time, end_time)"
+          "id, full_name, dob, player_status, gender, registration_number, joining_date, player_code, academy_id, center_id, batch_id, academies(academy_name, academy_logo), centers(center_name), batches(batch_name, age_group, start_time, end_time)"
         )
         .eq("parent_id", parentRecord.id)
         .order("full_name", { ascending: true });
@@ -549,8 +549,17 @@ const ParentPortal = () => {
           {selectedChild && (
             <section aria-labelledby="selected-child-heading" className="parent-portal-dashboard-card">
               <div className="parent-portal-profile-hero">
-                <div className="parent-portal-profile-avatar" aria-hidden="true">
-                  {(selectedChild.full_name || "?").charAt(0).toUpperCase()}
+                <div className="parent-portal-profile-avatar">
+                  {selectedChild.academy?.academy_logo ? (
+                    <img
+                      src={selectedChild.academy.academy_logo}
+                      alt={`Academy logo`}
+                    />
+                  ) : (
+                    <span aria-hidden="true">
+                      {(selectedChild.full_name || "?").charAt(0).toUpperCase()}
+                    </span>
+                  )}
                 </div>
                 <div className="parent-portal-profile-identity">
                   <p className="parent-portal-eyebrow">Selected child</p>
