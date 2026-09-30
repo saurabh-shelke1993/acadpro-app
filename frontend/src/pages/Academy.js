@@ -9,7 +9,9 @@ import {
   createAcademy,
   getAcademies,
   updateAcademy,
-  deleteAcademy
+  deleteAcademy,
+  uploadAcademyLogo,
+  updateAcademyLogo
 } from "../services/academyService";
 import "./Academy.css";
 
@@ -30,6 +32,9 @@ const Academy = () => {
 
   const [selectedAcademyId, setSelectedAcademyId] =
     useState(null);
+
+  const [academyLogoFile, setAcademyLogoFile] = useState(null);
+  const [academyLogoPreview, setAcademyLogoPreview] = useState("");
 
   const loadUser = async () => {
 
@@ -55,82 +60,87 @@ const Academy = () => {
   };
 
   const handleSubmit = async (e) => {
-
     e.preventDefault();
 
     if (!academyName.trim()) {
-
-      alert(
-        "Please enter academy name"
-      );
-
+      alert("Please enter academy name");
       return;
     }
 
-    const existingAcademy =
-      academies.find(
-        academy =>
-          academy.academy_name
-            .trim()
-            .toLowerCase() ===
-          academyName
-            .trim()
-            .toLowerCase() &&
-          academy.id !==
-            editingAcademyId
-      );
+    const existingAcademy = academies.find(
+      (academy) =>
+        academy.academy_name.trim().toLowerCase() === academyName.trim().toLowerCase() &&
+        academy.id !== editingAcademyId
+    );
 
     if (existingAcademy) {
-
-      alert(
-        "Academy already exists"
-      );
-
+      alert("Academy already exists");
       return;
+    }
+
+    if (!editingAcademyId && !academyLogoFile) {
+      alert("Academy logo is required when creating an academy.");
+      return;
+    }
+
+    if (academyLogoFile) {
+      const allowedTypes = ["image/png", "image/jpeg", "image/webp", "image/svg+xml"];
+
+      if (!allowedTypes.includes(academyLogoFile.type)) {
+        alert("Logo must be PNG, JPEG, WebP, or SVG.");
+        return;
+      }
+
+      if (academyLogoFile.size > 2 * 1024 * 1024) {
+        alert("Logo must be 2 MB or smaller.");
+        return;
+      }
     }
 
     try {
-
       if (editingAcademyId) {
+        await updateAcademy(editingAcademyId, academyName.trim());
 
-        await updateAcademy(
-          editingAcademyId,
-          academyName
-        );
+        if (academyLogoFile) {
+          const logoUrl = await uploadAcademyLogo(editingAcademyId, academyLogoFile);
+          await updateAcademyLogo(editingAcademyId, logoUrl);
+        }
 
-        alert(
-          "Academy Updated Successfully"
-        );
-
+        alert("Academy Updated Successfully");
       } else {
-
-        await createAcademy({
-          academy_name:
-            academyName,
-          owner_name:
-            "Test Owner",
+        const created = await createAcademy({
+          academy_name: academyName.trim(),
+          owner_name: "Test Owner",
+          academy_logo: null,
           is_active: true
         });
 
-        alert(
-          "Academy Created Successfully"
-        );
+        const createdAcademy = created?.[0];
+
+        if (!createdAcademy?.id) {
+          throw new Error("Academy was created but its ID could not be determined.");
+        }
+
+        try {
+          const logoUrl = await uploadAcademyLogo(createdAcademy.id, academyLogoFile);
+          await updateAcademyLogo(createdAcademy.id, logoUrl);
+        } catch (logoError) {
+          await deleteAcademy(createdAcademy.id);
+          throw logoError;
+        }
+
+        alert("Academy Created Successfully");
       }
 
       setAcademyName("");
-
+      setAcademyLogoFile(null);
+      setAcademyLogoPreview("");
       setEditingAcademyId(null);
       setSelectedAcademyId(null);
-
       fetchAcademies();
-
     } catch (error) {
-
       console.error(error);
-
-      alert(
-        "Operation Failed"
-      );
+      alert(error.message || "Operation Failed");
     }
   };
 
@@ -147,6 +157,8 @@ const Academy = () => {
     );
 
     setSelectedAcademyId(academy.id);
+    setAcademyLogoFile(null);
+    setAcademyLogoPreview(academy.academy_logo || "");
   };
 
   const handleDelete = async (
@@ -257,6 +269,33 @@ const Academy = () => {
                 onChange={(e) => setAcademyName(e.target.value)}
               />
 
+              <label htmlFor="academy-logo">Academy logo</label>
+              <input
+                id="academy-logo"
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                onChange={(event) => {
+                  const file = event.target.files?.[0] || null;
+                  setAcademyLogoFile(file);
+                  if (file) {
+                    setAcademyLogoPreview(URL.createObjectURL(file));
+                  }
+                }}
+                required={!editingAcademyId}
+              />
+              <span className="academy-logo-help">
+                {editingAcademyId
+                  ? "Optional — upload a new logo to replace the current one."
+                  : "Required. PNG, JPEG, WebP, or SVG, up to 2 MB."}
+              </span>
+
+              {academyLogoPreview && (
+                <div className="academy-logo-preview">
+                  <img src={academyLogoPreview} alt="Academy logo preview" />
+                  <span>{academyLogoFile ? "New logo selected" : "Current academy logo"}</span>
+                </div>
+              )}
+
               <div className="academy-form-actions">
                 <button type="submit" className="academy-primary-button">
                   {editingAcademyId ? "Update Academy" : "Create Academy"}
@@ -269,6 +308,8 @@ const Academy = () => {
                     onClick={() => {
                       setEditingAcademyId(null);
                       setAcademyName("");
+                      setAcademyLogoFile(null);
+                      setAcademyLogoPreview("");
                       setSelectedAcademyId(null);
                     }}
                   >
@@ -330,7 +371,16 @@ const Academy = () => {
                           }}
                         >
                           <td>
-                            <span className="academy-row-name">{academy.academy_name}</span>
+                            <span className="academy-row-identity">
+                              <span className="academy-logo-small">
+                                {academy.academy_logo ? (
+                                  <img src={academy.academy_logo} alt="" />
+                                ) : (
+                                  <span aria-hidden="true">{academy.academy_name.charAt(0).toUpperCase()}</span>
+                                )}
+                              </span>
+                              <span className="academy-row-name">{academy.academy_name}</span>
+                            </span>
                             {isSelected && (
                               <span className="academy-row-state">Selected</span>
                             )}
