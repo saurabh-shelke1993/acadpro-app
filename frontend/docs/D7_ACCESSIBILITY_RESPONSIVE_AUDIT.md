@@ -197,3 +197,17 @@ Implemented the shared visual accessibility pass:
 - No business logic, RBAC, RLS, authentication, payment ledger, attendance, or performance logic was changed.
 
 D7.7 validation should cover focus visibility, placeholder readability, navigation/control target sizing, status-badge readability, desktop/mobile interaction, and reduced-motion behavior.
+
+
+## D7.8 — Cross-Role Accessibility Regression
+
+Implemented a cross-role regression suite for the application sidebar:
+- Added automated coverage for Super Admin, Academy Owner, Coach, and Parent navigation visibility.
+- Verified role-specific navigation remains aligned with the current authorization model: Super Admin platform management, Academy Owner academy-scoped management, Coach assigned-scope navigation without financial management, and Parent family-scoped navigation.
+- Verified the semantic **Primary navigation** landmark remains present for every role.
+- Verified the Logout control remains exposed as an accessible button for every role.
+- Verified role-specific links are absent where the current role should not have navigation access.
+- Preserved route-level ProtectedRoute authorization as the actual frontend route boundary; this regression suite validates navigation presentation and does not replace Supabase RLS.
+- No business logic, authentication flow, data scope, payment ledger, attendance, performance, or RLS behavior was changed.
+
+D7.8 validation should include the automated sidebar regression plus browser checks for each role using the development role-switching controls. For each role, verify keyboard navigation, visible focus, route transition focus, mobile sidebar behavior, and that visible navigation matches the role matrix. Direct URL access should continue to be governed by ProtectedRoute and database/RLS controls rather than sidebar visibility alone.
