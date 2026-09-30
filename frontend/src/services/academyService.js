@@ -92,13 +92,17 @@ export const createCenter = async (centerData) => {
 
 export const uploadAcademyLogo = async (academyId, file) => {
   const extension = file.name.split(".").pop()?.toLowerCase() || "png";
-  const path = `academies/${academyId}.${extension}`;
+  const uniqueSuffix =
+    typeof crypto !== "undefined" && crypto.randomUUID
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const path = `academies/${academyId}/${uniqueSuffix}.${extension}`;
 
   const { error: uploadError } = await supabase.storage
     .from("academy-logos")
     .upload(path, file, {
       cacheControl: "3600",
-      upsert: true,
+      upsert: false,
       contentType: file.type,
     });
 
@@ -114,7 +118,39 @@ export const uploadAcademyLogo = async (academyId, file) => {
     throw new Error("Academy logo URL could not be generated.");
   }
 
-  return data.publicUrl;
+  return {
+    publicUrl: data.publicUrl,
+    path,
+  };
+};
+
+export const deleteAcademyLogo = async (logoUrl) => {
+  if (!logoUrl) {
+    return;
+  }
+
+  const marker = "/storage/v1/object/public/academy-logos/";
+  const markerIndex = logoUrl.indexOf(marker);
+
+  if (markerIndex === -1) {
+    return;
+  }
+
+  const path = decodeURIComponent(
+    logoUrl.slice(markerIndex + marker.length).split("?")[0]
+  );
+
+  if (!path) {
+    return;
+  }
+
+  const { error } = await supabase.storage
+    .from("academy-logos")
+    .remove([path]);
+
+  if (error) {
+    throw error;
+  }
 };
 
 export const updateAcademyLogo = async (academyId, logoUrl) => {
