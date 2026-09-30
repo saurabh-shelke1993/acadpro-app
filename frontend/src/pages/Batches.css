@@ -9,12 +9,13 @@
   align-items: flex-end;
   justify-content: space-between;
   gap: var(--ap-space-6);
-  padding-bottom: var(--ap-space-6);
+  padding-bottom: var(--ap-space-4);
   border-bottom: 1px solid var(--ap-border);
 }
 
 .batches-page-header h1,
-.batches-section-heading h2 {
+.batches-section-heading h2,
+.batches-results-header h2 {
   margin: 0;
   color: var(--ap-slate-950);
   letter-spacing: -0.025em;
@@ -26,14 +27,14 @@
 
 .batches-page-header p,
 .batches-section-heading p {
-  margin: 0.4rem 0 0;
+  margin: 0.35rem 0 0;
   color: var(--ap-slate-500);
   font-size: var(--ap-font-size-sm);
 }
 
-.batches-page-eyebrow {
+.batches-page-eyebrow,
+.batches-section-kicker {
   display: block;
-  margin-bottom: 0.35rem;
   color: var(--ap-primary-600);
   font-size: var(--ap-font-size-xs);
   font-weight: 800;
@@ -41,11 +42,19 @@
   text-transform: uppercase;
 }
 
+.batches-page-eyebrow {
+  margin-bottom: 0.3rem;
+}
+
+.batches-section-kicker {
+  margin-bottom: 0.2rem;
+}
+
 .batches-page-count {
   display: inline-flex;
-  min-width: 130px;
+  min-width: 125px;
   flex-direction: column;
-  padding: 0.75rem 1rem;
+  padding: 0.65rem 0.9rem;
   border: 1px solid var(--ap-border);
   border-radius: var(--ap-radius-lg);
   background: var(--ap-surface);
@@ -55,41 +64,68 @@
 
 .batches-page-count strong {
   color: var(--ap-slate-950);
-  font-size: 1.35rem;
+  font-size: 1.3rem;
   line-height: 1;
 }
 
 .batches-page-count span {
-  margin-top: 0.3rem;
+  margin-top: 0.25rem;
   color: var(--ap-slate-500);
   font-size: var(--ap-font-size-xs);
 }
 
 .batches-filter-card,
-.batches-form-card {
-  margin-top: var(--ap-space-6);
-  padding: var(--ap-space-5);
+.batches-form-card,
+.batches-results-section {
+  margin-top: var(--ap-space-4);
   border: 1px solid var(--ap-border);
   border-radius: var(--ap-radius-xl);
   background: var(--ap-surface);
   box-shadow: var(--ap-shadow-sm);
 }
 
+.batches-filter-card,
+.batches-form-card {
+  padding: var(--ap-space-4);
+}
+
 .batches-section-heading {
-  margin-bottom: var(--ap-space-4);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--ap-space-5);
+  margin-bottom: var(--ap-space-3);
+}
+
+.batches-section-heading p {
+  margin: 0;
+  text-align: right;
 }
 
 .batches-filter-grid {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(220px, 320px));
   gap: var(--ap-space-3);
+}
+
+.batches-field {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.batches-field label {
+  color: var(--ap-slate-600);
+  font-size: var(--ap-font-size-xs);
+  font-weight: 750;
 }
 
 .batches-page select,
 .batches-page input {
+  box-sizing: border-box;
   min-height: 40px;
-  width: min(280px, 100%);
+  width: 100%;
   padding: 0.55rem 0.7rem;
   border: 1px solid var(--ap-border);
   border-radius: var(--ap-radius-md);
@@ -99,8 +135,8 @@
   font-size: var(--ap-font-size-sm);
 }
 
-.batches-page input[type="time"] {
-  width: 180px;
+.batches-page input::placeholder {
+  color: var(--ap-slate-400);
 }
 
 .batches-page select:focus-visible,
@@ -111,17 +147,26 @@
 }
 
 .batches-form-card {
+  display: block;
+}
+
+.batches-form-grid {
   display: grid;
-  gap: var(--ap-space-4);
+  grid-template-columns: minmax(240px, 1.5fr) repeat(3, minmax(150px, 1fr));
+  gap: var(--ap-space-3);
+  align-items: end;
 }
 
-.batches-form-card input,
-.batches-form-card select {
-  width: 100%;
+.batches-field-wide {
+  min-width: 0;
 }
 
-.batches-form-card button {
-  justify-self: start;
+.batches-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--ap-space-2);
+  margin-top: var(--ap-space-4);
 }
 
 .batches-page button {
@@ -135,12 +180,11 @@
   font-size: var(--ap-font-size-sm);
   font-weight: 700;
   cursor: pointer;
-}
-
-.batches-form-card button {
-  border-color: var(--ap-primary-600);
-  background: var(--ap-primary-600);
-  color: var(--ap-white);
+  transition:
+    background-color var(--ap-transition-fast),
+    border-color var(--ap-transition-fast),
+    color var(--ap-transition-fast),
+    opacity var(--ap-transition-fast);
 }
 
 .batches-page button:hover {
@@ -149,25 +193,49 @@
   color: var(--ap-primary-700);
 }
 
-.batches-form-card button:hover {
-  border-color: var(--ap-primary-700);
-  background: var(--ap-primary-700);
-  color: var(--ap-white);
-}
-
 .batches-page button:focus-visible {
   outline: 2px solid var(--ap-primary-500);
   outline-offset: 2px;
 }
 
+.batches-primary-button {
+  border-color: var(--ap-primary-600) !important;
+  background: var(--ap-primary-600) !important;
+  color: var(--ap-white) !important;
+}
+
+.batches-primary-button:hover {
+  border-color: var(--ap-primary-700) !important;
+  background: var(--ap-primary-700) !important;
+  color: var(--ap-white) !important;
+}
+
+.batches-secondary-button {
+  background: var(--ap-slate-50) !important;
+}
+
+.batches-results-section {
+  overflow: hidden;
+}
+
+.batches-results-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ap-space-4);
+  padding: var(--ap-space-4);
+}
+
+.batches-results-count {
+  color: var(--ap-slate-500);
+  font-size: var(--ap-font-size-xs);
+  font-weight: 700;
+}
+
 .batches-table-wrap {
   width: 100%;
-  margin-top: var(--ap-space-7);
   overflow-x: auto;
-  border: 1px solid var(--ap-border);
-  border-radius: var(--ap-radius-xl);
-  background: var(--ap-surface);
-  box-shadow: var(--ap-shadow-sm);
+  border-top: 1px solid var(--ap-border);
 }
 
 .batches-table {
@@ -178,7 +246,7 @@
 }
 
 .batches-table th {
-  padding: 0.75rem 0.9rem;
+  padding: 0.6rem 0.8rem;
   border-bottom: 1px solid var(--ap-border);
   background: var(--ap-slate-50);
   color: var(--ap-slate-500);
@@ -190,7 +258,7 @@
 }
 
 .batches-table td {
-  padding: 0.85rem 0.9rem;
+  padding: 0.65rem 0.8rem;
   border-bottom: 1px solid var(--ap-border);
   color: var(--ap-slate-700);
   font-size: var(--ap-font-size-sm);
@@ -201,18 +269,91 @@
   border-bottom: 0;
 }
 
-.batches-table tbody tr:hover {
+.batches-table tbody tr {
+  cursor: pointer;
+  transition:
+    background-color var(--ap-transition-fast),
+    box-shadow var(--ap-transition-fast);
+}
+
+.batches-table tbody tr:hover,
+.batches-table tbody tr:focus-visible {
   background: var(--ap-slate-50);
 }
 
-.batches-table td button + button {
-  margin-left: var(--ap-space-2);
+.batches-table tbody tr:focus-visible {
+  outline: 2px solid var(--ap-primary-300);
+  outline-offset: -2px;
 }
 
-.batches-table td button:last-child {
-  border-color: var(--ap-danger-200);
-  background: var(--ap-danger-50);
-  color: var(--ap-danger-700);
+.batches-row-selected {
+  background: var(--ap-primary-50);
+  box-shadow: inset 3px 0 0 var(--ap-primary-600);
+}
+
+.batches-academy-cell {
+  width: 24%;
+  color: var(--ap-slate-700);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+}
+
+.batches-center-cell {
+  width: 18%;
+  color: var(--ap-slate-600);
+  font-weight: 600;
+}
+
+.batches-name-cell {
+  width: 20%;
+  color: var(--ap-slate-950) !important;
+  font-weight: 750;
+}
+
+.batches-schedule-cell {
+  color: var(--ap-slate-700);
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.batches-actions-heading,
+.batches-actions-cell {
+  width: 150px;
+  text-align: right;
+}
+
+.batches-row-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--ap-space-2);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(4px);
+  transition:
+    opacity var(--ap-transition-fast),
+    transform var(--ap-transition-fast);
+}
+
+.batches-table tbody tr:hover .batches-row-actions,
+.batches-table tbody tr:focus .batches-row-actions,
+.batches-table tbody tr:focus-within .batches-row-actions,
+.batches-row-selected .batches-row-actions {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(0);
+}
+
+.batches-row-actions button {
+  min-height: 32px;
+  padding: 0.35rem 0.65rem;
+}
+
+.batches-delete-button {
+  border-color: var(--ap-danger-200) !important;
+  background: var(--ap-danger-50) !important;
+  color: var(--ap-danger-700) !important;
 }
 
 .batches-empty-state {
@@ -231,6 +372,62 @@
   font-size: var(--ap-font-size-xs);
 }
 
+.batches-pagination {
+  display: flex;
+  min-height: 52px;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ap-space-4);
+  padding: 0.65rem 0.8rem;
+  border-top: 1px solid var(--ap-border);
+  background: var(--ap-slate-50);
+}
+
+.batches-pagination-summary {
+  color: var(--ap-slate-500);
+  font-size: var(--ap-font-size-xs);
+}
+
+.batches-pagination-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ap-space-2);
+}
+
+.batches-pagination-button {
+  min-height: 34px !important;
+  padding: 0.35rem 0.7rem !important;
+  font-size: var(--ap-font-size-xs) !important;
+}
+
+.batches-pagination-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.batches-pagination-page {
+  min-width: 90px;
+  color: var(--ap-slate-700);
+  font-size: var(--ap-font-size-xs);
+  font-weight: 700;
+  text-align: center;
+}
+
+.batches-page-loading {
+  padding: var(--ap-space-6);
+  color: var(--ap-slate-500);
+}
+
+@media (max-width: 1100px) {
+  .batches-form-grid {
+    grid-template-columns: repeat(2, minmax(180px, 1fr));
+  }
+
+  .batches-field-wide {
+    grid-column: span 2;
+  }
+}
+
 @media (max-width: 700px) {
   .batches-page-header {
     align-items: flex-start;
@@ -243,18 +440,57 @@
     text-align: left;
   }
 
-  .batches-filter-grid {
-    align-items: stretch;
+  .batches-section-heading {
+    align-items: flex-start;
     flex-direction: column;
+    gap: var(--ap-space-2);
   }
 
-  .batches-page select,
-  .batches-page input,
-  .batches-page button {
+  .batches-section-heading p {
+    text-align: left;
+  }
+
+  .batches-filter-grid,
+  .batches-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .batches-field-wide {
+    grid-column: auto;
+  }
+
+  .batches-form-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .batches-form-actions button {
     width: 100%;
   }
 
-  .batches-form-card button {
-    justify-self: stretch;
+  .batches-results-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: var(--ap-space-2);
+  }
+
+  .batches-row-actions {
+    opacity: 1;
+    pointer-events: auto;
+    transform: none;
+  }
+
+  .batches-pagination {
+    align-items: stretch;
+    flex-direction: column;
+    gap: var(--ap-space-2);
+  }
+
+  .batches-pagination-controls {
+    justify-content: space-between;
+  }
+
+  .batches-pagination-page {
+    flex: 1;
   }
 }
