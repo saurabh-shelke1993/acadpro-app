@@ -12,7 +12,8 @@ import {
 } from "../utils/roles";
 
 import {
-  getAccessibleCenters
+  getAccessibleCenters,
+  getAccessibleAcademies
 } from "../utils/dataScope";
 import "./Centers.css";
 
@@ -31,6 +32,8 @@ const [filteredCenters, setFilteredCenters] =
   const [centerName, setCenterName] = useState("");
 
   const [editingCenterId, setEditingCenterId] =
+    useState(null);
+  const [selectedCenterId, setSelectedCenterId] =
     useState(null);
 
 useEffect(() => {
@@ -61,18 +64,12 @@ const loadUser = async () => {
 };
 
   const fetchAcademies = async () => {
-
-if (!isSuperAdmin(user)) {
-      return;
-    }
-
-    const { data, error } = await supabase
-      .from("academies")
-      .select("*")
-      .eq("is_active", true);
-
-    if (!error) {
+    try {
+      const data = await getAccessibleAcademies(user);
       setAcademies(data || []);
+    } catch (error) {
+      console.error("Failed to load academies:", error);
+      setAcademies([]);
     }
   };
 
@@ -208,6 +205,7 @@ if (
       alert("Center Updated");
 
       setEditingCenterId(null);
+      setSelectedCenterId(editingCenterId);
     }
 
     // ======================
@@ -248,6 +246,7 @@ if (
   const handleEdit = (center) => {
 
     setEditingCenterId(center.id);
+    setSelectedCenterId(center.id);
 
     setCenterName(center.center_name);
 
@@ -285,6 +284,14 @@ if (
 
     alert("Center Deleted");
 
+    if (selectedCenterId === id) {
+      setSelectedCenterId(null);
+    }
+    if (editingCenterId === id) {
+      setEditingCenterId(null);
+      setCenterName("");
+    }
+
     fetchCenters();
   };
 if (!user) {
@@ -300,7 +307,7 @@ if (!user) {
 
 return (
   <Layout>
-    <div style={{ padding: "20px" }}>
+    <div className="centers-page">
 
       <div className="centers-page-header">
         <div>
@@ -365,76 +372,78 @@ return (
         <caption className="sr-only">Centers and available management actions</caption>
 
         <thead>
-
   <tr>
-
+    <th scope="col">Academy</th>
     <th scope="col">Center Name</th>
-
-    {isSuperAdmin(user) && (
-      <th scope="col">Academy</th>
-    )}
-
     {(isSuperAdmin(user) || isAcademyOwner(user)) && (
-      <th scope="col">Actions</th>
+      <th scope="col" className="centers-actions-heading">Actions</th>
     )}
-
   </tr>
-
 </thead>
 
 <tbody>
   {filteredCenters.length === 0 ? (
-    <tr><td className="centers-empty-state" colSpan={isSuperAdmin(user) ? 3 : 2}>
-      <strong>No active centers</strong>
-      <span>{isSuperAdmin(user) && selectedAcademy ? "No centers match the selected academy." : "No active centers are available in your current scope."}</span>
-    </td></tr>
+    <tr>
+      <td className="centers-empty-state" colSpan={3}>
+        <strong>No active centers</strong>
+        <span>{isSuperAdmin(user) && selectedAcademy ? "No centers match the selected academy." : "No active centers are available in your current scope."}</span>
+      </td>
+    </tr>
   ) : (
-    filteredCenters.map((center) => (
+    filteredCenters.map((center) => {
+      const academyName =
+        academies.find((academy) => academy.id === center.academy_id)?.academy_name ||
+        (center.academy_id === user?.academy_id ? user?.academy_name : "") ||
+        "—";
+      const isSelected = selectedCenterId === center.id;
 
-      <tr key={center.id}>
-
-        <td>
-          {center.center_name}
-        </td>
-
-        {isSuperAdmin(user) && (
-          <td>
-            {
-              academies.find(
-                (academy) =>
-                  academy.id === center.academy_id
-              )?.academy_name || ""
+      return (
+        <tr
+          key={center.id}
+          className={isSelected ? "centers-row-selected" : ""}
+          onClick={() => setSelectedCenterId(center.id)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              setSelectedCenterId(center.id);
             }
-          </td>
-        )}
+          }}
+          tabIndex={0}
+        >
+          <td className="centers-academy-cell">{academyName}</td>
+          <td className="centers-name-cell">{center.center_name}</td>
 
-        {(isSuperAdmin(user) || isAcademyOwner(user)) && (
-          <td>
-
-            <button
-              onClick={() =>
-                handleEdit(center)
-              }
-            >
-              Edit
-            </button>
-
-            {" "}
-
-            <button
-              onClick={() =>
-                handleDelete(center.id)
-              }
-            >
-              Delete
-            </button>
-
-          </td>
-        )}
-
-      </tr>
-
-    ))
+          {(isSuperAdmin(user) || isAcademyOwner(user)) && (
+            <td className="centers-actions-cell">
+              <div className="centers-row-actions">
+                <button
+                  type="button"
+                  className="centers-edit-button"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    handleEdit(center);
+                  }}
+                  aria-label={`Edit ${center.center_name}`}
+                >
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  className="centers-delete-button"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    handleDelete(center.id);
+                  }}
+                  aria-label={`Delete ${center.center_name}`}
+                >
+                  Delete
+                </button>
+              </div>
+            </td>
+          )}
+        </tr>
+      );
+    })
   )}
 </tbody>
       </table>
