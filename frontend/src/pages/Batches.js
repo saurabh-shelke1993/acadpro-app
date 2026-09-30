@@ -56,7 +56,7 @@ const Batches = () => {
   const [currentPage, setCurrentPage] =
     useState(1);
 
-  const PAGE_SIZE = 10;
+  const PAGE_SIZE = 8;
 
   const totalPages = Math.max(1, Math.ceil(batches.length / PAGE_SIZE));
 
