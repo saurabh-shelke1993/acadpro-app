@@ -490,3 +490,20 @@
     min-height: 40px;
   }
 }
+
+
+/* Pre-D7.9 layout hotfix — use available desktop workspace */
+@media (min-width: 901px) {
+  .app-content {
+    padding-left: var(--ap-space-5);
+    padding-right: var(--ap-space-5);
+  }
+
+  .app-content > * {
+    width: 100%;
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+    box-sizing: border-box;
+  }
+}
