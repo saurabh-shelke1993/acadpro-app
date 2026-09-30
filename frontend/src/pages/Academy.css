@@ -376,7 +376,8 @@
 .academy-row-name {
   display: inline-block;
   color: var(--ap-slate-800);
-  font-weight: 600;
+  font-weight: 700;
+  text-transform: uppercase;
 }
 
 .academy-row-state {
@@ -494,7 +495,7 @@
   width: 52px;
   height: 52px;
   object-fit: contain;
-  border-radius: var(--ap-radius-md);
+  border-radius: var(--ap-radius-full);
   background: var(--ap-white);
 }
 
@@ -519,7 +520,7 @@
   justify-content: center;
   overflow: hidden;
   border: 1px solid var(--ap-border);
-  border-radius: var(--ap-radius-md);
+  border-radius: var(--ap-radius-full);
   background: var(--ap-primary-50);
   color: var(--ap-primary-700);
   font-size: var(--ap-font-size-sm);
@@ -530,6 +531,7 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
+  border-radius: inherit;
 }
 
 .academy-logo-small + .academy-row-name {
