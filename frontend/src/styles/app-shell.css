@@ -530,3 +530,17 @@
   border-radius: inherit;
   background: var(--ap-surface);
 }
+
+
+.app-brand-caption {
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.app-user-avatar {
+  overflow: hidden;
+  border: 1px solid rgba(147, 197, 253, 0.35);
+  background: var(--ap-primary-600);
+  color: var(--ap-white);
+  border-radius: var(--ap-radius-full);
+}
