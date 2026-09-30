@@ -35,6 +35,15 @@ const [filteredCenters, setFilteredCenters] =
     useState(null);
   const [selectedCenterId, setSelectedCenterId] =
     useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const PAGE_SIZE = 10;
+  const totalPages = Math.max(1, Math.ceil(filteredCenters.length / PAGE_SIZE));
+  const pageStartIndex = (currentPage - 1) * PAGE_SIZE;
+  const paginatedCenters = filteredCenters.slice(
+    pageStartIndex,
+    pageStartIndex + PAGE_SIZE
+  );
 
 useEffect(() => {
 
@@ -90,6 +99,7 @@ const fetchCenters = async () => {
 
     setCenters(data || []);
     setFilteredCenters(data || []);
+    setCurrentPage(1);
 
   } catch (error) {
 
@@ -109,6 +119,7 @@ const fetchCenters = async () => {
 const handleAcademyChange = (academyId) => {
 
   setSelectedAcademy(academyId);
+  setCurrentPage(1);
 
   if (!academyId) {
 
@@ -235,7 +246,9 @@ if (
     }
 
     setCenterName("");
+    setCurrentPage(1);
 
+    setCurrentPage(1);
     fetchCenters();
   };
 
@@ -390,7 +403,7 @@ return (
       </td>
     </tr>
   ) : (
-    filteredCenters.map((center) => {
+    paginatedCenters.map((center) => {
       const academyName =
         academies.find((academy) => academy.id === center.academy_id)?.academy_name ||
         (center.academy_id === user?.academy_id ? user?.academy_name : "") ||
@@ -447,6 +460,40 @@ return (
   )}
 </tbody>
       </table>
+
+      {filteredCenters.length > 0 && (
+        <div className="centers-pagination" aria-label="Centers pagination">
+          <span className="centers-pagination-summary">
+            Showing {pageStartIndex + 1}–{Math.min(pageStartIndex + PAGE_SIZE, filteredCenters.length)} of {filteredCenters.length} centers
+          </span>
+
+          <div className="centers-pagination-controls">
+            <button
+              type="button"
+              className="centers-pagination-button"
+              onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+              disabled={currentPage === 1}
+              aria-label="Previous page"
+            >
+              Previous
+            </button>
+
+            <span className="centers-pagination-page">
+              Page {currentPage} of {totalPages}
+            </span>
+
+            <button
+              type="button"
+              className="centers-pagination-button"
+              onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+              disabled={currentPage === totalPages}
+              aria-label="Next page"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
       </div>
 
     </div>
