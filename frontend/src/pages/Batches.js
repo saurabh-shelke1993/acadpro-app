@@ -57,17 +57,14 @@ const Batches = () => {
     useState(1);
 
   const PAGE_SIZE = 10;
-  const totalPages = Math.max(
-    1,
-    Math.ceil(batches.length / PAGE_SIZE)
-  );
+
+  const totalPages = Math.max(1, Math.ceil(batches.length / PAGE_SIZE));
+
   const pageStartIndex =
     (currentPage - 1) * PAGE_SIZE;
+
   const paginatedBatches =
-    batches.slice(
-      pageStartIndex,
-      pageStartIndex + PAGE_SIZE
-    );
+    batches.slice(pageStartIndex, pageStartIndex + PAGE_SIZE);
 
 const [startTime, setStartTime] =
   useState("");
@@ -121,24 +118,506 @@ const loadUser = async () => {
 };
 
 const fetchAcademies = useCallback(async () => {
+  if (!user) return;
+
+  try {
+    const data = await getAccessibleAcademies(user);
+    setAcademies(data || []);
+  } catch (error) {
+    console.error("Failed to load accessible academies:", error);
+    setAcademies([]);
+  }
+}, [user]);
+  // =========================
+  // FETCH CENTERS
+  // =========================
+
+const fetchCenters = useCallback(async () => {
+
+  try {
+    const data = await getAccessibleCenters(user);
+
+    setCenters(data || []);
+    setFilteredCenters(data || []);
+
+setSelectedCenter((currentCenter) => {
+
+  if (
+    currentCenter &&
+    !(data || []).some(
+      (center) => center.id === currentCenter
+    )
+  ) {
+    return "";
+  }
+
+  return currentCenter;
+});
+
+  } catch (error) {
+
+    console.error(
+      "Failed to load accessible centers:",
+      error
+    );
+
+    setCenters([]);
+    setFilteredCenters([]);
+  }
+
+}, [user]);
+  // =========================
+  // FETCH BATCHES
+  // =========================
+const fetchBatches = useCallback(async () => {
+
   if (!user) {
+    return;
+  }
+
+  try {
+
+    // ========================================
+    // SUPER ADMIN
+    // ========================================
+
+    if (isSuperAdmin(user)) {
+
+      let query = supabase
+        .from("batches")
+        .select("*")
+        .eq("is_active", true)
+        .order("batch_name");
+
+      // Academy filter
+      if (selectedAcademy) {
+        query = query.eq(
+          "academy_id",
+          selectedAcademy
+        );
+      }
+
+      // Center filter
+      if (selectedCenter) {
+        query = query.eq(
+          "center_id",
+          selectedCenter
+        );
+      }
+
+      const {
+        data,
+        error
+      } = await query;
+
+      if (error) {
+        throw error;
+      }
+
+      const centerById = new Map(
+        (centers || []).map(
+          (center) => [
+            center.id,
+            center
+          ]
+        )
+      );
+
+      const academyById = new Map(
+        (academies || []).map(
+          (academy) => [
+            academy.id,
+            academy
+          ]
+        )
+      );
+
+      const displayBatches =
+        (data || []).map(
+          (batch) => ({
+
+            ...batch,
+
+            centers:
+              centerById.get(
+                batch.center_id
+              ) || null,
+
+            academies:
+              academyById.get(
+                batch.academy_id
+              ) || null
+
+          })
+        );
+
+      setBatches(displayBatches);
+      setCurrentPage(1);
+      setSelectedBatchId(null);
+
+      return;
+    }
+
+    // ========================================
+    // ACADEMY OWNER / COACH
+    // ========================================
+
+const scopedBatches =
+  await getAccessibleBatches(
+    user,
+    selectedCenter || null
+  );
+
+    const centerById = new Map(
+      (centers || []).map(
+        (center) => [
+          center.id,
+          center
+        ]
+      )
+    );
+
+    const academyById = new Map(
+      (academies || []).map(
+        (academy) => [
+          academy.id,
+          academy
+        ]
+      )
+    );
+
+    const displayBatches =
+      scopedBatches.map(
+        (batch) => ({
+
+          ...batch,
+
+          centers:
+            centerById.get(
+              batch.center_id
+            ) || null,
+
+          academies:
+            academyById.get(
+              batch.academy_id
+            ) || null
+
+        })
+      );
+
+    setBatches(displayBatches);
+    setCurrentPage(1);
+    setSelectedBatchId(null);
+
+  } catch (error) {
+
+    console.error(
+      "Failed to load batches:",
+      error
+    );
+
+     setBatches([]);
+     setCurrentPage(1);
+     setSelectedBatchId(null);
+
+  }
+
+}, [
+  user,
+  selectedAcademy,
+  selectedCenter,
+  centers,
+  academies
+]);
+
+useEffect(() => {
+
+  if (!user) return;
+
+  fetchAcademies();
+  fetchCenters();
+
+}, [user, fetchAcademies, fetchCenters]);
+
+useEffect(() => {
+  fetchBatches();
+}, [fetchBatches]);
+  // =========================
+  // ACADEMY CHANGE
+  // =========================
+
+const handleAcademyChange = (
+  academyId
+) => {
+
+  setSelectedAcademy(academyId);
+  setSelectedCenter("");
+  setCurrentPage(1);
+
+  if (!academyId) {
+
+    setFilteredCenters(
+      centers || []
+    );
+
+    return;
+  }
+
+  const relatedCenters =
+    centers.filter(
+      (center) =>
+        center.academy_id === academyId
+    );
+
+  setFilteredCenters(
+    relatedCenters
+  );
+};
+
+  // =========================
+  // CREATE / UPDATE
+  // =========================
+
+  const handleSaveBatch = async () => {
+
+      if (!isSuperAdmin(user) && !isAcademyOwner(user)) {
+    alert("You do not have permission to manage batches.");
+    return;
+  }
+
+if (
+  !selectedCenter ||
+  !batchName ||
+  !ageGroup ||
+  !startTime ||
+  !endTime
+) {
+
+  alert(
+    "Please fill all fields"
+  );
+
+  return;
+}
+
+if (
+  startTime >= endTime
+) {
+
+  alert(
+    "End time must be after start time"
+  );
+
+  return;
+}
+
+let academyId = selectedAcademy;
+
+if (!isSuperAdmin(user)) {
+  academyId = user?.academy_id;
+}
+
+const duplicateBatch =
+  batches.find(
+    batch =>
+      batch.center_id ===
+        selectedCenter &&
+      batch.batch_name
+        .trim()
+        .toLowerCase() ===
+      batchName
+        .trim()
+        .toLowerCase() &&
+      batch.id !==
+        editingBatchId
+  );
+
+if (duplicateBatch) {
+
+  alert(
+    "Batch already exists in this center"
+  );
+
+  return;
+}
+
+    // =====================
+    // UPDATE
+    // =====================
+
+    if (editingBatchId) {
+
+      const { error } = await supabase
+        .from("batches")
+.update({
+  center_id: selectedCenter,
+  batch_name: batchName,
+  age_group: ageGroup,
+  start_time: startTime,
+  end_time: endTime
+})
+        .eq("id", editingBatchId);
+
+      if (error) {
+
+        alert(error.message);
+
+        return;
+      }
+
+      alert("Batch Updated");
+
+      setEditingBatchId(null);
+    }
+
+    // =====================
+    // CREATE
+    // =====================
+
+    else {
+
+      const { error } = await supabase
+        .from("batches")
+        .insert([
+{
+  academy_id: academyId,
+  center_id: selectedCenter,
+  batch_name: batchName,
+  age_group: ageGroup,
+  start_time: startTime,
+  end_time: endTime,
+  is_active: true
+}
+        ]);
+
+      if (error) {
+
+        alert(error.message);
+
+        return;
+      }
+
+      alert("Batch Created");
+    }
+
+setBatchName("");
+
+setAgeGroup("");
+
+setStartTime("");
+
+setEndTime("");
+
+setSelectedCenter("");
+
+setEditingBatchId(null);
+setSelectedBatchId(null);
+setCurrentPage(1);
+
+    fetchBatches();
+  };
+
+  // =========================
+  // EDIT
+  // =========================
+
+const handleEdit = (
+  batch
+) => {
+
+  if (!isSuperAdmin(user) && !isAcademyOwner(user)) {
+    return;
+  }
+
+setAgeGroup(
+  batch.age_group || ""
+);
+
+setStartTime(
+  batch.start_time || ""
+);
+
+setEndTime(
+  batch.end_time || ""
+);
+
+    setEditingBatchId(
+      batch.id
+    );
+
+    setBatchName(
+      batch.batch_name
+    );
+
+    setSelectedAcademy(
+      batch.academy_id
+    );
+
+    setSelectedCenter(
+      batch.center_id
+    );
+  };
+
+  // =========================
+  // DELETE
+  // =========================
+
+const handleDelete = async (
+  id
+) => {
+
+  if (!isSuperAdmin(user) && !isAcademyOwner(user)) {
+    alert("You do not have permission to manage batches.");
+    return;
+  }
+
+
+    const confirmDelete =
+      window.confirm(
+        "Delete this batch?"
+      );
+
+    if (!confirmDelete) {
+      return;
+    }
+
+    const { error } = await supabase
+      .from("batches")
+      .update({
+        is_active: false
+      })
+      .eq("id", id);
+
+    if (error) {
+
+      alert(error.message);
+
+      return;
+    }
+
+    alert("Batch Deleted");
+
+    if (selectedBatchId === id) {
+      setSelectedBatchId(null);
+    }
+
+    setCurrentPage(1);
+    fetchBatches();
+  };
+
+if (!user) {
   return (
     <Layout>
-      <div className="batches-page-loading">
-        Loading...
-      </div>
+      <div className="batches-page-loading">Loading...</div>
     </Layout>
   );
 }
 
 const formatBatchTime = (time) => {
-  if (!time) {
-    return "—";
-  }
-
-  const parts = String(time).split(":");
-  const hour = Number(parts[0]);
-  const minute = Number(parts[1] || 0);
+  if (!time) return "—";
+  const [hourPart, minutePart] = String(time).split(":");
+  const hour = Number(hourPart);
+  const minute = Number(minutePart || 0);
 
   if (!Number.isFinite(hour) || !Number.isFinite(minute)) {
     return time;
@@ -157,13 +636,9 @@ const formatBatchSchedule = (startTimeValue, endTimeValue) => {
   const start = formatBatchTime(startTimeValue);
   const end = formatBatchTime(endTimeValue);
 
-  if (start === "—" && end === "—") {
-    return "—";
-  }
-
-  if (start === "—" || end === "—") {
-    return start === "—" ? end : start;
-  }
+  if (start === "—" && end === "—") return "—";
+  if (start === "—") return end;
+  if (end === "—") return start;
 
   return `${start} – ${end}`;
 };
@@ -177,7 +652,6 @@ return (
           <h1>Batches</h1>
           <p>Manage coaching batches, age groups, and schedules.</p>
         </div>
-
         <div className="batches-page-count">
           <strong>{batches.length}</strong>
           <span>visible batches</span>
@@ -200,9 +674,7 @@ return (
               <select
                 id="batch-filter-academy"
                 value={selectedAcademy}
-                onChange={(e) =>
-                  handleAcademyChange(e.target.value)
-                }
+                onChange={(e) => handleAcademyChange(e.target.value)}
               >
                 <option value="">All Academies</option>
                 {academies.map((academy) => (
@@ -349,7 +821,6 @@ return (
             <caption className="sr-only">
               Active batches, academy, center, age group, schedule, and available management actions
             </caption>
-
             <thead>
               <tr>
                 <th scope="col">Academy</th>
@@ -358,85 +829,56 @@ return (
                 <th scope="col">Age Group</th>
                 <th scope="col">Schedule</th>
                 {(isSuperAdmin(user) || isAcademyOwner(user)) && (
-                  <th scope="col" className="batches-actions-heading">
-                    Actions
-                  </th>
+                  <th scope="col" className="batches-actions-heading">Actions</th>
                 )}
               </tr>
             </thead>
-
             <tbody>
               {batches.length === 0 ? (
                 <tr>
                   <td
                     className="batches-empty-state"
-                    colSpan={
-                      isSuperAdmin(user) || isAcademyOwner(user) ? 6 : 5
-                    }
+                    colSpan={isSuperAdmin(user) || isAcademyOwner(user) ? 6 : 5}
                   >
                     <strong>No active batches</strong>
-                    <span>
-                      No batches match the current academy or center selection.
-                    </span>
+                    <span>No batches match the current academy or center selection.</span>
                   </td>
                 </tr>
               ) : (
                 paginatedBatches.map((batch) => {
                   const academyName =
                     batch.academies?.academy_name ||
-                    academies.find(
-                      (academy) => academy.id === batch.academy_id
-                    )?.academy_name ||
+                    academies.find((academy) => academy.id === batch.academy_id)?.academy_name ||
                     user?.academy_name ||
                     "—";
 
                   const centerName =
                     batch.centers?.center_name ||
-                    centers.find(
-                      (center) => center.id === batch.center_id
-                    )?.center_name ||
+                    centers.find((center) => center.id === batch.center_id)?.center_name ||
                     "—";
 
-                  const isSelected =
-                    selectedBatchId === batch.id;
+                  const isSelected = selectedBatchId === batch.id;
 
                   return (
                     <tr
                       key={batch.id}
-                      className={
-                        isSelected ? "batches-row-selected" : ""
-                      }
+                      className={isSelected ? "batches-row-selected" : ""}
                       tabIndex={0}
                       onClick={() => setSelectedBatchId(batch.id)}
                       onKeyDown={(event) => {
-                        if (
-                          event.key === "Enter" ||
-                          event.key === " "
-                        ) {
+                        if (event.key === "Enter" || event.key === " ") {
                           event.preventDefault();
                           setSelectedBatchId(batch.id);
                         }
                       }}
                     >
-                      <td className="batches-academy-cell">
-                        {academyName}
-                      </td>
-                      <td className="batches-center-cell">
-                        {centerName}
-                      </td>
-                      <td className="batches-name-cell">
-                        {batch.batch_name || "—"}
-                      </td>
-                      <td>
-                        {batch.age_group || "—"}
-                      </td>
+                      <td className="batches-academy-cell">{academyName}</td>
+                      <td className="batches-center-cell">{centerName}</td>
+                      <td className="batches-name-cell">{batch.batch_name || "—"}</td>
+                      <td>{batch.age_group || "—"}</td>
                       <td className="batches-schedule-cell">
-                        {formatBatchSchedule(
-                          batch.start_time,
-                          batch.end_time
-                        )}
+                        {formatBatchSchedule(batch.start_time, batch.end_time)}
                       </td>
-
                       {(isSuperAdmin(user) || isAcademyOwner(user)) && (
                         <td className="batches-actions-cell">
                           <div className="batches-row-actions">
@@ -451,7 +893,6 @@ return (
                             >
                               Edit
                             </button>
-
                             <button
                               type="button"
                               className="batches-delete-button"
@@ -474,46 +915,27 @@ return (
           </table>
 
           {batches.length > 0 && (
-            <div
-              className="batches-pagination"
-              aria-label="Batches pagination"
-            >
+            <div className="batches-pagination" aria-label="Batches pagination">
               <span className="batches-pagination-summary">
-                Showing {pageStartIndex + 1}–
-                {Math.min(
-                  pageStartIndex + PAGE_SIZE,
-                  batches.length
-                )}{" "}
-                of {batches.length} batches
+                Showing {pageStartIndex + 1}–{Math.min(pageStartIndex + PAGE_SIZE, batches.length)} of {batches.length} batches
               </span>
-
               <div className="batches-pagination-controls">
                 <button
                   type="button"
                   className="batches-pagination-button"
-                  onClick={() =>
-                    setCurrentPage((page) =>
-                      Math.max(1, page - 1)
-                    )
-                  }
+                  onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
                   disabled={currentPage === 1}
                   aria-label="Previous batches page"
                 >
                   Previous
                 </button>
-
                 <span className="batches-pagination-page">
                   Page {currentPage} of {totalPages}
                 </span>
-
                 <button
                   type="button"
                   className="batches-pagination-button"
-                  onClick={() =>
-                    setCurrentPage((page) =>
-                      Math.min(totalPages, page + 1)
-                    )
-                  }
+                  onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
                   disabled={currentPage === totalPages}
                   aria-label="Next batches page"
                 >
@@ -524,6 +946,293 @@ return (
           )}
         </div>
       </section>
+    </div>
+  </Layout>
+);
+};
+
+export default Batches;
+    <div className="batches-page">
+      <div className="batches-page-header">
+        <div>
+          <span className="batches-page-eyebrow">Academy management</span>
+          <h1>Batches</h1>
+          <p>Manage coaching batches, age groups, and schedules.</p>
+        </div>
+        <div className="batches-page-count">
+          <strong>{batches.length}</strong>
+          <span>visible batches</span>
+        </div>
+      </div>
+
+      {/* ========================= */}
+      {/* SUPER ADMIN */}
+      {/* ========================= */}
+
+      <section className="batches-filter-card">
+        <div className="batches-section-heading">
+          <h2>Batch filters</h2>
+          <p>Use academy and center filters to narrow the batch list.</p>
+        </div>
+        <div className="batches-filter-grid">
+        {isSuperAdmin(user) && (
+
+        <>
+          <select
+            value={selectedAcademy}
+            onChange={(e) =>
+              handleAcademyChange(
+                e.target.value
+              )
+            }
+          >
+
+            <option value="">
+              All Academies
+            </option>
+
+            {
+              academies.map(
+                (academy) => (
+
+                  <option
+                    key={academy.id}
+                    value={academy.id}
+                  >
+                    {
+                      academy.academy_name
+                    }
+                  </option>
+
+                )
+              )
+            }
+
+          </select>
+
+          <br />
+          <br />
+        </>
+      )}
+
+      {/* CENTER */}
+
+      <select
+        value={selectedCenter}
+        onChange={(e) =>
+          setSelectedCenter(
+            e.target.value
+          )
+        }
+      >
+
+        <option value="">
+          All Centers
+        </option>
+
+        {
+          filteredCenters.map(
+            (center) => (
+
+              <option
+                key={center.id}
+                value={center.id}
+              >
+                {
+                  center.center_name
+                }
+              </option>
+
+            )
+          )
+        }
+
+      </select>
+        </div>
+      </section>
+
+      {(isSuperAdmin(user) || isAcademyOwner(user)) && (
+  <section className="batches-form-card">
+
+      {/* BATCH NAME */}
+
+<input
+  type="text"
+  placeholder="Enter Batch Name"
+  value={batchName}
+  onChange={(e) =>
+    setBatchName(e.target.value)
+  }
+/>
+
+<br />
+<br />
+
+<select
+  value={ageGroup}
+  onChange={(e) =>
+    setAgeGroup(e.target.value)
+  }
+>
+
+  <option value="">
+    Select Age Group
+  </option>
+
+  {AGE_GROUPS.map(group => (
+
+    <option
+      key={group}
+      value={group}
+    >
+      {group}
+    </option>
+
+  ))}
+
+</select>
+
+<br />
+<br />
+
+<input
+  type="time"
+  value={startTime}
+  onChange={(e) =>
+    setStartTime(e.target.value)
+  }
+/>
+
+<br />
+<br />
+
+<input
+  type="time"
+  value={endTime}
+  onChange={(e) =>
+    setEndTime(e.target.value)
+  }
+/>
+
+      <br />
+      <br />
+
+      <button
+        onClick={
+          handleSaveBatch
+        }
+      >
+
+        {
+          editingBatchId
+            ? "Update Batch"
+            : "Create Batch"
+        }
+
+      </button>
+</section>)}
+      <br />
+      <br />
+      <br />
+
+      {/* ========================= */}
+      {/* BATCHES TABLE */}
+      {/* ========================= */}
+
+      <div className="batches-table-wrap">
+      <table className="batches-table">
+
+        <thead>
+
+          <tr>
+
+<th>Batch</th>
+<th>Age Group</th>
+<th>Start</th>
+<th>End</th>
+<th>Center</th>
+
+{isSuperAdmin(user) && (
+  <th>Academy</th>
+)}
+
+{(isSuperAdmin(user) || isAcademyOwner(user)) && (
+  <th>Actions</th>
+)}
+
+          </tr>
+
+        </thead>
+
+        <tbody>
+          {batches.length === 0 ? (
+            <tr><td className="batches-empty-state" colSpan={isSuperAdmin(user) ? 7 : 6}>
+              <strong>No active batches</strong>
+              <span>No batches match the current academy or center selection.</span>
+            </td></tr>
+          ) : (
+            batches.map(
+              (batch) => (
+
+                <tr key={batch.id}>
+
+<td>{batch.batch_name}</td>
+
+<td>{batch.age_group}</td>
+
+<td>{batch.start_time}</td>
+
+<td>{batch.end_time}</td>
+
+                  <td>
+                    {
+                      batch.centers
+                        ?.center_name
+                    }
+                  </td>
+
+{isSuperAdmin(user) && (
+  <td>
+    {batch.academies?.academy_name}
+  </td>
+)}
+{(isSuperAdmin(user) || isAcademyOwner(user)) && (
+                  <td>
+
+                    <button
+                      onClick={() =>
+                        handleEdit(
+                          batch
+                        )
+                      }
+                    >
+                      Edit
+                    </button>
+
+                    {" "}
+
+                    <button
+                      onClick={() =>
+                        handleDelete(
+                          batch.id
+                        )
+                      }
+                    >
+                      Delete
+                    </button>
+
+                  </td>
+                  )}
+
+                </tr>
+
+              )
+            )
+          )}
+        </tbody>
+      </table>
+      </div>
+
     </div>
   </Layout>
 );
