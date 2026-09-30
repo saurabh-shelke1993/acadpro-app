@@ -58,6 +58,9 @@ function Players() {
   const [editingParentId, setEditingParentId] = useState(null);
 
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const PAGE_SIZE = 8;
 
 useEffect(() => {
   fetchLoggedInUser();
@@ -96,8 +99,7 @@ useEffect(() => {
   loggedInUser,
   selectedAcademy,
   selectedCenter,
-  selectedBatch,
-  searchTerm
+  selectedBatch
 ]);
 
   const calculateAge = (dob) => {
@@ -636,11 +638,27 @@ setSelectedBatch("");
           ?.toLowerCase()
           .includes(searchTerm.toLowerCase());
 
-      return (
-        matchesSearch
-      );
+      return matchesSearch;
     }
   );
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredPlayers.length / PAGE_SIZE)
+  );
+
+  const paginatedPlayers = filteredPlayers.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
+  );
+
+  const clearPlayerFilters = () => {
+    setSearchTerm("");
+    setSelectedAcademy("");
+    setSelectedCenter("");
+    setSelectedBatch("");
+    setCurrentPage(1);
+  };
 
 return (
   <Layout>
@@ -657,371 +675,400 @@ return (
         </div>
       </div>
 
-      {!isCoach(loggedInUser) && (
-  <>
-    <h2>
-      {isEditing
-        ? "Edit Player"
-        : "Create Player"}
-    </h2>
+      <div className={`players-workspace${isCoach(loggedInUser) ? " players-workspace-coach" : ""}`}>
+        <section className="players-filter-card">
+          <div className="players-section-heading">
+            <div>
+              <span className="players-section-eyebrow">Filters</span>
+              <h2>Player filters</h2>
+            </div>
+            <p>Use search and academy hierarchy to narrow the player list.</p>
+          </div>
 
-    <hr />
+          <div className="players-filter-grid">
+            <div className="players-field players-field-search">
+              <label htmlFor="players-search-input">Search player</label>
+              <input
+                id="players-search-input"
+                type="search"
+                placeholder="Search by player name..."
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
+              />
+            </div>
 
-    <h2>Player Information</h2>
+            {isSuperAdmin(loggedInUser) ? (
+              <div className="players-field">
+                <label htmlFor="player-filter-academy">Academy</label>
+                <select
+                  id="player-filter-academy"
+                  value={selectedAcademy}
+                  onChange={(e) => {
+                    setSelectedAcademy(e.target.value);
+                    setSelectedCenter("");
+                    setSelectedBatch("");
+                    setCurrentPage(1);
+                  }}
+                >
+                  <option value="">All Academies</option>
+                  {academies.map((academy) => (
+                    <option key={academy.id} value={academy.id}>
+                      {academy.academy_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ) : (
+              <div className="players-field">
+                <label htmlFor="player-filter-academy">Academy</label>
+                <input
+                  id="player-filter-academy"
+                  type="text"
+                  value={
+                    academies.find(
+                      (academy) => academy.id === selectedAcademy
+                    )?.academy_name ||
+                    loggedInUser?.academy_name ||
+                    ""
+                  }
+                  disabled
+                />
+              </div>
+            )}
 
-<label htmlFor="player-full-name">Player name *</label>
-<input
-  id="player-full-name"
-  type="text"
-  placeholder="Player Name"
-  value={fullName}
-  onChange={(e) =>
-    setFullName(e.target.value)
-  }
-/>
+            <div className="players-field">
+              <label htmlFor="player-filter-center">Center</label>
+              <select
+                id="player-filter-center"
+                value={selectedCenter}
+                onChange={(e) => {
+                  setSelectedCenter(e.target.value);
+                  setSelectedBatch("");
+                  setCurrentPage(1);
+                }}
+                disabled={!selectedAcademy}
+              >
+                <option value="">All Centers</option>
+                {centers.map((center) => (
+                  <option key={center.id} value={center.id}>
+                    {center.center_name}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-<br />
-<br />
+            <div className="players-field">
+              <label htmlFor="player-filter-batch">Batch</label>
+              <select
+                id="player-filter-batch"
+                value={selectedBatch}
+                onChange={(e) => {
+                  setSelectedBatch(e.target.value);
+                  setCurrentPage(1);
+                }}
+                disabled={!selectedCenter}
+              >
+                <option value="">All Batches</option>
+                {batches.map((batch) => (
+                  <option key={batch.id} value={batch.id}>
+                    {batch.batch_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
 
-{/* =========================
-    ACADEMY
-========================= */}
+          <div className="players-filter-actions">
+            <span>
+              {filteredPlayers.length}{" "}
+              {filteredPlayers.length === 1 ? "player" : "players"} match
+              current filters
+            </span>
+            <button
+              className="player-secondary-button"
+              type="button"
+              onClick={clearPlayerFilters}
+            >
+              Clear Filters
+            </button>
+          </div>
+        </section>
 
-{isSuperAdmin(loggedInUser) ? (
-  <>
-    <label htmlFor="player-academy">Academy *</label>
-    <br />
+        {!isCoach(loggedInUser) && (
+          <section className="players-form-card">
+            <div className="players-section-heading">
+              <div>
+                <span className="players-section-eyebrow">
+                  {isEditing ? "Edit player" : "Create player"}
+                </span>
+                <h2>{isEditing ? "Edit Player" : "New Player"}</h2>
+              </div>
+              <p>
+                {isEditing
+                  ? "Update the selected player's profile and parent information."
+                  : "Add a player to the selected academy, center, and batch."}
+              </p>
+            </div>
 
-    <select
-      id="player-academy"
-      value={selectedAcademy}
-      onChange={(e) => {
-        setSelectedAcademy(e.target.value);
-        setSelectedCenter("");
-        setSelectedBatch("");
-      }}
-    >
-      <option value="">Select Academy</option>
+            <div className="players-form-section">
+              <h3>Player information</h3>
+              <div className="players-form-grid">
+                <div className="players-field players-field-wide">
+                  <label htmlFor="player-full-name">Player name *</label>
+                  <input
+                    id="player-full-name"
+                    type="text"
+                    placeholder="Player Name"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                  />
+                </div>
 
-      {academies.map((academy) => (
-        <option
-          key={academy.id}
-          value={academy.id}
-        >
-          {academy.academy_name}
-        </option>
-      ))}
-    </select>
-  </>
-) : (
-  <>
-    <label htmlFor="player-academy">Academy</label>
-    <br />
+                <div className="players-field">
+                  <label htmlFor="player-dob">Date of Birth *</label>
+                  <input
+                    id="player-dob"
+                    type="date"
+                    value={dob}
+                    onChange={(e) => setDob(e.target.value)}
+                  />
+                </div>
 
-    <input
-      id="player-academy"
-      type="text"
-      value={
-        academies.find(
-          (academy) =>
-            academy.id === selectedAcademy
-        )?.academy_name ||
-        loggedInUser?.academy_name ||
-        ""
-      }
-      disabled
-    />
-  </>
-)}
+                <div className="players-field">
+                  <label htmlFor="player-joining-date">Joining Date *</label>
+                  <input
+                    id="player-joining-date"
+                    type="date"
+                    value={joiningDate}
+                    onChange={(e) => setJoiningDate(e.target.value)}
+                  />
+                </div>
 
-<br />
-<br />
+                <div className="players-field">
+                  <label htmlFor="player-gender">Gender *</label>
+                  <select
+                    id="player-gender"
+                    value={gender}
+                    onChange={(e) => setGender(e.target.value)}
+                  >
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                  </select>
+                </div>
+              </div>
+            </div>
 
-{/* =========================
-    CENTER
-========================= */}
+            <div className="players-form-section">
+              <h3>Parent information</h3>
+              <div className="players-form-grid">
+                <div className="players-field">
+                  <label htmlFor="player-parent-name">Parent name</label>
+                  <input
+                    id="player-parent-name"
+                    type="text"
+                    placeholder="Parent Name"
+                    value={parentName}
+                    onChange={(e) => setParentName(e.target.value)}
+                  />
+                </div>
 
-<label htmlFor="player-center">Center *</label>
-<br />
+                <div className="players-field">
+                  <label htmlFor="player-parent-phone">Parent phone</label>
+                  <input
+                    id="player-parent-phone"
+                    type="text"
+                    placeholder="Parent Phone"
+                    value={parentPhone}
+                    onChange={(e) => setParentPhone(e.target.value)}
+                  />
+                </div>
 
-<select
-  id="player-center"
-  value={selectedCenter}
-  onChange={(e) => {
-    setSelectedCenter(e.target.value);
-    setSelectedBatch("");
-  }}
-  disabled={!selectedAcademy}
->
-  <option value="">Select Center</option>
+                <div className="players-field">
+                  <label htmlFor="player-parent-email">Parent email</label>
+                  <input
+                    id="player-parent-email"
+                    type="email"
+                    placeholder="Parent Email"
+                    value={parentEmail}
+                    onChange={(e) => setParentEmail(e.target.value)}
+                  />
+                </div>
 
-  {centers.map((center) => (
-    <option
-      key={center.id}
-      value={center.id}
-    >
-      {center.center_name}
-    </option>
-  ))}
-</select>
+                <div className="players-field players-field-wide">
+                  <label htmlFor="player-parent-address">Parent address</label>
+                  <textarea
+                    id="player-parent-address"
+                    placeholder="Parent Address"
+                    value={parentAddress}
+                    onChange={(e) => setParentAddress(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
 
-<br />
-<br />
+            <div className="players-form-actions">
+              <button
+                className="player-primary-button"
+                type="button"
+                onClick={isEditing ? handleUpdatePlayer : handleCreatePlayer}
+              >
+                {isEditing ? "Update Player" : "Create Player"}
+              </button>
+              <button
+                className="player-secondary-button"
+                type="button"
+                onClick={resetForm}
+              >
+                Clear
+              </button>
+            </div>
+          </section>
+        )}
+      </div>
 
-{/* =========================
-    BATCH
-========================= */}
-
-<label htmlFor="player-batch">Batch *</label>
-<br />
-
-<select
-  id="player-batch"
-  value={selectedBatch}
-  onChange={(e) =>
-    setSelectedBatch(e.target.value)
-  }
-  disabled={!selectedCenter}
->
-  <option value="">Select Batch</option>
-
-  {batches.map((batch) => (
-    <option
-      key={batch.id}
-      value={batch.id}
-    >
-      {batch.batch_name}
-    </option>
-  ))}
-</select>
-
-<br />
-<br />
-
-    <div>
-      <label htmlFor="player-dob">Date of Birth *</label>
-      <br />
-      <input
-        id="player-dob"
-        type="date"
-        value={dob}
-        onChange={(e) => setDob(e.target.value)}
-      />
-    </div>
-
-    <div>
-      <label htmlFor="player-joining-date">Joining Date *</label>
-      <br />
-      <input
-        id="player-joining-date"
-        type="date"
-        value={joiningDate}
-        onChange={(e) => setJoiningDate(e.target.value)}
-      />
-    </div>
-
-    <label htmlFor="player-gender">Gender *</label>
-    <select
-      id="player-gender"
-      value={gender}
-      onChange={(e) => setGender(e.target.value)}
-    >
-      <option value="">Select Gender</option>
-      <option value="Male">Male</option>
-      <option value="Female">Female</option>
-    </select>
-
-    <br />
-    <br />
-
-    <hr />
-
-    <h2>Parent Information</h2>
-
-    <label htmlFor="player-parent-name">Parent name</label>
-    <input
-      id="player-parent-name"
-      type="text"
-      placeholder="Parent Name"
-      value={parentName}
-      onChange={(e) =>
-        setParentName(e.target.value)
-      }
-    />
-
-    <br />
-    <br />
-
-    <label htmlFor="player-parent-phone">Parent phone</label>
-    <input
-      id="player-parent-phone"
-      type="text"
-      placeholder="Parent Phone"
-      value={parentPhone}
-      onChange={(e) =>
-        setParentPhone(e.target.value)
-      }
-    />
-
-    <br />
-    <br />
-
-    <label htmlFor="player-parent-email">Parent email</label>
-    <input
-      id="player-parent-email"
-      type="email"
-      placeholder="Parent Email"
-      value={parentEmail}
-      onChange={(e) =>
-        setParentEmail(e.target.value)
-      }
-    />
-
-    <br />
-    <br />
-
-    <label htmlFor="player-parent-address">Parent address</label>
-    <textarea
-      id="player-parent-address"
-      placeholder="Parent Address"
-      value={parentAddress}
-      onChange={(e) =>
-        setParentAddress(e.target.value)
-      }
-    />
-
-    <br />
-    <br />
-
-    {isEditing ? (
-      <button className="player-primary-button" type="button" onClick={handleUpdatePlayer}>
-        Update Player
-      </button>
-    ) : (
-      <button className="player-primary-button" type="button" onClick={handleCreatePlayer}>
-        Create Player
-      </button>
-    )}
-
-    <button
-      className="player-secondary-button"
-      type="button"
-      onClick={resetForm}
-    >
-      Clear
-    </button>
-  </>
-)}
       {isSuperAdmin(loggedInUser) && (
-        <PlayerImport
-          loggedInUser={loggedInUser}
-          onImportComplete={fetchPlayers}
-        />
+        <div className="players-import-wrapper">
+          <PlayerImport
+            loggedInUser={loggedInUser}
+            onImportComplete={fetchPlayers}
+          />
+        </div>
       )}
 
-      <hr />
-
-      <div className="players-list-header">
-        <div>
-          <h2>Players List</h2>
-          <p>Search active players by name.</p>
+      <section className="players-results-section">
+        <div className="players-list-header">
+          <div>
+            <span className="players-section-eyebrow">Active players</span>
+            <h2>Players List</h2>
+            <p>
+              {filteredPlayers.length}{" "}
+              {filteredPlayers.length === 1 ? "player" : "players"} shown
+              {searchTerm ? ` · Filtered by "${searchTerm}"` : ""}
+            </p>
+          </div>
+          <div className="players-results-count">
+            Page {currentPage} of {totalPages}
+          </div>
         </div>
-        <label className="players-search">
-          <span className="sr-only">Search players</span>
-          <input
-            type="search"
-            placeholder="Search player name..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            aria-label="Search players by name"
-          />
-        </label>
-      </div>
 
-      <div className="players-table-meta">
-        <span>{filteredPlayers.length} {filteredPlayers.length === 1 ? "player" : "players"} shown</span>
-        {searchTerm && <span>Filtered by "{searchTerm}"</span>}
-      </div>
+        <div className="players-table-wrap">
+          <table className="players-table">
+            <caption className="sr-only">
+              Active players and their academy, batch, status, and available actions
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Player</th>
+                <th scope="col">Academy</th>
+                <th scope="col">Center</th>
+                <th scope="col">Batch</th>
+                <th scope="col">Age</th>
+                <th scope="col">Gender</th>
+                <th scope="col">Joining Date</th>
+                <th scope="col">Status</th>
+                <th scope="col">Parent Phone</th>
+                {!isCoach(loggedInUser) && <th scope="col">Actions</th>}
+              </tr>
+            </thead>
 
-      <div className="players-table-wrap">
-      <table className="players-table">
-        <caption className="sr-only">Active players and their academy, batch, status, and available actions</caption>
-<thead>
-  <tr>
-    <th scope="col">Player</th>
-    <th scope="col">Academy</th>
-    <th scope="col">Center</th>
-    <th scope="col">Batch</th>
-    <th scope="col">Age</th>
-    <th scope="col">Gender</th>
-    <th scope="col">Joining Date</th>
-    <th scope="col">Status</th>
-    <th scope="col">Parent Phone</th>
-    {!isCoach(loggedInUser) && (
-  <th scope="col">Actions</th>
-)}
-  </tr>
-</thead>
+            <tbody>
+              {paginatedPlayers.length === 0 ? (
+                <tr>
+                  <td
+                    className="players-empty-state"
+                    colSpan={isCoach(loggedInUser) ? 9 : 10}
+                  >
+                    <strong>No players found</strong>
+                    <span>
+                      {searchTerm
+                        ? "Try a different player name."
+                        : "No active players match the current filters."}
+                    </span>
+                  </td>
+                </tr>
+              ) : (
+                paginatedPlayers.map((player) => (
+                  <tr key={player.id}>
+                    <td className="player-name-cell">{player.full_name}</td>
+                    <td>{player.academies?.academy_name || "—"}</td>
+                    <td>{player.centers?.center_name || "—"}</td>
+                    <td>{player.batches?.batch_name || "—"}</td>
+                    <td>{calculateAge(player.dob) || "—"}</td>
+                    <td>{player.gender || "—"}</td>
+                    <td>{player.joining_date || "—"}</td>
+                    <td>
+                      <span className="player-status-badge">
+                        {player.player_status || "Active"}
+                      </span>
+                    </td>
+                    <td>{player.parents?.phone || "—"}</td>
+                    {!isCoach(loggedInUser) && (
+                      <td>
+                        <div className="player-row-actions">
+                          <button
+                            className="player-action-button player-action-edit"
+                            type="button"
+                            onClick={() => handleEditPlayer(player)}
+                            aria-label={`Edit ${player.full_name}`}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            className="player-action-button player-action-danger"
+                            type="button"
+                            onClick={() => handleDeletePlayer(player.id)}
+                            aria-label={`Deactivate ${player.full_name}`}
+                          >
+                            Deactivate
+                          </button>
+                        </div>
+                      </td>
+                    )}
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
 
-        <tbody>
-          {filteredPlayers.length === 0 ? (
-            <tr>
-              <td className="players-empty-state" colSpan={10}>
-                <strong>No players found</strong>
-                <span>
-                  {searchTerm
-                    ? "Try a different player name."
-                    : "No active players match the current selection."}
-                </span>
-              </td>
-            </tr>
-          ) : (
-            filteredPlayers.map((player) => (
-            <tr key={player.id}>
-              <td>{player.full_name}</td>
+        <div className="players-pagination">
+          <span>
+            Showing{" "}
+            {filteredPlayers.length === 0
+              ? 0
+              : (currentPage - 1) * PAGE_SIZE + 1}
+            –
+            {Math.min(currentPage * PAGE_SIZE, filteredPlayers.length)} of{" "}
+            {filteredPlayers.length} players
+          </span>
 
-              <td>
-                {player.academies?.academy_name}
-              </td>
-
-              <td>
-                {player.centers?.center_name}
-              </td>
-
-              <td>
-                {player.batches?.batch_name}
-              </td>
-
-              <td>
-                {calculateAge(player.dob)}
-              </td>
-              <td>{player.gender}</td>
-<td>{player.joining_date}</td>
-<td><span className="player-status-badge">{player.player_status || "Active"}</span></td>
-
-              <td>{player.parents?.phone}</td>
-
-{!isCoach(loggedInUser) && (
-  <td>
-    <button className="player-action-button player-action-edit" type="button" onClick={() => handleEditPlayer(player)} aria-label={`Edit ${player.full_name}`}>
-      Edit
-    </button>
-
-    <button
-      className="player-action-button player-action-danger"
-      type="button"
-      onClick={() => handleDeletePlayer(player.id)}
-    >
-      Deactivate
-    </button>
-  </td>
-)}
-            </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-      </div>
+          <div className="players-pagination-controls">
+            <button
+              type="button"
+              className="player-secondary-button"
+              onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </button>
+            <strong>Page {currentPage} of {totalPages}</strong>
+            <button
+              type="button"
+              className="player-secondary-button"
+              onClick={() =>
+                setCurrentPage((page) => Math.min(totalPages, page + 1))
+              }
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      </section>
     </div>
   </Layout>
 );
