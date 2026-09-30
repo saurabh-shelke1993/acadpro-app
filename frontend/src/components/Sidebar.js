@@ -1,10 +1,40 @@
+import { useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { logoutUser } from "../utils/auth";
 import { isCoach, isParent, isSuperAdmin } from "../utils/roles";
+import { supabase } from "../supabaseClient";
 
 function Sidebar({ isOpen = false, onClose = () => {}, closeButtonRef }) {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("acadpro_user"));
+  const [academy, setAcademy] = useState(null);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadAcademy = async () => {
+      if (!user?.academy_id) {
+        setAcademy(null);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("academies")
+        .select("id, academy_name, academy_logo")
+        .eq("id", user.academy_id)
+        .maybeSingle();
+
+      if (!error && mounted) {
+        setAcademy(data || null);
+      }
+    };
+
+    loadAcademy();
+
+    return () => {
+      mounted = false;
+    };
+  }, [user?.academy_id]);
 
   const handleLogout = async () => {
     await logoutUser();
@@ -35,10 +65,18 @@ function Sidebar({ isOpen = false, onClose = () => {}, closeButtonRef }) {
         aria-label="Sidebar navigation"
       >
         <div className="app-brand">
-          <div className="app-brand-mark">⚽</div>
+          <div className="app-brand-mark">
+            {academy?.academy_logo ? (
+              <img src={academy.academy_logo} alt="" />
+            ) : (
+              "⚽"
+            )}
+          </div>
           <div>
             <div className="app-brand-name">AcadPro</div>
-            <div className="app-brand-caption">Academy management</div>
+            <div className="app-brand-caption">
+              {academy?.academy_name || "Academy management"}
+            </div>
           </div>
 
           <button
