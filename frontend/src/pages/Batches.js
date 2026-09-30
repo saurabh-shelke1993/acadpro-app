@@ -530,4 +530,3 @@ return (
 };
 
 export default Batches;
-export default Batches;
