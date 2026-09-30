@@ -658,7 +658,8 @@ return (
         </div>
       </div>
 
-      <section className="batches-filter-card">
+      <div className="batches-workspace">
+        <section className="batches-filter-card">
         <div className="batches-section-heading">
           <div>
             <span className="batches-section-kicker">Filters</span>
@@ -705,10 +706,10 @@ return (
             </select>
           </div>
         </div>
-      </section>
+        </section>
 
-      {(isSuperAdmin(user) || isAcademyOwner(user)) && (
-        <section className="batches-form-card">
+        {(isSuperAdmin(user) || isAcademyOwner(user)) && (
+          <section className="batches-form-card">
           <div className="batches-section-heading">
             <div>
               <span className="batches-section-kicker">
@@ -802,8 +803,9 @@ return (
               {editingBatchId ? "Update Batch" : "Create Batch"}
             </button>
           </div>
-        </section>
-      )}
+          </section>
+        )}
+      </div>
 
       <section className="batches-results-section">
         <div className="batches-results-header">
