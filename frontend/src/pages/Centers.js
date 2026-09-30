@@ -247,8 +247,6 @@ if (
 
     setCenterName("");
     setCurrentPage(1);
-
-    setCurrentPage(1);
     fetchCenters();
   };
 
