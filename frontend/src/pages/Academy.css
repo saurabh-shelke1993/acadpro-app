@@ -253,3 +253,222 @@
     width: 100%;
   }
 }
+
+
+/* Academy workspace polish */
+.academy-workspace {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.72fr) minmax(0, 1.28fr);
+  gap: var(--ap-space-5);
+  margin-top: var(--ap-space-6);
+  align-items: stretch;
+}
+
+.academy-form-card,
+.academy-list-card {
+  min-width: 0;
+  margin-top: 0;
+  padding: var(--ap-space-5);
+  border: 1px solid var(--ap-border);
+  border-radius: var(--ap-radius-xl);
+  background: var(--ap-surface);
+  box-shadow: var(--ap-shadow-sm);
+}
+
+.academy-form-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.academy-card-eyebrow {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: var(--ap-primary-600);
+  font-size: var(--ap-font-size-xs);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.academy-section-heading {
+  margin-bottom: var(--ap-space-5);
+}
+
+.academy-section-heading p {
+  max-width: 42rem;
+}
+
+.academy-form-card form {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--ap-space-3);
+  margin-top: auto;
+}
+
+.academy-form-card form label {
+  color: var(--ap-slate-700);
+  font-size: var(--ap-font-size-sm);
+  font-weight: 700;
+}
+
+.academy-page input {
+  width: 100%;
+}
+
+.academy-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ap-space-2);
+  margin-top: var(--ap-space-2);
+}
+
+.academy-form-actions button {
+  min-width: 132px;
+}
+
+.academy-list-card {
+  display: flex;
+  min-height: 100%;
+  flex-direction: column;
+}
+
+.academy-list-header {
+  align-items: flex-start;
+  margin: 0 0 var(--ap-space-4);
+}
+
+.academy-list-header h2 {
+  font-size: 1.15rem;
+}
+
+.academy-list-hint {
+  align-self: center;
+  color: var(--ap-slate-500);
+  font-size: var(--ap-font-size-xs);
+  text-align: right;
+}
+
+.academy-table-wrap {
+  margin-top: 0;
+  box-shadow: none;
+}
+
+.academy-table {
+  min-width: 0;
+}
+
+.academy-table th,
+.academy-table td {
+  padding: 0.7rem 0.85rem;
+}
+
+.academy-table th:last-child,
+.academy-table td:last-child {
+  width: 150px;
+}
+
+.academy-actions-heading {
+  color: transparent !important;
+  user-select: none;
+}
+
+.academy-row-name {
+  display: inline-block;
+  color: var(--ap-slate-800);
+  font-weight: 600;
+}
+
+.academy-row-state {
+  display: inline-block;
+  margin-left: var(--ap-space-2);
+  padding: 0.2rem 0.45rem;
+  border-radius: var(--ap-radius-full);
+  background: var(--ap-primary-50);
+  color: var(--ap-primary-700);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.academy-row-actions {
+  text-align: right;
+}
+
+.academy-actions {
+  display: inline-flex;
+  gap: var(--ap-space-2);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(4px);
+  transition:
+    opacity var(--ap-transition-fast),
+    transform var(--ap-transition-fast);
+}
+
+.academy-table tbody tr:hover .academy-actions,
+.academy-table tbody tr:focus .academy-actions,
+.academy-table tbody tr:focus-within .academy-actions,
+.academy-table tbody tr.academy-row-selected .academy-actions {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(0);
+}
+
+.academy-table tbody tr {
+  cursor: pointer;
+  outline: none;
+}
+
+.academy-table tbody tr:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--ap-primary-500);
+  background: var(--ap-primary-50);
+}
+
+.academy-table tbody tr.academy-row-selected {
+  background: var(--ap-primary-50);
+}
+
+.academy-actions button {
+  min-width: 52px;
+  min-height: 40px;
+}
+
+@media (max-width: 900px) {
+  .academy-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .academy-form-card form {
+    margin-top: 0;
+  }
+
+  .academy-list-hint {
+    display: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .academy-workspace {
+    gap: var(--ap-space-4);
+    margin-top: var(--ap-space-4);
+  }
+
+  .academy-form-card,
+  .academy-list-card {
+    padding: var(--ap-space-4);
+  }
+
+  .academy-list-header {
+    flex-direction: row;
+  }
+
+  .academy-table {
+    min-width: 560px;
+  }
+
+  .academy-actions {
+    opacity: 1;
+    pointer-events: auto;
+    transform: none;
+  }
+}
