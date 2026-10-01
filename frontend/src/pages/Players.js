@@ -1081,7 +1081,10 @@ return (
           <div className="players-list-filter-summary">
             {activeFilterCount > 0 && (
               <>
-                <span>{activeFilterCount} active filter{activeFilterCount === 1 ? "" : "s"}</span>
+                <span>
+                  {activeFilterCount} active filter
+                  {activeFilterCount === 1 ? "" : "s"}
+                </span>
                 <button
                   type="button"
                   className="player-secondary-button"
@@ -1092,10 +1095,6 @@ return (
               </>
             )}
             <span>Page {currentPage} of {totalPages}</span>
-          </div>
-        </div>/div>
-          <div className="players-results-count">
-            Page {currentPage} of {totalPages}
           </div>
         </div>
 
