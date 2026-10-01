@@ -844,3 +844,189 @@
     width: 100%;
   }
 }
+
+
+/* Excel-style column filters */
+.players-table th {
+  position: relative;
+}
+
+.players-table-filter-header,
+.players-column-filter {
+  position: relative;
+}
+
+.players-filter-trigger {
+  display: inline-flex;
+  width: 100%;
+  min-height: 30px !important;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  margin: 0 !important;
+  padding: 0.25rem 0.2rem !important;
+  border: 0 !important;
+  border-radius: 4px !important;
+  background: transparent !important;
+  color: var(--ap-slate-500) !important;
+  font: inherit;
+  font-size: var(--ap-font-size-xs) !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.04em;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.players-filter-trigger:hover {
+  background: var(--ap-primary-50) !important;
+  color: var(--ap-primary-700) !important;
+}
+
+.players-filter-trigger-active {
+  color: var(--ap-primary-700) !important;
+}
+
+.players-filter-popover {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  left: 0;
+  z-index: 1200;
+  width: min(280px, 72vw);
+  max-height: 360px;
+  overflow: hidden;
+  border: 1px solid var(--ap-border);
+  border-radius: var(--ap-radius-lg);
+  background: var(--ap-surface);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.16);
+  color: var(--ap-slate-800);
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.players-filter-popover-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.65rem 0.75rem;
+  border-bottom: 1px solid var(--ap-border);
+}
+
+.players-filter-popover-header strong {
+  font-size: var(--ap-font-size-xs);
+}
+
+.players-filter-search {
+  padding: 0.65rem 0.75rem;
+  border-bottom: 1px solid var(--ap-border);
+}
+
+.players-filter-search input {
+  width: 100%;
+  min-height: 34px;
+  box-sizing: border-box;
+  padding: 0.35rem 0.55rem;
+}
+
+.players-filter-options {
+  max-height: 230px;
+  overflow-y: auto;
+  padding: 0.4rem 0.65rem;
+}
+
+.players-filter-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 32px;
+  padding: 0.2rem 0.25rem;
+  border-radius: 5px;
+  color: var(--ap-slate-700);
+  font-size: var(--ap-font-size-xs);
+  cursor: pointer;
+}
+
+.players-filter-option:hover {
+  background: var(--ap-slate-50);
+}
+
+.players-filter-option input {
+  width: 15px !important;
+  min-height: 15px !important;
+  margin: 0;
+  padding: 0 !important;
+  accent-color: var(--ap-primary-600);
+}
+
+.players-filter-clear-button {
+  min-height: 28px !important;
+  padding: 0.2rem 0.45rem !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: var(--ap-primary-600) !important;
+  font-size: var(--ap-font-size-xs) !important;
+}
+
+.players-filter-popover-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0.55rem 0.65rem;
+  border-top: 1px solid var(--ap-border);
+  background: var(--ap-slate-50);
+}
+
+.players-filter-done-button {
+  min-height: 32px !important;
+  padding: 0.3rem 0.6rem !important;
+  border: 1px solid var(--ap-primary-600) !important;
+  border-radius: 5px !important;
+  background: var(--ap-primary-600) !important;
+  color: var(--ap-white) !important;
+  font-size: var(--ap-font-size-xs) !important;
+  font-weight: 700 !important;
+}
+
+.players-filter-empty {
+  display: block;
+  padding: 0.8rem 0.25rem;
+  color: var(--ap-slate-500);
+  font-size: var(--ap-font-size-xs);
+}
+
+.players-list-filter-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--ap-slate-500);
+  font-size: var(--ap-font-size-xs);
+  white-space: nowrap;
+}
+
+.players-list-filter-summary > span:first-child {
+  color: var(--ap-primary-700);
+  font-weight: 700;
+}
+
+.players-list-filter-summary .player-secondary-button {
+  min-height: 32px;
+  margin-left: 0;
+  padding: 0.3rem 0.6rem;
+}
+
+@media (max-width: 700px) {
+  .players-filter-popover {
+    position: fixed;
+    top: auto;
+    left: 50%;
+    bottom: 1rem;
+    width: min(340px, calc(100vw - 2rem));
+    max-height: 60vh;
+    transform: translateX(-50%);
+  }
+
+  .players-list-filter-summary {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    white-space: normal;
+  }
+}
