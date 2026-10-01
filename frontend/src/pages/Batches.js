@@ -47,6 +47,14 @@ const Batches = () => {
   const [batchName, setBatchName] =
     useState("");
 
+  const [batchSearchTerm, setBatchSearchTerm] = useState("");
+  const [batchColumnFilters, setBatchColumnFilters] = useState({
+    academy: [],
+    center: [],
+    ageGroup: []
+  });
+  const [openFilter, setOpenFilter] = useState(null);
+
   const [editingBatchId, setEditingBatchId] =
     useState(null);
 
@@ -58,13 +66,36 @@ const Batches = () => {
 
   const PAGE_SIZE = 6;
 
-  const totalPages = Math.max(1, Math.ceil(batches.length / PAGE_SIZE));
+  const filteredBatches = batches.filter((batch) => {
+    const matchesBatch =
+      !batchSearchTerm.trim() ||
+      String(batch.batch_name || "").toLowerCase().includes(
+        batchSearchTerm.trim().toLowerCase()
+      );
 
-  const pageStartIndex =
-    (currentPage - 1) * PAGE_SIZE;
+    const matchesColumn = (column, value) =>
+      batchColumnFilters[column].length === 0 ||
+      batchColumnFilters[column].includes(value);
 
-  const paginatedBatches =
-    batches.slice(pageStartIndex, pageStartIndex + PAGE_SIZE);
+    return (
+      matchesBatch &&
+      matchesColumn("academy", batch.academies?.academy_name || "—") &&
+      matchesColumn("center", batch.centers?.center_name || "—") &&
+      matchesColumn("ageGroup", batch.age_group || "—")
+    );
+  });
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredBatches.length / PAGE_SIZE)
+  );
+
+  const pageStartIndex = (currentPage - 1) * PAGE_SIZE;
+
+  const paginatedBatches = filteredBatches.slice(
+    pageStartIndex,
+    pageStartIndex + PAGE_SIZE
+  );
 
 const [startTime, setStartTime] =
   useState("");
@@ -189,22 +220,6 @@ const fetchBatches = useCallback(async () => {
         .eq("is_active", true)
         .order("batch_name");
 
-      // Academy filter
-      if (selectedAcademy) {
-        query = query.eq(
-          "academy_id",
-          selectedAcademy
-        );
-      }
-
-      // Center filter
-      if (selectedCenter) {
-        query = query.eq(
-          "center_id",
-          selectedCenter
-        );
-      }
-
       const {
         data,
         error
@@ -265,7 +280,7 @@ const fetchBatches = useCallback(async () => {
 const scopedBatches =
   await getAccessibleBatches(
     user,
-    selectedCenter || null
+    null
   );
 
     const centerById = new Map(
@@ -324,8 +339,6 @@ const scopedBatches =
 
 }, [
   user,
-  selectedAcademy,
-  selectedCenter,
   centers,
   academies
 ]);
@@ -346,31 +359,19 @@ useEffect(() => {
   // ACADEMY CHANGE
   // =========================
 
-const handleAcademyChange = (
-  academyId
-) => {
-
+const handleAcademyChange = (academyId) => {
   setSelectedAcademy(academyId);
   setSelectedCenter("");
-  setCurrentPage(1);
 
   if (!academyId) {
-
-    setFilteredCenters(
-      centers || []
-    );
-
+    setFilteredCenters(centers || []);
     return;
   }
 
-  const relatedCenters =
-    centers.filter(
-      (center) =>
-        center.academy_id === academyId
-    );
-
   setFilteredCenters(
-    relatedCenters
+    (centers || []).filter(
+      (center) => center.academy_id === academyId
+    )
   );
 };
 
@@ -598,6 +599,176 @@ const handleDelete = async (
 
     setCurrentPage(1);
     fetchBatches();
+  };
+
+
+  useEffect(() => {
+    if (!openFilter) return;
+
+    const handleOutsideClick = (event) => {
+      if (!event.target.closest(".batches-column-filter")) {
+        setOpenFilter(null);
+      }
+    };
+
+    const handleEscape = (event) => {
+      if (event.key === "Escape") setOpenFilter(null);
+    };
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [openFilter]);
+
+  const getUniqueFilterValues = (getter) =>
+    [...new Set(batches.map(getter).filter(Boolean))]
+      .sort((a, b) => String(a).localeCompare(String(b)));
+
+  const batchFilterOptions = {
+    academy: getUniqueFilterValues(
+      (batch) => batch.academies?.academy_name || "—"
+    ),
+    center: getUniqueFilterValues(
+      (batch) => batch.centers?.center_name || "—"
+    ),
+    ageGroup: getUniqueFilterValues(
+      (batch) => batch.age_group || "—"
+    )
+  };
+
+  const toggleBatchFilterValue = (column, value) => {
+    setBatchColumnFilters((current) => ({
+      ...current,
+      [column]: current[column].includes(value)
+        ? current[column].filter((item) => item !== value)
+        : [...current[column], value]
+    }));
+    setCurrentPage(1);
+  };
+
+  const clearBatchColumnFilter = (column) => {
+    setBatchColumnFilters((current) => ({
+      ...current,
+      [column]: []
+    }));
+    setCurrentPage(1);
+  };
+
+  const clearAllBatchFilters = () => {
+    setBatchSearchTerm("");
+    setBatchColumnFilters({
+      academy: [],
+      center: [],
+      ageGroup: []
+    });
+    setCurrentPage(1);
+    setOpenFilter(null);
+  };
+
+  const activeBatchFilterCount =
+    (batchSearchTerm.trim() ? 1 : 0) +
+    Object.values(batchColumnFilters).filter(
+      (values) => values.length > 0
+    ).length;
+
+  const renderBatchColumnFilter = (
+    column,
+    label,
+    options,
+    type = "list"
+  ) => {
+    const isOpen = openFilter === column;
+    const selectedValues = batchColumnFilters[column] || [];
+
+    return (
+      <div className="batches-column-filter">
+        <button
+          type="button"
+          className={"batches-filter-trigger" + (
+            selectedValues.length ||
+            (column === "batch" && batchSearchTerm.trim())
+              ? " batches-filter-trigger-active"
+              : ""
+          )}
+          onClick={() => setOpenFilter(isOpen ? null : column)}
+          aria-haspopup="dialog"
+          aria-expanded={isOpen}
+          aria-label={"Filter " + label}
+        >
+          <span>{label}</span>
+          <span aria-hidden="true">⌄</span>
+        </button>
+
+        {isOpen && (
+          <div
+            className="batches-filter-popover"
+            role="dialog"
+            aria-label={label + " filter"}
+          >
+            {type === "text" ? (
+              <div className="batches-filter-search">
+                <input
+                  autoFocus
+                  type="search"
+                  placeholder={"Search " + label.toLowerCase() + "..."}
+                  value={batchSearchTerm}
+                  onChange={(event) => {
+                    setBatchSearchTerm(event.target.value);
+                    setCurrentPage(1);
+                  }}
+                />
+              </div>
+            ) : (
+              <>
+                <div className="batches-filter-popover-header">
+                  <strong>Filter {label}</strong>
+                  {selectedValues.length > 0 && (
+                    <button
+                      type="button"
+                      className="batches-filter-clear-button"
+                      onClick={() => clearBatchColumnFilter(column)}
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+
+                <div className="batches-filter-options">
+                  {options.length === 0 ? (
+                    <span className="batches-filter-empty">No values available</span>
+                  ) : (
+                    options.map((option) => (
+                      <label key={option} className="batches-filter-option">
+                        <input
+                          type="checkbox"
+                          checked={selectedValues.includes(option)}
+                          onChange={() => toggleBatchFilterValue(column, option)}
+                        />
+                        <span>{option}</span>
+                      </label>
+                    ))
+                  )}
+                </div>
+              </>
+            )}
+
+            <div className="batches-filter-popover-footer">
+              <button
+                type="button"
+                className="batches-filter-done-button"
+                onClick={() => setOpenFilter(null)}
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
   };
 
 if (!user) {
