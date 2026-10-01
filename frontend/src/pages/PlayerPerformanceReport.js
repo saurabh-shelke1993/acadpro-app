@@ -599,8 +599,8 @@ function PlayerPerformanceReport() {
           </div>
 
           <div className="performance-filter-summary">
-            <strong>{filteredPlayers.length}</strong>
-            <span>player{filteredPlayers.length === 1 ? "" : "s"} in current scope</span>
+            <strong>{scopedPlayers.length}</strong>
+            <span>player{scopedPlayers.length === 1 ? "" : "s"} in current scope</span>
             {selectedAcademyId ? (
               <span className="performance-scope-chip">
                 {players.find((player) => player.academy_id === selectedAcademyId)?.academies?.academy_name || "Selected academy"}
