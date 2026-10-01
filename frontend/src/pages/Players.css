@@ -929,13 +929,20 @@
 }
 
 .players-filter-options {
-  max-height: 230px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  max-height: 170px;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 0.4rem 0.65rem;
 }
 
 .players-filter-option {
-  display: flex;
+  display: flex !important;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   align-items: center;
   gap: 0.5rem;
   min-height: 32px;
@@ -943,7 +950,21 @@
   border-radius: 5px;
   color: var(--ap-slate-700);
   font-size: var(--ap-font-size-xs);
+  line-height: 1.25;
   cursor: pointer;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.players-filter-option span {
+  min-width: 0;
+  flex: 1;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.players-filter-option input {
+  flex: 0 0 15px;
 }
 
 .players-filter-option:hover {
