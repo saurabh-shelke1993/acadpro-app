@@ -59,6 +59,14 @@ function Players() {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [openFilter, setOpenFilter] = useState(null);
+  const [columnFilters, setColumnFilters] = useState({
+    academy: [],
+    center: [],
+    batch: [],
+    gender: [],
+    status: [],
+  });
 
   const PAGE_SIZE = 8;
 
@@ -95,12 +103,7 @@ useEffect(() => {
   fetchAcademies();
   fetchPlayers();
 
-}, [
-  loggedInUser,
-  selectedAcademy,
-  selectedCenter,
-  selectedBatch
-]);
+}, [loggedInUser]);
 
   const calculateAge = (dob) => {
     if (!dob) return "";
@@ -631,16 +634,125 @@ const resetForm = () => {
 setSelectedBatch("");
 };
 
-  const filteredPlayers = players.filter(
-    (player) => {
-      const matchesSearch =
-        player.full_name
-          ?.toLowerCase()
-          .includes(searchTerm.toLowerCase());
+  useEffect(() => {
+    if (!openFilter) return;
 
-      return matchesSearch;
-    }
-  );
+    const handleOutsideClick = (event) => {
+      if (!event.target.closest(".players-column-filter")) {
+        setOpenFilter(null);
+      }
+    };
+
+    const handleEscape = (event) => {
+      if (event.key === "Escape") {
+        setOpenFilter(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [openFilter]);
+
+  const getUniqueFilterValues = (getter) =>
+    [...new Set(players.map(getter).filter(Boolean))]
+      .sort((a, b) => String(a).localeCompare(String(b)));
+
+  const filterOptions = {
+    academy: getUniqueFilterValues(
+      (player) => player.academies?.academy_name || "—"
+    ),
+    center: getUniqueFilterValues(
+      (player) => player.centers?.center_name || "—"
+    ),
+    batch: getUniqueFilterValues(
+      (player) => player.batches?.batch_name || "—"
+    ),
+    gender: getUniqueFilterValues(
+      (player) => player.gender || "—"
+    ),
+    status: getUniqueFilterValues(
+      (player) => player.player_status || "Active"
+    ),
+  };
+
+  const toggleColumnFilterValue = (column, value) => {
+    setColumnFilters((current) => {
+      const values = current[column];
+      return {
+        ...current,
+        [column]: values.includes(value)
+          ? values.filter((item) => item !== value)
+          : [...values, value],
+      };
+    });
+    setCurrentPage(1);
+  };
+
+  const clearColumnFilter = (column) => {
+    setColumnFilters((current) => ({
+      ...current,
+      [column]: [],
+    }));
+    setCurrentPage(1);
+  };
+
+  const clearAllColumnFilters = () => {
+    setSearchTerm("");
+    setColumnFilters({
+      academy: [],
+      center: [],
+      batch: [],
+      gender: [],
+      status: [],
+    });
+    setCurrentPage(1);
+    setOpenFilter(null);
+  };
+
+  const activeFilterCount =
+    (searchTerm.trim() ? 1 : 0) +
+    Object.values(columnFilters).filter((values) => values.length > 0).length;
+
+  const filteredPlayers = players.filter((player) => {
+    const matchesPlayer =
+      !searchTerm.trim() ||
+      player.full_name
+        ?.toLowerCase()
+        .includes(searchTerm.trim().toLowerCase());
+
+    const matchesColumn = (column, value) =>
+      columnFilters[column].length === 0 ||
+      columnFilters[column].includes(value);
+
+    return (
+      matchesPlayer &&
+      matchesColumn(
+        "academy",
+        player.academies?.academy_name || "—"
+      ) &&
+      matchesColumn(
+        "center",
+        player.centers?.center_name || "—"
+      ) &&
+      matchesColumn(
+        "batch",
+        player.batches?.batch_name || "—"
+      ) &&
+      matchesColumn(
+        "gender",
+        player.gender || "—"
+      ) &&
+      matchesColumn(
+        "status",
+        player.player_status || "Active"
+      )
+    );
+  });
 
   const totalPages = Math.max(
     1,
@@ -652,12 +764,86 @@ setSelectedBatch("");
     currentPage * PAGE_SIZE
   );
 
-  const clearPlayerFilters = () => {
-    setSearchTerm("");
-    setSelectedAcademy("");
-    setSelectedCenter("");
-    setSelectedBatch("");
-    setCurrentPage(1);
+  const renderColumnFilter = (column, label, options, type = "list") => {
+    const isOpen = openFilter === column;
+    const selectedValues = columnFilters[column] || [];
+
+    return (
+      <div className="players-column-filter">
+        <button
+          type="button"
+          className={`players-filter-trigger${selectedValues.length || (column === "player" && searchTerm.trim()) ? " players-filter-trigger-active" : ""}`}
+          onClick={() => setOpenFilter(isOpen ? null : column)}
+          aria-haspopup="dialog"
+          aria-expanded={isOpen}
+          aria-label={`Filter ${label}`}
+        >
+          <span>{label}</span>
+          <span aria-hidden="true">⌄</span>
+        </button>
+
+        {isOpen && (
+          <div className="players-filter-popover" role="dialog" aria-label={`${label} filter`}>
+            {type === "text" ? (
+              <div className="players-filter-search">
+                <input
+                  autoFocus
+                  type="search"
+                  placeholder={`Search ${label.toLowerCase()}...`}
+                  value={searchTerm}
+                  onChange={(event) => {
+                    setSearchTerm(event.target.value);
+                    setCurrentPage(1);
+                  }}
+                />
+              </div>
+            ) : (
+              <>
+                <div className="players-filter-popover-header">
+                  <strong>Filter {label}</strong>
+                  {selectedValues.length > 0 && (
+                    <button
+                      type="button"
+                      className="players-filter-clear-button"
+                      onClick={() => clearColumnFilter(column)}
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+
+                <div className="players-filter-options">
+                  {options.length === 0 ? (
+                    <span className="players-filter-empty">No values available</span>
+                  ) : (
+                    options.map((option) => (
+                      <label key={option} className="players-filter-option">
+                        <input
+                          type="checkbox"
+                          checked={selectedValues.includes(option)}
+                          onChange={() => toggleColumnFilterValue(column, option)}
+                        />
+                        <span>{option}</span>
+                      </label>
+                    ))
+                  )}
+                </div>
+              </>
+            )}
+
+            <div className="players-filter-popover-footer">
+              <button
+                type="button"
+                className="players-filter-done-button"
+                onClick={() => setOpenFilter(null)}
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
   };
 
 return (
@@ -882,132 +1068,6 @@ return (
         </section>
       )}
 
-      <section className="players-results-filter">
-        <div className="players-results-filter-header">
-          <div>
-            <span className="players-section-eyebrow">Results filter</span>
-            <h2>Find Players</h2>
-          </div>
-          <span className="players-filter-match-count">
-            {filteredPlayers.length}{" "}
-            {filteredPlayers.length === 1 ? "player" : "players"} match
-          </span>
-        </div>
-
-        <div className="players-results-filter-grid">
-          <div className="players-field players-search-filter-field">
-            <label htmlFor="players-search-input">Player</label>
-            <input
-              id="players-search-input"
-              type="search"
-              placeholder="Search player name..."
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setCurrentPage(1);
-              }}
-            />
-          </div>
-
-          {isSuperAdmin(loggedInUser) ? (
-            <div className="players-field">
-              <label htmlFor="player-filter-academy">Academy</label>
-              <select
-                id="player-filter-academy"
-                value={selectedAcademy}
-                onChange={(e) => {
-                  setSelectedAcademy(e.target.value);
-                  setSelectedCenter("");
-                  setSelectedBatch("");
-                  setCurrentPage(1);
-                }}
-              >
-                <option value="">All Academies</option>
-                {academies.map((academy) => (
-                  <option key={academy.id} value={academy.id}>
-                    {academy.academy_name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          ) : (
-            <div className="players-field">
-              <label htmlFor="player-filter-academy">Academy</label>
-              <input
-                id="player-filter-academy"
-                type="text"
-                value={
-                  academies.find(
-                    (academy) => academy.id === selectedAcademy
-                  )?.academy_name ||
-                  loggedInUser?.academy_name ||
-                  ""
-                }
-                disabled
-              />
-            </div>
-          )}
-
-          <div className="players-field">
-            <label htmlFor="player-filter-center">Center</label>
-            <select
-              id="player-filter-center"
-              value={selectedCenter}
-              onChange={(e) => {
-                setSelectedCenter(e.target.value);
-                setSelectedBatch("");
-                setCurrentPage(1);
-              }}
-              disabled={!selectedAcademy}
-            >
-              <option value="">All Centers</option>
-              {centers.map((center) => (
-                <option key={center.id} value={center.id}>
-                  {center.center_name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="players-field">
-            <label htmlFor="player-filter-batch">Batch</label>
-            <select
-              id="player-filter-batch"
-              value={selectedBatch}
-              onChange={(e) => {
-                setSelectedBatch(e.target.value);
-                setCurrentPage(1);
-              }}
-              disabled={!selectedCenter}
-            >
-              <option value="">All Batches</option>
-              {batches.map((batch) => (
-                <option key={batch.id} value={batch.id}>
-                  {batch.batch_name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <button
-            className="player-secondary-button players-filter-reset-button"
-            type="button"
-            onClick={clearPlayerFilters}
-          >
-            Clear Filters
-          </button>
-        </div>
-      </section>
-
-      {isSuperAdmin(loggedInUser) && (
-        <div className="players-import-wrapper">
-          <PlayerImport
-            loggedInUser={loggedInUser}
-            onImportComplete={fetchPlayers}
-          />
-        </div>
-      )}
-
       <section className="players-results-section">
         <div className="players-list-header">
           <div>
@@ -1016,9 +1076,24 @@ return (
             <p>
               {filteredPlayers.length}{" "}
               {filteredPlayers.length === 1 ? "player" : "players"} shown
-              {searchTerm ? ` · Filtered by "${searchTerm}"` : ""}
             </p>
           </div>
+          <div className="players-list-filter-summary">
+            {activeFilterCount > 0 && (
+              <>
+                <span>{activeFilterCount} active filter{activeFilterCount === 1 ? "" : "s"}</span>
+                <button
+                  type="button"
+                  className="player-secondary-button"
+                  onClick={clearAllColumnFilters}
+                >
+                  Clear all
+                </button>
+              </>
+            )}
+            <span>Page {currentPage} of {totalPages}</span>
+          </div>
+        </div>/div>
           <div className="players-results-count">
             Page {currentPage} of {totalPages}
           </div>
@@ -1031,14 +1106,14 @@ return (
             </caption>
             <thead>
               <tr>
-                <th scope="col">Player</th>
-                <th scope="col">Academy</th>
-                <th scope="col">Center</th>
-                <th scope="col">Batch</th>
+                <th scope="col">{renderColumnFilter("player", "Player", [], "text")}</th>
+                <th scope="col">{renderColumnFilter("academy", "Academy", filterOptions.academy)}</th>
+                <th scope="col">{renderColumnFilter("center", "Center", filterOptions.center)}</th>
+                <th scope="col">{renderColumnFilter("batch", "Batch", filterOptions.batch)}</th>
                 <th scope="col">Age</th>
-                <th scope="col">Gender</th>
+                <th scope="col">{renderColumnFilter("gender", "Gender", filterOptions.gender)}</th>
                 <th scope="col">Joining Date</th>
-                <th scope="col">Status</th>
+                <th scope="col">{renderColumnFilter("status", "Status", filterOptions.status)}</th>
                 <th scope="col">Parent Phone</th>
                 {!isCoach(loggedInUser) && <th scope="col">Actions</th>}
               </tr>
