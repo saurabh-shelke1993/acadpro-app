@@ -26,3 +26,19 @@ body {
   background: #c1c1c1;
   border-radius: 3px;
 }
+
+
+/* Management pages use compact in-content workspaces; the redundant page hero is hidden. */
+.academy-page-header,
+.centers-page-header,
+.batches-page-header,
+.players-page-header,
+.coaches-page-header,
+.coach-mapping-header,
+.attendance-page-header,
+.attendance-history-header,
+.subscription-plans-header,
+.player-subscriptions-header,
+.payment-page-header {
+  display: none !important;
+}
