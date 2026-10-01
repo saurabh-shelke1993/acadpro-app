@@ -731,3 +731,116 @@
     flex-wrap: wrap;
   }
 }
+
+
+/* Results filter follows the Payment Collections pattern:
+   one compact full-width filter bar directly above the result set. */
+.players-form-card-full {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 0.65rem;
+}
+
+.players-results-filter {
+  margin-top: 0.7rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--ap-border);
+  border-radius: var(--ap-radius-xl);
+  background: var(--ap-surface);
+  box-shadow: var(--ap-shadow-sm);
+}
+
+.players-results-filter-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.65rem;
+}
+
+.players-results-filter-header h2 {
+  margin: 0.1rem 0 0;
+  color: var(--ap-slate-950);
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+}
+
+.players-filter-match-count {
+  color: var(--ap-slate-500);
+  font-size: var(--ap-font-size-xs);
+  white-space: nowrap;
+}
+
+.players-results-filter-grid {
+  display: grid;
+  grid-template-columns: minmax(190px, 1.4fr) repeat(3, minmax(150px, 1fr)) auto;
+  align-items: end;
+  gap: 0.65rem;
+}
+
+.players-results-filter-grid .players-field {
+  min-width: 0;
+}
+
+.players-results-filter-grid .players-field label {
+  margin-bottom: 0.25rem;
+}
+
+.players-results-filter-grid input,
+.players-results-filter-grid select {
+  width: 100%;
+  min-height: 38px;
+  box-sizing: border-box;
+}
+
+.players-filter-reset-button {
+  min-height: 38px;
+  margin-left: 0;
+  white-space: nowrap;
+}
+
+.players-results-section {
+  margin-top: 0.7rem;
+}
+
+.players-results-section .players-list-header {
+  margin-bottom: 0.45rem;
+}
+
+@media (max-width: 1100px) {
+  .players-results-filter-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .players-search-filter-field {
+    grid-column: span 2;
+  }
+
+  .players-filter-reset-button {
+    justify-self: start;
+  }
+}
+
+@media (max-width: 700px) {
+  .players-results-filter {
+    padding: 0.7rem;
+  }
+
+  .players-results-filter-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .players-results-filter-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .players-search-filter-field {
+    grid-column: auto;
+  }
+
+  .players-filter-reset-button {
+    width: 100%;
+  }
+}
