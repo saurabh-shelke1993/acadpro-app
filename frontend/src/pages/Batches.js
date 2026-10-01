@@ -824,58 +824,8 @@ return (
         </div>
       </div>
 
-      <div className="batches-workspace">
-        <section className="batches-filter-card">
-        <div className="batches-section-heading">
-          <div>
-            <span className="batches-section-kicker">Filters</span>
-            <h2>Batch filters</h2>
-          </div>
-          <p>Use academy and center to narrow the batch list.</p>
-        </div>
-
-        <div className="batches-filter-grid">
-          {isSuperAdmin(user) && (
-            <div className="batches-field">
-              <label htmlFor="batch-filter-academy">Academy</label>
-              <select
-                id="batch-filter-academy"
-                value={selectedAcademy}
-                onChange={(e) => handleAcademyChange(e.target.value)}
-              >
-                <option value="">All Academies</option>
-                {academies.map((academy) => (
-                  <option key={academy.id} value={academy.id}>
-                    {academy.academy_name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          <div className="batches-field">
-            <label htmlFor="batch-filter-center">Center</label>
-            <select
-              id="batch-filter-center"
-              value={selectedCenter}
-              onChange={(e) => {
-                setSelectedCenter(e.target.value);
-                setCurrentPage(1);
-              }}
-            >
-              <option value="">All Centers</option>
-              {filteredCenters.map((center) => (
-                <option key={center.id} value={center.id}>
-                  {center.center_name}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-        </section>
-
-        {(isSuperAdmin(user) || isAcademyOwner(user)) && (
-          <section className="batches-form-card">
+      {(isSuperAdmin(user) || isAcademyOwner(user)) && (
+        <section className="batches-form-card batches-create-card">
           <div className="batches-section-heading">
             <div>
               <span className="batches-section-kicker">
@@ -886,12 +836,54 @@ return (
             <p>
               {editingBatchId
                 ? "Update the batch schedule, age group, or center."
-                : "Add a coaching batch with its age group and training schedule."}
+                : "Add a coaching batch with its academy, center, age group, and schedule."}
             </p>
           </div>
 
           <div className="batches-form-grid">
-            <div className="batches-field batches-field-wide">
+            {isSuperAdmin(user) && (
+              <div className="batches-field">
+                <label htmlFor="batch-academy">Academy</label>
+                <select
+                  id="batch-academy"
+                  value={selectedAcademy}
+                  onChange={(e) => handleAcademyChange(e.target.value)}
+                  aria-required="true"
+                >
+                  <option value="">Select academy</option>
+                  {academies.map((academy) => (
+                    <option key={academy.id} value={academy.id}>
+                      {academy.academy_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            <div className="batches-field">
+              <label htmlFor="batch-center">Center</label>
+              <select
+                id="batch-center"
+                value={selectedCenter}
+                onChange={(e) => setSelectedCenter(e.target.value)}
+                disabled={!selectedAcademy && isSuperAdmin(user)}
+                aria-required="true"
+              >
+                <option value="">Select center</option>
+                {(isSuperAdmin(user)
+                  ? filteredCenters
+                  : centers.filter(
+                      (center) => center.academy_id === user?.academy_id
+                    )
+                ).map((center) => (
+                  <option key={center.id} value={center.id}>
+                    {center.center_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="batches-field">
               <label htmlFor="batch-name">Batch name</label>
               <input
                 id="batch-name"
@@ -969,9 +961,8 @@ return (
               {editingBatchId ? "Update Batch" : "Create Batch"}
             </button>
           </div>
-          </section>
-        )}
-      </div>
+        </section>
+      )}
 
       <section className="batches-results-section">
         <div className="batches-results-header">
@@ -979,9 +970,28 @@ return (
             <span className="batches-section-kicker">Active batches</span>
             <h2>Batch List</h2>
           </div>
-          <span className="batches-results-count">
-            {batches.length} {batches.length === 1 ? "batch" : "batches"}
-          </span>
+          <div className="batches-list-filter-summary">
+            {activeBatchFilterCount > 0 && (
+              <>
+                <span>
+                  {activeBatchFilterCount} active filter
+                  {activeBatchFilterCount === 1 ? "" : "s"}
+                </span>
+                <button
+                  type="button"
+                  className="batches-secondary-button"
+                  onClick={clearAllBatchFilters}
+                >
+                  Clear all
+                </button>
+              </>
+            )}
+            <span>
+              {filteredBatches.length}{" "}
+              {filteredBatches.length === 1 ? "batch" : "batches"} shown
+            </span>
+            <span>Page {currentPage} of {totalPages}</span>
+          </div>
         </div>
 
         <div className="batches-table-wrap">
@@ -991,10 +1001,18 @@ return (
             </caption>
             <thead>
               <tr>
-                <th scope="col">Academy</th>
-                <th scope="col">Center</th>
-                <th scope="col">Batch</th>
-                <th scope="col">Age Group</th>
+                <th scope="col">
+                  {renderBatchColumnFilter("academy", "Academy", batchFilterOptions.academy)}
+                </th>
+                <th scope="col">
+                  {renderBatchColumnFilter("center", "Center", batchFilterOptions.center)}
+                </th>
+                <th scope="col">
+                  {renderBatchColumnFilter("batch", "Batch", [], "text")}
+                </th>
+                <th scope="col">
+                  {renderBatchColumnFilter("ageGroup", "Age Group", batchFilterOptions.ageGroup)}
+                </th>
                 <th scope="col">Schedule</th>
                 {(isSuperAdmin(user) || isAcademyOwner(user)) && (
                   <th scope="col" className="batches-actions-heading">Actions</th>
@@ -1002,14 +1020,18 @@ return (
               </tr>
             </thead>
             <tbody>
-              {batches.length === 0 ? (
+              {filteredBatches.length === 0 ? (
                 <tr>
                   <td
                     className="batches-empty-state"
                     colSpan={isSuperAdmin(user) || isAcademyOwner(user) ? 6 : 5}
                   >
                     <strong>No active batches</strong>
-                    <span>No batches match the current academy or center selection.</span>
+                    <span>
+                      {activeBatchFilterCount > 0
+                        ? "No batches match the current filters."
+                        : "No active batches are available."}
+                    </span>
                   </td>
                 </tr>
               ) : (
@@ -1082,10 +1104,10 @@ return (
             </tbody>
           </table>
 
-          {batches.length > 0 && (
+          {filteredBatches.length > 0 && (
             <div className="batches-pagination" aria-label="Batches pagination">
               <span className="batches-pagination-summary">
-                Showing {pageStartIndex + 1}–{Math.min(pageStartIndex + PAGE_SIZE, batches.length)} of {batches.length} batches
+                Showing {pageStartIndex + 1}–{Math.min(pageStartIndex + PAGE_SIZE, filteredBatches.length)} of {filteredBatches.length} batches
               </span>
               <div className="batches-pagination-controls">
                 <button
