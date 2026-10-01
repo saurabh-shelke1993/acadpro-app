@@ -3,6 +3,7 @@ import Layout from "../components/Layout";
 import "./CoachBatchMapping.css";
 import { supabase } from "../supabaseClient";
 import { getCurrentUser, isSuperAdmin } from "../utils/auth";
+import { isAcademyOwner } from "../utils/roles";
 
 function CoachBatchMapping() {
   const [user, setUser] = useState(null);
@@ -304,7 +305,7 @@ function CoachBatchMapping() {
     }
   };
 
-  const canManageMappings = isSuperAdmin(user);
+  const canManageMappings = isSuperAdmin(user) || isAcademyOwner(user);
 
   return (
     <Layout>
