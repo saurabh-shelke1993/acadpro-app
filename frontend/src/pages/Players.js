@@ -862,7 +862,8 @@ return (
       </div>
 
       {!isCoach(loggedInUser) && (
-        <section className="players-form-card players-form-card-full">
+        <div className="players-create-import-workspace">
+          <section className="players-form-card players-form-card-create">
           <div className="players-section-heading">
             <div>
               <span className="players-section-eyebrow">
@@ -1065,7 +1066,25 @@ return (
               Clear
             </button>
           </div>
-        </section>
+          </section>
+
+          {isSuperAdmin(loggedInUser) && (
+            <section className="players-form-card players-import-card">
+              <div className="players-section-heading">
+                <div>
+                  <span className="players-section-eyebrow">Bulk import</span>
+                  <h2>Import Players</h2>
+                </div>
+                <p>Upload multiple players from the Excel template.</p>
+              </div>
+
+              <PlayerImport
+                loggedInUser={loggedInUser}
+                onImportComplete={fetchPlayers}
+              />
+            </section>
+          )}
+        </div>
       )}
 
       <section className="players-results-section">
