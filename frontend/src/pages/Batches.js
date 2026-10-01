@@ -549,13 +549,8 @@ setEndTime(
       batch.batch_name
     );
 
-    setSelectedAcademy(
-      batch.academy_id
-    );
-
-    setSelectedCenter(
-      batch.center_id
-    );
+    handleAcademyChange(batch.academy_id);
+    setSelectedCenter(batch.center_id);
   };
 
   // =========================
