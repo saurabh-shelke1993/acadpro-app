@@ -1030,3 +1030,145 @@
     white-space: normal;
   }
 }
+
+
+/* Create + bulk import workspace
+   Keep player creation as the primary 60% workspace and bulk import as a
+   secondary 40% workspace for Super Admins. */
+.players-create-import-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(300px, 2fr);
+  gap: 0.75rem;
+  width: 100%;
+  margin-top: 0.65rem;
+  align-items: stretch;
+}
+
+.players-form-card-create,
+.players-import-card {
+  min-width: 0;
+  box-sizing: border-box;
+  margin-top: 0 !important;
+}
+
+.players-form-card-create {
+  width: 100%;
+}
+
+.players-import-card {
+  width: 100%;
+  overflow: hidden;
+}
+
+.players-import-card > .players-section-heading {
+  margin-bottom: 0.5rem;
+}
+
+.players-import-card > .players-section-heading p {
+  max-width: 52%;
+}
+
+.players-import-card .players-section-heading h2 {
+  font-size: 1.05rem;
+}
+
+.players-import-card > section[aria-label="Player Import"] {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 !important;
+  padding: 0.65rem 0.75rem !important;
+  border: 1px solid var(--ap-border) !important;
+  border-radius: var(--ap-radius-lg) !important;
+  background: var(--ap-slate-50) !important;
+  box-shadow: none !important;
+}
+
+.players-import-card > section[aria-label="Player Import"] h2 {
+  display: none;
+}
+
+.players-import-card > section[aria-label="Player Import"] > p {
+  margin: 0 0 0.55rem !important;
+  color: var(--ap-slate-500);
+  font-size: var(--ap-font-size-xs);
+  line-height: 1.4;
+}
+
+.players-import-card > section[aria-label="Player Import"] > div {
+  margin-top: 0 !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.players-import-card > section[aria-label="Player Import"] label {
+  display: block;
+  margin-bottom: 0.2rem;
+  font-size: var(--ap-font-size-xs);
+}
+
+.players-import-card > section[aria-label="Player Import"] select,
+.players-import-card > section[aria-label="Player Import"] input[type="file"] {
+  width: 100%;
+  min-height: 34px;
+  box-sizing: border-box;
+  padding: 0.3rem 0.45rem;
+  font-size: var(--ap-font-size-xs);
+}
+
+.players-import-card > section[aria-label="Player Import"] button {
+  min-height: 34px;
+  padding: 0.35rem 0.6rem;
+  font-size: var(--ap-font-size-xs);
+}
+
+.players-import-card > section[aria-label="Player Import"] [role="status"],
+.players-import-card > section[aria-label="Player Import"] [role="alert"] {
+  margin-top: 0.5rem !important;
+  padding: 0.55rem !important;
+  font-size: var(--ap-font-size-xs);
+}
+
+.players-import-card > section[aria-label="Player Import"] h3 {
+  margin: 0 0 0.4rem;
+  font-size: var(--ap-font-size-sm);
+}
+
+.players-import-card > section[aria-label="Player Import"] table {
+  min-width: 720px;
+  font-size: var(--ap-font-size-xs);
+}
+
+.players-import-card > section[aria-label="Player Import"] > div:last-child {
+  max-height: 260px;
+  overflow: auto;
+}
+
+@media (max-width: 1100px) {
+  .players-create-import-workspace {
+    grid-template-columns: minmax(0, 1.4fr) minmax(280px, 1fr);
+  }
+
+  .players-import-card > .players-section-heading p {
+    display: none;
+  }
+}
+
+@media (max-width: 820px) {
+  .players-create-import-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .players-import-card {
+    order: 2;
+  }
+}
+
+@media (max-width: 700px) {
+  .players-create-import-workspace {
+    gap: 0.65rem;
+  }
+
+  .players-form-card-create,
+  .players-import-card {
+    padding: 0.7rem !important;
+  }
+}
