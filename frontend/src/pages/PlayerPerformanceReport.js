@@ -314,14 +314,13 @@ function PlayerPerformanceReport() {
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [players, selectedAcademyId, selectedCenterId]);
 
-  const filteredPlayers = useMemo(() => {
+  const scopedPlayers = useMemo(() => {
     return players.filter((player) =>
       (!selectedAcademyId || player.academy_id === selectedAcademyId) &&
       (!selectedCenterId || player.center_id === selectedCenterId) &&
-      (!selectedBatchId || player.batch_id === selectedBatchId) &&
-      (!selectedPlayerId || player.id === selectedPlayerId)
+      (!selectedBatchId || player.batch_id === selectedBatchId)
     );
-  }, [players, selectedAcademyId, selectedCenterId, selectedBatchId, selectedPlayerId]);
+  }, [players, selectedAcademyId, selectedCenterId, selectedBatchId]);
 
   useEffect(() => {
     if (selectedCenterId && !centerOptions.some((center) => center.id === selectedCenterId)) {
@@ -337,16 +336,16 @@ function PlayerPerformanceReport() {
   }, [batchOptions, selectedBatchId]);
 
   useEffect(() => {
-    if (selectedPlayerId && !players.some((player) => player.id === selectedPlayerId)) {
+    if (selectedPlayerId && !scopedPlayers.some((player) => player.id === selectedPlayerId)) {
       setSelectedPlayerId("");
     }
-  }, [players, selectedPlayerId]);
+  }, [scopedPlayers, selectedPlayerId]);
 
   useEffect(() => {
     let isMounted = true;
 
     const loadLatestAssessments = async () => {
-      const playerIds = filteredPlayers.map((player) => player.id);
+      const playerIds = scopedPlayers.map((player) => player.id);
 
       if (!playerIds.length) {
         setLatestAssessments([]);
@@ -374,7 +373,7 @@ function PlayerPerformanceReport() {
           }
         });
 
-        const ranked = filteredPlayers
+        const ranked = scopedPlayers
           .map((player) => {
             const assessment = latestByPlayer.get(player.id);
             return {
@@ -406,7 +405,7 @@ function PlayerPerformanceReport() {
     return () => {
       isMounted = false;
     };
-  }, [filteredPlayers]);
+  }, [scopedPlayers]);
 
   useEffect(() => {
     let isMounted = true;
@@ -447,7 +446,8 @@ function PlayerPerformanceReport() {
     };
   }, [players, selectedPlayerId]);
 
-  const selectedPlayer = players.find((player) => player.id === selectedPlayerId) || null;
+  const playerOptions = scopedPlayers;
+  const selectedPlayer = scopedPlayers.find((player) => player.id === selectedPlayerId) || null;
   const latestAssessment = assessments[0] || null;
   const latestOverall = latestAssessment ? getAssessmentAverage(latestAssessment) : null;
   const latestTechnical = latestAssessment ? getCategoryAverage(latestAssessment, "technical") : null;
@@ -586,10 +586,10 @@ function PlayerPerformanceReport() {
               <select
                 value={selectedPlayerId}
                 onChange={(event) => setSelectedPlayerId(event.target.value)}
-                disabled={!filteredPlayers.length}
+                disabled={!playerOptions.length}
               >
-                <option value="">All players</option>
-                {filteredPlayers.map((player) => (
+                <option value="">Select a player</option>
+                {playerOptions.map((player) => (
                   <option key={player.id} value={player.id}>
                     {player.full_name}
                   </option>
@@ -654,8 +654,8 @@ function PlayerPerformanceReport() {
             </div>
           ) : (
             <div className="performance-empty-card">
-              <strong>{filteredPlayers.length ? "No performance assessments found in this scope." : "No players match the selected filters."}</strong>
-              <span>{filteredPlayers.length ? "Assessments are required before a player can appear in the Top 5." : "Change the academy, center, batch, or player filters."}</span>
+              <strong>{scopedPlayers.length ? "No performance assessments found in this scope." : "No players match the selected filters."}</strong>
+              <span>{scopedPlayers.length ? "Assessments are required before a player can appear in the Top 5." : "Change the academy, center, or batch filters."}</span>
             </div>
           )}
         </section>
