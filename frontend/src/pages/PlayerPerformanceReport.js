@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
   Bar,
@@ -32,6 +32,7 @@ const skillFields = [
 
 const assessmentColumns = [
   "id",
+  "player_id",
   "assessment_date",
   "ball_control_score",
   "passing_score",
@@ -47,37 +48,33 @@ const assessmentColumns = [
 ].join(", ");
 
 const playerColumns =
-  "id, full_name, academy_id, batch_id, academies(academy_name), batches!inner(batch_name, is_active)";
+  "id, full_name, academy_id, center_id, batch_id, academies(academy_name), centers(center_name), batches!inner(batch_name, age_group, start_time, end_time, is_active)";
 
 const getReportCopy = (user) => {
   if (isSuperAdmin(user)) {
     return {
       emptyMessage: "No active players are currently available across the academies you can access.",
-      playerPrompt: "Select a player",
-      subtitle: "View performance insights across all academies.",
+      subtitle: "Filter the player scope, then review the top 5 latest performance scores.",
     };
   }
 
   if (isAcademyOwner(user)) {
     return {
       emptyMessage: "No active players are currently available in your academy.",
-      playerPrompt: "Select a player from your academy",
-      subtitle: "View performance insights for your academy.",
+      subtitle: "Filter by center and batch, then review player performance.",
     };
   }
 
   if (isParent(user)) {
     return {
       emptyMessage: "No linked players are currently available for this account.",
-      playerPrompt: "Select a linked player",
       subtitle: "View performance insights for your linked player(s).",
     };
   }
 
   return {
     emptyMessage: "No players are currently available in your active assigned batches.",
-    playerPrompt: "Select an assigned player",
-    subtitle: "View performance insights for your assigned batches.",
+    subtitle: "Filter your assigned scope, then review player performance.",
   };
 };
 
@@ -117,6 +114,14 @@ const formatDate = (value) => {
     });
 };
 
+const formatTime = (value) => {
+  if (!value) return "—";
+  const parts = String(value).split(":");
+  const hour = Number(parts[0]);
+  if (Number.isNaN(hour)) return value;
+  return `${hour % 12 || 12}:${parts[1] || "00"} ${hour >= 12 ? "PM" : "AM"}`;
+};
+
 const getSkillGroups = (assessment) => {
   if (!assessment) return { strengths: [], improvementAreas: [] };
 
@@ -136,8 +141,13 @@ function PlayerPerformanceReport() {
   const [currentUser, setCurrentUser] = useState(null);
   const [players, setPlayers] = useState([]);
   const [selectedPlayerId, setSelectedPlayerId] = useState("");
+  const [selectedAcademyId, setSelectedAcademyId] = useState("");
+  const [selectedCenterId, setSelectedCenterId] = useState("");
+  const [selectedBatchId, setSelectedBatchId] = useState("");
   const [assessments, setAssessments] = useState([]);
+  const [latestAssessments, setLatestAssessments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [performanceLoading, setPerformanceLoading] = useState(false);
   const [assessmentLoading, setAssessmentLoading] = useState(false);
   const [error, setError] = useState("");
   const [searchParams] = useSearchParams();
@@ -150,14 +160,14 @@ function PlayerPerformanceReport() {
         setLoading(true);
         setError("");
 
-        const currentUser = await getCurrentUser();
-        if (!currentUser || !["super_admin", "academy_owner", "coach", "parent"].includes(currentUser.role)) {
+        const user = await getCurrentUser();
+        if (!user || !["super_admin", "academy_owner", "coach", "parent"].includes(user.role)) {
           throw new Error("Your account is not authorized to view performance reports.");
         }
 
         let accessiblePlayers = [];
 
-        if (isSuperAdmin(currentUser)) {
+        if (isSuperAdmin(user)) {
           const { data, error: playersError } = await supabase
             .from("players")
             .select(playerColumns)
@@ -167,38 +177,36 @@ function PlayerPerformanceReport() {
 
           if (playersError) throw playersError;
           accessiblePlayers = data || [];
-        } else if (isAcademyOwner(currentUser)) {
-          if (!currentUser.academy_id) {
+        } else if (isAcademyOwner(user)) {
+          if (!user.academy_id) {
             throw new Error("No academy is linked to this academy owner account.");
           }
 
           const { data, error: playersError } = await supabase
             .from("players")
             .select(playerColumns)
-            .eq("academy_id", currentUser.academy_id)
+            .eq("academy_id", user.academy_id)
             .eq("is_active", true)
             .eq("batches.is_active", true)
             .order("full_name", { ascending: true });
 
           if (playersError) throw playersError;
           accessiblePlayers = data || [];
-        } else if (isCoach(currentUser)) {
+        } else if (isCoach(user)) {
           const { data: coachRecord, error: coachError } = await supabase
             .from("coaches")
             .select("id")
-            .eq("user_id", currentUser.id)
+            .eq("user_id", user.id)
             .maybeSingle();
 
           if (coachError) throw coachError;
-          if (!coachRecord) {
-            throw new Error("No coach profile is linked to this account.");
-          }
+          if (!coachRecord) throw new Error("No coach profile is linked to this account.");
 
-          const batchIds = await getCoachAssignedBatchIds(currentUser);
+          const batchIds = await getCoachAssignedBatchIds(user);
           if (batchIds.length) {
             const { data, error: playersError } = await supabase
               .from("players")
-              .select("id, full_name, academy_id, batch_id, academies(academy_name), batches!inner(batch_name, is_active)")
+              .select(playerColumns)
               .in("batch_id", batchIds)
               .eq("is_active", true)
               .eq("batches.is_active", true)
@@ -207,17 +215,15 @@ function PlayerPerformanceReport() {
             if (playersError) throw playersError;
             accessiblePlayers = data || [];
           }
-        } else if (isParent(currentUser)) {
+        } else if (isParent(user)) {
           const { data: parentRecord, error: parentError } = await supabase
             .from("parents")
             .select("id")
-            .eq("user_id", currentUser.id)
+            .eq("user_id", user.id)
             .maybeSingle();
 
           if (parentError) throw parentError;
-          if (!parentRecord) {
-            throw new Error("No parent profile is linked to this account.");
-          }
+          if (!parentRecord) throw new Error("No parent profile is linked to this account.");
 
           const { data, error: playersError } = await supabase
             .from("players")
@@ -232,8 +238,16 @@ function PlayerPerformanceReport() {
         }
 
         if (!isMounted) return;
-        setCurrentUser(currentUser);
+        setCurrentUser(user);
         setPlayers(accessiblePlayers);
+
+        if (isSuperAdmin(user)) {
+          setSelectedAcademyId("");
+        } else if (isAcademyOwner(user)) {
+          setSelectedAcademyId(user.academy_id || "");
+        } else {
+          setSelectedAcademyId(accessiblePlayers[0]?.academy_id || "");
+        }
 
         const requestedPlayerId = searchParams.get("player");
         if (requestedPlayerId && accessiblePlayers.some((player) => player.id === requestedPlayerId)) {
@@ -255,18 +269,151 @@ function PlayerPerformanceReport() {
     };
   }, [searchParams]);
 
+  const academyOptions = useMemo(() => {
+    const map = new Map();
+    players.forEach((player) => {
+      if (player.academy_id && player.academies?.academy_name) {
+        map.set(player.academy_id, player.academies.academy_name);
+      }
+    });
+    return [...map.entries()]
+      .map(([id, name]) => ({ id, name }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [players]);
+
+  const centerOptions = useMemo(() => {
+    const scope = selectedAcademyId
+      ? players.filter((player) => player.academy_id === selectedAcademyId)
+      : players;
+
+    const map = new Map();
+    scope.forEach((player) => {
+      if (player.center_id && player.centers?.center_name) {
+        map.set(player.center_id, player.centers.center_name);
+      }
+    });
+    return [...map.entries()]
+      .map(([id, name]) => ({ id, name }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [players, selectedAcademyId]);
+
+  const batchOptions = useMemo(() => {
+    const scope = players.filter((player) =>
+      (!selectedAcademyId || player.academy_id === selectedAcademyId) &&
+      (!selectedCenterId || player.center_id === selectedCenterId)
+    );
+
+    const map = new Map();
+    scope.forEach((player) => {
+      if (player.batch_id && player.batches?.batch_name) {
+        map.set(player.batch_id, player.batches.batch_name);
+      }
+    });
+    return [...map.entries()]
+      .map(([id, name]) => ({ id, name }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [players, selectedAcademyId, selectedCenterId]);
+
+  const filteredPlayers = useMemo(() => {
+    return players.filter((player) =>
+      (!selectedAcademyId || player.academy_id === selectedAcademyId) &&
+      (!selectedCenterId || player.center_id === selectedCenterId) &&
+      (!selectedBatchId || player.batch_id === selectedBatchId) &&
+      (!selectedPlayerId || player.id === selectedPlayerId)
+    );
+  }, [players, selectedAcademyId, selectedCenterId, selectedBatchId, selectedPlayerId]);
+
+  useEffect(() => {
+    if (selectedCenterId && !centerOptions.some((center) => center.id === selectedCenterId)) {
+      setSelectedCenterId("");
+      setSelectedBatchId("");
+    }
+  }, [centerOptions, selectedCenterId]);
+
+  useEffect(() => {
+    if (selectedBatchId && !batchOptions.some((batch) => batch.id === selectedBatchId)) {
+      setSelectedBatchId("");
+    }
+  }, [batchOptions, selectedBatchId]);
+
+  useEffect(() => {
+    if (selectedPlayerId && !players.some((player) => player.id === selectedPlayerId)) {
+      setSelectedPlayerId("");
+    }
+  }, [players, selectedPlayerId]);
+
   useEffect(() => {
     let isMounted = true;
 
-    const loadAssessments = async () => {
-      if (!selectedPlayerId) {
-        setAssessments([]);
+    const loadLatestAssessments = async () => {
+      const playerIds = filteredPlayers.map((player) => player.id);
+
+      if (!playerIds.length) {
+        setLatestAssessments([]);
         return;
       }
 
-      if (!players.some((player) => player.id === selectedPlayerId)) {
+      try {
+        setPerformanceLoading(true);
+        setError("");
+
+        const { data, error: assessmentsError } = await supabase
+          .from("player_performance_assessments")
+          .select(assessmentColumns)
+          .in("player_id", playerIds)
+          .order("assessment_date", { ascending: false })
+          .order("created_at", { ascending: false })
+          .order("id", { ascending: false });
+
+        if (assessmentsError) throw assessmentsError;
+
+        const latestByPlayer = new Map();
+        (data || []).forEach((assessment) => {
+          if (!latestByPlayer.has(assessment.player_id)) {
+            latestByPlayer.set(assessment.player_id, assessment);
+          }
+        });
+
+        const ranked = filteredPlayers
+          .map((player) => {
+            const assessment = latestByPlayer.get(player.id);
+            return {
+              player,
+              assessment,
+              average: assessment ? getAssessmentAverage(assessment) : null,
+            };
+          })
+          .filter((item) => item.average !== null)
+          .sort((a, b) => {
+            if (b.average !== a.average) return b.average - a.average;
+            return a.player.full_name.localeCompare(b.player.full_name);
+          })
+          .slice(0, 5);
+
+        if (isMounted) setLatestAssessments(ranked);
+      } catch (loadError) {
+        if (!isMounted) return;
+        console.error("Top performance load error:", loadError);
+        setLatestAssessments([]);
+        setError("Unable to load the latest performance results. Please try again.");
+      } finally {
+        if (isMounted) setPerformanceLoading(false);
+      }
+    };
+
+    loadLatestAssessments();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [filteredPlayers]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadSelectedPlayerAssessments = async () => {
+      if (!selectedPlayerId || !players.some((player) => player.id === selectedPlayerId)) {
         setAssessments([]);
-        setError("The selected player is not available in your report scope.");
         return;
       }
 
@@ -293,7 +440,7 @@ function PlayerPerformanceReport() {
       }
     };
 
-    loadAssessments();
+    loadSelectedPlayerAssessments();
 
     return () => {
       isMounted = false;
@@ -303,23 +450,17 @@ function PlayerPerformanceReport() {
   const selectedPlayer = players.find((player) => player.id === selectedPlayerId) || null;
   const latestAssessment = assessments[0] || null;
   const latestOverall = latestAssessment ? getAssessmentAverage(latestAssessment) : null;
-  const latestTechnical = latestAssessment
-    ? getCategoryAverage(latestAssessment, "technical")
-    : null;
-  const latestFitness = latestAssessment
-    ? getCategoryAverage(latestAssessment, "fitness")
-    : null;
-  const latestTeamwork = latestAssessment
-    ? toValidScore(latestAssessment.teamwork_score)
-    : null;
-  const latestDiscipline = latestAssessment
-    ? toValidScore(latestAssessment.discipline_score)
-    : null;
+  const latestTechnical = latestAssessment ? getCategoryAverage(latestAssessment, "technical") : null;
+  const latestFitness = latestAssessment ? getCategoryAverage(latestAssessment, "fitness") : null;
+  const latestTeamwork = latestAssessment ? toValidScore(latestAssessment.teamwork_score) : null;
+  const latestDiscipline = latestAssessment ? toValidScore(latestAssessment.discipline_score) : null;
+
   const latestSkillData = latestAssessment
     ? skillFields
       .map((skill) => ({ label: skill.label, score: toValidScore(latestAssessment[skill.key]) }))
       .filter((skill) => skill.score !== null)
     : [];
+
   const trendData = assessments
     .slice()
     .reverse()
@@ -329,8 +470,21 @@ function PlayerPerformanceReport() {
       average: getAssessmentAverage(assessment),
     }))
     .filter((assessment) => assessment.average !== null);
+
   const { strengths, improvementAreas } = getSkillGroups(latestAssessment);
   const reportCopy = getReportCopy(currentUser);
+  const filterCount = [selectedAcademyId, selectedCenterId, selectedBatchId, selectedPlayerId].filter(Boolean).length;
+
+  const resetFilters = () => {
+    setSelectedAcademyId(isAcademyOwner(currentUser) ? currentUser.academy_id || "" : "");
+    setSelectedCenterId("");
+    setSelectedBatchId("");
+    setSelectedPlayerId("");
+  };
+
+  const selectTopPlayer = (playerId) => {
+    setSelectedPlayerId(playerId);
+  };
 
   if (loading) {
     return <Layout><h2>Loading player performance report...</h2></Layout>;
@@ -338,69 +492,210 @@ function PlayerPerformanceReport() {
 
   return (
     <Layout>
-      <main className="performance-page" style={styles.page}>
-        <header className="performance-header" style={styles.header}>
+      <main className="performance-page">
+        <header className="performance-header">
           <div>
             <div className="performance-eyebrow">Performance</div>
-            <h1 style={styles.title}>Player Performance Report</h1>
-            <p style={styles.subtitle}>{reportCopy.subtitle}</p>
+            <h1>Player Performance Report</h1>
+            <p>{reportCopy.subtitle}</p>
           </div>
-          {selectedPlayer ? <div className="performance-header-badge">{assessments.length} assessment{assessments.length === 1 ? "" : "s"}</div> : null}
+          {selectedPlayer ? (
+            <div className="performance-header-badge">
+              {assessments.length} assessment{assessments.length === 1 ? "" : "s"}
+            </div>
+          ) : null}
         </header>
 
-        {error ? <p role="alert" style={styles.error}>{error}</p> : null}
+        {error ? <p role="alert" className="performance-error">{error}</p> : null}
 
-        <section className="performance-card" style={styles.card}>
-          <label htmlFor="report-player" style={styles.label}>Select player</label>
-          <select
-            id="report-player"
-            value={selectedPlayerId}
-            onChange={(event) => setSelectedPlayerId(event.target.value)}
-            style={styles.input}
-          >
-            <option value="">{reportCopy.playerPrompt}</option>
-            {players.map((player) => (
-              <option key={player.id} value={player.id}>
-                {player.full_name} — {player.batches?.batch_name || "No batch"}
-              </option>
-            ))}
-          </select>
-          {!players.length ? <p style={styles.message}>{reportCopy.emptyMessage}</p> : null}
+        <section className="performance-filter-card" aria-label="Performance report filters">
+          <div className="performance-filter-heading">
+            <div>
+              <span className="performance-section-eyebrow">Report scope</span>
+              <h2>Filter performance</h2>
+            </div>
+            {filterCount > 0 ? (
+              <button type="button" className="performance-filter-reset" onClick={resetFilters}>
+                Reset filters
+              </button>
+            ) : null}
+          </div>
+
+          <div className="performance-filter-grid">
+            {isSuperAdmin(currentUser) ? (
+              <label>
+                <span>Academy</span>
+                <select
+                  value={selectedAcademyId}
+                  onChange={(event) => {
+                    setSelectedAcademyId(event.target.value);
+                    setSelectedCenterId("");
+                    setSelectedBatchId("");
+                    setSelectedPlayerId("");
+                  }}
+                >
+                  <option value="">All academies</option>
+                  {academyOptions.map((academy) => (
+                    <option key={academy.id} value={academy.id}>{academy.name}</option>
+                  ))}
+                </select>
+              </label>
+            ) : null}
+
+            {!isParent(currentUser) ? (
+              <label>
+                <span>Center</span>
+                <select
+                  value={selectedCenterId}
+                  onChange={(event) => {
+                    setSelectedCenterId(event.target.value);
+                    setSelectedBatchId("");
+                    setSelectedPlayerId("");
+                  }}
+                  disabled={!centerOptions.length}
+                >
+                  <option value="">All centers</option>
+                  {centerOptions.map((center) => (
+                    <option key={center.id} value={center.id}>{center.name}</option>
+                  ))}
+                </select>
+              </label>
+            ) : null}
+
+            {!isParent(currentUser) ? (
+              <label>
+                <span>Batch</span>
+                <select
+                  value={selectedBatchId}
+                  onChange={(event) => {
+                    setSelectedBatchId(event.target.value);
+                    setSelectedPlayerId("");
+                  }}
+                  disabled={!batchOptions.length}
+                >
+                  <option value="">All batches</option>
+                  {batchOptions.map((batch) => (
+                    <option key={batch.id} value={batch.id}>{batch.name}</option>
+                  ))}
+                </select>
+              </label>
+            ) : null}
+
+            <label className="performance-player-filter">
+              <span>Player</span>
+              <select
+                value={selectedPlayerId}
+                onChange={(event) => setSelectedPlayerId(event.target.value)}
+                disabled={!filteredPlayers.length}
+              >
+                <option value="">All players</option>
+                {filteredPlayers.map((player) => (
+                  <option key={player.id} value={player.id}>
+                    {player.full_name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <div className="performance-filter-summary">
+            <strong>{filteredPlayers.length}</strong>
+            <span>player{filteredPlayers.length === 1 ? "" : "s"} in current scope</span>
+            {selectedAcademyId ? (
+              <span className="performance-scope-chip">
+                {players.find((player) => player.academy_id === selectedAcademyId)?.academies?.academy_name || "Selected academy"}
+              </span>
+            ) : null}
+            {selectedCenterId ? (
+              <span className="performance-scope-chip">
+                {centerOptions.find((center) => center.id === selectedCenterId)?.name}
+              </span>
+            ) : null}
+            {selectedBatchId ? (
+              <span className="performance-scope-chip">
+                {batchOptions.find((batch) => batch.id === selectedBatchId)?.name}
+              </span>
+            ) : null}
+          </div>
+        </section>
+
+        <section className="performance-top-section" aria-labelledby="top-performance-heading">
+          <div className="performance-section-header">
+            <div>
+              <span className="performance-section-eyebrow">Latest assessment</span>
+              <h2 id="top-performance-heading">Top 5 Performance</h2>
+              <p>Ranked by the latest available overall skill average in the selected scope.</p>
+            </div>
+            <span className="performance-result-count">{latestAssessments.length} result{latestAssessments.length === 1 ? "" : "s"}</span>
+          </div>
+
+          {performanceLoading ? (
+            <div className="performance-empty-card"><strong>Loading performance results…</strong><span>Calculating the latest scores for the selected players.</span></div>
+          ) : latestAssessments.length ? (
+            <div className="performance-top-grid">
+              {latestAssessments.map((item, index) => (
+                <button
+                  type="button"
+                  key={item.player.id}
+                  className={"performance-top-player " + (selectedPlayerId === item.player.id ? "performance-top-player-selected" : "")}
+                  onClick={() => selectTopPlayer(item.player.id)}
+                >
+                  <span className="performance-rank">{index + 1}</span>
+                  <span className="performance-top-player-main">
+                    <strong>{item.player.full_name}</strong>
+                    <small>{item.player.batches?.batch_name || "No batch"} · {item.player.centers?.center_name || "No center"}</small>
+                  </span>
+                  <span className="performance-top-score">
+                    <strong>{formatScore(item.average)}</strong>
+                    <small>/ 10</small>
+                  </span>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="performance-empty-card">
+              <strong>{filteredPlayers.length ? "No performance assessments found in this scope." : "No players match the selected filters."}</strong>
+              <span>{filteredPlayers.length ? "Assessments are required before a player can appear in the Top 5." : "Change the academy, center, batch, or player filters."}</span>
+            </div>
+          )}
         </section>
 
         {selectedPlayer ? (
           <>
-            <section className="performance-card" style={styles.card} aria-labelledby="player-overview-heading">
-              <h2 id="player-overview-heading" style={styles.sectionTitle}>Player overview</h2>
-              <div style={styles.overviewGrid}>
+            <section className="performance-card" aria-labelledby="player-overview-heading">
+              <h2 id="player-overview-heading">Player overview</h2>
+              <div className="overview-grid">
                 <OverviewItem label="Player" value={selectedPlayer.full_name} />
                 <OverviewItem label="Batch" value={selectedPlayer.batches?.batch_name || "Not assigned"} />
+                <OverviewItem label="Center" value={selectedPlayer.centers?.center_name || "Not assigned"} />
                 <OverviewItem label="Academy" value={selectedPlayer.academies?.academy_name || "Not available"} />
                 <OverviewItem label="Available assessments" value={String(assessments.length)} />
                 <OverviewItem label="Most recent assessment" value={latestAssessment ? formatDate(latestAssessment.assessment_date) : "—"} />
               </div>
             </section>
 
-            {assessmentLoading ? <section style={styles.card}><p style={styles.message}>Loading performance assessments...</p></section> : assessments.length ? (
+            {assessmentLoading ? (
+              <section className="performance-card"><p className="performance-message">Loading performance assessments...</p></section>
+            ) : assessments.length ? (
               <>
-                <section className="performance-card" style={styles.card} aria-labelledby="kpi-heading">
-                  <h2 id="kpi-heading" style={styles.sectionTitle}>Latest assessment overview</h2>
-                  <div style={styles.kpiGrid}>
+                <section className="performance-card" aria-labelledby="kpi-heading">
+                  <h2 id="kpi-heading">Latest assessment overview</h2>
+                  <div className="kpi-grid">
                     <KpiCard label="Overall average" value={formatScore(latestOverall)} />
                     <KpiCard label="Technical skills" value={formatScore(latestTechnical)} />
                     <KpiCard label="Fitness" value={formatScore(latestFitness)} />
                     <KpiCard label="Teamwork" value={formatScore(latestTeamwork)} />
                     <KpiCard label="Discipline" value={formatScore(latestDiscipline)} />
                   </div>
-                  <p style={styles.caption}>Scores use a 0–10 scale. Missing scores are excluded from averages.</p>
+                  <p className="performance-caption">Scores use a 0–10 scale. Missing scores are excluded from averages.</p>
                 </section>
 
-                <section style={styles.chartGrid}>
-                  <article className="performance-card" style={styles.card} aria-labelledby="skill-chart-heading">
-                    <h2 id="skill-chart-heading" style={styles.sectionTitle}>Skill-wise scores</h2>
+                <section className="performance-chart-grid">
+                  <article className="performance-card" aria-labelledby="skill-chart-heading">
+                    <h2 id="skill-chart-heading">Skill-wise scores</h2>
                     {latestSkillData.length ? (
                       <>
-                        <div style={styles.chart} aria-label="Horizontal bar chart of latest assessment skill scores on a zero to ten scale">
+                        <div className="performance-chart" aria-label="Horizontal bar chart of latest assessment skill scores on a zero to ten scale">
                           <ResponsiveContainer width="100%" height={Math.max(280, latestSkillData.length * 38)}>
                             <BarChart data={latestSkillData} layout="vertical" margin={{ top: 4, right: 24, left: 20, bottom: 4 }}>
                               <CartesianGrid strokeDasharray="3 3" />
@@ -411,17 +706,17 @@ function PlayerPerformanceReport() {
                             </BarChart>
                           </ResponsiveContainer>
                         </div>
-                        <div style={styles.skillValues} aria-label="Latest skill score values">
+                        <div className="skill-values" aria-label="Latest skill score values">
                           {latestSkillData.map((skill) => <span key={skill.label}>{skill.label}: <strong>{formatScore(skill.score)}</strong></span>)}
                         </div>
                       </>
-                    ) : <p style={styles.message}>No skill scores are available in the latest assessment.</p>}
+                    ) : <p className="performance-message">No skill scores are available in the latest assessment.</p>}
                   </article>
 
-                  <article className="performance-card" style={styles.card} aria-labelledby="trend-chart-heading">
-                    <h2 id="trend-chart-heading" style={styles.sectionTitle}>Performance trend</h2>
+                  <article className="performance-card" aria-labelledby="trend-chart-heading">
+                    <h2 id="trend-chart-heading">Performance trend</h2>
                     {trendData.length > 1 ? (
-                      <div style={styles.chart} aria-label="Line chart of overall average scores by assessment date on a zero to ten scale">
+                      <div className="performance-chart" aria-label="Line chart of overall average scores by assessment date on a zero to ten scale">
                         <ResponsiveContainer width="100%" height={300}>
                           <LineChart data={trendData} margin={{ top: 10, right: 18, left: 0, bottom: 22 }}>
                             <CartesianGrid strokeDasharray="3 3" />
@@ -433,47 +728,43 @@ function PlayerPerformanceReport() {
                         </ResponsiveContainer>
                       </div>
                     ) : trendData.length === 1 ? (
-                      <p style={styles.message}>One valid assessment is available: overall average {formatScore(trendData[0].average)} on {trendData[0].label}.</p>
-                    ) : <p style={styles.message}>No assessments with skill scores are available for a performance trend.</p>}
+                      <p className="performance-message">One valid assessment is available: overall average {formatScore(trendData[0].average)} on {trendData[0].label}.</p>
+                    ) : <p className="performance-message">No assessments with skill scores are available for a performance trend.</p>}
                   </article>
                 </section>
 
-                <section style={styles.chartGrid}>
-                  <article className="performance-card" style={styles.card}>
-                    <h2 style={styles.sectionTitle}>Strengths</h2>
-                    {strengths.length ? <p style={styles.message}>{strengths.join(", ")}</p> : <p style={styles.message}>No standout strengths recorded yet.</p>}
-                  </article>
-                  <article style={styles.card}>
-                    <h2 style={styles.sectionTitle}>Improvement areas</h2>
-                    {improvementAreas.length ? <p style={styles.message}>{improvementAreas.join(", ")}</p> : <p style={styles.message}>No specific improvement areas identified.</p>}
-                  </article>
+                <section className="performance-chart-grid">
+                  <article className="performance-card"><h2>Strengths</h2>{strengths.length ? <p className="performance-message">{strengths.join(", ")}</p> : <p className="performance-message">No standout strengths recorded yet.</p>}</article>
+                  <article className="performance-card"><h2>Improvement areas</h2>{improvementAreas.length ? <p className="performance-message">{improvementAreas.join(", ")}</p> : <p className="performance-message">No specific improvement areas identified.</p>}</article>
                 </section>
 
-                <section className="performance-card" style={styles.card} aria-labelledby="remarks-heading">
-                  <h2 id="remarks-heading" style={styles.sectionTitle}>Latest coach remarks</h2>
-                  <p style={styles.remarks}>{latestAssessment.coach_remarks || "No coach remarks recorded."}</p>
+                <section className="performance-card" aria-labelledby="remarks-heading">
+                  <h2 id="remarks-heading">Latest coach remarks</h2>
+                  <p className="performance-remarks">{latestAssessment.coach_remarks || "No coach remarks recorded."}</p>
                 </section>
 
-                <section className="performance-card" style={styles.card} aria-labelledby="history-heading">
-                  <h2 id="history-heading" style={styles.sectionTitle}>Assessment history</h2>
-                  <div style={styles.historyList}>
+                <section className="performance-card" aria-labelledby="history-heading">
+                  <h2 id="history-heading">Assessment history</h2>
+                  <div className="history-list">
                     {assessments.map((assessment) => (
-                      <article key={assessment.id} style={styles.historyItem}>
+                      <article key={assessment.id} className="history-item">
                         <strong>{formatDate(assessment.assessment_date)}</strong>
-                        <div style={styles.historyGrid}>
+                        <div className="history-grid">
                           <OverviewItem label="Overall average" value={formatScore(getAssessmentAverage(assessment))} />
                           <OverviewItem label="Technical average" value={formatScore(getCategoryAverage(assessment, "technical"))} />
                           <OverviewItem label="Fitness average" value={formatScore(getCategoryAverage(assessment, "fitness"))} />
                           <OverviewItem label="Teamwork" value={formatScore(toValidScore(assessment.teamwork_score))} />
                           <OverviewItem label="Discipline" value={formatScore(toValidScore(assessment.discipline_score))} />
                         </div>
-                        {assessment.coach_remarks ? <p style={styles.remarks}>{assessment.coach_remarks}</p> : null}
+                        {assessment.coach_remarks ? <p className="performance-remarks">{assessment.coach_remarks}</p> : null}
                       </article>
                     ))}
                   </div>
                 </section>
               </>
-            ) : <section style={styles.card}><p style={styles.message}>No performance assessments are available for this player yet.</p></section>}
+            ) : (
+              <section className="performance-card"><p className="performance-message">No performance assessments are available for this player yet.</p></section>
+            )}
           </>
         ) : null}
       </main>
@@ -482,45 +773,17 @@ function PlayerPerformanceReport() {
 }
 
 const OverviewItem = ({ label, value }) => (
-  <div style={styles.overviewItem}>
-    <span style={styles.overviewLabel}>{label}</span>
-    <strong style={styles.overviewValue}>{value}</strong>
+  <div className="overview-item">
+    <span className="overview-label">{label}</span>
+    <strong className="overview-value">{value}</strong>
   </div>
 );
 
 const KpiCard = ({ label, value }) => (
-  <div style={styles.kpiCard}>
-    <span style={styles.overviewLabel}>{label}</span>
-    <strong style={styles.kpiValue}>{value}</strong>
+  <div className="kpi-card">
+    <span className="overview-label">{label}</span>
+    <strong className="kpi-value">{value}</strong>
   </div>
 );
-
-const styles = {
-  page: { width: "100%", maxWidth: "1100px", margin: "0 auto", padding: "4px 0 30px", boxSizing: "border-box" },
-  header: { marginBottom: "24px" },
-  title: { margin: 0, color: "#0f172a", fontSize: "30px" },
-  subtitle: { margin: "8px 0 0", color: "#475569", lineHeight: 1.5 },
-  card: { minWidth: 0, marginTop: "18px", padding: "24px", borderRadius: "12px", background: "#fff", boxShadow: "0 2px 8px rgba(15, 23, 42, 0.08)", boxSizing: "border-box" },
-  sectionTitle: { margin: "0 0 14px", color: "#0f172a", fontSize: "22px" },
-  label: { display: "block", marginBottom: "6px", color: "#334155", fontSize: "14px", fontWeight: "bold" },
-  input: { width: "100%", padding: "10px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", boxSizing: "border-box", background: "#fff", color: "#0f172a", font: "inherit" },
-  error: { margin: "0 0 16px", padding: "12px 14px", borderRadius: "8px", background: "#fee2e2", color: "#991b1b" },
-  message: { margin: 0, color: "#475569", lineHeight: 1.5, overflowWrap: "anywhere" },
-  caption: { margin: "14px 0 0", color: "#64748b", fontSize: "14px" },
-  overviewGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(160px, 100%), 1fr))", gap: "16px" },
-  overviewItem: { minWidth: 0 },
-  overviewLabel: { display: "block", color: "#64748b", fontSize: "13px" },
-  overviewValue: { display: "block", marginTop: "5px", color: "#1e293b", overflowWrap: "anywhere" },
-  kpiGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(150px, 100%), 1fr))", gap: "14px" },
-  kpiCard: { padding: "16px", border: "1px solid #dbeafe", borderRadius: "10px", background: "#f8fbff" },
-  kpiValue: { display: "block", marginTop: "8px", color: "#1d4ed8", fontSize: "26px" },
-  chartGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(360px, 100%), 1fr))", gap: "18px" },
-  chart: { width: "100%", minWidth: 0 },
-  skillValues: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(135px, 100%), 1fr))", gap: "8px 14px", marginTop: "16px", color: "#475569", fontSize: "14px" },
-  remarks: { margin: "12px 0 0", color: "#475569", lineHeight: 1.5, whiteSpace: "pre-wrap", overflowWrap: "anywhere" },
-  historyList: { display: "flex", flexDirection: "column", gap: "12px" },
-  historyItem: { padding: "16px", border: "1px solid #e2e8f0", borderRadius: "10px", background: "#f8fafc", minWidth: 0 },
-  historyGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(135px, 100%), 1fr))", gap: "12px", marginTop: "14px" },
-};
 
 export default PlayerPerformanceReport;
