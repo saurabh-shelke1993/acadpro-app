@@ -284,7 +284,7 @@ function PlayerPerformanceReport() {
   const centerOptions = useMemo(() => {
     const scope = selectedAcademyId
       ? players.filter((player) => player.academy_id === selectedAcademyId)
-      : players;
+      : [];
 
     const map = new Map();
     scope.forEach((player) => {
@@ -298,9 +298,11 @@ function PlayerPerformanceReport() {
   }, [players, selectedAcademyId]);
 
   const batchOptions = useMemo(() => {
+    if (!selectedCenterId) return [];
+
     const scope = players.filter((player) =>
       (!selectedAcademyId || player.academy_id === selectedAcademyId) &&
-      (!selectedCenterId || player.center_id === selectedCenterId)
+      player.center_id === selectedCenterId
     );
 
     const map = new Map();
@@ -315,12 +317,14 @@ function PlayerPerformanceReport() {
   }, [players, selectedAcademyId, selectedCenterId]);
 
   const scopedPlayers = useMemo(() => {
+    if (isSuperAdmin(currentUser) && !selectedAcademyId) return [];
+
     return players.filter((player) =>
       (!selectedAcademyId || player.academy_id === selectedAcademyId) &&
       (!selectedCenterId || player.center_id === selectedCenterId) &&
       (!selectedBatchId || player.batch_id === selectedBatchId)
     );
-  }, [players, selectedAcademyId, selectedCenterId, selectedBatchId]);
+  }, [players, currentUser, selectedAcademyId, selectedCenterId, selectedBatchId]);
 
   useEffect(() => {
     if (selectedCenterId && !centerOptions.some((center) => center.id === selectedCenterId)) {
@@ -552,7 +556,7 @@ function PlayerPerformanceReport() {
                     setSelectedBatchId("");
                     setSelectedPlayerId("");
                   }}
-                  disabled={!centerOptions.length}
+                  disabled={isSuperAdmin(currentUser) ? !selectedAcademyId || !centerOptions.length : !centerOptions.length}
                 >
                   <option value="">All centers</option>
                   {centerOptions.map((center) => (
@@ -571,7 +575,7 @@ function PlayerPerformanceReport() {
                     setSelectedBatchId(event.target.value);
                     setSelectedPlayerId("");
                   }}
-                  disabled={!batchOptions.length}
+                  disabled={!selectedCenterId || !batchOptions.length}
                 >
                   <option value="">All batches</option>
                   {batchOptions.map((batch) => (
@@ -654,8 +658,20 @@ function PlayerPerformanceReport() {
             </div>
           ) : (
             <div className="performance-empty-card">
-              <strong>{scopedPlayers.length ? "No performance assessments found in this scope." : "No players match the selected filters."}</strong>
-              <span>{scopedPlayers.length ? "Assessments are required before a player can appear in the Top 5." : "Change the academy, center, or batch filters."}</span>
+              <strong>
+                {isSuperAdmin(currentUser) && !selectedAcademyId
+                  ? "Select an academy to view performance results."
+                  : scopedPlayers.length
+                    ? "No performance assessments found in this scope."
+                    : "No players match the selected filters."}
+              </strong>
+              <span>
+                {isSuperAdmin(currentUser) && !selectedAcademyId
+                  ? "Choose an academy first. Center and batch filters will then narrow the result set."
+                  : scopedPlayers.length
+                    ? "Assessments are required before a player can appear in the Top 5."
+                    : "Change the academy, center, or batch filters."}
+              </span>
             </div>
           )}
         </section>
