@@ -174,6 +174,14 @@ const ParentFinancialOverview = () => {
   const formatDueType = (value) =>
     String(value || "Due").replaceAll("_", " ").replace(/\b\w/g, (char) => char.toUpperCase());
 
+  const escapeHtml = (value) =>
+    String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+
   const printReceipt = (payment) => {
     if (!payment?.receipt_number) return;
 
@@ -192,7 +200,7 @@ const ParentFinancialOverview = () => {
     const paymentDate = formatDate(payment.payment_date, true);
 
     popup.document.write(
-      `<!doctype html><html><head><title>${payment.receipt_number}</title>
+      `<!doctype html><html><head><title>${escapeHtml(payment.receipt_number)}</title>
       <style>
         body{font-family:Arial,sans-serif;margin:40px;color:#0f172a}
         .receipt{max-width:680px;margin:auto;border:1px solid #dbe3ef;border-radius:12px;padding:32px}
@@ -206,15 +214,15 @@ const ParentFinancialOverview = () => {
       </style></head><body>
       <div class="receipt">
         <h1>Payment Receipt</h1>
-        <div class="muted">${academyName}</div>
-        <div class="title">Receipt ${payment.receipt_number}</div>
+        <div class="muted">${escapeHtml(academyName)}</div>
+        <div class="title">Receipt ${escapeHtml(payment.receipt_number)}</div>
         <div class="grid">
-          <div class="item"><span class="label">Player</span><span class="value">${childName}</span></div>
-          <div class="item"><span class="label">Amount</span><span class="value amount">${amount}</span></div>
-          <div class="item"><span class="label">Payment Date</span><span class="value">${paymentDate}</span></div>
+          <div class="item"><span class="label">Player</span><span class="value">${escapeHtml(childName)}</span></div>
+          <div class="item"><span class="label">Amount</span><span class="value amount">${escapeHtml(amount)}</span></div>
+          <div class="item"><span class="label">Payment Date</span><span class="value">${escapeHtml(paymentDate)}</span></div>
           <div class="item"><span class="label">Payment Mode</span><span class="value">${payment.payment_mode || "—"}</span></div>
           <div class="item"><span class="label">Transaction Reference</span><span class="value">${payment.transaction_reference || "—"}</span></div>
-          <div class="item"><span class="label">Receipt Number</span><span class="value">${payment.receipt_number}</span></div>
+          <div class="item"><span class="label">Receipt Number</span><span class="value">${escapeHtml(payment.receipt_number)}</span></div>
         </div>
         <div class="footer">Generated from AcadPro. Use the browser print dialog to print or save as PDF.</div>
       </div>
