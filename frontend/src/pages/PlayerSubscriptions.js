@@ -4,7 +4,7 @@ import "./PlayerSubscriptions.css";
 import { supabase } from "../services/supabase";
 import { getLoggedInUser, isSuperAdmin, getAcademyId } from "../utils/auth";
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 7;
 
 const BILLING_CYCLES = {
   monthly: "month",
