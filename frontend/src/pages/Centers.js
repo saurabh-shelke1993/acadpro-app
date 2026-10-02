@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import Layout from "../components/Layout";
 import { supabase } from "../services/supabase";
 
@@ -19,6 +20,8 @@ import "./Centers.css";
 
 const Centers = () => {
 
+const [searchParams] = useSearchParams();
+const academyContextId = searchParams.get("academyId") || "";
 const [user, setUser] = useState(null);
 
 const [centers, setCenters] = useState([]);
@@ -98,7 +101,10 @@ const fetchCenters = async () => {
       await getAccessibleCenters(user);
 
     setCenters(data || []);
-    setFilteredCenters(data || []);
+    const visibleCenters = academyContextId
+      ? (data || []).filter((center) => center.academy_id === academyContextId)
+      : (data || []);
+    setFilteredCenters(visibleCenters);
     setCurrentPage(1);
 
   } catch (error) {
@@ -422,7 +428,16 @@ return (
           tabIndex={0}
         >
           <td className="centers-academy-cell">{academyName}</td>
-          <td className="centers-name-cell">{center.center_name}</td>
+          <td className="centers-name-cell">
+            <Link
+              className="centers-drilldown-link"
+              to={`/batches?academyId=${center.academy_id}&centerId=${center.id}`}
+              onClick={(event) => event.stopPropagation()}
+              aria-label={`Open batches for ${center.center_name}`}
+            >
+              {center.center_name}
+            </Link>
+          </td>
 
           {(isSuperAdmin(user) || isAcademyOwner(user)) && (
             <td className="centers-actions-cell">
