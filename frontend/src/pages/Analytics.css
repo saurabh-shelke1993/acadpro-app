@@ -1090,3 +1090,8 @@
     margin-top: var(--ap-space-6);
   }
 }
+
+
+/* SA-4 drilldown links */
+.analytics-academy-row { color: inherit; text-decoration: none; cursor: pointer; }
+.analytics-academy-row:hover { text-decoration: none; }
