@@ -44,10 +44,10 @@ const Batches = () => {
     useState([]);
 
   const [selectedAcademy, setSelectedAcademy] =
-    useState("");
+    useState(academyContextId);
 
   const [selectedCenter, setSelectedCenter] =
-    useState("");
+    useState(centerContextId);
 
   const [batchName, setBatchName] =
     useState("");
