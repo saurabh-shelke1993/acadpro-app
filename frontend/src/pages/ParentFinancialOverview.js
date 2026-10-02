@@ -218,6 +218,25 @@ const ParentFinancialOverview = () => {
 
   if (error) {
     return (
+      <Layout>
+        <main className="parent-finance-page">
+          <section className="parent-finance-state-card">
+            <span className="parent-finance-state-icon" aria-hidden="true">!</span>
+            <div>
+              <span className="parent-finance-kicker">Financial overview</span>
+              <h1>Unable to load financial information</h1>
+              <p>{error}</p>
+              <button type="button" onClick={() => setLoadAttempt((value) => value + 1)}>
+                Try again
+              </button>
+            </div>
+          </section>
+        </main>
+      </Layout>
+    );
+  }
+
+  return (
     <Layout>
       <main className="parent-finance-page">
         {children.length > 0 ? (
