@@ -691,7 +691,10 @@ useEffect(() => {
 }, [correctionStatusFilter, correctionSearch]);
 
 const openCollectionModal = () => setShowCollectionModal(true);
-const closeCollectionModal = () => setShowCollectionModal(false);
+const closeCollectionModal = () => {
+  setShowCollectionModal(false);
+  resetCollectionForm();
+};
 
 const resetCollectionForm = () => {
 
