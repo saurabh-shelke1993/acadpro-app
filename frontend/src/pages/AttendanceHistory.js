@@ -19,7 +19,7 @@ import {
 import Layout from "../components/Layout";
 import "./AttendanceHistory.css";
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 5;
 
 function AttendanceHistory() {
   const [user, setUser] = useState(null);
@@ -31,7 +31,8 @@ function AttendanceHistory() {
   const [selectedBatch, setSelectedBatch] = useState("");
   const [selectedPlayer, setSelectedPlayer] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
-  const [selectedDate, setSelectedDate] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [attendanceHistory, setAttendanceHistory] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -173,8 +174,12 @@ function AttendanceHistory() {
         query = query.eq("batch_id", selectedBatch);
       }
 
-      if (selectedDate) {
-        query = query.eq("attendance_date", selectedDate);
+      if (startDate) {
+        query = query.gte("attendance_date", startDate);
+      }
+
+      if (endDate) {
+        query = query.lte("attendance_date", endDate);
       }
 
       const { data, error } = await query;
@@ -194,7 +199,7 @@ function AttendanceHistory() {
   useEffect(() => {
     if (!user) return;
     fetchAttendanceHistory();
-  }, [user, selectedAcademy, selectedCenter, selectedBatch, selectedDate]);
+  }, [user, selectedAcademy, selectedCenter, selectedBatch, startDate, endDate]);
 
   const playerOptions = useMemo(() => {
     const map = new Map();
@@ -256,7 +261,8 @@ function AttendanceHistory() {
       selectedBatch ||
       selectedPlayer ||
       selectedStatus ||
-      selectedDate
+      startDate ||
+      endDate
   );
 
   const resetFilters = () => {
@@ -264,7 +270,8 @@ function AttendanceHistory() {
     setSelectedBatch("");
     setSelectedPlayer("");
     setSelectedStatus("");
-    setSelectedDate("");
+    setStartDate("");
+    setEndDate("");
     setCurrentPage(1);
 
     if (isSuperAdmin(user)) {
@@ -290,6 +297,19 @@ function AttendanceHistory() {
   const handleBatchChange = (value) => {
     setSelectedBatch(value);
     setSelectedPlayer("");
+    setCurrentPage(1);
+  };
+
+  const handleStartDateChange = (value) => {
+    setStartDate(value);
+    if (endDate && value && endDate < value) {
+      setEndDate("");
+    }
+    setCurrentPage(1);
+  };
+
+  const handleEndDateChange = (value) => {
+    setEndDate(value);
     setCurrentPage(1);
   };
 
@@ -461,14 +481,22 @@ function AttendanceHistory() {
             </label>
 
             <label className="attendance-history-field">
-              <span>Date</span>
+              <span>Start date</span>
               <input
                 type="date"
-                value={selectedDate}
-                onChange={(event) => {
-                  setSelectedDate(event.target.value);
-                  setCurrentPage(1);
-                }}
+                value={startDate}
+                max={endDate || undefined}
+                onChange={(event) => handleStartDateChange(event.target.value)}
+              />
+            </label>
+
+            <label className="attendance-history-field">
+              <span>End date</span>
+              <input
+                type="date"
+                value={endDate}
+                min={startDate || undefined}
+                onChange={(event) => handleEndDateChange(event.target.value)}
               />
             </label>
           </div>
@@ -502,8 +530,8 @@ function AttendanceHistory() {
             <span className="attendance-history-section-label">Records</span>
             <h2>Attendance records</h2>
             <p>
-              {selectedDate
-                ? `Showing records for ${formatDate(selectedDate)}.`
+              {startDate || endDate
+                ? `Showing records from ${startDate ? formatDate(startDate) : "the beginning"} to ${endDate ? formatDate(endDate) : "the latest available date"}.`
                 : "Latest attendance records first."}
             </p>
           </div>
@@ -555,11 +583,10 @@ function AttendanceHistory() {
             <div className="attendance-history-table-wrap">
               <table className="attendance-history-table">
                 <caption className="sr-only">
-                  Attendance history with status and available edit or delete actions
+                  Attendance history grouped by date with status and available edit or delete actions
                 </caption>
                 <thead>
                   <tr>
-                    <th scope="col">Date</th>
                     <th scope="col">Player</th>
                     <th scope="col">Center</th>
                     <th scope="col">Batch</th>
@@ -569,11 +596,31 @@ function AttendanceHistory() {
                   </tr>
                 </thead>
                 <tbody>
-                  {paginatedHistory.map((item) => (
+                  {(() => {
+                    let lastDate = null;
+                    return paginatedHistory.flatMap((item) => {
+                      const rows = [];
+                      if (item.attendance_date !== lastDate) {
+                        lastDate = item.attendance_date;
+                        rows.push(
+                          <tr key={`date-${item.attendance_date}`} className="attendance-history-date-group">
+                            <th colSpan="6" scope="rowgroup">
+                              <span>{formatDate(item.attendance_date)}</span>
+                              <small>
+                                {paginatedHistory.filter(
+                                  (record) => record.attendance_date === item.attendance_date
+                                ).length}{" "}
+                                record{paginatedHistory.filter(
+                                  (record) => record.attendance_date === item.attendance_date
+                                ).length === 1 ? "" : "s"}
+                              </small>
+                            </th>
+                          </tr>
+                        );
+                      }
+
+                      rows.push(
                     <tr key={item.id}>
-                      <td className="attendance-history-date-cell">
-                        {formatDate(item.attendance_date)}
-                      </td>
                       <td className="attendance-history-player-cell">
                         {item.players?.full_name || "—"}
                       </td>
@@ -657,7 +704,11 @@ function AttendanceHistory() {
                         </div>
                       </td>
                     </tr>
-                  ))}
+                      );
+
+                      return rows;
+                    });
+                  })()}
                 </tbody>
               </table>
             </div>
