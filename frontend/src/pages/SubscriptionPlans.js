@@ -274,10 +274,9 @@ function SubscriptionPlans() {
 
         <section className="subscription-plans-list-section">
           <div className="subscription-plans-list-toolbar">
-            <div>
-              <span className="subscription-plans-section-label">Plan catalogue</span>
+            <div className="subscription-plans-list-title">
               <h2>Plans</h2>
-              <p>{filteredPlans.length} {filteredPlans.length === 1 ? "plan" : "plans"} in the current view. <span className="subscription-plans-inline-summary">{activePlanCount} active · {inactivePlanCount} inactive</span></p>
+              <span>{filteredPlans.length} {filteredPlans.length === 1 ? "plan" : "plans"} · {activePlanCount} active · {inactivePlanCount} inactive</span>
             </div>
             <div className="subscription-plans-filters">
               {isSuperAdmin(loggedInUser) && <div className="subscription-plans-filter-field">
