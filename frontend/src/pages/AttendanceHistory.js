@@ -105,7 +105,7 @@ function AttendanceHistory() {
   }, [user, selectedAcademy]);
 
   useEffect(() => {
-    if (!user || !selectedCenter) {
+    if (!user || (!selectedAcademy && !isSuperAdmin(user))) {
       setBatches([]);
       return;
     }
@@ -129,7 +129,7 @@ function AttendanceHistory() {
     };
 
     fetchBatches();
-  }, [user, selectedCenter]);
+  }, [user, selectedAcademy, selectedCenter]);
 
   const fetchAttendanceHistory = async () => {
     if (!user) return;
@@ -416,7 +416,7 @@ function AttendanceHistory() {
               <select
                 value={selectedBatch}
                 onChange={(event) => handleBatchChange(event.target.value)}
-                disabled={!selectedCenter && batches.length === 0}
+                disabled={!user || batches.length === 0}
               >
                 <option value="">All batches</option>
                 {batches.map((batch) => (
