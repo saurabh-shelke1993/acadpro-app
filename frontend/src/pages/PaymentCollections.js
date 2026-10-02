@@ -690,6 +690,17 @@ const resetCollectionForm = () => {
       return;
     }
 
+    const remainingDue = Number(selectedDueData?.remaining_amount || 0);
+    if (!remainingDue) {
+      alert("The selected due has no remaining balance.");
+      return;
+    }
+
+    if (paymentAmount > remainingDue) {
+      alert(`Payment amount cannot exceed the remaining due of ₹${remainingDue.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}.`);
+      return;
+    }
+
     const { data, error } = await supabase.rpc("collect_payment", {
       p_due_id: selectedDue,
       p_amount: paymentAmount,
@@ -735,31 +746,6 @@ const resetCollectionForm = () => {
     await fetchPayments();
     await fetchCorrections();
   };
-
-useEffect(() => {
-
-  let filtered =
-    payments || [];
-
-  if (collectionPlayer) {
-
-    filtered =
-      filtered.filter(
-        (payment) =>
-          payment.player_id ===
-          collectionPlayer
-      );
-
-  }
-
-  setFilteredPayments(
-    filtered
-  );
-
-}, [
-  payments,
-  collectionPlayer
-]);
 
 const openCorrectionModal = (payment) => {
   setCorrectionPayment(payment);
@@ -1119,13 +1105,39 @@ return (
             </select>
           </label>
 
-          <label className="payment-field"><span>Amount Paid</span><input type="number" min="0.01" step="0.01" placeholder="Amount Paid" value={amountPaid} onChange={(e)=>setAmountPaid(e.target.value)} /></label>
+          {selectedDueData && (
+            <div className="payment-due-summary" aria-live="polite">
+              <div className="payment-due-summary-heading">
+                <div>
+                  <span>Selected Due</span>
+                  <strong>{String(selectedDueData.due_type || "Due").replace(/_/g, " ")} · {selectedDueData.due_date || "—"}</strong>
+                </div>
+                <span className={selectedDueData.due_status === "partial" ? "payment-status-badge payment-status-partial" : "payment-status-badge payment-status-pending"}>
+                  {selectedDueData.due_status === "partial" ? "Partial" : "Pending"}
+                </span>
+              </div>
+              <div className="payment-due-summary-grid">
+                <div><span>Total Due</span><strong>₹{Number(selectedDueData.total_amount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></div>
+                <div><span>Already Paid</span><strong>₹{Number(selectedDueData.paid_amount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></div>
+                <div><span>Remaining</span><strong>₹{selectedDueRemaining.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></div>
+              </div>
+            </div>
+          )}
+
+          <label className="payment-field"><span>Amount Paid</span><input type="number" min="0.01" step="0.01" max={selectedDueRemaining || undefined} placeholder={selectedDueRemaining ? `Max ₹${selectedDueRemaining}` : "Amount Paid"} value={amountPaid} onChange={(e)=>setAmountPaid(e.target.value)} aria-invalid={amountPaid && !isPaymentAmountValid} /></label>
           <label className="payment-field"><span>Payment Mode</span><select value={paymentMode} onChange={(e)=>setPaymentMode(e.target.value)}><option value="">Select Payment Mode</option><option value="cash">Cash</option><option value="upi">UPI</option><option value="bank_transfer">Bank Transfer</option></select></label>
         </div>
 
         <div className="payment-form-footer">
-          <div className="payment-helper-text">Transaction reference and receipt number are generated automatically after collection.</div>
-          <button type="button" className="payment-primary-button" onClick={collectPayment} disabled={!selectedDue || !amountPaid || !paymentMode}>Collect Payment</button>
+          <div className="payment-helper-text">
+            {!selectedDueData && "Select a pending due to continue."}
+            {selectedDueData && !amountPaid && "Enter the amount to collect."}
+            {selectedDueData && amountPaid && !isPaymentAmountValid && "Amount must be greater than ₹0 and cannot exceed the remaining due."}
+            {selectedDueData && isPaymentAmountValid && (
+              <span>Remaining after this payment: <strong>₹{remainingAfterPayment.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></span>
+            )}
+          </div>
+          <button type="button" className="payment-primary-button" onClick={collectPayment} disabled={!selectedDue || !isPaymentAmountValid || !paymentMode}>Collect Payment</button>
         </div>
       </section>
 
