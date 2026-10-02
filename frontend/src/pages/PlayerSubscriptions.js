@@ -55,6 +55,13 @@ function PlayerSubscriptions() {
   const [editingSubscriptionId, setEditingSubscriptionId] = useState(null);
   const [startDate, setStartDate] = useState(new Date().toISOString().split("T")[0]);
   const [statusFilter, setStatusFilter] = useState("active");
+  const [columnFilters, setColumnFilters] = useState({
+    academy: "",
+    center: "",
+    batch: "",
+    player: "",
+    plan: ""
+  });
   const [currentPage, setCurrentPage] = useState(1);
   const [toast, setToast] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -101,7 +108,17 @@ function PlayerSubscriptions() {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedAcademy, selectedCenter, selectedBatch, statusFilter]);
+  }, [selectedAcademy, selectedCenter, selectedBatch, statusFilter, columnFilters]);
+
+  useEffect(() => {
+    setColumnFilters({
+      academy: "",
+      center: "",
+      batch: "",
+      player: "",
+      plan: ""
+    });
+  }, [selectedAcademy, selectedCenter, selectedBatch]);
 
   const showToast = (type, message) => {
     setToast({ type, message });
@@ -405,10 +422,62 @@ function PlayerSubscriptions() {
     showToast("success", "Subscription deactivated.");
   };
 
-  const visibleSubscriptions = useMemo(() => {
-    if (statusFilter === "all") return subscriptions;
-    return subscriptions.filter((subscription) => subscription.status === statusFilter);
-  }, [subscriptions, statusFilter]);
+  const columnFilterOptions = useMemo(() => ({
+    academies: [...new Map(
+      subscriptions
+        .map((subscription) => [
+          subscription.players?.academy_id,
+          subscription.players?.academies?.academy_name
+        ])
+        .filter(([id, name]) => id && name)
+    ).entries()].map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name)),
+    centers: [...new Map(
+      subscriptions
+        .map((subscription) => [
+          subscription.players?.center_id,
+          subscription.players?.centers?.center_name
+        ])
+        .filter(([id, name]) => id && name)
+    ).entries()].map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name)),
+    batches: [...new Map(
+      subscriptions
+        .map((subscription) => [
+          subscription.players?.batch_id,
+          subscription.players?.batches?.batch_name
+        ])
+        .filter(([id, name]) => id && name)
+    ).entries()].map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name)),
+    players: [...new Map(
+      subscriptions
+        .map((subscription) => [
+          subscription.players?.id,
+          subscription.players?.full_name
+        ])
+        .filter(([id, name]) => id && name)
+    ).entries()].map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name)),
+    plans: [...new Map(
+      subscriptions
+        .map((subscription) => [
+          subscription.subscription_plan_id,
+          subscription.subscription_plans?.plan_name
+        ])
+        .filter(([id, name]) => id && name)
+    ).entries()].map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name))
+  }), [subscriptions]);
+
+  const filteredSubscriptions = useMemo(() => {
+    return subscriptions.filter((subscription) => {
+      if (columnFilters.academy && subscription.players?.academy_id !== columnFilters.academy) return false;
+      if (columnFilters.center && subscription.players?.center_id !== columnFilters.center) return false;
+      if (columnFilters.batch && subscription.players?.batch_id !== columnFilters.batch) return false;
+      if (columnFilters.player && subscription.players?.id !== columnFilters.player) return false;
+      if (columnFilters.plan && subscription.subscription_plan_id !== columnFilters.plan) return false;
+      if (statusFilter !== "all" && subscription.status !== statusFilter) return false;
+      return true;
+    });
+  }, [subscriptions, statusFilter, columnFilters]);
+
+  const visibleSubscriptions = filteredSubscriptions;
 
   const totalPages = Math.max(1, Math.ceil(visibleSubscriptions.length / PAGE_SIZE));
   const paginatedSubscriptions = visibleSubscriptions.slice(
@@ -618,6 +687,26 @@ function PlayerSubscriptions() {
                   <option value="all">All statuses</option>
                 </select>
               </div>
+              <button
+                type="button"
+                className="player-subscriptions-clear-filters"
+                onClick={() => {
+                  setStatusFilter("active");
+                  setColumnFilters({
+                    academy: "",
+                    center: "",
+                    batch: "",
+                    player: "",
+                    plan: ""
+                  });
+                }}
+                disabled={
+                  statusFilter === "active" &&
+                  !Object.values(columnFilters).some(Boolean)
+                }
+              >
+                Clear filters
+              </button>
             </div>
           </div>
 
@@ -626,11 +715,83 @@ function PlayerSubscriptions() {
               <caption className="sr-only">Player subscriptions</caption>
               <thead>
                 <tr>
-                  {isSuperAdmin(loggedInUser) && <th scope="col">Academy</th>}
-                  <th scope="col">Center</th>
-                  <th scope="col">Batch</th>
-                  <th scope="col">Player</th>
-                  <th scope="col">Plan</th>
+                  {isSuperAdmin(loggedInUser) && (
+                    <th scope="col">
+                      <div className="player-subscriptions-table-filter">
+                        <span>Academy</span>
+                        <select
+                          aria-label="Filter subscriptions by academy"
+                          value={columnFilters.academy}
+                          onChange={(e) => setColumnFilters((filters) => ({ ...filters, academy: e.target.value }))}
+                        >
+                          <option value="">All</option>
+                          {columnFilterOptions.academies.map((option) => (
+                            <option key={option.id} value={option.id}>{option.name}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </th>
+                  )}
+                  <th scope="col">
+                    <div className="player-subscriptions-table-filter">
+                      <span>Center</span>
+                      <select
+                        aria-label="Filter subscriptions by center"
+                        value={columnFilters.center}
+                        onChange={(e) => setColumnFilters((filters) => ({ ...filters, center: e.target.value }))}
+                      >
+                        <option value="">All</option>
+                        {columnFilterOptions.centers.map((option) => (
+                          <option key={option.id} value={option.id}>{option.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </th>
+                  <th scope="col">
+                    <div className="player-subscriptions-table-filter">
+                      <span>Batch</span>
+                      <select
+                        aria-label="Filter subscriptions by batch"
+                        value={columnFilters.batch}
+                        onChange={(e) => setColumnFilters((filters) => ({ ...filters, batch: e.target.value }))}
+                      >
+                        <option value="">All</option>
+                        {columnFilterOptions.batches.map((option) => (
+                          <option key={option.id} value={option.id}>{option.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </th>
+                  <th scope="col">
+                    <div className="player-subscriptions-table-filter">
+                      <span>Player</span>
+                      <select
+                        aria-label="Filter subscriptions by player"
+                        value={columnFilters.player}
+                        onChange={(e) => setColumnFilters((filters) => ({ ...filters, player: e.target.value }))}
+                      >
+                        <option value="">All</option>
+                        {columnFilterOptions.players.map((option) => (
+                          <option key={option.id} value={option.id}>{option.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </th>
+                  <th scope="col">
+                    <div className="player-subscriptions-table-filter">
+                      <span>Plan</span>
+                      <select
+                        aria-label="Filter subscriptions by plan"
+                        value={columnFilters.plan}
+                        onChange={(e) => setColumnFilters((filters) => ({ ...filters, plan: e.target.value }))}
+                      >
+                        <option value="">All</option>
+                        {columnFilterOptions.plans.map((option) => (
+                          <option key={option.id} value={option.id}>{option.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </th>
                   <th scope="col">Amount</th>
                   <th scope="col">Start date</th>
                   <th scope="col">End date</th>
