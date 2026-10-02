@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../supabaseClient";
 import Layout from "../components/Layout";
 import {
@@ -50,6 +50,15 @@ const [selectedPlayer, setSelectedPlayer] = useState("");
   const [dueDate, setDueDate] = useState("");
 
   const [duesList, setDuesList] = useState([]);
+
+  const [columnFilters, setColumnFilters] = useState({
+    academy: "",
+    center: "",
+    batch: "",
+    player: "",
+    plan: "",
+    dueType: ""
+  });
 
   const [editingDue, setEditingDue] =
   useState(null);
@@ -504,20 +513,6 @@ console.log(
   statusFilter
 );
 
-if (statusFilter) {
-
-  filteredData =
-    filteredData.filter(
-      (due) =>
-        due.due_status ===
-        statusFilter.toLowerCase()
-    );
-console.log(
-  "FILTERED DATA:",
-  filteredData
-);
-}
-
    setDuesList(filteredData);
 
   }
@@ -744,6 +739,65 @@ if (
 
 };
 
+const filteredDues = useMemo(() => {
+  return duesList.filter((due) => {
+    if (statusFilter && due.due_status !== statusFilter.toLowerCase()) return false;
+    if (columnFilters.academy && due.players?.academy_id !== columnFilters.academy) return false;
+    if (columnFilters.center && due.players?.center_id !== columnFilters.center) return false;
+    if (columnFilters.batch && due.players?.batch_id !== columnFilters.batch) return false;
+    if (columnFilters.player && due.players?.id !== columnFilters.player) return false;
+    if (columnFilters.plan && due.player_subscriptions?.subscription_plans?.plan_name !== columnFilters.plan) return false;
+    if (columnFilters.dueType && due.due_type !== columnFilters.dueType) return false;
+    return true;
+  });
+}, [duesList, statusFilter, columnFilters]);
+
+const filterOptions = useMemo(() => ({
+  academies: [...new Map(duesList.map((due) => [due.players?.academy_id, due.players?.academies?.academy_name]).filter(([id, name]) => id && name)).entries()]
+    .map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name)),
+  centers: [...new Map(duesList.map((due) => [due.players?.center_id, due.players?.centers?.center_name]).filter(([id, name]) => id && name)).entries()]
+    .map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name)),
+  batches: [...new Map(duesList.map((due) => [due.players?.batch_id, due.players?.batches?.batch_name]).filter(([id, name]) => id && name)).entries()]
+    .map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name)),
+  players: [...new Map(duesList.map((due) => [due.players?.id, due.players?.full_name]).filter(([id, name]) => id && name)).entries()]
+    .map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name)),
+  plans: [...new Set(duesList.map((due) => due.player_subscriptions?.subscription_plans?.plan_name).filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b)),
+  dueTypes: [...new Set(duesList.map((due) => due.due_type).filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b))
+}), [duesList]);
+
+const totalDue = duesList.reduce((sum, due) => sum + Number(due.total_amount || 0), 0);
+const totalPaid = duesList.reduce((sum, due) => sum + Number(due.paid_amount || 0), 0);
+const totalRemaining = duesList.reduce((sum, due) => sum + Number(due.remaining_amount || 0), 0);
+const pendingAmount = duesList.filter((due) => due.due_status === "pending")
+  .reduce((sum, due) => sum + Number(due.remaining_amount || 0), 0);
+const partialAmount = duesList.filter((due) => due.due_status === "partial")
+  .reduce((sum, due) => sum + Number(due.remaining_amount || 0), 0);
+const paidAmount = duesList.filter((due) => due.due_status === "paid")
+  .reduce((sum, due) => sum + Number(due.paid_amount || 0), 0);
+
+const formatCurrency = (value) => new Intl.NumberFormat("en-IN", {
+  style: "currency",
+  currency: "INR",
+  maximumFractionDigits: 0
+}).format(Number(value || 0));
+
+const formatDate = (value) => {
+  if (!value) return "—";
+  const parts = String(value).split("-");
+  if (parts.length !== 3) return value;
+  return new Intl.DateTimeFormat("en-IN", { day: "2-digit", month: "short", year: "numeric" })
+    .format(new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2])));
+};
+
+const clearFilters = () => {
+  setStatusFilter("");
+  setColumnFilters({ academy: "", center: "", batch: "", player: "", plan: "", dueType: "" });
+};
+
+const hasActiveFilters = statusFilter || Object.values(columnFilters).some(Boolean);
+
 return (
   <Layout>
     <div className="payment-dues-page">
@@ -759,11 +813,12 @@ return (
         </div>
       </div>
 
-      <section className="payment-card">
-        <div className="payment-card-header">
+      <section className="payment-card payment-generate-card">
+        <div className="payment-card-header payment-generate-header">
           <div>
+            <div className="payment-section-kicker">Due generation</div>
             <h2>Generate Payment Due</h2>
-            <p>Select the player subscription and define the amount due.</p>
+            <p>Select the player subscription and define the due.</p>
           </div>
         </div>
 
@@ -789,34 +844,56 @@ return (
         </div>
       </section>
 
-      <section className="payment-card">
-        <div className="payment-card-header payment-list-header">
-          <div><h2>Payment Dues List</h2><p>{duesList.length === 0 ? "No dues match the current filters." : "Review balances and move unpaid dues to collection."}</p></div>
-          <label className="payment-filter-field"><span>Status</span><select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}><option value="">All Statuses</option><option value="pending">Pending</option><option value="partial">Partial</option><option value="paid">Paid</option></select></label>
+      <section className="payment-kpi-grid" aria-label="Payment due summary">
+        <div className="payment-kpi-card payment-kpi-total"><span>Total due</span><strong>{formatCurrency(totalDue)}</strong><small>{duesList.length} records in scope</small></div>
+        <div className="payment-kpi-card payment-kpi-pending"><span>Pending</span><strong>{formatCurrency(pendingAmount)}</strong><small>{duesList.filter((due) => due.due_status === "pending").length} dues</small></div>
+        <div className="payment-kpi-card payment-kpi-partial"><span>Partial</span><strong>{formatCurrency(partialAmount)}</strong><small>{duesList.filter((due) => due.due_status === "partial").length} dues</small></div>
+        <div className="payment-kpi-card payment-kpi-paid"><span>Paid</span><strong>{formatCurrency(paidAmount)}</strong><small>{duesList.filter((due) => due.due_status === "paid").length} dues · {formatCurrency(totalPaid)} collected</small></div>
+      </section>
+
+      <section className="payment-card payment-dues-list-card">
+        <div className="payment-list-heading">
+          <div>
+            <div className="payment-section-kicker">Collections workspace</div>
+            <h2>Payment Dues List</h2>
+            <p>{filteredDues.length === 0 ? "No dues match the current filters." : filteredDues.length + " shown · " + formatCurrency(totalRemaining) + " outstanding"}</p>
+          </div>
+          <div className="payment-list-controls">
+            <label className="payment-filter-field"><span>Status</span><select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}><option value="">All Statuses</option><option value="pending">Pending</option><option value="partial">Partial</option><option value="paid">Paid</option></select></label>
+            <button type="button" className="payment-clear-filters" onClick={clearFilters} disabled={!hasActiveFilters}>Clear filters</button>
+          </div>
         </div>
 
-        {duesList.length === 0 ? (
+        {filteredDues.length === 0 ? (
           <div className="payment-empty-state"><div className="payment-empty-icon">₹</div><h3>No payment dues found</h3><p>Adjust the filters or generate a new due for an eligible player subscription.</p></div>
         ) : (
           <div className="payment-table-wrapper">
             <table className="payment-data-table">
               <caption className="sr-only">Payment dues, balances, status, and available actions</caption>
-              <thead><tr><th scope="col">Academy</th><th scope="col">Center</th><th scope="col">Batch</th><th scope="col">Player</th><th scope="col">Plan</th><th scope="col">Due Type</th><th scope="col">Due Date</th><th scope="col">Total</th><th scope="col">Paid</th><th scope="col">Remaining</th><th scope="col">Status</th><th scope="col">Actions</th></tr></thead>
+              <thead><tr>
+                  <th scope="col"><div className="payment-column-filter"><span>Academy</span><select aria-label="Filter dues by academy" value={columnFilters.academy} onChange={(e) => setColumnFilters((filters) => ({ ...filters, academy: e.target.value }))}><option value="">All</option>{filterOptions.academies.map((option) => <option key={option.id} value={option.id}>{option.name}</option>)}</select></div></th>
+                  <th scope="col"><div className="payment-column-filter"><span>Center</span><select aria-label="Filter dues by center" value={columnFilters.center} onChange={(e) => setColumnFilters((filters) => ({ ...filters, center: e.target.value }))}><option value="">All</option>{filterOptions.centers.map((option) => <option key={option.id} value={option.id}>{option.name}</option>)}</select></div></th>
+                  <th scope="col"><div className="payment-column-filter"><span>Batch</span><select aria-label="Filter dues by batch" value={columnFilters.batch} onChange={(e) => setColumnFilters((filters) => ({ ...filters, batch: e.target.value }))}><option value="">All</option>{filterOptions.batches.map((option) => <option key={option.id} value={option.id}>{option.name}</option>)}</select></div></th>
+                  <th scope="col"><div className="payment-column-filter"><span>Player</span><select aria-label="Filter dues by player" value={columnFilters.player} onChange={(e) => setColumnFilters((filters) => ({ ...filters, player: e.target.value }))}><option value="">All</option>{filterOptions.players.map((option) => <option key={option.id} value={option.id}>{option.name}</option>)}</select></div></th>
+                  <th scope="col"><div className="payment-column-filter"><span>Plan</span><select aria-label="Filter dues by plan" value={columnFilters.plan} onChange={(e) => setColumnFilters((filters) => ({ ...filters, plan: e.target.value }))}><option value="">All</option>{filterOptions.plans.map((option) => <option key={option} value={option}>{option}</option>)}</select></div></th>
+                  <th scope="col"><div className="payment-column-filter"><span>Due Type</span><select aria-label="Filter dues by due type" value={columnFilters.dueType} onChange={(e) => setColumnFilters((filters) => ({ ...filters, dueType: e.target.value }))}><option value="">All</option>{filterOptions.dueTypes.map((option) => <option key={option} value={option}>{option}</option>)}</select></div></th>
+                  <th scope="col">Due Date</th><th scope="col">Total</th><th scope="col">Paid</th><th scope="col">Remaining</th><th scope="col">Status</th><th scope="col">Actions</th>
+                </tr></thead>
               <tbody>
-                {duesList.map((due) => (
-                  <tr key={due.id}>
+                {filteredDues.map((due) => (
+                  <tr key={due.id} className="payment-due-row">
                     <td>{due.players?.academies?.academy_name || "-"}</td>
                     <td>{due.players?.centers?.center_name || "-"}</td>
                     <td>{due.players?.batches?.batch_name || "-"}</td>
                     <td className="payment-player-cell">{due.players?.full_name || "-"}</td>
                     <td>{due.player_subscriptions?.subscription_plans?.plan_name || "-"}</td>
                     <td><span className="payment-type-badge">{due.due_type}</span></td>
-                    <td>{due.due_date}</td>
-                    <td>₹ {due.total_amount}</td>
-                    <td>₹ {due.paid_amount}</td>
-                    <td className="payment-remaining-cell">₹ {due.remaining_amount}</td>
+                    <td className="payment-date-cell">{formatDate(due.due_date)}</td>
+                    <td className="payment-money-cell">{formatCurrency(due.total_amount)}</td>
+                    <td className="payment-money-cell">{formatCurrency(due.paid_amount)}</td>
+                    <td className="payment-remaining-cell">{formatCurrency(due.remaining_amount)}</td>
                     <td><span className={`payment-status-badge payment-status-${due.due_status}`}>{due.due_status === "paid" ? "Paid" : due.due_status === "partial" ? "Partial" : "Pending"}</span></td>
-                    <td><div className="payment-action-group">
+                    <td className="payment-actions-cell"><div className="payment-action-group">
                       {due.due_status !== "paid" && <button type="button" className="payment-secondary-button" onClick={() => navigate("/payment-collections", { state: { dueId: due.id } })}>Record Payment</button>}
                       {canGenerateDue(loggedInUser) && <><button type="button" className="payment-text-button" onClick={() => startEdit(due)} aria-label={`Edit due for ${due.players?.full_name || "player"}`}>Edit</button><button type="button" className="payment-danger-button" onClick={() => deleteDue(due)} aria-label={`Delete due for ${due.players?.full_name || "player"}`}>Delete</button></>}
                     </div></td>
