@@ -715,10 +715,9 @@ export async function getAcademyOwnerDashboardData(user) {
       .eq("is_deleted", false),
     supabase
       .from("payment_dues")
-      .select("player_id, total_amount, paid_amount, due_status")
-      .eq("players.is_active", true)
+      .select("player_id, total_amount, paid_amount, due_status, players!inner(academy_id, is_active)")
       .eq("players.academy_id", academyId)
-      .select("player_id, total_amount, paid_amount, due_status, players!inner(academy_id, is_active)"),
+      .eq("players.is_active", true),
     supabase
       .from("payments")
       .select("amount_paid, payment_date, players!inner(academy_id, is_active)")
