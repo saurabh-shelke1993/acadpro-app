@@ -105,6 +105,7 @@ function Sidebar({ isOpen = false, onClose = () => {}, closeButtonRef }) {
             <>
               <div className="app-nav-group-title">My Family</div>
               {renderLink("/parent-portal", "Parent Portal", "⌂")}
+              {renderLink("/parent-financial-overview", "Financial Overview", "₹")}
               {renderLink("/player-performance-report", "Performance Report", "▥")}
             </>
           ) : (
