@@ -599,8 +599,6 @@ const ParentPortal = () => {
                     </span>
                   </div>
                 </div>
-
-                </div>
               </div>
 
               <div className="parent-portal-subsection parent-portal-performance-section">
