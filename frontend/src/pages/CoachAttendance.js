@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
+import "./Attendance.css";
 import { supabase } from "../supabaseClient";
 import {
   getAccessiblePlayers,
@@ -26,7 +27,7 @@ const [existingAttendance, setExistingAttendance] = useState([]);
     if (selectedBatch) {
       loadPlayers();
     }
-  }, [selectedBatch]);
+  }, [selectedBatch, attendanceDate]);
 
   // =========================
   // LOAD COACH ASSIGNED BATCHES
@@ -130,30 +131,27 @@ const checkExistingAttendance = async () => {
 
   const loadPlayers = async () => {
   try {
+    const attendanceExists = await checkExistingAttendance();
 
-    const attendanceExists =
-      await checkExistingAttendance();
-          console.log(
-      "Attendance Exists:",
-      attendanceExists
+    const data = await getAccessiblePlayers(selectedBatch);
+    const existingByPlayer = new Map(
+      (existingAttendance || []).map((record) => [record.player_id, record.status])
     );
 
-const data = await getAccessiblePlayers(
-  selectedBatch
-);
+    const formattedPlayers =
+      data?.map((item) => ({
+        id: item.player_id,
+        full_name: item.players?.full_name,
+        status: existingByPlayer.get(item.player_id) || "present",
+      })) || [];
 
-const formattedPlayers =
-  data?.map((item) => ({
-    id: item.player_id,
-    full_name: item.players?.full_name,
-    status: "present",
-  })) || [];
-
-setPlayers(formattedPlayers);
-    } catch (err) {
-      console.log(err);
-    }
-  };
+    setPlayers(formattedPlayers);
+    return attendanceExists;
+  } catch (err) {
+    console.log(err);
+    setPlayers([]);
+  }
+};
 
   // =========================
   // MARK ATTENDANCE
@@ -255,118 +253,199 @@ academy_id: user.academy_id,
 
 return (
   <Layout>
-      <div style={{ flex: 1, padding: "30px" }}>
-        <h1>Coach Attendance</h1>
-
-        <h2>Welcome, {user?.full_name}</h2>
-
-        {/* DATE */}
-
-        <div style={{ marginTop: "20px" }}>
-          <label>Date</label>
-
-          <br />
-
-          <input
-            type="date"
-            value={attendanceDate}
-            onChange={(e) => setAttendanceDate(e.target.value)}
-          />
+    <div className="attendance-page">
+      <section className="attendance-workspace-card" aria-labelledby="coach-attendance-title">
+        <div className="attendance-workspace-heading">
+          <div>
+            <span className="attendance-page-eyebrow">Daily operations</span>
+            <h1 id="coach-attendance-title">Coach Attendance</h1>
+            <p>Welcome, {user?.full_name || "Coach"}. Select your assigned batch and date, then mark attendance.</p>
+          </div>
+          {selectedBatch ? (
+            <span className={isEditMode ? "attendance-status-badge attendance-status-existing" : "attendance-status-badge"}>
+              {isEditMode ? "Attendance recorded" : "Ready to mark"}
+            </span>
+          ) : null}
         </div>
 
-        {/* BATCH */}
+        <div className="attendance-filter-card attendance-coach-filter-card">
+          <div className="attendance-filter-field">
+            <label htmlFor="coach-attendance-batch">Batch</label>
+            <select
+              id="coach-attendance-batch"
+              value={selectedBatch}
+              onChange={(e) => {
+                setSelectedBatch(e.target.value);
+                setPlayers([]);
+                setIsEditMode(false);
+                setExistingAttendance([]);
+              }}
+            >
+              <option value="">Select Batch</option>
+              {batches.map((batch) => (
+                <option key={batch.id} value={batch.id}>
+                  {batch.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        <div style={{ marginTop: "20px" }}>
-          <label>Select Batch</label>
-
-          <br />
-
-          <select
-            value={selectedBatch}
-            onChange={(e) => setSelectedBatch(e.target.value)}
-          >
-            <option value="">Select Batch</option>
-
-            {batches.map((batch) => (
-              <option key={batch.id} value={batch.id}>
-                {batch.name}
-              </option>
-            ))}
-          </select>
+          <div className="attendance-filter-field">
+            <label htmlFor="coach-attendance-date">Date</label>
+            <input
+              id="coach-attendance-date"
+              type="date"
+              value={attendanceDate}
+              onChange={(e) => setAttendanceDate(e.target.value)}
+            />
+          </div>
         </div>
 
-        {/* PLAYERS TABLE */}
+        {selectedBatch ? (
+          <div className="attendance-summary attendance-coach-summary" aria-label="Attendance summary">
+            <div className="attendance-summary-item">
+              <span>Total players</span>
+              <strong>{players.length}</strong>
+            </div>
+            <div className="attendance-summary-item attendance-summary-present">
+              <span>Present</span>
+              <strong>{players.filter((player) => player.status === "present").length}</strong>
+            </div>
+            <div className="attendance-summary-item attendance-summary-absent">
+              <span>Absent</span>
+              <strong>{players.filter((player) => player.status === "absent").length}</strong>
+            </div>
+            <div className="attendance-summary-item attendance-summary-unmarked">
+              <span>Unmarked</span>
+              <strong>{players.filter((player) => !player.status).length}</strong>
+            </div>
+          </div>
+        ) : null}
 
-        <div style={{ marginTop: "30px" }}>
-          <h2>Players Attendance</h2>
+        {isEditMode ? (
+          <div className="attendance-inline-message attendance-inline-success" role="status">
+            <strong>✓</strong>
+            <span>Attendance already exists for this batch and date. Review the recorded attendance below.</span>
+          </div>
+        ) : null}
+      </section>
 
-          <table
-            border="1"
-            cellPadding="10"
-            cellSpacing="0"
-            width="100%"
-          >
+      <section className="attendance-list-section" aria-labelledby="coach-players-attendance-title">
+        <div className="attendance-list-header">
+          <div>
+            <span className="attendance-section-eyebrow">Daily roster</span>
+            <h2 id="coach-players-attendance-title">Players Attendance</h2>
+            <p>
+              {selectedBatch
+                ? `${players.length} ${players.length === 1 ? "player" : "players"} in the selected batch`
+                : "Select a batch to load players."}
+            </p>
+          </div>
+
+          {selectedBatch && players.length > 0 && !isEditMode ? (
+            <div className="attendance-bulk-actions">
+              <button
+                type="button"
+                className="attendance-secondary-button"
+                onClick={() => setPlayers((current) => current.map((player) => ({ ...player, status: "present" })))}
+              >
+                ✓ Mark all present
+              </button>
+              <button
+                type="button"
+                className="attendance-secondary-button attendance-secondary-button-muted"
+                onClick={() => setPlayers((current) => current.map((player) => ({ ...player, status: "absent" })))}
+              >
+                Mark all absent
+              </button>
+            </div>
+          ) : null}
+        </div>
+
+        <div className="attendance-table-wrap">
+          <table className="attendance-table">
+            <caption className="sr-only">Coach attendance roster</caption>
             <thead>
               <tr>
-                <th>Player Name</th>
-                <th>Present</th>
-                <th>Absent</th>
+                <th scope="col">#</th>
+                <th scope="col">Player Name</th>
+                <th scope="col">Present</th>
+                <th scope="col">Absent</th>
               </tr>
             </thead>
-
             <tbody>
               {players.length > 0 ? (
-                players.map((player) => (
-                  <tr key={player.id}>
-                    <td>{player.full_name}</td>
-
-                    <td align="center">
-                      <input
-                        type="radio"
-                        name={`attendance-${player.id}`}
-                        checked={player.status === "present"}
-                        onChange={() =>
-                          handleAttendanceChange(player.id, "present")
-                        }
-                      />
+                players.map((player, index) => (
+                  <tr key={player.id} className={player.status ? `attendance-row-${player.status}` : "attendance-row-unmarked"}>
+                    <td className="attendance-player-number">{index + 1}</td>
+                    <td className="attendance-player-name">
+                      <strong>{player.full_name || "-"}</strong>
+                      {!player.status ? <span>Not marked</span> : null}
                     </td>
-
-                    <td align="center">
-                      <input
-                        type="radio"
-                        name={`attendance-${player.id}`}
-                        checked={player.status === "absent"}
-                        onChange={() =>
-                          handleAttendanceChange(player.id, "absent")
-                        }
-                      />
+                    <td>
+                      <label className={`attendance-choice ${player.status === "present" ? "attendance-choice-selected attendance-choice-present" : ""}`}>
+                        <input
+                          type="radio"
+                          name={`attendance-${player.id}`}
+                          checked={player.status === "present"}
+                          onChange={() => handleAttendanceChange(player.id, "present")}
+                          disabled={isEditMode}
+                        />
+                        <span>Present</span>
+                      </label>
+                    </td>
+                    <td>
+                      <label className={`attendance-choice ${player.status === "absent" ? "attendance-choice-selected attendance-choice-absent" : ""}`}>
+                        <input
+                          type="radio"
+                          name={`attendance-${player.id}`}
+                          checked={player.status === "absent"}
+                          onChange={() => handleAttendanceChange(player.id, "absent")}
+                          disabled={isEditMode}
+                        />
+                        <span>Absent</span>
+                      </label>
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="3">No Players Found</td>
+                  <td className="attendance-empty-state" colSpan="4">
+                    <strong>{selectedBatch ? "No players found" : "Select a batch to begin"}</strong>
+                    <span>{selectedBatch ? "No active players are available in this batch." : "Choose one of your assigned batches to load the attendance roster."}</span>
+                  </td>
                 </tr>
               )}
             </tbody>
           </table>
         </div>
+      </section>
 
-        {/* SAVE BUTTON */}
-
-        <button
-          onClick={saveAttendance}
-          style={{
-            marginTop: "20px",
-            padding: "10px 20px",
-            cursor: "pointer",
-          }}
-        >
-          Save Attendance
-        </button>
+      {selectedBatch && players.length > 0 && !isEditMode ? (
+        <div className="attendance-action-bar">
+          <div className="attendance-action-summary">
+            <strong>{players.length} players</strong>
+            <span>
+              {players.filter((player) => player.status === "present").length} present ·{" "}
+              {players.filter((player) => player.status === "absent").length} absent
+            </span>
+          </div>
+          <div className="attendance-action-buttons">
+            <button
+              type="button"
+              className="attendance-secondary-button"
+              onClick={() => setPlayers((current) => current.map((player) => ({ ...player, status: "" })))}
+            >
+              Reset
+            </button>
+            <button className="attendance-save-button" type="button" onClick={saveAttendance}>
+              Save Attendance
+            </button>
+          </div>
+        </div>
+      ) : null}
     </div>
   </Layout>
 );
 }
-
 export default CoachAttendance;
