@@ -851,18 +851,18 @@ return (
             <h2>Payment Dues List</h2>
             <p>{filteredDues.length === 0 ? "No dues match the current filters." : filteredDues.length + " shown · " + formatCurrency(filteredRemaining) + " outstanding"}</p>
           </div>
-          <div className="payment-list-actions">
+          <div className="payment-list-toolbar">
             {canGenerateDue(loggedInUser) && (
               <button type="button" className="payment-primary-button payment-generate-trigger" onClick={openGenerateDueModal}>
                 + Generate Due
               </button>
             )}
-          </div>
-          <div className="payment-list-controls">
+            <div className="payment-list-controls">
             <label className="payment-filter-field payment-date-filter-field"><span>From</span><input type="date" value={dueFromDate} max={dueToDate || undefined} onChange={(e) => setDueFromDate(e.target.value)} aria-label="Filter dues from date" /></label>
             <label className="payment-filter-field payment-date-filter-field"><span>To</span><input type="date" value={dueToDate} min={dueFromDate || undefined} onChange={(e) => setDueToDate(e.target.value)} aria-label="Filter dues to date" /></label>
             <label className="payment-filter-field"><span>Status</span><select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}><option value="">All Statuses</option><option value="pending">Pending</option><option value="partial">Partial</option><option value="paid">Paid</option></select></label>
             <button type="button" className="payment-clear-filters" onClick={clearFilters} disabled={!hasActiveFilters}>Clear filters</button>
+            </div>
           </div>
         </div>
 
