@@ -1158,38 +1158,6 @@ return (
         </div>
       </div>
 
-      <section className="payment-card payment-collection-card">
-        <div className="payment-collection-header">
-          <div>
-            <div className="payment-section-kicker">Collection Workspace</div>
-            <h2>Collect Payment</h2>
-            <p>Select the player and pending due, then record the payment.</p>
-          </div>
-          <div className="payment-collection-status">
-            {selectedDueData ? <><span>Remaining</span><strong>₹{selectedDueRemaining.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></> : <span>Select a pending due to begin</span>}
-          </div>
-        </div>
-        <div className="payment-form-grid payment-collection-grid">
-          <label className="payment-field"><span>Academy</span><select value={collectionAcademy} onChange={(e) => { const academyId=e.target.value; setCollectionAcademy(academyId); setCollectionCenter(""); setCollectionBatch(""); setCollectionPlayer(""); setCenters([]); setBatches([]); setPlayers([]); setDues([]); setSelectedDue(""); setSelectedDueData(null); }}><option value="">Select Academy</option>{academies.map((academy)=><option key={academy.id} value={academy.id}>{academy.academy_name}</option>)}</select></label>
-          <label className="payment-field"><span>Center</span><select value={collectionCenter} onChange={(e) => { const centerId=e.target.value; setCollectionCenter(centerId); setCollectionBatch(""); setCollectionPlayer(""); setSelectedDue(""); setSelectedDueData(null); setBatches([]); setPlayers([]); setDues([]); if(centerId) fetchBatches(centerId); }}><option value="">Select Center</option>{centers.map((center)=><option key={center.id} value={center.id}>{center.center_name}</option>)}</select></label>
-          <label className="payment-field"><span>Batch</span><select value={collectionBatch} onChange={(e) => { const batchId=e.target.value; setCollectionBatch(batchId); setCollectionPlayer(""); setSelectedDue(""); setSelectedDueData(null); setPlayers([]); setDues([]); if(batchId) fetchPlayers(batchId); }}><option value="">Select Batch</option>{batches.map((batch)=><option key={batch.id} value={batch.id}>{batch.batch_name}</option>)}</select></label>
-          <label className="payment-field"><span>Player</span><select value={collectionPlayer} onChange={(e)=>setCollectionPlayer(e.target.value)}><option value="">Select Player</option>{players.map((player)=><option key={player.id} value={player.id}>{player.full_name}</option>)}</select></label>
-          <label className="payment-field payment-field-wide"><span>Pending Due</span><select value={selectedDue} onChange={(e)=>{const dueId=e.target.value; setSelectedDue(dueId); const dueData=dues.find((due)=>due.id===dueId); setSelectedDueData(dueData); setAmountPaid(dueData ? dueData.remaining_amount : ""); setPaymentMode("");}}><option value="">{dues.length===0 ? "No Pending Dues" : "Select Pending Due"}</option>{dues.map((due)=><option key={due.id} value={due.id}>{String(due.due_type || "Due").replace(/_/g, " ")} · {due.due_date} · Remaining ₹{Number(due.remaining_amount || 0).toLocaleString("en-IN")}</option>)}</select></label>
-          <label className="payment-field"><span>Amount Paid</span><input type="number" min="0.01" step="0.01" max={selectedDueRemaining || undefined} placeholder={selectedDueRemaining ? `Max ₹${selectedDueRemaining}` : "Amount Paid"} value={amountPaid} onChange={(e)=>setAmountPaid(e.target.value)} aria-invalid={amountPaid && !isPaymentAmountValid} /></label>
-          <label className="payment-field"><span>Payment Mode</span><select value={paymentMode} onChange={(e)=>setPaymentMode(e.target.value)}><option value="">Select Payment Mode</option><option value="cash">Cash</option><option value="upi">UPI</option><option value="bank_transfer">Bank Transfer</option></select></label>
-        </div>
-        {selectedDueData && (
-          <div className="payment-due-summary payment-collection-summary" aria-live="polite">
-            <div className="payment-due-summary-heading"><div><span>Selected Due</span><strong>{String(selectedDueData.due_type || "Due").replace(/_/g, " ")} · {selectedDueData.due_date || "—"}</strong></div><span className={selectedDueData.due_status === "partial" ? "payment-status-badge payment-status-partial" : "payment-status-badge payment-status-pending"}>{selectedDueData.due_status === "partial" ? "Partial" : "Pending"}</span></div>
-            <div className="payment-due-summary-grid"><div><span>Total Due</span><strong>₹{Number(selectedDueData.total_amount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></div><div><span>Already Paid</span><strong>₹{Number(selectedDueData.paid_amount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></div><div><span>Remaining</span><strong>₹{selectedDueRemaining.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></div></div>
-          </div>
-        )}
-        <div className="payment-form-footer payment-collection-footer">
-          <div className="payment-helper-text">{!selectedDueData && "Select a pending due to continue."}{selectedDueData && !amountPaid && "Enter the amount to collect."}{selectedDueData && amountPaid && !isPaymentAmountValid && "Amount must be greater than ₹0 and cannot exceed the remaining due."}{selectedDueData && isPaymentAmountValid && <span>Remaining after payment: <strong>₹{remainingAfterPayment.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></span>}</div>
-          <button type="button" className="payment-primary-button" onClick={collectPayment} disabled={!selectedDue || !isPaymentAmountValid || !paymentMode}>Collect Payment</button>
-        </div>
-      </section>
-
       <section className="payment-card">
         <div className="payment-list-heading payment-history-heading">
           <div>
@@ -1198,7 +1166,8 @@ return (
             <p>Review immutable payment and adjustment ledger entries.</p>
             <div className="payment-history-summary"><span>{filteredPayments.length} record{filteredPayments.length === 1 ? "" : "s"}</span><span>Payments ₹{historyPaymentsTotal.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span><span>Adjustments ₹{historyAdjustmentsTotal.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span><span>Net Ledger ₹{historyNetTotal.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>
           </div>
-          <div className="payment-history-top-controls">
+          <div className="payment-history-top-controls"><button type="button" className="payment-primary-button payment-collect-trigger" onClick={openCollectionModal}>+ Collect Payment</button>
+            
             <label className="payment-filter-field payment-history-search-field"><span>Search</span><input type="search" value={historySearch} placeholder="Player, TXN or receipt..." onChange={(e)=>setHistorySearch(e.target.value)} /></label>
             <button type="button" className="payment-clear-filters" onClick={resetHistoryFilters} disabled={!historyAcademy && !historyCenter && !historyBatch && !historyPlayer && !historySearch && !historyPaymentMode && !historyFromDate && !historyToDate}>Clear filters</button>
           </div>
@@ -1250,6 +1219,42 @@ return (
           </div>
         )}
       </section>
+
+      {showCollectionModal && (
+        <div className="payment-modal-overlay" onMouseDown={(e)=>{if(e.target===e.currentTarget) closeCollectionModal();}}>
+          <div className="payment-modal payment-collection-modal" role="dialog" aria-modal="true" aria-labelledby="collect-payment-title">
+            <div className="payment-modal-header">
+              <div>
+                <div className="payment-section-kicker">Payment Collection</div>
+                <h2 id="collect-payment-title">Collect Payment</h2>
+                <p className="payment-modal-description">Select a player and pending due, then record the payment.</p>
+              </div>
+              <button type="button" className="payment-modal-close" onClick={closeCollectionModal} aria-label="Close">×</button>
+            </div>
+            <div className="payment-modal-body payment-collection-modal-body">
+              <div className="payment-form-grid payment-collection-modal-grid">
+                <label className="payment-field"><span>Academy</span><select value={collectionAcademy} onChange={(e)=>{const academyId=e.target.value;setCollectionAcademy(academyId);setCollectionCenter("");setCollectionBatch("");setCollectionPlayer("");setCenters([]);setBatches([]);setPlayers([]);setDues([]);setSelectedDue("");setSelectedDueData(null);}}><option value="">Select Academy</option>{academies.map((academy)=><option key={academy.id} value={academy.id}>{academy.academy_name}</option>)}</select></label>
+                <label className="payment-field"><span>Center</span><select value={collectionCenter} onChange={(e)=>{const centerId=e.target.value;setCollectionCenter(centerId);setCollectionBatch("");setCollectionPlayer("");setSelectedDue("");setSelectedDueData(null);setBatches([]);setPlayers([]);setDues([]);if(centerId)fetchBatches(centerId);}}><option value="">Select Center</option>{centers.map((center)=><option key={center.id} value={center.id}>{center.center_name}</option>)}</select></label>
+                <label className="payment-field"><span>Batch</span><select value={collectionBatch} onChange={(e)=>{const batchId=e.target.value;setCollectionBatch(batchId);setCollectionPlayer("");setSelectedDue("");setSelectedDueData(null);setPlayers([]);setDues([]);if(batchId)fetchPlayers(batchId);}}><option value="">Select Batch</option>{batches.map((batch)=><option key={batch.id} value={batch.id}>{batch.batch_name}</option>)}</select></label>
+                <label className="payment-field"><span>Player</span><select value={collectionPlayer} onChange={(e)=>setCollectionPlayer(e.target.value)}><option value="">Select Player</option>{players.map((player)=><option key={player.id} value={player.id}>{player.full_name}</option>)}</select></label>
+                <label className="payment-field payment-field-wide"><span>Pending Due</span><select value={selectedDue} onChange={(e)=>{const dueId=e.target.value;setSelectedDue(dueId);const dueData=dues.find(due=>due.id===dueId);setSelectedDueData(dueData);setAmountPaid(dueData?dueData.remaining_amount:"");setPaymentMode("");}}><option value="">{dues.length===0?"No Pending Dues":"Select Pending Due"}</option>{dues.map(due=><option key={due.id} value={due.id}>{String(due.due_type||"Due").replace(/_/g," ")} · {due.due_date} · Remaining ₹{Number(due.remaining_amount||0).toLocaleString("en-IN")}</option>)}</select></label>
+                <label className="payment-field"><span>Amount Paid</span><input type="number" min="0.01" step="0.01" max={selectedDueRemaining||undefined} placeholder={selectedDueRemaining?`Max ₹${selectedDueRemaining}`:"Amount Paid"} value={amountPaid} onChange={(e)=>setAmountPaid(e.target.value)} aria-invalid={amountPaid&&!isPaymentAmountValid}/></label>
+                <label className="payment-field"><span>Payment Mode</span><select value={paymentMode} onChange={(e)=>setPaymentMode(e.target.value)}><option value="">Select Payment Mode</option><option value="cash">Cash</option><option value="upi">UPI</option><option value="bank_transfer">Bank Transfer</option></select></label>
+              </div>
+              {selectedDueData && (
+                <div className="payment-due-summary payment-collection-summary">
+                  <div className="payment-due-summary-heading"><div><span>Selected Due</span><strong>{String(selectedDueData.due_type||"Due").replace(/_/g," ")} · {selectedDueData.due_date||"—"}</strong></div><span className={selectedDueData.due_status==="partial"?"payment-status-badge payment-status-partial":"payment-status-badge payment-status-pending"}>{selectedDueData.due_status==="partial"?"Partial":"Pending"}</span></div>
+                  <div className="payment-due-summary-grid"><div><span>Total Due</span><strong>₹{Number(selectedDueData.total_amount||0).toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2})}</strong></div><div><span>Already Paid</span><strong>₹{Number(selectedDueData.paid_amount||0).toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2})}</strong></div><div><span>Remaining</span><strong>₹{selectedDueRemaining.toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2})}</strong></div></div>
+                </div>
+              )}
+            </div>
+            <div className="payment-modal-footer payment-collection-modal-footer">
+              <div className="payment-helper-text">{!selectedDueData&&"Select a pending due to continue."}{selectedDueData&&!amountPaid&&"Enter the amount to collect."}{selectedDueData&&amountPaid&&!isPaymentAmountValid&&"Amount must be greater than ₹0 and cannot exceed the remaining due."}{selectedDueData&&isPaymentAmountValid&&<span>Remaining after payment: <strong>₹{remainingAfterPayment.toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2})}</strong></span>}</div>
+              <div className="payment-modal-actions"><button type="button" className="payment-secondary-button" onClick={closeCollectionModal}>Cancel</button><button type="button" className="payment-primary-button" onClick={collectPayment} disabled={!selectedDue||!isPaymentAmountValid||!paymentMode}>Collect Payment</button></div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <section className="payment-card payment-corrections-card">
         <div className="payment-card-header payment-list-header">
