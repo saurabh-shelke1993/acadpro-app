@@ -42,7 +42,7 @@ function AcademyHealthRow({ academy }) {
   return (
     <Link
       className="sa-academy-row"
-      to={`/players?academy=${academy.id}`}
+      to="/players"
       aria-label={`Open ${academy.name}`}
     >
       <div className="sa-academy-name">
@@ -189,7 +189,7 @@ function SuperAdminDashboard({ user, data, onRefresh }) {
                 <Link
                   key={`${item.academyId}-${item.type}`}
                   className="sa-attention-item"
-                  to={`/players?academy=${item.academyId}`}
+                  to="/players"
                 >
                   <span className={`sa-attention-icon sa-attention-icon-${item.tone}`}>
                     {item.type === "attendance" ? "!" : "₹"}
