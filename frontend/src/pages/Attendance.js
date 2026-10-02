@@ -714,4 +714,6 @@ return (
     </div>
   </Layout>
 );
+}
+
 export default Attendance;
