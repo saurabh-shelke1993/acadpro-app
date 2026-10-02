@@ -890,80 +890,87 @@ return (
         </div>
       </div>
 
-      <section className="payment-card payment-generate-card">
-        <div className="payment-card-header payment-generate-header">
-          <div>
-            <div className="payment-section-kicker">Due generation</div>
-            <h2>Generate Payment Due</h2>
-            <p>Select the player subscription and define the due.</p>
+      <div className="payment-dues-top-grid">
+        <section className="payment-card payment-generate-card">
+          <div className="payment-card-header payment-generate-header">
+            <div>
+              <div className="payment-section-kicker">Due generation</div>
+              <h2>Generate Payment Due</h2>
+              <p>Select the player subscription and define the due.</p>
+            </div>
           </div>
-        </div>
 
-        <div className="payment-form-grid">
-          <label className="payment-field"><span>Academy</span><select value={selectedAcademy} onChange={(e) => setSelectedAcademy(e.target.value)}><option value="">Select Academy</option>{academies.map((academy) => <option key={academy.id} value={academy.id}>{academy.academy_name}</option>)}</select></label>
-          <label className="payment-field"><span>Center</span><select value={selectedCenter} onChange={(e) => setSelectedCenter(e.target.value)}><option value="">Select Center</option>{centers.map((center) => <option key={center.id} value={center.id}>{center.center_name}</option>)}</select></label>
-          <label className="payment-field"><span>Batch</span><select value={selectedBatch} onChange={(e) => setSelectedBatch(e.target.value)}><option value="">Select Batch</option>{batches.map((batch) => <option key={batch.id} value={batch.id}>{batch.batch_name}</option>)}</select></label>
-          <label className="payment-field"><span>Player</span><select value={selectedPlayer} onChange={(e) => setSelectedPlayer(e.target.value)}><option value="">Select Player</option>{players.map((player) => <option key={player.id} value={player.id}>{player.full_name}</option>)}</select></label>
-          <label className="payment-field payment-field-wide">
-            <span>Subscription</span>
-            <select value={selectedSubscription} onChange={(e) => { const subscriptionId = e.target.value; setSelectedSubscription(subscriptionId); setSelectedSubscriptionData(subscriptions.find((subscription) => subscription.id === subscriptionId)); }}>
-              <option value="">Select Subscription</option>
-              {subscriptions.map((subscription) => <option key={subscription.id} value={subscription.id}>{subscription.players?.full_name} - {subscription.subscription_plans?.plan_name} - ₹{subscription.subscription_plans?.amount}</option>)}
-            </select>
-          </label>
-          <label className="payment-field"><span>Due Type</span><select value={dueType} onChange={(e) => setDueType(e.target.value)}><option value="">Select Due Type</option><option value="monthly">Monthly</option><option value="quarterly">Quarterly</option><option value="registration">Registration</option></select></label>
-          <label className="payment-field"><span>Due Date</span><input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} /></label>
-        </div>
+          <div className="payment-form-grid">
+            <label className="payment-field"><span>Academy</span><select value={selectedAcademy} onChange={(e) => setSelectedAcademy(e.target.value)}><option value="">Select Academy</option>{academies.map((academy) => <option key={academy.id} value={academy.id}>{academy.academy_name}</option>)}</select></label>
+            <label className="payment-field"><span>Center</span><select value={selectedCenter} onChange={(e) => setSelectedCenter(e.target.value)}><option value="">Select Center</option>{centers.map((center) => <option key={center.id} value={center.id}>{center.center_name}</option>)}</select></label>
+            <label className="payment-field"><span>Batch</span><select value={selectedBatch} onChange={(e) => setSelectedBatch(e.target.value)}><option value="">Select Batch</option>{batches.map((batch) => <option key={batch.id} value={batch.id}>{batch.batch_name}</option>)}</select></label>
+            <label className="payment-field"><span>Player</span><select value={selectedPlayer} onChange={(e) => setSelectedPlayer(e.target.value)}><option value="">Select Player</option>{players.map((player) => <option key={player.id} value={player.id}>{player.full_name}</option>)}</select></label>
+            <label className="payment-field payment-field-wide">
+              <span>Subscription</span>
+              <select value={selectedSubscription} onChange={(e) => { const subscriptionId = e.target.value; setSelectedSubscription(subscriptionId); setSelectedSubscriptionData(subscriptions.find((subscription) => subscription.id === subscriptionId)); }}>
+                <option value="">Select Subscription</option>
+                {subscriptions.map((subscription) => <option key={subscription.id} value={subscription.id}>{subscription.players?.full_name} - {subscription.subscription_plans?.plan_name} - ₹{subscription.subscription_plans?.amount}</option>)}
+              </select>
+            </label>
+            <label className="payment-field"><span>Due Type</span><select value={dueType} onChange={(e) => setDueType(e.target.value)}><option value="">Select Due Type</option><option value="monthly">Monthly</option><option value="quarterly">Quarterly</option><option value="registration">Registration</option></select></label>
+            <label className="payment-field"><span>Due Date</span><input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} /></label>
+          </div>
 
-        {selectedSubscriptionData && (
-          <div className="payment-due-preview" aria-live="polite">
-            <div className="payment-due-preview-heading">
-              <div>
-                <div className="payment-section-kicker">Due preview</div>
-                <strong>Review before generating</strong>
+          {selectedSubscriptionData && (
+            <div className="payment-due-preview" aria-live="polite">
+              <div className="payment-due-preview-heading">
+                <div>
+                  <div className="payment-section-kicker">Due preview</div>
+                  <strong>Review before generating</strong>
+                </div>
+                {existingDueForSelection && <span className="payment-duplicate-badge">Already exists</span>}
               </div>
-              {existingDueForSelection && <span className="payment-duplicate-badge">Already exists</span>}
+              <div className="payment-due-preview-grid">
+                <div><span>Player</span><strong>{selectedSubscriptionData.players?.full_name || "—"}</strong></div>
+                <div><span>Plan</span><strong>{selectedSubscriptionData.subscription_plans?.plan_name || "—"}</strong></div>
+                <div><span>Amount</span><strong>{formatCurrency(selectedSubscriptionData.subscription_plans?.amount)}</strong></div>
+                <div><span>Due type</span><strong>{dueType || "—"}</strong></div>
+                <div><span>Due date</span><strong>{formatDate(dueDate)}</strong></div>
+              </div>
             </div>
-            <div className="payment-due-preview-grid">
-              <div><span>Player</span><strong>{selectedSubscriptionData.players?.full_name || "—"}</strong></div>
-              <div><span>Plan</span><strong>{selectedSubscriptionData.subscription_plans?.plan_name || "—"}</strong></div>
-              <div><span>Amount</span><strong>{formatCurrency(selectedSubscriptionData.subscription_plans?.amount)}</strong></div>
-              <div><span>Due type</span><strong>{dueType || "—"}</strong></div>
-              <div><span>Due date</span><strong>{formatDate(dueDate)}</strong></div>
-            </div>
-          </div>
-        )}
-
-        {existingDueForSelection && (
-          <div className="payment-duplicate-warning" role="alert">
-            <strong>A payment due already exists for this subscription and due date.</strong>
-            <span>Existing due: {formatCurrency(existingDueForSelection.total_amount)} · {existingDueForSelection.due_status || "Pending"}</span>
-          </div>
-        )}
-
-        <div className="payment-form-footer">
-          <div className="payment-generation-status">
-            {checkingExistingDue && <span>Checking for an existing due…</span>}
-          </div>
-          {canGenerateDue(loggedInUser) && (
-            <button
-              type="button"
-              className="payment-primary-button"
-              onClick={createPaymentDue}
-              disabled={!selectedSubscriptionData || !dueType || !dueDate || checkingExistingDue || Boolean(existingDueForSelection)}
-            >
-              Generate Due
-            </button>
           )}
-        </div>
-      </section>
 
-      <section className="payment-kpi-grid" aria-label="Payment due summary">
-        <div className="payment-kpi-card payment-kpi-total"><span>Total due</span><strong>{formatCurrency(totalDue)}</strong><small>{duesList.length} records in scope</small></div>
-        <div className="payment-kpi-card payment-kpi-pending"><span>Pending</span><strong>{formatCurrency(pendingAmount)}</strong><small>{duesList.filter((due) => due.due_status === "pending").length} dues</small></div>
-        <div className="payment-kpi-card payment-kpi-partial"><span>Partial</span><strong>{formatCurrency(partialAmount)}</strong><small>{duesList.filter((due) => due.due_status === "partial").length} dues</small></div>
-        <div className="payment-kpi-card payment-kpi-paid"><span>Paid</span><strong>{formatCurrency(paidAmount)}</strong><small>{duesList.filter((due) => due.due_status === "paid").length} dues · {formatCurrency(totalPaid)} collected</small></div>
-      </section>
+          {existingDueForSelection && (
+            <div className="payment-duplicate-warning" role="alert">
+              <strong>A payment due already exists for this subscription and due date.</strong>
+              <span>Existing due: {formatCurrency(existingDueForSelection.total_amount)} · {existingDueForSelection.due_status || "Pending"}</span>
+            </div>
+          )}
+
+          <div className="payment-form-footer">
+            <div className="payment-generation-status">
+              {checkingExistingDue && <span>Checking for an existing due…</span>}
+            </div>
+            {canGenerateDue(loggedInUser) && (
+              <button
+                type="button"
+                className="payment-primary-button"
+                onClick={createPaymentDue}
+                disabled={!selectedSubscriptionData || !dueType || !dueDate || checkingExistingDue || Boolean(existingDueForSelection)}
+              >
+                Generate Due
+              </button>
+            )}
+          </div>
+        </section>
+
+
+        <section className="payment-kpi-panel" aria-label="Payment due summary">
+            <div className="payment-kpi-grid" aria-label="Payment due summary">
+          <div className="payment-kpi-card payment-kpi-total"><span>Total due</span><strong>{formatCurrency(totalDue)}</strong><small>{duesList.length} records in scope</small></div>
+          <div className="payment-kpi-card payment-kpi-pending"><span>Pending</span><strong>{formatCurrency(pendingAmount)}</strong><small>{duesList.filter((due) => due.due_status === "pending").length} dues</small></div>
+          <div className="payment-kpi-card payment-kpi-partial"><span>Partial</span><strong>{formatCurrency(partialAmount)}</strong><small>{duesList.filter((due) => due.due_status === "partial").length} dues</small></div>
+          <div className="payment-kpi-card payment-kpi-paid"><span>Paid</span><strong>{formatCurrency(paidAmount)}</strong><small>{duesList.filter((due) => due.due_status === "paid").length} dues · {formatCurrency(totalPaid)} collected</small></div>
+            </div>
+
+
+        </section>
+      </div>
 
       <section className="payment-card payment-dues-list-card">
         <div className="payment-list-heading">
