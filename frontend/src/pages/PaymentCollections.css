@@ -143,3 +143,24 @@
     width:100%;
   }
 }
+
+
+.payment-correction-toolbar{
+  display:flex;
+  align-items:flex-end;
+  gap:10px;
+  margin:0 0 14px;
+  padding:12px;
+  border:1px solid var(--ap-slate-200);
+  border-radius:10px;
+  background:var(--ap-slate-50);
+}
+.payment-correction-search{flex:1;min-width:260px}
+.payment-correction-status{width:180px}
+.payment-correction-toolbar .payment-secondary-button{min-height:40px}
+.payment-corrections-card .payment-history-summary{margin-top:8px}
+.payment-corrections-card .payment-table-wrapper{margin-top:0}
+@media(max-width:700px){
+  .payment-correction-toolbar{align-items:stretch;flex-direction:column}
+  .payment-correction-search,.payment-correction-status{width:100%;min-width:0}
+}
