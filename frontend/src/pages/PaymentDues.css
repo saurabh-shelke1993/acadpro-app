@@ -51,3 +51,271 @@
 .payment-modal-body{display:grid;gap:16px;padding:20px 22px}.payment-modal-footer{justify-content:flex-end;padding:0 22px 22px;margin-top:0}
 @media(max-width:1000px){.payment-form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.payment-field-wide{grid-column:span 2}}
 @media(max-width:640px){.payment-dues-page{padding:18px 14px}.payment-page-header{align-items:stretch;flex-direction:column}.payment-page-header h1{font-size:26px}.payment-page-summary{text-align:left}.payment-form-grid{grid-template-columns:1fr}.payment-field-wide{grid-column:span 1}.payment-card{padding:16px}.payment-list-header{align-items:stretch;flex-direction:column}.payment-filter-field{width:100%}.payment-form-footer{align-items:stretch;flex-direction:column}.payment-amount-preview{margin-right:0}.payment-primary-button{width:100%}.payment-action-group{flex-wrap:wrap}}
+
+
+/* Payment Dues V2 — Phase 1 */
+.payment-generate-card {
+  padding: 18px 20px;
+  margin-bottom: 16px;
+}
+.payment-generate-header {
+  margin-bottom: 12px;
+  align-items: center;
+}
+.payment-section-kicker {
+  margin-bottom: 4px;
+  color: #2563eb;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.payment-generate-header h2,
+.payment-list-heading h2 {
+  font-size: 20px;
+}
+.payment-generate-header p {
+  margin-top: 4px;
+}
+.payment-generate-card .payment-form-grid {
+  gap: 11px 14px;
+}
+.payment-generate-card .payment-field {
+  gap: 5px;
+}
+.payment-generate-card .payment-field input,
+.payment-generate-card .payment-field select {
+  min-height: 38px;
+}
+.payment-generate-card .payment-form-footer {
+  margin-top: 12px;
+}
+.payment-dues-list-card {
+  padding: 18px 20px;
+}
+.payment-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.payment-kpi-card {
+  min-width: 0;
+  padding: 15px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(15,23,42,.035);
+}
+.payment-kpi-card span,
+.payment-kpi-card small {
+  display: block;
+}
+.payment-kpi-card span {
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+.payment-kpi-card strong {
+  display: block;
+  margin: 5px 0 3px;
+  color: #0f172a;
+  font-size: 21px;
+  line-height: 1.15;
+}
+.payment-kpi-card small {
+  overflow: hidden;
+  color: #64748b;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.payment-kpi-total { border-top: 3px solid #2563eb; }
+.payment-kpi-pending { border-top: 3px solid #dc2626; }
+.payment-kpi-partial { border-top: 3px solid #d97706; }
+.payment-kpi-paid { border-top: 3px solid #059669; }
+
+.payment-list-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 14px;
+}
+.payment-list-heading h2 {
+  margin: 0;
+  color: #0f172a;
+}
+.payment-list-heading p {
+  margin: 5px 0 0;
+  color: #64748b;
+  font-size: 12px;
+}
+.payment-list-controls {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+.payment-list-controls .payment-filter-field {
+  min-width: 140px;
+}
+.payment-clear-filters {
+  min-height: 38px;
+  padding: 7px 11px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #fff;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.payment-clear-filters:hover:not(:disabled) {
+  background: #f8fafc;
+  border-color: #94a3b8;
+}
+.payment-clear-filters:disabled {
+  cursor: not-allowed;
+  opacity: .45;
+}
+
+.payment-data-table th {
+  padding: 9px 10px;
+  vertical-align: top;
+}
+.payment-column-filter {
+  display: flex;
+  min-width: 78px;
+  flex-direction: column;
+  gap: 5px;
+}
+.payment-column-filter span {
+  color: #475569;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.1;
+  text-transform: uppercase;
+  letter-spacing: .025em;
+}
+.payment-column-filter select {
+  width: 100%;
+  min-height: 28px;
+  max-width: 128px;
+  padding: 3px 20px 3px 6px;
+  border: 1px solid #dbe3ec;
+  border-radius: 6px;
+  background: #fff;
+  color: #334155;
+  font-size: 10px;
+  font-weight: 600;
+}
+.payment-column-filter select:focus {
+  outline: 2px solid rgba(37,99,235,.18);
+  border-color: #2563eb;
+}
+.payment-data-table td {
+  padding: 11px 10px;
+}
+.payment-due-row:hover {
+  background: #f8fafc;
+}
+.payment-due-row .payment-player-cell {
+  min-width: 120px;
+  font-size: 13px;
+}
+.payment-money-cell {
+  color: #334155 !important;
+  font-variant-numeric: tabular-nums;
+}
+.payment-remaining-cell {
+  color: #0f172a !important;
+  font-size: 13px;
+  font-weight: 800 !important;
+  font-variant-numeric: tabular-nums;
+}
+.payment-date-cell {
+  color: #475569;
+  font-variant-numeric: tabular-nums;
+}
+.payment-actions-cell {
+  width: 1%;
+}
+.payment-action-group {
+  min-height: 36px;
+}
+.payment-due-row .payment-text-button,
+.payment-due-row .payment-danger-button {
+  opacity: 0;
+  transform: translateY(1px);
+  transition: opacity .15s ease, transform .15s ease;
+}
+.payment-due-row:hover .payment-text-button,
+.payment-due-row:hover .payment-danger-button,
+.payment-due-row:focus-within .payment-text-button,
+.payment-due-row:focus-within .payment-danger-button {
+  opacity: 1;
+  transform: translateY(0);
+}
+.payment-due-row .payment-secondary-button {
+  white-space: nowrap;
+}
+
+@media (max-width: 1100px) {
+  .payment-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 760px) {
+  .payment-list-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .payment-list-controls {
+    align-items: stretch;
+    flex-wrap: wrap;
+  }
+  .payment-list-controls .payment-filter-field {
+    min-width: 180px;
+    flex: 1;
+  }
+  .payment-clear-filters {
+    flex: 0 0 auto;
+  }
+  .payment-due-row .payment-text-button,
+  .payment-due-row .payment-danger-button {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (max-width: 640px) {
+  .payment-kpi-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .payment-kpi-card {
+    padding: 12px;
+  }
+  .payment-kpi-card strong {
+    font-size: 18px;
+  }
+  .payment-dues-list-card,
+  .payment-generate-card {
+    padding: 15px 13px;
+  }
+  .payment-list-controls {
+    flex-direction: column;
+  }
+  .payment-list-controls .payment-filter-field {
+    min-width: 0;
+  }
+  .payment-clear-filters {
+    width: 100%;
+  }
+}
+@media (max-width: 420px) {
+  .payment-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}
