@@ -1,48 +1,149 @@
 .subscription-plans-page { max-width: 1600px; margin: 0 auto; color: var(--ap-slate-800); }
 
-.subscription-plans-workspace-header {
-  display:flex; align-items:center; justify-content:space-between; gap:var(--ap-space-6);
-  margin-bottom:var(--ap-space-5); padding-bottom:var(--ap-space-4);
+.subscription-plans-form-card {
+  padding:var(--ap-space-4);
+  border:1px solid var(--ap-border);
+  border-radius:var(--ap-radius-xl);
+  background:var(--ap-surface);
+  box-shadow:var(--ap-shadow-sm);
+}
+.subscription-plans-form-heading {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:var(--ap-space-4);
+  padding-bottom:var(--ap-space-3);
   border-bottom:1px solid var(--ap-border);
 }
-.subscription-plans-workspace-header h1 { margin:0; color:var(--ap-slate-950); font-size:1.75rem; letter-spacing:-0.025em; }
-.subscription-plans-workspace-header p { margin:.4rem 0 0; color:var(--ap-slate-500); font-size:var(--ap-font-size-sm); }
-.subscription-plans-eyebrow, .subscription-plans-section-label { display:block; color:var(--ap-primary-600); font-size:var(--ap-font-size-xs); font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
-.subscription-plans-eyebrow { margin-bottom:.35rem; }
-.subscription-plans-summary { display:flex; gap:.5rem; }
-.subscription-plans-summary > div { min-width:78px; padding:.65rem .8rem; border:1px solid var(--ap-border); border-radius:var(--ap-radius-lg); background:var(--ap-surface); box-shadow:var(--ap-shadow-sm); text-align:center; }
-.subscription-plans-summary strong { display:block; color:var(--ap-primary-700); font-size:1.25rem; line-height:1; }
-.subscription-plans-summary span { display:block; margin-top:.3rem; color:var(--ap-slate-500); font-size:var(--ap-font-size-xs); }
+.subscription-plans-form-heading h2 {
+  margin:.2rem 0 0;
+  color:var(--ap-slate-950);
+  font-size:1rem;
+  letter-spacing:-.015em;
+}
+.subscription-plans-secondary-button {
+  min-height:34px;
+  padding:.4rem .7rem;
+  border:1px solid var(--ap-border);
+  border-radius:var(--ap-radius-md);
+  background:var(--ap-surface);
+  color:var(--ap-slate-700);
+  font:inherit;
+  font-size:var(--ap-font-size-xs);
+  font-weight:700;
+  cursor:pointer;
+}
+.subscription-plans-secondary-button:hover {
+  background:var(--ap-slate-50);
+  border-color:var(--ap-primary-200);
+  color:var(--ap-primary-700);
+}
 
-.subscription-plans-form-card { padding:var(--ap-space-5); border:1px solid var(--ap-border); border-radius:var(--ap-radius-xl); background:var(--ap-surface); box-shadow:var(--ap-shadow-sm); }
-.subscription-plans-form-heading, .subscription-plans-list-toolbar { display:flex; align-items:flex-start; justify-content:space-between; gap:var(--ap-space-5); }
-.subscription-plans-form-heading { padding-bottom:var(--ap-space-4); border-bottom:1px solid var(--ap-border); }
-.subscription-plans-form-heading h2, .subscription-plans-list-toolbar h2 { margin:.25rem 0 0; color:var(--ap-slate-950); font-size:1.2rem; letter-spacing:-.02em; }
-.subscription-plans-form-heading p, .subscription-plans-list-toolbar p { margin:.3rem 0 0; color:var(--ap-slate-500); font-size:var(--ap-font-size-sm); }
-.subscription-plans-secondary-button { min-height:36px; padding:.45rem .75rem; border:1px solid var(--ap-border); border-radius:var(--ap-radius-md); background:var(--ap-surface); color:var(--ap-slate-700); font:inherit; font-size:var(--ap-font-size-xs); font-weight:700; cursor:pointer; }
-.subscription-plans-secondary-button:hover { background:var(--ap-slate-50); border-color:var(--ap-primary-200); color:var(--ap-primary-700); }
-
-.subscription-plans-form-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--ap-space-4); margin-top:var(--ap-space-5); }
+.subscription-plans-form-grid {
+  display:grid;
+  grid-template-columns:1.35fr 1.35fr 1fr 1fr 1fr auto;
+  gap:.7rem;
+  align-items:end;
+  margin-top:var(--ap-space-3);
+}
 .subscription-plans-field { min-width:0; }
-.subscription-plans-field-wide { grid-column:span 2; }
-.subscription-plans-field label, .subscription-plans-filter-field label { display:block; margin-bottom:.35rem; color:var(--ap-slate-700); font-size:var(--ap-font-size-xs); font-weight:800; }
-.subscription-plans-field select, .subscription-plans-field input, .subscription-plans-filter-field select { width:100%; min-height:42px; padding:.55rem .7rem; border:1px solid var(--ap-border); border-radius:var(--ap-radius-md); background:var(--ap-surface); color:var(--ap-slate-800); font:inherit; font-size:var(--ap-font-size-sm); }
-.subscription-plans-field select:focus-visible, .subscription-plans-field input:focus-visible, .subscription-plans-filter-field select:focus-visible, .subscription-plans-primary-button:focus-visible, .subscription-plans-secondary-button:focus-visible, .subscription-plans-action-button:focus-visible, .subscription-plans-pagination button:focus-visible { outline:2px solid var(--ap-primary-500); outline-offset:2px; }
-.subscription-plans-field small { display:block; margin-top:.35rem; color:var(--ap-slate-500); font-size:var(--ap-font-size-xs); }
-.subscription-plans-money-input { display:flex; align-items:center; min-height:42px; border:1px solid var(--ap-border); border-radius:var(--ap-radius-md); background:var(--ap-surface); overflow:hidden; }
-.subscription-plans-money-input:focus-within { outline:2px solid var(--ap-primary-500); outline-offset:2px; border-color:var(--ap-primary-300); }
-.subscription-plans-money-input span { padding-left:.75rem; color:var(--ap-slate-500); font-weight:700; }
-.subscription-plans-money-input input { min-height:40px !important; border:0 !important; outline:0 !important; box-shadow:none !important; }
-.subscription-plans-form-error { margin-top:var(--ap-space-4); padding:.65rem .8rem; border:1px solid var(--ap-danger-200); border-radius:var(--ap-radius-md); background:var(--ap-danger-50); color:var(--ap-danger-700); font-size:var(--ap-font-size-sm); }
-.subscription-plans-form-footer { display:flex; align-items:center; justify-content:space-between; gap:var(--ap-space-5); margin-top:var(--ap-space-5); padding-top:var(--ap-space-4); border-top:1px solid var(--ap-border); }
-.subscription-plans-preview { display:grid; grid-template-columns:auto auto; column-gap:.75rem; row-gap:.15rem; align-items:baseline; }
-.subscription-plans-preview > span:first-child { grid-column:1/-1; color:var(--ap-primary-600); font-size:var(--ap-font-size-xs); font-weight:800; letter-spacing:.06em; text-transform:uppercase; }
-.subscription-plans-preview strong { color:var(--ap-slate-950); }
-.subscription-plans-preview > span:not(:first-child) { color:var(--ap-slate-600); font-size:var(--ap-font-size-sm); }
-.subscription-plans-preview small { color:var(--ap-slate-500); font-size:var(--ap-font-size-xs); }
-.subscription-plans-primary-button { min-height:40px; padding:.55rem 1rem; border:1px solid var(--ap-primary-600); border-radius:var(--ap-radius-md); background:var(--ap-primary-600); color:var(--ap-white); font:inherit; font-size:var(--ap-font-size-sm); font-weight:700; cursor:pointer; white-space:nowrap; }
-.subscription-plans-primary-button:hover:not(:disabled) { background:var(--ap-primary-700); border-color:var(--ap-primary-700); }
-.subscription-plans-primary-button:disabled { opacity:.6; cursor:not-allowed; }
+.subscription-plans-field label {
+  display:block;
+  margin-bottom:.3rem;
+  color:var(--ap-slate-700);
+  font-size:var(--ap-font-size-xs);
+  font-weight:800;
+}
+.subscription-plans-field select,
+.subscription-plans-field input {
+  width:100%;
+  min-height:38px;
+  padding:.45rem .6rem;
+  border:1px solid var(--ap-border);
+  border-radius:var(--ap-radius-md);
+  background:var(--ap-surface);
+  color:var(--ap-slate-800);
+  font:inherit;
+  font-size:var(--ap-font-size-sm);
+  box-sizing:border-box;
+}
+.subscription-plans-field select:focus-visible,
+.subscription-plans-field input:focus-visible,
+.subscription-plans-filter-field select:focus-visible,
+.subscription-plans-primary-button:focus-visible,
+.subscription-plans-secondary-button:focus-visible,
+.subscription-plans-action-button:focus-visible,
+.subscription-plans-pagination button:focus-visible {
+  outline:2px solid var(--ap-primary-500);
+  outline-offset:2px;
+}
+.subscription-plans-field small {
+  display:none;
+}
+.subscription-plans-money-input {
+  display:flex;
+  align-items:center;
+  min-height:38px;
+  border:1px solid var(--ap-border);
+  border-radius:var(--ap-radius-md);
+  background:var(--ap-surface);
+  overflow:hidden;
+}
+.subscription-plans-money-input:focus-within {
+  outline:2px solid var(--ap-primary-500);
+  outline-offset:2px;
+  border-color:var(--ap-primary-300);
+}
+.subscription-plans-money-input span {
+  padding-left:.65rem;
+  color:var(--ap-slate-500);
+  font-weight:700;
+}
+.subscription-plans-money-input input {
+  min-height:36px !important;
+  border:0 !important;
+  outline:0 !important;
+  box-shadow:none !important;
+}
+.subscription-plans-form-action {
+  display:flex;
+  align-items:flex-end;
+}
+.subscription-plans-form-error {
+  margin-top:var(--ap-space-3);
+  padding:.55rem .7rem;
+  border:1px solid var(--ap-danger-200);
+  border-radius:var(--ap-radius-md);
+  background:var(--ap-danger-50);
+  color:var(--ap-danger-700);
+  font-size:var(--ap-font-size-sm);
+}
+.subscription-plans-primary-button {
+  min-height:38px;
+  padding:.45rem .8rem;
+  border:1px solid var(--ap-primary-600);
+  border-radius:var(--ap-radius-md);
+  background:var(--ap-primary-600);
+  color:var(--ap-white);
+  font:inherit;
+  font-size:var(--ap-font-size-xs);
+  font-weight:700;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.subscription-plans-primary-button:hover:not(:disabled) {
+  background:var(--ap-primary-700);
+  border-color:var(--ap-primary-700);
+}
+.subscription-plans-primary-button:disabled {
+  opacity:.6;
+  cursor:not-allowed;
+}
+.subscription-plans-inline-summary {
+  margin-left:.4rem;
+  color:var(--ap-slate-400);
+  white-space:nowrap;
+}
 
 .subscription-plans-list-section { margin-top:var(--ap-space-6); }
 .subscription-plans-list-toolbar { align-items:flex-end; margin-bottom:var(--ap-space-4); }
@@ -79,20 +180,46 @@
 .subscription-plans-pagination button:disabled { opacity:.45; cursor:not-allowed; }
 .subscription-plans-pagination strong { color:var(--ap-slate-700); }
 
+
+@media (max-width:1200px) {
+  .subscription-plans-form-grid {
+    grid-template-columns:repeat(3,minmax(0,1fr));
+  }
+  .subscription-plans-form-action {
+    grid-column:3;
+  }
+  .subscription-plans-primary-button {
+    width:100%;
+  }
+}
+
 @media (max-width:900px) {
-  .subscription-plans-workspace-header, .subscription-plans-list-toolbar, .subscription-plans-form-footer { align-items:flex-start; flex-direction:column; }
-  .subscription-plans-summary { width:100%; }
-  .subscription-plans-summary > div { flex:1; text-align:left; }
-  .subscription-plans-filters { width:100%; flex-wrap:wrap; }
-  .subscription-plans-filter-field { flex:1 1 180px; }
-  .subscription-plans-primary-button { width:100%; }
+  .subscription-plans-list-toolbar {
+    align-items:flex-start;
+    flex-direction:column;
+  }
+  .subscription-plans-filters {
+    width:100%;
+    flex-wrap:wrap;
+  }
+  .subscription-plans-filter-field {
+    flex:1 1 180px;
+  }
+  .subscription-plans-form-grid {
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+  .subscription-plans-form-action {
+    grid-column:auto;
+  }
+  .subscription-plans-primary-button {
+    width:100%;
+  }
 }
 
 @media (max-width:640px) {
-  .subscription-plans-form-card { padding:var(--ap-space-4); }
+  .subscription-plans-form-card { padding:var(--ap-space-3); }
   .subscription-plans-form-grid { grid-template-columns:1fr; }
-  .subscription-plans-field-wide { grid-column:auto; }
-  .subscription-plans-form-heading { flex-direction:column; }
+  .subscription-plans-form-heading { align-items:flex-start; flex-direction:column; }
   .subscription-plans-filters { flex-direction:column; align-items:stretch; }
   .subscription-plans-filter-field { width:100%; }
   .subscription-plans-pagination { align-items:stretch; flex-direction:column; }
