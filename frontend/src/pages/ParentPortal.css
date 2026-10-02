@@ -1491,3 +1491,44 @@
   border-radius: inherit;
   background: var(--ap-surface);
 }
+
+
+/* Phase 1: compact parent dashboard financial summary */
+.parent-portal-section-description{
+  margin:.35rem 0 0;
+  color:var(--ap-slate-500);
+  font-size:var(--ap-font-size-sm);
+  line-height:1.45;
+}
+
+.parent-portal-financial-summary-section{
+  margin-top:var(--ap-space-6);
+}
+
+.parent-portal-financial-summary-grid{
+  margin-bottom:0;
+}
+
+.parent-portal-financial-summary-grid .parent-portal-financial-card{
+  min-height:118px;
+  box-sizing:border-box;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+
+@media(max-width:900px){
+  .parent-portal-financial-summary-grid{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+  }
+}
+
+@media(max-width:640px){
+  .parent-portal-financial-summary-grid{
+    grid-template-columns:1fr;
+  }
+
+  .parent-portal-financial-summary-grid .parent-portal-financial-card{
+    min-height:auto;
+  }
+}
