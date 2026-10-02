@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import Layout from "../components/Layout";
 import "./Attendance.css";
 import { supabase } from "../supabaseClient";
@@ -7,11 +8,13 @@ import {
 } from "../utils/dataScope";
 
 function CoachAttendance() {
+  const [searchParams] = useSearchParams();
+  const batchContextId = searchParams.get("batchId") || "";
   const user = JSON.parse(localStorage.getItem("acadpro_user"));
 
   const [batches, setBatches] = useState([]);
 
-  const [selectedBatch, setSelectedBatch] = useState("");
+  const [selectedBatch, setSelectedBatch] = useState(batchContextId);
   const [players, setPlayers] = useState([]);
   const [attendanceDate, setAttendanceDate] = useState(
     new Date().toISOString().split("T")[0]
