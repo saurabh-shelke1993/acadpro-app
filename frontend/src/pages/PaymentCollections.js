@@ -1143,12 +1143,16 @@ return (
 
       <section className="payment-card">
         <div className="payment-card-header payment-list-header">
-          <div><h2>Payments History</h2><p>Review immutable payment and adjustment ledger entries.</p><div className="payment-history-summary"><span>{filteredPayments.length} record{filteredPayments.length === 1 ? "" : "s"}</span><span>₹{historyTotalAmount.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} total</span></div></div>
+          <div><h2>Payments History</h2><p>Review immutable payment and adjustment ledger entries.</p><div className="payment-history-summary"><span>{filteredPayments.length} record{filteredPayments.length === 1 ? "" : "s"}</span><span>Payments ₹{historyPaymentsTotal.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span><span>Adjustments ₹{historyAdjustmentsTotal.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span><span>Net Ledger ₹{historyNetTotal.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div></div>
           <div className="payment-history-filter-grid">
+            <label className="payment-filter-field"><span>Academy</span><select value={historyAcademy} onChange={(e)=>{setHistoryAcademy(e.target.value);setHistoryCenter("");setHistoryBatch("");setHistoryPlayer("");}}><option value="">All Academies</option>{historyFilterOptions.academies.map(option=><option key={option.id} value={option.id}>{option.name}</option>)}</select></label>
+            <label className="payment-filter-field"><span>Center</span><select value={historyCenter} onChange={(e)=>{setHistoryCenter(e.target.value);setHistoryBatch("");setHistoryPlayer("");}}><option value="">All Centers</option>{historyFilterOptions.centers.map(option=><option key={option.id} value={option.id}>{option.name}</option>)}</select></label>
+            <label className="payment-filter-field"><span>Batch</span><select value={historyBatch} onChange={(e)=>{setHistoryBatch(e.target.value);setHistoryPlayer("");}}><option value="">All Batches</option>{historyFilterOptions.batches.map(option=><option key={option.id} value={option.id}>{option.name}</option>)}</select></label>
+            <label className="payment-filter-field"><span>Player</span><select value={historyPlayer} onChange={(e)=>setHistoryPlayer(e.target.value)}><option value="">All Players</option>{historyFilterOptions.players.map(option=><option key={option.id} value={option.id}>{option.name}</option>)}</select></label>
             <label className="payment-filter-field"><span>Mode</span><select value={historyPaymentMode} onChange={(e)=>setHistoryPaymentMode(e.target.value)}><option value="">All Modes</option><option value="cash">Cash</option><option value="upi">UPI</option><option value="bank_transfer">Bank Transfer</option></select></label>
             <label className="payment-filter-field"><span>From</span><input type="date" value={historyFromDate} max={historyToDate || undefined} onChange={(e)=>setHistoryFromDate(e.target.value)} /></label>
             <label className="payment-filter-field"><span>To</span><input type="date" value={historyToDate} min={historyFromDate || undefined} onChange={(e)=>setHistoryToDate(e.target.value)} /></label>
-            <button type="button" className="payment-secondary-button payment-filter-reset-button" onClick={resetHistoryFilters} disabled={!historyPaymentMode && !historyFromDate && !historyToDate}>Reset Filters</button>
+            <button type="button" className="payment-secondary-button payment-filter-reset-button" onClick={resetHistoryFilters} disabled={!historyAcademy && !historyCenter && !historyBatch && !historyPlayer && !historyPaymentMode && !historyFromDate && !historyToDate}>Reset Filters</button>
           </div>
         </div>
 
@@ -1162,7 +1166,7 @@ return (
                 {isSuperAdmin(loggedInUser) && <th scope="col">Academy</th>}
                 <th scope="col">Center</th><th scope="col">Batch</th><th scope="col">Player</th><th scope="col">Amount</th><th scope="col">Mode</th><th scope="col">Reference</th><th scope="col">Receipt</th><th scope="col">Entry</th><th scope="col">Payment Date</th><th scope="col">Actions</th>
               </tr></thead>
-              <tbody>{filteredPayments.map((payment)=><tr key={payment.id}>
+              <tbody>{paginatedPayments.map((payment)=><tr key={payment.id}>
                 {isSuperAdmin(loggedInUser) && <td>{payment.players?.academies?.academy_name || "-"}</td>}
                 <td>{payment.players?.centers?.center_name || "-"}</td>
                 <td>{payment.players?.batches?.batch_name || "-"}</td>
@@ -1176,6 +1180,17 @@ return (
                 <td>{payment.payment_entry_type==="payment" && <button type="button" className="payment-text-button" onClick={()=>openCorrectionModal(payment)}>Request Correction</button>}</td>
               </tr>)}</tbody>
             </table>
+          </div>
+        )}
+
+        {filteredPayments.length > 0 && (
+          <div className="payment-pagination">
+            <span>Showing {Math.min((historyCurrentPage - 1) * HISTORY_PAGE_SIZE + 1, filteredPayments.length)}–{Math.min(historyCurrentPage * HISTORY_PAGE_SIZE, filteredPayments.length)} of {filteredPayments.length}</span>
+            <div className="payment-pagination-controls">
+              <button type="button" onClick={() => setHistoryCurrentPage(page => Math.max(1, page - 1))} disabled={historyCurrentPage === 1}>Previous</button>
+              <strong>Page {historyCurrentPage} of {historyTotalPages}</strong>
+              <button type="button" onClick={() => setHistoryCurrentPage(page => Math.min(historyTotalPages, page + 1))} disabled={historyCurrentPage === historyTotalPages}>Next</button>
+            </div>
           </div>
         )}
       </section>
