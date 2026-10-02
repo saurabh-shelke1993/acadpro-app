@@ -787,6 +787,7 @@ useEffect(() => {
 }, [statusFilter, dueFromDate, dueToDate, selectedAcademy, selectedCenter, selectedBatch, selectedPlayer, columnFilters]);
 
 const filteredDues = useMemo(() => {
+  if (hasInvalidDateRange) return [];
   return duesList.filter((due) => {
     if (statusFilter && due.due_status !== statusFilter.toLowerCase()) return false;
     if (dueFromDate && due.due_date < dueFromDate) return false;
@@ -799,7 +800,7 @@ const filteredDues = useMemo(() => {
     if (columnFilters.dueType && due.due_type !== columnFilters.dueType) return false;
     return true;
   });
-}, [duesList, statusFilter, dueFromDate, dueToDate, columnFilters]);
+}, [duesList, statusFilter, dueFromDate, dueToDate, columnFilters, hasInvalidDateRange]);
 
 const filterOptions = useMemo(() => ({
   academies: [...new Map(duesList.map((due) => [due.players?.academy_id, due.players?.academies?.academy_name]).filter(([id, name]) => id && name)).entries()]
@@ -816,17 +817,8 @@ const filterOptions = useMemo(() => ({
     .sort((a, b) => a.localeCompare(b))
 }), [duesList]);
 
-const totalDue = duesList.reduce((sum, due) => sum + Number(due.total_amount || 0), 0);
-const totalPaid = duesList.reduce((sum, due) => sum + Number(due.paid_amount || 0), 0);
-const totalRemaining = duesList.reduce((sum, due) => sum + Number(due.remaining_amount || 0), 0);
 const filteredRemaining = filteredDues.reduce((sum, due) => sum + Number(due.remaining_amount || 0), 0);
-
-const pendingAmount = duesList.filter((due) => due.due_status === "pending")
-  .reduce((sum, due) => sum + Number(due.remaining_amount || 0), 0);
-const partialAmount = duesList.filter((due) => due.due_status === "partial")
-  .reduce((sum, due) => sum + Number(due.remaining_amount || 0), 0);
-const paidAmount = duesList.filter((due) => due.due_status === "paid")
-  .reduce((sum, due) => sum + Number(due.paid_amount || 0), 0);
+const hasInvalidDateRange = Boolean(dueFromDate && dueToDate && dueFromDate > dueToDate);
 
 const formatCurrency = (value) => new Intl.NumberFormat("en-IN", {
   style: "currency",
@@ -902,17 +894,16 @@ return (
         </div>
       </div>
 
-      <div className="payment-dues-top-grid">
-        <section className="payment-card payment-generate-card">
-          <div className="payment-card-header payment-generate-header">
-            <div>
-              <div className="payment-section-kicker">Due generation</div>
-              <h2>Generate Payment Due</h2>
-              <p>Select the player subscription and define the due.</p>
-            </div>
+      <section className="payment-card payment-generate-card">
+        <div className="payment-card-header payment-generate-header">
+          <div>
+            <div className="payment-section-kicker">Due generation</div>
+            <h2>Generate Payment Due</h2>
+            <p>Select the player subscription and define the due.</p>
           </div>
+        </div>
 
-          <div className="payment-form-grid">
+        <div className="payment-form-grid">
             <label className="payment-field"><span>Academy</span><select value={selectedAcademy} onChange={(e) => setSelectedAcademy(e.target.value)}><option value="">Select Academy</option>{academies.map((academy) => <option key={academy.id} value={academy.id}>{academy.academy_name}</option>)}</select></label>
             <label className="payment-field"><span>Center</span><select value={selectedCenter} onChange={(e) => setSelectedCenter(e.target.value)}><option value="">Select Center</option>{centers.map((center) => <option key={center.id} value={center.id}>{center.center_name}</option>)}</select></label>
             <label className="payment-field"><span>Batch</span><select value={selectedBatch} onChange={(e) => setSelectedBatch(e.target.value)}><option value="">Select Batch</option>{batches.map((batch) => <option key={batch.id} value={batch.id}>{batch.batch_name}</option>)}</select></label>
@@ -969,20 +960,7 @@ return (
               </button>
             )}
           </div>
-        </section>
-
-
-        <section className="payment-kpi-panel" aria-label="Payment due summary">
-            <div className="payment-kpi-grid" aria-label="Payment due summary">
-          <div className="payment-kpi-card payment-kpi-total"><span>Total due</span><strong>{formatCurrency(totalDue)}</strong><small>{duesList.length} records in scope</small></div>
-          <div className="payment-kpi-card payment-kpi-pending"><span>Pending</span><strong>{formatCurrency(pendingAmount)}</strong><small>{duesList.filter((due) => due.due_status === "pending").length} dues</small></div>
-          <div className="payment-kpi-card payment-kpi-partial"><span>Partial</span><strong>{formatCurrency(partialAmount)}</strong><small>{duesList.filter((due) => due.due_status === "partial").length} dues</small></div>
-          <div className="payment-kpi-card payment-kpi-paid"><span>Paid</span><strong>{formatCurrency(paidAmount)}</strong><small>{duesList.filter((due) => due.due_status === "paid").length} dues · {formatCurrency(totalPaid)} collected</small></div>
-            </div>
-
-
-        </section>
-      </div>
+      </section>
 
       <section className="payment-card payment-dues-list-card">
         <div className="payment-list-heading">
@@ -998,6 +976,13 @@ return (
             <button type="button" className="payment-clear-filters" onClick={clearFilters} disabled={!hasActiveFilters}>Clear filters</button>
           </div>
         </div>
+
+        {hasInvalidDateRange && (
+          <div className="payment-filter-warning" role="alert">
+            <strong>Invalid date range.</strong>
+            <span>Choose a From date that is on or before the To date.</span>
+          </div>
+        )}
 
         {filteredDues.length === 0 ? (
           <div className="payment-empty-state"><div className="payment-empty-icon">₹</div><h3>No payment dues found</h3><p>Adjust the filters or generate a new due for an eligible player subscription.</p></div>
