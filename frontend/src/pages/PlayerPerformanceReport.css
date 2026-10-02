@@ -725,3 +725,70 @@
   .performance-top-score strong{font-size:17px}
   .performance-summary-metrics{grid-template-columns:1fr}
 }
+
+/* C11 — Remove the redundant report hero and place scope + Top 5 side-by-side. */
+.performance-scope-top-grid{
+  display:grid;
+  grid-template-columns:minmax(0,1.35fr) minmax(360px,.9fr);
+  align-items:stretch;
+  gap:15px;
+  margin-bottom:15px;
+}
+.performance-scope-panel,
+.performance-top-panel{
+  min-width:0;
+}
+.performance-scope-panel .performance-filter-card{
+  height:100%;
+  margin:0;
+  box-sizing:border-box;
+}
+.performance-top-panel .performance-top-section{
+  height:100%;
+  margin:0;
+  padding:14px 16px;
+  border:1px solid var(--ap-slate-200);
+  border-radius:12px;
+  background:var(--ap-surface);
+  box-shadow:0 3px 12px rgba(15,23,42,.05);
+  box-sizing:border-box;
+}
+.performance-top-panel .performance-section-header{
+  align-items:flex-start;
+  margin-bottom:10px;
+}
+.performance-top-panel .performance-section-header p{
+  max-width:420px;
+}
+.performance-top-panel .performance-result-count{
+  flex:0 0 auto;
+  padding-top:2px;
+}
+.performance-top-panel .performance-top-grid{
+  grid-template-columns:1fr;
+  gap:7px;
+}
+.performance-top-panel .performance-top-player{
+  padding:9px 10px;
+}
+.performance-top-panel .performance-empty-card{
+  min-height:116px;
+}
+@media(max-width:1100px){
+  .performance-scope-top-grid{
+    grid-template-columns:minmax(0,1.2fr) minmax(320px,.9fr);
+  }
+}
+@media(max-width:900px){
+  .performance-scope-top-grid{
+    grid-template-columns:1fr;
+  }
+  .performance-top-panel .performance-top-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+@media(max-width:620px){
+  .performance-top-panel .performance-top-grid{
+    grid-template-columns:1fr;
+  }
+}
