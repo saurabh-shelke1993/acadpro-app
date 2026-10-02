@@ -97,6 +97,16 @@ const ParentPortal = () => {
   const formatTime = (value) => (value ? value.slice(0, 5) : "Not available");
 
 
+  const formatAmount = (value) => {
+    const amount = Number(value);
+    return Number.isFinite(amount)
+      ? amount.toLocaleString("en-IN", {
+          style: "currency",
+          currency: "INR",
+        })
+      : value || "Not recorded";
+  };
+
   if (loading) {
     return (
       <Layout>
