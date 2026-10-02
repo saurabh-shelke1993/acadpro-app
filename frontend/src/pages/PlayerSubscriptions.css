@@ -582,3 +582,80 @@
     max-width: none;
   }
 }
+
+
+.player-subscriptions-list-controls {
+  flex-wrap: wrap;
+}
+
+.player-subscriptions-clear-filters {
+  min-height: 34px;
+  padding: .4rem .65rem;
+  border: 1px solid var(--ap-border);
+  border-radius: var(--ap-radius-md);
+  background: var(--ap-surface);
+  color: var(--ap-slate-600);
+  font: inherit;
+  font-size: var(--ap-font-size-xs);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.player-subscriptions-clear-filters:hover:not(:disabled) {
+  border-color: var(--ap-primary-200);
+  background: var(--ap-primary-50);
+  color: var(--ap-primary-700);
+}
+
+.player-subscriptions-clear-filters:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+.player-subscriptions-table-filter {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+}
+
+.player-subscriptions-table-filter span {
+  flex: 0 0 auto;
+}
+
+.player-subscriptions-table-filter select {
+  width: 72px;
+  min-height: 28px;
+  padding: .2rem 1.25rem .2rem .35rem;
+  border: 1px solid transparent;
+  border-radius: var(--ap-radius-sm);
+  background: transparent;
+  color: var(--ap-slate-600);
+  font: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: none;
+  cursor: pointer;
+}
+
+.player-subscriptions-table-filter select:hover,
+.player-subscriptions-table-filter select:focus-visible {
+  border-color: var(--ap-border);
+  background: var(--ap-surface);
+}
+
+.player-subscriptions-table-filter select:focus-visible {
+  outline: 2px solid var(--ap-primary-500);
+  outline-offset: 1px;
+}
+
+@media (max-width: 640px) {
+  .player-subscriptions-table-filter {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: .2rem;
+  }
+
+  .player-subscriptions-table-filter select {
+    width: 90px;
+  }
+}
