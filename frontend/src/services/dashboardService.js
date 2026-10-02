@@ -297,6 +297,24 @@ export async function getSuperAdminDashboardData() {
 
   if (academiesError) throw academiesError;
 
+  const dateWindow = getDateRange(14);
+  const currentAttendanceDates = dateWindow.slice(7);
+  const previousAttendanceDates = dateWindow.slice(0, 7);
+  const currentAttendanceStart = currentAttendanceDates[0];
+  const currentAttendanceEnd = currentAttendanceDates[6];
+  const previousAttendanceStart = previousAttendanceDates[0];
+  const previousAttendanceEnd = previousAttendanceDates[6];
+
+  const { monthStart, nextMonthStart } = getCurrentMonthRange();
+  const currentMonthStartDate = new Date(monthStart);
+  const previousMonthStartDate = new Date(
+    currentMonthStartDate.getFullYear(),
+    currentMonthStartDate.getMonth() - 1,
+    1
+  );
+  const previousMonthStart = previousMonthStartDate.toISOString();
+  const previousMonthEnd = monthStart;
+
   const [
     playersResult,
     centersResult,
@@ -320,8 +338,8 @@ export async function getSuperAdminDashboardData() {
     supabase
       .from("attendance")
       .select("academy_id, attendance_date, status")
-      .gte("attendance_date", getDateRange(7)[0])
-      .lte("attendance_date", getDateRange(7)[6])
+      .gte("attendance_date", previousAttendanceStart)
+      .lte("attendance_date", currentAttendanceEnd)
       .eq("is_deleted", false),
     supabase
       .from("payment_dues")
@@ -356,11 +374,16 @@ export async function getSuperAdminDashboardData() {
         batches: 0,
         attendancePresent: 0,
         attendanceAbsent: 0,
+        previousAttendancePresent: 0,
+        previousAttendanceAbsent: 0,
         attendanceRecords: 0,
+        previousAttendanceRecords: 0,
         totalBilled: 0,
         totalPaid: 0,
         outstandingAmount: 0,
-        collectionRate: 0
+        collectionRate: 0,
+        collectionsThisMonth: 0,
+        collectionsPreviousMonth: 0
       }
     ])
   );
@@ -384,8 +407,17 @@ export async function getSuperAdminDashboardData() {
     const academy = academyMap.get(record.academy_id);
     if (!academy) return;
 
-    if (record.status === "present") academy.attendancePresent += 1;
-    if (record.status === "absent") academy.attendanceAbsent += 1;
+    const isCurrentPeriod =
+      record.attendance_date >= currentAttendanceStart &&
+      record.attendance_date <= currentAttendanceEnd;
+
+    if (isCurrentPeriod) {
+      if (record.status === "present") academy.attendancePresent += 1;
+      if (record.status === "absent") academy.attendanceAbsent += 1;
+    } else {
+      if (record.status === "present") academy.previousAttendancePresent += 1;
+      if (record.status === "absent") academy.previousAttendanceAbsent += 1;
+    }
   });
 
   (duesResult.data || []).forEach((due) => {
@@ -403,29 +435,60 @@ export async function getSuperAdminDashboardData() {
     academy.totalPaid += paidAmount;
   });
 
-  const { monthStart, nextMonthStart } = getCurrentMonthRange();
   let collectionsThisMonth = 0;
 
   (paymentsResult.data || []).forEach((payment) => {
+    const academyId = payment.players?.academy_id;
+    const academy = academyMap.get(academyId);
+    if (!academy) return;
+
     if (
-      payment.payment_date < monthStart ||
-      payment.payment_date >= nextMonthStart
+      payment.payment_date >= monthStart &&
+      payment.payment_date < nextMonthStart
     ) {
-      return;
+      const amount = Number(payment.amount_paid || 0);
+      academy.collectionsThisMonth += amount;
+      collectionsThisMonth += amount;
     }
 
-    collectionsThisMonth += Number(payment.amount_paid || 0);
+    if (
+      payment.payment_date >= previousMonthStart &&
+      payment.payment_date < previousMonthEnd
+    ) {
+      academy.collectionsPreviousMonth += Number(payment.amount_paid || 0);
+    }
   });
+
+  const getAttendanceRate = (present, absent) => {
+    const total = present + absent;
+    return total ? Math.round((present / total) * 100) : 0;
+  };
+
+  const getPercentageChange = (current, previous) => {
+    if (!previous) return current > 0 ? 100 : 0;
+    return Math.round(((current - previous) / previous) * 100);
+  };
 
   const academyRows = [...academyMap.values()].map((academy) => {
     academy.attendanceRecords =
       academy.attendancePresent + academy.attendanceAbsent;
 
-    academy.attendanceRate = academy.attendanceRecords
-      ? Math.round(
-        (academy.attendancePresent / academy.attendanceRecords) * 100
-      )
-      : 0;
+    academy.previousAttendanceRecords =
+      academy.previousAttendancePresent + academy.previousAttendanceAbsent;
+
+    academy.attendanceRate = getAttendanceRate(
+      academy.attendancePresent,
+      academy.attendanceAbsent
+    );
+
+    academy.previousAttendanceRate = getAttendanceRate(
+      academy.previousAttendancePresent,
+      academy.previousAttendanceAbsent
+    );
+
+    academy.attendanceDelta = academy.previousAttendanceRecords
+      ? academy.attendanceRate - academy.previousAttendanceRate
+      : null;
 
     academy.outstandingAmount = Math.max(
       academy.totalBilled - academy.totalPaid,
@@ -437,6 +500,11 @@ export async function getSuperAdminDashboardData() {
         (academy.totalPaid / academy.totalBilled) * 100
       )
       : 0;
+
+    academy.collectionsChange = getPercentageChange(
+      academy.collectionsThisMonth,
+      academy.collectionsPreviousMonth
+    );
 
     return academy;
   });
@@ -512,10 +580,58 @@ export async function getSuperAdminDashboardData() {
     };
   });
 
+  const attendanceLeader = [...academyRows]
+    .filter((academy) => academy.attendanceRecords > 0)
+    .sort((a, b) => {
+      if (b.attendanceRate !== a.attendanceRate) {
+        return b.attendanceRate - a.attendanceRate;
+      }
+      return b.attendanceRecords - a.attendanceRecords;
+    })[0] || null;
+
+  const collectionsLeader = [...academyRows]
+    .filter((academy) => academy.collectionsThisMonth > 0)
+    .sort((a, b) => {
+      if (b.collectionsThisMonth !== a.collectionsThisMonth) {
+        return b.collectionsThisMonth - a.collectionsThisMonth;
+      }
+      return b.players - a.players;
+    })[0] || null;
+
+  const largestOutstanding = [...academyRows]
+    .filter((academy) => academy.outstandingAmount > 0)
+    .sort((a, b) => b.outstandingAmount - a.outstandingAmount)[0] || null;
+
   return {
     academies: academyRows,
     attentionItems,
     attendanceTrend,
+    insights: {
+      attendanceLeader: attendanceLeader
+        ? {
+          academyId: attendanceLeader.id,
+          academyName: attendanceLeader.name,
+          value: attendanceLeader.attendanceRate,
+          records: attendanceLeader.attendanceRecords
+        }
+        : null,
+      collectionsLeader: collectionsLeader
+        ? {
+          academyId: collectionsLeader.id,
+          academyName: collectionsLeader.name,
+          value: collectionsLeader.collectionsThisMonth,
+          change: collectionsLeader.collectionsChange
+        }
+        : null,
+      largestOutstanding: largestOutstanding
+        ? {
+          academyId: largestOutstanding.id,
+          academyName: largestOutstanding.name,
+          value: largestOutstanding.outstandingAmount,
+          collectionRate: largestOutstanding.collectionRate
+        }
+        : null
+    },
     totals: {
       academies: academyRows.length,
       players: totalPlayers,
