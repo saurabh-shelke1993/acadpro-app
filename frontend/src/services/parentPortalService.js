@@ -1,7 +1,7 @@
 import { supabase } from "../supabaseClient";
 
 const PARENT_PLAYER_SELECT =
-  "id, full_name, dob, player_status, gender, registration_number, joining_date, player_code, academy_id, center_id, batch_id, academies(academy_name, academy_logo), centers(center_name), batches(batch_name, age_group, start_time, end_time)";
+  "id, full_name, dob, player_status, gender, joining_date, academy_id, center_id, batch_id, academies(academy_name, academy_logo), centers(center_name), batches(batch_name, age_group, start_time, end_time)";
 
 const createAttendanceSummaryMap = (childIds) => {
   const summaries = {};
@@ -119,60 +119,6 @@ export const getAttendanceSummaries = async (childIds) => {
   });
 
   return { summaries, error };
-};
-
-export const getFinancialSummaries = async (childIds) => {
-  const summaries = {};
-  childIds.forEach((childId) => {
-    summaries[childId] = {
-      paymentCount: 0,
-      pendingDueCount: 0,
-      outstandingAmount: 0,
-    };
-  });
-
-  if (!childIds.length) {
-    return { summaries, errors: [] };
-  }
-
-  const [paymentsResult, duesResult] = await Promise.all([
-    supabase
-      .from("payments")
-      .select("player_id", { count: "exact", head: false })
-      .in("player_id", childIds),
-    supabase
-      .from("payment_dues")
-      .select("player_id, remaining_amount, due_status")
-      .in("player_id", childIds),
-  ]);
-
-  (paymentsResult.data || []).forEach((record) => {
-    if (summaries[record.player_id]) summaries[record.player_id].paymentCount += 1;
-  });
-
-  (duesResult.data || []).forEach((due) => {
-    const summary = summaries[due.player_id];
-    if (!summary) return;
-
-    const remaining = Number(due.remaining_amount);
-    const status = String(due.due_status || "").toLowerCase();
-    const settled = ["paid", "settled", "fully paid", "fully_paid"].includes(status);
-    const outstanding =
-      remaining > 0 || (due.remaining_amount === null && !settled);
-
-    if (outstanding) {
-      summary.pendingDueCount += 1;
-      summary.outstandingAmount += Number.isFinite(remaining) ? remaining : 0;
-    }
-  });
-
-  return {
-    summaries,
-    errors: [
-      paymentsResult.error ? "Payment summary could not be loaded." : null,
-      duesResult.error ? "Outstanding dues summary could not be loaded." : null,
-    ].filter(Boolean),
-  };
 };
 
 export const getChildFinancialData = async (childId) => {
