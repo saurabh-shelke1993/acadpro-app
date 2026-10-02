@@ -3,8 +3,9 @@ import { Link } from "react-router-dom";
 import DashboardCard from "../components/Dashboard/DashboardCard";
 import DashboardCharts from "../components/DashboardCharts";
 import SuperAdminDashboard from "../components/Dashboard/SuperAdminDashboard";
+import AcademyOwnerDashboard from "../components/Dashboard/AcademyOwnerDashboard";
 import Layout from "../components/Layout";
-import { getDashboardSummary, getSuperAdminDashboardData } from "../services/dashboardService";
+import { getAcademyOwnerDashboardData, getDashboardSummary, getSuperAdminDashboardData } from "../services/dashboardService";
 import "../styles/dashboard.css";
 import { getCurrentUser, isSuperAdmin } from "../utils/auth";
 
@@ -20,7 +21,8 @@ const initialSummary = {
   pendingDues: 0,
   outstandingAmount: 0,
   collectionsThisMonth: 0,
-  superAdmin: null
+  superAdmin: null,
+  academyOwner: null
 };
 
 const formatCurrency = (amount) =>
@@ -47,12 +49,21 @@ function Dashboard() {
           throw new Error("Unable to load the current user.");
         }
 
-        const dashboardSummary = isSuperAdmin(currentUser)
-          ? {
-              ...initialSummary,
-              superAdmin: await getSuperAdminDashboardData(currentUser)
-            }
-          : await getDashboardSummary(currentUser);
+        let dashboardSummary;
+
+        if (isSuperAdmin(currentUser)) {
+          dashboardSummary = {
+            ...initialSummary,
+            superAdmin: await getSuperAdminDashboardData(currentUser)
+          };
+        } else if (currentUser.role === "academy_owner") {
+          dashboardSummary = {
+            ...initialSummary,
+            academyOwner: await getAcademyOwnerDashboardData(currentUser)
+          };
+        } else {
+          dashboardSummary = await getDashboardSummary(currentUser);
+        }
 
         if (!isMounted) return;
 
@@ -107,6 +118,20 @@ function Dashboard() {
         <SuperAdminDashboard
           user={user}
           data={summary.superAdmin}
+          onRefresh={() => setRefreshToken((value) => value + 1)}
+        />
+      </Layout>
+    );
+  }
+
+
+
+  if (user?.role === "academy_owner") {
+    return (
+      <Layout>
+        <AcademyOwnerDashboard
+          user={user}
+          data={summary.academyOwner}
           onRefresh={() => setRefreshToken((value) => value + 1)}
         />
       </Layout>
