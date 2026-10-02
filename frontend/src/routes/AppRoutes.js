@@ -33,6 +33,7 @@ import CoachAttendance from "../pages/CoachAttendance";
 import CoachPerformanceAssessments from "../pages/CoachPerformanceAssessments";
 import PlayerPerformanceReport from "../pages/PlayerPerformanceReport";
 import ParentPortal from "../pages/ParentPortal";
+import ParentFinancialOverview from "../pages/ParentFinancialOverview";
 
 // ============================================
 // APP ROUTES
@@ -338,6 +339,17 @@ function AppRoutes() {
       allowedRoles={["parent"]}
     >
       <ParentPortal />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/parent-financial-overview"
+  element={
+    <ProtectedRoute
+      allowedRoles={["parent"]}
+    >
+      <ParentFinancialOverview />
     </ProtectedRoute>
   }
 />
