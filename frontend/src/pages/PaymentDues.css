@@ -93,50 +93,6 @@
 .payment-dues-list-card {
   padding: 18px 20px;
 }
-.payment-kpi-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
-  margin-bottom: 16px;
-}
-.payment-kpi-card {
-  min-width: 0;
-  padding: 15px 16px;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  background: #fff;
-  box-shadow: 0 2px 8px rgba(15,23,42,.035);
-}
-.payment-kpi-card span,
-.payment-kpi-card small {
-  display: block;
-}
-.payment-kpi-card span {
-  color: #64748b;
-  font-size: 11px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: .05em;
-}
-.payment-kpi-card strong {
-  display: block;
-  margin: 5px 0 3px;
-  color: #0f172a;
-  font-size: 21px;
-  line-height: 1.15;
-}
-.payment-kpi-card small {
-  overflow: hidden;
-  color: #64748b;
-  font-size: 11px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.payment-kpi-total { border-top: 3px solid #2563eb; }
-.payment-kpi-pending { border-top: 3px solid #dc2626; }
-.payment-kpi-partial { border-top: 3px solid #d97706; }
-.payment-kpi-paid { border-top: 3px solid #059669; }
-
 .payment-list-heading {
   display: flex;
   align-items: flex-end;
@@ -261,12 +217,6 @@
 .payment-due-row .payment-secondary-button {
   white-space: nowrap;
 }
-
-@media (max-width: 1100px) {
-  .payment-kpi-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
 @media (max-width: 760px) {
   .payment-list-heading {
     align-items: stretch;
@@ -290,16 +240,6 @@
   }
 }
 @media (max-width: 640px) {
-  .payment-kpi-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-  .payment-kpi-card {
-    padding: 12px;
-  }
-  .payment-kpi-card strong {
-    font-size: 18px;
-  }
   .payment-dues-list-card,
   .payment-generate-card {
     padding: 15px 13px;
@@ -312,11 +252,6 @@
   }
   .payment-clear-filters {
     width: 100%;
-  }
-}
-@media (max-width: 420px) {
-  .payment-kpi-grid {
-    grid-template-columns: 1fr;
   }
 }
 
@@ -568,64 +503,6 @@
 }
 
 
-/* Payment Dues V2 — Phase 3 layout */
-.payment-dues-top-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 7fr) minmax(280px, 3fr);
-  gap: 14px;
-  align-items: stretch;
-  margin-bottom: 16px;
-}
-.payment-dues-top-grid .payment-generate-card {
-  height: 100%;
-  margin-bottom: 0;
-  box-sizing: border-box;
-}
-.payment-kpi-panel {
-  min-width: 0;
-  height: 100%;
-  padding: 0;
-}
-.payment-kpi-panel .payment-kpi-grid {
-  height: 100%;
-  margin-bottom: 0;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-auto-rows: minmax(0, 1fr);
-}
-.payment-kpi-panel .payment-kpi-card {
-  display: flex;
-  min-height: 0;
-  flex-direction: column;
-  justify-content: center;
-}
-.payment-kpi-panel .payment-kpi-card strong {
-  font-size: 19px;
-}
-@media (max-width: 1050px) {
-  .payment-dues-top-grid {
-    grid-template-columns: minmax(0, 6.5fr) minmax(250px, 3.5fr);
-  }
-}
-@media (max-width: 900px) {
-  .payment-dues-top-grid {
-    grid-template-columns: 1fr;
-  }
-  .payment-dues-top-grid .payment-generate-card {
-    height: auto;
-  }
-  .payment-kpi-panel .payment-kpi-grid {
-    height: auto;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-auto-rows: auto;
-  }
-}
-@media (max-width: 420px) {
-  .payment-kpi-panel .payment-kpi-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-
 /* Payment Dues — date range filters */
 .payment-date-filter-field {
   min-width: 132px;
@@ -649,5 +526,42 @@
   .payment-date-filter-field {
     min-width: 0;
     flex: 1;
+  }
+}
+
+
+/* Payment Dues — workspace simplification */
+.payment-generate-card {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.payment-filter-warning {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 12px;
+  padding: 9px 11px;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  background: #fff7f7;
+  color: #991b1b;
+  font-size: 12px;
+}
+
+.payment-filter-warning strong {
+  font-size: 12px;
+}
+
+.payment-filter-warning span {
+  color: #b91c1c;
+}
+
+@media (max-width: 640px) {
+  .payment-filter-warning {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 3px;
   }
 }
