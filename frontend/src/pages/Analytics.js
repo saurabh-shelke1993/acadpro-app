@@ -585,7 +585,7 @@ function Analytics() {
             <h1 className="dashboard-title">Analytics</h1>
             <p className="dashboard-subtitle">
               Understand how academy performance is changing over time.
-              {selectedAcademyName ? ` · ${selectedAcademyName}` : " · All accessible academies"}
+              {` · ${scopeDescription}`}
             </p>
           </div>
 
@@ -686,7 +686,7 @@ function Analytics() {
               title="Academy comparison"
               helper={comparisonLoading ? "Refreshing comparison data..." : `${selectedAcademies.length} academies in view`}
             />
-            {academyComparison?.insights && (
+            {!selectedAcademyId && academyComparison?.insights && (
               <div className="analytics-comparison-cards">
                 <InsightCard
                   label="Attendance leader"
