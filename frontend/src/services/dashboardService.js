@@ -287,6 +287,250 @@ export async function getFinancialSummary(user, suppliedScope) {
   };
 }
 
+
+export async function getSuperAdminDashboardData() {
+  const { data: academies, error: academiesError } = await supabase
+    .from("academies")
+    .select("id, academy_name")
+    .eq("is_active", true)
+    .order("academy_name");
+
+  if (academiesError) throw academiesError;
+
+  const [
+    playersResult,
+    centersResult,
+    batchesResult,
+    attendanceResult,
+    duesResult,
+    paymentsResult
+  ] = await Promise.all([
+    supabase
+      .from("players")
+      .select("id, academy_id")
+      .eq("is_active", true),
+    supabase
+      .from("centers")
+      .select("id, academy_id")
+      .eq("is_active", true),
+    supabase
+      .from("batches")
+      .select("id, academy_id")
+      .eq("is_active", true),
+    supabase
+      .from("attendance")
+      .select("academy_id, attendance_date, status")
+      .gte("attendance_date", getDateRange(7)[0])
+      .lte("attendance_date", getDateRange(7)[6])
+      .eq("is_deleted", false),
+    supabase
+      .from("payment_dues")
+      .select("total_amount, paid_amount, due_status, players!inner(academy_id)")
+      .eq("players.is_active", true),
+    supabase
+      .from("payments")
+      .select("amount_paid, payment_date, players!inner(academy_id)")
+      .eq("players.is_active", true)
+  ]);
+
+  const results = [
+    playersResult,
+    centersResult,
+    batchesResult,
+    attendanceResult,
+    duesResult,
+    paymentsResult
+  ];
+
+  const failed = results.find((result) => result.error);
+  if (failed) throw failed.error;
+
+  const academyMap = new Map(
+    (academies || []).map((academy) => [
+      academy.id,
+      {
+        id: academy.id,
+        name: academy.academy_name,
+        players: 0,
+        centers: 0,
+        batches: 0,
+        attendancePresent: 0,
+        attendanceAbsent: 0,
+        attendanceRecords: 0,
+        totalBilled: 0,
+        totalPaid: 0,
+        outstandingAmount: 0,
+        collectionRate: 0
+      }
+    ])
+  );
+
+  (playersResult.data || []).forEach((player) => {
+    const academy = academyMap.get(player.academy_id);
+    if (academy) academy.players += 1;
+  });
+
+  (centersResult.data || []).forEach((center) => {
+    const academy = academyMap.get(center.academy_id);
+    if (academy) academy.centers += 1;
+  });
+
+  (batchesResult.data || []).forEach((batch) => {
+    const academy = academyMap.get(batch.academy_id);
+    if (academy) academy.batches += 1;
+  });
+
+  (attendanceResult.data || []).forEach((record) => {
+    const academy = academyMap.get(record.academy_id);
+    if (!academy) return;
+
+    if (record.status === "present") academy.attendancePresent += 1;
+    if (record.status === "absent") academy.attendanceAbsent += 1;
+  });
+
+  (duesResult.data || []).forEach((due) => {
+    const academyId = due.players?.academy_id;
+    const academy = academyMap.get(academyId);
+    if (!academy) return;
+
+    const totalAmount = Number(due.total_amount || 0);
+    const paidAmount = Math.min(
+      Number(due.paid_amount || 0),
+      totalAmount
+    );
+
+    academy.totalBilled += totalAmount;
+    academy.totalPaid += paidAmount;
+  });
+
+  const { monthStart, nextMonthStart } = getCurrentMonthRange();
+  let collectionsThisMonth = 0;
+
+  (paymentsResult.data || []).forEach((payment) => {
+    if (
+      payment.payment_date < monthStart ||
+      payment.payment_date >= nextMonthStart
+    ) {
+      return;
+    }
+
+    collectionsThisMonth += Number(payment.amount_paid || 0);
+  });
+
+  const academyRows = [...academyMap.values()].map((academy) => {
+    academy.attendanceRecords =
+      academy.attendancePresent + academy.attendanceAbsent;
+
+    academy.attendanceRate = academy.attendanceRecords
+      ? Math.round(
+        (academy.attendancePresent / academy.attendanceRecords) * 100
+      )
+      : 0;
+
+    academy.outstandingAmount = Math.max(
+      academy.totalBilled - academy.totalPaid,
+      0
+    );
+
+    academy.collectionRate = academy.totalBilled
+      ? Math.round(
+        (academy.totalPaid / academy.totalBilled) * 100
+      )
+      : 0;
+
+    return academy;
+  });
+
+  const totalPlayers = academyRows.reduce(
+    (total, academy) => total + academy.players,
+    0
+  );
+
+  const totalPresent = academyRows.reduce(
+    (total, academy) => total + academy.attendancePresent,
+    0
+  );
+
+  const totalAbsent = academyRows.reduce(
+    (total, academy) => total + academy.attendanceAbsent,
+    0
+  );
+
+  const totalAttendanceRecords = totalPresent + totalAbsent;
+
+  const attentionItems = [];
+
+  academyRows.forEach((academy) => {
+    if (academy.attendanceRecords > 0 && academy.attendanceRate < 70) {
+      attentionItems.push({
+        academyId: academy.id,
+        academyName: academy.name,
+        type: "attendance",
+        tone: "warning",
+        message: `Attendance is ${academy.attendanceRate}% over the last 7 days.`
+      });
+    }
+
+    if (
+      academy.totalBilled > 0 &&
+      academy.collectionRate < 75
+    ) {
+      attentionItems.push({
+        academyId: academy.id,
+        academyName: academy.name,
+        type: "finance",
+        tone: "danger",
+        message: `${formatDashboardCurrency(academy.outstandingAmount)} remains outstanding (${academy.collectionRate}% collected).`
+      });
+    }
+  });
+
+  attentionItems.sort((a, b) => {
+    if (a.type === b.type) return a.academyName.localeCompare(b.academyName);
+    return a.type === "attendance" ? -1 : 1;
+  });
+
+  const dates = getDateRange(7);
+  const attendanceTrend = dates.map((date) => {
+    const records = (attendanceResult.data || []).filter(
+      (record) => record.attendance_date === date
+    );
+
+    const present = records.filter((record) => record.status === "present").length;
+    const absent = records.filter((record) => record.status === "absent").length;
+    const total = present + absent;
+
+    return {
+      date,
+      label: new Date(`${date}T00:00:00`).toLocaleDateString("en-IN", {
+        weekday: "short"
+      }),
+      attendanceRecords: total,
+      attendancePercentage: total
+        ? Math.round((present / total) * 100)
+        : 0
+    };
+  });
+
+  return {
+    academies: academyRows,
+    attentionItems,
+    attendanceTrend,
+    totals: {
+      academies: academyRows.length,
+      players: totalPlayers,
+      attendanceRecords: totalAttendanceRecords,
+      attendanceRate: totalAttendanceRecords
+        ? Math.round((totalPresent / totalAttendanceRecords) * 100)
+        : 0,
+      collectionsThisMonth
+    }
+  };
+}
+
+const formatDashboardCurrency = (amount) =>
+  `₹${Number(amount || 0).toLocaleString("en-IN")}`;
+
 export async function getDashboardSummary(user) {
   const scope = await getDashboardDataScope(user);
 
