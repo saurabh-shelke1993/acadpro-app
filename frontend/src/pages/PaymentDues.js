@@ -51,7 +51,7 @@ const [selectedPlayer, setSelectedPlayer] = useState("");
 
   const [duesList, setDuesList] = useState([]);
 
-  const [columnFilters, setColumnFilters] = useState({
+  const [currentPage, setCurrentPage] = useState(1);\n\n  const [columnFilters, setColumnFilters] = useState({
     academy: "",
     center: "",
     batch: "",
@@ -739,6 +739,10 @@ if (
 
 };
 
+useEffect(() => {
+  setCurrentPage(1);
+}, [statusFilter, selectedAcademy, selectedCenter, selectedBatch, selectedPlayer, columnFilters]);
+
 const filteredDues = useMemo(() => {
   return duesList.filter((due) => {
     if (statusFilter && due.due_status !== statusFilter.toLowerCase()) return false;
@@ -800,6 +804,9 @@ const clearFilters = () => {
 
 const hasActiveFilters = statusFilter || Object.values(columnFilters).some(Boolean);
 
+const totalPages = Math.max(1, Math.ceil(filteredDues.length / 7));
+const paginatedDues = filteredDues.slice((currentPage - 1) * 7, currentPage * 7);
+
 return (
   <Layout>
     <div className="payment-dues-page">
@@ -811,7 +818,7 @@ return (
         </div>
         <div className="payment-page-summary">
           <span className="payment-summary-label">Visible dues</span>
-          <strong>{duesList.length}</strong>
+          <strong>{filteredDues.length}</strong>
         </div>
       </div>
 
@@ -882,7 +889,7 @@ return (
                   <th scope="col">Due Date</th><th scope="col">Total</th><th scope="col">Paid</th><th scope="col">Remaining</th><th scope="col">Status</th><th scope="col">Actions</th>
                 </tr></thead>
               <tbody>
-                {filteredDues.map((due) => (
+                {paginatedDues.map((due) => (
                   <tr key={due.id} className="payment-due-row">
                     <td>{due.players?.academies?.academy_name || "-"}</td>
                     <td>{due.players?.centers?.center_name || "-"}</td>
@@ -903,6 +910,32 @@ return (
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+        {filteredDues.length > 0 && (
+          <div className="payment-pagination">
+            <span>
+              Showing {Math.min((currentPage - 1) * 7 + 1, filteredDues.length)}
+              –{Math.min(currentPage * 7, filteredDues.length)}
+              of {filteredDues.length}
+            </span>
+            <div className="payment-pagination-controls">
+              <button
+                type="button"
+                onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </button>
+              <strong>Page {currentPage} of {totalPages}</strong>
+              <button
+                type="button"
+                onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </button>
+            </div>
           </div>
         )}
       </section>
