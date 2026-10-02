@@ -84,9 +84,7 @@ const [existingAttendance, setExistingAttendance] = useState([]);
 // =========================
 
 const checkExistingAttendance = async () => {
-
   try {
-
     const { data, error } = await supabase
       .from("attendance")
       .select("*")
@@ -94,35 +92,18 @@ const checkExistingAttendance = async () => {
       .eq("batch_id", selectedBatch)
       .eq("attendance_date", attendanceDate);
 
-    if (error) {
+    if (error) throw error;
 
-      console.log(error);
-      return false;
-
-    }
-
-    if (data && data.length > 0) {
-
-      setIsEditMode(true);
-      setExistingAttendance(data);
-
-      return true;
-
-    }
-
+    const records = data || [];
+    setIsEditMode(records.length > 0);
+    setExistingAttendance(records);
+    return records;
+  } catch (err) {
+    console.log(err);
     setIsEditMode(false);
     setExistingAttendance([]);
-
-    return false;
-
-  } catch (err) {
-
-    console.log(err);
-
-    return false;
-
+    return [];
   }
-
 };
 
   // =========================
@@ -131,11 +112,11 @@ const checkExistingAttendance = async () => {
 
   const loadPlayers = async () => {
   try {
-    const attendanceExists = await checkExistingAttendance();
+    const existingRecords = await checkExistingAttendance();
 
     const data = await getAccessiblePlayers(selectedBatch);
     const existingByPlayer = new Map(
-      (existingAttendance || []).map((record) => [record.player_id, record.status])
+      existingRecords.map((record) => [record.player_id, record.status])
     );
 
     const formattedPlayers =
@@ -146,7 +127,6 @@ const checkExistingAttendance = async () => {
       })) || [];
 
     setPlayers(formattedPlayers);
-    return attendanceExists;
   } catch (err) {
     console.log(err);
     setPlayers([]);
