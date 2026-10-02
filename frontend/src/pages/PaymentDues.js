@@ -44,6 +44,8 @@ const [selectedPlayer, setSelectedPlayer] = useState("");
   const [selectedSubscription, setSelectedSubscription] = useState("");
 
   const [selectedSubscriptionData, setSelectedSubscriptionData] = useState(null);
+  const [existingDueForSelection, setExistingDueForSelection] = useState(null);
+  const [checkingExistingDue, setCheckingExistingDue] = useState(false);
 
   const [dueType, setDueType] = useState("");
 
@@ -161,6 +163,44 @@ useEffect(() => {
   }
 
 }, [selectedPlayer]);
+
+useEffect(() => {
+  let cancelled = false;
+
+  const checkExistingDue = async () => {
+    if (!selectedSubscription || !dueDate) {
+      setExistingDueForSelection(null);
+      setCheckingExistingDue(false);
+      return;
+    }
+
+    setCheckingExistingDue(true);
+
+    const { data, error } = await supabase
+      .from("payment_dues")
+      .select("id, due_type, due_date, total_amount, due_status")
+      .eq("subscription_id", selectedSubscription)
+      .eq("due_date", dueDate)
+      .limit(1);
+
+    if (cancelled) return;
+
+    if (error) {
+      console.log(error);
+      setExistingDueForSelection(null);
+    } else {
+      setExistingDueForSelection(data?.[0] || null);
+    }
+
+    setCheckingExistingDue(false);
+  };
+
+  checkExistingDue();
+
+  return () => {
+    cancelled = true;
+  };
+}, [selectedSubscription, dueDate]);
 
 useEffect(() => {
 
@@ -594,13 +634,9 @@ console.log(
   existingDue &&
   existingDue.length > 0
 ) {
-
-  alert(
-    "Due already exists for this subscription"
-  );
-
-  return;
-}
+      setExistingDueForSelection(existingDue[0]);
+      return;
+    }
 
 try {
 
@@ -620,6 +656,7 @@ try {
     setSubscriptions([]);
     setSelectedSubscription("");
     setSelectedSubscriptionData(null);
+    setExistingDueForSelection(null);
 
     setDueType("");
     setDueDate("");
@@ -799,6 +836,35 @@ const formatDate = (value) => {
     .format(new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2])));
 };
 
+const getDueAge = (dueDate, dueStatus) => {
+  if (!dueDate) return { label: "—", className: "" };
+  if (dueStatus === "paid") return { label: "Paid", className: "payment-due-age-paid" };
+
+  const due = new Date(`${dueDate}T00:00:00`);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const diffDays = Math.round((today - due) / 86400000);
+
+  if (diffDays > 0) {
+    return {
+      label: `${diffDays}d overdue`,
+      className: "payment-due-age-overdue"
+    };
+  }
+
+  if (diffDays === 0) {
+    return {
+      label: "Due today",
+      className: "payment-due-age-today"
+    };
+  }
+
+  return {
+    label: `Due in ${Math.abs(diffDays)}d`,
+    className: "payment-due-age-upcoming"
+  };
+};
+
 const clearFilters = () => {
   setStatusFilter("");
   setColumnFilters({ academy: "", center: "", batch: "", player: "", plan: "", dueType: "" });
@@ -849,9 +915,46 @@ return (
           <label className="payment-field"><span>Due Date</span><input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} /></label>
         </div>
 
+        {selectedSubscriptionData && (
+          <div className="payment-due-preview" aria-live="polite">
+            <div className="payment-due-preview-heading">
+              <div>
+                <div className="payment-section-kicker">Due preview</div>
+                <strong>Review before generating</strong>
+              </div>
+              {existingDueForSelection && <span className="payment-duplicate-badge">Already exists</span>}
+            </div>
+            <div className="payment-due-preview-grid">
+              <div><span>Player</span><strong>{selectedSubscriptionData.players?.full_name || "—"}</strong></div>
+              <div><span>Plan</span><strong>{selectedSubscriptionData.subscription_plans?.plan_name || "—"}</strong></div>
+              <div><span>Amount</span><strong>{formatCurrency(selectedSubscriptionData.subscription_plans?.amount)}</strong></div>
+              <div><span>Due type</span><strong>{dueType || "—"}</strong></div>
+              <div><span>Due date</span><strong>{formatDate(dueDate)}</strong></div>
+            </div>
+          </div>
+        )}
+
+        {existingDueForSelection && (
+          <div className="payment-duplicate-warning" role="alert">
+            <strong>A payment due already exists for this subscription and due date.</strong>
+            <span>Existing due: {formatCurrency(existingDueForSelection.total_amount)} · {existingDueForSelection.due_status || "Pending"}</span>
+          </div>
+        )}
+
         <div className="payment-form-footer">
-          {selectedSubscriptionData && <div className="payment-amount-preview"><span>Plan amount</span><strong>₹{selectedSubscriptionData.subscription_plans?.amount}</strong></div>}
-          {canGenerateDue(loggedInUser) && <button type="button" className="payment-primary-button" onClick={createPaymentDue}>Generate Due</button>}
+          <div className="payment-generation-status">
+            {checkingExistingDue && <span>Checking for an existing due…</span>}
+          </div>
+          {canGenerateDue(loggedInUser) && (
+            <button
+              type="button"
+              className="payment-primary-button"
+              onClick={createPaymentDue}
+              disabled={!selectedSubscriptionData || !dueType || !dueDate || checkingExistingDue || Boolean(existingDueForSelection)}
+            >
+              Generate Due
+            </button>
+          )}
         </div>
       </section>
 
@@ -888,7 +991,7 @@ return (
                   <th scope="col"><div className="payment-column-filter"><span>Player</span><select aria-label="Filter dues by player" value={columnFilters.player} onChange={(e) => setColumnFilters((filters) => ({ ...filters, player: e.target.value }))}><option value="">All</option>{filterOptions.players.map((option) => <option key={option.id} value={option.id}>{option.name}</option>)}</select></div></th>
                   <th scope="col"><div className="payment-column-filter"><span>Plan</span><select aria-label="Filter dues by plan" value={columnFilters.plan} onChange={(e) => setColumnFilters((filters) => ({ ...filters, plan: e.target.value }))}><option value="">All</option>{filterOptions.plans.map((option) => <option key={option} value={option}>{option}</option>)}</select></div></th>
                   <th scope="col"><div className="payment-column-filter"><span>Due Type</span><select aria-label="Filter dues by due type" value={columnFilters.dueType} onChange={(e) => setColumnFilters((filters) => ({ ...filters, dueType: e.target.value }))}><option value="">All</option>{filterOptions.dueTypes.map((option) => <option key={option} value={option}>{option}</option>)}</select></div></th>
-                  <th scope="col">Due Date</th><th scope="col">Total</th><th scope="col">Paid</th><th scope="col">Remaining</th><th scope="col">Status</th><th scope="col">Actions</th>
+                  <th scope="col">Due Date</th><th scope="col">Due Age</th><th scope="col">Total</th><th scope="col">Paid</th><th scope="col">Remaining</th><th scope="col">Status</th><th scope="col">Actions</th>
                 </tr></thead>
               <tbody>
                 {paginatedDues.map((due) => (
@@ -900,6 +1003,7 @@ return (
                     <td>{due.player_subscriptions?.subscription_plans?.plan_name || "-"}</td>
                     <td><span className="payment-type-badge">{due.due_type}</span></td>
                     <td className="payment-date-cell">{formatDate(due.due_date)}</td>
+                    <td><span className={`payment-due-age ${getDueAge(due.due_date, due.due_status).className}`}>{getDueAge(due.due_date, due.due_status).label}</span></td>
                     <td className="payment-money-cell">{formatCurrency(due.total_amount)}</td>
                     <td className="payment-money-cell">{formatCurrency(due.paid_amount)}</td>
                     <td className="payment-remaining-cell">{formatCurrency(due.remaining_amount)}</td>
