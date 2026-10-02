@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import DashboardCard from "../components/Dashboard/DashboardCard";
 import DashboardCharts from "../components/DashboardCharts";
+import SuperAdminDashboard from "../components/Dashboard/SuperAdminDashboard";
 import Layout from "../components/Layout";
-import { getDashboardSummary } from "../services/dashboardService";
+import { getDashboardSummary, getSuperAdminDashboardData } from "../services/dashboardService";
 import "../styles/dashboard.css";
-import { getCurrentUser } from "../utils/auth";
+import { getCurrentUser, isSuperAdmin } from "../utils/auth";
 
 const initialSummary = {
   totalPlayers: 0,
@@ -18,7 +19,8 @@ const initialSummary = {
   attendancePercentage: 0,
   pendingDues: 0,
   outstandingAmount: 0,
-  collectionsThisMonth: 0
+  collectionsThisMonth: 0,
+  superAdmin: null
 };
 
 const formatCurrency = (amount) =>
@@ -45,7 +47,12 @@ function Dashboard() {
           throw new Error("Unable to load the current user.");
         }
 
-        const dashboardSummary = await getDashboardSummary(currentUser);
+        const dashboardSummary = isSuperAdmin(currentUser)
+          ? {
+              ...initialSummary,
+              superAdmin: await getSuperAdminDashboardData(currentUser)
+            }
+          : await getDashboardSummary(currentUser);
 
         if (!isMounted) return;
 
@@ -93,6 +100,18 @@ function Dashboard() {
   }
 
   const roleLabel = user?.role?.replaceAll("_", " ");
+
+  if (isSuperAdmin(user)) {
+    return (
+      <Layout>
+        <SuperAdminDashboard
+          user={user}
+          data={summary.superAdmin}
+          onRefresh={() => setRefreshToken((value) => value + 1)}
+        />
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
