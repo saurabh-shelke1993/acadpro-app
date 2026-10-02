@@ -51,6 +51,10 @@ const [selectedPlayer, setSelectedPlayer] = useState("");
 
   const [dueDate, setDueDate] = useState("");
 
+  // Date-range filters for reviewing dues by month or custom period.
+  const [dueFromDate, setDueFromDate] = useState("");
+  const [dueToDate, setDueToDate] = useState("");
+
   const [duesList, setDuesList] = useState([]);
 
   const [currentPage, setCurrentPage] = useState(1);
