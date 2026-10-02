@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { logoutUser } from "../utils/auth";
 import Layout from "../components/Layout";
 import "./ParentPortal.css";
 import {
@@ -9,7 +8,6 @@ import {
 } from "../services/parentPortalService";
 
 const ParentPortal = () => {
-  const [parent, setParent] = useState(null);
   const [children, setChildren] = useState([]);
   const [selectedChildId, setSelectedChildId] = useState(null);
   const [attendanceByChildId, setAttendanceByChildId] = useState({});
@@ -28,7 +26,7 @@ const ParentPortal = () => {
       setSecondaryErrors([]);
 
       try {
-        const { parent, children, coachError } = await getParentContext();
+        const { children, coachError } = await getParentContext();
         const childIds = children.map((child) => child.id);
 
         const attendanceResult = await getAttendanceSummaries(childIds);
@@ -39,7 +37,6 @@ const ParentPortal = () => {
         if (coachError) nextSecondaryErrors.push("Coach assignments could not be loaded.");
         if (attendanceResult.error) nextSecondaryErrors.push("Attendance data could not be loaded.");
 
-        setParent(parent);
         setChildren(children);
         setAttendanceByChildId(attendanceResult.summaries);
         setSecondaryErrors(nextSecondaryErrors);
@@ -59,9 +56,6 @@ const ParentPortal = () => {
     };
   }, [loadAttempt]);
 
-  const handleLogout = async () => {
-    await logoutUser();
-  };
 
   const retryLoad = () => {
     setLoadAttempt((attempt) => attempt + 1);
@@ -102,26 +96,6 @@ const ParentPortal = () => {
   return (
     <Layout>
       <main className="parent-portal-page">
-      <header className="parent-portal-header">
-        <div>
-          <h1 className="parent-portal-title">Parent Portal</h1>
-          <p className="parent-portal-subtitle">
-            {parent ? `Welcome, ${parent.parent_name || "Parent"}` : "AcadPro"}
-          </p>
-        </div>
-        <div className="parent-portal-header-actions">
-          <div
-            className="parent-portal-child-count"
-            aria-label={children.length + " linked " + (children.length === 1 ? "child" : "children")}
-          >
-            <strong>{children.length}</strong>
-            <span>{children.length === 1 ? "child" : "children"} linked</span>
-          </div>
-          <button type="button" onClick={handleLogout} className="parent-portal-logout">
-            Sign out
-          </button>
-        </div>
-      </header>
 
       {secondaryErrors.length > 0 ? (
         <section className="parent-portal-data-warning" role="status" aria-live="polite">
