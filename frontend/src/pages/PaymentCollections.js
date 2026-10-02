@@ -73,6 +73,7 @@ const [historyAcademy, setHistoryAcademy] = useState("");
 const [historyCenter, setHistoryCenter] = useState("");
 const [historyBatch, setHistoryBatch] = useState("");
 const [historyPlayer, setHistoryPlayer] = useState("");
+const [historySearch, setHistorySearch] = useState("");
 const [historyCurrentPage, setHistoryCurrentPage] = useState(1);
 const HISTORY_PAGE_SIZE = 10;
 
@@ -81,6 +82,7 @@ const resetHistoryFilters = () => {
   setHistoryCenter("");
   setHistoryBatch("");
   setHistoryPlayer("");
+  setHistorySearch("");
   setHistoryPaymentMode("");
   setHistoryFromDate("");
   setHistoryToDate("");
@@ -226,6 +228,14 @@ useEffect(() => {
   if (historyCenter) filtered = filtered.filter(payment => payment.players?.center_id === historyCenter);
   if (historyBatch) filtered = filtered.filter(payment => payment.players?.batch_id === historyBatch);
   if (historyPlayer) filtered = filtered.filter(payment => payment.players?.id === historyPlayer);
+  if (historySearch.trim()) {
+    const search = historySearch.trim().toLowerCase();
+    filtered = filtered.filter(payment =>
+      String(payment.players?.full_name || "").toLowerCase().includes(search) ||
+      String(payment.transaction_reference || "").toLowerCase().includes(search) ||
+      String(payment.receipt_number || "").toLowerCase().includes(search)
+    );
+  }
   if (historyPaymentMode) filtered = filtered.filter(payment => payment.payment_mode === historyPaymentMode);
   if (historyFromDate) filtered = filtered.filter(payment => payment.payment_date?.substring(0, 10) >= historyFromDate);
   if (historyToDate) filtered = filtered.filter(payment => payment.payment_date?.substring(0, 10) <= historyToDate);
@@ -237,6 +247,7 @@ useEffect(() => {
   historyCenter,
   historyBatch,
   historyPlayer,
+  historySearch,
   historyPaymentMode,
   historyFromDate,
   historyToDate
@@ -249,6 +260,7 @@ useEffect(() => {
   historyCenter,
   historyBatch,
   historyPlayer,
+  historySearch,
   historyPaymentMode,
   historyFromDate,
   historyToDate
@@ -727,7 +739,12 @@ const resetCollectionForm = () => {
       amountPaid: result.amount_paid,
       paymentMode: result.payment_mode,
       transactionReference: result.transaction_reference,
+      dueType: selectedDueData?.due_type || "-",
+      dueDate: selectedDueData?.due_date || "-",
+      totalDue: selectedDueData?.total_amount,
+      paidBefore: selectedDueData?.paid_amount,
       remainingAmount: result.remaining_amount,
+      balanceStatus: Number(result.remaining_amount || 0) > 0 ? "Partially Paid" : "Fully Paid",
       paymentDate: new Date(result.payment_date).toLocaleDateString("en-IN", {
         day: "2-digit", month: "short", year: "numeric"
       })
@@ -1096,7 +1113,7 @@ return (
           <label className="payment-field payment-field-wide"><span>Pending Due</span>
             <select value={selectedDue} onChange={(e)=>{const dueId=e.target.value; setSelectedDue(dueId); const dueData=dues.find((due)=>due.id===dueId); setSelectedDueData(dueData); setAmountPaid(dueData ? dueData.remaining_amount : ""); setPaymentMode("");}}>
               <option value="">{dues.length===0 ? "No Pending Dues" : "Select Pending Due"}</option>
-              {dues.map((due)=><option key={due.id} value={due.id}>{due.due_type} | Due: {due.due_date} | Remaining ₹{due.remaining_amount}</option>)}
+              {dues.map((due)=><option key={due.id} value={due.id}>{String(due.due_type || "Due").replace(/_/g, " ")} · {due.due_date} · Remaining ₹{Number(due.remaining_amount || 0).toLocaleString("en-IN")}</option>)}
             </select>
           </label>
 
@@ -1139,6 +1156,10 @@ return (
       <section className="payment-card">
         <div className="payment-card-header payment-list-header">
           <div><h2>Payments History</h2><p>Review immutable payment and adjustment ledger entries.</p><div className="payment-history-summary"><span>{filteredPayments.length} record{filteredPayments.length === 1 ? "" : "s"}</span><span>Payments ₹{historyPaymentsTotal.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span><span>Adjustments ₹{historyAdjustmentsTotal.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span><span>Net Ledger ₹{historyNetTotal.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div></div>
+          <div className="payment-history-search-row">
+            <label className="payment-filter-field payment-history-search-field"><span>Search Player / Reference / Receipt</span><input type="search" value={historySearch} placeholder="Search player, TXN or receipt number..." onChange={(e)=>setHistorySearch(e.target.value)} /></label>
+            {historySearch && <button type="button" className="payment-secondary-button payment-search-clear-button" onClick={()=>setHistorySearch("")}>Clear Search</button>}
+          </div>
           <div className="payment-history-filter-grid">
             <label className="payment-filter-field"><span>Academy</span><select value={historyAcademy} onChange={(e)=>{setHistoryAcademy(e.target.value);setHistoryCenter("");setHistoryBatch("");setHistoryPlayer("");}}><option value="">All Academies</option>{historyFilterOptions.academies.map(option=><option key={option.id} value={option.id}>{option.name}</option>)}</select></label>
             <label className="payment-filter-field"><span>Center</span><select value={historyCenter} onChange={(e)=>{setHistoryCenter(e.target.value);setHistoryBatch("");setHistoryPlayer("");}}><option value="">All Centers</option>{historyFilterOptions.centers.map(option=><option key={option.id} value={option.id}>{option.name}</option>)}</select></label>
@@ -1147,7 +1168,7 @@ return (
             <label className="payment-filter-field"><span>Mode</span><select value={historyPaymentMode} onChange={(e)=>setHistoryPaymentMode(e.target.value)}><option value="">All Modes</option><option value="cash">Cash</option><option value="upi">UPI</option><option value="bank_transfer">Bank Transfer</option></select></label>
             <label className="payment-filter-field"><span>From</span><input type="date" value={historyFromDate} max={historyToDate || undefined} onChange={(e)=>setHistoryFromDate(e.target.value)} /></label>
             <label className="payment-filter-field"><span>To</span><input type="date" value={historyToDate} min={historyFromDate || undefined} onChange={(e)=>setHistoryToDate(e.target.value)} /></label>
-            <button type="button" className="payment-secondary-button payment-filter-reset-button" onClick={resetHistoryFilters} disabled={!historyAcademy && !historyCenter && !historyBatch && !historyPlayer && !historyPaymentMode && !historyFromDate && !historyToDate}>Reset Filters</button>
+            <button type="button" className="payment-secondary-button payment-filter-reset-button" onClick={resetHistoryFilters} disabled={!historyAcademy && !historyCenter && !historyBatch && !historyPlayer && !historySearch && !historyPaymentMode && !historyFromDate && !historyToDate}>Reset Filters</button>
           </div>
         </div>
 
@@ -1244,7 +1265,7 @@ return (
     {showReceiptModal && receiptData && (
       <div className="receipt-modal-overlay">
         <div className="receipt-modal" ref={receiptRef}>
-          <div className="receipt-modal-header"><div><div className="payment-page-eyebrow">Payment completed</div><h2>Payment Receipt</h2><p>Official AcadPro payment acknowledgement</p></div><span className="receipt-status-badge">Paid</span></div>
+          <div className="receipt-modal-header"><div><div className="payment-page-eyebrow">Payment completed</div><h2>Payment Receipt</h2><p>Official AcadPro payment acknowledgement</p></div><span className={`receipt-status-badge ${receiptData.balanceStatus === "Fully Paid" ? "receipt-status-paid" : "receipt-status-partial"}`}>{receiptData.balanceStatus}</span></div>
           <div className="receipt-detail-grid">
             <p><strong>Receipt Number</strong><span>{receiptData.receiptNumber}</span></p>
             <p><strong>Player</strong><span>{receiptData.player}</span></p>
@@ -1252,9 +1273,12 @@ return (
             <p><strong>Center</strong><span>{receiptData.center || "-"}</span></p>
             <p><strong>Batch</strong><span>{receiptData.batch || "-"}</span></p>
             <p className="receipt-amount-highlight"><strong>Amount Paid</strong><span>₹{Number(receiptData.amountPaid || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></p>
+            <p><strong>Due Type</strong><span>{String(receiptData.dueType || "-").replace(/_/g, " ")}</span></p>
+            <p><strong>Due Date</strong><span>{receiptData.dueDate || "-"}</span></p>
             <p><strong>Payment Mode</strong><span>{receiptData.paymentMode}</span></p>
             <p><strong>Reference</strong><span>{receiptData.transactionReference || "N/A"}</span></p>
             <p className="receipt-amount-highlight"><strong>Remaining Balance</strong><span>₹{Number(receiptData.remainingAmount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></p>
+            <p className="receipt-balance-status"><strong>Collection Status</strong><span>{receiptData.balanceStatus}</span></p>
             <p><strong>Date</strong><span>{receiptData.paymentDate}</span></p>
           </div>
           <div className="receipt-modal-actions"><button type="button" className="payment-primary-button" onClick={printReceipt}>Print Receipt</button><button type="button" className="payment-secondary-button" onClick={()=>setShowReceiptModal(false)}>Close</button></div>
