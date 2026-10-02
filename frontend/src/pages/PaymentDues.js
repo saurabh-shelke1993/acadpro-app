@@ -85,18 +85,6 @@ const [statusFilter, setStatusFilter] =
   useState(null); 
 
 useEffect(() => {
-  fetchAcademies();
-  fetchPaymentDues();
-
-},[
-  statusFilter,
-  generationAcademy,
-  generationCenter,
-  generationBatch,
-  generationPlayer
-]);
-
-useEffect(() => {
 
   if (generationAcademy) {
 
@@ -105,7 +93,7 @@ useEffect(() => {
   } else {
 
     setCenters([]);
-    setSelectedCenter("");
+    setGenerationCenter("");
 
   }
 
@@ -120,7 +108,7 @@ useEffect(() => {
   } else {
 
     setBatches([]);
-    setSelectedBatch("");
+    setGenerationBatch("");
 
   }
 
@@ -140,7 +128,7 @@ useEffect(() => {
   } else {
 
     setPlayers([]);
-    setSelectedPlayer("");
+    setGenerationPlayer("");
 
   }
 
@@ -491,65 +479,14 @@ players (
       );
 
 let filteredData = data || [];
-
+ 
  if (loggedInUser) {
-
-  if (isSuperAdmin(loggedInUser)) {
-
-    if (generationAcademy) {
-
-      filteredData =
-        filteredData.filter(
-          due =>
-            due.players?.academy_id ===
-            generationAcademy
-        );
-
-    }
-
-  } else {
-
-    filteredData =
-      filteredData.filter(
-        due =>
-          due.players?.academy_id ===
-          loggedInUser.academy_id
-      );
-
-  }
-
-}
-
-
-if (generationCenter) {
-
-  filteredData = filteredData.filter(
-    (due) =>
-      due.players?.center_id ===
-      generationCenter
-  );
-
-}
-
-if (generationBatch) {
-
-  filteredData = filteredData.filter(
-    (due) =>
-      due.players?.batch_id ===
-      generationBatch
-  );
-
-}
-
-if (generationPlayer) {
-
-  filteredData = filteredData.filter(
-    (due) =>
-      due.players?.id ===
-      generationPlayer
-  );
-
-}
+   if (!isSuperAdmin(loggedInUser)) {
+     filteredData = filteredData.filter(
+       due => due.players?.academy_id === loggedInUser.academy_id
+     );
+   }
+ }
 
 console.log(
   "STATUS FILTER:",
