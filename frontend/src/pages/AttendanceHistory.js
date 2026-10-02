@@ -571,10 +571,11 @@ function AttendanceHistory() {
             <div className="attendance-history-table-wrap">
               <table className="attendance-history-table">
                 <caption className="sr-only">
-                  Attendance history grouped by date with status and available edit or delete actions
+                  Attendance history with date, player, center, batch, status, and available actions
                 </caption>
                 <thead>
                   <tr>
+                    <th scope="col">Date</th>
                     <th scope="col">Player</th>
                     <th scope="col">Center</th>
                     <th scope="col">Batch</th>
@@ -584,31 +585,9 @@ function AttendanceHistory() {
                   </tr>
                 </thead>
                 <tbody>
-                  {(() => {
-                    let lastDate = null;
-                    return paginatedHistory.flatMap((item) => {
-                      const rows = [];
-                      if (item.attendance_date !== lastDate) {
-                        lastDate = item.attendance_date;
-                        rows.push(
-                          <tr key={`date-${item.attendance_date}`} className="attendance-history-date-group">
-                            <th colSpan="6" scope="rowgroup">
-                              <span>{formatDate(item.attendance_date)}</span>
-                              <small>
-                                {paginatedHistory.filter(
-                                  (record) => record.attendance_date === item.attendance_date
-                                ).length}{" "}
-                                record{paginatedHistory.filter(
-                                  (record) => record.attendance_date === item.attendance_date
-                                ).length === 1 ? "" : "s"}
-                              </small>
-                            </th>
-                          </tr>
-                        );
-                      }
-
-                      rows.push(
+                  {paginatedHistory.map((item) => (
                     <tr key={item.id}>
+                      <td>{formatDate(item.attendance_date)}</td>
                       <td className="attendance-history-player-cell">
                         {item.players?.full_name || "—"}
                       </td>
@@ -692,11 +671,7 @@ function AttendanceHistory() {
                         </div>
                       </td>
                     </tr>
-                      );
-
-                      return rows;
-                    });
-                  })()}
+                  ))}
                 </tbody>
               </table>
             </div>
