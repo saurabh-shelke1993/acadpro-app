@@ -48,43 +48,6 @@ const getDateRange = (days) => {
   return dates;
 };
 
-const getMonthRange = (months) => {
-  const result = [];
-  const now = new Date();
-
-  for (let index = months - 1; index >= 0; index -= 1) {
-    const date = new Date(
-      now.getFullYear(),
-      now.getMonth() - index,
-      1
-    );
-
-    const monthStart = new Date(
-      date.getFullYear(),
-      date.getMonth(),
-      1
-    );
-
-    const nextMonthStart = new Date(
-      date.getFullYear(),
-      date.getMonth() + 1,
-      1
-    );
-
-    result.push({
-      key: `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`,
-      label: date.toLocaleString("en-IN", {
-        month: "short"
-      }),
-      monthStart: monthStart.toISOString(),
-      nextMonthStart: nextMonthStart.toISOString()
-    });
-  }
-
-  return result;
-};
-
-
 const getScopedPlayerIds = async (scope) => {
   if (scope.type !== "batches" || !scope.batchIds.length) return [];
 
@@ -303,7 +266,6 @@ export async function getSuperAdminDashboardData() {
   const currentAttendanceStart = currentAttendanceDates[0];
   const currentAttendanceEnd = currentAttendanceDates[6];
   const previousAttendanceStart = previousAttendanceDates[0];
-  const previousAttendanceEnd = previousAttendanceDates[6];
 
   const { monthStart, nextMonthStart } = getCurrentMonthRange();
   const currentMonthStartDate = new Date(monthStart);
