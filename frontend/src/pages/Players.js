@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { supabase } from "../services/supabase";
 import {
   createPlayerTransactional,
@@ -27,6 +28,7 @@ import PlayerImport from "../components/PlayerImport";
 import "./Players.css";
 
 function Players() {
+ const [searchParams] = useSearchParams();
  const [loggedInUser, setLoggedInUser] =
   useState(null);
      const [players, setPlayers] = useState([]);
@@ -35,9 +37,9 @@ function Players() {
   const [centers, setCenters] = useState([]);
   const [batches, setBatches] = useState([]);
 
-  const [selectedAcademy, setSelectedAcademy] = useState("");
-  const [selectedCenter, setSelectedCenter] = useState("");
-  const [selectedBatch, setSelectedBatch] = useState("");
+  const [selectedAcademy, setSelectedAcademy] = useState(() => searchParams.get("academyId") || "");
+  const [selectedCenter, setSelectedCenter] = useState(() => searchParams.get("centerId") || "");
+  const [selectedBatch, setSelectedBatch] = useState(() => searchParams.get("batchId") || "");
 
   const [fullName, setFullName] = useState("");
   const [dob, setDob] = useState("");
