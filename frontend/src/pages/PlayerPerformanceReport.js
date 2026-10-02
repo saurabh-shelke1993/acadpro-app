@@ -921,13 +921,6 @@ const OverviewItem = ({ label, value }) => (
   </div>
 );
 
-const KpiCard = ({ label, value }) => (
-  <div className="kpi-card">
-    <span className="overview-label">{label}</span>
-    <strong className="kpi-value">{value}</strong>
-  </div>
-);
-
 const SnapshotMetric = ({ label, score }) => (
   <div className="performance-snapshot-metric">
     <div className="performance-snapshot-metric-heading">
