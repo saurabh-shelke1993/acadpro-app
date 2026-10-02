@@ -9,7 +9,7 @@ const BILLING_CYCLES = [
   { value: "quarterly", label: "Quarterly" },
   { value: "half_yearly", label: "Half Yearly" }
 ];
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 5;
 
 const formatCurrency = (value) =>
   new Intl.NumberFormat("en-IN", {
@@ -221,30 +221,17 @@ function SubscriptionPlans() {
   return (
     <Layout>
       <div className="subscription-plans-page">
-        <div className="subscription-plans-workspace-header">
-          <div>
-            <span className="subscription-plans-eyebrow">Billing configuration</span>
-            <h1>Subscription Plans</h1>
-            <p>Create and manage the pricing plans available to players.</p>
-          </div>
-          <div className="subscription-plans-summary" aria-label="Plan summary">
-            <div><strong>{activePlanCount}</strong><span>Active</span></div>
-            <div><strong>{inactivePlanCount}</strong><span>Inactive</span></div>
-          </div>
-        </div>
-
         <section className="subscription-plans-form-card">
           <div className="subscription-plans-form-heading">
             <div>
               <span className="subscription-plans-section-label">{editingPlanId ? "Edit plan" : "New plan"}</span>
               <h2>{editingPlanId ? "Update subscription plan" : "Create subscription plan"}</h2>
-              <p>Configure the recurring charge and one-time registration fee.</p>
             </div>
             {editingPlanId && <button type="button" className="subscription-plans-secondary-button" onClick={resetForm}>Cancel edit</button>}
           </div>
 
           <div className="subscription-plans-form-grid">
-            <div className="subscription-plans-field subscription-plans-field-wide">
+            <div className="subscription-plans-field">
               <label htmlFor="subscription-plan-academy">Academy</label>
               <select id="subscription-plan-academy" value={selectedAcademy} onChange={(e) => setSelectedAcademy(e.target.value)} disabled={!isSuperAdmin(loggedInUser) || Boolean(editingPlanId)}>
                 <option value="">{isSuperAdmin(loggedInUser) ? "Select academy" : selectedAcademyName}</option>
@@ -252,7 +239,7 @@ function SubscriptionPlans() {
               </select>
             </div>
 
-            <div className="subscription-plans-field subscription-plans-field-wide">
+            <div className="subscription-plans-field">
               <label htmlFor="subscription-plan-name">Plan name</label>
               <input id="subscription-plan-name" type="text" placeholder="e.g. Monthly" value={planName} maxLength={80} onChange={(e) => setPlanName(e.target.value)} />
             </div>
@@ -273,23 +260,16 @@ function SubscriptionPlans() {
             <div className="subscription-plans-field">
               <label htmlFor="subscription-plan-registration-fee">Registration fee</label>
               <div className="subscription-plans-money-input"><span>₹</span><input id="subscription-plan-registration-fee" type="number" min="0" step="0.01" inputMode="decimal" placeholder="0.00" value={registrationFee} onChange={(e) => setRegistrationFee(e.target.value)} /></div>
-              <small>One-time fee when the player registers.</small>
+            </div>
+
+            <div className="subscription-plans-form-action">
+              <button type="button" className="subscription-plans-primary-button" onClick={handleSavePlan} disabled={isSaving}>
+                {isSaving ? "Saving..." : editingPlanId ? "Update plan" : "Create plan"}
+              </button>
             </div>
           </div>
 
           {formError && <div className="subscription-plans-form-error" role="alert">{formError}</div>}
-
-          <div className="subscription-plans-form-footer">
-            <div className="subscription-plans-preview">
-              <span>Plan preview</span>
-              <strong>{planName.trim() || "Plan name"}</strong>
-              <span>{billingCycle ? formatBillingCycle(billingCycle) + " · " + formatCurrency(amount || 0) : "Select a billing cycle and amount"}</span>
-              <small>Registration: {formatCurrency(registrationFee || 0)} one-time</small>
-            </div>
-            <button type="button" className="subscription-plans-primary-button" onClick={handleSavePlan} disabled={isSaving}>
-              {isSaving ? "Saving..." : editingPlanId ? "Update plan" : "Create plan"}
-            </button>
-          </div>
         </section>
 
         <section className="subscription-plans-list-section">
@@ -297,7 +277,7 @@ function SubscriptionPlans() {
             <div>
               <span className="subscription-plans-section-label">Plan catalogue</span>
               <h2>Plans</h2>
-              <p>{filteredPlans.length} {filteredPlans.length === 1 ? "plan" : "plans"} in the current view.</p>
+              <p>{filteredPlans.length} {filteredPlans.length === 1 ? "plan" : "plans"} in the current view. <span className="subscription-plans-inline-summary">{activePlanCount} active · {inactivePlanCount} inactive</span></p>
             </div>
             <div className="subscription-plans-filters">
               {isSuperAdmin(loggedInUser) && <div className="subscription-plans-filter-field">
