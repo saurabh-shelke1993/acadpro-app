@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import Layout from "../components/Layout";
 import DashboardCharts from "../components/DashboardCharts";
 import { getAnalyticsSummary } from "../services/analyticsService";
@@ -379,7 +380,12 @@ function AcademyComparison({ academies }) {
           const status = getAcademyStatus(academy);
 
           return (
-          <div className="analytics-academy-row" key={academy.id}>
+          <Link
+            className="analytics-academy-row"
+            key={academy.id}
+            to={`/centers?academyId=${academy.id}`}
+            aria-label={`Open ${academy.name} centers`}
+          >
             <div>
               <strong>{academy.name}</strong>
               <small>{academy.centers} centers · {academy.batches} batches</small>
@@ -408,7 +414,7 @@ function AcademyComparison({ academies }) {
             <span className={`analytics-academy-status analytics-academy-status-${status.tone}`}>
               {status.label}
             </span>
-          </div>
+          </Link>
           );
         })}
       </div>
