@@ -44,6 +44,8 @@ const [collectionPlayer,
   setCollectionPlayer] =
   useState("");
 
+const [showCollectionModal, setShowCollectionModal] = useState(false);
+
   const [dues, setDues] = useState([]);
 
   const [selectedDue, setSelectedDue] = useState("");
@@ -555,6 +557,8 @@ setSelectedDueData(
     data
 );
 
+
+  setShowCollectionModal(true);
 };
 
 
@@ -686,6 +690,9 @@ useEffect(() => {
   setCorrectionCurrentPage(1);
 }, [correctionStatusFilter, correctionSearch]);
 
+const openCollectionModal = () => setShowCollectionModal(true);
+const closeCollectionModal = () => setShowCollectionModal(false);
+
 const resetCollectionForm = () => {
 
   setCollectionAcademy("");
@@ -780,6 +787,7 @@ const resetCollectionForm = () => {
       })
     });
 
+    setShowCollectionModal(false);
     setShowReceiptModal(true);
 
     const playerId = selectedDueData?.player_id;
