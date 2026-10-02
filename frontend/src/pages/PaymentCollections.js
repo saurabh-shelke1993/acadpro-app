@@ -1150,82 +1150,60 @@ return (
         </div>
       </div>
 
-      <section className="payment-card">
-        <div className="payment-card-header">
+      <section className="payment-card payment-collection-card">
+        <div className="payment-collection-header">
           <div>
+            <div className="payment-section-kicker">Collection Workspace</div>
             <h2>Collect Payment</h2>
             <p>Select the player and pending due, then record the payment.</p>
           </div>
+          <div className="payment-collection-status">
+            {selectedDueData ? <><span>Remaining</span><strong>₹{selectedDueRemaining.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></> : <span>Select a pending due to begin</span>}
+          </div>
         </div>
-
-        <div className="payment-form-grid">
+        <div className="payment-form-grid payment-collection-grid">
           <label className="payment-field"><span>Academy</span><select value={collectionAcademy} onChange={(e) => { const academyId=e.target.value; setCollectionAcademy(academyId); setCollectionCenter(""); setCollectionBatch(""); setCollectionPlayer(""); setCenters([]); setBatches([]); setPlayers([]); setDues([]); setSelectedDue(""); setSelectedDueData(null); }}><option value="">Select Academy</option>{academies.map((academy)=><option key={academy.id} value={academy.id}>{academy.academy_name}</option>)}</select></label>
           <label className="payment-field"><span>Center</span><select value={collectionCenter} onChange={(e) => { const centerId=e.target.value; setCollectionCenter(centerId); setCollectionBatch(""); setCollectionPlayer(""); setSelectedDue(""); setSelectedDueData(null); setBatches([]); setPlayers([]); setDues([]); if(centerId) fetchBatches(centerId); }}><option value="">Select Center</option>{centers.map((center)=><option key={center.id} value={center.id}>{center.center_name}</option>)}</select></label>
           <label className="payment-field"><span>Batch</span><select value={collectionBatch} onChange={(e) => { const batchId=e.target.value; setCollectionBatch(batchId); setCollectionPlayer(""); setSelectedDue(""); setSelectedDueData(null); setPlayers([]); setDues([]); if(batchId) fetchPlayers(batchId); }}><option value="">Select Batch</option>{batches.map((batch)=><option key={batch.id} value={batch.id}>{batch.batch_name}</option>)}</select></label>
           <label className="payment-field"><span>Player</span><select value={collectionPlayer} onChange={(e)=>setCollectionPlayer(e.target.value)}><option value="">Select Player</option>{players.map((player)=><option key={player.id} value={player.id}>{player.full_name}</option>)}</select></label>
-
-          <label className="payment-field payment-field-wide"><span>Pending Due</span>
-            <select value={selectedDue} onChange={(e)=>{const dueId=e.target.value; setSelectedDue(dueId); const dueData=dues.find((due)=>due.id===dueId); setSelectedDueData(dueData); setAmountPaid(dueData ? dueData.remaining_amount : ""); setPaymentMode("");}}>
-              <option value="">{dues.length===0 ? "No Pending Dues" : "Select Pending Due"}</option>
-              {dues.map((due)=><option key={due.id} value={due.id}>{String(due.due_type || "Due").replace(/_/g, " ")} · {due.due_date} · Remaining ₹{Number(due.remaining_amount || 0).toLocaleString("en-IN")}</option>)}
-            </select>
-          </label>
-
-          {selectedDueData && (
-            <div className="payment-due-summary" aria-live="polite">
-              <div className="payment-due-summary-heading">
-                <div>
-                  <span>Selected Due</span>
-                  <strong>{String(selectedDueData.due_type || "Due").replace(/_/g, " ")} · {selectedDueData.due_date || "—"}</strong>
-                </div>
-                <span className={selectedDueData.due_status === "partial" ? "payment-status-badge payment-status-partial" : "payment-status-badge payment-status-pending"}>
-                  {selectedDueData.due_status === "partial" ? "Partial" : "Pending"}
-                </span>
-              </div>
-              <div className="payment-due-summary-grid">
-                <div><span>Total Due</span><strong>₹{Number(selectedDueData.total_amount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></div>
-                <div><span>Already Paid</span><strong>₹{Number(selectedDueData.paid_amount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></div>
-                <div><span>Remaining</span><strong>₹{selectedDueRemaining.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></div>
-              </div>
-            </div>
-          )}
-
+          <label className="payment-field payment-field-wide"><span>Pending Due</span><select value={selectedDue} onChange={(e)=>{const dueId=e.target.value; setSelectedDue(dueId); const dueData=dues.find((due)=>due.id===dueId); setSelectedDueData(dueData); setAmountPaid(dueData ? dueData.remaining_amount : ""); setPaymentMode("");}}><option value="">{dues.length===0 ? "No Pending Dues" : "Select Pending Due"}</option>{dues.map((due)=><option key={due.id} value={due.id}>{String(due.due_type || "Due").replace(/_/g, " ")} · {due.due_date} · Remaining ₹{Number(due.remaining_amount || 0).toLocaleString("en-IN")}</option>)}</select></label>
           <label className="payment-field"><span>Amount Paid</span><input type="number" min="0.01" step="0.01" max={selectedDueRemaining || undefined} placeholder={selectedDueRemaining ? `Max ₹${selectedDueRemaining}` : "Amount Paid"} value={amountPaid} onChange={(e)=>setAmountPaid(e.target.value)} aria-invalid={amountPaid && !isPaymentAmountValid} /></label>
           <label className="payment-field"><span>Payment Mode</span><select value={paymentMode} onChange={(e)=>setPaymentMode(e.target.value)}><option value="">Select Payment Mode</option><option value="cash">Cash</option><option value="upi">UPI</option><option value="bank_transfer">Bank Transfer</option></select></label>
         </div>
-
-        <div className="payment-form-footer">
-          <div className="payment-helper-text">
-            {!selectedDueData && "Select a pending due to continue."}
-            {selectedDueData && !amountPaid && "Enter the amount to collect."}
-            {selectedDueData && amountPaid && !isPaymentAmountValid && "Amount must be greater than ₹0 and cannot exceed the remaining due."}
-            {selectedDueData && isPaymentAmountValid && (
-              <span>Remaining after this payment: <strong>₹{remainingAfterPayment.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></span>
-            )}
+        {selectedDueData && (
+          <div className="payment-due-summary payment-collection-summary" aria-live="polite">
+            <div className="payment-due-summary-heading"><div><span>Selected Due</span><strong>{String(selectedDueData.due_type || "Due").replace(/_/g, " ")} · {selectedDueData.due_date || "—"}</strong></div><span className={selectedDueData.due_status === "partial" ? "payment-status-badge payment-status-partial" : "payment-status-badge payment-status-pending"}>{selectedDueData.due_status === "partial" ? "Partial" : "Pending"}</span></div>
+            <div className="payment-due-summary-grid"><div><span>Total Due</span><strong>₹{Number(selectedDueData.total_amount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></div><div><span>Already Paid</span><strong>₹{Number(selectedDueData.paid_amount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></div><div><span>Remaining</span><strong>₹{selectedDueRemaining.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></div></div>
           </div>
+        )}
+        <div className="payment-form-footer payment-collection-footer">
+          <div className="payment-helper-text">{!selectedDueData && "Select a pending due to continue."}{selectedDueData && !amountPaid && "Enter the amount to collect."}{selectedDueData && amountPaid && !isPaymentAmountValid && "Amount must be greater than ₹0 and cannot exceed the remaining due."}{selectedDueData && isPaymentAmountValid && <span>Remaining after payment: <strong>₹{remainingAfterPayment.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></span>}</div>
           <button type="button" className="payment-primary-button" onClick={collectPayment} disabled={!selectedDue || !isPaymentAmountValid || !paymentMode}>Collect Payment</button>
         </div>
       </section>
 
       <section className="payment-card">
-        <div className="payment-card-header payment-list-header">
-          <div><h2>Payments History</h2><p>Review immutable payment and adjustment ledger entries.</p><div className="payment-history-summary"><span>{filteredPayments.length} record{filteredPayments.length === 1 ? "" : "s"}</span><span>Payments ₹{historyPaymentsTotal.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span><span>Adjustments ₹{historyAdjustmentsTotal.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span><span>Net Ledger ₹{historyNetTotal.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div></div>
-          <div className="payment-history-search-row">
-            <label className="payment-filter-field payment-history-search-field"><span>Search Player / Reference / Receipt</span><input type="search" value={historySearch} placeholder="Search player, TXN or receipt number..." onChange={(e)=>setHistorySearch(e.target.value)} /></label>
-            {historySearch && <button type="button" className="payment-secondary-button payment-search-clear-button" onClick={()=>setHistorySearch("")}>Clear Search</button>}
+        <div className="payment-list-heading payment-history-heading">
+          <div>
+            <div className="payment-section-kicker">Payment Ledger</div>
+            <h2>Payments History</h2>
+            <p>Review immutable payment and adjustment ledger entries.</p>
+            <div className="payment-history-summary"><span>{filteredPayments.length} record{filteredPayments.length === 1 ? "" : "s"}</span><span>Payments ₹{historyPaymentsTotal.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span><span>Adjustments ₹{historyAdjustmentsTotal.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span><span>Net Ledger ₹{historyNetTotal.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>
           </div>
-          <div className="payment-history-filter-grid">
-            <label className="payment-filter-field"><span>Academy</span><select value={historyAcademy} onChange={(e)=>{setHistoryAcademy(e.target.value);setHistoryCenter("");setHistoryBatch("");setHistoryPlayer("");}}><option value="">All Academies</option>{historyFilterOptions.academies.map(option=><option key={option.id} value={option.id}>{option.name}</option>)}</select></label>
-            <label className="payment-filter-field"><span>Center</span><select value={historyCenter} onChange={(e)=>{setHistoryCenter(e.target.value);setHistoryBatch("");setHistoryPlayer("");}}><option value="">All Centers</option>{historyFilterOptions.centers.map(option=><option key={option.id} value={option.id}>{option.name}</option>)}</select></label>
-            <label className="payment-filter-field"><span>Batch</span><select value={historyBatch} onChange={(e)=>{setHistoryBatch(e.target.value);setHistoryPlayer("");}}><option value="">All Batches</option>{historyFilterOptions.batches.map(option=><option key={option.id} value={option.id}>{option.name}</option>)}</select></label>
-            <label className="payment-filter-field"><span>Player</span><select value={historyPlayer} onChange={(e)=>setHistoryPlayer(e.target.value)}><option value="">All Players</option>{historyFilterOptions.players.map(option=><option key={option.id} value={option.id}>{option.name}</option>)}</select></label>
-            <label className="payment-filter-field"><span>Mode</span><select value={historyPaymentMode} onChange={(e)=>setHistoryPaymentMode(e.target.value)}><option value="">All Modes</option><option value="cash">Cash</option><option value="upi">UPI</option><option value="bank_transfer">Bank Transfer</option></select></label>
-            <label className="payment-filter-field"><span>From</span><input type="date" value={historyFromDate} max={historyToDate || undefined} onChange={(e)=>setHistoryFromDate(e.target.value)} /></label>
-            <label className="payment-filter-field"><span>To</span><input type="date" value={historyToDate} min={historyFromDate || undefined} onChange={(e)=>setHistoryToDate(e.target.value)} /></label>
-            <button type="button" className="payment-secondary-button payment-filter-reset-button" onClick={resetHistoryFilters} disabled={!historyAcademy && !historyCenter && !historyBatch && !historyPlayer && !historySearch && !historyPaymentMode && !historyFromDate && !historyToDate}>Reset Filters</button>
+          <div className="payment-history-top-controls">
+            <label className="payment-filter-field payment-history-search-field"><span>Search</span><input type="search" value={historySearch} placeholder="Player, TXN or receipt..." onChange={(e)=>setHistorySearch(e.target.value)} /></label>
+            <button type="button" className="payment-clear-filters" onClick={resetHistoryFilters} disabled={!historyAcademy && !historyCenter && !historyBatch && !historyPlayer && !historySearch && !historyPaymentMode && !historyFromDate && !historyToDate}>Clear filters</button>
           </div>
         </div>
-
+        <div className="payment-list-controls payment-history-controls">
+          <label className="payment-filter-field"><span>Academy</span><select value={historyAcademy} onChange={(e)=>{setHistoryAcademy(e.target.value);setHistoryCenter("");setHistoryBatch("");setHistoryPlayer("");}}><option value="">All</option>{historyFilterOptions.academies.map(option=><option key={option.id} value={option.id}>{option.name}</option>)}</select></label>
+          <label className="payment-filter-field"><span>Center</span><select value={historyCenter} onChange={(e)=>{setHistoryCenter(e.target.value);setHistoryBatch("");setHistoryPlayer("");}}><option value="">All</option>{historyFilterOptions.centers.map(option=><option key={option.id} value={option.id}>{option.name}</option>)}</select></label>
+          <label className="payment-filter-field"><span>Batch</span><select value={historyBatch} onChange={(e)=>{setHistoryBatch(e.target.value);setHistoryPlayer("");}}><option value="">All</option>{historyFilterOptions.batches.map(option=><option key={option.id} value={option.id}>{option.name}</option>)}</select></label>
+          <label className="payment-filter-field"><span>Player</span><select value={historyPlayer} onChange={(e)=>setHistoryPlayer(e.target.value)}><option value="">All</option>{historyFilterOptions.players.map(option=><option key={option.id} value={option.id}>{option.name}</option>)}</select></label>
+          <label className="payment-filter-field"><span>Mode</span><select value={historyPaymentMode} onChange={(e)=>setHistoryPaymentMode(e.target.value)}><option value="">All</option><option value="cash">Cash</option><option value="upi">UPI</option><option value="bank_transfer">Bank Transfer</option></select></label>
+          <label className="payment-filter-field"><span>From</span><input type="date" value={historyFromDate} max={historyToDate || undefined} onChange={(e)=>setHistoryFromDate(e.target.value)} /></label>
+          <label className="payment-filter-field"><span>To</span><input type="date" value={historyToDate} min={historyFromDate || undefined} onChange={(e)=>setHistoryToDate(e.target.value)} /></label>
+        </div>
         {filteredPayments.length===0 ? (
           <div className="payment-empty-state"><div className="payment-empty-icon">₹</div><h3>No payment history found</h3><p>Adjust the player, payment mode or date filters to view ledger entries.</p></div>
         ) : (
