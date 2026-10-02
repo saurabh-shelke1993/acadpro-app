@@ -584,13 +584,11 @@ function CoachPerformanceAssessments() {
                       </div>
                     )}
                   </div>
-
                   <div className="assessment-meta-field">
                     <label htmlFor="assessment-date">Assessment date</label>
                     <input id="assessment-date" name="assessment_date" type="date" value={form.assessment_date} onChange={handleFormChange} aria-invalid={Boolean(validationErrors.assessment_date)} />
                     {validationErrors.assessment_date ? <span className="field-error">{validationErrors.assessment_date}</span> : null}
                   </div>
-
                   <div className="assessment-completion">
                     <span>Score coverage</span>
                     <strong>{scoreFields.filter(([name]) => form[name] !== "" && form[name] !== null).length}/9 metrics</strong>
@@ -603,78 +601,6 @@ function CoachPerformanceAssessments() {
                 </div>
 
                 <div className="score-matrix">
-                <div className="score-group">
-                  <div className="score-group-title">Technical skills</div>
-                  <div className="score-grid">
-                    <div className="score-field">
-  <label htmlFor="ball_control_score">Ball control</label>
-  <input id="ball_control_score" name="ball_control_score" type="number" min="0" max="10" step="0.1" inputMode="decimal" value={form.ball_control_score} onChange={handleFormChange} aria-invalid={Boolean(validationErrors.ball_control_score)} aria-describedby={validationErrors.ball_control_score ? "ball_control_score-error" : undefined} />
-  <span className="score-range">0–10</span>
-  {validationErrors.ball_control_score ? <span id="ball_control_score-error" className="field-error">{validationErrors.ball_control_score}</span> : null}
-</div>
-                    <div className="score-field">
-  <label htmlFor="passing_score">Passing</label>
-  <input id="passing_score" name="passing_score" type="number" min="0" max="10" step="0.1" inputMode="decimal" value={form.passing_score} onChange={handleFormChange} aria-invalid={Boolean(validationErrors.passing_score)} aria-describedby={validationErrors.passing_score ? "passing_score-error" : undefined} />
-  <span className="score-range">0–10</span>
-  {validationErrors.passing_score ? <span id="passing_score-error" className="field-error">{validationErrors.passing_score}</span> : null}
-</div>
-                    <div className="score-field">
-  <label htmlFor="dribbling_score">Dribbling</label>
-  <input id="dribbling_score" name="dribbling_score" type="number" min="0" max="10" step="0.1" inputMode="decimal" value={form.dribbling_score} onChange={handleFormChange} aria-invalid={Boolean(validationErrors.dribbling_score)} aria-describedby={validationErrors.dribbling_score ? "dribbling_score-error" : undefined} />
-  <span className="score-range">0–10</span>
-  {validationErrors.dribbling_score ? <span id="dribbling_score-error" className="field-error">{validationErrors.dribbling_score}</span> : null}
-</div>
-                    <div className="score-field">
-  <label htmlFor="shooting_score">Shooting</label>
-  <input id="shooting_score" name="shooting_score" type="number" min="0" max="10" step="0.1" inputMode="decimal" value={form.shooting_score} onChange={handleFormChange} aria-invalid={Boolean(validationErrors.shooting_score)} aria-describedby={validationErrors.shooting_score ? "shooting_score-error" : undefined} />
-  <span className="score-range">0–10</span>
-  {validationErrors.shooting_score ? <span id="shooting_score-error" className="field-error">{validationErrors.shooting_score}</span> : null}
-</div>
-                    <div className="score-field">
-  <label htmlFor="defending_score">Defending</label>
-  <input id="defending_score" name="defending_score" type="number" min="0" max="10" step="0.1" inputMode="decimal" value={form.defending_score} onChange={handleFormChange} aria-invalid={Boolean(validationErrors.defending_score)} aria-describedby={validationErrors.defending_score ? "defending_score-error" : undefined} />
-  <span className="score-range">0–10</span>
-  {validationErrors.defending_score ? <span id="defending_score-error" className="field-error">{validationErrors.defending_score}</span> : null}
-</div>
-                  </div>
-                </div>
-
-                <div className="score-group">
-                  <div className="score-group-title">Physical</div>
-                  <div className="score-grid">
-                    <div className="score-field">
-  <label htmlFor="speed_score">Speed</label>
-  <input id="speed_score" name="speed_score" type="number" min="0" max="10" step="0.1" inputMode="decimal" value={form.speed_score} onChange={handleFormChange} aria-invalid={Boolean(validationErrors.speed_score)} aria-describedby={validationErrors.speed_score ? "speed_score-error" : undefined} />
-  <span className="score-range">0–10</span>
-  {validationErrors.speed_score ? <span id="speed_score-error" className="field-error">{validationErrors.speed_score}</span> : null}
-</div>
-                    <div className="score-field">
-  <label htmlFor="stamina_score">Stamina</label>
-  <input id="stamina_score" name="stamina_score" type="number" min="0" max="10" step="0.1" inputMode="decimal" value={form.stamina_score} onChange={handleFormChange} aria-invalid={Boolean(validationErrors.stamina_score)} aria-describedby={validationErrors.stamina_score ? "stamina_score-error" : undefined} />
-  <span className="score-range">0–10</span>
-  {validationErrors.stamina_score ? <span id="stamina_score-error" className="field-error">{validationErrors.stamina_score}</span> : null}
-</div>
-                  </div>
-                </div>
-
-                <div className="score-group">
-                  <div className="score-group-title">Team & discipline</div>
-                  <div className="score-grid">
-                    <div className="score-field">
-  <label htmlFor="teamwork_score">Teamwork</label>
-  <input id="teamwork_score" name="teamwork_score" type="number" min="0" max="10" step="0.1" inputMode="decimal" value={form.teamwork_score} onChange={handleFormChange} aria-invalid={Boolean(validationErrors.teamwork_score)} aria-describedby={validationErrors.teamwork_score ? "teamwork_score-error" : undefined} />
-  <span className="score-range">0–10</span>
-  {validationErrors.teamwork_score ? <span id="teamwork_score-error" className="field-error">{validationErrors.teamwork_score}</span> : null}
-</div>
-                    <div className="score-field">
-  <label htmlFor="discipline_score">Discipline</label>
-  <input id="discipline_score" name="discipline_score" type="number" min="0" max="10" step="0.1" inputMode="decimal" value={form.discipline_score} onChange={handleFormChange} aria-invalid={Boolean(validationErrors.discipline_score)} aria-describedby={validationErrors.discipline_score ? "discipline_score-error" : undefined} />
-  <span className="score-range">0–10</span>
-  {validationErrors.discipline_score ? <span id="discipline_score-error" className="field-error">{validationErrors.discipline_score}</span> : null}
-</div>
-                  </div>
-                </div>
-
                   <div className="score-card">
                     <span className="score-card-category">Technical</span>
                     <label htmlFor="ball_control_score">Ball control</label>
@@ -758,3 +684,80 @@ function CoachPerformanceAssessments() {
                   </div>
                 </div>
 
+                <div className="remarks-field">
+                  <div className="remarks-heading">
+                    <label htmlFor="coach-remarks">Coach remarks</label>
+                    <span>Optional · observations, strengths or focus areas</span>
+                  </div>
+                  <textarea id="coach-remarks" name="coach_remarks" value={form.coach_remarks} onChange={handleFormChange} rows="3" placeholder="Add coaching observations, strengths or areas to work on..." />
+                </div>
+
+                <div className="assessment-form-actions">
+                  <div className="assessment-action-hint"><strong>{editingAssessmentId ? "Editing existing assessment" : "Ready to save"}</strong><span>{scoreFields.filter(([name]) => form[name] !== "" && form[name] !== null).length}/9 scores entered</span></div>
+                  <div className="assessment-action-buttons">
+                  <button type="submit" disabled={saving} className="primary-button">
+                    {saving ? "Saving..." : editingAssessmentId ? "Update assessment" : "Save assessment"}
+                  </button>
+                  {editingAssessmentId ? <button type="button" onClick={resetForm} disabled={saving} className="secondary-button">Cancel edit</button> : null}
+                  </div>
+                </div>
+              </form>
+            </section>
+
+            <section className="performance-card assessment-history-card" aria-labelledby="history-heading">
+              <div className="assessment-history-heading">
+                <div>
+                  <span className="performance-eyebrow">Progress over time</span>
+                  <h2 id="history-heading">Assessment history</h2>
+                </div>
+                <span className="assessment-history-count">{assessments.length} record{assessments.length === 1 ? "" : "s"}</span>
+              </div>
+              {historyLoading ? <p className="performance-message">Loading assessment history...</p> : assessments.length ? (
+                <div className="assessment-history-list">
+                  {assessments.map((assessment) => {
+                    const expanded = expandedHistoryId === assessment.id;
+                    return (
+                      <article key={assessment.id} className={expanded ? "assessment-history-item expanded" : "assessment-history-item"}>
+                        <button type="button" className="assessment-history-summary" onClick={() => setExpandedHistoryId(expanded ? null : assessment.id)} aria-expanded={expanded}>
+                          <span><strong>{formatDate(assessment.assessment_date)}</strong><small>{assessment.coaches?.full_name || "Coach not recorded"}</small></span>
+                          <span className="history-overall">{(() => {
+                            const scores = scoreFields.map(([name]) => assessment[name]).filter((value) => value !== null && value !== undefined && value !== "");
+                            const average = scores.length ? scores.reduce((sum, value) => sum + Number(value), 0) / scores.length : null;
+                            return average === null ? "—" : average.toFixed(1);
+                          })()}<small>/ 10</small></span>
+                          <span className="history-summary-remarks">{assessment.coach_remarks || "No remarks"}</span>
+                          <span className="history-chevron" aria-hidden="true">{expanded ? "⌃" : "⌄"}</span>
+                        </button>
+                        {expanded ? (
+                          <div className="assessment-history-details">
+                            <div className="history-score-grid">
+                              {scoreFields.map(([name,label]) => <span key={name}><strong>{label}</strong>{assessment[name] ?? "—"}</span>)}
+                            </div>
+                            {assessment.coach_remarks ? <p className="history-remarks">{assessment.coach_remarks}</p> : null}
+                            <div className="history-actions">
+                              <button type="button" onClick={() => handleEdit(assessment)} disabled={saving} className="edit-button">Edit</button>
+                              <button type="button" onClick={() => handleDelete(assessment)} disabled={saving} className="delete-button">Delete</button>
+                            </div>
+                          </div>
+                        ) : null}
+                      </article>
+                    );
+                  })}
+                </div>
+              ) : <p className="performance-message">No performance assessments are available for this player yet.</p>}
+            </section>
+          </>
+        ) : null}
+      </main>
+    </Layout>
+  );
+}
+
+const styles = {
+  page: { width: "100%", maxWidth: "1200px", margin: "0 auto", padding: "4px 0 30px", boxSizing: "border-box" },
+  error: { margin: "0 0 12px", padding: "10px 13px", borderRadius: "8px", background: "#fee2e2", color: "#991b1b" },
+  success: { margin: "0 0 12px", padding: "10px 13px", borderRadius: "8px", background: "#dcfce7", color: "#166534" },
+  message: { margin: "8px 0 0", color: "#475569", lineHeight: 1.5, overflowWrap: "anywhere" },
+};
+
+export default CoachPerformanceAssessments;
