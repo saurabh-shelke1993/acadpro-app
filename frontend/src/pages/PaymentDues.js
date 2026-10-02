@@ -770,6 +770,8 @@ const filterOptions = useMemo(() => ({
 const totalDue = duesList.reduce((sum, due) => sum + Number(due.total_amount || 0), 0);
 const totalPaid = duesList.reduce((sum, due) => sum + Number(due.paid_amount || 0), 0);
 const totalRemaining = duesList.reduce((sum, due) => sum + Number(due.remaining_amount || 0), 0);
+const filteredRemaining = filteredDues.reduce((sum, due) => sum + Number(due.remaining_amount || 0), 0);
+
 const pendingAmount = duesList.filter((due) => due.due_status === "pending")
   .reduce((sum, due) => sum + Number(due.remaining_amount || 0), 0);
 const partialAmount = duesList.filter((due) => due.due_status === "partial")
