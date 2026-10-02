@@ -481,7 +481,6 @@ function PlayerPerformanceReport() {
     .filter((assessment) => assessment.average !== null);
 
   const { strengths, improvementAreas } = getSkillGroups(latestAssessment);
-  const reportCopy = getReportCopy(currentUser);
   const filterCount = [selectedAcademyId, selectedCenterId, selectedBatchId, selectedPlayerId].filter(Boolean).length;
 
   const resetFilters = () => {
@@ -502,21 +501,10 @@ function PlayerPerformanceReport() {
   return (
     <Layout>
       <main className="performance-page">
-        <header className="performance-header">
-          <div>
-            <div className="performance-eyebrow">Performance</div>
-            <h1>Player Performance Report</h1>
-            <p>{reportCopy.subtitle}</p>
-          </div>
-          {selectedPlayer ? (
-            <div className="performance-header-badge">
-              {assessments.length} assessment{assessments.length === 1 ? "" : "s"}
-            </div>
-          ) : null}
-        </header>
-
         {error ? <p role="alert" className="performance-error">{error}</p> : null}
 
+        <section className="performance-scope-top-grid" aria-label="Performance scope and top results">
+          <div className="performance-scope-panel">
         <section className="performance-filter-card" aria-label="Performance report filters">
           <div className="performance-filter-heading">
             <div>
@@ -628,6 +616,9 @@ function PlayerPerformanceReport() {
           </div>
         </section>
 
+
+          </div>
+          <div className="performance-top-panel">
         <section className="performance-top-section" aria-labelledby="top-performance-heading">
           <div className="performance-section-header">
             <div>
@@ -681,6 +672,8 @@ function PlayerPerformanceReport() {
           )}
         </section>
 
+          </div>
+        </section>
         {selectedPlayer ? (
           <>
             <section className="performance-player-identity" aria-labelledby="player-identity-heading">
