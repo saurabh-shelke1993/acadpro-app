@@ -690,12 +690,6 @@ useEffect(() => {
   setCorrectionCurrentPage(1);
 }, [correctionStatusFilter, correctionSearch]);
 
-const openCollectionModal = () => setShowCollectionModal(true);
-const closeCollectionModal = () => {
-  setShowCollectionModal(false);
-  resetCollectionForm();
-};
-
 const resetCollectionForm = () => {
 
   setCollectionAcademy("");
@@ -714,7 +708,6 @@ const resetCollectionForm = () => {
 
   setPaymentMode("");
 
-
   setCenters([]);
 
   setBatches([]);
@@ -723,6 +716,12 @@ const resetCollectionForm = () => {
 
   setDues([]);
 
+};
+
+const openCollectionModal = () => setShowCollectionModal(true);
+const closeCollectionModal = () => {
+  setShowCollectionModal(false);
+  resetCollectionForm();
 };
 
   const collectPayment = async () => {
