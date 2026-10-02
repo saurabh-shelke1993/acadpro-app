@@ -30,7 +30,7 @@ const [filteredCenters, setFilteredCenters] =
   useState([]);
   const [academies, setAcademies] = useState([]);
 
-  const [selectedAcademy, setSelectedAcademy] = useState("");
+  const [selectedAcademy, setSelectedAcademy] = useState(academyContextId);
 
   const [centerName, setCenterName] = useState("");
 
