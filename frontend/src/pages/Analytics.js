@@ -29,6 +29,22 @@ const formatCurrency = (value) =>
 const formatNumber = (value) =>
   Number(value || 0).toLocaleString("en-IN");
 
+const getAcademyStatus = (academy) => {
+  if (!academy.attendanceRecords && !academy.totalBilled) {
+    return { label: "No data", tone: "no-data" };
+  }
+
+  if (academy.attendanceRecords && academy.attendanceRate < 70) {
+    return { label: "Watch", tone: "watch" };
+  }
+
+  if (academy.totalBilled > 0 && academy.collectionRate < 75) {
+    return { label: "Finance", tone: "finance" };
+  }
+
+  return { label: "Healthy", tone: "healthy" };
+};
+
 const TABS = [
   { id: "overview", label: "Overview" },
   { id: "academies", label: "Academies", superAdminOnly: true },
@@ -359,7 +375,10 @@ function AcademyComparison({ academies }) {
           <span>Rate</span>
         </div>
 
-        {academies.map((academy) => (
+        {academies.map((academy) => {
+          const status = getAcademyStatus(academy);
+
+          return (
           <div className="analytics-academy-row" key={academy.id}>
             <div>
               <strong>{academy.name}</strong>
@@ -386,17 +405,12 @@ function AcademyComparison({ academies }) {
               <strong>{formatCurrency(academy.outstandingAmount)}</strong>
               <small>{academy.collectionRate}% collected</small>
             </div>
-            <span className={`analytics-academy-status analytics-academy-status-${academy.attendanceRecords && academy.attendanceRate < 70 ? "watch" : academy.totalBilled > 0 && academy.collectionRate < 75 ? "finance" : "healthy"}`}>
-              {academy.attendanceRecords && academy.attendanceRate < 70
-                ? "Watch"
-                : academy.totalBilled > 0 && academy.collectionRate < 75
-                  ? "Finance"
-                  : academy.attendanceRecords || academy.totalBilled
-                    ? "Healthy"
-                    : "No data"}
+            <span className={`analytics-academy-status analytics-academy-status-${status.tone}`}>
+              {status.label}
             </span>
           </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
@@ -513,6 +527,9 @@ function Analytics() {
   const selectedAcademyName = selectedAcademyId
     ? academies.find((academy) => academy.id === selectedAcademyId)?.academy_name
     : "";
+
+  const scopeDescription = selectedAcademyName ||
+    (isSuperAdmin(user) ? "All accessible academies" : "Current access scope");
 
   if (loading) {
     return (
