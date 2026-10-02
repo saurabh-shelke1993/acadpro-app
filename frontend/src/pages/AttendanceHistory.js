@@ -371,18 +371,6 @@ function AttendanceHistory() {
   return (
     <Layout>
       <div className="attendance-history-page">
-        <div className="attendance-history-toolbar">
-          <div>
-            <span className="attendance-history-eyebrow">Attendance</span>
-            <h1>Attendance History</h1>
-            <p>Review and manage recorded player attendance.</p>
-          </div>
-          <div className="attendance-history-toolbar-meta">
-            <strong>{summary.records}</strong>
-            <span>records</span>
-          </div>
-        </div>
-
         <section className="attendance-history-filter-card" aria-labelledby="attendance-history-filters">
           <div className="attendance-history-section-heading">
             <div>
