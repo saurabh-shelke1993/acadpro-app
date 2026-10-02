@@ -386,14 +386,14 @@ const ParentPortal = () => {
                     <span className="parent-portal-financial-card-label">Pending dues</span>
                     <strong>{selectedFinancialSummary?.pendingDueCount || 0}</strong>
                     <span className="parent-portal-financial-card-meta">
-                      {selectedFinancialSummary?.pendingDueCount || 0 === 1 ? "fee requires attention" : "fees require attention"}
+                      {(selectedFinancialSummary?.pendingDueCount || 0) === 1 ? "fee requires attention" : "fees require attention"}
                     </span>
                   </div>
                   <div className="parent-portal-financial-card">
                     <span className="parent-portal-financial-card-label">Payments recorded</span>
                     <strong>{selectedFinancialSummary?.paymentCount || 0}</strong>
                     <span className="parent-portal-financial-card-meta">
-                      {selectedFinancialSummary?.paymentCount || 0 === 1 ? "payment in history" : "payments in history"}
+                      {(selectedFinancialSummary?.paymentCount || 0) === 1 ? "payment in history" : "payments in history"}
                     </span>
                   </div>
                   <div className="parent-portal-financial-card is-clear">
