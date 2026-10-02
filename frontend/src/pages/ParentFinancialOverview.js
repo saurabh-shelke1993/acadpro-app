@@ -6,7 +6,6 @@ import { getChildFinancialData, getParentContext } from "../services/parentPorta
 
 const ParentFinancialOverview = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [parent, setParent] = useState(null);
   const [children, setChildren] = useState([]);
   const [selectedChildId, setSelectedChildId] = useState("");
   const [paymentHistory, setPaymentHistory] = useState([]);
@@ -24,7 +23,7 @@ const ParentFinancialOverview = () => {
       setError("");
 
       try {
-        const { parent, children } = await getParentContext();
+        const { children } = await getParentContext();
 
         if (!mounted) return;
 
@@ -34,7 +33,6 @@ const ParentFinancialOverview = () => {
             ? requestedChildId
             : children[0]?.id || "";
 
-        setParent(parent);
         setChildren(children);
         setSelectedChildId(nextChildId);
         setLoading(false);
@@ -86,6 +84,43 @@ const ParentFinancialOverview = () => {
     () => pendingDues.reduce((total, due) => total + (Number(due.remaining_amount) || 0), 0),
     [pendingDues]
   );
+
+  const [expandedPaymentIds, setExpandedPaymentIds] = useState(() => new Set());
+  const [showAllPayments, setShowAllPayments] = useState(false);
+
+  const sortedPendingDues = useMemo(
+    () =>
+      [...pendingDues].sort((a, b) => {
+        const aDate = a?.due_date ? new Date(a.due_date).getTime() : Number.POSITIVE_INFINITY;
+        const bDate = b?.due_date ? new Date(b.due_date).getTime() : Number.POSITIVE_INFINITY;
+        return aDate - bDate;
+      }),
+    [pendingDues]
+  );
+
+  const sortedPaymentHistory = useMemo(
+    () =>
+      [...paymentHistory].sort((a, b) => {
+        const aDate = a?.payment_date ? new Date(a.payment_date).getTime() : 0;
+        const bDate = b?.payment_date ? new Date(b.payment_date).getTime() : 0;
+        return bDate - aDate;
+      }),
+    [paymentHistory]
+  );
+
+  const nextDue = sortedPendingDues[0] || null;
+  const lastPayment = sortedPaymentHistory[0] || null;
+  const visiblePayments = showAllPayments ? sortedPaymentHistory : sortedPaymentHistory.slice(0, 5);
+  const hasMorePayments = sortedPaymentHistory.length > 5;
+
+  const togglePaymentDetails = (paymentId) => {
+    setExpandedPaymentIds((current) => {
+      const next = new Set(current);
+      if (next.has(paymentId)) next.delete(paymentId);
+      else next.add(paymentId);
+      return next;
+    });
+  };
 
   const formatDate = (value, includeTime = false) => {
     if (!value) return "Not available";
@@ -183,117 +218,112 @@ const ParentFinancialOverview = () => {
 
   if (error) {
     return (
-      <Layout>
-        <main className="parent-finance-page">
-          <section className="parent-finance-state-card">
-            <span className="parent-finance-state-icon" aria-hidden="true">!</span>
-            <div>
-              <span className="parent-finance-kicker">Financial overview</span>
-              <h1>Unable to load financial information</h1>
-              <p>{error}</p>
-              <button type="button" onClick={() => setLoadAttempt((value) => value + 1)}>
-                Try again
-              </button>
-            </div>
-          </section>
-        </main>
-      </Layout>
-    );
-  }
-
-  return (
     <Layout>
       <main className="parent-finance-page">
-        <header className="parent-finance-header">
-          <div>
-            <span className="parent-finance-kicker">My Family</span>
-            <h1>Financial Overview</h1>
-            <p>Track fees, outstanding dues, payments and receipts for your child.</p>
-          </div>
-          <div className="parent-finance-header-meta">
-            <strong>{parent?.parent_name || "Parent"}</strong>
-            <span>{children.length} {children.length === 1 ? "child" : "children"} linked</span>
-          </div>
-        </header>
-
         {children.length > 0 ? (
           <>
-            <section className="parent-finance-child-switcher" aria-labelledby="finance-child-heading">
+            <header className="parent-finance-page-heading">
               <div>
-                <span className="parent-finance-kicker">Selected child</span>
-                <h2 id="finance-child-heading">{selectedChild?.full_name || "Select a child"}</h2>
-                {selectedChild ? (
+                <span className="parent-finance-kicker">My Family</span>
+                <h1>Financial Overview</h1>
+                <p>Fees, dues and payments for your child.</p>
+              </div>
+              <label className="parent-finance-child-selector">
+                <span>Child</span>
+                <select
+                  aria-label="Select child"
+                  value={selectedChildId}
+                  onChange={(event) => {
+                    const childId = event.target.value;
+                    setExpandedPaymentIds(new Set());
+                    setShowAllPayments(false);
+                    setSelectedChildId(childId);
+                    setSearchParams(childId ? { child: childId } : {});
+                  }}
+                >
+                  {children.map((child) => (
+                    <option key={child.id} value={child.id}>{child.full_name}</option>
+                  ))}
+                </select>
+              </label>
+            </header>
+
+            {selectedChild ? (
+              <section className="parent-finance-child-context" aria-label="Selected child">
+                <div>
+                  <span className="parent-finance-kicker">Selected child</span>
+                  <h2>{selectedChild.full_name}</h2>
                   <p>
                     {selectedChild.academy?.academy_name || "Academy"} · {selectedChild.center?.center_name || "Center"} · {selectedChild.batch?.batch_name || "Batch"}
                   </p>
-                ) : null}
-              </div>
-              <select
-                aria-label="Select child"
-                value={selectedChildId}
-                onChange={(event) => {
-                  const childId = event.target.value;
-                  setSelectedChildId(childId);
-                  setSearchParams(childId ? { child: childId } : {});
-                }}
-              >
-                {children.map((child) => (
-                  <option key={child.id} value={child.id}>{child.full_name}</option>
-                ))}
-              </select>
-            </section>
+                </div>
+                <span className={`parent-finance-child-status parent-finance-child-status-${String(selectedChild.player_status || "active").toLowerCase().replace(/\\s+/g, "-")}`}>
+                  {selectedChild.player_status || "Active"}
+                </span>
+              </section>
+            ) : null}
 
-            <section className="parent-finance-kpi-grid" aria-label="Financial summary">
-              <div className={`parent-finance-kpi parent-finance-kpi-outstanding${totalOutstanding > 0 ? " has-outstanding" : ""}`}>
+            <section className="parent-finance-summary-grid" aria-label="Financial snapshot">
+              <article className={`parent-finance-summary-card parent-finance-summary-outstanding${totalOutstanding > 0 ? " has-value" : ""}`}>
                 <span>Outstanding</span>
                 <strong>{formatAmount(totalOutstanding)}</strong>
-                <small>{pendingDues.length} {pendingDues.length === 1 ? "pending due" : "pending dues"}</small>
-              </div>
-              <div className="parent-finance-kpi">
-                <span>Payments recorded</span>
-                <strong>{paymentHistory.length}</strong>
-                <small>{paymentHistory.length === 1 ? "payment" : "payments"} in history</small>
-              </div>
-              <div className={`parent-finance-kpi ${totalOutstanding > 0 ? "is-due" : "is-clear"}`}>
-                <span>Payment status</span>
-                <strong>{totalOutstanding > 0 ? "Due" : "Clear"}</strong>
-                <small>{totalOutstanding > 0 ? "Outstanding balance remains" : "No outstanding balance"}</small>
-              </div>
+                <small>
+                  {pendingDues.length > 0
+                    ? `${pendingDues.length} ${pendingDues.length === 1 ? "pending due" : "pending dues"}`
+                    : "All dues cleared"}
+                </small>
+              </article>
+
+              <article className="parent-finance-summary-card">
+                <span>Next due</span>
+                <strong>{nextDue ? formatAmount(nextDue.remaining_amount) : "₹0.00"}</strong>
+                <small>{nextDue ? `Due ${formatDate(nextDue.due_date)}` : "Nothing due right now"}</small>
+              </article>
+
+              <article className="parent-finance-summary-card">
+                <span>Last payment</span>
+                <strong>{lastPayment ? formatAmount(lastPayment.amount_paid) : "—"}</strong>
+                <small>{lastPayment ? formatDate(lastPayment.payment_date, true) : "No payments recorded"}</small>
+              </article>
             </section>
 
-            <section className="parent-finance-section" aria-labelledby="outstanding-heading">
+            <section className="parent-finance-section parent-finance-dues-section" aria-labelledby="outstanding-heading">
               <div className="parent-finance-section-heading">
                 <div>
                   <span className="parent-finance-kicker">Fees</span>
                   <h2 id="outstanding-heading">Outstanding dues</h2>
-                  <p>Fees that still have a remaining balance.</p>
                 </div>
                 <span className="parent-finance-count">{pendingDues.length}</span>
               </div>
 
-              {pendingDues.length > 0 ? (
+              {sortedPendingDues.length > 0 ? (
                 <div className="parent-finance-due-list">
-                  {pendingDues.map((due) => (
-                    <article key={due.id} className="parent-finance-due-card">
-                      <div className="parent-finance-card-topline">
-                        <div>
-                          <strong>{formatDueType(due.due_type)}</strong>
-                          <span>Due date: {formatDate(due.due_date)}</span>
-                        </div>
-                        <span className={`parent-finance-status parent-finance-status-${String(due.due_status || "pending").toLowerCase()}`}>
-                          {due.due_status || "Pending"}
-                        </span>
+                  {sortedPendingDues.map((due) => (
+                    <article key={due.id} className="parent-finance-due-row">
+                      <div className="parent-finance-due-main">
+                        <strong>{formatDueType(due.due_type)}</strong>
+                        <span>Due {formatDate(due.due_date)}</span>
                       </div>
-                      <div className="parent-finance-amount-grid">
-                        <div><span>Total</span><strong>{formatAmount(due.total_amount)}</strong></div>
-                        <div><span>Paid</span><strong>{formatAmount(due.paid_amount)}</strong></div>
-                        <div className="is-remaining"><span>Remaining</span><strong>{formatAmount(due.remaining_amount)}</strong></div>
+                      <span className={`parent-finance-status parent-finance-status-${String(due.due_status || "pending").toLowerCase()}`}>
+                        {due.due_status || "Pending"}
+                      </span>
+                      <div className="parent-finance-due-total">
+                        <span>Total</span>
+                        <strong>{formatAmount(due.total_amount)}</strong>
+                      </div>
+                      <div className="parent-finance-due-paid">
+                        <span>Paid</span>
+                        <strong>{formatAmount(due.paid_amount)}</strong>
+                      </div>
+                      <div className="parent-finance-due-remaining">
+                        <span>Remaining</span>
+                        <strong>{formatAmount(due.remaining_amount)}</strong>
                       </div>
                     </article>
                   ))}
                 </div>
               ) : (
-                <div className="parent-finance-empty">
+                <div className="parent-finance-empty parent-finance-empty-success">
                   <strong>No outstanding dues</strong>
                   <p>Your child's current fee balance is clear.</p>
                 </div>
@@ -305,40 +335,84 @@ const ParentFinancialOverview = () => {
                 <div>
                   <span className="parent-finance-kicker">Ledger</span>
                   <h2 id="payment-history-heading">Payment history</h2>
-                  <p>Recorded payments and their transaction references.</p>
                 </div>
                 <span className="parent-finance-count">{paymentHistory.length}</span>
               </div>
 
-              {paymentHistory.length > 0 ? (
-                <div className="parent-finance-payment-list">
-                  {paymentHistory.map((payment) => (
-                    <article key={payment.id} className="parent-finance-payment-card">
-                      <div className="parent-finance-card-topline">
-                        <div>
-                          <strong>{formatDate(payment.payment_date, true)}</strong>
-                          <span>{payment.payment_mode || "Payment"}</span>
+              {sortedPaymentHistory.length > 0 ? (
+                <>
+                  <div className="parent-finance-payment-table" role="table" aria-label="Payment history">
+                    <div className="parent-finance-payment-table-header" role="row">
+                      <span>Date</span>
+                      <span>Mode</span>
+                      <span>Amount</span>
+                      <span>Receipt</span>
+                      <span aria-hidden="true"></span>
+                    </div>
+
+                    {visiblePayments.map((payment) => {
+                      const isExpanded = expandedPaymentIds.has(payment.id);
+                      return (
+                        <div key={payment.id} className="parent-finance-payment-item">
+                          <button
+                            type="button"
+                            className={`parent-finance-payment-row${isExpanded ? " is-expanded" : ""}`}
+                            onClick={() => togglePaymentDetails(payment.id)}
+                            aria-expanded={isExpanded}
+                          >
+                            <span>{formatDate(payment.payment_date)}</span>
+                            <span>{payment.payment_mode || "Payment"}</span>
+                            <strong className={payment.amount_paid < 0 ? "is-negative" : ""}>
+                              {formatAmount(payment.amount_paid)}
+                            </strong>
+                            <span>{payment.receipt_number || "—"}</span>
+                            <span className="parent-finance-payment-chevron" aria-hidden="true">{isExpanded ? "⌃" : "⌄"}</span>
+                          </button>
+
+                          {isExpanded ? (
+                            <div className="parent-finance-payment-details">
+                              <div>
+                                <span>Transaction</span>
+                                <strong>{payment.transaction_reference || "Not available"}</strong>
+                              </div>
+                              <div>
+                                <span>Remarks</span>
+                                <strong>{payment.remarks || "—"}</strong>
+                              </div>
+                              <div>
+                                <span>Payment date</span>
+                                <strong>{formatDate(payment.payment_date, true)}</strong>
+                              </div>
+                              {payment.receipt_number ? (
+                                <button
+                                  type="button"
+                                  className="parent-finance-receipt-button"
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    printReceipt(payment);
+                                  }}
+                                  disabled={printingReceiptId === payment.id}
+                                >
+                                  {printingReceiptId === payment.id ? "Preparing receipt…" : "Print / Save PDF"}
+                                </button>
+                              ) : null}
+                            </div>
+                          ) : null}
                         </div>
-                        <strong className="parent-finance-payment-amount">{formatAmount(payment.amount_paid)}</strong>
-                      </div>
-                      <div className="parent-finance-payment-grid">
-                        <div><span>Transaction</span><strong>{payment.transaction_reference || "Not available"}</strong></div>
-                        <div><span>Receipt</span><strong>{payment.receipt_number || "Not issued"}</strong></div>
-                        <div><span>Remarks</span><strong>{payment.remarks || "—"}</strong></div>
-                      </div>
-                      {payment.receipt_number ? (
-                        <button
-                          type="button"
-                          className="parent-finance-receipt-button"
-                          onClick={() => printReceipt(payment)}
-                          disabled={printingReceiptId === payment.id}
-                        >
-                          {printingReceiptId === payment.id ? "Preparing receipt…" : "Print / Save PDF"}
-                        </button>
-                      ) : null}
-                    </article>
-                  ))}
-                </div>
+                      );
+                    })}
+                  </div>
+
+                  {hasMorePayments ? (
+                    <button
+                      type="button"
+                      className="parent-finance-view-all-button"
+                      onClick={() => setShowAllPayments((current) => !current)}
+                    >
+                      {showAllPayments ? "Show recent payments" : `View all ${paymentHistory.length} payments`}
+                    </button>
+                  ) : null}
+                </>
               ) : (
                 <div className="parent-finance-empty">
                   <strong>No payments recorded</strong>
