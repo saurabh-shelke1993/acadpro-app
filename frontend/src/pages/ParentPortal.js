@@ -600,30 +600,6 @@ const ParentPortal = () => {
                   </div>
                 </div>
 
-                <div className="parent-portal-summary-actions">
-                  <button
-                    type="button"
-                    className="parent-portal-summary-action"
-                    onClick={() => navigate("/parent-financial-overview")}
-                  >
-                    <span>
-                      <strong>Financial Overview</strong>
-                      <small>View dues, payment history and receipts.</small>
-                    </span>
-                    <span aria-hidden="true">→</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    className="parent-portal-summary-action parent-portal-summary-action-secondary"
-                    onClick={() => navigate(`/player-performance-report?player=${encodeURIComponent(selectedChild.id)}`)}
-                  >
-                    <span>
-                      <strong>Player Performance</strong>
-                      <small>View assessments, skill trends and coach feedback.</small>
-                    </span>
-                    <span aria-hidden="true">→</span>
-                  </button>
                 </div>
               </div>
 
