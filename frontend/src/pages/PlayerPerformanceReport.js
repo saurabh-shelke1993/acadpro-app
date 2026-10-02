@@ -149,6 +149,7 @@ function PlayerPerformanceReport() {
   const [loading, setLoading] = useState(true);
   const [performanceLoading, setPerformanceLoading] = useState(false);
   const [assessmentLoading, setAssessmentLoading] = useState(false);
+  const [openAssessmentId, setOpenAssessmentId] = useState(null);
   const [error, setError] = useState("");
   const [searchParams] = useSearchParams();
 
@@ -410,6 +411,10 @@ function PlayerPerformanceReport() {
       isMounted = false;
     };
   }, [scopedPlayers]);
+
+  useEffect(() => {
+    setOpenAssessmentId(null);
+  }, [selectedPlayerId]);
 
   useEffect(() => {
     let isMounted = true;
@@ -678,108 +683,256 @@ function PlayerPerformanceReport() {
 
         {selectedPlayer ? (
           <>
-            <section className="performance-card" aria-labelledby="player-overview-heading">
-              <h2 id="player-overview-heading">Player overview</h2>
-              <div className="overview-grid">
-                <OverviewItem label="Player" value={selectedPlayer.full_name} />
-                <OverviewItem label="Batch" value={selectedPlayer.batches?.batch_name || "Not assigned"} />
-                <OverviewItem label="Center" value={selectedPlayer.centers?.center_name || "Not assigned"} />
-                <OverviewItem label="Academy" value={selectedPlayer.academies?.academy_name || "Not available"} />
-                <OverviewItem label="Available assessments" value={String(assessments.length)} />
-                <OverviewItem label="Most recent assessment" value={latestAssessment ? formatDate(latestAssessment.assessment_date) : "—"} />
+            <section className="performance-player-identity" aria-labelledby="player-identity-heading">
+              <div className="performance-player-avatar" aria-hidden="true">
+                {selectedPlayer.full_name
+                  .trim()
+                  .split(/\s+/)
+                  .slice(0, 2)
+                  .map((part) => part.charAt(0).toUpperCase())
+                  .join("")}
+              </div>
+              <div className="performance-player-identity-main">
+                <span className="performance-section-eyebrow">Selected player</span>
+                <h2 id="player-identity-heading">{selectedPlayer.full_name}</h2>
+                <p>
+                  {selectedPlayer.batches?.batch_name || "No batch"} ·{" "}
+                  {selectedPlayer.centers?.center_name || "No center"} ·{" "}
+                  {selectedPlayer.academies?.academy_name || "No academy"}
+                </p>
+              </div>
+              <div className="performance-player-meta">
+                <span>Last assessed</span>
+                <strong>{latestAssessment ? formatDate(latestAssessment.assessment_date) : "Not assessed"}</strong>
               </div>
             </section>
 
             {assessmentLoading ? (
-              <section className="performance-card"><p className="performance-message">Loading performance assessments...</p></section>
-            ) : assessments.length ? (
-              <>
-                <section className="performance-card" aria-labelledby="kpi-heading">
-                  <h2 id="kpi-heading">Latest assessment overview</h2>
-                  <div className="kpi-grid">
-                    <KpiCard label="Overall average" value={formatScore(latestOverall)} />
-                    <KpiCard label="Technical skills" value={formatScore(latestTechnical)} />
-                    <KpiCard label="Fitness" value={formatScore(latestFitness)} />
-                    <KpiCard label="Teamwork" value={formatScore(latestTeamwork)} />
-                    <KpiCard label="Discipline" value={formatScore(latestDiscipline)} />
+              <section className="performance-report-layout">
+                <div className="performance-report-main">
+                  <section className="performance-card performance-loading-card">
+                    <p className="performance-message">Loading performance assessments...</p>
+                  </section>
+                </div>
+                <aside className="performance-report-sidebar" aria-label="Performance snapshot">
+                  <div className="performance-snapshot">
+                    <span className="performance-section-eyebrow">Performance snapshot</span>
+                    <strong className="performance-snapshot-loading">Loading…</strong>
                   </div>
-                  <p className="performance-caption">Scores use a 0–10 scale. Missing scores are excluded from averages.</p>
-                </section>
+                </aside>
+              </section>
+            ) : assessments.length ? (
+              <section className="performance-report-layout">
+                <div className="performance-report-main">
+                  <section className="performance-card performance-kpi-card" aria-labelledby="kpi-heading">
+                    <div className="performance-card-heading">
+                      <div>
+                        <span className="performance-section-eyebrow">Latest assessment</span>
+                        <h2 id="kpi-heading">Performance overview</h2>
+                      </div>
+                      <span className="performance-assessment-count">
+                        {assessments.length} assessment{assessments.length === 1 ? "" : "s"}
+                      </span>
+                    </div>
+                    <div className="kpi-grid">
+                      <KpiCard label="Overall average" value={formatScore(latestOverall)} />
+                      <KpiCard label="Technical skills" value={formatScore(latestTechnical)} />
+                      <KpiCard label="Fitness" value={formatScore(latestFitness)} />
+                      <KpiCard label="Teamwork" value={formatScore(latestTeamwork)} />
+                      <KpiCard label="Discipline" value={formatScore(latestDiscipline)} />
+                    </div>
+                    <p className="performance-caption">Scores use a 0–10 scale. Missing scores are excluded from averages.</p>
+                  </section>
 
-                <section className="performance-chart-grid">
-                  <article className="performance-card" aria-labelledby="skill-chart-heading">
-                    <h2 id="skill-chart-heading">Skill-wise scores</h2>
-                    {latestSkillData.length ? (
-                      <>
-                        <div className="performance-chart" aria-label="Horizontal bar chart of latest assessment skill scores on a zero to ten scale">
-                          <ResponsiveContainer width="100%" height={Math.max(280, latestSkillData.length * 38)}>
-                            <BarChart data={latestSkillData} layout="vertical" margin={{ top: 4, right: 24, left: 20, bottom: 4 }}>
+                  <section className="performance-chart-grid" aria-label="Performance analysis">
+                    <article className="performance-card performance-chart-card" aria-labelledby="skill-chart-heading">
+                      <div className="performance-card-heading">
+                        <div>
+                          <span className="performance-section-eyebrow">Latest assessment</span>
+                          <h2 id="skill-chart-heading">Skill-wise scores</h2>
+                        </div>
+                      </div>
+                      {latestSkillData.length ? (
+                        <>
+                          <div className="performance-chart performance-skill-chart" aria-label="Horizontal bar chart of latest assessment skill scores on a zero to ten scale">
+                            <ResponsiveContainer width="100%" height={285}>
+                              <BarChart data={latestSkillData} layout="vertical" margin={{ top: 4, right: 18, left: 12, bottom: 4 }}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis type="number" domain={[0, 10]} allowDecimals={false} />
+                                <YAxis type="category" dataKey="label" width={84} />
+                                <Tooltip formatter={(value) => [formatScore(value), "Score"]} />
+                                <Bar dataKey="score" name="Score" fill="#2563eb" radius={[0, 4, 4, 0]} />
+                              </BarChart>
+                            </ResponsiveContainer>
+                          </div>
+                          <div className="skill-values" aria-label="Latest skill score values">
+                            {latestSkillData.map((skill) => (
+                              <span key={skill.label}>{skill.label}: <strong>{formatScore(skill.score)}</strong></span>
+                            ))}
+                          </div>
+                        </>
+                      ) : (
+                        <p className="performance-message">No skill scores are available in the latest assessment.</p>
+                      )}
+                    </article>
+
+                    <article className="performance-card performance-chart-card" aria-labelledby="trend-chart-heading">
+                      <div className="performance-card-heading">
+                        <div>
+                          <span className="performance-section-eyebrow">Progress</span>
+                          <h2 id="trend-chart-heading">Performance trend</h2>
+                        </div>
+                      </div>
+                      {trendData.length > 1 ? (
+                        <div className="performance-chart performance-trend-chart" aria-label="Line chart of overall average scores by assessment date on a zero to ten scale">
+                          <ResponsiveContainer width="100%" height={285}>
+                            <LineChart data={trendData} margin={{ top: 10, right: 12, left: 0, bottom: 22 }}>
                               <CartesianGrid strokeDasharray="3 3" />
-                              <XAxis type="number" domain={[0, 10]} allowDecimals={false} />
-                              <YAxis type="category" dataKey="label" width={94} />
-                              <Tooltip formatter={(value) => [formatScore(value), "Score"]} />
-                              <Bar dataKey="score" name="Score" fill="#2563eb" radius={[0, 4, 4, 0]} />
-                            </BarChart>
+                              <XAxis dataKey="label" angle={-25} textAnchor="end" height={56} tick={{ fontSize: 11 }} />
+                              <YAxis domain={[0, 10]} tickCount={6} />
+                              <Tooltip formatter={(value) => [formatScore(value), "Overall average"]} />
+                              <Line type="monotone" dataKey="average" name="Overall average" stroke="#7c3aed" strokeWidth={3} dot={{ r: 4 }} />
+                            </LineChart>
                           </ResponsiveContainer>
                         </div>
-                        <div className="skill-values" aria-label="Latest skill score values">
-                          {latestSkillData.map((skill) => <span key={skill.label}>{skill.label}: <strong>{formatScore(skill.score)}</strong></span>)}
+                      ) : trendData.length === 1 ? (
+                        <div className="performance-single-trend">
+                          <strong>{formatScore(trendData[0].average)} / 10</strong>
+                          <span>Overall average on {trendData[0].label}</span>
                         </div>
-                      </>
-                    ) : <p className="performance-message">No skill scores are available in the latest assessment.</p>}
-                  </article>
+                      ) : (
+                        <p className="performance-message">No assessments with skill scores are available for a performance trend.</p>
+                      )}
+                    </article>
+                  </section>
 
-                  <article className="performance-card" aria-labelledby="trend-chart-heading">
-                    <h2 id="trend-chart-heading">Performance trend</h2>
-                    {trendData.length > 1 ? (
-                      <div className="performance-chart" aria-label="Line chart of overall average scores by assessment date on a zero to ten scale">
-                        <ResponsiveContainer width="100%" height={300}>
-                          <LineChart data={trendData} margin={{ top: 10, right: 18, left: 0, bottom: 22 }}>
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="label" angle={-25} textAnchor="end" height={56} tick={{ fontSize: 12 }} />
-                            <YAxis domain={[0, 10]} tickCount={6} />
-                            <Tooltip formatter={(value) => [formatScore(value), "Overall average"]} />
-                            <Line type="monotone" dataKey="average" name="Overall average" stroke="#7c3aed" strokeWidth={3} dot={{ r: 4 }} />
-                          </LineChart>
-                        </ResponsiveContainer>
+                  <section className="performance-card" aria-labelledby="remarks-heading">
+                    <div className="performance-card-heading">
+                      <div>
+                        <span className="performance-section-eyebrow">Coach feedback</span>
+                        <h2 id="remarks-heading">Latest coach remarks</h2>
                       </div>
-                    ) : trendData.length === 1 ? (
-                      <p className="performance-message">One valid assessment is available: overall average {formatScore(trendData[0].average)} on {trendData[0].label}.</p>
-                    ) : <p className="performance-message">No assessments with skill scores are available for a performance trend.</p>}
-                  </article>
-                </section>
+                    </div>
+                    <p className="performance-remarks">{latestAssessment.coach_remarks || "No coach remarks recorded."}</p>
+                  </section>
 
-                <section className="performance-chart-grid">
-                  <article className="performance-card"><h2>Strengths</h2>{strengths.length ? <p className="performance-message">{strengths.join(", ")}</p> : <p className="performance-message">No standout strengths recorded yet.</p>}</article>
-                  <article className="performance-card"><h2>Improvement areas</h2>{improvementAreas.length ? <p className="performance-message">{improvementAreas.join(", ")}</p> : <p className="performance-message">No specific improvement areas identified.</p>}</article>
-                </section>
+                  <section className="performance-card performance-history-card" aria-labelledby="history-heading">
+                    <div className="performance-card-heading">
+                      <div>
+                        <span className="performance-section-eyebrow">Progress over time</span>
+                        <h2 id="history-heading">Assessment history</h2>
+                      </div>
+                      <span className="performance-assessment-count">
+                        {assessments.length} record{assessments.length === 1 ? "" : "s"}
+                      </span>
+                    </div>
+                    <div className="history-list">
+                      {assessments.map((assessment) => {
+                        const isOpen = openAssessmentId === assessment.id;
+                        return (
+                          <article key={assessment.id} className={"history-item " + (isOpen ? "history-item-open" : "")}>
+                            <button
+                              type="button"
+                              className="history-summary"
+                              onClick={() => setOpenAssessmentId(isOpen ? null : assessment.id)}
+                              aria-expanded={isOpen}
+                              aria-controls={"assessment-" + assessment.id}
+                            >
+                              <span className="history-summary-date">{formatDate(assessment.assessment_date)}</span>
+                              <span className="history-summary-score">
+                                <strong>{formatScore(getAssessmentAverage(assessment))}</strong>
+                                <small>/ 10</small>
+                              </span>
+                              <span className="history-summary-metrics">
+                                <span>Technical {formatScore(getCategoryAverage(assessment, "technical"))}</span>
+                                <span>Fitness {formatScore(getCategoryAverage(assessment, "fitness"))}</span>
+                                <span>Teamwork {formatScore(toValidScore(assessment.teamwork_score))}</span>
+                                <span>Discipline {formatScore(toValidScore(assessment.discipline_score))}</span>
+                              </span>
+                              <span className="history-summary-chevron" aria-hidden="true">{isOpen ? "⌃" : "⌄"}</span>
+                            </button>
+                            {isOpen ? (
+                              <div id={"assessment-" + assessment.id} className="history-details">
+                                <div className="history-grid">
+                                  <OverviewItem label="Overall average" value={formatScore(getAssessmentAverage(assessment))} />
+                                  <OverviewItem label="Technical average" value={formatScore(getCategoryAverage(assessment, "technical"))} />
+                                  <OverviewItem label="Fitness average" value={formatScore(getCategoryAverage(assessment, "fitness"))} />
+                                  <OverviewItem label="Teamwork" value={formatScore(toValidScore(assessment.teamwork_score))} />
+                                  <OverviewItem label="Discipline" value={formatScore(toValidScore(assessment.discipline_score))} />
+                                </div>
+                                {assessment.coach_remarks ? (
+                                  <p className="performance-remarks">{assessment.coach_remarks}</p>
+                                ) : (
+                                  <p className="performance-history-no-remarks">No coach remarks recorded for this assessment.</p>
+                                )}
+                              </div>
+                            ) : null}
+                          </article>
+                        );
+                      })}
+                    </div>
+                  </section>
+                </div>
 
-                <section className="performance-card" aria-labelledby="remarks-heading">
-                  <h2 id="remarks-heading">Latest coach remarks</h2>
-                  <p className="performance-remarks">{latestAssessment.coach_remarks || "No coach remarks recorded."}</p>
-                </section>
+                <aside className="performance-report-sidebar" aria-label="Performance snapshot">
+                  <div className="performance-snapshot">
+                    <div className="performance-snapshot-header">
+                      <div>
+                        <span className="performance-section-eyebrow">Quick view</span>
+                        <h2>Performance snapshot</h2>
+                      </div>
+                      <span className="performance-snapshot-date">{formatDate(latestAssessment.assessment_date)}</span>
+                    </div>
 
-                <section className="performance-card" aria-labelledby="history-heading">
-                  <h2 id="history-heading">Assessment history</h2>
-                  <div className="history-list">
-                    {assessments.map((assessment) => (
-                      <article key={assessment.id} className="history-item">
-                        <strong>{formatDate(assessment.assessment_date)}</strong>
-                        <div className="history-grid">
-                          <OverviewItem label="Overall average" value={formatScore(getAssessmentAverage(assessment))} />
-                          <OverviewItem label="Technical average" value={formatScore(getCategoryAverage(assessment, "technical"))} />
-                          <OverviewItem label="Fitness average" value={formatScore(getCategoryAverage(assessment, "fitness"))} />
-                          <OverviewItem label="Teamwork" value={formatScore(toValidScore(assessment.teamwork_score))} />
-                          <OverviewItem label="Discipline" value={formatScore(toValidScore(assessment.discipline_score))} />
-                        </div>
-                        {assessment.coach_remarks ? <p className="performance-remarks">{assessment.coach_remarks}</p> : null}
-                      </article>
-                    ))}
+                    <div className="performance-snapshot-score">
+                      <strong>{formatScore(latestOverall)}</strong>
+                      <span>/ 10</span>
+                    </div>
+                    <p className="performance-snapshot-label">Overall average</p>
+
+                    <div className="performance-snapshot-metrics">
+                      <SnapshotMetric label="Technical" score={latestTechnical} />
+                      <SnapshotMetric label="Fitness" score={latestFitness} />
+                      <SnapshotMetric label="Teamwork" score={latestTeamwork} />
+                      <SnapshotMetric label="Discipline" score={latestDiscipline} />
+                    </div>
+
+                    <div className="performance-snapshot-section">
+                      <span className="performance-snapshot-section-title">Strengths</span>
+                      {strengths.length ? (
+                        <ul className="performance-snapshot-list">
+                          {strengths.map((strength) => <li key={strength}>{strength}</li>)}
+                        </ul>
+                      ) : (
+                        <span className="performance-snapshot-muted">No standout strengths yet.</span>
+                      )}
+                    </div>
+
+                    <div className="performance-snapshot-section">
+                      <span className="performance-snapshot-section-title">Focus areas</span>
+                      {improvementAreas.length ? (
+                        <ul className="performance-snapshot-list performance-snapshot-list-focus">
+                          {improvementAreas.map((area) => <li key={area}>{area}</li>)}
+                        </ul>
+                      ) : (
+                        <span className="performance-snapshot-muted">No specific focus areas identified.</span>
+                      )}
+                    </div>
+
+                    <div className="performance-snapshot-section">
+                      <span className="performance-snapshot-section-title">Latest coach remark</span>
+                      <p className="performance-snapshot-remarks">
+                        {latestAssessment.coach_remarks || "No coach remarks recorded."}
+                      </p>
+                    </div>
                   </div>
-                </section>
-              </>
+                </aside>
+              </section>
             ) : (
-              <section className="performance-card"><p className="performance-message">No performance assessments are available for this player yet.</p></section>
+              <section className="performance-empty-card performance-no-assessment">
+                <strong>No performance assessments are available for this player yet.</strong>
+                <span>Create an assessment to populate the player report.</span>
+              </section>
             )}
           </>
         ) : null}
@@ -799,6 +952,18 @@ const KpiCard = ({ label, value }) => (
   <div className="kpi-card">
     <span className="overview-label">{label}</span>
     <strong className="kpi-value">{value}</strong>
+  </div>
+);
+
+const SnapshotMetric = ({ label, score }) => (
+  <div className="performance-snapshot-metric">
+    <div className="performance-snapshot-metric-heading">
+      <span>{label}</span>
+      <strong>{formatScore(score)}</strong>
+    </div>
+    <div className="performance-score-track" aria-hidden="true">
+      <span style={{ width: `${score === null || score === undefined ? 0 : Math.max(0, Math.min(10, Number(score))) * 10}%` }} />
+    </div>
   </div>
 );
 
