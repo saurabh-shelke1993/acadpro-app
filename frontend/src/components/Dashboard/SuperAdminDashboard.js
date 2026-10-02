@@ -324,7 +324,7 @@ function SuperAdminDashboard({ user, data, onRefresh }) {
       <section className="sa-dashboard-footer-note">
         <span>Dashboard rule:</span>
         attendance below 70% or collection rate below 75% is surfaced as an exception.
-        Financial and player drill-downs will become richer in the next phases.
+        Use the academy, center, and batch links to move from network view to player-level context.
       </section>
     </div>
   );
