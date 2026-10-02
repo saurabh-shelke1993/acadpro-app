@@ -91,11 +91,6 @@ const resetHistoryFilters = () => {
   setFilteredPayments] =
   useState([]);
 
-const historyTotalAmount = filteredPayments.reduce(
-  (total, payment) => total + Number(payment.amount_paid || 0),
-  0
-);
-
 const historyPaymentsTotal = filteredPayments
   .filter(payment => payment.payment_entry_type === "payment")
   .reduce((total, payment) => total + Number(payment.amount_paid || 0), 0);
