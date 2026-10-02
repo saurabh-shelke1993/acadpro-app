@@ -99,3 +99,47 @@
   .payment-pagination{align-items:stretch;flex-direction:column}
   .payment-pagination-controls{justify-content:space-between}
 }
+
+
+.payment-history-search-row{
+  display:flex;
+  align-items:flex-end;
+  gap:10px;
+  margin-bottom:10px;
+}
+.payment-history-search-field{
+  width:min(520px,100%);
+}
+.payment-history-search-field input{
+  min-height:40px;
+}
+.payment-search-clear-button{
+  min-height:40px;
+  white-space:nowrap;
+}
+.receipt-balance-status{
+  padding:10px 12px!important;
+  background:var(--ap-slate-50);
+  border-radius:8px;
+  border-bottom:0!important;
+}
+.receipt-status-paid{
+  background:#ecfdf5;
+  color:#047857;
+}
+.receipt-status-partial{
+  background:var(--ap-warning-50);
+  color:#b45309;
+}
+@media(max-width:640px){
+  .payment-history-search-row{
+    align-items:stretch;
+    flex-direction:column;
+  }
+  .payment-history-search-field{
+    width:100%;
+  }
+  .payment-search-clear-button{
+    width:100%;
+  }
+}
