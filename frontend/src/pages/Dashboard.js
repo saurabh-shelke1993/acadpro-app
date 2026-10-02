@@ -7,7 +7,7 @@ import AcademyOwnerDashboard from "../components/Dashboard/AcademyOwnerDashboard
 import Layout from "../components/Layout";
 import { getAcademyOwnerDashboardData, getDashboardSummary, getSuperAdminDashboardData } from "../services/dashboardService";
 import "../styles/dashboard.css";
-import { getCurrentUser, isSuperAdmin } from "../utils/auth";
+import { getCurrentUser, isAcademyOwner, isSuperAdmin } from "../utils/auth";
 
 const initialSummary = {
   totalPlayers: 0,
@@ -56,7 +56,7 @@ function Dashboard() {
             ...initialSummary,
             superAdmin: await getSuperAdminDashboardData(currentUser)
           };
-        } else if (currentUser.role === "academy_owner") {
+        } else if (isAcademyOwner(currentUser)) {
           dashboardSummary = {
             ...initialSummary,
             academyOwner: await getAcademyOwnerDashboardData(currentUser)
@@ -126,7 +126,7 @@ function Dashboard() {
 
 
 
-  if (user?.role === "academy_owner") {
+  if (isAcademyOwner(user)) {
     return (
       <Layout>
         <AcademyOwnerDashboard
