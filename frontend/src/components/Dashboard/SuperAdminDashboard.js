@@ -7,6 +7,18 @@ const formatCurrency = (amount) =>
 const formatNumber = (value) =>
   Number(value || 0).toLocaleString("en-IN");
 
+const formatChange = (value, suffix = "%") => {
+  if (value === null || value === undefined) return "New";
+  if (value === 0) return "No change";
+
+  return `${value > 0 ? "+" : ""}${value}${suffix}`;
+};
+
+const getChangeTone = (value) => {
+  if (value === null || value === undefined || value === 0) return "neutral";
+  return value > 0 ? "positive" : "negative";
+};
+
 const getStatus = (academy) => {
   if (!academy.attendanceRecords && !academy.totalBilled) {
     return { label: "No data", tone: "neutral" };
@@ -38,6 +50,8 @@ function MetricCard({ label, value, detail, tone = "blue" }) {
 
 function AcademyHealthRow({ academy }) {
   const status = getStatus(academy);
+  const attendanceTone = getChangeTone(academy.attendanceDelta);
+  const collectionsTone = getChangeTone(academy.collectionsChange);
 
   return (
     <Link
@@ -54,7 +68,7 @@ function AcademyHealthRow({ academy }) {
 
       <div className="sa-academy-stat">
         <strong>{formatNumber(academy.players)}</strong>
-        <span>players</span>
+        <span>active players</span>
       </div>
 
       <div className="sa-academy-stat sa-academy-attendance">
@@ -62,18 +76,42 @@ function AcademyHealthRow({ academy }) {
           <span style={{ width: `${Math.min(academy.attendanceRate, 100)}%` }} />
         </div>
         <strong>{academy.attendanceRecords ? `${academy.attendanceRate}%` : "—"}</strong>
-        <span>attendance · 7d</span>
+        <span>
+          7d · <em className={`sa-change-${attendanceTone}`}>
+            {formatChange(academy.attendanceDelta, "pp")}
+          </em>
+        </span>
+      </div>
+
+      <div className="sa-academy-stat">
+        <strong>{academy.collectionsThisMonth ? formatCurrency(academy.collectionsThisMonth) : "₹0"}</strong>
+        <span>
+          this month · <em className={`sa-change-${collectionsTone}`}>
+            {formatChange(academy.collectionsChange)}
+          </em>
+        </span>
       </div>
 
       <div className="sa-academy-stat">
         <strong>{academy.outstandingAmount ? formatCurrency(academy.outstandingAmount) : "₹0"}</strong>
-        <span>outstanding</span>
+        <span>{academy.collectionRate}% collected</span>
       </div>
 
       <span className={`sa-status-pill sa-status-${status.tone}`}>
         {status.label}
       </span>
     </Link>
+  );
+}
+
+function ComparisonInsight({ label, academyName, value, detail, tone = "blue" }) {
+  return (
+    <div className="sa-comparison-insight" data-tone={tone}>
+      <span className="sa-comparison-insight-label">{label}</span>
+      <strong>{academyName || "—"}</strong>
+      <span className="sa-comparison-insight-value">{value}</span>
+      <span className="sa-comparison-insight-detail">{detail}</span>
+    </div>
   );
 }
 
@@ -154,11 +192,60 @@ function SuperAdminDashboard({ user, data, onRefresh }) {
           </span>
         </div>
 
+        <div className="sa-comparison-insights">
+          <ComparisonInsight
+            label="Attendance leader"
+            academyName={data?.insights?.attendanceLeader?.academyName}
+            value={
+              data?.insights?.attendanceLeader
+                ? `${data.insights.attendanceLeader.value}%`
+                : "—"
+            }
+            detail={
+              data?.insights?.attendanceLeader
+                ? `${formatNumber(data.insights.attendanceLeader.records)} attendance records · 7d`
+                : "No attendance data"
+            }
+            tone="green"
+          />
+          <ComparisonInsight
+            label="Collections leader"
+            academyName={data?.insights?.collectionsLeader?.academyName}
+            value={
+              data?.insights?.collectionsLeader
+                ? formatCurrency(data.insights.collectionsLeader.value)
+                : "₹0"
+            }
+            detail={
+              data?.insights?.collectionsLeader
+                ? `${formatChange(data.insights.collectionsLeader.change)} vs previous month`
+                : "No collections this month"
+            }
+            tone="orange"
+          />
+          <ComparisonInsight
+            label="Largest outstanding"
+            academyName={data?.insights?.largestOutstanding?.academyName}
+            value={
+              data?.insights?.largestOutstanding
+                ? formatCurrency(data.insights.largestOutstanding.value)
+                : "₹0"
+            }
+            detail={
+              data?.insights?.largestOutstanding
+                ? `${data.insights.largestOutstanding.collectionRate}% collected`
+                : "No outstanding balance"
+            }
+            tone="red"
+          />
+        </div>
+
         <div className="sa-academy-table">
           <div className="sa-academy-table-header">
             <span>Academy</span>
             <span>Players</span>
-            <span>Attendance</span>
+            <span>Attendance · 7d</span>
+            <span>Collections · month</span>
             <span>Outstanding</span>
             <span>Status</span>
           </div>
