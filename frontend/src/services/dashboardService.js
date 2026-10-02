@@ -442,9 +442,12 @@ export async function getSuperAdminDashboardData() {
     const academy = academyMap.get(academyId);
     if (!academy) return;
 
+    const paymentDate = new Date(payment.payment_date);
+    if (Number.isNaN(paymentDate.getTime())) return;
+
     if (
-      payment.payment_date >= monthStart &&
-      payment.payment_date < nextMonthStart
+      paymentDate >= new Date(monthStart) &&
+      paymentDate < new Date(nextMonthStart)
     ) {
       const amount = Number(payment.amount_paid || 0);
       academy.collectionsThisMonth += amount;
@@ -452,8 +455,8 @@ export async function getSuperAdminDashboardData() {
     }
 
     if (
-      payment.payment_date >= previousMonthStart &&
-      payment.payment_date < previousMonthEnd
+      paymentDate >= new Date(previousMonthStart) &&
+      paymentDate < new Date(previousMonthEnd)
     ) {
       academy.collectionsPreviousMonth += Number(payment.amount_paid || 0);
     }
