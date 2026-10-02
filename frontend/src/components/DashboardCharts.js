@@ -290,7 +290,6 @@ const averageMonthlyCollections = collectionsTrend.length
     )}
   </div>
 </div>
-    </div>
     </>
   );
 }
