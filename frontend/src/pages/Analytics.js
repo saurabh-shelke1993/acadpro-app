@@ -656,6 +656,7 @@ function Analytics() {
                 collectionsTrend={collectionsTrend}
                 attendancePeriodLabel={`Last ${attendanceDays} days`}
                 collectionsPeriodLabel={`Last ${collectionsMonths} months`}
+                showSummary={false}
               />
             </section>
           </>
@@ -713,6 +714,8 @@ function Analytics() {
                 collectionsTrend={[]}
                 attendancePeriodLabel={`Last ${attendanceDays} days`}
                 collectionsPeriodLabel=""
+                showSummary={false}
+                showCollectionsChart={false}
               />
             </section>
           </>
@@ -732,6 +735,8 @@ function Analytics() {
                 collectionsTrend={collectionsTrend}
                 attendancePeriodLabel=""
                 collectionsPeriodLabel={`Last ${collectionsMonths} months`}
+                showSummary={false}
+                showAttendanceChart={false}
               />
             </section>
           </>
