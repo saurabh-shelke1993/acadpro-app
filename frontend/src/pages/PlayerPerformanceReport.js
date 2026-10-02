@@ -717,26 +717,6 @@ function PlayerPerformanceReport() {
             ) : assessments.length ? (
               <section className="performance-report-layout">
                 <div className="performance-report-main">
-                  <section className="performance-card performance-kpi-card" aria-labelledby="kpi-heading">
-                    <div className="performance-card-heading">
-                      <div>
-                        <span className="performance-section-eyebrow">Latest assessment</span>
-                        <h2 id="kpi-heading">Performance overview</h2>
-                      </div>
-                      <span className="performance-assessment-count">
-                        {assessments.length} assessment{assessments.length === 1 ? "" : "s"}
-                      </span>
-                    </div>
-                    <div className="kpi-grid">
-                      <KpiCard label="Overall average" value={formatScore(latestOverall)} />
-                      <KpiCard label="Technical skills" value={formatScore(latestTechnical)} />
-                      <KpiCard label="Fitness" value={formatScore(latestFitness)} />
-                      <KpiCard label="Teamwork" value={formatScore(latestTeamwork)} />
-                      <KpiCard label="Discipline" value={formatScore(latestDiscipline)} />
-                    </div>
-                    <p className="performance-caption">Scores use a 0–10 scale. Missing scores are excluded from averages.</p>
-                  </section>
-
                   <section className="performance-chart-grid" aria-label="Performance analysis">
                     <article className="performance-card performance-chart-card" aria-labelledby="skill-chart-heading">
                       <div className="performance-card-heading">
