@@ -637,3 +637,338 @@ export async function getDashboardSummary(user) {
     collectionsTrend
   };
 }
+
+export async function getAcademyOwnerDashboardData(user) {
+  if (!user?.academy_id) {
+    throw new Error("Academy Owner is not linked to an academy.");
+  }
+
+  const academyId = user.academy_id;
+  const today = getToday();
+
+  const attendanceDates = getDateRange(7);
+  const attendanceStart = attendanceDates[0];
+  const attendanceEnd = attendanceDates[attendanceDates.length - 1];
+
+  const [
+    academyResult,
+    centersResult,
+    batchesResult,
+    playersResult,
+    assignmentsResult,
+    attendanceResult,
+    duesResult,
+    paymentsResult,
+    attendanceTrend,
+    collectionsTrend
+  ] = await Promise.all([
+    supabase
+      .from("academies")
+      .select("id, academy_name")
+      .eq("id", academyId)
+      .eq("is_active", true)
+      .maybeSingle(),
+    supabase
+      .from("centers")
+      .select("id, center_name")
+      .eq("academy_id", academyId)
+      .eq("is_active", true)
+      .order("center_name"),
+    supabase
+      .from("batches")
+      .select("id, center_id, batch_name")
+      .eq("academy_id", academyId)
+      .eq("is_active", true)
+      .order("batch_name"),
+    supabase
+      .from("players")
+      .select("id")
+      .eq("academy_id", academyId)
+      .eq("is_active", true),
+    supabase
+      .from("player_batches")
+      .select(`
+        player_id,
+        batch_id,
+        batches!inner(
+          id,
+          center_id,
+          academy_id,
+          is_active
+        ),
+        players!inner(
+          id,
+          academy_id,
+          is_active
+        )
+      `)
+      .eq("batches.academy_id", academyId)
+      .eq("batches.is_active", true)
+      .eq("players.academy_id", academyId)
+      .eq("players.is_active", true),
+    supabase
+      .from("attendance")
+      .select("batch_id, attendance_date, status")
+      .eq("academy_id", academyId)
+      .gte("attendance_date", attendanceStart)
+      .lte("attendance_date", attendanceEnd)
+      .eq("is_deleted", false),
+    supabase
+      .from("payment_dues")
+      .select("player_id, total_amount, paid_amount, due_status")
+      .eq("players.is_active", true)
+      .eq("players.academy_id", academyId)
+      .select("player_id, total_amount, paid_amount, due_status, players!inner(academy_id, is_active)"),
+    supabase
+      .from("payments")
+      .select("amount_paid, payment_date, players!inner(academy_id, is_active)")
+      .eq("players.academy_id", academyId)
+      .eq("players.is_active", true),
+    getAttendanceTrend({ type: "academy", academyId }, 7),
+    getCollectionsTrend({ type: "academy", academyId }, 6)
+  ]);
+
+  const results = [
+    academyResult,
+    centersResult,
+    batchesResult,
+    playersResult,
+    assignmentsResult,
+    attendanceResult,
+    duesResult,
+    paymentsResult
+  ];
+
+  const failed = results.find((result) => result.error);
+  if (failed) throw failed.error;
+
+  if (!academyResult.data) {
+    throw new Error("Active academy could not be found.");
+  }
+
+  const centers = (centersResult.data || []).map((center) => ({
+    id: center.id,
+    academyId,
+    name: center.center_name,
+    players: 0,
+    batches: 0,
+    attendancePresent: 0,
+    attendanceAbsent: 0,
+    attendanceRecords: 0,
+    attendanceRate: 0,
+    recordedBatches: 0,
+    attendanceCoverage: 0
+  }));
+
+  const centerMap = new Map(centers.map((center) => [center.id, center]));
+  const batchMap = new Map(
+    (batchesResult.data || []).map((batch) => [
+      batch.id,
+      { ...batch, center: centerMap.get(batch.center_id) || null }
+    ])
+  );
+
+  const playerCenters = new Map();
+
+  (assignmentsResult.data || []).forEach((assignment) => {
+    const batch = batchMap.get(assignment.batch_id);
+    const center = batch?.center;
+
+    if (!center) return;
+
+    center.batches += 1;
+
+    if (!playerCenters.has(assignment.player_id)) {
+      playerCenters.set(assignment.player_id, new Set());
+    }
+    playerCenters.get(assignment.player_id).add(center.id);
+  });
+
+  playerCenters.forEach((centerIds) => {
+    centerIds.forEach((centerId) => {
+      const center = centerMap.get(centerId);
+      if (center) center.players += 1;
+    });
+  });
+
+  const todayRecordedBatchIds = new Set();
+
+  (attendanceResult.data || []).forEach((record) => {
+    const batch = batchMap.get(record.batch_id);
+    const center = batch?.center;
+
+    if (!center) return;
+
+    if (record.attendance_date === today) {
+      todayRecordedBatchIds.add(record.batch_id);
+    }
+
+    if (record.status === "present") center.attendancePresent += 1;
+    if (record.status === "absent") center.attendanceAbsent += 1;
+  });
+
+  centers.forEach((center) => {
+    center.attendanceRecords = center.attendancePresent + center.attendanceAbsent;
+    center.attendanceRate = center.attendanceRecords
+      ? Math.round((center.attendancePresent / center.attendanceRecords) * 100)
+      : 0;
+
+    const centerBatchIds = (batchesResult.data || [])
+      .filter((batch) => batch.center_id === center.id)
+      .map((batch) => batch.id);
+
+    center.recordedBatches = centerBatchIds.filter((batchId) =>
+      todayRecordedBatchIds.has(batchId)
+    ).length;
+
+    center.attendanceCoverage = center.batches
+      ? Math.round((center.recordedBatches / center.batches) * 100)
+      : 0;
+  });
+
+  const attendanceRecordsToday = (attendanceResult.data || []).filter(
+    (record) => record.attendance_date === today
+  );
+
+  const presentPlayers = attendanceRecordsToday.filter(
+    (record) => record.status === "present"
+  ).length;
+
+  const absentPlayers = attendanceRecordsToday.filter(
+    (record) => record.status === "absent"
+  ).length;
+
+  const totalAttendanceToday = presentPlayers + absentPlayers;
+  const activeBatchIds = new Set((batchesResult.data || []).map((batch) => batch.id));
+  const recordedBatches = [...todayRecordedBatchIds].filter((batchId) =>
+    activeBatchIds.has(batchId)
+  ).length;
+  const totalBatches = batchesResult.data?.length || 0;
+
+  const dues = duesResult.data || [];
+  const totalBilled = dues.reduce(
+    (total, due) => total + Number(due.total_amount || 0),
+    0
+  );
+  const totalPaid = dues.reduce(
+    (total, due) => total + Math.min(
+      Number(due.paid_amount || 0),
+      Number(due.total_amount || 0)
+    ),
+    0
+  );
+
+  const pendingDues = dues.filter(
+    (due) => due.due_status === "pending"
+  ).length;
+  const partialDues = dues.filter(
+    (due) => due.due_status === "partial"
+  ).length;
+  const paidDues = dues.filter(
+    (due) => due.due_status === "paid"
+  ).length;
+
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const nextMonthStart = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
+  const collectionsThisMonth = (paymentsResult.data || []).reduce(
+    (total, payment) => {
+      const paymentDate = new Date(payment.payment_date);
+      if (
+        !Number.isNaN(paymentDate.getTime()) &&
+        paymentDate >= monthStart &&
+        paymentDate < nextMonthStart
+      ) {
+        return total + Number(payment.amount_paid || 0);
+      }
+      return total;
+    },
+    0
+  );
+
+  const outstandingAmount = Math.max(totalBilled - totalPaid, 0);
+  const collectionRate = totalBilled
+    ? Math.round((totalPaid / totalBilled) * 100)
+    : 0;
+
+  const attentionItems = [];
+
+  if (totalBatches > recordedBatches) {
+    attentionItems.push({
+      id: "attendance-coverage",
+      type: "attendance",
+      tone: "warning",
+      icon: "!",
+      title: "Attendance not completed",
+      value: totalBatches - recordedBatches,
+      message: `${totalBatches - recordedBatches} active batch${totalBatches - recordedBatches === 1 ? "" : "es"} still need attendance today.`,
+      to: "/attendance"
+    });
+  }
+
+  if (outstandingAmount > 0) {
+    attentionItems.push({
+      id: "outstanding",
+      type: "finance",
+      tone: "danger",
+      icon: "₹",
+      title: "Outstanding payments",
+      value: formatDashboardCurrency(outstandingAmount),
+      message: `${pendingDues + partialDues} pending or partial dues require follow-up.`,
+      to: "/payment-dues"
+    });
+  }
+
+  centers
+    .filter((center) => center.attendanceRecords > 0 && center.attendanceRate < 70)
+    .sort((a, b) => a.attendanceRate - b.attendanceRate)
+    .slice(0, 3)
+    .forEach((center) => {
+      attentionItems.push({
+        id: center.id,
+        type: "center-attendance",
+        tone: "warning",
+        icon: "⚠",
+        title: `${center.name} attendance`,
+        value: `${center.attendanceRate}%`,
+        message: "7-day attendance is below the dashboard attention threshold.",
+        to: `/batches?academyId=${academyId}&centerId=${center.id}`
+      });
+    });
+
+  return {
+    academyName: academyResult.data.academy_name,
+    totals: {
+      players: playersResult.data?.length || 0,
+      centers: centers.length,
+      batches: totalBatches
+    },
+    attendance: {
+      attendanceRate: totalAttendanceToday
+        ? Math.round((presentPlayers / totalAttendanceToday) * 100)
+        : 0,
+      presentPlayers,
+      absentPlayers,
+      recordedBatches,
+      totalBatches,
+      coveragePercentage: totalBatches
+        ? Math.round((recordedBatches / totalBatches) * 100)
+        : 0
+    },
+    financial: {
+      totalBilled,
+      totalPaid,
+      outstandingAmount,
+      collectionRate,
+      pendingDues,
+      partialDues,
+      paidDues,
+      collectionsThisMonth
+    },
+    centers,
+    attentionItems: attentionItems.slice(0, 6),
+    attendanceTrend,
+    collectionsTrend
+  };
+}
