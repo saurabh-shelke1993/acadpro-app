@@ -51,7 +51,9 @@ const [selectedPlayer, setSelectedPlayer] = useState("");
 
   const [duesList, setDuesList] = useState([]);
 
-  const [currentPage, setCurrentPage] = useState(1);\n\n  const [columnFilters, setColumnFilters] = useState({
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const [columnFilters, setColumnFilters] = useState({
     academy: "",
     center: "",
     batch: "",
