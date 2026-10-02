@@ -3,6 +3,7 @@ import React, {
   useEffect,
   useState
 } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import Layout from "../components/Layout";
 import { supabase } from "../services/supabase";
 import {
@@ -22,6 +23,10 @@ import {
 import "./Batches.css";
 
 const Batches = () => {
+
+  const [searchParams] = useSearchParams();
+  const academyContextId = searchParams.get("academyId") || "";
+  const centerContextId = searchParams.get("centerId") || "";
 
   const [academies, setAcademies] =
     useState([]);
@@ -67,6 +72,10 @@ const Batches = () => {
   const PAGE_SIZE = 6;
 
   const filteredBatches = batches.filter((batch) => {
+    const matchesContext =
+      (!academyContextId || batch.academy_id === academyContextId) &&
+      (!centerContextId || batch.center_id === centerContextId);
+
     const matchesBatch =
       !batchSearchTerm.trim() ||
       String(batch.batch_name || "").toLowerCase().includes(
@@ -78,6 +87,7 @@ const Batches = () => {
       batchColumnFilters[column].includes(value);
 
     return (
+      matchesContext &&
       matchesBatch &&
       matchesColumn("academy", batch.academies?.academy_name || "—") &&
       matchesColumn("center", batch.centers?.center_name || "—") &&
@@ -1064,7 +1074,16 @@ return (
                     >
                       <td className="batches-academy-cell">{academyName}</td>
                       <td className="batches-center-cell">{centerName}</td>
-                      <td className="batches-name-cell">{batch.batch_name || "—"}</td>
+                      <td className="batches-name-cell">
+                        <Link
+                          className="batches-drilldown-link"
+                          to={"/players?academyId=" + batch.academy_id + "&centerId=" + batch.center_id + "&batchId=" + batch.id}
+                          onClick={(event) => event.stopPropagation()}
+                          aria-label={"Open players in " + (batch.batch_name || "batch")}
+                        >
+                          {batch.batch_name || "—"}
+                        </Link>
+                      </td>
                       <td>{batch.age_group || "—"}</td>
                       <td className="batches-schedule-cell">
                         {formatBatchSchedule(batch.start_time, batch.end_time)}
