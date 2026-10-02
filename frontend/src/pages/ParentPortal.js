@@ -1,17 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "../supabaseClient";
 import { logoutUser } from "../utils/auth";
 import Layout from "../components/Layout";
 import "./ParentPortal.css";
+import {
+  getAttendanceSummaries,
+  getFinancialSummaries,
+  getParentContext,
+} from "../services/parentPortalService";
 
 const ParentPortal = () => {
   const [parent, setParent] = useState(null);
   const [children, setChildren] = useState([]);
   const [selectedChildId, setSelectedChildId] = useState(null);
   const [attendanceByChildId, setAttendanceByChildId] = useState({});
-  const [paymentHistoryByChildId, setPaymentHistoryByChildId] = useState({});
-  const [pendingDuesByChildId, setPendingDuesByChildId] = useState({});
+  const [financialSummaryByChildId, setFinancialSummaryByChildId] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [secondaryErrors, setSecondaryErrors] = useState([]);
@@ -26,199 +29,32 @@ const ParentPortal = () => {
       setError("");
       setSecondaryErrors([]);
 
-      const {
-        data: { user },
-        error: sessionError,
-      } = await supabase.auth.getUser();
+      try {
+        const { parent, children, coachError } = await getParentContext();
+        const childIds = children.map((child) => child.id);
 
-      if (sessionError || !user) {
-        if (mounted) {
-          setError("Your session could not be verified. Please sign in again.");
-          setLoading(false);
-        }
-        return;
-      }
+        const [attendanceResult, financialResult] = await Promise.all([
+          getAttendanceSummaries(childIds),
+          getFinancialSummaries(childIds),
+        ]);
 
-      const { data: parentRecord, error: parentError } = await supabase
-        .from("parents")
-        .select("id, parent_name, email, user_id")
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      if (parentError || !parentRecord) {
-        if (mounted) {
-          setError(
-            parentError
-              ? "We could not load your parent profile."
-              : "No parent profile is linked to this login. Please contact your academy administrator."
-          );
-          setLoading(false);
-        }
-        return;
-      }
-
-      const { data: childRecords, error: childrenError } = await supabase
-        .from("players")
-        .select(
-          "id, full_name, dob, player_status, gender, registration_number, joining_date, player_code, academy_id, center_id, batch_id, academies(academy_name, academy_logo), centers(center_name), batches(batch_name, age_group, start_time, end_time)"
-        )
-        .eq("parent_id", parentRecord.id)
-        .order("full_name", { ascending: true });
-
-      if (childrenError) {
-        if (mounted) {
-          setError("We could not load your linked children.");
-          setLoading(false);
-        }
-        return;
-      }
-
-      const safeChildren = (childRecords || []).map((child) => ({
-        ...child,
-        academy: child.academies || null,
-        center: child.centers || null,
-        batch: child.batches || null,
-        coaches: [],
-      }));
-
-      const batchIds = [
-        ...new Set(safeChildren.map((child) => child.batch_id).filter(Boolean)),
-      ];
-
-      if (batchIds.length > 0) {
-        const { data: coachRecords, error: coachesError } = await supabase.rpc(
-          "get_parent_child_coaches"
-        );
-
-        if (coachesError) {
-          console.error(
-            "Unable to load parent coach assignments:",
-            coachesError
-          );
-        } else {
-          const coachesByBatchId = new Map();
-
-          (coachRecords || []).forEach((coachRecord) => {
-            if (!coachRecord?.batch_id || !coachRecord?.coach_id) return;
-
-            const batchCoaches = coachesByBatchId.get(coachRecord.batch_id) || [];
-            batchCoaches.push({
-              id: coachRecord.coach_id,
-              full_name: coachRecord.coach_name,
-            });
-            coachesByBatchId.set(coachRecord.batch_id, batchCoaches);
-          });
-
-          safeChildren.forEach((child) => {
-            child.coaches = coachesByBatchId.get(child.batch_id) || [];
-          });
-        }
-      }
-
-      const childIds = safeChildren.map((child) => child.id);
-      const nextAttendanceByChildId = {};
-      const nextPaymentHistoryByChildId = {};
-      const nextPendingDuesByChildId = {};
-
-      childIds.forEach((childId) => {
-        nextAttendanceByChildId[childId] = {
-          total: 0,
-          present: 0,
-          absent: 0,
-          percentage: null,
-        };
-        nextPaymentHistoryByChildId[childId] = [];
-        nextPendingDuesByChildId[childId] = [];
-      });
-
-      if (childIds.length > 0) {
-        const { data: attendanceRecords, error: attendanceError } = await supabase
-          .from("attendance")
-          .select("player_id, attendance_date, status, remarks")
-          .in("player_id", childIds)
-          .or("is_deleted.is.null,is_deleted.eq.false")
-          .order("attendance_date", { ascending: false });
-
-        if (attendanceError) {
-          console.error("Unable to load parent attendance:", attendanceError);
-        }
-
-        (attendanceRecords || []).forEach((record) => {
-          const summary = nextAttendanceByChildId[record.player_id];
-          if (!summary) return;
-
-          const status = String(record.status || "").toLowerCase();
-          summary.total += 1;
-          if (status === "present") summary.present += 1;
-          if (status === "absent") summary.absent += 1;
-
-        });
-
-        Object.values(nextAttendanceByChildId).forEach((summary) => {
-          summary.percentage =
-            summary.total > 0
-              ? Math.round((summary.present / summary.total) * 100)
-              : null;
-        });
-
-        const { data: paymentRecords, error: paymentsError } = await supabase
-          .from("payments")
-          .select(
-            "id, player_id, payment_date, amount_paid, payment_mode, transaction_reference, receipt_number, remarks, due_id"
-          )
-          .in("player_id", childIds)
-          .order("payment_date", { ascending: false });
-
-        if (paymentsError) {
-          console.error("Unable to load parent payment history:", paymentsError);
-        } else {
-          (paymentRecords || []).forEach((record) => {
-            const history = nextPaymentHistoryByChildId[record.player_id];
-            if (history) history.push(record);
-          });
-        }
-
-        const { data: dueRecords, error: duesError } = await supabase
-          .from("payment_dues")
-          .select(
-            "id, player_id, subscription_id, due_type, due_date, total_amount, paid_amount, remaining_amount, due_status, remarks"
-          )
-          .in("player_id", childIds)
-          .order("due_date", { ascending: true });
-
-        if (duesError) {
-          console.error("Unable to load parent payment dues:", duesError);
-        } else {
-          (dueRecords || []).forEach((record) => {
-            const remainingAmount = Number(record.remaining_amount);
-            const dueStatus = String(record.due_status || "").toLowerCase();
-            const isClearlySettled = ["paid", "settled", "fully paid", "fully_paid"].includes(dueStatus);
-            const isOutstanding =
-              remainingAmount > 0 ||
-              (record.remaining_amount === null && !isClearlySettled);
-            const dues = nextPendingDuesByChildId[record.player_id];
-
-            if (isOutstanding && dues) dues.push(record);
-          });
-        }
+        if (!mounted) return;
 
         const nextSecondaryErrors = [];
-        if (attendanceError) nextSecondaryErrors.push("Attendance data could not be loaded.");
-        if (paymentsError) nextSecondaryErrors.push("Payment history could not be loaded.");
-        if (duesError) nextSecondaryErrors.push("Outstanding dues could not be loaded.");
+        if (coachError) nextSecondaryErrors.push("Coach assignments could not be loaded.");
+        if (attendanceResult.error) nextSecondaryErrors.push("Attendance data could not be loaded.");
+        nextSecondaryErrors.push(...financialResult.errors);
 
-        if (mounted && nextSecondaryErrors.length > 0) {
-          setSecondaryErrors(nextSecondaryErrors);
-        }
-      }
-
-      if (mounted) {
-        setParent(parentRecord);
-        setChildren(safeChildren);
-        setAttendanceByChildId(nextAttendanceByChildId);
-        setPaymentHistoryByChildId(nextPaymentHistoryByChildId);
-        setPendingDuesByChildId(nextPendingDuesByChildId);
-        setSelectedChildId(safeChildren[0]?.id || null);
+        setParent(parent);
+        setChildren(children);
+        setAttendanceByChildId(attendanceResult.summaries);
+        setFinancialSummaryByChildId(financialResult.summaries);
+        setSecondaryErrors(nextSecondaryErrors);
+        setSelectedChildId(children[0]?.id || null);
+        setLoading(false);
+      } catch (loadError) {
+        if (!mounted) return;
+        setError(loadError.message || "We could not load your parent portal.");
         setLoading(false);
       }
     };
@@ -243,16 +79,9 @@ const ParentPortal = () => {
   const selectedAttendance = selectedChild
     ? attendanceByChildId[selectedChild.id]
     : null;
-  const selectedPaymentHistory = selectedChild
-    ? paymentHistoryByChildId[selectedChild.id] || []
-    : [];
-  const selectedPendingDues = selectedChild
-    ? pendingDuesByChildId[selectedChild.id] || []
-    : [];
-  const totalOutstandingAmount = selectedPendingDues.reduce(
-    (total, due) => total + (Number(due.remaining_amount) || 0),
-    0
-  );
+  const selectedFinancialSummary = selectedChild
+    ? financialSummaryByChildId[selectedChild.id]
+    : null;
 
   const formatDate = (value) => {
     if (!value) return "Not available";
@@ -267,20 +96,6 @@ const ParentPortal = () => {
 
   const formatTime = (value) => (value ? value.slice(0, 5) : "Not available");
 
-  const formatAmount = (value) => {
-    const amount = Number(value);
-    return Number.isFinite(amount)
-      ? amount.toLocaleString("en-IN", { style: "currency", currency: "INR" })
-      : value || "Not recorded";
-  };
-
-  const escapeHtml = (value) =>
-    String(value ?? "")
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;");
 
   if (loading) {
     return (
@@ -289,7 +104,7 @@ const ParentPortal = () => {
           <div className="parent-portal-loading-card">
             <div className="parent-portal-loading-spinner" aria-hidden="true" />
             <h1>Loading your parent portal</h1>
-            <p>Loading your profile, children, attendance and financial information…</p>
+            <p>Loading your profile, children and attendance…</p>
           </div>
         </main>
       </Layout>
@@ -560,32 +375,32 @@ const ParentPortal = () => {
                       A quick view of this child's current fee position.
                     </p>
                   </div>
-                  <div className={`parent-portal-outstanding-summary${totalOutstandingAmount > 0 ? " has-outstanding" : ""}`}>
+                  <div className={`parent-portal-outstanding-summary${(selectedFinancialSummary?.outstandingAmount || 0) > 0 ? " has-outstanding" : ""}`}>
                     <span>Outstanding</span>
-                    <strong>{formatAmount(totalOutstandingAmount)}</strong>
+                    <strong>{formatAmount(selectedFinancialSummary?.outstandingAmount || 0)}</strong>
                   </div>
                 </div>
 
                 <div className="parent-portal-financial-grid parent-portal-financial-summary-grid">
                   <div className="parent-portal-financial-card">
                     <span className="parent-portal-financial-card-label">Pending dues</span>
-                    <strong>{selectedPendingDues.length}</strong>
+                    <strong>{selectedFinancialSummary?.pendingDueCount || 0}</strong>
                     <span className="parent-portal-financial-card-meta">
-                      {selectedPendingDues.length === 1 ? "fee requires attention" : "fees require attention"}
+                      {selectedFinancialSummary?.pendingDueCount || 0 === 1 ? "fee requires attention" : "fees require attention"}
                     </span>
                   </div>
                   <div className="parent-portal-financial-card">
                     <span className="parent-portal-financial-card-label">Payments recorded</span>
-                    <strong>{selectedPaymentHistory.length}</strong>
+                    <strong>{selectedFinancialSummary?.paymentCount || 0}</strong>
                     <span className="parent-portal-financial-card-meta">
-                      {selectedPaymentHistory.length === 1 ? "payment in history" : "payments in history"}
+                      {selectedFinancialSummary?.paymentCount || 0 === 1 ? "payment in history" : "payments in history"}
                     </span>
                   </div>
                   <div className="parent-portal-financial-card is-clear">
                     <span className="parent-portal-financial-card-label">Payment status</span>
-                    <strong>{totalOutstandingAmount > 0 ? "Due" : "Clear"}</strong>
+                    <strong>{(selectedFinancialSummary?.outstandingAmount || 0) > 0 ? "Due" : "Clear"}</strong>
                     <span className="parent-portal-financial-card-meta">
-                      {totalOutstandingAmount > 0 ? "Outstanding balance remains" : "No outstanding balance"}
+                      {(selectedFinancialSummary?.outstandingAmount || 0) > 0 ? "Outstanding balance remains" : "No outstanding balance"}
                     </span>
                   </div>
                 </div>
