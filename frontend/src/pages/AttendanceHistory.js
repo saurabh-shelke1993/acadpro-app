@@ -1,481 +1,698 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../supabaseClient";
 import {
   getAccessibleCenters,
-  getAccessibleBatches
+  getAccessibleBatches,
+  getAccessibleAcademies,
 } from "../utils/dataScope";
-
-import {
- MESSAGES
-} from '../utils/messages';
-
-import {
-  getCurrentUser,
-} from "../utils/auth";
-
+import { MESSAGES } from "../utils/messages";
+import { getCurrentUser } from "../utils/auth";
 import {
   isSuperAdmin,
-  isAcademyOwner,
-  isCoach,
   canEditAttendance,
   canDeleteAttendance,
 } from "../utils/permissions";
-
 import {
   updateAttendanceStatus,
   softDeleteAttendance,
 } from "../services/attendanceService";
-
 import Layout from "../components/Layout";
 import "./AttendanceHistory.css";
 
+const PAGE_SIZE = 20;
+
 function AttendanceHistory() {
-
-  // =====================================================
-  // STATES
-  // =====================================================
-
   const [user, setUser] = useState(null);
-
   const [academies, setAcademies] = useState([]);
   const [centers, setCenters] = useState([]);
   const [batches, setBatches] = useState([]);
-
-  const [selectedAcademy, setSelectedAcademy] =
-    useState("");
-
-  const [selectedCenter, setSelectedCenter] =
-    useState("");
-
-  const [selectedBatch, setSelectedBatch] =
-    useState("");
-
-  const [selectedDate, setSelectedDate] =
-    useState("");
-
-  const [attendanceHistory, setAttendanceHistory] =
-    useState([]);
-
+  const [selectedAcademy, setSelectedAcademy] = useState("");
+  const [selectedCenter, setSelectedCenter] = useState("");
+  const [selectedBatch, setSelectedBatch] = useState("");
+  const [selectedPlayer, setSelectedPlayer] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("");
+  const [selectedDate, setSelectedDate] = useState("");
+  const [attendanceHistory, setAttendanceHistory] = useState([]);
   const [loading, setLoading] = useState(false);
-
+  const [errorMessage, setErrorMessage] = useState("");
   const [editingAttendanceId, setEditingAttendanceId] = useState(null);
-const [editingStatus, setEditingStatus] = useState("");
-
-  // =====================================================
-  // LOAD USER
-  // =====================================================
+  const [editingStatus, setEditingStatus] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
-    loadUser();
+    const load = async () => {
+      try {
+        const currentUser = await getCurrentUser();
+        setUser(currentUser);
+      } catch (error) {
+        console.error(error);
+        setErrorMessage("Unable to load your account scope.");
+      }
+    };
+    load();
   }, []);
 
-  const loadUser = async () => {
-    const currentUser = await getCurrentUser();
-
-    setUser(currentUser);
-  };
-
-  // =====================================================
-  // FETCH ACADEMIES
-  // =====================================================
-
   useEffect(() => {
-    if (user) {
-      fetchAcademies();
-    }
+    if (!user) return;
+
+    const fetchAcademies = async () => {
+      try {
+        const data = await getAccessibleAcademies(user);
+        setAcademies(data || []);
+
+        if (!isSuperAdmin(user) && data?.length) {
+          setSelectedAcademy(data[0].id);
+        }
+      } catch (error) {
+        console.error(error);
+        setErrorMessage("Unable to load academies.");
+      }
+    };
+
+    fetchAcademies();
   }, [user]);
 
-  const fetchAcademies = async () => {
-    try {
+  useEffect(() => {
+    if (!user || !selectedAcademy) {
+      setCenters([]);
+      return;
+    }
 
-      let query = supabase
-        .from("academies")
-        .select("*")
-        .eq("is_active", true);
-
-      // ACADEMY OWNER FILTER
-      if (!isSuperAdmin(user)) {
-        query = query.eq(
-          "id",
-          user.academy_id
+    const fetchCenters = async () => {
+      try {
+        const data = await getAccessibleCenters(user);
+        const scopedCenters = (data || []).filter(
+          (center) => !selectedAcademy || center.academy_id === selectedAcademy
         );
+        setCenters(scopedCenters);
+
+        if (scopedCenters.length === 1) {
+          setSelectedCenter(scopedCenters[0].id);
+        } else if (
+          selectedCenter &&
+          !scopedCenters.some((center) => center.id === selectedCenter)
+        ) {
+          setSelectedCenter("");
+        }
+      } catch (error) {
+        console.error(error);
+        setCenters([]);
+        setErrorMessage("Unable to load centers.");
       }
+    };
 
-      const { data, error } = await query;
-
-      if (error) throw error;
-
-      setAcademies(data || []);
-
-
-      // AUTO SELECT OWNER ACADEMY
-      if (
-        !isSuperAdmin(user) &&
-        data &&
-        data.length > 0
-      ) {
-        setSelectedAcademy(data[0].id);
-
-      }
-
-    } catch (err) {
-      console.log(err.message);
-    }
-  };
-
-  // =====================================================
-  // FETCH CENTERS
-  // =====================================================
+    fetchCenters();
+  }, [user, selectedAcademy]);
 
   useEffect(() => {
-    if (selectedAcademy) {
-      fetchCenters();
-    }
-  }, [selectedAcademy]);
-
-  const fetchCenters = async () => {
-
-  try {
-
-    const centers =
-      await getAccessibleCenters(user);
-
-    setCenters(centers || []);
-
-    // Auto-select if only one center is available
-
-    if (
-      centers &&
-      centers.length === 1
-    ) {
-
-      setSelectedCenter(
-        centers[0].id
-      );
-
+    if (!user || !selectedCenter) {
+      setBatches([]);
+      return;
     }
 
-  } catch (err) {
+    const fetchBatches = async () => {
+      try {
+        const data = await getAccessibleBatches(user, selectedCenter);
+        setBatches(data || []);
 
-    console.log(err.message);
+        if (
+          selectedBatch &&
+          !(data || []).some((batch) => batch.id === selectedBatch)
+        ) {
+          setSelectedBatch("");
+        }
+      } catch (error) {
+        console.error(error);
+        setBatches([]);
+        setErrorMessage("Unable to load batches.");
+      }
+    };
 
-  }
-
-};
-
-  // =====================================================
-  // FETCH BATCHES
-  // =====================================================
-
-  useEffect(() => {
-    if (selectedCenter) {
-      fetchBatches();
-    }
-  }, [selectedCenter]);
-
-const fetchBatches = async () => {
-
-  try {
-
-    const batches =
-      await getAccessibleBatches(
-        user,
-        selectedCenter
-      );
-
-    setBatches(batches || []);
-
-  } catch (err) {
-
-    console.log(err.message);
-
-  }
-
-};
-
-  // =====================================================
-  // FETCH ATTENDANCE HISTORY
-  // =====================================================
+    fetchBatches();
+  }, [user, selectedCenter]);
 
   const fetchAttendanceHistory = async () => {
-    try {
+    if (!user) return;
 
+    try {
       setLoading(true);
+      setErrorMessage("");
 
       let query = supabase
         .from("attendance")
         .select(`
           *,
-          players (
-            full_name
+          players (full_name),
+          batches (
+            batch_name,
+            centers (center_name)
           ),
-batches (
-  batch_name,
-  centers (
-    center_name
-  )
-),
-  users!attendance_marked_by_fkey (
-    full_name
-  )
+          users!attendance_marked_by_fkey (full_name)
         `)
-          .eq("is_deleted", false)
-        .order("attendance_date", {
-          ascending: false,
-        });
-
-      // FILTERS
+        .eq("is_deleted", false)
+        .order("attendance_date", { ascending: false });
 
       if (selectedAcademy) {
-        query = query.eq(
-          "academy_id",
-          selectedAcademy
-        );
+        query = query.eq("academy_id", selectedAcademy);
       }
 
-if (selectedCenter) {
+      if (selectedCenter) {
+        const centerBatches = await getAccessibleBatches(user, selectedCenter);
+        const batchIds = centerBatches.map((batch) => batch.id).filter(Boolean);
 
-  const centerBatches =
-    await getAccessibleBatches(
-      user,
-      selectedCenter
-    );
+        if (batchIds.length === 0) {
+          setAttendanceHistory([]);
+          setLoading(false);
+          return;
+        }
 
-  const batchIds =
-    centerBatches.map(
-      batch => batch.id
-    );
-
-  if (batchIds.length === 0) {
-
-    setAttendanceHistory([]);
-    setLoading(false);
-    return;
-
-  }
-
-  query = query.in(
-    "batch_id",
-    batchIds
-  );
-}
+        query = query.in("batch_id", batchIds);
+      }
 
       if (selectedBatch) {
-        query = query.eq(
-          "batch_id",
-          selectedBatch
-        );
+        query = query.eq("batch_id", selectedBatch);
       }
 
       if (selectedDate) {
-        query = query.eq(
-          "attendance_date",
-          selectedDate
-        );
+        query = query.eq("attendance_date", selectedDate);
       }
 
       const { data, error } = await query;
-    
-
       if (error) throw error;
 
       setAttendanceHistory(data || []);
-
-      setLoading(false);
-
-    } catch (err) {
-      console.log(err.message);
+      setCurrentPage(1);
+    } catch (error) {
+      console.error(error);
+      setAttendanceHistory([]);
+      setErrorMessage("Unable to load attendance history.");
+    } finally {
       setLoading(false);
     }
   };
 
-  // =====================================================
-// UPDATE ATTENDANCE
-// =====================================================
-
-const updateAttendance = async (attendanceId) => {
-
-  try {
-
-    if (!canEditAttendance(user)) {
-
-  alert("You are not authorized to edit attendance.");
-
-  return;
-
-}
-await updateAttendanceStatus(
-  attendanceId,
-  editingStatus
-);
-
-    // Exit edit mode
-
-    setEditingAttendanceId(null);
-    setEditingStatus("");
-
-    // Reload history
-
+  useEffect(() => {
+    if (!user) return;
     fetchAttendanceHistory();
+  }, [user, selectedAcademy, selectedCenter, selectedBatch, selectedDate]);
 
-  } catch (err) {
+  const playerOptions = useMemo(() => {
+    const map = new Map();
+    attendanceHistory.forEach((item) => {
+      const id = item.player_id || item.players?.id;
+      const name = item.players?.full_name;
+      if (id && name) map.set(id, name);
+    });
 
-    console.log(err.message);
+    return Array.from(map.entries())
+      .map(([id, name]) => ({ id, name }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [attendanceHistory]);
 
-  }
+  const filteredHistory = useMemo(() => {
+    return attendanceHistory.filter((item) => {
+      const playerMatches =
+        !selectedPlayer || item.player_id === selectedPlayer;
+      const statusMatches =
+        !selectedStatus || item.status === selectedStatus;
 
-};
+      return playerMatches && statusMatches;
+    });
+  }, [attendanceHistory, selectedPlayer, selectedStatus]);
 
-// =====================================================
-// SOFT DELETE ATTENDANCE
-// =====================================================
+  const totalPages = Math.max(1, Math.ceil(filteredHistory.length / PAGE_SIZE));
 
-const deleteAttendance = async (attendanceId) => {
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
 
-  const confirmDelete = window.confirm(
-    "Are you sure you want to delete this attendance record?"
+  const paginatedHistory = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    return filteredHistory.slice(start, start + PAGE_SIZE);
+  }, [filteredHistory, currentPage]);
+
+  const summary = useMemo(() => {
+    const records = filteredHistory.length;
+    const present = filteredHistory.filter(
+      (item) => item.status === "present"
+    ).length;
+    const absent = filteredHistory.filter(
+      (item) => item.status === "absent"
+    ).length;
+
+    return {
+      records,
+      present,
+      absent,
+      rate: records ? Math.round((present / records) * 1000) / 10 : 0,
+    };
+  }, [filteredHistory]);
+
+  const hasActiveFilters = Boolean(
+    selectedAcademy ||
+      selectedCenter ||
+      selectedBatch ||
+      selectedPlayer ||
+      selectedStatus ||
+      selectedDate
   );
 
-  if (!confirmDelete) return;
-  if (!canDeleteAttendance(user)) {
+  const resetFilters = () => {
+    setSelectedCenter("");
+    setSelectedBatch("");
+    setSelectedPlayer("");
+    setSelectedStatus("");
+    setSelectedDate("");
+    setCurrentPage(1);
 
-  alert("You are not authorized to delete attendance.");
+    if (isSuperAdmin(user)) {
+      setSelectedAcademy("");
+    }
+  };
 
-  return;
+  const handleAcademyChange = (value) => {
+    setSelectedAcademy(value);
+    setSelectedCenter("");
+    setSelectedBatch("");
+    setSelectedPlayer("");
+    setCurrentPage(1);
+  };
 
-}
+  const handleCenterChange = (value) => {
+    setSelectedCenter(value);
+    setSelectedBatch("");
+    setSelectedPlayer("");
+    setCurrentPage(1);
+  };
 
-  try {
+  const handleBatchChange = (value) => {
+    setSelectedBatch(value);
+    setSelectedPlayer("");
+    setCurrentPage(1);
+  };
 
-await softDeleteAttendance(
-  attendanceId,
-  user.id
-);
+  const updateAttendance = async (attendanceId) => {
+    try {
+      if (!canEditAttendance(user)) {
+        alert("You are not authorized to edit attendance.");
+        return;
+      }
 
-    await fetchAttendanceHistory();
+      await updateAttendanceStatus(attendanceId, editingStatus);
+      setEditingAttendanceId(null);
+      setEditingStatus("");
+      await fetchAttendanceHistory();
+    } catch (error) {
+      console.error(error);
+      alert("Unable to update attendance.");
+    }
+  };
 
-    alert(MESSAGES.ATTENDANCE_DELETED);
+  const deleteAttendance = async (attendanceId) => {
+    if (!canDeleteAttendance(user)) {
+      alert("You are not authorized to delete attendance.");
+      return;
+    }
 
-  } catch (err) {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this attendance record?"
+    );
+    if (!confirmDelete) return;
 
-    console.log(err);
+    try {
+      await softDeleteAttendance(attendanceId, user.id);
+      await fetchAttendanceHistory();
+      alert(MESSAGES.ATTENDANCE_DELETED);
+    } catch (error) {
+      console.error(error);
+      alert("Unable to delete attendance.");
+    }
+  };
 
-    alert("Unable to delete attendance.");
+  const formatDate = (value) => {
+    if (!value) return "—";
+    const date = new Date(`${value}T00:00:00`);
+    return Number.isNaN(date.getTime())
+      ? value
+      : date.toLocaleDateString("en-IN", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        });
+  };
 
-  }
+  const pageStart = filteredHistory.length
+    ? (currentPage - 1) * PAGE_SIZE + 1
+    : 0;
+  const pageEnd = Math.min(currentPage * PAGE_SIZE, filteredHistory.length);
 
-};
-
-  // =====================================================
-  // LOAD HISTORY WHEN FILTERS CHANGE
-  // =====================================================
-
-useEffect(() => {
-  fetchAttendanceHistory();
-}, [
-  selectedAcademy,
-  selectedCenter,
-  selectedBatch,
-  selectedDate,
-]);
-
-  // =====================================================
-  // UI
-  // =====================================================
-
-return (
-  <Layout>
-    <div className="attendance-history-page">
-      <div className="attendance-history-header">
-        <div>
-          <span className="attendance-history-eyebrow">Attendance management</span>
-          <h1>Attendance History</h1>
-          <p>Review, edit, and manage recorded player attendance.</p>
+  return (
+    <Layout>
+      <div className="attendance-history-page">
+        <div className="attendance-history-toolbar">
+          <div>
+            <span className="attendance-history-eyebrow">Attendance</span>
+            <h1>Attendance History</h1>
+            <p>Review and manage recorded player attendance.</p>
+          </div>
+          <div className="attendance-history-toolbar-meta">
+            <strong>{summary.records}</strong>
+            <span>records</span>
+          </div>
         </div>
-        <div className="attendance-history-count"><strong>{attendanceHistory.length}</strong><span>records shown</span></div>
-      </div>
 
-      <div className="attendance-history-filter-card">
-        <div className="attendance-history-section-heading"><div><h2>Filters</h2><p>Use academy, center, batch, and date to narrow the history.</p></div></div>
-        <div className="attendance-history-filter-grid">
-          <label className="attendance-history-field"><span>Academy</span>
-            <select value={selectedAcademy} onChange={(e) => { setSelectedAcademy(e.target.value); setSelectedCenter(""); setSelectedBatch(""); }} disabled={!isSuperAdmin(user)}>
-              <option value="">Select Academy</option>
-              {academies.map((academy) => <option key={academy.id} value={academy.id}>{academy.academy_name}</option>)}
-            </select>
-          </label>
-          <label className="attendance-history-field"><span>Center</span>
-            <select value={selectedCenter} onChange={(e) => { setSelectedCenter(e.target.value); setSelectedBatch(""); }}>
-              <option value="">Select Center</option>
-              {centers.map((center) => <option key={center.id} value={center.id}>{center.center_name}</option>)}
-            </select>
-          </label>
-          <label className="attendance-history-field"><span>Batch</span>
-            <select value={selectedBatch} onChange={(e) => setSelectedBatch(e.target.value)}>
-              <option value="">Select Batch</option>
-              {batches.map((batch) => <option key={batch.id} value={batch.id}>{batch.batch_name}</option>)}
-            </select>
-          </label>
-          <label className="attendance-history-field"><span>Date</span>
-            <input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} />
-          </label>
+        <section className="attendance-history-filter-card" aria-labelledby="attendance-history-filters">
+          <div className="attendance-history-section-heading">
+            <div>
+              <span className="attendance-history-section-label">Filters</span>
+              <h2 id="attendance-history-filters">Attendance history</h2>
+            </div>
+            <button
+              type="button"
+              className="attendance-history-reset-button"
+              onClick={resetFilters}
+              disabled={!hasActiveFilters}
+            >
+              Reset filters
+            </button>
+          </div>
+
+          <div className="attendance-history-filter-grid">
+            <label className="attendance-history-field">
+              <span>Academy</span>
+              <select
+                value={selectedAcademy}
+                onChange={(event) => handleAcademyChange(event.target.value)}
+                disabled={!isSuperAdmin(user)}
+              >
+                <option value="">All academies</option>
+                {academies.map((academy) => (
+                  <option key={academy.id} value={academy.id}>
+                    {academy.academy_name}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="attendance-history-field">
+              <span>Center</span>
+              <select
+                value={selectedCenter}
+                onChange={(event) => handleCenterChange(event.target.value)}
+              >
+                <option value="">All centers</option>
+                {centers.map((center) => (
+                  <option key={center.id} value={center.id}>
+                    {center.center_name}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="attendance-history-field">
+              <span>Batch</span>
+              <select
+                value={selectedBatch}
+                onChange={(event) => handleBatchChange(event.target.value)}
+                disabled={!selectedCenter && batches.length === 0}
+              >
+                <option value="">All batches</option>
+                {batches.map((batch) => (
+                  <option key={batch.id} value={batch.id}>
+                    {batch.batch_name}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="attendance-history-field">
+              <span>Player</span>
+              <select
+                value={selectedPlayer}
+                onChange={(event) => {
+                  setSelectedPlayer(event.target.value);
+                  setCurrentPage(1);
+                }}
+              >
+                <option value="">All players</option>
+                {playerOptions.map((player) => (
+                  <option key={player.id} value={player.id}>
+                    {player.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="attendance-history-field">
+              <span>Status</span>
+              <select
+                value={selectedStatus}
+                onChange={(event) => {
+                  setSelectedStatus(event.target.value);
+                  setCurrentPage(1);
+                }}
+              >
+                <option value="">All statuses</option>
+                <option value="present">Present</option>
+                <option value="absent">Absent</option>
+              </select>
+            </label>
+
+            <label className="attendance-history-field">
+              <span>Date</span>
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(event) => {
+                  setSelectedDate(event.target.value);
+                  setCurrentPage(1);
+                }}
+              />
+            </label>
+          </div>
+        </section>
+
+        <section className="attendance-history-summary" aria-label="Attendance summary">
+          <div className="attendance-history-summary-card">
+            <span>Records</span>
+            <strong>{summary.records}</strong>
+            <small>Matching filters</small>
+          </div>
+          <div className="attendance-history-summary-card attendance-summary-present">
+            <span>Present</span>
+            <strong>{summary.present}</strong>
+            <small>Marked present</small>
+          </div>
+          <div className="attendance-history-summary-card attendance-summary-absent">
+            <span>Absent</span>
+            <strong>{summary.absent}</strong>
+            <small>Marked absent</small>
+          </div>
+          <div className="attendance-history-summary-card attendance-summary-rate">
+            <span>Attendance rate</span>
+            <strong>{summary.rate}%</strong>
+            <small>Present ÷ records</small>
+          </div>
+        </section>
+
+        <div className="attendance-history-list-header">
+          <div>
+            <span className="attendance-history-section-label">Records</span>
+            <h2>Attendance records</h2>
+            <p>
+              {selectedDate
+                ? `Showing records for ${formatDate(selectedDate)}.`
+                : "Latest attendance records first."}
+            </p>
+          </div>
+          {filteredHistory.length > 0 && (
+            <div className="attendance-history-result-count">
+              Showing {pageStart}–{pageEnd} of {filteredHistory.length}
+            </div>
+          )}
         </div>
-      </div>
 
-      <div className="attendance-history-list-header">
-        <div><h2>Attendance Records</h2><p>{selectedDate ? `Showing records for ${selectedDate}.` : "Latest attendance records first."}</p></div>
-      </div>
+        {loading ? (
+          <div className="attendance-history-state" role="status" aria-live="polite">
+            <div className="attendance-history-loading-line" />
+            <div className="attendance-history-loading-line short" />
+            <strong>Loading attendance history...</strong>
+          </div>
+        ) : errorMessage ? (
+          <div className="attendance-history-state attendance-history-error-state" role="alert">
+            <strong>Unable to load attendance history</strong>
+            <span>{errorMessage}</span>
+            <button
+              type="button"
+              className="attendance-history-retry-button"
+              onClick={fetchAttendanceHistory}
+            >
+              Retry
+            </button>
+          </div>
+        ) : filteredHistory.length === 0 ? (
+          <div className="attendance-history-state">
+            <strong>No attendance records found</strong>
+            <span>
+              {hasActiveFilters
+                ? "No records match the selected filters."
+                : "Attendance records will appear here once attendance is marked."}
+            </span>
+            {hasActiveFilters && (
+              <button
+                type="button"
+                className="attendance-history-retry-button"
+                onClick={resetFilters}
+              >
+                Clear filters
+              </button>
+            )}
+          </div>
+        ) : (
+          <>
+            <div className="attendance-history-table-wrap">
+              <table className="attendance-history-table">
+                <caption className="sr-only">
+                  Attendance history with status and available edit or delete actions
+                </caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Date</th>
+                    <th scope="col">Player</th>
+                    <th scope="col">Center</th>
+                    <th scope="col">Batch</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Marked By</th>
+                    <th scope="col">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {paginatedHistory.map((item) => (
+                    <tr key={item.id}>
+                      <td className="attendance-history-date-cell">
+                        {formatDate(item.attendance_date)}
+                      </td>
+                      <td className="attendance-history-player-cell">
+                        {item.players?.full_name || "—"}
+                      </td>
+                      <td>{item.batches?.centers?.center_name || "—"}</td>
+                      <td>{item.batches?.batch_name || "—"}</td>
+                      <td>
+                        {editingAttendanceId === item.id ? (
+                          <select
+                            className="attendance-history-status-select"
+                            value={editingStatus}
+                            onChange={(event) => setEditingStatus(event.target.value)}
+                            aria-label={`Attendance status for ${item.players?.full_name || "player"}`}
+                          >
+                            <option value="present">Present</option>
+                            <option value="absent">Absent</option>
+                          </select>
+                        ) : (
+                          <span
+                            className={`attendance-status-badge attendance-status-${item.status}`}
+                          >
+                            {item.status}
+                          </span>
+                        )}
+                      </td>
+                      <td>{item.users?.full_name || "—"}</td>
+                      <td>
+                        <div className="attendance-history-actions">
+                          {editingAttendanceId === item.id ? (
+                            <>
+                              {canEditAttendance(user) && (
+                                <button
+                                  className="attendance-action-button attendance-action-save"
+                                  type="button"
+                                  onClick={() => updateAttendance(item.id)}
+                                  aria-label={`Save attendance for ${item.players?.full_name || "player"}`}
+                                >
+                                  Save
+                                </button>
+                              )}
+                              <button
+                                className="attendance-action-button attendance-action-cancel"
+                                type="button"
+                                onClick={() => {
+                                  setEditingAttendanceId(null);
+                                  setEditingStatus("");
+                                }}
+                                aria-label={`Cancel editing attendance for ${item.players?.full_name || "player"}`}
+                              >
+                                Cancel
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              {canEditAttendance(user) && (
+                                <button
+                                  className="attendance-icon-button"
+                                  type="button"
+                                  onClick={() => {
+                                    setEditingAttendanceId(item.id);
+                                    setEditingStatus(item.status);
+                                  }}
+                                  title="Edit attendance"
+                                  aria-label={`Edit attendance for ${item.players?.full_name || "player"}`}
+                                >
+                                  ✏️
+                                </button>
+                              )}
+                              {canDeleteAttendance(user) && (
+                                <button
+                                  className="attendance-icon-button attendance-delete-button"
+                                  type="button"
+                                  onClick={() => deleteAttendance(item.id)}
+                                  title="Delete attendance"
+                                  aria-label={`Delete attendance for ${item.players?.full_name || "player"}`}
+                                >
+                                  🗑️
+                                </button>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-      {loading ? (
-        <div className="attendance-history-state"><strong>Loading attendance...</strong><span>Please wait while the records are retrieved.</span></div>
-      ) : (
-        <div className="attendance-history-table-wrap">
-          <table className="attendance-history-table">
-            <caption className="sr-only">Attendance history with status and available edit or delete actions</caption>
-            <thead><tr><th scope="col">Date</th><th scope="col">Player</th><th scope="col">Center</th><th scope="col">Batch</th><th scope="col">Status</th><th scope="col">Marked By</th><th scope="col">Actions</th></tr></thead>
-            <tbody>
-              {attendanceHistory.length > 0 ? attendanceHistory.map((item) => (
-                <tr key={item.id}>
-                  <td>{item.attendance_date}</td>
-                  <td className="attendance-history-player-cell">{item.players?.full_name || "—"}</td>
-                  <td>{item.batches?.centers?.center_name || "—"}</td>
-                  <td>{item.batches?.batch_name || "—"}</td>
-                  <td>
-                    {editingAttendanceId === item.id ? (
-                      <select className="attendance-history-status-select" value={editingStatus} onChange={(e) => setEditingStatus(e.target.value)}>
-                        <option value="present">Present</option><option value="absent">Absent</option>
-                      </select>
-                    ) : (
-                      <span className={`attendance-status-badge attendance-status-${item.status}`}>{item.status}</span>
-                    )}
-                  </td>
-                  <td>{item.users?.full_name || "—"}</td>
-                  <td>
-                    <div className="attendance-history-actions">
-                      {editingAttendanceId === item.id ? (
-                        <>
-                          {canEditAttendance(user) && <button className="attendance-action-button attendance-action-save" type="button" onClick={() => updateAttendance(item.id)} aria-label={`Save attendance for ${item.players?.full_name || "player"}`}>Save</button>}
-                          <button className="attendance-action-button attendance-action-cancel" type="button" onClick={() => { setEditingAttendanceId(null); setEditingStatus(""); }} aria-label={`Cancel editing attendance for ${item.players?.full_name || "player"}`}>Cancel</button>
-                        </>
-                      ) : (
-                        <>
-                          {canEditAttendance(user) && <button className="attendance-icon-button" type="button" onClick={() => { setEditingAttendanceId(item.id); setEditingStatus(item.status); }} title="Edit Attendance" aria-label="Edit Attendance">✏️</button>}
-                          {canDeleteAttendance(user) && <button className="attendance-icon-button attendance-delete-button" type="button" onClick={() => deleteAttendance(item.id)} title="Delete Attendance" aria-label="Delete Attendance">🗑️</button>}
-                        </>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              )) : (
-                <tr><td className="attendance-history-empty-state" colSpan="7"><strong>No attendance found</strong><span>Try adjusting the selected filters.</span></td></tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </div>
-  </Layout>
-);
+            {totalPages > 1 && (
+              <div className="attendance-history-pagination" aria-label="Attendance history pagination">
+                <span>
+                  Showing {pageStart}–{pageEnd} of {filteredHistory.length}
+                </span>
+                <div className="attendance-history-pagination-controls">
+                  <button
+                    type="button"
+                    onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                    disabled={currentPage === 1}
+                  >
+                    Previous
+                  </button>
+                  <span>Page {currentPage} of {totalPages}</span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setCurrentPage((page) => Math.min(totalPages, page + 1))
+                    }
+                    disabled={currentPage === totalPages}
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </Layout>
+  );
 }
 
 export default AttendanceHistory;
