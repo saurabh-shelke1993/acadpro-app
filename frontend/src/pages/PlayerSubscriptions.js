@@ -1,901 +1,766 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Layout from "../components/Layout";
 import "./PlayerSubscriptions.css";
 import { supabase } from "../services/supabase";
+import { getLoggedInUser, isSuperAdmin, getAcademyId } from "../utils/auth";
 
-import {
-  getLoggedInUser,
-  isSuperAdmin,
-  getAcademyId
-} from "../utils/auth";
+const PAGE_SIZE = 10;
+
+const BILLING_CYCLES = {
+  monthly: "month",
+  quarterly: "quarter",
+  half_yearly: "6 months"
+};
+
+const formatCurrency = (value) =>
+  new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0
+  }).format(Number(value || 0));
+
+const formatDate = (value) => {
+  if (!value) return "—";
+  const [year, month, day] = String(value).split("-");
+  if (!year || !month || !day) return value;
+  return new Intl.DateTimeFormat("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric"
+  }).format(new Date(Number(year), Number(month) - 1, Number(day)));
+};
+
+const formatPlanLabel = (plan) => {
+  if (!plan) return "Select Plan";
+  const cycle = BILLING_CYCLES[plan.billing_cycle];
+  return cycle
+    ? plan.plan_name + " — " + formatCurrency(plan.amount) + " / " + cycle
+    : plan.plan_name + " — " + formatCurrency(plan.amount);
+};
 
 function PlayerSubscriptions() {
-
   const [players, setPlayers] = useState([]);
+  const [academies, setAcademies] = useState([]);
+  const [centers, setCenters] = useState([]);
+  const [batches, setBatches] = useState([]);
+  const [selectedAcademy, setSelectedAcademy] = useState("");
+  const [selectedCenter, setSelectedCenter] = useState("");
+  const [selectedBatch, setSelectedBatch] = useState("");
+  const [loggedInUser, setLoggedInUser] = useState(null);
+  const [plans, setPlans] = useState([]);
+  const [subscriptions, setSubscriptions] = useState([]);
+  const [selectedPlayer, setSelectedPlayer] = useState("");
+  const [selectedPlan, setSelectedPlan] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingSubscriptionId, setEditingSubscriptionId] = useState(null);
+  const [startDate, setStartDate] = useState(new Date().toISOString().split("T")[0]);
+  const [statusFilter, setStatusFilter] = useState("active");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [toast, setToast] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
 
-const [academies, setAcademies] = useState([]);
-const [centers, setCenters] = useState([]);
-const [batches, setBatches] = useState([]);
+  useEffect(() => {
+    const loadUser = async () => {
+      const user = await getLoggedInUser();
+      setLoggedInUser(user);
+    };
+    loadUser();
+  }, []);
 
-const [selectedAcademy, setSelectedAcademy] = useState("");
-const [selectedCenter, setSelectedCenter] = useState("");
-const [selectedBatch, setSelectedBatch] = useState("");
-const [loggedInUser, setLoggedInUser] = useState(null);
-
-const [plans, setPlans] = useState([]);
-
-const [subscriptions, setSubscriptions] = useState([]);
-
-const [selectedPlayer, setSelectedPlayer] = useState("");
-
-const [selectedPlan, setSelectedPlan] = useState("");
-
-const [isEditing, setIsEditing] = useState(false);
-
-const [editingSubscriptionId,
-  setEditingSubscriptionId] = useState(null);
-
-const [startDate, setStartDate] = useState(
-  new Date().toISOString().split("T")[0]
-);
-
-useEffect(() => {
-
-  if (!loggedInUser) return;
-  fetchAcademies();
-  fetchPlayers();
-  fetchPlans();
-  fetchSubscriptions();
-}, [loggedInUser]);
-
-useEffect(() => {
-
-  fetchPlayers();
-
-}, [
-  selectedAcademy,
-  selectedCenter,
-  selectedBatch
-]);
-
-useEffect(() => {
-
-  fetchLoggedInUser();
-
-}, []);
-
-const loadUser = async () => {
-  const user = await getLoggedInUser();
-  console.log("SUBSCRIPTION USER =", user);
-  setLoggedInUser(user);
-};
-
-useEffect(() => {
-
-  if (loggedInUser) {
+  useEffect(() => {
+    if (!loggedInUser) return;
     fetchAcademies();
-  }
+  }, [loggedInUser]);
 
-}, [loggedInUser]);
+  useEffect(() => {
+    if (!loggedInUser) return;
+    fetchPlayers();
+    fetchPlans();
+    fetchSubscriptions();
+  }, [loggedInUser, selectedAcademy, selectedCenter, selectedBatch]);
 
-useEffect(() => {
-
-  if (selectedAcademy) {
-    fetchCenters(selectedAcademy);
-  }
-
-}, [selectedAcademy]);
-
-useEffect(() => {
-
-  if (selectedCenter) {
-    fetchBatches(selectedCenter);
-  }
-
-}, [selectedCenter]);
-
-useEffect(() => {
-
-  fetchSubscriptions();
-
-}, [
-  selectedAcademy,
-  selectedCenter,
-  selectedBatch,
-  selectedPlayer
-]);
-
-const fetchLoggedInUser =
-async () => {
-
-  const user =
-    await getLoggedInUser();
-
-  setLoggedInUser(user);
-
-};
-
-const fetchAcademies = async () => {
-
-  if (!loggedInUser) return;
-
-  if (isSuperAdmin(loggedInUser)) {
-
-    const { data } =
-      await supabase
-        .from("academies")
-        .select("*")
-        .eq("is_active", true);
-
-    setAcademies(data || []);
-
-  } else {
-
-    const academyId =
-      getAcademyId(loggedInUser);
-
-    const { data } =
-      await supabase
-        .from("academies")
-        .select("*")
-        .eq("id", academyId)
-        .eq("is_active", true);
-
-    setAcademies(data || []);
-
-    if (data?.length > 0) {
-
-      setSelectedAcademy(
-        data[0].id
-      );
-
+  useEffect(() => {
+    if (!selectedAcademy) {
+      setCenters([]);
+      setBatches([]);
+      return;
     }
 
-  }
+    fetchCenters(selectedAcademy);
+    fetchPlans();
+  }, [selectedAcademy]);
 
-};
+  useEffect(() => {
+    if (!selectedCenter) {
+      setBatches([]);
+      return;
+    }
 
-const fetchCenters = async (academyId) => {
+    fetchBatches(selectedCenter);
+  }, [selectedCenter]);
 
-  const { data } = await supabase
-    .from("centers")
-    .select("*")
-    .eq("academy_id", academyId)
-    .eq("is_active", true);
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedAcademy, selectedCenter, selectedBatch, statusFilter]);
 
-  setCenters(data || []);
-};
+  const showToast = (type, message) => {
+    setToast({ type, message });
+    window.setTimeout(() => setToast(null), 3500);
+  };
 
-const fetchBatches = async (centerId) => {
+  const fetchAcademies = async () => {
+    if (!loggedInUser) return;
 
-  const { data } = await supabase
-    .from("batches")
-    .select("*")
-    .eq("center_id", centerId)
-    .eq("is_active", true);
+    let query = supabase
+      .from("academies")
+      .select("id, academy_name")
+      .eq("is_active", true)
+      .order("academy_name");
 
-  setBatches(data || []);
-};
+    if (!isSuperAdmin(loggedInUser)) {
+      const academyId = getAcademyId(loggedInUser);
+      if (academyId) query = query.eq("id", academyId);
+    }
 
-const fetchPlayers = async () => {
+    const { data, error } = await query;
 
-  let query = supabase
-    .from("players")
-    .select(`
-      id,
-      full_name,
-      academy_id,
-      center_id,
-      batch_id
-    `)
-    .eq("is_active", true);
+    if (error) {
+      showToast("error", "Unable to load academies.");
+      return;
+    }
 
-  if (selectedAcademy) {
-    query = query.eq("academy_id", selectedAcademy);
-  }
+    const nextAcademies = data || [];
+    setAcademies(nextAcademies);
 
-  if (selectedCenter) {
-    query = query.eq("center_id", selectedCenter);
-  }
+    if (!isSuperAdmin(loggedInUser) && nextAcademies.length === 1) {
+      setSelectedAcademy(nextAcademies[0].id);
+    }
+  };
 
-  if (selectedBatch) {
-    query = query.eq("batch_id", selectedBatch);
-  }
+  const fetchCenters = async (academyId) => {
+    const { data, error } = await supabase
+      .from("centers")
+      .select("id, center_name")
+      .eq("academy_id", academyId)
+      .eq("is_active", true)
+      .order("center_name");
 
-  const { data, error } = await query;
+    if (error) {
+      showToast("error", "Unable to load centers.");
+      return;
+    }
 
-  if (error) {
-    console.log(error);
-  } else {
+    setCenters(data || []);
+  };
+
+  const fetchBatches = async (centerId) => {
+    const { data, error } = await supabase
+      .from("batches")
+      .select("id, batch_name")
+      .eq("center_id", centerId)
+      .eq("is_active", true)
+      .order("batch_name");
+
+    if (error) {
+      showToast("error", "Unable to load batches.");
+      return;
+    }
+
+    setBatches(data || []);
+  };
+
+  const fetchPlayers = async () => {
+    let query = supabase
+      .from("players")
+      .select("id, full_name, academy_id, center_id, batch_id")
+      .eq("is_active", true)
+      .order("full_name");
+
+    if (selectedAcademy) query = query.eq("academy_id", selectedAcademy);
+    if (selectedCenter) query = query.eq("center_id", selectedCenter);
+    if (selectedBatch) query = query.eq("batch_id", selectedBatch);
+
+    const { data, error } = await query;
+
+    if (error) {
+      showToast("error", "Unable to load players.");
+      return;
+    }
+
     setPlayers(data || []);
-  }
-};
+  };
 
-const fetchPlans = async () => {
+  const fetchPlans = async () => {
+    let query = supabase
+      .from("subscription_plans")
+      .select("id, academy_id, plan_name, amount, billing_cycle")
+      .eq("is_active", true)
+      .order("plan_name");
 
-  let query = supabase
-    .from("subscription_plans")
-    .select(`
-      id,
-      academy_id,
-      plan_name,
-      amount
-    `)
-    .eq("is_active", true);
+    if (selectedAcademy) query = query.eq("academy_id", selectedAcademy);
 
-  if (selectedAcademy) {
-    query = query.eq(
-      "academy_id",
-      selectedAcademy
-    );
-  }
+    const { data, error } = await query;
 
-  const { data, error } = await query;
+    if (error) {
+      showToast("error", "Unable to load subscription plans.");
+      return;
+    }
 
-  if (error) {
-    console.log(error);
-  } else {
     setPlans(data || []);
-  }
-};
+  };
 
-
-const fetchSubscriptions = async () => {
-
-  let query = supabase
-    .from("player_subscriptions")
-    .select(`
-  id,
-  player_id,
-  subscription_plan_id,
-  start_date,
-  end_date,
-  status,
-
-      players (
+  const fetchSubscriptions = async () => {
+    let query = supabase
+      .from("player_subscriptions")
+      .select(`
         id,
-        full_name,
-        academy_id,
-        center_id,
-        batch_id,
-
-        academies (
-          academy_name
+        player_id,
+        subscription_plan_id,
+        start_date,
+        end_date,
+        status,
+        players (
+          id,
+          full_name,
+          academy_id,
+          center_id,
+          batch_id,
+          academies ( academy_name ),
+          centers ( center_name ),
+          batches ( batch_name )
         ),
-
-        centers (
-          center_name
-        ),
-
-        batches (
-          batch_name
+        subscription_plans (
+          plan_name,
+          amount,
+          billing_cycle
         )
-      ),
+      `)
+      .order("start_date", { ascending: false });
 
-      subscription_plans (
-        plan_name,
-        amount
-      )
-    `)
-    .eq("status", "active");
+    const { data, error } = await query;
 
-  const { data, error } = await query;
+    if (error) {
+      showToast("error", "Unable to load subscriptions.");
+      return;
+    }
 
-  if (error) {
+    let scopedData = data || [];
 
-    console.log(error);
-
-  } else {
-
-    let filteredData = data || [];
-
-if (loggedInUser) {
-
-  if (!isSuperAdmin(loggedInUser)) {
-
-    filteredData =
-      filteredData.filter(
-        subscription =>
-          subscription.players?.academy_id ===
-          loggedInUser.academy_id
+    if (loggedInUser && !isSuperAdmin(loggedInUser)) {
+      scopedData = scopedData.filter(
+        (subscription) =>
+          subscription.players?.academy_id === getAcademyId(loggedInUser)
       );
-
-  }
-
-}
+    }
 
     if (selectedAcademy) {
-      filteredData = filteredData.filter(
-        (item) =>
-          item.players?.academy_id === selectedAcademy
+      scopedData = scopedData.filter(
+        (subscription) => subscription.players?.academy_id === selectedAcademy
       );
     }
 
     if (selectedCenter) {
-      filteredData = filteredData.filter(
-        (item) =>
-          item.players?.center_id === selectedCenter
+      scopedData = scopedData.filter(
+        (subscription) => subscription.players?.center_id === selectedCenter
       );
     }
 
     if (selectedBatch) {
-      filteredData = filteredData.filter(
-        (item) =>
-          item.players?.batch_id === selectedBatch
+      scopedData = scopedData.filter(
+        (subscription) => subscription.players?.batch_id === selectedBatch
       );
     }
 
-    if (selectedPlayer) {
-      filteredData = filteredData.filter(
-        (item) =>
-          item.players?.id === selectedPlayer
-      );
-    }
+    setSubscriptions(scopedData);
+  };
 
-    setSubscriptions(filteredData);
-  }
-};
+  const resetAssignmentForm = () => {
+    setIsEditing(false);
+    setEditingSubscriptionId(null);
+    setSelectedPlayer("");
+    setSelectedPlan("");
+    setStartDate(new Date().toISOString().split("T")[0]);
+    setIsSaving(false);
+  };
 
+  const handleAcademyChange = (academyId) => {
+    setSelectedAcademy(academyId);
+    setSelectedCenter("");
+    setSelectedBatch("");
+  };
+
+  const handleCenterChange = (centerId) => {
+    setSelectedCenter(centerId);
+    setSelectedBatch("");
+  };
+
+  const handleEditSubscription = (subscription) => {
+    setIsEditing(true);
+    setEditingSubscriptionId(subscription.id);
+    setSelectedPlayer(subscription.player_id);
+    setSelectedPlan(subscription.subscription_plan_id);
+    setStartDate(subscription.start_date || new Date().toISOString().split("T")[0]);
+
+    window.requestAnimationFrame(() => {
+      document.getElementById("player-subscription-form")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    });
+  };
 
   const createSubscription = async () => {
-
-    if (
-      !selectedPlayer ||
-      !selectedPlan ||
-      !startDate
-    ) {
-
-      alert("Please fill all fields");
-
+    if (!selectedPlayer || !selectedPlan || !startDate) {
+      showToast("error", "Select a player, plan, and start date.");
       return;
     }
 
-    const { data: existingSubscription } =
-  await supabase
-    .from("player_subscriptions")
-    .select("id")
-    .eq("player_id", selectedPlayer)
-    .eq("subscription_plan_id", selectedPlan)
-    .eq("status", "active");
+    setIsSaving(true);
+
+    const { data: existingSubscription, error: existingError } = await supabase
+      .from("player_subscriptions")
+      .select("id")
+      .eq("player_id", selectedPlayer)
+      .eq("subscription_plan_id", selectedPlan)
+      .eq("status", "active");
+
+    if (existingError) {
+      showToast("error", existingError.message);
+      setIsSaving(false);
+      return;
+    }
 
     if (existingSubscription?.length > 0) {
-  alert(
-    "Player already has this active subscription"
-  );
-  return;
-}
+      showToast("error", "Player already has this active subscription.");
+      setIsSaving(false);
+      return;
+    }
 
     const { error } = await supabase
       .from("player_subscriptions")
-      .insert([
-        {
-          player_id: selectedPlayer,
-
-          subscription_plan_id: selectedPlan,
-
-          start_date: startDate,
-
-          status: "active"
-        }
-      ]);
+      .insert([{
+        player_id: selectedPlayer,
+        subscription_plan_id: selectedPlan,
+        start_date: startDate,
+        status: "active"
+      }]);
 
     if (error) {
-
-      alert(error.message);
-
-    } else {
-
-      alert(
-        "Subscription Created Successfully"
-      );
-
-      setSelectedPlayer("");
-
-      setSelectedPlan("");
-
-      setStartDate("");
-
-      fetchSubscriptions();
+      showToast("error", error.message);
+      setIsSaving(false);
+      return;
     }
+
+    await fetchSubscriptions();
+    resetAssignmentForm();
+    showToast("success", "Subscription created successfully.");
   };
 
-const handleEditSubscription = (
-  subscription
-) => {
+  const handleUpdateSubscription = async () => {
+    if (!selectedPlayer || !selectedPlan || !startDate) {
+      showToast("error", "Select a player, plan, and start date.");
+      return;
+    }
 
-  setIsEditing(true);
+    setIsSaving(true);
 
-  setEditingSubscriptionId(
-    subscription.id
-  );
+    const { error } = await supabase
+      .from("player_subscriptions")
+      .update({
+        player_id: selectedPlayer,
+        subscription_plan_id: selectedPlan,
+        start_date: startDate
+      })
+      .eq("id", editingSubscriptionId);
 
-  setSelectedPlayer(
-    subscription.player_id
-  );
+    if (error) {
+      showToast("error", error.message);
+      setIsSaving(false);
+      return;
+    }
 
-  setSelectedPlan(
-    subscription.subscription_plan_id
-  );
+    await fetchSubscriptions();
+    resetAssignmentForm();
+    showToast("success", "Subscription updated successfully.");
+  };
 
-  setStartDate(
-    subscription.start_date
-  );
-};
-  
-const handleUpdateSubscription = async () => {
-
-  const { error } = await supabase
-    .from("player_subscriptions")
-    .update({
-      player_id: selectedPlayer,
-      subscription_plan_id:
-        selectedPlan,
-      start_date: startDate
-    })
-    .eq(
-      "id",
-      editingSubscriptionId
+  const handleDeactivateSubscription = async (id) => {
+    const confirmed = window.confirm(
+      "Deactivate this subscription? The subscription history will be retained."
     );
-
-  if (error) {
-
-    alert(error.message);
-
-  } else {
-
-    alert(
-      "Subscription Updated Successfully"
-    );
-
-    setIsEditing(false);
-
-    setEditingSubscriptionId(null);
-
-    setSelectedPlayer("");
-
-    setSelectedPlan("");
-
-    setStartDate("");
-
-    fetchSubscriptions();
-  }
-};
-
-const handleDeactivateSubscription =
-  async (id) => {
-
-    const confirmed =
-      window.confirm(
-        "Deactivate this subscription?"
-      );
 
     if (!confirmed) return;
 
-    const { error } =
-      await supabase
-        .from(
-          "player_subscriptions"
-        )
-        .update({
-          status: "inactive"
-        })
-        .eq("id", id);
+    const { error } = await supabase
+      .from("player_subscriptions")
+      .update({ status: "inactive" })
+      .eq("id", id);
 
     if (error) {
-
-      alert(error.message);
-
-    } else {
-
-      alert(
-        "Subscription Deactivated"
-      );
-
-      fetchSubscriptions();
+      showToast("error", error.message);
+      return;
     }
-};
 
-return (
-  <Layout>
-    <div className="player-subscriptions-page">
-      <div className="player-subscriptions-header">
-        <div>
-          <span className="player-subscriptions-eyebrow">Billing management</span>
-          <h1>Player Subscriptions</h1>
-          <p>Assign active plans to players and manage subscription status.</p>
-        </div>
-        <div className="player-subscriptions-count">
-          <strong>{subscriptions.length}</strong>
-          <span>active subscriptions</span>
-        </div>
-      </div>
-{/* Academy */}
+    await fetchSubscriptions();
+    showToast("success", "Subscription deactivated.");
+  };
 
-{isSuperAdmin(loggedInUser) && (
+  const visibleSubscriptions = useMemo(() => {
+    if (statusFilter === "all") return subscriptions;
+    return subscriptions.filter((subscription) => subscription.status === statusFilter);
+  }, [subscriptions, statusFilter]);
 
-  <>
-    <label htmlFor="player-subscription-academy">Academy</label>
-    <select id="player-subscription-academy"
-      value={selectedAcademy}
-      onChange={(e) =>
-        setSelectedAcademy(
-          e.target.value
-        )
-      }
-    >
+  const totalPages = Math.max(1, Math.ceil(visibleSubscriptions.length / PAGE_SIZE));
+  const paginatedSubscriptions = visibleSubscriptions.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
+  );
 
-      <option value="">
-        Select Academy
-      </option>
+  const activeCount = subscriptions.filter((subscription) => subscription.status === "active").length;
+  const inactiveCount = subscriptions.filter((subscription) => subscription.status === "inactive").length;
 
-      {academies.map((academy) => (
+  const selectedPlayerRecord = players.find((player) => player.id === selectedPlayer);
+  const selectedPlanRecord = plans.find((plan) => plan.id === selectedPlan);
 
-        <option
-          key={academy.id}
-          value={academy.id}
-        >
+  return (
+    <Layout>
+      <div className="player-subscriptions-page">
+        {toast && (
+          <div className={"player-subscriptions-toast player-subscriptions-toast-" + toast.type} role="status">
+            <span>{toast.type === "success" ? "✓" : "!"}</span>
+            {toast.message}
+          </div>
+        )}
 
-          {academy.academy_name}
-
-        </option>
-
-      ))}
-
-    </select>
-
-    <br />
-    <br />
-  </>
-
-)}
-
-{/* Center */}
-
-<select
-  value={selectedCenter}
-  onChange={(e) =>
-    setSelectedCenter(
-      e.target.value
-    )
-  }
->
-
-  <option value="">
-    Select Center
-  </option>
-
-  {centers.map((center) => (
-
-    <option
-      key={center.id}
-      value={center.id}
-    >
-
-      {center.center_name}
-
-    </option>
-
-  ))}
-
-</select>
-
-<br />
-<br />
-
-{/* Batch */}
-
-<select
-  value={selectedBatch}
-  onChange={(e) =>
-    setSelectedBatch(
-      e.target.value
-    )
-  }
->
-
-  <option value="">
-    Select Batch
-  </option>
-
-  {batches.map((batch) => (
-
-    <option
-      key={batch.id}
-      value={batch.id}
-    >
-
-      {batch.batch_name}
-
-    </option>
-
-  ))}
-
-</select>
-
-<br />
-<br />
-
-      <section className="player-subscriptions-form-card">
-        <div className="player-subscriptions-section-heading">
-          <h2>{isEditing ? "Edit Subscription" : "Assign Subscription"}</h2>
-          <p>Select the player, plan, and subscription start date.</p>
-        </div>
-      {/* Player Dropdown */}
-
-      <select
-        value={selectedPlayer}
-        onChange={(e) => {
-
-          const playerId =
-            e.target.value;
-
-          setSelectedPlayer(playerId);
-
-        }}
-      >
-
-        <option value="">
-          Select Player
-        </option>
-
-        {
-          players.map((player) => (
-
-            <option
-              key={player.id}
-              value={player.id}
-            >
-
-              {player.full_name}
-
-            </option>
-
-          ))
-        }
-
-      </select>
-
-      <br />
-      <br />
-
-      {/* Plan Dropdown */}
-
-      <select
-        value={selectedPlan}
-        onChange={(e) =>
-          setSelectedPlan(
-            e.target.value
-          )
-        }
-      >
-
-        <option value="">
-          Select Plan
-        </option>
-
-        {
-          plans
-
-            .map((plan) => (
-
-              <option
-                key={plan.id}
-                value={plan.id}
+        <section className="player-subscriptions-filter-bar" aria-label="Subscription scope">
+          {isSuperAdmin(loggedInUser) && (
+            <div className="player-subscriptions-filter-field">
+              <label htmlFor="player-subscription-academy">Academy</label>
+              <select
+                id="player-subscription-academy"
+                value={selectedAcademy}
+                onChange={(e) => handleAcademyChange(e.target.value)}
               >
-
-                {
-                  plan.plan_name
-                }
-
-                {" - ₹"}
-
-                {plan.amount}
-
-              </option>
-
-            ))
-        }
-
-      </select>
-
-      <br />
-      <br />
-
-      {/* Start Date */}
-
-      <input
-        type="date"
-        value={startDate}
-        onChange={(e) =>
-          setStartDate(
-            e.target.value
-          )
-        }
-      />
-
-      <br />
-      <br />
-
-{isEditing ? (
-
-  <button className="player-subscriptions-primary-button"
-    onClick={
-      handleUpdateSubscription
-    }
-  >
-    Update Subscription
-  </button>
-
-) : (
-
-  <button className="player-subscriptions-primary-button"
-    onClick={createSubscription}
-  >
-    Create Subscription
-  </button>
-
-)}
-      </section>
-
-      <div className="player-subscriptions-list-header">
-        <div>
-          <h2>Subscriptions List</h2>
-          <p>{subscriptions.length} active {subscriptions.length === 1 ? "subscription" : "subscriptions"}</p>
-        </div>
-      </div>
-
-      <div className="player-subscriptions-table-wrap">
-      <table className="player-subscriptions-table">
-
-        <thead>
-
-          <tr>
-
-  {isSuperAdmin(loggedInUser) && (
-    <th>Academy</th>
-  )}
-
-  <th>Center</th>
-
-  <th>Batch</th>
-
-  <th>Player</th>
-
-  <th>Plan</th>
-
-  <th>Amount</th>
-
-  <th>Start Date</th>
-
-  <th>End Date</th>
-
-  <th>Status</th>
-
-  <th>Actions</th>
-
-</tr>
-        </thead>
-
-        <tbody>
-          {subscriptions.length === 0 ? (
-            <tr>
-              <td className="player-subscriptions-empty-state" colSpan={isSuperAdmin(loggedInUser) ? 10 : 9}>
-                <strong>No active subscriptions</strong>
-                <span>Assign a subscription above or adjust the current filters.</span>
-              </td>
-            </tr>
-          ) : (
-            subscriptions.map(
-              (subscription) => (
-
-<tr
-  key={subscription.id}
->
-
-  {isSuperAdmin(loggedInUser) && (
-    <td>
-      {
-        subscription.players
-          ?.academies
-          ?.academy_name
-      }
-    </td>
-  )}
-
-  <td>
-    {
-      subscription.players
-        ?.centers
-        ?.center_name
-    }
-  </td>
-
-  <td>
-    {
-      subscription.players
-        ?.batches
-        ?.batch_name
-    }
-  </td>
-
-  <td>
-    {
-      subscription.players
-        ?.full_name
-    }
-  </td>
-
-                  <td>
-                    {
-                      subscription
-                      .subscription_plans
-                      ?.plan_name
-                    }
-                  </td>
-
-                  <td>
-                    ₹
-                    {
-                      subscription
-                      .subscription_plans
-                      ?.amount
-                    }
-                  </td>
-
-                  <td>
-                    {
-                      subscription
-                      .start_date
-                    }
-                  </td>
-
-                  <td>{subscription.end_date || "-"}</td>
-
-                  <td>
-                    {
-                      subscription.status
-                    }
-                  </td>
-
-                  <td>
-
-  <button
-    onClick={() =>
-      handleEditSubscription(
-        subscription
-      )
-    }
-  >
-    Edit
-  </button>
-
-  <button
-    onClick={() =>
-      handleDeactivateSubscription(
-        subscription.id
-      )
-    }
-    style={{
-      marginLeft: "10px"
-    }}
-  >
-    Deactivate
-  </button>
-
-</td>
-
-                </tr>
-
-              )
-            )
+                <option value="">All academies</option>
+                {academies.map((academy) => (
+                  <option key={academy.id} value={academy.id}>
+                    {academy.academy_name}
+                  </option>
+                ))}
+              </select>
+            </div>
           )}
-        </tbody>
-      </table>
-      </div>
 
-    </div>
-  </Layout>
-);
+          <div className="player-subscriptions-filter-field">
+            <label htmlFor="player-subscription-center">Center</label>
+            <select
+              id="player-subscription-center"
+              value={selectedCenter}
+              onChange={(e) => handleCenterChange(e.target.value)}
+              disabled={!selectedAcademy && isSuperAdmin(loggedInUser)}
+            >
+              <option value="">
+                {selectedAcademy ? "All centers" : "Select academy first"}
+              </option>
+              {centers.map((center) => (
+                <option key={center.id} value={center.id}>
+                  {center.center_name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="player-subscriptions-filter-field">
+            <label htmlFor="player-subscription-batch">Batch</label>
+            <select
+              id="player-subscription-batch"
+              value={selectedBatch}
+              onChange={(e) => setSelectedBatch(e.target.value)}
+              disabled={!selectedCenter}
+            >
+              <option value="">
+                {selectedCenter ? "All batches" : "Select center first"}
+              </option>
+              {batches.map((batch) => (
+                <option key={batch.id} value={batch.id}>
+                  {batch.batch_name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </section>
+
+        <section id="player-subscription-form" className="player-subscriptions-form-card">
+          <div className="player-subscriptions-form-heading">
+            <div>
+              <span className="player-subscriptions-section-label">
+                {isEditing ? "Edit subscription" : "Assign subscription"}
+              </span>
+              <h2>{isEditing ? "Update player subscription" : "Assign a plan to a player"}</h2>
+            </div>
+            {isEditing && (
+              <button type="button" className="player-subscriptions-secondary-button" onClick={resetAssignmentForm}>
+                Cancel edit
+              </button>
+            )}
+          </div>
+
+          <div className="player-subscriptions-assignment-grid">
+            <div className="player-subscriptions-field">
+              <label htmlFor="player-subscription-player">Player</label>
+              <select
+                id="player-subscription-player"
+                value={selectedPlayer}
+                onChange={(e) => setSelectedPlayer(e.target.value)}
+              >
+                <option value="">Select player</option>
+                {players.map((player) => (
+                  <option key={player.id} value={player.id}>
+                    {player.full_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="player-subscriptions-field">
+              <label htmlFor="player-subscription-plan">Plan</label>
+              <select
+                id="player-subscription-plan"
+                value={selectedPlan}
+                onChange={(e) => setSelectedPlan(e.target.value)}
+              >
+                <option value="">Select plan</option>
+                {plans.map((plan) => (
+                  <option key={plan.id} value={plan.id}>
+                    {formatPlanLabel(plan)}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="player-subscriptions-field">
+              <label htmlFor="player-subscription-start-date">Start date</label>
+              <input
+                id="player-subscription-start-date"
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+              />
+            </div>
+
+            <div className="player-subscriptions-form-action">
+              <button
+                type="button"
+                className="player-subscriptions-primary-button"
+                onClick={isEditing ? handleUpdateSubscription : createSubscription}
+                disabled={isSaving}
+              >
+                {isSaving
+                  ? "Saving..."
+                  : isEditing
+                    ? "Update subscription"
+                    : "Create subscription"}
+              </button>
+            </div>
+          </div>
+
+          {selectedPlayerRecord && selectedPlanRecord && (
+            <div className="player-subscriptions-assignment-summary">
+              <div>
+                <span>Selected player</span>
+                <strong>{selectedPlayerRecord.full_name}</strong>
+                <small>
+                  {selectedAcademy
+                    ? academies.find((academy) => academy.id === selectedAcademy)?.academy_name
+                    : "All academies"}
+                  {selectedCenter
+                    ? " · " + (centers.find((center) => center.id === selectedCenter)?.center_name || "")
+                    : ""}
+                  {selectedBatch
+                    ? " · " + (batches.find((batch) => batch.id === selectedBatch)?.batch_name || "")
+                    : ""}
+                </small>
+              </div>
+              <div>
+                <span>Selected plan</span>
+                <strong>{selectedPlanRecord.plan_name}</strong>
+                <small>
+                  {formatCurrency(selectedPlanRecord.amount)}
+                  {BILLING_CYCLES[selectedPlanRecord.billing_cycle]
+                    ? " / " + BILLING_CYCLES[selectedPlanRecord.billing_cycle]
+                    : ""}
+                  {" · Start " + formatDate(startDate)}
+                </small>
+              </div>
+            </div>
+          )}
+        </section>
+
+        <section className="player-subscriptions-list-section">
+          <div className="player-subscriptions-list-toolbar">
+            <div className="player-subscriptions-list-title">
+              <h2>Subscriptions</h2>
+              <span>
+                {visibleSubscriptions.length} shown · {activeCount} active · {inactiveCount} inactive
+              </span>
+            </div>
+
+            <div className="player-subscriptions-list-controls">
+              <div className="player-subscriptions-filter-field">
+                <label htmlFor="player-subscription-status-filter">Status</label>
+                <select
+                  id="player-subscription-status-filter"
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                >
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                  <option value="all">All statuses</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div className="player-subscriptions-table-wrap">
+            <table className="player-subscriptions-table">
+              <caption className="sr-only">Player subscriptions</caption>
+              <thead>
+                <tr>
+                  {isSuperAdmin(loggedInUser) && <th scope="col">Academy</th>}
+                  <th scope="col">Center</th>
+                  <th scope="col">Batch</th>
+                  <th scope="col">Player</th>
+                  <th scope="col">Plan</th>
+                  <th scope="col">Amount</th>
+                  <th scope="col">Start date</th>
+                  <th scope="col">End date</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {paginatedSubscriptions.length === 0 ? (
+                  <tr>
+                    <td
+                      className="player-subscriptions-empty-state"
+                      colSpan={isSuperAdmin(loggedInUser) ? 10 : 9}
+                    >
+                      <strong>No subscriptions found</strong>
+                      <span>
+                        {statusFilter === "active"
+                          ? "No active subscriptions match the selected scope."
+                          : "Try a different status or scope filter."}
+                      </span>
+                    </td>
+                  </tr>
+                ) : (
+                  paginatedSubscriptions.map((subscription) => (
+                    <tr key={subscription.id}>
+                      {isSuperAdmin(loggedInUser) && (
+                        <td>
+                          <strong>{subscription.players?.academies?.academy_name || "—"}</strong>
+                        </td>
+                      )}
+                      <td>{subscription.players?.centers?.center_name || "—"}</td>
+                      <td>{subscription.players?.batches?.batch_name || "—"}</td>
+                      <td>
+                        <div className="player-subscriptions-player-cell">
+                          <strong>{subscription.players?.full_name || "—"}</strong>
+                        </div>
+                      </td>
+                      <td>
+                        <div className="player-subscriptions-plan-cell">
+                          <strong>{subscription.subscription_plans?.plan_name || "—"}</strong>
+                          <span>
+                            {subscription.subscription_plans?.billing_cycle
+                              ? BILLING_CYCLES[subscription.subscription_plans.billing_cycle]
+                                ? "Per " + BILLING_CYCLES[subscription.subscription_plans.billing_cycle]
+                                : subscription.subscription_plans.billing_cycle
+                              : ""}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="player-subscriptions-money-cell">
+                        {formatCurrency(subscription.subscription_plans?.amount)}
+                      </td>
+                      <td className="player-subscriptions-date-cell">
+                        {formatDate(subscription.start_date)}
+                      </td>
+                      <td className="player-subscriptions-date-cell">
+                        {formatDate(subscription.end_date)}
+                      </td>
+                      <td>
+                        <span
+                          className={
+                            subscription.status === "active"
+                              ? "player-subscriptions-status player-subscriptions-status-active"
+                              : "player-subscriptions-status player-subscriptions-status-inactive"
+                          }
+                        >
+                          <span aria-hidden="true">●</span>
+                          {subscription.status === "active" ? "Active" : "Inactive"}
+                        </span>
+                      </td>
+                      <td className="player-subscriptions-actions-cell">
+                        <div className="player-subscriptions-row-actions">
+                          <button
+                            type="button"
+                            className="player-subscriptions-action-button"
+                            onClick={() => handleEditSubscription(subscription)}
+                            aria-label={"Edit " + (subscription.players?.full_name || "player") + " subscription"}
+                          >
+                            Edit
+                          </button>
+                          {subscription.status === "active" && (
+                            <button
+                              type="button"
+                              className="player-subscriptions-action-button player-subscriptions-action-danger"
+                              onClick={() => handleDeactivateSubscription(subscription.id)}
+                              aria-label={"Deactivate " + (subscription.players?.full_name || "player") + " subscription"}
+                            >
+                              Deactivate
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {visibleSubscriptions.length > 0 && (
+            <div className="player-subscriptions-pagination">
+              <span>
+                Showing {Math.min((currentPage - 1) * PAGE_SIZE + 1, visibleSubscriptions.length)}
+                –{Math.min(currentPage * PAGE_SIZE, visibleSubscriptions.length)}
+                {" "}of {visibleSubscriptions.length}
+              </span>
+              <div>
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                  disabled={currentPage === 1}
+                >
+                  Previous
+                </button>
+                <strong>Page {currentPage} of {totalPages}</strong>
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
+        </section>
+      </div>
+    </Layout>
+  );
 }
 
 export default PlayerSubscriptions;
