@@ -257,7 +257,7 @@ const ParentFinancialOverview = () => {
                     {selectedChild.academy?.academy_name || "Academy"} · {selectedChild.center?.center_name || "Center"} · {selectedChild.batch?.batch_name || "Batch"}
                   </p>
                 </div>
-                <span className={`parent-finance-child-status parent-finance-child-status-${String(selectedChild.player_status || "active").toLowerCase().replace(/\\s+/g, "-")}`}>
+                <span className={`parent-finance-child-status parent-finance-child-status-${String(selectedChild.player_status || "active").toLowerCase().replace(/\s+/g, "-")}`}>
                   {selectedChild.player_status || "Active"}
                 </span>
               </section>
