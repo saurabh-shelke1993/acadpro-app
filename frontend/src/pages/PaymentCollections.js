@@ -928,6 +928,22 @@ ${receiptData.batch}
 
 <p>
 <strong>
+Due Type:
+</strong>
+
+${receiptData.dueType || "-"}
+</p>
+
+<p>
+<strong>
+Due Date:
+</strong>
+
+${receiptData.dueDate || "-"}
+</p>
+
+<p>
+<strong>
 Payment Mode:
 </strong>
 
@@ -957,6 +973,14 @@ Remaining :
 ₹${receiptData.remainingAmount}
 
 </h3>
+
+<p>
+<strong>
+Collection Status:
+</strong>
+
+${receiptData.balanceStatus || "-"}
+</p>
 
 <hr>
 
