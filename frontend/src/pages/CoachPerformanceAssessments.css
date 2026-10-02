@@ -115,7 +115,7 @@
 .assessment-player-context strong{overflow:hidden;color:var(--ap-slate-900);font-size:11px;text-overflow:ellipsis;white-space:nowrap}
 .assessment-player-context span{overflow:hidden;color:var(--ap-slate-500);font-size:9px;text-overflow:ellipsis;white-space:nowrap}
 .assessment-form{margin-top:13px!important}
-.assessment-meta-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(180px,.8fr) 150px;align-items:stretch;gap:10px;padding:10px;border:1px solid var(--ap-slate-200);border-radius:9px;background:var(--ap-slate-50)}
+.assessment-meta-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(180px,.8fr);align-items:stretch;gap:10px;padding:10px;border:1px solid var(--ap-slate-200);border-radius:9px;background:var(--ap-slate-50)}
 .assessment-meta-field{min-width:0}
 .assessment-meta-field label{display:block;margin-bottom:4px;color:var(--ap-slate-700);font-size:10px;font-weight:850}
 .assessment-meta-field select,.assessment-meta-field input{width:100%;height:38px;padding:7px 9px;border:1px solid var(--ap-border);border-radius:7px;background:var(--ap-surface);color:var(--ap-slate-800);font:inherit;box-sizing:border-box}
@@ -124,7 +124,6 @@
 .assessment-readonly-field span:last-child{display:flex;min-width:0;flex-direction:column;gap:1px}
 .assessment-readonly-field strong{overflow:hidden;color:var(--ap-slate-800);font-size:10px;text-overflow:ellipsis;white-space:nowrap}
 .assessment-readonly-field small{color:var(--ap-slate-500);font-size:8px}
-.assessment-completion{display:flex;min-width:0;flex-direction:column;justify-content:center;padding:7px 9px;border-left:1px solid var(--ap-slate-200)}
 .assessment-completion span{color:var(--ap-slate-500);font-size:9px}
 .assessment-completion strong{margin-top:2px;color:var(--ap-primary-700);font-size:15px}
 .score-entry-header{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-top:15px;margin-bottom:8px}
@@ -161,7 +160,6 @@
 
 @media(max-width:900px){
   .assessment-meta-grid{grid-template-columns:1fr 1fr}
-  .assessment-completion{border-left:0;border-top:1px solid var(--ap-slate-200);padding-top:8px}
   .score-matrix{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
 @media(max-width:700px){
