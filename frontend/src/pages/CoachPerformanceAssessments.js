@@ -551,72 +551,83 @@ function CoachPerformanceAssessments() {
                   </div>
                 ) : null}
 
-                <div style={styles.field}>
-                  <label htmlFor="assessment-date" style={styles.label}>Assessment date</label>
-                  <input id="assessment-date" name="assessment_date" type="date" value={form.assessment_date} onChange={handleFormChange} style={styles.input} aria-invalid={Boolean(validationErrors.assessment_date)} />
-                  {validationErrors.assessment_date ? <span style={styles.fieldError}>{validationErrors.assessment_date}</span> : null}
+                <div className="assessment-date-field">
+                  <label htmlFor="assessment-date">Assessment date</label>
+                  <input id="assessment-date" name="assessment_date" type="date" value={form.assessment_date} onChange={handleFormChange} aria-invalid={Boolean(validationErrors.assessment_date)} />
+                  {validationErrors.assessment_date ? <span className="field-error">{validationErrors.assessment_date}</span> : null}
                 </div>
 
-                  <div className="score-group">
-                    <div className="score-group-title">Technical skills</div>
-                    <div className="score-grid">                    <div className="score-field">
-                      <label htmlFor="ball_control_score">Ball control</label>
-                      <input id="ball_control_score" name="ball_control_score" type="number" min="0" max="10" step="0.1" inputMode="decimal" value={form[name]} onChange={handleFormChange} aria-invalid={Boolean(validationErrors[name])} aria-describedby={validationErrors[name] ? `ball_control_score-error` : undefined} />
-                      <span className="score-range">0–10</span>
-                      {validationErrors[name] ? <span id="ball_control_score-error" className="field-error">{validationErrors[name]}</span> : null}
-                    </div>                    <div className="score-field">
-                      <label htmlFor="passing_score">Passing</label>
-                      <input id="passing_score" name="passing_score" type="number" min="0" max="10" step="0.1" inputMode="decimal" value={form[name]} onChange={handleFormChange} aria-invalid={Boolean(validationErrors[name])} aria-describedby={validationErrors[name] ? `passing_score-error` : undefined} />
-                      <span className="score-range">0–10</span>
-                      {validationErrors[name] ? <span id="passing_score-error" className="field-error">{validationErrors[name]}</span> : null}
-                    </div>                    <div className="score-field">
-                      <label htmlFor="dribbling_score">Dribbling</label>
-                      <input id="dribbling_score" name="dribbling_score" type="number" min="0" max="10" step="0.1" inputMode="decimal" value={form[name]} onChange={handleFormChange} aria-invalid={Boolean(validationErrors[name])} aria-describedby={validationErrors[name] ? `dribbling_score-error` : undefined} />
-                      <span className="score-range">0–10</span>
-                      {validationErrors[name] ? <span id="dribbling_score-error" className="field-error">{validationErrors[name]}</span> : null}
-                    </div>                    <div className="score-field">
-                      <label htmlFor="shooting_score">Shooting</label>
-                      <input id="shooting_score" name="shooting_score" type="number" min="0" max="10" step="0.1" inputMode="decimal" value={form[name]} onChange={handleFormChange} aria-invalid={Boolean(validationErrors[name])} aria-describedby={validationErrors[name] ? `shooting_score-error` : undefined} />
-                      <span className="score-range">0–10</span>
-                      {validationErrors[name] ? <span id="shooting_score-error" className="field-error">{validationErrors[name]}</span> : null}
-                    </div>                    <div className="score-field">
-                      <label htmlFor="defending_score">Defending</label>
-                      <input id="defending_score" name="defending_score" type="number" min="0" max="10" step="0.1" inputMode="decimal" value={form[name]} onChange={handleFormChange} aria-invalid={Boolean(validationErrors[name])} aria-describedby={validationErrors[name] ? `defending_score-error` : undefined} />
-                      <span className="score-range">0–10</span>
-                      {validationErrors[name] ? <span id="defending_score-error" className="field-error">{validationErrors[name]}</span> : null}
-                    </div>
-                    </div>
+                <div className="score-group">
+                  <div className="score-group-title">Technical skills</div>
+                  <div className="score-grid">
+                    <div className="score-field">
+  <label htmlFor="ball_control_score">Ball control</label>
+  <input id="ball_control_score" name="ball_control_score" type="number" min="0" max="10" step="0.1" inputMode="decimal" value={form.ball_control_score} onChange={handleFormChange} aria-invalid={Boolean(validationErrors.ball_control_score)} aria-describedby={validationErrors.ball_control_score ? "ball_control_score-error" : undefined} />
+  <span className="score-range">0–10</span>
+  {validationErrors.ball_control_score ? <span id="ball_control_score-error" className="field-error">{validationErrors.ball_control_score}</span> : null}
+</div>
+                    <div className="score-field">
+  <label htmlFor="passing_score">Passing</label>
+  <input id="passing_score" name="passing_score" type="number" min="0" max="10" step="0.1" inputMode="decimal" value={form.passing_score} onChange={handleFormChange} aria-invalid={Boolean(validationErrors.passing_score)} aria-describedby={validationErrors.passing_score ? "passing_score-error" : undefined} />
+  <span className="score-range">0–10</span>
+  {validationErrors.passing_score ? <span id="passing_score-error" className="field-error">{validationErrors.passing_score}</span> : null}
+</div>
+                    <div className="score-field">
+  <label htmlFor="dribbling_score">Dribbling</label>
+  <input id="dribbling_score" name="dribbling_score" type="number" min="0" max="10" step="0.1" inputMode="decimal" value={form.dribbling_score} onChange={handleFormChange} aria-invalid={Boolean(validationErrors.dribbling_score)} aria-describedby={validationErrors.dribbling_score ? "dribbling_score-error" : undefined} />
+  <span className="score-range">0–10</span>
+  {validationErrors.dribbling_score ? <span id="dribbling_score-error" className="field-error">{validationErrors.dribbling_score}</span> : null}
+</div>
+                    <div className="score-field">
+  <label htmlFor="shooting_score">Shooting</label>
+  <input id="shooting_score" name="shooting_score" type="number" min="0" max="10" step="0.1" inputMode="decimal" value={form.shooting_score} onChange={handleFormChange} aria-invalid={Boolean(validationErrors.shooting_score)} aria-describedby={validationErrors.shooting_score ? "shooting_score-error" : undefined} />
+  <span className="score-range">0–10</span>
+  {validationErrors.shooting_score ? <span id="shooting_score-error" className="field-error">{validationErrors.shooting_score}</span> : null}
+</div>
+                    <div className="score-field">
+  <label htmlFor="defending_score">Defending</label>
+  <input id="defending_score" name="defending_score" type="number" min="0" max="10" step="0.1" inputMode="decimal" value={form.defending_score} onChange={handleFormChange} aria-invalid={Boolean(validationErrors.defending_score)} aria-describedby={validationErrors.defending_score ? "defending_score-error" : undefined} />
+  <span className="score-range">0–10</span>
+  {validationErrors.defending_score ? <span id="defending_score-error" className="field-error">{validationErrors.defending_score}</span> : null}
+</div>
                   </div>
-                  <div className="score-group">
-                    <div className="score-group-title">Physical</div>
-                    <div className="score-grid">                    <div className="score-field">
-                      <label htmlFor="speed_score">Speed</label>
-                      <input id="speed_score" name="speed_score" type="number" min="0" max="10" step="0.1" inputMode="decimal" value={form[name]} onChange={handleFormChange} aria-invalid={Boolean(validationErrors[name])} aria-describedby={validationErrors[name] ? `speed_score-error` : undefined} />
-                      <span className="score-range">0–10</span>
-                      {validationErrors[name] ? <span id="speed_score-error" className="field-error">{validationErrors[name]}</span> : null}
-                    </div>                    <div className="score-field">
-                      <label htmlFor="stamina_score">Stamina</label>
-                      <input id="stamina_score" name="stamina_score" type="number" min="0" max="10" step="0.1" inputMode="decimal" value={form[name]} onChange={handleFormChange} aria-invalid={Boolean(validationErrors[name])} aria-describedby={validationErrors[name] ? `stamina_score-error` : undefined} />
-                      <span className="score-range">0–10</span>
-                      {validationErrors[name] ? <span id="stamina_score-error" className="field-error">{validationErrors[name]}</span> : null}
-                    </div>
-                    </div>
+                </div>
+
+                <div className="score-group">
+                  <div className="score-group-title">Physical</div>
+                  <div className="score-grid">
+                    <div className="score-field">
+  <label htmlFor="speed_score">Speed</label>
+  <input id="speed_score" name="speed_score" type="number" min="0" max="10" step="0.1" inputMode="decimal" value={form.speed_score} onChange={handleFormChange} aria-invalid={Boolean(validationErrors.speed_score)} aria-describedby={validationErrors.speed_score ? "speed_score-error" : undefined} />
+  <span className="score-range">0–10</span>
+  {validationErrors.speed_score ? <span id="speed_score-error" className="field-error">{validationErrors.speed_score}</span> : null}
+</div>
+                    <div className="score-field">
+  <label htmlFor="stamina_score">Stamina</label>
+  <input id="stamina_score" name="stamina_score" type="number" min="0" max="10" step="0.1" inputMode="decimal" value={form.stamina_score} onChange={handleFormChange} aria-invalid={Boolean(validationErrors.stamina_score)} aria-describedby={validationErrors.stamina_score ? "stamina_score-error" : undefined} />
+  <span className="score-range">0–10</span>
+  {validationErrors.stamina_score ? <span id="stamina_score-error" className="field-error">{validationErrors.stamina_score}</span> : null}
+</div>
                   </div>
-                  <div className="score-group">
-                    <div className="score-group-title">Team & discipline</div>
-                    <div className="score-grid">                    <div className="score-field">
-                      <label htmlFor="teamwork_score">Teamwork</label>
-                      <input id="teamwork_score" name="teamwork_score" type="number" min="0" max="10" step="0.1" inputMode="decimal" value={form[name]} onChange={handleFormChange} aria-invalid={Boolean(validationErrors[name])} aria-describedby={validationErrors[name] ? `teamwork_score-error` : undefined} />
-                      <span className="score-range">0–10</span>
-                      {validationErrors[name] ? <span id="teamwork_score-error" className="field-error">{validationErrors[name]}</span> : null}
-                    </div>                    <div className="score-field">
-                      <label htmlFor="discipline_score">Discipline</label>
-                      <input id="discipline_score" name="discipline_score" type="number" min="0" max="10" step="0.1" inputMode="decimal" value={form[name]} onChange={handleFormChange} aria-invalid={Boolean(validationErrors[name])} aria-describedby={validationErrors[name] ? `discipline_score-error` : undefined} />
-                      <span className="score-range">0–10</span>
-                      {validationErrors[name] ? <span id="discipline_score-error" className="field-error">{validationErrors[name]}</span> : null}
-                    </div>
-                    </div>
+                </div>
+
+                <div className="score-group">
+                  <div className="score-group-title">Team & discipline</div>
+                  <div className="score-grid">
+                    <div className="score-field">
+  <label htmlFor="teamwork_score">Teamwork</label>
+  <input id="teamwork_score" name="teamwork_score" type="number" min="0" max="10" step="0.1" inputMode="decimal" value={form.teamwork_score} onChange={handleFormChange} aria-invalid={Boolean(validationErrors.teamwork_score)} aria-describedby={validationErrors.teamwork_score ? "teamwork_score-error" : undefined} />
+  <span className="score-range">0–10</span>
+  {validationErrors.teamwork_score ? <span id="teamwork_score-error" className="field-error">{validationErrors.teamwork_score}</span> : null}
+</div>
+                    <div className="score-field">
+  <label htmlFor="discipline_score">Discipline</label>
+  <input id="discipline_score" name="discipline_score" type="number" min="0" max="10" step="0.1" inputMode="decimal" value={form.discipline_score} onChange={handleFormChange} aria-invalid={Boolean(validationErrors.discipline_score)} aria-describedby={validationErrors.discipline_score ? "discipline_score-error" : undefined} />
+  <span className="score-range">0–10</span>
+  {validationErrors.discipline_score ? <span id="discipline_score-error" className="field-error">{validationErrors.discipline_score}</span> : null}
+</div>
                   </div>
+                </div>
 
                 <div className="remarks-field">
                   <label htmlFor="coach-remarks">Coach remarks</label>
