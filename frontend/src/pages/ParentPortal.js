@@ -253,15 +253,9 @@ const ParentPortal = () => {
   const selectedAttendance = selectedChild
     ? attendanceByChildId[selectedChild.id]
     : null;
-  const selectedAttendanceHistory = selectedChild
-    ? attendanceHistoryByChildId[selectedChild.id] || []
-    : [];
   const selectedPaymentHistory = selectedChild
     ? paymentHistoryByChildId[selectedChild.id] || []
     : [];
-  const selectedReceiptPayments = selectedPaymentHistory.filter(
-    (payment) => Boolean(payment.receipt_number)
-  );
   const selectedPendingDues = selectedChild
     ? pendingDuesByChildId[selectedChild.id] || []
     : [];
@@ -297,137 +291,6 @@ const ParentPortal = () => {
       .replaceAll(">", "&gt;")
       .replaceAll('"', "&quot;")
       .replaceAll("'", "&#039;");
-
-  const printReceipt = (payment) => {
-    if (!selectedChild || !payment?.receipt_number) return;
-
-    const receiptWindow = window.open(
-      "",
-      "_blank",
-      "width=760,height=900"
-    );
-
-    if (!receiptWindow) {
-      alert("Please allow pop-ups to print the receipt.");
-      return;
-    }
-
-    const academyName = selectedChild.academy?.academy_name || "Not available";
-    const centerName = selectedChild.center?.center_name || "Not available";
-    const batchName = selectedChild.batch?.batch_name || "Not assigned";
-
-    receiptWindow.document.write(`
-      <!doctype html>
-      <html>
-        <head>
-          <title>AcadPro Receipt - ${escapeHtml(payment.receipt_number)}</title>
-          <style>
-            body {
-              font-family: Arial, sans-serif;
-              margin: 0;
-              padding: 32px;
-              color: #1f2937;
-              background: #ffffff;
-            }
-            .receipt {
-              max-width: 680px;
-              margin: 0 auto;
-            }
-            h1, h2 { text-align: center; margin: 0; }
-            h1 { font-size: 28px; }
-            h2 { margin-top: 6px; font-size: 18px; }
-            hr { border: 0; border-top: 1px solid #d1d5db; margin: 22px 0; }
-            .row {
-              display: flex;
-              justify-content: space-between;
-              gap: 20px;
-              padding: 8px 0;
-            }
-            .label { color: #6b7280; }
-            .value { font-weight: 600; text-align: right; }
-            .amount {
-              margin: 22px 0;
-              padding: 16px;
-              border: 1px solid #d1d5db;
-              border-radius: 8px;
-              text-align: center;
-              font-size: 22px;
-              font-weight: 700;
-            }
-            .footer {
-              margin-top: 50px;
-              text-align: center;
-              color: #6b7280;
-              font-size: 13px;
-            }
-            @media print {
-              body { padding: 0; }
-            }
-          </style>
-        </head>
-        <body>
-          <main class="receipt">
-            <h1>AcadPro</h1>
-            <h2>Payment Receipt</h2>
-            <hr />
-
-            <div class="row">
-              <span class="label">Receipt Number</span>
-              <span class="value">${escapeHtml(payment.receipt_number)}</span>
-            </div>
-            <div class="row">
-              <span class="label">Payment Date</span>
-              <span class="value">${escapeHtml(formatDate(payment.payment_date))}</span>
-            </div>
-
-            <hr />
-
-            <div class="row">
-              <span class="label">Player</span>
-              <span class="value">${escapeHtml(selectedChild.full_name)}</span>
-            </div>
-            <div class="row">
-              <span class="label">Academy</span>
-              <span class="value">${escapeHtml(academyName)}</span>
-            </div>
-            <div class="row">
-              <span class="label">Center</span>
-              <span class="value">${escapeHtml(centerName)}</span>
-            </div>
-            <div class="row">
-              <span class="label">Batch</span>
-              <span class="value">${escapeHtml(batchName)}</span>
-            </div>
-
-            <hr />
-
-            <div class="row">
-              <span class="label">Payment Mode</span>
-              <span class="value">${escapeHtml(payment.payment_mode || "Not recorded")}</span>
-            </div>
-            <div class="row">
-              <span class="label">Transaction Reference</span>
-              <span class="value">${escapeHtml(payment.transaction_reference || "-")}</span>
-            </div>
-
-            <div class="amount">
-              Amount Paid: ${escapeHtml(formatAmount(payment.amount_paid))}
-            </div>
-
-            <div class="footer">
-              Thank you for your payment.
-            </div>
-          </main>
-        </body>
-      </html>
-    `);
-
-    receiptWindow.document.close();
-    receiptWindow.focus();
-    receiptWindow.onload = () => {
-      receiptWindow.print();
-    };
-  };
 
   if (loading) {
     return (
@@ -698,11 +561,14 @@ const ParentPortal = () => {
                 )}
               </div>
 
-              <div className="parent-portal-subsection parent-portal-financial-section">
+              <div className="parent-portal-subsection parent-portal-financial-summary-section">
                 <div className="parent-portal-subsection-heading parent-portal-financial-heading">
                   <div>
-                    <p className="parent-portal-section-kicker">Financial overview</p>
+                    <p className="parent-portal-section-kicker">Financial status</p>
                     <h3 className="parent-portal-subsection-title">Fees &amp; payments</h3>
+                    <p className="parent-portal-section-description">
+                      A quick view of this child's current fee position.
+                    </p>
                   </div>
                   <div className={`parent-portal-outstanding-summary${totalOutstandingAmount > 0 ? " has-outstanding" : ""}`}>
                     <span>Outstanding</span>
@@ -710,7 +576,7 @@ const ParentPortal = () => {
                   </div>
                 </div>
 
-                <div className="parent-portal-financial-grid">
+                <div className="parent-portal-financial-grid parent-portal-financial-summary-grid">
                   <div className="parent-portal-financial-card">
                     <span className="parent-portal-financial-card-label">Pending dues</span>
                     <strong>{selectedPendingDues.length}</strong>
@@ -734,121 +600,31 @@ const ParentPortal = () => {
                   </div>
                 </div>
 
-                <div className="parent-portal-financial-block">
-                  <div className="parent-portal-financial-block-heading">
-                    <div>
-                      <h4>Outstanding dues</h4>
-                      <p>Fees that still have a remaining balance.</p>
-                    </div>
-                    <span className="parent-portal-financial-count">{selectedPendingDues.length}</span>
-                  </div>
-                  {selectedPendingDues.length > 0 ? (
-                    <div className="parent-portal-history-list">
-                      {selectedPendingDues.map((due) => (
-                        <div key={due.id} className="parent-portal-history-row parent-portal-due-row">
-                          <div className="parent-portal-history-content">
-                            <div className="parent-portal-financial-row-topline">
-                              <p className="parent-portal-history-date">{due.due_type || "Fee due"}</p>
-                              <span className={`parent-portal-status-badge parent-portal-due-status parent-portal-due-${String(due.due_status || "pending").toLowerCase().includes("partial") ? "partial" : "pending"}`}>
-                                {due.due_status || "Pending"}
-                              </span>
-                            </div>
-                            <p className="parent-portal-history-remarks">Due date: {formatDate(due.due_date)}</p>
-                            <div className="parent-portal-due-amount-grid">
-                              <div><span>Total</span><strong>{formatAmount(due.total_amount)}</strong></div>
-                              <div><span>Paid</span><strong>{formatAmount(due.paid_amount)}</strong></div>
-                              <div className="is-remaining"><span>Remaining</span><strong>{formatAmount(due.remaining_amount)}</strong></div>
-                            </div>
-                            {due.remarks ? <p className="parent-portal-history-remarks">Remarks: {due.remarks}</p> : null}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="parent-portal-financial-empty">
-                      <strong>No outstanding dues</strong>
-                      <p className="parent-portal-message">There are no pending balances for this child.</p>
-                    </div>
-                  )}
-                </div>
+                <div className="parent-portal-summary-actions">
+                  <button
+                    type="button"
+                    className="parent-portal-summary-action"
+                    onClick={() => navigate("/parent-financial-overview")}
+                  >
+                    <span>
+                      <strong>Financial Overview</strong>
+                      <small>View dues, payment history and receipts.</small>
+                    </span>
+                    <span aria-hidden="true">→</span>
+                  </button>
 
-                <div className="parent-portal-financial-block">
-                  <div className="parent-portal-financial-block-heading">
-                    <div>
-                      <h4>Payment history</h4>
-                      <p>Recorded payments and their transaction references.</p>
-                    </div>
-                    <span className="parent-portal-financial-count">{selectedPaymentHistory.length}</span>
-                  </div>
-                  {selectedPaymentHistory.length > 0 ? (
-                    <div className="parent-portal-history-list">
-                      {selectedPaymentHistory.map((payment) => (
-                        <div key={payment.id} className="parent-portal-history-row parent-portal-payment-row">
-                          <div className="parent-portal-history-content">
-                            <div className="parent-portal-financial-row-topline">
-                              <p className="parent-portal-history-date">{formatDate(payment.payment_date)}</p>
-                              <strong className="parent-portal-payment-amount">{formatAmount(payment.amount_paid)}</strong>
-                            </div>
-                            <div className="parent-portal-payment-meta-grid">
-                              <div><span>Mode</span><strong>{payment.payment_mode || "Not recorded"}</strong></div>
-                              <div><span>Transaction</span><strong>{payment.transaction_reference || "Not recorded"}</strong></div>
-                              <div><span>Receipt</span><strong>{payment.receipt_number || "Not issued"}</strong></div>
-                            </div>
-                            {payment.remarks ? <p className="parent-portal-history-remarks">Remarks: {payment.remarks}</p> : null}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="parent-portal-financial-empty">
-                      <strong>No payment history yet</strong>
-                      <p className="parent-portal-message">Payments recorded for this child will appear here.</p>
-                    </div>
-                  )}
+                  <button
+                    type="button"
+                    className="parent-portal-summary-action parent-portal-summary-action-secondary"
+                    onClick={() => navigate(`/player-performance-report?player=${encodeURIComponent(selectedChild.id)}`)}
+                  >
+                    <span>
+                      <strong>Player Performance</strong>
+                      <small>View assessments, skill trends and coach feedback.</small>
+                    </span>
+                    <span aria-hidden="true">→</span>
+                  </button>
                 </div>
-              </div>
-
-              <div className="parent-portal-subsection parent-portal-receipts-section">
-                <div className="parent-portal-subsection-heading">
-                  <div>
-                    <p className="parent-portal-section-kicker">Receipts</p>
-                    <h3 className="parent-portal-subsection-title">Payment receipts</h3>
-                  </div>
-                  <span className="parent-portal-financial-count">{selectedReceiptPayments.length}</span>
-                </div>
-                {selectedReceiptPayments.length > 0 ? (
-                  <div className="parent-portal-receipt-grid">
-                    {selectedReceiptPayments.map((payment) => (
-                      <article key={`receipt-${payment.id}`} className="parent-portal-receipt-card">
-                        <div className="parent-portal-receipt-card-topline">
-                          <div>
-                            <span className="parent-portal-receipt-label">Receipt number</span>
-                            <strong>{payment.receipt_number}</strong>
-                          </div>
-                          <span className="parent-portal-receipt-status">Issued</span>
-                        </div>
-                        <div className="parent-portal-receipt-details">
-                          <div><span>Date</span><strong>{formatDate(payment.payment_date)}</strong></div>
-                          <div><span>Amount</span><strong>{formatAmount(payment.amount_paid)}</strong></div>
-                          <div><span>Mode</span><strong>{payment.payment_mode || "Not recorded"}</strong></div>
-                          <div><span>Transaction</span><strong>{payment.transaction_reference || "Not recorded"}</strong></div>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => printReceipt(payment)}
-                          className="parent-portal-receipt-button"
-                        >
-                          Print / Save PDF
-                        </button>
-                      </article>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="parent-portal-financial-empty">
-                    <strong>No receipts available</strong>
-                    <p className="parent-portal-message">Receipts will appear here when a receipt number is issued.</p>
-                  </div>
-                )}
               </div>
 
               <div className="parent-portal-subsection parent-portal-performance-section">
