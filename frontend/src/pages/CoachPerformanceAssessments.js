@@ -589,10 +589,6 @@ function CoachPerformanceAssessments() {
                     <input id="assessment-date" name="assessment_date" type="date" value={form.assessment_date} onChange={handleFormChange} aria-invalid={Boolean(validationErrors.assessment_date)} />
                     {validationErrors.assessment_date ? <span className="field-error">{validationErrors.assessment_date}</span> : null}
                   </div>
-                  <div className="assessment-completion">
-                    <span>Score coverage</span>
-                    <strong>{scoreFields.filter(([name]) => form[name] !== "" && form[name] !== null).length}/9 metrics</strong>
-                  </div>
                 </div>
 
                 <div className="score-entry-header">
