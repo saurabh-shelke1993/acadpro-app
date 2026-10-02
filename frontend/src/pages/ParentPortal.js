@@ -229,17 +229,6 @@ const ParentPortal = () => {
                 </span>
               </div>
 
-              <div className="parent-portal-profile-meta">
-                <div>
-                  <span>Player code</span>
-                  <strong>{selectedChild.player_code || "Not available"}</strong>
-                </div>
-                <div>
-                  <span>Registration number</span>
-                  <strong>{selectedChild.registration_number || "Not available"}</strong>
-                </div>
-              </div>
-
               <div className="parent-portal-subsection parent-portal-profile-section">
                 <div className="parent-portal-subsection-heading">
                   <div>
