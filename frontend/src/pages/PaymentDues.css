@@ -566,3 +566,61 @@
     grid-template-columns: 1fr;
   }
 }
+
+
+/* Payment Dues V2 — Phase 3 layout */
+.payment-dues-top-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(280px, 3fr);
+  gap: 14px;
+  align-items: stretch;
+  margin-bottom: 16px;
+}
+.payment-dues-top-grid .payment-generate-card {
+  height: 100%;
+  margin-bottom: 0;
+  box-sizing: border-box;
+}
+.payment-kpi-panel {
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+}
+.payment-kpi-panel .payment-kpi-grid {
+  height: 100%;
+  margin-bottom: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: minmax(0, 1fr);
+}
+.payment-kpi-panel .payment-kpi-card {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  justify-content: center;
+}
+.payment-kpi-panel .payment-kpi-card strong {
+  font-size: 19px;
+}
+@media (max-width: 1050px) {
+  .payment-dues-top-grid {
+    grid-template-columns: minmax(0, 6.5fr) minmax(250px, 3.5fr);
+  }
+}
+@media (max-width: 900px) {
+  .payment-dues-top-grid {
+    grid-template-columns: 1fr;
+  }
+  .payment-dues-top-grid .payment-generate-card {
+    height: auto;
+  }
+  .payment-kpi-panel .payment-kpi-grid {
+    height: auto;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: auto;
+  }
+}
+@media (max-width: 420px) {
+  .payment-kpi-panel .payment-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}
