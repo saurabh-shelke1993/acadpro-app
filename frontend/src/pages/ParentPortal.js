@@ -5,7 +5,6 @@ import Layout from "../components/Layout";
 import "./ParentPortal.css";
 import {
   getAttendanceSummaries,
-  getFinancialSummaries,
   getParentContext,
 } from "../services/parentPortalService";
 
@@ -14,7 +13,6 @@ const ParentPortal = () => {
   const [children, setChildren] = useState([]);
   const [selectedChildId, setSelectedChildId] = useState(null);
   const [attendanceByChildId, setAttendanceByChildId] = useState({});
-  const [financialSummaryByChildId, setFinancialSummaryByChildId] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [secondaryErrors, setSecondaryErrors] = useState([]);
@@ -33,22 +31,17 @@ const ParentPortal = () => {
         const { parent, children, coachError } = await getParentContext();
         const childIds = children.map((child) => child.id);
 
-        const [attendanceResult, financialResult] = await Promise.all([
-          getAttendanceSummaries(childIds),
-          getFinancialSummaries(childIds),
-        ]);
+        const attendanceResult = await getAttendanceSummaries(childIds);
 
         if (!mounted) return;
 
         const nextSecondaryErrors = [];
         if (coachError) nextSecondaryErrors.push("Coach assignments could not be loaded.");
         if (attendanceResult.error) nextSecondaryErrors.push("Attendance data could not be loaded.");
-        nextSecondaryErrors.push(...financialResult.errors);
 
         setParent(parent);
         setChildren(children);
         setAttendanceByChildId(attendanceResult.summaries);
-        setFinancialSummaryByChildId(financialResult.summaries);
         setSecondaryErrors(nextSecondaryErrors);
         setSelectedChildId(children[0]?.id || null);
         setLoading(false);
@@ -79,10 +72,6 @@ const ParentPortal = () => {
   const selectedAttendance = selectedChild
     ? attendanceByChildId[selectedChild.id]
     : null;
-  const selectedFinancialSummary = selectedChild
-    ? financialSummaryByChildId[selectedChild.id]
-    : null;
-
   const formatDate = (value) => {
     if (!value) return "Not available";
     const date = new Date(`${value}T00:00:00`);
@@ -95,17 +84,6 @@ const ParentPortal = () => {
   };
 
   const formatTime = (value) => (value ? value.slice(0, 5) : "Not available");
-
-
-  const formatAmount = (value) => {
-    const amount = Number(value);
-    return Number.isFinite(amount)
-      ? amount.toLocaleString("en-IN", {
-          style: "currency",
-          currency: "INR",
-        })
-      : value || "Not recorded";
-  };
 
   if (loading) {
     return (
@@ -200,24 +178,20 @@ const ParentPortal = () => {
                     aria-pressed={isSelected}
                     className={`parent-portal-child-card${isSelected ? " is-selected" : ""}`}
                   >
-                    <div className="parent-portal-child-topline">
-                      <div className="parent-portal-child-avatar" aria-hidden="true">
-                        {(child.full_name || "?").charAt(0).toUpperCase()}
-                      </div>
-                      {isSelected ? (
-                        <span className="parent-portal-selected-badge">Selected</span>
-                      ) : null}
+                    <div className="parent-portal-child-avatar" aria-hidden="true">
+                      {(child.full_name || "?").charAt(0).toUpperCase()}
                     </div>
-                    <span className="parent-portal-child-name">{child.full_name}</span>
-                    <span className="parent-portal-child-meta">
-                      {child.center?.center_name || child.academy?.academy_name || "Academy profile"}
-                    </span>
-                    <span className="parent-portal-child-batch">
-                      {child.batch?.batch_name || "Batch not assigned"}
-                    </span>
-                    <span className="parent-portal-child-hint">
-                      {isSelected ? "Currently viewing dashboard" : "Select to view dashboard"}
-                    </span>
+                    <div className="parent-portal-child-selection-content">
+                      <span className="parent-portal-child-name">{child.full_name}</span>
+                      <span className="parent-portal-child-context">
+                        {child.center?.center_name || child.academy?.academy_name || "Academy profile"}
+                        <span aria-hidden="true">•</span>
+                        {child.batch?.batch_name || "Batch not assigned"}
+                      </span>
+                    </div>
+                    {isSelected ? (
+                      <span className="parent-portal-selected-badge">Selected</span>
+                    ) : null}
                   </button>
                 );
               })}
@@ -374,46 +348,6 @@ const ParentPortal = () => {
                     </div>
                   </div>
                 )}
-              </div>
-
-              <div className="parent-portal-subsection parent-portal-financial-summary-section">
-                <div className="parent-portal-subsection-heading parent-portal-financial-heading">
-                  <div>
-                    <p className="parent-portal-section-kicker">Financial status</p>
-                    <h3 className="parent-portal-subsection-title">Fees &amp; payments</h3>
-                    <p className="parent-portal-section-description">
-                      A quick view of this child's current fee position.
-                    </p>
-                  </div>
-                  <div className={`parent-portal-outstanding-summary${(selectedFinancialSummary?.outstandingAmount || 0) > 0 ? " has-outstanding" : ""}`}>
-                    <span>Outstanding</span>
-                    <strong>{formatAmount(selectedFinancialSummary?.outstandingAmount || 0)}</strong>
-                  </div>
-                </div>
-
-                <div className="parent-portal-financial-grid parent-portal-financial-summary-grid">
-                  <div className="parent-portal-financial-card">
-                    <span className="parent-portal-financial-card-label">Pending dues</span>
-                    <strong>{selectedFinancialSummary?.pendingDueCount || 0}</strong>
-                    <span className="parent-portal-financial-card-meta">
-                      {(selectedFinancialSummary?.pendingDueCount || 0) === 1 ? "fee requires attention" : "fees require attention"}
-                    </span>
-                  </div>
-                  <div className="parent-portal-financial-card">
-                    <span className="parent-portal-financial-card-label">Payments recorded</span>
-                    <strong>{selectedFinancialSummary?.paymentCount || 0}</strong>
-                    <span className="parent-portal-financial-card-meta">
-                      {(selectedFinancialSummary?.paymentCount || 0) === 1 ? "payment in history" : "payments in history"}
-                    </span>
-                  </div>
-                  <div className="parent-portal-financial-card is-clear">
-                    <span className="parent-portal-financial-card-label">Payment status</span>
-                    <strong>{(selectedFinancialSummary?.outstandingAmount || 0) > 0 ? "Due" : "Clear"}</strong>
-                    <span className="parent-portal-financial-card-meta">
-                      {(selectedFinancialSummary?.outstandingAmount || 0) > 0 ? "Outstanding balance remains" : "No outstanding balance"}
-                    </span>
-                  </div>
-                </div>
               </div>
 
               <div className="parent-portal-subsection parent-portal-performance-section">
