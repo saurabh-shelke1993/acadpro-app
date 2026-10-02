@@ -394,3 +394,175 @@
     font-size: 11px;
   }
 }
+
+
+/* Payment Dues V2 — Phase 3 */
+.payment-due-preview {
+  margin-top: 14px;
+  padding: 13px 14px;
+  border: 1px solid #dbeafe;
+  border-radius: 10px;
+  background: #f8fbff;
+}
+.payment-due-preview-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 11px;
+}
+.payment-due-preview-heading > div:last-child {
+  color: #0f172a;
+  font-size: 13px;
+}
+.payment-duplicate-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.payment-due-preview-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1.2fr .9fr 1fr 1fr;
+  gap: 10px;
+}
+.payment-due-preview-grid > div {
+  min-width: 0;
+  padding-right: 10px;
+  border-right: 1px solid #e2e8f0;
+}
+.payment-due-preview-grid > div:last-child {
+  padding-right: 0;
+  border-right: 0;
+}
+.payment-due-preview-grid span {
+  display: block;
+  margin-bottom: 4px;
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.payment-due-preview-grid strong {
+  display: block;
+  overflow: hidden;
+  color: #0f172a;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.payment-duplicate-warning {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 10px;
+  padding: 9px 11px;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  background: #fff7f7;
+  color: #991b1b;
+  font-size: 11px;
+}
+.payment-duplicate-warning strong {
+  font-size: 11px;
+}
+.payment-duplicate-warning span {
+  color: #b91c1c;
+  white-space: nowrap;
+}
+.payment-generation-status {
+  min-height: 18px;
+  margin-right: auto;
+  color: #64748b;
+  font-size: 11px;
+}
+.payment-primary-button:disabled {
+  cursor: not-allowed;
+  opacity: .5;
+}
+.payment-due-age {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 10px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.payment-due-age-overdue {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+.payment-due-age-today {
+  background: #fff7ed;
+  color: #c2410c;
+}
+.payment-due-age-upcoming {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+.payment-due-age-paid {
+  background: #ecfdf5;
+  color: #047857;
+}
+@media (max-width: 900px) {
+  .payment-due-preview-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .payment-due-preview-grid > div:nth-child(3) {
+    border-right: 0;
+  }
+  .payment-due-preview-grid > div:nth-child(4),
+  .payment-due-preview-grid > div:nth-child(5) {
+    padding-top: 8px;
+    border-top: 1px solid #e2e8f0;
+  }
+}
+@media (max-width: 640px) {
+  .payment-due-preview-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .payment-due-preview-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .payment-due-preview-grid > div {
+    padding: 0 0 8px;
+    border-right: 0;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .payment-due-preview-grid > div:nth-child(4),
+  .payment-due-preview-grid > div:nth-child(5) {
+    padding-top: 0;
+  }
+  .payment-due-preview-grid > div:last-child {
+    border-bottom: 0;
+  }
+  .payment-duplicate-warning {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .payment-duplicate-warning span {
+    white-space: normal;
+  }
+  .payment-generation-status {
+    width: 100%;
+  }
+}
+@media (max-width: 420px) {
+  .payment-due-preview-grid {
+    grid-template-columns: 1fr;
+  }
+}
