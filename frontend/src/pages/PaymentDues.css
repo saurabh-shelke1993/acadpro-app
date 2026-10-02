@@ -565,3 +565,123 @@
     gap: 3px;
   }
 }
+
+
+/* Payment Dues — compact workspace and generation modal */
+.payment-list-toolbar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.payment-generate-trigger {
+  min-height: 38px;
+  white-space: nowrap;
+}
+
+.payment-modal.payment-generate-modal {
+  width: min(760px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+}
+
+.payment-modal-description {
+  margin: 5px 0 0;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.payment-generate-modal-body {
+  gap: 14px;
+}
+
+.payment-generate-modal .payment-form-grid {
+  gap: 11px 14px;
+}
+
+.payment-generate-modal .payment-field {
+  gap: 5px;
+}
+
+.payment-generate-modal .payment-field input,
+.payment-generate-modal .payment-field select {
+  min-height: 38px;
+}
+
+.payment-generate-modal .payment-due-preview {
+  margin-top: 0;
+}
+
+.payment-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.payment-modal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.payment-modal-actions .payment-primary-button,
+.payment-modal-actions .payment-secondary-button {
+  min-height: 38px;
+}
+
+@media (max-width: 900px) {
+  .payment-list-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .payment-list-toolbar {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 640px) {
+  .payment-list-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .payment-list-controls {
+    width: 100%;
+  }
+
+  .payment-generate-trigger {
+    width: 100%;
+  }
+
+  .payment-modal.payment-generate-modal {
+    width: calc(100vw - 20px);
+    max-height: calc(100vh - 20px);
+  }
+
+  .payment-generate-modal .payment-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .payment-generate-modal .payment-field-wide {
+    grid-column: span 1;
+  }
+
+  .payment-modal-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .payment-modal-actions {
+    width: 100%;
+  }
+
+  .payment-modal-actions .payment-primary-button,
+  .payment-modal-actions .payment-secondary-button {
+    flex: 1;
+  }
+}
