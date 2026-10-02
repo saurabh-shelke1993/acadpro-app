@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { supabase } from "../supabaseClient";
 import Layout from "../components/Layout";
 import "./ParentFinancialOverview.css";
+import { getChildFinancialData, getParentContext } from "../services/parentPortalService";
 
 const ParentFinancialOverview = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -23,65 +23,24 @@ const ParentFinancialOverview = () => {
       setLoading(true);
       setError("");
 
-      const { data: { user } = {}, error: sessionError } = await supabase.auth.getUser();
-      if (sessionError || !user) {
-        if (mounted) {
-          setError("Your session could not be verified. Please sign in again.");
-          setLoading(false);
-        }
-        return;
-      }
+      try {
+        const { parent, children } = await getParentContext();
 
-      const { data: parentRecord, error: parentError } = await supabase
-        .from("parents")
-        .select("id, parent_name, email, user_id")
-        .eq("user_id", user.id)
-        .maybeSingle();
+        if (!mounted) return;
 
-      if (parentError || !parentRecord) {
-        if (mounted) {
-          setError(
-            parentError
-              ? "We could not load your parent profile."
-              : "No parent profile is linked to this login. Please contact your academy administrator."
-          );
-          setLoading(false);
-        }
-        return;
-      }
-
-      const { data: childRecords, error: childrenError } = await supabase
-        .from("players")
-        .select(
-          "id, full_name, player_status, academy_id, center_id, batch_id, academies(academy_name, academy_logo), centers(center_name), batches(batch_name, age_group, start_time, end_time)"
-        )
-        .eq("parent_id", parentRecord.id)
-        .order("full_name", { ascending: true });
-
-      if (childrenError) {
-        if (mounted) {
-          setError("We could not load your linked children.");
-          setLoading(false);
-        }
-        return;
-      }
-
-      const safeChildren = (childRecords || []).map((child) => ({
-        ...child,
-        academy: child.academies || null,
-        center: child.centers || null,
-        batch: child.batches || null,
-      }));
-
-      if (mounted) {
-        setParent(parentRecord);
-        setChildren(safeChildren);
         const requestedChildId = searchParams.get("child");
         const nextChildId =
-          safeChildren.some((child) => child.id === requestedChildId)
+          children.some((child) => child.id === requestedChildId)
             ? requestedChildId
-            : safeChildren[0]?.id || "";
+            : children[0]?.id || "";
+
+        setParent(parent);
+        setChildren(children);
         setSelectedChildId(nextChildId);
+        setLoading(false);
+      } catch (loadError) {
+        if (!mounted) return;
+        setError(loadError.message || "We could not load your parent profile.");
         setLoading(false);
       }
     };
@@ -103,41 +62,16 @@ const ParentFinancialOverview = () => {
         return;
       }
 
-      const [paymentsResult, duesResult] = await Promise.all([
-        supabase
-          .from("payments")
-          .select(
-            "id, player_id, payment_date, amount_paid, payment_mode, transaction_reference, receipt_number, remarks, due_id"
-          )
-          .eq("player_id", selectedChildId)
-          .order("payment_date", { ascending: false }),
-        supabase
-          .from("payment_dues")
-          .select(
-            "id, player_id, subscription_id, due_type, due_date, total_amount, paid_amount, remaining_amount, due_status, remarks"
-          )
-          .eq("player_id", selectedChildId)
-          .order("due_date", { ascending: true }),
-      ]);
+      const result = await getChildFinancialData(selectedChildId);
 
       if (!mounted) return;
 
-      if (paymentsResult.error) {
-        console.error("Unable to load parent payment history:", paymentsResult.error);
-      }
-      if (duesResult.error) {
-        console.error("Unable to load parent payment dues:", duesResult.error);
+      if (result.errors.length > 0) {
+        console.error("Unable to load parent financial data:", result.errors);
       }
 
-      const outstanding = (duesResult.data || []).filter((due) => {
-        const remaining = Number(due.remaining_amount);
-        const status = String(due.due_status || "").toLowerCase();
-        const settled = ["paid", "settled", "fully paid", "fully_paid"].includes(status);
-        return remaining > 0 || (due.remaining_amount === null && !settled);
-      });
-
-      setPaymentHistory(paymentsResult.data || []);
-      setPendingDues(outstanding);
+      setPaymentHistory(result.paymentHistory);
+      setPendingDues(result.pendingDues);
     };
 
     loadFinancialData();
