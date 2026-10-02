@@ -177,6 +177,70 @@
   font-size: 10px;
 }
 
+.sa-comparison-insights {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.sa-comparison-insight {
+  min-width: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--ap-border);
+  border-radius: 12px;
+  background: var(--ap-surface);
+  box-shadow: var(--ap-shadow-sm);
+}
+
+.sa-comparison-insight-label,
+.sa-comparison-insight-detail {
+  display: block;
+  color: var(--ap-slate-500);
+  font-size: 10px;
+}
+
+.sa-comparison-insight-label {
+  margin-bottom: 5px;
+  font-weight: 800;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+.sa-comparison-insight strong {
+  display: block;
+  overflow: hidden;
+  color: var(--ap-slate-900);
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sa-comparison-insight-value {
+  display: block;
+  margin-top: 4px;
+  color: var(--ap-slate-800);
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -.015em;
+}
+
+.sa-comparison-insight-detail {
+  margin-top: 2px;
+}
+
+.sa-comparison-insight[data-tone="green"] {
+  border-top: 3px solid var(--ap-success-500);
+}
+
+.sa-comparison-insight[data-tone="orange"] {
+  border-top: 3px solid var(--ap-warning-500);
+}
+
+.sa-comparison-insight[data-tone="red"] {
+  border-top: 3px solid var(--ap-danger-500);
+}
+
 .sa-academy-table {
   overflow: hidden;
   border: 1px solid var(--ap-border);
@@ -188,7 +252,7 @@
 .sa-academy-table-header,
 .sa-academy-row {
   display: grid;
-  grid-template-columns: minmax(190px, 1.5fr) minmax(80px, .55fr) minmax(190px, 1.3fr) minmax(125px, .8fr) 95px;
+  grid-template-columns: minmax(190px, 1.35fr) minmax(80px, .55fr) minmax(165px, 1.05fr) minmax(165px, 1.05fr) minmax(135px, .85fr) 95px;
   align-items: center;
   gap: 18px;
 }
@@ -277,6 +341,23 @@
   height: 100%;
   border-radius: inherit;
   background: var(--ap-success-500);
+}
+
+.sa-academy-stat em {
+  font-style: normal;
+  font-weight: 700;
+}
+
+.sa-change-positive {
+  color: var(--ap-success-700);
+}
+
+.sa-change-negative {
+  color: var(--ap-danger-700);
+}
+
+.sa-change-neutral {
+  color: var(--ap-slate-500);
 }
 
 .sa-status-pill {
@@ -491,6 +572,10 @@
   }
 
   .sa-dashboard-lower-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sa-comparison-insights {
     grid-template-columns: 1fr;
   }
 }
