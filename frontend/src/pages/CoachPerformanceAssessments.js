@@ -53,6 +53,9 @@ function CoachPerformanceAssessments() {
   const [selectedAcademyId, setSelectedAcademyId] = useState("");
   const [players, setPlayers] = useState([]);
   const [selectedPlayerId, setSelectedPlayerId] = useState("");
+  const [playerSearch, setPlayerSearch] = useState("");
+  const [playerPickerOpen, setPlayerPickerOpen] = useState(false);
+  const [expandedHistoryId, setExpandedHistoryId] = useState(null);
   const [assessments, setAssessments] = useState([]);
   const [form, setForm] = useState(createEmptyForm);
   const [editingAssessmentId, setEditingAssessmentId] = useState(null);
@@ -212,6 +215,16 @@ function CoachPerformanceAssessments() {
   const selectedPlayer = players.find((player) => player.id === selectedPlayerId);
   const accessibleCoaches = isSuperAdmin(currentUser) && selectedAcademyId ? coaches.filter((item) => item.academy_id === selectedAcademyId) : coaches;
   const selectedCoach = coaches.find((item) => item.id === form.coach_id);
+  const scopedPlayers = players.filter((player) => isCoach(currentUser) || !selectedAcademyId || player.academy_id === selectedAcademyId);
+  const filteredPlayers = scopedPlayers.filter((player) => {
+    const query = playerSearch.trim().toLowerCase();
+    if (!query) return true;
+    return [
+      player.full_name,
+      player.batches?.batch_name,
+      player.centers?.center_name,
+    ].filter(Boolean).some((value) => value.toLowerCase().includes(query));
+  });
 
   const resetForm = () => {
     setForm({ ...createEmptyForm(), coach_id: isCoach(currentUser) ? coach?.id || "" : "" });
@@ -223,6 +236,8 @@ function CoachPerformanceAssessments() {
     const academyId = event.target.value;
     setSelectedAcademyId(academyId);
     setSelectedPlayerId("");
+    setPlayerSearch("");
+    setPlayerPickerOpen(false);
     setAssessments([]);
     resetForm();
     setSuccess("");
@@ -230,6 +245,8 @@ function CoachPerformanceAssessments() {
 
   const handlePlayerChange = (event) => {
     setSelectedPlayerId(event.target.value);
+    setPlayerSearch("");
+    setPlayerPickerOpen(false);
     resetForm();
     setSuccess("");
   };
@@ -416,42 +433,86 @@ function CoachPerformanceAssessments() {
   return (
     <Layout>
       <main className="performance-page" style={styles.page}>
-        <header className="performance-header" style={styles.header}>
+        <header className="performance-compact-header">
           <div>
-            <div>
-            <div className="performance-eyebrow">Performance</div>
-            <h1 style={styles.title}>Player Performance Assessments</h1>
-            <p style={styles.subtitle}>{isCoach(currentUser) ? "Record and review assessments for your assigned active players." : "Create, review, edit and delete performance assessments within your authorized scope."}</p>
+            <span className="performance-eyebrow">Performance assessments</span>
+            <h1>Player Performance Assessments</h1>
           </div>
-          <div className="performance-header-badge">{editingAssessmentId ? "Editing assessment" : "Assessment workspace"}</div>
-          </div>
+          <span className="performance-header-badge">
+            {assessments.length ? `${assessments.length} assessment${assessments.length === 1 ? "" : "s"}` : "Assessment workspace"}
+          </span>
         </header>
 
         {error ? <p role="alert" style={styles.error}>{error}</p> : null}
         {success ? <p role="status" style={styles.success}>{success}</p> : null}
 
-        <section className="performance-card" style={styles.card}>
-          {!isCoach(currentUser) ? (
-            <>
-              <label htmlFor="assessment-academy" style={styles.label}>Select academy</label>
-              <select id="assessment-academy" value={selectedAcademyId} onChange={handleAcademyChange} disabled={isAcademyOwner(currentUser)} style={{ ...styles.input, marginBottom: "14px" }}>
-                <option value="">Select academy</option>
-                {(isAcademyOwner(currentUser) ? [{ id: currentUser.academy_id, academy_name: "My academy" }] : academies).map((academy) => (
-                  <option key={academy.id} value={academy.id}>{academy.academy_name}</option>
-                ))}
-              </select>
-            </>
-          ) : null}
-          <label htmlFor="assessment-player" style={styles.label}>Select player</label>
-          <select id="assessment-player" value={selectedPlayerId} onChange={handlePlayerChange} style={styles.input}>
-            <option value="">Select an assigned player</option>
-            {players.filter((player) => isCoach(currentUser) || !selectedAcademyId || player.academy_id === selectedAcademyId).map((player) => (
-              <option key={player.id} value={player.id}>
-                {player.full_name} — {player.batches?.batch_name || "No batch"}
-              </option>
-            ))}
-          </select>
-          {!players.length ? <p style={styles.message}>No players are currently available in your assigned batches.</p> : null}
+        <section className="performance-card assessment-scope-card" aria-labelledby="assessment-scope-heading">
+          <div className="assessment-scope-heading">
+            <div>
+              <span className="performance-eyebrow">Assessment scope</span>
+              <h2 id="assessment-scope-heading">Select player</h2>
+            </div>
+            {selectedPlayer ? <span className="assessment-scope-selected">{selectedPlayer.full_name}</span> : null}
+          </div>
+          <div className="assessment-scope-grid">
+            {!isCoach(currentUser) ? (
+              <div className="scope-field">
+                <label htmlFor="assessment-academy">Academy</label>
+                <select id="assessment-academy" value={selectedAcademyId} onChange={handleAcademyChange} disabled={isAcademyOwner(currentUser)}>
+                  <option value="">Select academy</option>
+                  {(isAcademyOwner(currentUser) ? [{ id: currentUser.academy_id, academy_name: "My academy" }] : academies).map((academy) => (
+                    <option key={academy.id} value={academy.id}>{academy.academy_name}</option>
+                  ))}
+                </select>
+              </div>
+            ) : null}
+            <div className={isCoach(currentUser) ? "scope-field scope-field-wide" : "scope-field"}>
+              <label htmlFor="assessment-player-search">Player</label>
+              <div className="player-picker">
+                <button
+                  type="button"
+                  id="assessment-player-search"
+                  className="player-picker-trigger"
+                  onClick={() => setPlayerPickerOpen((open) => !open)}
+                  aria-expanded={playerPickerOpen}
+                  aria-haspopup="listbox"
+                >
+                  <span>{selectedPlayer ? `${selectedPlayer.full_name} — ${selectedPlayer.batches?.batch_name || "No batch"}` : "Search or select a player"}</span>
+                  <span aria-hidden="true">⌄</span>
+                </button>
+                {playerPickerOpen ? (
+                  <div className="player-picker-menu">
+                    <input
+                      autoFocus
+                      type="search"
+                      value={playerSearch}
+                      onChange={(event) => setPlayerSearch(event.target.value)}
+                      placeholder="Search player, batch or center..."
+                      aria-label="Search players"
+                    />
+                    <div className="player-picker-results" role="listbox" aria-label="Players">
+                      {filteredPlayers.length ? filteredPlayers.slice(0, 40).map((player) => (
+                        <button
+                          key={player.id}
+                          type="button"
+                          role="option"
+                          aria-selected={player.id === selectedPlayerId}
+                          className={player.id === selectedPlayerId ? "player-picker-option player-picker-option-selected" : "player-picker-option"}
+                          onClick={() => handlePlayerChange({ target: { value: player.id } })}
+                        >
+                          <strong>{player.full_name}</strong>
+                          <span>{player.batches?.batch_name || "No batch"}{player.centers?.center_name ? ` · ${player.centers.center_name}` : ""}</span>
+                        </button>
+                      )) : (
+                        <p className="player-picker-empty">No players match your search.</p>
+                      )}
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          </div>
+          {!scopedPlayers.length ? <p className="performance-message">No players are currently available in your authorized scope.</p> : null}
         </section>
 
         {selectedPlayer ? (
@@ -485,54 +546,122 @@ function CoachPerformanceAssessments() {
                   {validationErrors.assessment_date ? <span style={styles.fieldError}>{validationErrors.assessment_date}</span> : null}
                 </div>
 
-                <div style={styles.scoreGrid}>
-                  {scoreFields.map(([name, label]) => (
-                    <div key={name} style={styles.field}>
-                      <label htmlFor={name} style={styles.label}>{label} (0–10)</label>
-                      <input id={name} name={name} type="number" min="0" max="10" step="0.1" inputMode="decimal" value={form[name]} onChange={handleFormChange} style={styles.input} aria-invalid={Boolean(validationErrors[name])} aria-describedby={validationErrors[name] ? `${name}-error` : undefined} />
-                      {validationErrors[name] ? <span id={`${name}-error`} style={styles.fieldError}>{validationErrors[name]}</span> : null}
+                  <div className="score-group">
+                    <div className="score-group-title">Technical skills</div>
+                    <div className="score-grid">                    <div className="score-field">
+                      <label htmlFor="ball_control_score">Ball control</label>
+                      <input id="ball_control_score" name="ball_control_score" type="number" min="0" max="10" step="0.1" inputMode="decimal" value={form[name]} onChange={handleFormChange} aria-invalid={Boolean(validationErrors[name])} aria-describedby={validationErrors[name] ? `ball_control_score-error` : undefined} />
+                      <span className="score-range">0–10</span>
+                      {validationErrors[name] ? <span id="ball_control_score-error" className="field-error">{validationErrors[name]}</span> : null}
+                    </div>                    <div className="score-field">
+                      <label htmlFor="passing_score">Passing</label>
+                      <input id="passing_score" name="passing_score" type="number" min="0" max="10" step="0.1" inputMode="decimal" value={form[name]} onChange={handleFormChange} aria-invalid={Boolean(validationErrors[name])} aria-describedby={validationErrors[name] ? `passing_score-error` : undefined} />
+                      <span className="score-range">0–10</span>
+                      {validationErrors[name] ? <span id="passing_score-error" className="field-error">{validationErrors[name]}</span> : null}
+                    </div>                    <div className="score-field">
+                      <label htmlFor="dribbling_score">Dribbling</label>
+                      <input id="dribbling_score" name="dribbling_score" type="number" min="0" max="10" step="0.1" inputMode="decimal" value={form[name]} onChange={handleFormChange} aria-invalid={Boolean(validationErrors[name])} aria-describedby={validationErrors[name] ? `dribbling_score-error` : undefined} />
+                      <span className="score-range">0–10</span>
+                      {validationErrors[name] ? <span id="dribbling_score-error" className="field-error">{validationErrors[name]}</span> : null}
+                    </div>                    <div className="score-field">
+                      <label htmlFor="shooting_score">Shooting</label>
+                      <input id="shooting_score" name="shooting_score" type="number" min="0" max="10" step="0.1" inputMode="decimal" value={form[name]} onChange={handleFormChange} aria-invalid={Boolean(validationErrors[name])} aria-describedby={validationErrors[name] ? `shooting_score-error` : undefined} />
+                      <span className="score-range">0–10</span>
+                      {validationErrors[name] ? <span id="shooting_score-error" className="field-error">{validationErrors[name]}</span> : null}
+                    </div>                    <div className="score-field">
+                      <label htmlFor="defending_score">Defending</label>
+                      <input id="defending_score" name="defending_score" type="number" min="0" max="10" step="0.1" inputMode="decimal" value={form[name]} onChange={handleFormChange} aria-invalid={Boolean(validationErrors[name])} aria-describedby={validationErrors[name] ? `defending_score-error` : undefined} />
+                      <span className="score-range">0–10</span>
+                      {validationErrors[name] ? <span id="defending_score-error" className="field-error">{validationErrors[name]}</span> : null}
                     </div>
-                  ))}
+                    </div>
+                  </div>
+                  <div className="score-group">
+                    <div className="score-group-title">Physical</div>
+                    <div className="score-grid">                    <div className="score-field">
+                      <label htmlFor="speed_score">Speed</label>
+                      <input id="speed_score" name="speed_score" type="number" min="0" max="10" step="0.1" inputMode="decimal" value={form[name]} onChange={handleFormChange} aria-invalid={Boolean(validationErrors[name])} aria-describedby={validationErrors[name] ? `speed_score-error` : undefined} />
+                      <span className="score-range">0–10</span>
+                      {validationErrors[name] ? <span id="speed_score-error" className="field-error">{validationErrors[name]}</span> : null}
+                    </div>                    <div className="score-field">
+                      <label htmlFor="stamina_score">Stamina</label>
+                      <input id="stamina_score" name="stamina_score" type="number" min="0" max="10" step="0.1" inputMode="decimal" value={form[name]} onChange={handleFormChange} aria-invalid={Boolean(validationErrors[name])} aria-describedby={validationErrors[name] ? `stamina_score-error` : undefined} />
+                      <span className="score-range">0–10</span>
+                      {validationErrors[name] ? <span id="stamina_score-error" className="field-error">{validationErrors[name]}</span> : null}
+                    </div>
+                    </div>
+                  </div>
+                  <div className="score-group">
+                    <div className="score-group-title">Team & discipline</div>
+                    <div className="score-grid">                    <div className="score-field">
+                      <label htmlFor="teamwork_score">Teamwork</label>
+                      <input id="teamwork_score" name="teamwork_score" type="number" min="0" max="10" step="0.1" inputMode="decimal" value={form[name]} onChange={handleFormChange} aria-invalid={Boolean(validationErrors[name])} aria-describedby={validationErrors[name] ? `teamwork_score-error` : undefined} />
+                      <span className="score-range">0–10</span>
+                      {validationErrors[name] ? <span id="teamwork_score-error" className="field-error">{validationErrors[name]}</span> : null}
+                    </div>                    <div className="score-field">
+                      <label htmlFor="discipline_score">Discipline</label>
+                      <input id="discipline_score" name="discipline_score" type="number" min="0" max="10" step="0.1" inputMode="decimal" value={form[name]} onChange={handleFormChange} aria-invalid={Boolean(validationErrors[name])} aria-describedby={validationErrors[name] ? `discipline_score-error` : undefined} />
+                      <span className="score-range">0–10</span>
+                      {validationErrors[name] ? <span id="discipline_score-error" className="field-error">{validationErrors[name]}</span> : null}
+                    </div>
+                    </div>
+                  </div>
+
+                <div className="remarks-field">
+                  <label htmlFor="coach-remarks">Coach remarks</label>
+                  <textarea id="coach-remarks" name="coach_remarks" value={form.coach_remarks} onChange={handleFormChange} rows="3" placeholder="Add coaching observations, strengths or areas to work on..." />
                 </div>
 
-                <div style={styles.field}>
-                  <label htmlFor="coach-remarks" style={styles.label}>Coach remarks</label>
-                  <textarea id="coach-remarks" name="coach_remarks" value={form.coach_remarks} onChange={handleFormChange} rows="4" style={{ ...styles.input, ...styles.textarea }} />
-                </div>
-
-                <div style={styles.actions}>
-                  <button type="submit" disabled={saving} style={styles.primaryButton}>
+                <div className="assessment-form-actions">
+                  <button type="submit" disabled={saving} className="primary-button">
                     {saving ? "Saving..." : editingAssessmentId ? "Update assessment" : "Save assessment"}
                   </button>
-                  {editingAssessmentId ? <button type="button" onClick={resetForm} disabled={saving} style={styles.secondaryButton}>Cancel edit</button> : null}
+                  {editingAssessmentId ? <button type="button" onClick={resetForm} disabled={saving} className="secondary-button">Cancel edit</button> : null}
                 </div>
               </form>
             </section>
 
-            <section className="performance-card" style={styles.card} aria-labelledby="history-heading">
-              <h2 id="history-heading" style={styles.sectionTitle}>Assessment history</h2>
-              {historyLoading ? <p style={styles.message}>Loading assessment history...</p> : assessments.length ? (
-                <div style={styles.historyList}>
-                  {assessments.map((assessment) => (
-                    <article key={assessment.id} style={styles.historyItem}>
-                      <div style={styles.historyHeader}>
-                        <strong>{formatDate(assessment.assessment_date)}</strong>
-                        <div style={styles.historyActions}>
-                          <button type="button" onClick={() => handleEdit(assessment)} disabled={saving} style={styles.editButton}>Edit</button>
-                          <button type="button" onClick={() => handleDelete(assessment)} disabled={saving} style={styles.deleteButton}>Delete</button>
-                        </div>
-                      </div>
-                      <div style={styles.historyMeta}><span><strong>Coach:</strong> {assessment.coaches?.full_name || "Not recorded"}</span></div>
-                      <div style={styles.historyScores}>
-                        {scoreFields.map(([name, label]) => (
-                          <span key={name}><strong>{label}:</strong> {assessment[name] ?? "—"}</span>
-                        ))}
-                      </div>
-                      {assessment.coach_remarks ? <p style={styles.remarks}>{assessment.coach_remarks}</p> : null}
-                    </article>
-                  ))}
+            <section className="performance-card assessment-history-card" aria-labelledby="history-heading">
+              <div className="assessment-history-heading">
+                <div>
+                  <span className="performance-eyebrow">Progress over time</span>
+                  <h2 id="history-heading">Assessment history</h2>
                 </div>
-              ) : <p style={styles.message}>No performance assessments are available for this player yet.</p>}
+                <span className="assessment-history-count">{assessments.length} record{assessments.length === 1 ? "" : "s"}</span>
+              </div>
+              {historyLoading ? <p className="performance-message">Loading assessment history...</p> : assessments.length ? (
+                <div className="assessment-history-list">
+                  {assessments.map((assessment) => {
+                    const expanded = expandedHistoryId === assessment.id;
+                    return (
+                      <article key={assessment.id} className={expanded ? "assessment-history-item expanded" : "assessment-history-item"}>
+                        <button type="button" className="assessment-history-summary" onClick={() => setExpandedHistoryId(expanded ? null : assessment.id)} aria-expanded={expanded}>
+                          <span><strong>{formatDate(assessment.assessment_date)}</strong><small>{assessment.coaches?.full_name || "Coach not recorded"}</small></span>
+                          <span className="history-overall">{(() => {
+                            const scores = scoreFields.map(([name]) => assessment[name]).filter((value) => value !== null && value !== undefined && value !== "");
+                            const average = scores.length ? scores.reduce((sum, value) => sum + Number(value), 0) / scores.length : null;
+                            return average === null ? "—" : average.toFixed(1);
+                          })()}<small>/ 10</small></span>
+                          <span className="history-summary-remarks">{assessment.coach_remarks || "No remarks"}</span>
+                          <span className="history-chevron" aria-hidden="true">{expanded ? "⌃" : "⌄"}</span>
+                        </button>
+                        {expanded ? (
+                          <div className="assessment-history-details">
+                            <div className="history-score-grid">
+                              {scoreFields.map(([name,label]) => <span key={name}><strong>{label}</strong>{assessment[name] ?? "—"}</span>)}
+                            </div>
+                            {assessment.coach_remarks ? <p className="history-remarks">{assessment.coach_remarks}</p> : null}
+                            <div className="history-actions">
+                              <button type="button" onClick={() => handleEdit(assessment)} disabled={saving} className="edit-button">Edit</button>
+                              <button type="button" onClick={() => handleDelete(assessment)} disabled={saving} className="delete-button">Delete</button>
+                            </div>
+                          </div>
+                        ) : null}
+                      </article>
+                    );
+                  })}
+                </div>
+              ) : <p className="performance-message">No performance assessments are available for this player yet.</p>}
             </section>
           </>
         ) : null}
@@ -542,36 +671,10 @@ function CoachPerformanceAssessments() {
 }
 
 const styles = {
-  page: { width: "100%", maxWidth: "1000px", margin: "0 auto", padding: "4px 0 30px", boxSizing: "border-box" },
-  header: { marginBottom: "24px" },
-  title: { margin: 0, color: "#0f172a", fontSize: "30px" },
-  subtitle: { margin: "8px 0 0", color: "#475569" },
-  card: { marginTop: "18px", padding: "24px", borderRadius: "12px", background: "#fff", boxShadow: "0 2px 8px rgba(15, 23, 42, 0.08)", boxSizing: "border-box" },
-  eyebrow: { margin: "0 0 6px", color: "#2563eb", fontSize: "13px", fontWeight: "bold", letterSpacing: "0.05em", textTransform: "uppercase" },
-  sectionTitle: { margin: "0 0 12px", color: "#0f172a", fontSize: "22px" },
-  label: { display: "block", marginBottom: "6px", color: "#334155", fontSize: "14px", fontWeight: "bold" },
-  input: { width: "100%", padding: "10px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", boxSizing: "border-box", background: "#fff", color: "#0f172a", font: "inherit" },
-  textarea: { resize: "vertical", minHeight: "96px" },
-  form: { marginTop: "20px" },
-  scoreGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(180px, 100%), 1fr))", gap: "16px", margin: "18px 0" },
-  field: { minWidth: 0 },
-  fieldError: { display: "block", marginTop: "5px", color: "#b91c1c", fontSize: "13px" },
-  actions: { display: "flex", flexWrap: "wrap", gap: "12px", marginTop: "20px" },
-  primaryButton: { padding: "10px 16px", border: 0, borderRadius: "8px", background: "#2563eb", color: "#fff", fontWeight: "bold", cursor: "pointer" },
-  secondaryButton: { padding: "10px 16px", border: "1px solid #94a3b8", borderRadius: "8px", background: "#fff", color: "#334155", fontWeight: "bold", cursor: "pointer" },
-  helperText: { display: "block", marginTop: "5px", color: "#64748b", fontSize: "13px" },
-  historyActions: { display: "flex", gap: "8px", flexWrap: "wrap" },
-  historyMeta: { marginTop: "10px", color: "#475569", fontSize: "14px" },
-  editButton: { padding: "7px 12px", border: "1px solid #2563eb", borderRadius: "7px", background: "#eff6ff", color: "#1d4ed8", fontWeight: "bold", cursor: "pointer" },
-  deleteButton: { padding: "7px 12px", border: "1px solid #dc2626", borderRadius: "7px", background: "#fef2f2", color: "#b91c1c", fontWeight: "bold", cursor: "pointer" },
-  error: { margin: "0 0 16px", padding: "12px 14px", borderRadius: "8px", background: "#fee2e2", color: "#991b1b" },
-  success: { margin: "0 0 16px", padding: "12px 14px", borderRadius: "8px", background: "#dcfce7", color: "#166534" },
-  message: { margin: "10px 0 0", color: "#475569", lineHeight: 1.5, overflowWrap: "anywhere" },
-  historyList: { display: "flex", flexDirection: "column", gap: "12px" },
-  historyItem: { padding: "16px", border: "1px solid #e2e8f0", borderRadius: "10px", background: "#f8fafc", minWidth: 0 },
-  historyHeader: { display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", flexWrap: "wrap" },
-  historyScores: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(140px, 100%), 1fr))", gap: "8px 16px", marginTop: "14px", color: "#334155", fontSize: "14px" },
-  remarks: { margin: "14px 0 0", color: "#475569", lineHeight: 1.5, overflowWrap: "anywhere", whiteSpace: "pre-wrap" },
+  page: { width: "100%", maxWidth: "1200px", margin: "0 auto", padding: "4px 0 30px", boxSizing: "border-box" },
+  error: { margin: "0 0 12px", padding: "10px 13px", borderRadius: "8px", background: "#fee2e2", color: "#991b1b" },
+  success: { margin: "0 0 12px", padding: "10px 13px", borderRadius: "8px", background: "#dcfce7", color: "#166534" },
+  message: { margin: "8px 0 0", color: "#475569", lineHeight: 1.5, overflowWrap: "anywhere" },
 };
 
 export default CoachPerformanceAssessments;
