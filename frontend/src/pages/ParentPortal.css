@@ -108,80 +108,84 @@
 
 .parent-portal-children-grid{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));
-  gap:var(--ap-space-4);
+  grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));
+  gap:var(--ap-space-3);
 }
 
 .parent-portal-child-card{
   display:flex;
-  flex-direction:column;
-  align-items:flex-start;
+  align-items:center;
   min-width:0;
-  min-height:150px;
-  padding:1.15rem;
+  min-height:82px;
+  padding:.8rem 1rem;
+  gap:.8rem;
   border:1px solid var(--ap-border);
-  border-radius:var(--ap-radius-xl);
+  border-radius:var(--ap-radius-lg);
   background:var(--ap-surface);
   box-shadow:var(--ap-shadow-sm);
   color:var(--ap-slate-800);
   font:inherit;
   text-align:left;
   cursor:pointer;
-  transition:border-color var(--ap-transition-fast),background-color var(--ap-transition-fast),box-shadow var(--ap-transition-fast),transform var(--ap-transition-fast);
+  transition:border-color var(--ap-transition-fast),background-color var(--ap-transition-fast),box-shadow var(--ap-transition-fast);
 }
 
 .parent-portal-child-card:hover{
   border-color:var(--ap-primary-200);
   background:var(--ap-primary-50);
   box-shadow:var(--ap-shadow-md);
-  transform:translateY(-1px);
 }
 
 .parent-portal-child-card.is-selected{
   border:2px solid var(--ap-primary-600);
-  padding:calc(1.15rem - 1px);
+  padding:calc(.8rem - 1px) calc(1rem - 1px);
   background:var(--ap-primary-50);
   box-shadow:var(--ap-shadow-md);
 }
 
-.parent-portal-child-topline{
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  width:100%;
-  gap:var(--ap-space-3);
-}
 .parent-portal-child-avatar{
-  width:48px;
-  height:48px;
-  margin-bottom:.8rem;
+  width:40px;
+  height:40px;
+  flex:0 0 40px;
+  margin:0;
   border-radius:50%;
   display:flex;
   align-items:center;
   justify-content:center;
   background:var(--ap-primary-50);
   color:var(--ap-primary-700);
-  font-size:1.25rem;
+  font-size:1rem;
   font-weight:800;
+}
+
+.parent-portal-child-selection-content{
+  min-width:0;
+  flex:1;
 }
 
 .parent-portal-child-name{
   display:block;
   max-width:100%;
-  margin-top:.8rem;
+  margin:0;
   color:var(--ap-slate-950);
-  font-size:1rem;
+  font-size:.95rem;
   font-weight:750;
   line-height:1.3;
   overflow-wrap:anywhere;
 }
-.parent-portal-child-meta,
-.parent-portal-child-batch{
-  display:block;
-  max-width:100%;
+
+.parent-portal-child-context{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:.35rem;
   margin-top:.25rem;
+  color:var(--ap-slate-600);
+  font-size:var(--ap-font-size-xs);
+  font-weight:650;
   overflow-wrap:anywhere;
 }
+
 .parent-portal-child-meta{
   color:var(--ap-slate-600);
   font-size:var(--ap-font-size-xs);
@@ -204,11 +208,7 @@
   white-space:nowrap;
 }
 
-.parent-portal-child-hint{
-  margin-top:.55rem;
-  color:var(--ap-slate-500);
-  font-size:var(--ap-font-size-xs);
-}
+
 
 .parent-portal-dashboard-card{
   min-width:0;
