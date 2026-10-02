@@ -786,6 +786,8 @@ useEffect(() => {
   setCurrentPage(1);
 }, [statusFilter, dueFromDate, dueToDate, selectedAcademy, selectedCenter, selectedBatch, selectedPlayer, columnFilters]);
 
+const hasInvalidDateRange = Boolean(dueFromDate && dueToDate && dueFromDate > dueToDate);
+
 const filteredDues = useMemo(() => {
   if (hasInvalidDateRange) return [];
   return duesList.filter((due) => {
@@ -818,7 +820,6 @@ const filterOptions = useMemo(() => ({
 }), [duesList]);
 
 const filteredRemaining = filteredDues.reduce((sum, due) => sum + Number(due.remaining_amount || 0), 0);
-const hasInvalidDateRange = Boolean(dueFromDate && dueToDate && dueFromDate > dueToDate);
 
 const formatCurrency = (value) => new Intl.NumberFormat("en-IN", {
   style: "currency",
