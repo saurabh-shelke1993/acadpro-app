@@ -266,17 +266,6 @@ const fetchAcademies = async () => {
 
     setAcademies(data || []);
 
-    if (
-      !isSuperAdmin(loggedInUser) &&
-      data.length > 0
-    ) {
-
-      setSelectedAcademy(
-        data[0].id
-      );
-
-    }
-
   } catch (err) {
 
     console.log(err.message);
