@@ -142,6 +142,10 @@ const [correctionReason, setCorrectionReason] = useState("");
 const [showCorrectionModal, setShowCorrectionModal] = useState(false);
 const [rejectionCorrection, setRejectionCorrection] = useState(null);
 const [rejectionReason, setRejectionReason] = useState("");
+const [correctionStatusFilter, setCorrectionStatusFilter] = useState("");
+const [correctionSearch, setCorrectionSearch] = useState("");
+const [correctionCurrentPage, setCorrectionCurrentPage] = useState(1);
+const CORRECTION_PAGE_SIZE = 10;
 
 const receiptRef = useRef(null);
 
@@ -655,6 +659,32 @@ const fetchCorrections = async () => {
   if (error) { console.log(error); return; }
   setCorrections(data || []);
 };
+
+const filteredCorrections = corrections.filter((correction) => {
+  if (correctionStatusFilter && correction.status !== correctionStatusFilter) return false;
+  if (correctionSearch.trim()) {
+    const search = correctionSearch.trim().toLowerCase();
+    const player = String(correction.players?.full_name || "").toLowerCase();
+    const reference = String(correction.payments?.transaction_reference || "").toLowerCase();
+    const receipt = String(correction.payments?.receipt_number || "").toLowerCase();
+    if (!player.includes(search) && !reference.includes(search) && !receipt.includes(search)) return false;
+  }
+  return true;
+});
+
+const correctionTotalPages = Math.max(1, Math.ceil(filteredCorrections.length / CORRECTION_PAGE_SIZE));
+const paginatedCorrections = filteredCorrections.slice(
+  (correctionCurrentPage - 1) * CORRECTION_PAGE_SIZE,
+  correctionCurrentPage * CORRECTION_PAGE_SIZE
+);
+
+const pendingCorrectionCount = corrections.filter((correction) => correction.status === "pending").length;
+const approvedCorrectionCount = corrections.filter((correction) => correction.status === "approved").length;
+const rejectedCorrectionCount = corrections.filter((correction) => correction.status === "rejected").length;
+
+useEffect(() => {
+  setCorrectionCurrentPage(1);
+}, [correctionStatusFilter, correctionSearch]);
 
 const resetCollectionForm = () => {
 
@@ -1235,30 +1265,75 @@ return (
         )}
       </section>
 
-      <section className="payment-card">
-        <div className="payment-card-header">
-          <div><h2>Payment Corrections</h2><p>Correction requests preserve the original ledger entry and follow the approval workflow.</p></div>
+      <section className="payment-card payment-corrections-card">
+        <div className="payment-card-header payment-list-header">
+          <div>
+            <h2>Payment Corrections</h2>
+            <p>Correction requests preserve the original ledger entry and follow the approval workflow.</p>
+            <div className="payment-history-summary">
+              <span>{pendingCorrectionCount} pending</span>
+              <span>{approvedCorrectionCount} approved</span>
+              <span>{rejectedCorrectionCount} rejected</span>
+            </div>
+          </div>
           <span className="payment-count-badge">{corrections.length} requests</span>
         </div>
-        {corrections.length===0 ? (
-          <div className="payment-empty-state"><div className="payment-empty-icon">✓</div><h3>No correction requests</h3><p>Payment correction requests will appear here when submitted.</p></div>
+
+        <div className="payment-correction-toolbar">
+          <label className="payment-filter-field payment-correction-search">
+            <span>Search Player / Reference / Receipt</span>
+            <input type="search" value={correctionSearch} placeholder="Search correction requests..." onChange={(e)=>setCorrectionSearch(e.target.value)} />
+          </label>
+          <label className="payment-filter-field payment-correction-status">
+            <span>Status</span>
+            <select value={correctionStatusFilter} onChange={(e)=>setCorrectionStatusFilter(e.target.value)}>
+              <option value="">All Statuses</option>
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          </label>
+          {(correctionSearch || correctionStatusFilter) && (
+            <button type="button" className="payment-secondary-button" onClick={()=>{setCorrectionSearch("");setCorrectionStatusFilter("");}}>
+              Reset
+            </button>
+          )}
+        </div>
+
+        {filteredCorrections.length===0 ? (
+          <div className="payment-empty-state">
+            <div className="payment-empty-icon">{corrections.length ? "⌕" : "✓"}</div>
+            <h3>{corrections.length ? "No matching correction requests" : "No correction requests"}</h3>
+            <p>{corrections.length ? "Try a different player, reference, receipt or status filter." : "Payment correction requests will appear here when submitted."}</p>
+          </div>
         ) : (
           <div className="payment-table-wrapper">
             <table className="payment-data-table payment-corrections-table">
               <caption className="sr-only">Payment correction requests and approval actions</caption>
               <thead><tr><th scope="col">Player</th><th scope="col">Original</th><th scope="col">Corrected</th><th scope="col">Adjustment</th><th scope="col">Reason</th><th scope="col">Status</th><th scope="col">Requested</th>{(isSuperAdmin(loggedInUser)||loggedInUser?.role==="academy_owner")&&<th scope="col">Actions</th>}</tr></thead>
-              <tbody>{corrections.map((correction)=><tr key={correction.id}>
+              <tbody>{paginatedCorrections.map((correction)=><tr key={correction.id}>
                 <td className="payment-player-cell">{correction.players?.full_name || "-"}</td>
                 <td>₹{correction.original_amount}</td><td>₹{correction.corrected_amount}</td><td>₹{correction.adjustment_amount}</td>
                 <td className="payment-reason-cell">{correction.reason}</td>
                 <td><span className={`payment-status-badge payment-status-${correction.status}`}>{correction.status}</span></td>
-                <td>{new Date(correction.requested_at).toLocaleDateString()}</td>
+                <td>{new Date(correction.requested_at).toLocaleDateString("en-IN", { day:"2-digit", month:"short", year:"numeric" })}</td>
                 {(isSuperAdmin(loggedInUser)||loggedInUser?.role==="academy_owner")&&<td><div className="payment-action-group">{correction.status==="pending"&&<><button type="button" className="payment-primary-button payment-small-button" onClick={()=>approveCorrection(correction.id)}>Approve</button><button type="button" className="payment-danger-button" onClick={()=>openRejectionModal(correction)}>Reject</button></>}{correction.status==="rejected"&&<span className="payment-rejection-text">{correction.rejection_reason}</span>}</div></td>}
               </tr>)}</tbody>
             </table>
           </div>
         )}
-      </section>
+
+        {filteredCorrections.length > 0 && (
+          <div className="payment-pagination">
+            <span>Showing {Math.min((correctionCurrentPage - 1) * CORRECTION_PAGE_SIZE + 1, filteredCorrections.length)}–{Math.min(correctionCurrentPage * CORRECTION_PAGE_SIZE, filteredCorrections.length)} of {filteredCorrections.length}</span>
+            <div className="payment-pagination-controls">
+              <button type="button" onClick={() => setCorrectionCurrentPage(page => Math.max(1, page - 1))} disabled={correctionCurrentPage === 1}>Previous</button>
+              <strong>Page {correctionCurrentPage} of {correctionTotalPages}</strong>
+              <button type="button" onClick={() => setCorrectionCurrentPage(page => Math.min(correctionTotalPages, page + 1))} disabled={correctionCurrentPage === correctionTotalPages}>Next</button>
+            </div>
+          </div>
+        )}
+      </section>>
     </div>
 
     {showCorrectionModal && correctionPayment && (
