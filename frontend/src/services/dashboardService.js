@@ -1,5 +1,5 @@
 import { supabase } from "../supabaseClient";
-import { getDashboardDataScope } from "../utils/dataScope";
+import { getDashboardDataScope, getCoachAssignedBatchIds } from "../utils/dataScope";
 import { getAttendanceTrend, getCollectionsTrend } from "./analyticsService";
 
 const EMPTY_KPIS = {
@@ -969,5 +969,195 @@ export async function getAcademyOwnerDashboardData(user) {
     attentionItems: attentionItems.slice(0, 6),
     attendanceTrend,
     collectionsTrend
+  };
+}
+
+
+export async function getCoachDashboardData(user) {
+  if (!user?.id) throw new Error("Coach account could not be identified.");
+
+  const today = getToday();
+  const attendanceDates = getDateRange(7);
+  const attendanceStart = attendanceDates[0];
+  const attendanceEnd = attendanceDates[attendanceDates.length - 1];
+  const scoreFields = [
+    "ball_control_score", "passing_score", "dribbling_score",
+    "shooting_score", "defending_score", "speed_score",
+    "stamina_score", "teamwork_score", "discipline_score"
+  ];
+
+  const [{ data: coach, error: coachError }, batchIds] = await Promise.all([
+    supabase.from("coaches").select("id").eq("user_id", user.id).maybeSingle(),
+    getCoachAssignedBatchIds(user)
+  ]);
+
+  if (coachError) throw coachError;
+  if (!coach) throw new Error("No coach profile is linked to this account.");
+
+  const [batchesResult, assignmentsResult, attendanceResult] = await Promise.all([
+    batchIds.length
+      ? supabase.from("batches")
+        .select("id, batch_name, center_id, centers(center_name)")
+        .in("id", batchIds).eq("is_active", true).order("batch_name")
+      : Promise.resolve({ data: [], error: null }),
+    batchIds.length
+      ? supabase.from("player_batches")
+        .select("player_id, batch_id, players!inner(id, full_name, is_active)")
+        .in("batch_id", batchIds).eq("players.is_active", true)
+      : Promise.resolve({ data: [], error: null }),
+    batchIds.length
+      ? supabase.from("attendance")
+        .select("player_id, batch_id, attendance_date, status")
+        .in("batch_id", batchIds)
+        .gte("attendance_date", attendanceStart)
+        .lte("attendance_date", attendanceEnd)
+        .eq("is_deleted", false)
+      : Promise.resolve({ data: [], error: null })
+  ]);
+
+  const failed = [batchesResult, assignmentsResult, attendanceResult].find((result) => result.error);
+  if (failed) throw failed.error;
+
+  const batches = batchesResult.data || [];
+  const assignments = assignmentsResult.data || [];
+  const attendanceRecords = attendanceResult.data || [];
+  const playerIds = [...new Set(assignments.map((item) => item.player_id).filter(Boolean))];
+
+  const batchMap = new Map(
+    batches.map((batch) => [batch.id, {
+      id: batch.id,
+      name: batch.batch_name,
+      centerName: batch.centers?.center_name || "Assigned center",
+      playerCount: 0,
+      present: 0,
+      absent: 0,
+      attendanceRecorded: false
+    }])
+  );
+
+  const playerBatchMap = new Map();
+  const playerMap = new Map();
+
+  assignments.forEach((assignment) => {
+    const batch = batchMap.get(assignment.batch_id);
+    if (!batch) return;
+    batch.playerCount += 1;
+    playerBatchMap.set(assignment.player_id, assignment.batch_id);
+    playerMap.set(assignment.player_id, assignment.players);
+  });
+
+  const todayRecords = attendanceRecords.filter((record) => record.attendance_date === today);
+  todayRecords.forEach((record) => {
+    const batch = batchMap.get(record.batch_id);
+    if (!batch) return;
+    batch.attendanceRecorded = true;
+    if (record.status === "present") batch.present += 1;
+    if (record.status === "absent") batch.absent += 1;
+  });
+
+  const playerAttendance = new Map();
+  attendanceRecords.forEach((record) => {
+    if (!playerAttendance.has(record.player_id)) {
+      playerAttendance.set(record.player_id, { present: 0, absent: 0 });
+    }
+    const stats = playerAttendance.get(record.player_id);
+    if (record.status === "present") stats.present += 1;
+    if (record.status === "absent") stats.absent += 1;
+  });
+
+  const attentionPlayers = [];
+  playerAttendance.forEach((stats, playerId) => {
+    const total = stats.present + stats.absent;
+    if (total < 2) return;
+    const rate = Math.round((stats.present / total) * 100);
+    if (rate >= 70 && stats.absent < 2) return;
+
+    const batchId = playerBatchMap.get(playerId);
+    const batch = batchMap.get(batchId);
+    const player = playerMap.get(playerId);
+
+    attentionPlayers.push({
+      id: playerId,
+      name: player?.full_name || "Player",
+      batchId,
+      batchName: batch?.name || "Assigned batch",
+      rate,
+      reason: stats.absent >= 2
+        ? `${stats.absent} absences in 7 days`
+        : "Attendance below 70%"
+    });
+  });
+
+  attentionPlayers.sort((a, b) => a.rate - b.rate);
+
+  const trend = attendanceDates.map((date) => {
+    const records = attendanceRecords.filter((record) => record.attendance_date === date);
+    const present = records.filter((record) => record.status === "present").length;
+    const absent = records.filter((record) => record.status === "absent").length;
+    const total = present + absent;
+    return {
+      date,
+      label: new Date(`${date}T00:00:00`).toLocaleDateString("en-IN", { weekday: "short" }),
+      rate: total ? Math.round((present / total) * 100) : 0
+    };
+  });
+
+  let recentAssessments = [];
+  if (playerIds.length) {
+    const { data, error } = await supabase
+      .from("player_performance_assessments")
+      .select("id, player_id, assessment_date, ball_control_score, passing_score, dribbling_score, shooting_score, defending_score, speed_score, stamina_score, teamwork_score, discipline_score, players!inner(full_name)")
+      .in("player_id", playerIds)
+      .eq("coach_id", coach.id)
+      .order("assessment_date", { ascending: false })
+      .order("created_at", { ascending: false })
+      .limit(5);
+
+    if (error) throw error;
+
+    recentAssessments = (data || []).map((assessment) => {
+      const values = scoreFields
+        .map((field) => assessment[field])
+        .filter((value) => value !== null && value !== undefined && value !== "");
+      const average = values.length
+        ? Math.round((values.reduce((sum, value) => sum + Number(value), 0) / values.length) * 10) / 10
+        : null;
+
+      return {
+        id: assessment.id,
+        playerName: assessment.players?.full_name || "Player",
+        assessmentDate: assessment.assessment_date,
+        average
+      };
+    });
+  }
+
+  const totalPresent = todayRecords.filter((record) => record.status === "present").length;
+  const totalAbsent = todayRecords.filter((record) => record.status === "absent").length;
+  const recordedBatches = new Set(todayRecords.map((record) => record.batch_id)).size;
+  const totalAttendanceRecords = attendanceRecords.length;
+  const totalPresentRecords = attendanceRecords.filter((record) => record.status === "present").length;
+
+  return {
+    totals: { players: playerIds.length, batches: batches.length },
+    attendance: {
+      rate: totalAttendanceRecords ? Math.round((totalPresentRecords / totalAttendanceRecords) * 100) : 0,
+      records: totalAttendanceRecords
+    },
+    today: {
+      date: today,
+      dateLabel: new Date(`${today}T00:00:00`).toLocaleDateString("en-IN", {
+        day: "2-digit", month: "short", year: "numeric"
+      }),
+      coverage: batches.length ? Math.round((recordedBatches / batches.length) * 100) : 0,
+      recordedBatches,
+      present: totalPresent,
+      absent: totalAbsent,
+      total: totalPresent + totalAbsent
+    },
+    batches: [...batchMap.values()],
+    attentionPlayers: attentionPlayers.slice(0, 6),
+    trend,
+    recentAssessments
   };
 }
