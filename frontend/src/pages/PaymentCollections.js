@@ -28,20 +28,20 @@ const [batches, setBatches] =
 const [players, setPlayers] =
   useState([]);
 
-const [selectedAcademy,
-  setSelectedAcademy] =
+const [collectionAcademy,
+  setCollectionAcademy] =
   useState("");
 
-const [selectedCenter,
-  setSelectedCenter] =
+const [collectionCenter,
+  setCollectionCenter] =
   useState("");
 
-const [selectedBatch,
-  setSelectedBatch] =
+const [collectionBatch,
+  setCollectionBatch] =
   useState("");
 
-const [selectedPlayer,
-  setSelectedPlayer] =
+const [collectionPlayer,
+  setCollectionPlayer] =
   useState("");
 
   const [dues, setDues] = useState([]);
@@ -69,10 +69,22 @@ const [historyToDate,
 setHistoryToDate] =
 useState("");
 
+const [historyAcademy, setHistoryAcademy] = useState("");
+const [historyCenter, setHistoryCenter] = useState("");
+const [historyBatch, setHistoryBatch] = useState("");
+const [historyPlayer, setHistoryPlayer] = useState("");
+const [historyCurrentPage, setHistoryCurrentPage] = useState(1);
+const HISTORY_PAGE_SIZE = 10;
+
 const resetHistoryFilters = () => {
+  setHistoryAcademy("");
+  setHistoryCenter("");
+  setHistoryBatch("");
+  setHistoryPlayer("");
   setHistoryPaymentMode("");
   setHistoryFromDate("");
   setHistoryToDate("");
+  setHistoryCurrentPage(1);
 };
 
   const [filteredPayments,
@@ -83,6 +95,38 @@ const historyTotalAmount = filteredPayments.reduce(
   (total, payment) => total + Number(payment.amount_paid || 0),
   0
 );
+
+const historyPaymentsTotal = filteredPayments
+  .filter(payment => payment.payment_entry_type === "payment")
+  .reduce((total, payment) => total + Number(payment.amount_paid || 0), 0);
+
+const historyAdjustmentsTotal = filteredPayments
+  .filter(payment => payment.payment_entry_type === "adjustment")
+  .reduce((total, payment) => total + Number(payment.amount_paid || 0), 0);
+
+const historyNetTotal = historyPaymentsTotal + historyAdjustmentsTotal;
+
+const historyFilterOptions = {
+  academies: [...new Map((payments || []).map(payment => [payment.players?.academy_id, payment.players?.academies?.academy_name]).filter(([id, name]) => id && name)).entries()]
+    .map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name)),
+  centers: [...new Map((payments || []).filter(payment => !historyAcademy || payment.players?.academy_id === historyAcademy).map(payment => [payment.players?.center_id, payment.players?.centers?.center_name]).filter(([id, name]) => id && name)).entries()]
+    .map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name)),
+  batches: [...new Map((payments || []).filter(payment => (!historyAcademy || payment.players?.academy_id === historyAcademy) && (!historyCenter || payment.players?.center_id === historyCenter)).map(payment => [payment.players?.batch_id, payment.players?.batches?.batch_name]).filter(([id, name]) => id && name)).entries()]
+    .map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name)),
+  players: [...new Map((payments || []).filter(payment => (!historyAcademy || payment.players?.academy_id === historyAcademy) && (!historyCenter || payment.players?.center_id === historyCenter) && (!historyBatch || payment.players?.batch_id === historyBatch)).map(payment => [payment.players?.id, payment.players?.full_name]).filter(([id, name]) => id && name)).entries()]
+    .map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name))
+};
+
+const historyTotalPages = Math.max(1, Math.ceil(filteredPayments.length / HISTORY_PAGE_SIZE));
+const paginatedPayments = filteredPayments.slice(
+  (historyCurrentPage - 1) * HISTORY_PAGE_SIZE,
+  historyCurrentPage * HISTORY_PAGE_SIZE
+);
+
+const selectedDueRemaining = Number(selectedDueData?.remaining_amount || 0);
+const paymentAmountNumber = Number(amountPaid || 0);
+const remainingAfterPayment = Math.max(selectedDueRemaining - paymentAmountNumber, 0);
+const isPaymentAmountValid = paymentAmountNumber > 0 && paymentAmountNumber <= selectedDueRemaining;
 
   const [loggedInUser,
 setLoggedInUser] =
@@ -154,136 +198,65 @@ useEffect(() => {
 
 useEffect(() => {
 
-  if (!selectedAcademy) {
+  if (!collectionAcademy) {
     setCenters([]);
-    setSelectedCenter("");
+    setCollectionCenter("");
     setBatches([]);
-    setSelectedBatch("");
+    setCollectionBatch("");
     setPlayers([]);
-    setSelectedPlayer("");
+    setCollectionPlayer("");
     setDues([]);
     setSelectedDue("");
     setSelectedDueData(null);
     return;
   }
 
-  setSelectedCenter("");
-  setSelectedBatch("");
-  setSelectedPlayer("");
+  setCollectionCenter("");
+  setCollectionBatch("");
+  setCollectionPlayer("");
   setBatches([]);
   setPlayers([]);
   setDues([]);
   setSelectedDue("");
   setSelectedDueData(null);
 
-  fetchCenters(selectedAcademy);
+  fetchCenters(collectionAcademy);
 
-}, [selectedAcademy]);
+}, [collectionAcademy]);
 
 useEffect(() => {
+  let filtered = payments || [];
 
-  let filtered =
-    payments || [];
+  if (historyAcademy) filtered = filtered.filter(payment => payment.players?.academy_id === historyAcademy);
+  if (historyCenter) filtered = filtered.filter(payment => payment.players?.center_id === historyCenter);
+  if (historyBatch) filtered = filtered.filter(payment => payment.players?.batch_id === historyBatch);
+  if (historyPlayer) filtered = filtered.filter(payment => payment.players?.id === historyPlayer);
+  if (historyPaymentMode) filtered = filtered.filter(payment => payment.payment_mode === historyPaymentMode);
+  if (historyFromDate) filtered = filtered.filter(payment => payment.payment_date?.substring(0, 10) >= historyFromDate);
+  if (historyToDate) filtered = filtered.filter(payment => payment.payment_date?.substring(0, 10) <= historyToDate);
 
-  if (selectedAcademy) {
-
-    filtered =
-      filtered.filter(
-        payment =>
-          payment.players?.academy_id ===
-          selectedAcademy
-      );
-
-  }
-
-  if (selectedCenter) {
-
-    filtered =
-      filtered.filter(
-        payment =>
-          payment.players?.center_id ===
-          selectedCenter
-      );
-
-  }
-
-  if (selectedBatch) {
-
-    filtered =
-      filtered.filter(
-        payment =>
-          payment.players?.batch_id ===
-          selectedBatch
-      );
-
-  }
-
-  if (selectedPlayer) {
-
-    filtered =
-      filtered.filter(
-        payment =>
-          payment.players?.id ===
-          selectedPlayer
-      );
-
-  }
-
-  if (historyPaymentMode) {
-
-    filtered =
-      filtered.filter(
-        payment =>
-          payment.payment_mode ===
-          historyPaymentMode
-      );
-
-  }
-
-  if (historyFromDate) {
-
-    filtered =
-      filtered.filter(
-        payment =>
-          payment.payment_date.substring(0,10)
-          >= historyFromDate
-      );
-
-  }
-
-  if (historyToDate) {
-
-    filtered =
-      filtered.filter(
-        payment =>
-          payment.payment_date.substring(0,10)
-          <= historyToDate
-      );
-
-  }
-
-  setFilteredPayments(
-    filtered
-  );
-
+  setFilteredPayments(filtered);
 }, [
-
   payments,
-
-  selectedAcademy,
-
-  selectedCenter,
-
-  selectedBatch,
-
-  selectedPlayer,
-
+  historyAcademy,
+  historyCenter,
+  historyBatch,
+  historyPlayer,
   historyPaymentMode,
-
   historyFromDate,
-
   historyToDate
+]);
 
+useEffect(() => {
+  setHistoryCurrentPage(1);
+}, [
+  historyAcademy,
+  historyCenter,
+  historyBatch,
+  historyPlayer,
+  historyPaymentMode,
+  historyFromDate,
+  historyToDate
 ]);
 
 const fetchAcademies = async () => {
@@ -315,7 +288,7 @@ const fetchAcademies = async () => {
 
     if (data?.length > 0) {
 
-      setSelectedAcademy(data[0].id);
+      setCollectionAcademy(data[0].id);
 
     }
 
@@ -525,7 +498,7 @@ const loadDueFromNavigation = async () => {
 
 // Academy
 
-setSelectedAcademy(
+setCollectionAcademy(
     data.players.academy_id
 );
 
@@ -535,7 +508,7 @@ await fetchCenters(
 
 // Center
 
-setSelectedCenter(
+setCollectionCenter(
     data.players.center_id
 );
 
@@ -545,7 +518,7 @@ await fetchBatches(
 
 // Batch
 
-setSelectedBatch(
+setCollectionBatch(
     data.players.batch_id
 );
 
@@ -555,7 +528,7 @@ await fetchPlayers(
 
 // Player
 
-setSelectedPlayer(
+setCollectionPlayer(
     data.player_id
 );
 
@@ -678,13 +651,13 @@ const fetchCorrections = async () => {
 
 const resetCollectionForm = () => {
 
-  setSelectedAcademy("");
+  setCollectionAcademy("");
 
-  setSelectedCenter("");
+  setCollectionCenter("");
 
-  setSelectedBatch("");
+  setCollectionBatch("");
 
-  setSelectedPlayer("");
+  setCollectionPlayer("");
 
   setSelectedDue("");
 
@@ -735,16 +708,16 @@ const resetCollectionForm = () => {
       return;
     }
 
-    const selectedAcademyName = academies.find(a => a.id === selectedAcademy)?.academy_name;
-    const selectedCenterName = centers.find(c => c.id === selectedCenter)?.center_name;
-    const selectedBatchName = batches.find(b => b.id === selectedBatch)?.batch_name;
+    const collectionAcademyName = academies.find(a => a.id === collectionAcademy)?.academy_name;
+    const collectionCenterName = centers.find(c => c.id === collectionCenter)?.center_name;
+    const collectionBatchName = batches.find(b => b.id === collectionBatch)?.batch_name;
 
     setReceiptData({
       receiptNumber: result.receipt_number,
       player: selectedDueData?.players?.full_name || "-", 
-      academy: selectedAcademyName,
-      center: selectedCenterName,
-      batch: selectedBatchName,
+      academy: collectionAcademyName,
+      center: collectionCenterName,
+      batch: collectionBatchName,
       amountPaid: result.amount_paid,
       paymentMode: result.payment_mode,
       transactionReference: result.transaction_reference,
@@ -768,13 +741,13 @@ useEffect(() => {
   let filtered =
     payments || [];
 
-  if (selectedPlayer) {
+  if (collectionPlayer) {
 
     filtered =
       filtered.filter(
         (payment) =>
           payment.player_id ===
-          selectedPlayer
+          collectionPlayer
       );
 
   }
@@ -785,7 +758,7 @@ useEffect(() => {
 
 }, [
   payments,
-  selectedPlayer
+  collectionPlayer
 ]);
 
 const openCorrectionModal = (payment) => {
@@ -1134,10 +1107,10 @@ return (
         </div>
 
         <div className="payment-form-grid">
-          <label className="payment-field"><span>Academy</span><select value={selectedAcademy} onChange={(e) => { const academyId=e.target.value; setSelectedAcademy(academyId); setSelectedCenter(""); setSelectedBatch(""); setSelectedPlayer(""); setCenters([]); setBatches([]); setPlayers([]); setDues([]); setSelectedDue(""); setSelectedDueData(null); }}><option value="">Select Academy</option>{academies.map((academy)=><option key={academy.id} value={academy.id}>{academy.academy_name}</option>)}</select></label>
-          <label className="payment-field"><span>Center</span><select value={selectedCenter} onChange={(e) => { const centerId=e.target.value; setSelectedCenter(centerId); setSelectedBatch(""); setSelectedPlayer(""); setSelectedDue(""); setSelectedDueData(null); setBatches([]); setPlayers([]); setDues([]); if(centerId) fetchBatches(centerId); }}><option value="">Select Center</option>{centers.map((center)=><option key={center.id} value={center.id}>{center.center_name}</option>)}</select></label>
-          <label className="payment-field"><span>Batch</span><select value={selectedBatch} onChange={(e) => { const batchId=e.target.value; setSelectedBatch(batchId); setSelectedPlayer(""); setSelectedDue(""); setSelectedDueData(null); setPlayers([]); setDues([]); if(batchId) fetchPlayers(batchId); }}><option value="">Select Batch</option>{batches.map((batch)=><option key={batch.id} value={batch.id}>{batch.batch_name}</option>)}</select></label>
-          <label className="payment-field"><span>Player</span><select value={selectedPlayer} onChange={(e)=>setSelectedPlayer(e.target.value)}><option value="">Select Player</option>{players.map((player)=><option key={player.id} value={player.id}>{player.full_name}</option>)}</select></label>
+          <label className="payment-field"><span>Academy</span><select value={collectionAcademy} onChange={(e) => { const academyId=e.target.value; setCollectionAcademy(academyId); setCollectionCenter(""); setCollectionBatch(""); setCollectionPlayer(""); setCenters([]); setBatches([]); setPlayers([]); setDues([]); setSelectedDue(""); setSelectedDueData(null); }}><option value="">Select Academy</option>{academies.map((academy)=><option key={academy.id} value={academy.id}>{academy.academy_name}</option>)}</select></label>
+          <label className="payment-field"><span>Center</span><select value={collectionCenter} onChange={(e) => { const centerId=e.target.value; setCollectionCenter(centerId); setCollectionBatch(""); setCollectionPlayer(""); setSelectedDue(""); setSelectedDueData(null); setBatches([]); setPlayers([]); setDues([]); if(centerId) fetchBatches(centerId); }}><option value="">Select Center</option>{centers.map((center)=><option key={center.id} value={center.id}>{center.center_name}</option>)}</select></label>
+          <label className="payment-field"><span>Batch</span><select value={collectionBatch} onChange={(e) => { const batchId=e.target.value; setCollectionBatch(batchId); setCollectionPlayer(""); setSelectedDue(""); setSelectedDueData(null); setPlayers([]); setDues([]); if(batchId) fetchPlayers(batchId); }}><option value="">Select Batch</option>{batches.map((batch)=><option key={batch.id} value={batch.id}>{batch.batch_name}</option>)}</select></label>
+          <label className="payment-field"><span>Player</span><select value={collectionPlayer} onChange={(e)=>setCollectionPlayer(e.target.value)}><option value="">Select Player</option>{players.map((player)=><option key={player.id} value={player.id}>{player.full_name}</option>)}</select></label>
 
           <label className="payment-field payment-field-wide"><span>Pending Due</span>
             <select value={selectedDue} onChange={(e)=>{const dueId=e.target.value; setSelectedDue(dueId); const dueData=dues.find((due)=>due.id===dueId); setSelectedDueData(dueData); setAmountPaid(dueData ? dueData.remaining_amount : ""); setPaymentMode("");}}>
