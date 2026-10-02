@@ -172,6 +172,17 @@ function CoachPerformanceAssessments() {
   }, []);
 
   useEffect(() => {
+    if (!playerPickerOpen) return undefined;
+
+    const handlePickerKeyDown = (event) => {
+      if (event.key === "Escape") setPlayerPickerOpen(false);
+    };
+
+    document.addEventListener("keydown", handlePickerKeyDown);
+    return () => document.removeEventListener("keydown", handlePickerKeyDown);
+  }, [playerPickerOpen]);
+
+  useEffect(() => {
     let isMounted = true;
 
     const loadAssessmentHistory = async () => {
