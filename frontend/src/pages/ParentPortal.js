@@ -10,7 +10,6 @@ const ParentPortal = () => {
   const [children, setChildren] = useState([]);
   const [selectedChildId, setSelectedChildId] = useState(null);
   const [attendanceByChildId, setAttendanceByChildId] = useState({});
-  const [attendanceHistoryByChildId, setAttendanceHistoryByChildId] = useState({});
   const [paymentHistoryByChildId, setPaymentHistoryByChildId] = useState({});
   const [pendingDuesByChildId, setPendingDuesByChildId] = useState({});
   const [loading, setLoading] = useState(true);
@@ -118,7 +117,6 @@ const ParentPortal = () => {
 
       const childIds = safeChildren.map((child) => child.id);
       const nextAttendanceByChildId = {};
-      const nextAttendanceHistoryByChildId = {};
       const nextPaymentHistoryByChildId = {};
       const nextPendingDuesByChildId = {};
 
@@ -129,7 +127,6 @@ const ParentPortal = () => {
           absent: 0,
           percentage: null,
         };
-        nextAttendanceHistoryByChildId[childId] = [];
         nextPaymentHistoryByChildId[childId] = [];
         nextPendingDuesByChildId[childId] = [];
       });
@@ -148,19 +145,13 @@ const ParentPortal = () => {
 
         (attendanceRecords || []).forEach((record) => {
           const summary = nextAttendanceByChildId[record.player_id];
-          const history = nextAttendanceHistoryByChildId[record.player_id];
-          if (!summary || !history) return;
+          if (!summary) return;
 
           const status = String(record.status || "").toLowerCase();
           summary.total += 1;
           if (status === "present") summary.present += 1;
           if (status === "absent") summary.absent += 1;
 
-          history.push({
-            attendance_date: record.attendance_date,
-            status: record.status || "Not recorded",
-            remarks: record.remarks || "",
-          });
         });
 
         Object.values(nextAttendanceByChildId).forEach((summary) => {
@@ -225,7 +216,6 @@ const ParentPortal = () => {
         setParent(parentRecord);
         setChildren(safeChildren);
         setAttendanceByChildId(nextAttendanceByChildId);
-        setAttendanceHistoryByChildId(nextAttendanceHistoryByChildId);
         setPaymentHistoryByChildId(nextPaymentHistoryByChildId);
         setPendingDuesByChildId(nextPendingDuesByChildId);
         setSelectedChildId(safeChildren[0]?.id || null);
