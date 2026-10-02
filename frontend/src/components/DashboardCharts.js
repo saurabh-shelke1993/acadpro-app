@@ -19,7 +19,10 @@ function DashboardCharts({
   attendanceTrend = [],
   collectionsTrend = [],
   attendancePeriodLabel = "Last 7 days",
-  collectionsPeriodLabel = "Last 6 months"
+  collectionsPeriodLabel = "Last 6 months",
+  showSummary = true,
+  showAttendanceChart = true,
+  showCollectionsChart = true
 }) {
   const hasAttendanceData = attendanceTrend.some(
     (item) =>
@@ -60,7 +63,7 @@ const averageMonthlyCollections = collectionsTrend.length
 
   return (
     <>
-    <div className="dashboard-insights">
+    {showSummary && <div className="dashboard-insights">
 <div className="dashboard-insight-card">
   <span className="dashboard-insight-label">
     Attendance Rate — {attendancePeriodLabel}
@@ -135,11 +138,11 @@ const averageMonthlyCollections = collectionsTrend.length
   Collection average for selected period
 </span>
   </div>
-</div>
+</div>}
 
     <div className="dashboard-charts">
       {/* Attendance Trend */}
-      <div className="dashboard-chart-card">
+      {showAttendanceChart && <div className="dashboard-chart-card">
         <h2>Attendance Trend</h2>
 
         <p className="dashboard-chart-description">
@@ -215,10 +218,10 @@ const averageMonthlyCollections = collectionsTrend.length
             </div>
           )}
         </div>
-      </div>
+      </div>}
 
 {/* Collections Trend */}
-<div className="dashboard-chart-card">
+{showCollectionsChart && <div className="dashboard-chart-card">
   <h2>Collections Trend</h2>
 
   <p className="dashboard-chart-description">
