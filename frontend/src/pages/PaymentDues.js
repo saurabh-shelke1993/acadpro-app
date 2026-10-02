@@ -780,11 +780,13 @@ if (
 
 useEffect(() => {
   setCurrentPage(1);
-}, [statusFilter, selectedAcademy, selectedCenter, selectedBatch, selectedPlayer, columnFilters]);
+}, [statusFilter, dueFromDate, dueToDate, selectedAcademy, selectedCenter, selectedBatch, selectedPlayer, columnFilters]);
 
 const filteredDues = useMemo(() => {
   return duesList.filter((due) => {
     if (statusFilter && due.due_status !== statusFilter.toLowerCase()) return false;
+    if (dueFromDate && due.due_date < dueFromDate) return false;
+    if (dueToDate && due.due_date > dueToDate) return false;
     if (columnFilters.academy && due.players?.academy_id !== columnFilters.academy) return false;
     if (columnFilters.center && due.players?.center_id !== columnFilters.center) return false;
     if (columnFilters.batch && due.players?.batch_id !== columnFilters.batch) return false;
@@ -793,7 +795,7 @@ const filteredDues = useMemo(() => {
     if (columnFilters.dueType && due.due_type !== columnFilters.dueType) return false;
     return true;
   });
-}, [duesList, statusFilter, columnFilters]);
+}, [duesList, statusFilter, dueFromDate, dueToDate, columnFilters]);
 
 const filterOptions = useMemo(() => ({
   academies: [...new Map(duesList.map((due) => [due.players?.academy_id, due.players?.academies?.academy_name]).filter(([id, name]) => id && name)).entries()]
@@ -867,10 +869,16 @@ const getDueAge = (dueDate, dueStatus) => {
 
 const clearFilters = () => {
   setStatusFilter("");
+  setDueFromDate("");
+  setDueToDate("");
   setColumnFilters({ academy: "", center: "", batch: "", player: "", plan: "", dueType: "" });
 };
 
-const hasActiveFilters = statusFilter || Object.values(columnFilters).some(Boolean);
+const hasActiveFilters =
+  Boolean(statusFilter) ||
+  Boolean(dueFromDate) ||
+  Boolean(dueToDate) ||
+  Object.values(columnFilters).some(Boolean);
 
 const totalPages = Math.max(1, Math.ceil(filteredDues.length / 7));
 const paginatedDues = filteredDues.slice((currentPage - 1) * 7, currentPage * 7);
@@ -977,9 +985,11 @@ return (
           <div>
             <div className="payment-section-kicker">Collections workspace</div>
             <h2>Payment Dues List</h2>
-            <p>{filteredDues.length === 0 ? "No dues match the current filters." : filteredDues.length + " shown · " + formatCurrency(totalRemaining) + " outstanding"}</p>
+            <p>{filteredDues.length === 0 ? "No dues match the current filters." : filteredDues.length + " shown · " + formatCurrency(filteredRemaining) + " outstanding"}</p>
           </div>
           <div className="payment-list-controls">
+            <label className="payment-filter-field payment-date-filter-field"><span>From</span><input type="date" value={dueFromDate} max={dueToDate || undefined} onChange={(e) => setDueFromDate(e.target.value)} aria-label="Filter dues from date" /></label>
+            <label className="payment-filter-field payment-date-filter-field"><span>To</span><input type="date" value={dueToDate} min={dueFromDate || undefined} onChange={(e) => setDueToDate(e.target.value)} aria-label="Filter dues to date" /></label>
             <label className="payment-filter-field"><span>Status</span><select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}><option value="">All Statuses</option><option value="pending">Pending</option><option value="partial">Partial</option><option value="paid">Paid</option></select></label>
             <button type="button" className="payment-clear-filters" onClick={clearFilters} disabled={!hasActiveFilters}>Clear filters</button>
           </div>
