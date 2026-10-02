@@ -597,3 +597,25 @@
     width: 100%;
   }
 }
+
+
+/* Coach attendance uses the same workspace system with a focused two-field filter. */
+.attendance-coach-filter-card{
+  grid-template-columns:minmax(220px, 360px) minmax(180px, 260px);
+  max-width:640px;
+}
+
+.attendance-coach-summary{
+  max-width:900px;
+}
+
+@media (max-width:640px){
+  .attendance-coach-filter-card{
+    grid-template-columns:1fr;
+    max-width:none;
+  }
+
+  .attendance-coach-summary{
+    max-width:none;
+  }
+}
