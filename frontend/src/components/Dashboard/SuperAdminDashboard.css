@@ -407,16 +407,16 @@
 .sa-attendance-pulse {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  align-items: end;
-  min-height: 160px;
+  align-items: stretch;
+  min-height: 0;
   gap: 12px;
-  padding: 8px 4px 0;
+  padding: 6px 4px 0;
 }
 
 .sa-attendance-day {
   display: grid;
-  grid-template-rows: 18px 100px 18px;
-  align-items: end;
+  grid-template-rows: 18px 90px 18px;
+  align-items: center;
   justify-items: center;
   gap: 4px;
 }
@@ -424,7 +424,7 @@
 .sa-attendance-bar-track {
   display: flex;
   width: 22px;
-  height: 100px;
+  height: 90px;
   align-items: flex-end;
   overflow: hidden;
   border-radius: 6px;
