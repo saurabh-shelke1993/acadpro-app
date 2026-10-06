@@ -9,7 +9,8 @@ import {
 } from "../utils/auth";
 
 import {
-  isAcademyOwner
+  isAcademyOwner,
+  isCoach
 } from "../utils/roles";
 
 import {
@@ -315,7 +316,7 @@ if (!user) {
 
   return (
     <Layout>
-      <div className="centers-page">
+      <div className={`centers-page${isCoach(user) ? " centers-page-coach" : ""}`}>
         Loading...
       </div>
     </Layout>
