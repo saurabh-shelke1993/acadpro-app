@@ -460,3 +460,10 @@
 /* SA-4 drilldown links */
 .centers-drilldown-link { color: inherit; text-decoration: none; font-weight: 600; }
 .centers-drilldown-link:hover { text-decoration: underline; }
+
+
+/* Coach scope: academy is already known, so keep the centers workspace to one useful column. */
+.centers-page-coach .centers-table{min-width:0}
+.centers-page-coach .centers-table th:first-child,
+.centers-page-coach .centers-table td:first-child{display:none}
+.centers-page-coach .centers-name-cell{width:100%}
