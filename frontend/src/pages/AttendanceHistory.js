@@ -490,29 +490,6 @@ function AttendanceHistory() {
           </div>
         </section>
 
-        <section className="attendance-history-summary" aria-label="Attendance summary">
-          <div className="attendance-history-summary-card">
-            <span>Records</span>
-            <strong>{summary.records}</strong>
-            <small>Matching filters</small>
-          </div>
-          <div className="attendance-history-summary-card attendance-summary-present">
-            <span>Present</span>
-            <strong>{summary.present}</strong>
-            <small>Marked present</small>
-          </div>
-          <div className="attendance-history-summary-card attendance-summary-absent">
-            <span>Absent</span>
-            <strong>{summary.absent}</strong>
-            <small>Marked absent</small>
-          </div>
-          <div className="attendance-history-summary-card attendance-summary-rate">
-            <span>Attendance rate</span>
-            <strong>{summary.rate}%</strong>
-            <small>Present ÷ records</small>
-          </div>
-        </section>
-
         <div className="attendance-history-list-header">
           <div>
             <span className="attendance-history-section-label">Records</span>
