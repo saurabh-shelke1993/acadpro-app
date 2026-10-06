@@ -398,3 +398,150 @@
   .app-sidebar-footer {
     flex: 0 0 auto;
   }
+
+  .app-brand {
+    padding-bottom: var(--ap-space-4);
+  }
+
+  .app-nav-group-title {
+    margin-top: var(--ap-space-3);
+    margin-bottom: var(--ap-space-1);
+  }
+
+  .app-nav-link {
+    min-height: 38px;
+    padding: 0.4rem 0.625rem;
+  }
+
+  .app-sidebar-footer {
+    gap: var(--ap-space-2);
+    padding-top: var(--ap-space-3);
+  }
+
+  .app-user-chip {
+    padding: 0.375rem;
+  }
+
+  .app-logout {
+    min-height: 36px;
+  }
+}
+
+/* D7.5 — Keyboard navigation and route focus */
+.app-skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 100;
+  transform: translateY(-180%);
+  padding: 0.625rem 0.875rem;
+  border-radius: var(--ap-radius-md);
+  background: var(--ap-slate-950);
+  color: var(--ap-white);
+  font-size: var(--ap-font-size-sm);
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: var(--ap-shadow-md);
+  transition: transform var(--ap-transition-fast);
+}
+
+.app-skip-link:focus-visible {
+  transform: translateY(0);
+  outline: 3px solid #93c5fd;
+  outline-offset: 2px;
+}
+
+.app-main:focus {
+  outline: none;
+}
+
+.app-route-loading {
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ap-space-8);
+  color: var(--ap-slate-600);
+  font-size: var(--ap-font-size-md);
+}
+
+
+/* D7.7 — Navigation touch target normalization */
+.app-nav-link {
+  min-height: 40px;
+}
+
+.app-sidebar-close,
+.app-menu-button {
+  min-width: 40px;
+  min-height: 40px;
+}
+
+.app-logout {
+  min-height: 40px;
+}
+
+@media (min-width: 901px) {
+  .app-nav-link {
+    min-height: 40px;
+  }
+
+  .app-logout {
+    min-height: 40px;
+  }
+}
+
+/* Pre-D7.9 layout hotfix — use available desktop workspace */
+@media (min-width: 901px) {
+  .app-content {
+    padding-left: var(--ap-space-5);
+    padding-right: var(--ap-space-5);
+  }
+
+  .app-content > * {
+    width: 100% !important;
+    max-width: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    box-sizing: border-box;
+  }
+}
+
+
+.app-brand-mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: inherit;
+}
+
+.app-brand-caption {
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+.app-user-avatar-logo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  border-radius: inherit;
+}
+
+
+.app-brand-caption {
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.app-user-avatar {
+  overflow: hidden;
+  border: 1px solid rgba(147, 197, 253, 0.35);
+  background: var(--ap-primary-600);
+  color: var(--ap-white);
+  border-radius: var(--ap-radius-full);
+}
