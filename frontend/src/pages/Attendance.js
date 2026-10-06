@@ -36,6 +36,7 @@ function Attendance() {
   const [selectedAcademy, setSelectedAcademy] = useState("");
   const [selectedCenter, setSelectedCenter] = useState("");
   const [selectedBatch, setSelectedBatch] = useState("");
+  const [coachBatchMenuOpen, setCoachBatchMenuOpen] = useState(false);
 
   const [attendanceDate, setAttendanceDate] = useState(
     new Date().toISOString().split("T")[0]
@@ -443,8 +444,8 @@ return (
           ) : null}
         </div>
 
-        <div className="attendance-filter-card">
-          <div className="attendance-filter-field">
+        <div className={isCoach(user) ? "attendance-filter-card attendance-filter-card-coach" : "attendance-filter-card"}>
+          <div className={isCoach(user) ? "attendance-filter-field coach-hidden-filter" : "attendance-filter-field"}>
             <label htmlFor="attendance-academy">Academy</label>
             <select
               id="attendance-academy"
@@ -472,7 +473,7 @@ return (
             </select>
           </div>
 
-          <div className="attendance-filter-field">
+          <div className={isCoach(user) ? "attendance-filter-field coach-hidden-filter" : "attendance-filter-field"}>
             <label htmlFor="attendance-center">Center</label>
             <select
               id="attendance-center"
@@ -500,25 +501,65 @@ return (
 
           <div className="attendance-filter-field">
             <label htmlFor="attendance-batch">Batch</label>
-            <select
-              id="attendance-batch"
-              value={selectedBatch}
-              onChange={(e) => {
-                setSelectedBatch(e.target.value);
-                setAttendanceData({});
-                setAttendanceExists(false);
-                setAttendanceMessage("");
-                setAttendanceError("");
-              }}
-              disabled={!selectedCenter}
-            >
-              <option value="">Select Batch</option>
-              {batches.map((batch) => (
-                <option key={batch.id} value={batch.id}>
-                  {batch.batch_name}
-                </option>
-              ))}
-            </select>
+            {isCoach(user) ? (
+              <div className="coach-batch-picker">
+                <button
+                  type="button"
+                  id="attendance-batch"
+                  className="coach-batch-picker-trigger"
+                  aria-haspopup="listbox"
+                  aria-expanded={coachBatchMenuOpen}
+                  onClick={() => setCoachBatchMenuOpen((open) => !open)}
+                  disabled={batches.length === 0}
+                >
+                  <span>{batches.find((batch) => batch.id === selectedBatch)?.batch_name || "Select batch"}</span>
+                  <span aria-hidden="true">▾</span>
+                </button>
+                {coachBatchMenuOpen && (
+                  <div className="coach-batch-picker-menu" role="listbox" aria-label="Assigned batches">
+                    {batches.map((batch) => (
+                      <button
+                        key={batch.id}
+                        type="button"
+                        role="option"
+                        aria-selected={selectedBatch === batch.id}
+                        className={selectedBatch === batch.id ? "coach-batch-picker-option selected" : "coach-batch-picker-option"}
+                        onClick={() => {
+                          setSelectedBatch(batch.id);
+                          setAttendanceData({});
+                          setAttendanceExists(false);
+                          setAttendanceMessage("");
+                          setAttendanceError("");
+                          setCoachBatchMenuOpen(false);
+                        }}
+                      >
+                        {batch.batch_name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <select
+                id="attendance-batch"
+                value={selectedBatch}
+                onChange={(e) => {
+                  setSelectedBatch(e.target.value);
+                  setAttendanceData({});
+                  setAttendanceExists(false);
+                  setAttendanceMessage("");
+                  setAttendanceError("");
+                }}
+                disabled={!selectedCenter}
+              >
+                <option value="">Select Batch</option>
+                {batches.map((batch) => (
+                  <option key={batch.id} value={batch.id}>
+                    {batch.batch_name}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
 
           <div className="attendance-filter-field">
@@ -612,8 +653,8 @@ return (
               <tr>
                 <th scope="col">#</th>
                 <th scope="col">Player Name</th>
-                <th scope="col">Present</th>
-                <th scope="col">Absent</th>
+                <th scope="col"><span className="attendance-choice-full">Present</span><span className="attendance-choice-short">P</span></th>
+                <th scope="col"><span className="attendance-choice-full">Absent</span><span className="attendance-choice-short">A</span></th>
               </tr>
             </thead>
 
@@ -660,7 +701,7 @@ return (
                             onChange={() => handleAttendanceChange(item.player_id, "present")}
                             disabled={disabled}
                           />
-                          <span>Present</span>
+                          <span className="attendance-choice-full">Present</span><span className="attendance-choice-short">P</span>
                         </label>
                       </td>
 
@@ -673,7 +714,7 @@ return (
                             onChange={() => handleAttendanceChange(item.player_id, "absent")}
                             disabled={disabled}
                           />
-                          <span>Absent</span>
+                          <span className="attendance-choice-full">Absent</span><span className="attendance-choice-short">A</span>
                         </label>
                       </td>
                     </tr>
