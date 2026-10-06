@@ -667,3 +667,21 @@
   .attendance-table td:nth-child(3),
   .attendance-table td:nth-child(4){width:52px}
 }
+
+
+/* Coach roster uses compact P/A controls at every viewport. */
+.attendance-choice-full{display:none!important}
+.attendance-choice-short{display:inline!important}
+.attendance-table th:nth-child(3),
+.attendance-table th:nth-child(4){text-align:center}
+.attendance-choice{min-width:52px;min-height:38px;justify-content:center;box-sizing:border-box}
+@media(max-width:900px){
+  .attendance-table th:nth-child(3),
+  .attendance-table td:nth-child(3),
+  .attendance-table th:nth-child(4),
+  .attendance-table td:nth-child(4){width:52px}
+  .attendance-choice{min-width:46px}
+}
+@media(max-width:640px){
+  .attendance-choice{min-width:44px;min-height:38px;font-size:13px}
+}
