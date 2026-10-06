@@ -62,6 +62,7 @@ function Players() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [openFilter, setOpenFilter] = useState(null);
+  const [selectedCoachPlayer, setSelectedCoachPlayer] = useState(null);
   const [columnFilters, setColumnFilters] = useState({
     academy: [],
     center: [],
@@ -1141,12 +1142,16 @@ return (
                 {!isCoach(loggedInUser) && <th scope="col">{renderColumnFilter("academy", "Academy", filterOptions.academy)}</th>}
                 <th scope="col">{renderColumnFilter("center", "Center", filterOptions.center)}</th>
                 <th scope="col">{renderColumnFilter("batch", "Batch", filterOptions.batch)}</th>
-                <th scope="col">DOB</th>
-                <th scope="col">{renderColumnFilter("gender", isCoach(loggedInUser) ? "G" : "Gender", filterOptions.gender)}</th>
-                <th scope="col">Joining Date</th>
-                {!isCoach(loggedInUser) && <th scope="col">{renderColumnFilter("status", "Status", filterOptions.status)}</th>}
-                <th scope="col">Parent Phone</th>
-                {!isCoach(loggedInUser) && <th scope="col">Actions</th>}
+                {!isCoach(loggedInUser) && (
+                  <>
+                    <th scope="col">DOB</th>
+                    <th scope="col">{renderColumnFilter("gender", "Gender", filterOptions.gender)}</th>
+                    <th scope="col">Joining Date</th>
+                    <th scope="col">{renderColumnFilter("status", "Status", filterOptions.status)}</th>
+                    <th scope="col">Parent Phone</th>
+                    <th scope="col">Actions</th>
+                  </>
+                )}
               </tr>
             </thead>
 
@@ -1155,7 +1160,7 @@ return (
                 <tr>
                   <td
                     className="players-empty-state"
-                    colSpan={isCoach(loggedInUser) ? 7 : 10}
+                    colSpan={isCoach(loggedInUser) ? 3 : 10}
                   >
                     <strong>No players found</strong>
                     <span>
@@ -1167,41 +1172,52 @@ return (
                 </tr>
               ) : (
                 paginatedPlayers.map((player) => (
-                  <tr key={player.id}>
+                  <tr
+                    key={player.id}
+                    className={isCoach(loggedInUser) ? "players-coach-row" : ""}
+                    onClick={() => isCoach(loggedInUser) && setSelectedCoachPlayer(player)}
+                    onKeyDown={(event) => {
+                      if (isCoach(loggedInUser) && (event.key === "Enter" || event.key === " ")) {
+                        event.preventDefault();
+                        setSelectedCoachPlayer(player);
+                      }
+                    }}
+                    tabIndex={isCoach(loggedInUser) ? 0 : undefined}
+                  >
                     <td className="player-name-cell">{player.full_name}</td>
                     {!isCoach(loggedInUser) && <td>{player.academies?.academy_name || "—"}</td>}
                     <td>{player.centers?.center_name || "—"}</td>
                     <td>{player.batches?.batch_name || "—"}</td>
-                    <td>{isCoach(loggedInUser) ? formatCoachDob(player.dob) : (calculateAge(player.dob) || "—")}</td>
-                    <td>{isCoach(loggedInUser) ? (player.gender === "Male" ? "M" : player.gender === "Female" ? "F" : "—") : (player.gender || "—")}</td>
-                    <td>{player.joining_date || "—"}</td>
-                    {!isCoach(loggedInUser) && <td>
-                      <span className="player-status-badge">
-                        {player.player_status || "Active"}
-                      </span>
-                    </td>}
-                    <td>{player.parents?.phone || "—"}</td>
                     {!isCoach(loggedInUser) && (
-                      <td>
-                        <div className="player-row-actions">
-                          <button
-                            className="player-action-button player-action-edit"
-                            type="button"
-                            onClick={() => handleEditPlayer(player)}
-                            aria-label={`Edit ${player.full_name}`}
-                          >
-                            Edit
-                          </button>
-                          <button
-                            className="player-action-button player-action-danger"
-                            type="button"
-                            onClick={() => handleDeletePlayer(player.id)}
-                            aria-label={`Deactivate ${player.full_name}`}
-                          >
-                            Deactivate
-                          </button>
-                        </div>
-                      </td>
+                      <>
+                        <td>{calculateAge(player.dob) || "—"}</td>
+                        <td>{player.gender || "—"}</td>
+                        <td>{player.joining_date || "—"}</td>
+                        <td>
+                          <span className="player-status-badge">{player.player_status || "Active"}</span>
+                        </td>
+                        <td>{player.parents?.phone || "—"}</td>
+                        <td>
+                          <div className="player-row-actions">
+                            <button
+                              className="player-action-button player-action-edit"
+                              type="button"
+                              onClick={() => handleEditPlayer(player)}
+                              aria-label={`Edit ${player.full_name}`}
+                            >
+                              Edit
+                            </button>
+                            <button
+                              className="player-action-button player-action-danger"
+                              type="button"
+                              onClick={() => handleDeletePlayer(player.id)}
+                              aria-label={`Deactivate ${player.full_name}`}
+                            >
+                              Deactivate
+                            </button>
+                          </div>
+                        </td>
+                      </>
                     )}
                   </tr>
                 ))
@@ -1209,6 +1225,37 @@ return (
             </tbody>
           </table>
         </div>
+
+        {isCoach(loggedInUser) && selectedCoachPlayer ? (
+          <div className="coach-player-modal-backdrop" role="presentation" onClick={() => setSelectedCoachPlayer(null)}>
+            <section
+              className="coach-player-modal"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="coach-player-detail-title"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <div className="coach-player-modal-header">
+                <div>
+                  <span className="players-page-eyebrow">Player details</span>
+                  <h2 id="coach-player-detail-title">{selectedCoachPlayer.full_name}</h2>
+                </div>
+                <button type="button" className="coach-player-modal-close" onClick={() => setSelectedCoachPlayer(null)} aria-label="Close player details">×</button>
+              </div>
+              <div className="coach-player-detail-grid">
+                <div><span>Center</span><strong>{selectedCoachPlayer.centers?.center_name || "—"}</strong></div>
+                <div><span>Batch</span><strong>{selectedCoachPlayer.batches?.batch_name || "—"}</strong></div>
+                <div><span>Date of birth</span><strong>{formatCoachDob(selectedCoachPlayer.dob)}</strong></div>
+                <div><span>Gender</span><strong>{selectedCoachPlayer.gender === "Male" ? "Male" : selectedCoachPlayer.gender === "Female" ? "Female" : "—"}</strong></div>
+                <div><span>Joining date</span><strong>{selectedCoachPlayer.joining_date || "—"}</strong></div>
+                <div><span>Parent</span><strong>{selectedCoachPlayer.parents?.parent_name || "—"}</strong></div>
+                <div><span>Parent phone</span><strong>{selectedCoachPlayer.parents?.phone || "—"}</strong></div>
+                <div><span>Parent email</span><strong>{selectedCoachPlayer.parents?.email || "—"}</strong></div>
+                <div className="coach-player-detail-wide"><span>Address</span><strong>{selectedCoachPlayer.parents?.address || "—"}</strong></div>
+              </div>
+            </section>
+          </div>
+        ) : null}
 
         <div className="players-pagination">
           <span>
