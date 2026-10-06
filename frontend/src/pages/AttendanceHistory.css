@@ -69,3 +69,42 @@
 @media(max-width:1200px){.attendance-history-filter-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(max-width:900px){.attendance-history-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.attendance-history-list-header{align-items:flex-start;flex-direction:column}.attendance-history-result-count{white-space:normal}}
 @media(max-width:640px){.attendance-history-toolbar{align-items:flex-start;flex-direction:column}.attendance-history-toolbar-meta{align-items:flex-start}.attendance-history-filter-grid,.attendance-history-summary{grid-template-columns:1fr}.attendance-history-section-heading{align-items:flex-start;flex-direction:column}.attendance-history-reset-button{width:100%}.attendance-history-pagination{align-items:flex-start;flex-direction:column}.attendance-history-pagination-controls{width:100%;justify-content:space-between}.attendance-history-pagination-controls button{flex:1}.attendance-history-pagination-controls span{padding:0 .25rem;white-space:nowrap}}
+
+
+/* Compact history view for tablet and mobile: prioritize date, player, batch, status and actions. */
+@media(max-width:900px){
+  .attendance-history-table{min-width:0;table-layout:fixed}
+  .attendance-history-table th,
+  .attendance-history-table td{padding:.55rem .6rem}
+  .attendance-history-table th:nth-child(3),
+  .attendance-history-table td:nth-child(3),
+  .attendance-history-table th:nth-child(6),
+  .attendance-history-table td:nth-child(6){display:none}
+  .attendance-history-table th:nth-child(1),
+  .attendance-history-table td:nth-child(1){width:72px}
+  .attendance-history-table th:nth-child(2),
+  .attendance-history-table td:nth-child(2){width:30%}
+  .attendance-history-table th:nth-child(4),
+  .attendance-history-table td:nth-child(4){width:22%}
+  .attendance-history-table th:nth-child(5),
+  .attendance-history-table td:nth-child(5){width:78px}
+  .attendance-history-table th:nth-child(7),
+  .attendance-history-table td:nth-child(7){width:86px}
+}
+@media(max-width:640px){
+  .attendance-history-table th,
+  .attendance-history-table td{padding:.5rem .45rem;font-size:12px}
+  .attendance-history-table th:nth-child(4),
+  .attendance-history-table td:nth-child(4){display:none}
+  .attendance-history-table th:nth-child(1),
+  .attendance-history-table td:nth-child(1){width:66px}
+  .attendance-history-table th:nth-child(2),
+  .attendance-history-table td:nth-child(2){width:auto}
+  .attendance-history-table th:nth-child(5),
+  .attendance-history-table td:nth-child(5){width:66px}
+  .attendance-history-table th:nth-child(7),
+  .attendance-history-table td:nth-child(7){width:72px}
+  .attendance-history-player-cell{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .attendance-history-actions{gap:.25rem}
+  .attendance-icon-button,.attendance-action-button{min-height:32px;padding:.3rem .45rem}
+}
