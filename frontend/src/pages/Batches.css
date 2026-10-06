@@ -909,3 +909,19 @@
 /* SA-4 drilldown links */
 .batches-drilldown-link { color: inherit; text-decoration: none; font-weight: 600; }
 .batches-drilldown-link:hover { text-decoration: underline; }
+
+
+/* Coach scope: academy is implicit. Keep batch rows within the viewport. */
+.batches-page-coach .batches-table{min-width:0;table-layout:fixed}
+.batches-page-coach .batches-table th:first-child,
+.batches-page-coach .batches-table td:first-child{display:none}
+.batches-page-coach .batches-center-cell{width:25%}
+.batches-page-coach .batches-name-cell{width:28%}
+.batches-page-coach .batches-schedule-cell{width:27%}
+@media(max-width:640px){
+  .batches-page-coach .batches-table th:nth-child(4),
+  .batches-page-coach .batches-table td:nth-child(4){display:none}
+  .batches-page-coach .batches-center-cell{width:34%}
+  .batches-page-coach .batches-name-cell{width:36%}
+  .batches-page-coach .batches-schedule-cell{width:30%;white-space:normal}
+}
