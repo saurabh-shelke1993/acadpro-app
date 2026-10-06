@@ -638,7 +638,15 @@
 }
 @media(max-width:1050px){
   .performance-page{max-width:100%!important}
-  .performance-report-layout{grid-template-columns:minmax(0,1fr) 280px}
+  .performance-report-layout{grid-template-columns:1fr}
+  .performance-report-sidebar{
+    position:static;
+    order:-1;
+  }
+  .performance-snapshot{
+    box-shadow:0 3px 12px rgba(15,23,42,.05);
+  }
+  .performance-chart-grid{grid-template-columns:1fr}
   .performance-top-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
   .history-summary{grid-template-columns:105px 65px minmax(0,1fr) 24px}
 }
