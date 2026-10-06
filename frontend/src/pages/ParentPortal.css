@@ -1479,3 +1479,38 @@
 .parent-portal-attendance-chart-legend strong{margin-left:auto;color:var(--ap-slate-900);}
 @media(max-width:900px){.parent-portal-profile-grid{grid-template-columns:1fr;}.parent-portal-attendance-layout{grid-template-columns:minmax(0,1fr) 180px;}}
 @media(max-width:640px){.parent-portal-topbar{align-items:flex-start;flex-direction:column;gap:.35rem;}.parent-portal-topbar-child{justify-content:flex-start;flex-wrap:wrap;}.parent-portal-profile-grid .parent-portal-details-grid{grid-template-columns:1fr;}.parent-portal-attendance-layout{grid-template-columns:1fr;}.parent-portal-attendance-chart-wrap{padding-top:var(--ap-space-2);}}
+
+/* Compact parent dashboard: attendance and development side by side */
+.parent-portal-attendance-development-grid{
+  display:grid;
+  grid-template-columns:minmax(0,1.6fr) minmax(300px,1fr);
+  gap:var(--ap-space-4);
+  margin-top:var(--ap-space-5);
+}
+.parent-portal-attendance-development-grid > .parent-portal-subsection{
+  margin-top:0;
+  min-width:0;
+}
+.parent-portal-attendance-development-grid .parent-portal-attendance-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+}
+.parent-portal-attendance-development-grid .parent-portal-performance-section{
+  padding:var(--ap-space-5);
+  display:flex;
+  align-items:center;
+}
+.parent-portal-attendance-development-grid .parent-portal-performance{
+  width:100%;
+  grid-template-columns:auto minmax(0,1fr);
+  gap:var(--ap-space-4);
+}
+.parent-portal-attendance-development-grid .parent-portal-performance-button{
+  grid-column:1 / -1;
+  width:100%;
+  margin-top:var(--ap-space-2);
+}
+@media(max-width:900px){
+  .parent-portal-attendance-development-grid{
+    grid-template-columns:1fr;
+  }
+}

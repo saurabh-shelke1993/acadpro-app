@@ -253,6 +253,7 @@ const ParentPortal = () => {
                 </div>
               </div>
               </div>
+              <div className="parent-portal-attendance-development-grid">
               <div className="parent-portal-subsection parent-portal-attendance-section">
                 <div className="parent-portal-subsection-heading">
                   <div>
@@ -260,68 +261,20 @@ const ParentPortal = () => {
                     <h3 className="parent-portal-subsection-title">Attendance summary</h3>
                   </div>
                   {selectedAttendance?.total > 0 ? (
-                    <span className="parent-portal-attendance-rate">
-                      {selectedAttendance.percentage}% attendance
-                    </span>
+                    <span className="parent-portal-attendance-rate">{selectedAttendance.percentage}% attendance</span>
                   ) : null}
                 </div>
-
                 {selectedAttendance?.total > 0 ? (
-                  <>
-                    <div className="parent-portal-attendance-layout">
-                      <div className="parent-portal-attendance-summary">
-                    <div className="parent-portal-attendance-grid">
-                      <div className="parent-portal-attendance-stat">
-                        <span>Total sessions</span>
-                        <strong>{selectedAttendance.total}</strong>
-                      </div>
-                      <div className="parent-portal-attendance-stat is-present">
-                        <span>Present</span>
-                        <strong>{selectedAttendance.present}</strong>
-                      </div>
-                      <div className="parent-portal-attendance-stat is-absent">
-                        <span>Absent</span>
-                        <strong>{selectedAttendance.absent}</strong>
-                      </div>
-                      <div className="parent-portal-attendance-stat is-rate">
-                        <span>Attendance rate</span>
-                        <strong>{selectedAttendance.percentage}%</strong>
-                      </div>
-                      </div>
-                    </div>
-
-                      <div className="parent-portal-attendance-chart-wrap">
-                        <div
-                          className="parent-portal-attendance-chart"
-                          style={{
-                            background: `conic-gradient(var(--ap-primary-600) ${Number(selectedAttendance.percentage) || 0}%, var(--ap-danger-100) 0)`
-                          }}
-                          role="img"
-                          aria-label={`Attendance chart: ${selectedAttendance.percentage}% present and ${100 - Number(selectedAttendance.percentage)}% absent`}
-                        >
-                          <div className="parent-portal-attendance-chart-center">
-                            <strong>{selectedAttendance.percentage}%</strong>
-                            <span>Attendance</span>
-                          </div>
-                        </div>
-                        <div className="parent-portal-attendance-chart-legend">
-                          <span><i className="is-present" aria-hidden="true" /> Present <strong>{selectedAttendance.present}</strong></span>
-                          <span><i className="is-absent" aria-hidden="true" /> Absent <strong>{selectedAttendance.absent}</strong></span>
-                        </div>
-                      </div>
-                    </div>
-
-
-                  </>
+                  <div className="parent-portal-attendance-grid">
+                    <div className="parent-portal-attendance-stat"><span>Total sessions</span><strong>{selectedAttendance.total}</strong></div>
+                    <div className="parent-portal-attendance-stat is-present"><span>Present</span><strong>{selectedAttendance.present}</strong></div>
+                    <div className="parent-portal-attendance-stat is-absent"><span>Absent</span><strong>{selectedAttendance.absent}</strong></div>
+                    <div className="parent-portal-attendance-stat is-rate"><span>Attendance rate</span><strong>{selectedAttendance.percentage}%</strong></div>
+                  </div>
                 ) : (
                   <div className="parent-portal-attendance-empty">
                     <span className="parent-portal-attendance-empty-icon" aria-hidden="true">✓</span>
-                    <div>
-                      <strong>No attendance records yet</strong>
-                      <p className="parent-portal-message">
-                        Attendance information will appear here once sessions are recorded for this child.
-                      </p>
-                    </div>
+                    <div><strong>No attendance records yet</strong><p className="parent-portal-message">Attendance information will appear here once sessions are recorded for this child.</p></div>
                   </div>
                 )}
               </div>
@@ -345,6 +298,8 @@ const ParentPortal = () => {
                   </button>
                 </div>
               </div>
+              </div>
+
             </section>
           )}
         </>
