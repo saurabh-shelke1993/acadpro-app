@@ -1195,51 +1195,35 @@
 }
 
 
-/* Coach player list: academy/status are implicit and compact fields prevent tablet/mobile overflow. */
+
+/* Coach player list: show only the three fields needed for scanning. */
 .players-page-coach .players-table{min-width:0;table-layout:fixed}
 .players-page-coach .players-table th,
-.players-page-coach .players-table td{padding:.5rem .55rem}
+.players-page-coach .players-table td{padding:.65rem .6rem}
 .players-page-coach .players-table th:nth-child(1),
-.players-page-coach .players-table td:nth-child(1){width:22%}
+.players-page-coach .players-table td:nth-child(1){width:42%}
 .players-page-coach .players-table th:nth-child(2),
-.players-page-coach .players-table td:nth-child(2){width:18%}
+.players-page-coach .players-table td:nth-child(2){width:30%}
 .players-page-coach .players-table th:nth-child(3),
-.players-page-coach .players-table td:nth-child(3){width:18%}
-.players-page-coach .players-table th:nth-child(4),
-.players-page-coach .players-table td:nth-child(4){width:12%}
-.players-page-coach .players-table th:nth-child(5),
-.players-page-coach .players-table td:nth-child(5){width:8%}
-.players-page-coach .players-table th:nth-child(6),
-.players-page-coach .players-table td:nth-child(6){width:10%}
-.players-page-coach .players-table th:nth-child(7),
-.players-page-coach .players-table td:nth-child(7){width:12%}
-.players-page-coach .players-table td{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-@media(max-width:900px){
-  .players-page-coach .players-table{min-width:0}
-  .players-page-coach .players-table th:nth-child(6),
-  .players-page-coach .players-table td:nth-child(6){display:none}
-  .players-page-coach .players-table th:nth-child(1),
-  .players-page-coach .players-table td:nth-child(1){width:28%}
-  .players-page-coach .players-table th:nth-child(2),
-  .players-page-coach .players-table td:nth-child(2){width:27%}
-  .players-page-coach .players-table th:nth-child(3),
-  .players-page-coach .players-table td:nth-child(3){width:24%}
-  .players-page-coach .players-table th:nth-child(4),
-  .players-page-coach .players-table td:nth-child(4){width:13%}
-  .players-page-coach .players-table th:nth-child(5),
-  .players-page-coach .players-table td:nth-child(5){width:8%}
-}
+.players-page-coach .players-table td:nth-child(3){width:28%}
+.players-coach-row{cursor:pointer}
+.players-coach-row:hover,.players-coach-row:focus-visible{background:var(--ap-primary-50)!important}
+.players-coach-row:focus-visible{outline:2px solid var(--ap-primary-300);outline-offset:-2px}
+.coach-player-modal-backdrop{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:1rem;background:rgba(15,23,42,.42)}
+.coach-player-modal{width:min(560px,100%);max-height:min(720px,calc(100vh - 2rem));overflow:auto;box-sizing:border-box;padding:1rem;border:1px solid var(--ap-border);border-radius:var(--ap-radius-xl);background:var(--ap-surface);box-shadow:var(--ap-shadow-lg)}
+.coach-player-modal-header{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;padding-bottom:.8rem;border-bottom:1px solid var(--ap-border)}
+.coach-player-modal-header h2{margin:.15rem 0 0;color:var(--ap-slate-950);font-size:1.25rem}
+.coach-player-modal-close{width:36px;min-width:36px;height:36px;padding:0;border:1px solid var(--ap-border);border-radius:50%;background:var(--ap-surface);color:var(--ap-slate-700);font-size:1.35rem;line-height:1;cursor:pointer}
+.coach-player-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.7rem;margin-top:1rem}
+.coach-player-detail-grid>div{min-width:0;padding:.65rem .7rem;border:1px solid var(--ap-border);border-radius:var(--ap-radius-md);background:var(--ap-slate-50)}
+.coach-player-detail-grid span{display:block;margin-bottom:.2rem;color:var(--ap-slate-500);font-size:var(--ap-font-size-xs)}
+.coach-player-detail-grid strong{display:block;color:var(--ap-slate-800);font-size:var(--ap-font-size-sm);overflow-wrap:anywhere}
+.coach-player-detail-wide{grid-column:1/-1}
 @media(max-width:640px){
-  .players-page-coach .players-table th:nth-child(7),
-  .players-page-coach .players-table td:nth-child(7){display:none}
-  .players-page-coach .players-table th:nth-child(1),
-  .players-page-coach .players-table td:nth-child(1){width:32%}
-  .players-page-coach .players-table th:nth-child(2),
-  .players-page-coach .players-table td:nth-child(2){width:30%}
-  .players-page-coach .players-table th:nth-child(3),
-  .players-page-coach .players-table td:nth-child(3){width:25%}
-  .players-page-coach .players-table th:nth-child(4),
-  .players-page-coach .players-table td:nth-child(4){width:13%}
-  .players-page-coach .players-table th:nth-child(5),
-  .players-page-coach .players-table td:nth-child(5){width:auto}
+  .players-page-coach .players-table th,
+  .players-page-coach .players-table td{padding:.55rem .45rem;font-size:12px}
+  .coach-player-modal-backdrop{align-items:flex-end;padding:.5rem}
+  .coach-player-modal{max-height:82vh;border-radius:var(--ap-radius-xl) var(--ap-radius-xl) .75rem .75rem}
+  .coach-player-detail-grid{grid-template-columns:1fr}
+  .coach-player-detail-wide{grid-column:auto}
 }
