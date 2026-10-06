@@ -543,11 +543,11 @@ return (
               <strong>{attendanceSummary.total}</strong>
             </div>
             <div className="attendance-summary-item attendance-summary-present">
-              <span>Present</span>
+              <span className="attendance-choice-full">Present</span><span className="attendance-choice-short">P</span>
               <strong>{attendanceSummary.present}</strong>
             </div>
             <div className="attendance-summary-item attendance-summary-absent">
-              <span>Absent</span>
+              <span className="attendance-choice-full">Absent</span><span className="attendance-choice-short">A</span>
               <strong>{attendanceSummary.absent}</strong>
             </div>
             <div className="attendance-summary-item attendance-summary-unmarked">
