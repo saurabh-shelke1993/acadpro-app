@@ -51,14 +51,10 @@ function CoachDashboard() {
         <header className="coach-dashboard-header">
           <div>
             <span className="coach-dashboard-eyebrow">Coach workspace</span>
-            <h1 className="coach-dashboard-title">Good morning, {user?.full_name || "Coach"}</h1>
+            <h1 className="coach-dashboard-title">Hi, {user?.full_name || "Coach"}</h1>
             <p className="coach-dashboard-subtitle">Your batches and today&apos;s attendance at a glance.</p>
           </div>
-          <div className="coach-dashboard-header-meta">
-            <span className="coach-dashboard-role">Coach</span>
-            <span className="coach-dashboard-date">{today.dateLabel}</span>
-            <button type="button" className="coach-dashboard-refresh" onClick={loadDashboard} disabled={loading}>Refresh</button>
-          </div>
+
         </header>
 
         <section className="coach-dashboard-section">
