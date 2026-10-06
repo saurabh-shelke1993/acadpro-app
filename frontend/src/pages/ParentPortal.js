@@ -139,6 +139,20 @@ const ParentPortal = () => {
         </section>
       ) : (
         <>
+          <section className="parent-portal-topbar" aria-labelledby="parent-portal-title">
+            <div>
+              <p className="parent-portal-section-kicker">Parent portal</p>
+              <h1 id="parent-portal-title" className="parent-portal-topbar-title">Family dashboard</h1>
+            </div>
+            {selectedChild ? (
+              <div className="parent-portal-topbar-child">
+                <span>Viewing</span>
+                <strong>{selectedChild.full_name}</strong>
+                <span>{selectedChild.center?.center_name || selectedChild.academy?.academy_name || "Academy profile"}</span>
+              </div>
+            ) : null}
+          </section>
+
           <section aria-labelledby="children-heading">
             <h2 id="children-heading" className="parent-portal-section-title">Your children</h2>
             <div className="parent-portal-children-grid">
@@ -203,6 +217,7 @@ const ParentPortal = () => {
                 </span>
               </div>
 
+              <div className="parent-portal-profile-grid">
               <div className="parent-portal-subsection parent-portal-profile-section">
                 <div className="parent-portal-subsection-heading">
                   <div>
@@ -251,7 +266,7 @@ const ParentPortal = () => {
                   />
                 </div>
               </div>
-
+              </div>
               <div className="parent-portal-subsection parent-portal-attendance-section">
                 <div className="parent-portal-subsection-heading">
                   <div>
@@ -267,6 +282,8 @@ const ParentPortal = () => {
 
                 {selectedAttendance?.total > 0 ? (
                   <>
+                    <div className="parent-portal-attendance-layout">
+                      <div className="parent-portal-attendance-summary">
                     <div className="parent-portal-attendance-grid">
                       <div className="parent-portal-attendance-stat">
                         <span>Total sessions</span>
@@ -284,21 +301,30 @@ const ParentPortal = () => {
                         <span>Attendance rate</span>
                         <strong>{selectedAttendance.percentage}%</strong>
                       </div>
+                      </div>
+
+                      <div className="parent-portal-attendance-chart-wrap">
+                        <div
+                          className="parent-portal-attendance-chart"
+                          style={{
+                            background: `conic-gradient(var(--ap-primary-600) ${Number(selectedAttendance.percentage) || 0}%, var(--ap-danger-100) 0)`
+                          }}
+                          role="img"
+                          aria-label={`Attendance chart: ${selectedAttendance.percentage}% present and ${100 - Number(selectedAttendance.percentage)}% absent`}
+                        >
+                          <div className="parent-portal-attendance-chart-center">
+                            <strong>{selectedAttendance.percentage}%</strong>
+                            <span>Attendance</span>
+                          </div>
+                        </div>
+                        <div className="parent-portal-attendance-chart-legend">
+                          <span><i className="is-present" aria-hidden="true" /> Present <strong>{selectedAttendance.present}</strong></span>
+                          <span><i className="is-absent" aria-hidden="true" /> Absent <strong>{selectedAttendance.absent}</strong></span>
+                        </div>
+                      </div>
                     </div>
 
-                    <div
-                      className="parent-portal-attendance-progress"
-                      role="progressbar"
-                      aria-label={"Attendance rate " + selectedAttendance.percentage + "%"}
-                      aria-valuemin="0"
-                      aria-valuemax="100"
-                      aria-valuenow={Number(selectedAttendance.percentage) || 0}
-                    >
-                      <div
-                        className="parent-portal-attendance-progress-bar"
-                        style={{ width: Math.min(Math.max(Number(selectedAttendance.percentage) || 0, 0), 100) + "%" }}
-                      />
-                    </div>
+
                   </>
                 ) : (
                   <div className="parent-portal-attendance-empty">
