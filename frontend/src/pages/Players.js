@@ -107,6 +107,17 @@ useEffect(() => {
 
 }, [loggedInUser]);
 
+  const formatCoachDob = (dob) => {
+    if (!dob) return "—";
+    const date = new Date(dob);
+    if (Number.isNaN(date.getTime())) return "—";
+    return date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "2-digit",
+    });
+  };
+
   const calculateAge = (dob) => {
     if (!dob) return "";
 
@@ -850,7 +861,7 @@ setSelectedBatch("");
 
 return (
   <Layout>
-    <div className="players-page">
+    <div className={`players-page${isCoach(loggedInUser) ? " players-page-coach" : ""}`}>
       <div className="players-page-header">
         <div>
           <span className="players-page-eyebrow">Academy management</span>
@@ -1127,13 +1138,13 @@ return (
             <thead>
               <tr>
                 <th scope="col">{renderColumnFilter("player", "Player", [], "text")}</th>
-                <th scope="col">{renderColumnFilter("academy", "Academy", filterOptions.academy)}</th>
+                {!isCoach(loggedInUser) && <th scope="col">{renderColumnFilter("academy", "Academy", filterOptions.academy)}</th>}
                 <th scope="col">{renderColumnFilter("center", "Center", filterOptions.center)}</th>
                 <th scope="col">{renderColumnFilter("batch", "Batch", filterOptions.batch)}</th>
-                <th scope="col">Age</th>
-                <th scope="col">{renderColumnFilter("gender", "Gender", filterOptions.gender)}</th>
+                <th scope="col">DOB</th>
+                <th scope="col">{renderColumnFilter("gender", isCoach(loggedInUser) ? "G" : "Gender", filterOptions.gender)}</th>
                 <th scope="col">Joining Date</th>
-                <th scope="col">{renderColumnFilter("status", "Status", filterOptions.status)}</th>
+                {!isCoach(loggedInUser) && <th scope="col">{renderColumnFilter("status", "Status", filterOptions.status)}</th>}
                 <th scope="col">Parent Phone</th>
                 {!isCoach(loggedInUser) && <th scope="col">Actions</th>}
               </tr>
@@ -1144,7 +1155,7 @@ return (
                 <tr>
                   <td
                     className="players-empty-state"
-                    colSpan={isCoach(loggedInUser) ? 9 : 10}
+                    colSpan={isCoach(loggedInUser) ? 7 : 10}
                   >
                     <strong>No players found</strong>
                     <span>
@@ -1158,17 +1169,17 @@ return (
                 paginatedPlayers.map((player) => (
                   <tr key={player.id}>
                     <td className="player-name-cell">{player.full_name}</td>
-                    <td>{player.academies?.academy_name || "—"}</td>
+                    {!isCoach(loggedInUser) && <td>{player.academies?.academy_name || "—"}</td>}
                     <td>{player.centers?.center_name || "—"}</td>
                     <td>{player.batches?.batch_name || "—"}</td>
-                    <td>{calculateAge(player.dob) || "—"}</td>
-                    <td>{player.gender || "—"}</td>
+                    <td>{isCoach(loggedInUser) ? formatCoachDob(player.dob) : (calculateAge(player.dob) || "—")}</td>
+                    <td>{isCoach(loggedInUser) ? (player.gender === "Male" ? "M" : player.gender === "Female" ? "F" : "—") : (player.gender || "—")}</td>
                     <td>{player.joining_date || "—"}</td>
-                    <td>
+                    {!isCoach(loggedInUser) && <td>
                       <span className="player-status-badge">
                         {player.player_status || "Active"}
                       </span>
-                    </td>
+                    </td>}
                     <td>{player.parents?.phone || "—"}</td>
                     {!isCoach(loggedInUser) && (
                       <td>
