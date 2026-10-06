@@ -619,3 +619,27 @@
     max-width:none;
   }
 }
+
+
+/* Coach-friendly roster: keep player name and P/A controls visible without horizontal scrolling. */
+.attendance-choice-short{display:none}
+@media (max-width:900px){
+  .attendance-table{min-width:0;table-layout:fixed}
+  .attendance-table th:first-child,
+  .attendance-table td:first-child{width:34px;padding-left:.35rem;padding-right:.35rem}
+  .attendance-table th:nth-child(2),
+  .attendance-table td:nth-child(2){width:auto}
+  .attendance-table th:nth-child(3),
+  .attendance-table td:nth-child(3),
+  .attendance-table th:nth-child(4),
+  .attendance-table td:nth-child(4){width:64px;padding-left:.3rem;padding-right:.3rem}
+  .attendance-choice{min-width:0;width:100%;box-sizing:border-box;padding:.35rem .2rem}
+}
+@media (max-width:640px){
+  .attendance-choice-full{display:none}
+  .attendance-choice-short{display:inline}
+  .attendance-choice{min-height:38px;font-size:13px}
+  .attendance-table th,
+  .attendance-table td{padding:.55rem .35rem}
+  .attendance-player-name strong{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+}
