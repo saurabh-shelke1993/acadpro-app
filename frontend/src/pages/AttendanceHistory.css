@@ -108,3 +108,6 @@
   .attendance-history-actions{gap:.25rem}
   .attendance-icon-button,.attendance-action-button{min-height:32px;padding:.3rem .45rem}
 }
+
+/* Summary cards removed: keep history focused on filters and records. */
+.attendance-history-summary{display:none}
