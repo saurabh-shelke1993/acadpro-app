@@ -5,17 +5,6 @@ import { getCoachDashboardData } from "../services/dashboardService";
 import { getCurrentUser } from "../utils/auth";
 import "./CoachDashboard.css";
 
-const formatDate = (value) => {
-  if (!value) return "Not recorded";
-  const date = new Date(`${value}T00:00:00`);
-  return Number.isNaN(date.getTime())
-    ? value
-    : date.toLocaleDateString("en-IN", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric"
-    });
-};
 
 function CoachDashboard() {
   const [user, setUser] = useState(null);
@@ -524,57 +513,6 @@ function CoachDashboard() {
                   <span key={`${item.date}-label`}>{item.label}</span>
                 ))}
               </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="coach-dashboard-section coach-dashboard-performance-grid">
-          <div className="coach-dashboard-panel">
-            <div className="coach-dashboard-panel-header">
-              <h3>Recent player performance</h3>
-              <p>Latest assessments recorded by you.</p>
-            </div>
-
-            {data.recentAssessments.length ? (
-              <ul className="coach-performance-list">
-                {data.recentAssessments.map((assessment) => (
-                  <li className="coach-performance-item" key={assessment.id}>
-                    <span>
-                      <strong>{assessment.playerName}</strong>
-                      <span>{formatDate(assessment.assessmentDate)}</span>
-                    </span>
-                    <span className="coach-performance-score">
-                      {assessment.average === null ? "—" : `${assessment.average}/10`}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div className="coach-dashboard-empty">
-                No recent performance assessments found.
-              </div>
-            )}
-          </div>
-
-          <div className="coach-dashboard-panel">
-            <div className="coach-dashboard-panel-header">
-              <h3>Quick actions</h3>
-              <p>Common coaching tasks.</p>
-            </div>
-
-            <div className="coach-quick-actions" style={{ padding: "18px" }}>
-              <Link className="coach-dashboard-action" to="/coach-attendance">
-                Mark attendance
-              </Link>
-              <Link className="coach-dashboard-action" to="/players">
-                My players
-              </Link>
-              <Link className="coach-dashboard-action" to="/attendance-history">
-                Attendance history
-              </Link>
-              <Link className="coach-dashboard-action" to="/coach-performance-assessments">
-                Record performance
-              </Link>
             </div>
           </div>
         </section>
