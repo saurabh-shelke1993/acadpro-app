@@ -139,20 +139,6 @@ const ParentPortal = () => {
         </section>
       ) : (
         <>
-          <section className="parent-portal-topbar" aria-labelledby="parent-portal-title">
-            <div>
-              <p className="parent-portal-section-kicker">Parent portal</p>
-              <h1 id="parent-portal-title" className="parent-portal-topbar-title">Family dashboard</h1>
-            </div>
-            {selectedChild ? (
-              <div className="parent-portal-topbar-child">
-                <span>Viewing</span>
-                <strong>{selectedChild.full_name}</strong>
-                <span>{selectedChild.center?.center_name || selectedChild.academy?.academy_name || "Academy profile"}</span>
-              </div>
-            ) : null}
-          </section>
-
           <section aria-labelledby="children-heading">
             <h2 id="children-heading" className="parent-portal-section-title">Your children</h2>
             <div className="parent-portal-children-grid">
