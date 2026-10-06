@@ -653,8 +653,8 @@ return (
               <tr>
                 <th scope="col">#</th>
                 <th scope="col">Player Name</th>
-                <th scope="col"><span className="attendance-choice-full">Present</span><span className="attendance-choice-short">P</span></th>
-                <th scope="col"><span className="attendance-choice-full">Absent</span><span className="attendance-choice-short">A</span></th>
+                <th scope="col">P</th>
+                <th scope="col">A</th>
               </tr>
             </thead>
 
@@ -693,7 +693,8 @@ return (
                       </td>
 
                       <td>
-                        <label className={`attendance-choice ${status === "present" ? "attendance-choice-selected attendance-choice-present" : ""}`}>
+                        <label className={`attendance-choice attendance-choice-present ${status === "present" ? "attendance-choice-selected" : ""}`}
+                          aria-label={`Mark ${item.players?.full_name || "player"} present`}>
                           <input
                             type="radio"
                             name={`attendance-${item.player_id}`}
@@ -706,7 +707,8 @@ return (
                       </td>
 
                       <td>
-                        <label className={`attendance-choice ${status === "absent" ? "attendance-choice-selected attendance-choice-absent" : ""}`}>
+                        <label className={`attendance-choice attendance-choice-absent ${status === "absent" ? "attendance-choice-selected" : ""}`}
+                          aria-label={`Mark ${item.players?.full_name || "player"} absent`}>
                           <input
                             type="radio"
                             name={`attendance-${item.player_id}`}
