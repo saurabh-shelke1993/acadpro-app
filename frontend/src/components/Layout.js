@@ -11,7 +11,7 @@ function Layout({ children }) {
   const closeSidebar = () => {
     const shouldRestoreFocus =
       typeof window !== "undefined" &&
-      window.matchMedia("(max-width: 640px)").matches &&
+      window.matchMedia("(max-width: 768px)").matches &&
       sidebarOpen;
 
     setSidebarOpen(false);
@@ -28,7 +28,7 @@ function Layout({ children }) {
       return undefined;
     }
 
-    const isMobile = window.matchMedia("(max-width: 640px)").matches;
+    const isMobile = window.matchMedia("(max-width: 768px)").matches;
     if (!isMobile) {
       return undefined;
     }
@@ -97,7 +97,7 @@ function Layout({ children }) {
 
   useEffect(() => {
     const handleViewportChange = () => {
-      if (window.matchMedia("(min-width: 641px)").matches && sidebarOpen) {
+      if (window.matchMedia("(min-width: 769px)").matches && sidebarOpen) {
         setSidebarOpen(false);
       }
     };
