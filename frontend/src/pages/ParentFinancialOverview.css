@@ -695,3 +695,66 @@
     padding:9px;
   }
 }
+
+/* Compact financial workspace */
+.parent-finance-financial-workspace{
+  display:grid;
+  grid-template-columns:minmax(0,1.65fr) minmax(300px,.85fr);
+  gap:12px;
+  margin-bottom:14px;
+  align-items:stretch;
+}
+.parent-finance-financial-workspace > *{
+  min-width:0;
+}
+.parent-finance-financial-workspace .parent-finance-section,
+.parent-finance-financial-workspace .parent-finance-summary-grid{
+  margin-top:0;
+  margin-bottom:0;
+}
+.parent-finance-dues-column .parent-finance-section{
+  height:100%;
+  box-sizing:border-box;
+}
+.parent-finance-snapshot-column .parent-finance-summary-grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:8px;
+  height:100%;
+}
+.parent-finance-snapshot-column .parent-finance-summary-card{
+  min-height:0;
+  height:auto;
+  padding:11px 13px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+.parent-finance-snapshot-column .parent-finance-summary-card strong{
+  margin:4px 0 2px;
+  font-size:18px;
+}
+.parent-finance-snapshot-column .parent-finance-summary-card span,
+.parent-finance-snapshot-column .parent-finance-summary-card small{
+  font-size:10px;
+}
+.parent-finance-snapshot-column .parent-finance-summary-outstanding.has-value{
+  border-width:1px;
+}
+@media(max-width:900px){
+  .parent-finance-financial-workspace{
+    grid-template-columns:1fr;
+  }
+  .parent-finance-snapshot-column .parent-finance-summary-grid{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    height:auto;
+  }
+  .parent-finance-snapshot-column .parent-finance-summary-card{
+    min-height:78px;
+  }
+}
+@media(max-width:600px){
+  .parent-finance-snapshot-column .parent-finance-summary-grid{
+    grid-template-columns:1fr;
+  }
+}

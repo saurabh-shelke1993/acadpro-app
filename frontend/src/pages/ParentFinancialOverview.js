@@ -282,30 +282,8 @@ const ParentFinancialOverview = () => {
               </section>
             ) : null}
 
-            <section className="parent-finance-summary-grid" aria-label="Financial snapshot">
-              <article className={`parent-finance-summary-card parent-finance-summary-outstanding${totalOutstanding > 0 ? " has-value" : ""}`}>
-                <span>Outstanding</span>
-                <strong>{formatAmount(totalOutstanding)}</strong>
-                <small>
-                  {pendingDues.length > 0
-                    ? `${pendingDues.length} ${pendingDues.length === 1 ? "pending due" : "pending dues"}`
-                    : "All dues cleared"}
-                </small>
-              </article>
-
-              <article className="parent-finance-summary-card">
-                <span>Next due</span>
-                <strong>{nextDue ? formatAmount(nextDue.remaining_amount) : "₹0.00"}</strong>
-                <small>{nextDue ? `Due ${formatDate(nextDue.due_date)}` : "Nothing due right now"}</small>
-              </article>
-
-              <article className="parent-finance-summary-card">
-                <span>Last payment</span>
-                <strong>{lastPayment ? formatAmount(lastPayment.amount_paid) : "—"}</strong>
-                <small>{lastPayment ? formatDate(lastPayment.payment_date, true) : "No payments recorded"}</small>
-              </article>
-            </section>
-
+            <section className="parent-finance-financial-workspace" aria-label="Financial snapshot and outstanding dues">
+              <div className="parent-finance-dues-column">
             <section className="parent-finance-section parent-finance-dues-section" aria-labelledby="outstanding-heading">
               <div className="parent-finance-section-heading">
                 <div>
@@ -347,6 +325,37 @@ const ParentFinancialOverview = () => {
                   <p>Your child's current fee balance is clear.</p>
                 </div>
               )}
+            </section>
+
+
+              </div>
+              <div className="parent-finance-snapshot-column">
+            <section className="parent-finance-summary-grid" aria-label="Financial snapshot">
+              <article className={`parent-finance-summary-card parent-finance-summary-outstanding${totalOutstanding > 0 ? " has-value" : ""}`}>
+                <span>Outstanding</span>
+                <strong>{formatAmount(totalOutstanding)}</strong>
+                <small>
+                  {pendingDues.length > 0
+                    ? `${pendingDues.length} ${pendingDues.length === 1 ? "pending due" : "pending dues"}`
+                    : "All dues cleared"}
+                </small>
+              </article>
+
+              <article className="parent-finance-summary-card">
+                <span>Next due</span>
+                <strong>{nextDue ? formatAmount(nextDue.remaining_amount) : "₹0.00"}</strong>
+                <small>{nextDue ? `Due ${formatDate(nextDue.due_date)}` : "Nothing due right now"}</small>
+              </article>
+
+              <article className="parent-finance-summary-card">
+                <span>Last payment</span>
+                <strong>{lastPayment ? formatAmount(lastPayment.amount_paid) : "—"}</strong>
+                <small>{lastPayment ? formatDate(lastPayment.payment_date, true) : "No payments recorded"}</small>
+              </article>
+            </section>
+
+
+              </div>
             </section>
 
             <section className="parent-finance-section" aria-labelledby="payment-history-heading">
