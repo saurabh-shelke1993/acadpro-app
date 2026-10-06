@@ -980,11 +980,6 @@ export async function getCoachDashboardData(user) {
   const attendanceDates = getDateRange(7);
   const attendanceStart = attendanceDates[0];
   const attendanceEnd = attendanceDates[attendanceDates.length - 1];
-  const scoreFields = [
-    "ball_control_score", "passing_score", "dribbling_score",
-    "shooting_score", "defending_score", "speed_score",
-    "stamina_score", "teamwork_score", "discipline_score"
-  ];
 
   const [{ data: coach, error: coachError }, batchIds] = await Promise.all([
     supabase.from("coaches").select("id").eq("user_id", user.id).maybeSingle(),
@@ -1102,35 +1097,6 @@ export async function getCoachDashboardData(user) {
     };
   });
 
-  let recentAssessments = [];
-  if (playerIds.length) {
-    const { data, error } = await supabase
-      .from("player_performance_assessments")
-      .select("id, player_id, assessment_date, ball_control_score, passing_score, dribbling_score, shooting_score, defending_score, speed_score, stamina_score, teamwork_score, discipline_score, players!inner(full_name)")
-      .in("player_id", playerIds)
-      .eq("coach_id", coach.id)
-      .order("assessment_date", { ascending: false })
-      .order("created_at", { ascending: false })
-      .limit(5);
-
-    if (error) throw error;
-
-    recentAssessments = (data || []).map((assessment) => {
-      const values = scoreFields
-        .map((field) => assessment[field])
-        .filter((value) => value !== null && value !== undefined && value !== "");
-      const average = values.length
-        ? Math.round((values.reduce((sum, value) => sum + Number(value), 0) / values.length) * 10) / 10
-        : null;
-
-      return {
-        id: assessment.id,
-        playerName: assessment.players?.full_name || "Player",
-        assessmentDate: assessment.assessment_date,
-        average
-      };
-    });
-  }
 
   const totalPresent = todayRecords.filter((record) => record.status === "present").length;
   const totalAbsent = todayRecords.filter((record) => record.status === "absent").length;
@@ -1157,7 +1123,6 @@ export async function getCoachDashboardData(user) {
     },
     batches: [...batchMap.values()],
     attentionPlayers: attentionPlayers.slice(0, 6),
-    trend,
-    recentAssessments
+    trend
   };
 }
