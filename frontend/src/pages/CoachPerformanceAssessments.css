@@ -81,6 +81,10 @@
 .edit-button{border:1px solid var(--ap-primary-600);background:var(--ap-primary-50);color:var(--ap-primary-700)}
 .delete-button{border:1px solid var(--ap-danger-500);background:var(--ap-danger-50);color:var(--ap-danger-700)}
 
+@media(max-width:1050px){
+  .assessment-scope-grid{grid-template-columns:1fr}
+}
+
 @media(max-width:900px){
   .score-grid{grid-template-columns:repeat(3,minmax(110px,1fr))}
   .history-score-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
