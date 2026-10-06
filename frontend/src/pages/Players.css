@@ -1193,3 +1193,53 @@
     padding: 0.7rem !important;
   }
 }
+
+
+/* Coach player list: academy/status are implicit and compact fields prevent tablet/mobile overflow. */
+.players-page-coach .players-table{min-width:0;table-layout:fixed}
+.players-page-coach .players-table th,
+.players-page-coach .players-table td{padding:.5rem .55rem}
+.players-page-coach .players-table th:nth-child(1),
+.players-page-coach .players-table td:nth-child(1){width:22%}
+.players-page-coach .players-table th:nth-child(2),
+.players-page-coach .players-table td:nth-child(2){width:18%}
+.players-page-coach .players-table th:nth-child(3),
+.players-page-coach .players-table td:nth-child(3){width:18%}
+.players-page-coach .players-table th:nth-child(4),
+.players-page-coach .players-table td:nth-child(4){width:12%}
+.players-page-coach .players-table th:nth-child(5),
+.players-page-coach .players-table td:nth-child(5){width:8%}
+.players-page-coach .players-table th:nth-child(6),
+.players-page-coach .players-table td:nth-child(6){width:10%}
+.players-page-coach .players-table th:nth-child(7),
+.players-page-coach .players-table td:nth-child(7){width:12%}
+.players-page-coach .players-table td{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:900px){
+  .players-page-coach .players-table{min-width:0}
+  .players-page-coach .players-table th:nth-child(6),
+  .players-page-coach .players-table td:nth-child(6){display:none}
+  .players-page-coach .players-table th:nth-child(1),
+  .players-page-coach .players-table td:nth-child(1){width:28%}
+  .players-page-coach .players-table th:nth-child(2),
+  .players-page-coach .players-table td:nth-child(2){width:27%}
+  .players-page-coach .players-table th:nth-child(3),
+  .players-page-coach .players-table td:nth-child(3){width:24%}
+  .players-page-coach .players-table th:nth-child(4),
+  .players-page-coach .players-table td:nth-child(4){width:13%}
+  .players-page-coach .players-table th:nth-child(5),
+  .players-page-coach .players-table td:nth-child(5){width:8%}
+}
+@media(max-width:640px){
+  .players-page-coach .players-table th:nth-child(7),
+  .players-page-coach .players-table td:nth-child(7){display:none}
+  .players-page-coach .players-table th:nth-child(1),
+  .players-page-coach .players-table td:nth-child(1){width:32%}
+  .players-page-coach .players-table th:nth-child(2),
+  .players-page-coach .players-table td:nth-child(2){width:30%}
+  .players-page-coach .players-table th:nth-child(3),
+  .players-page-coach .players-table td:nth-child(3){width:25%}
+  .players-page-coach .players-table th:nth-child(4),
+  .players-page-coach .players-table td:nth-child(4){width:13%}
+  .players-page-coach .players-table th:nth-child(5),
+  .players-page-coach .players-table td:nth-child(5){width:auto}
+}
