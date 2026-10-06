@@ -12,7 +12,8 @@ import {
 } from "../utils/auth";
 
 import {
-  isAcademyOwner
+  isAcademyOwner,
+  isCoach
 } from "../utils/roles";
 
 import {
@@ -821,7 +822,7 @@ const formatBatchSchedule = (startTimeValue, endTimeValue) => {
 
 return (
   <Layout>
-    <div className="batches-page">
+    <div className={`batches-page${isCoach(user) ? " batches-page-coach" : ""}`}>
       <div className="batches-page-header">
         <div>
           <span className="batches-page-eyebrow">Academy management</span>
