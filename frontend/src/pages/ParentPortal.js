@@ -302,6 +302,7 @@ const ParentPortal = () => {
                         <strong>{selectedAttendance.percentage}%</strong>
                       </div>
                       </div>
+                    </div>
 
                       <div className="parent-portal-attendance-chart-wrap">
                         <div
