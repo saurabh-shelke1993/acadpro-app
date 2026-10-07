@@ -443,6 +443,26 @@ function CoachBatchMapping() {
                           </button>
                         </div></td>}
                       </tr>
+                      {isAcademyOwner(user) && isSelected && (
+                        <tr className="coach-mapping-mobile-actions-row">
+                          <td colSpan={3}>
+                            <div className="coach-mapping-mobile-row-actions">
+                              <button
+                                type="button"
+                                className="coach-mapping-action-button"
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  toggleMappingStatus(item);
+                                }}
+                                disabled={saving}
+                                aria-label={(item.is_active ? "Deactivate " : "Reactivate ") + (item.coaches?.full_name || "mapping") + " mapping"}
+                              >
+                                {item.is_active ? "Deactivate" : "Reactivate"}
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
                     );
                   }) : (
                     <tr><td className="coach-mapping-empty-state" colSpan={canManageMappings ? 6 : 5}>
