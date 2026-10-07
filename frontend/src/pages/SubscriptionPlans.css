@@ -283,3 +283,18 @@
   .subscription-plans-pagination > div { justify-content:space-between; }
   .subscription-plans-row-actions { opacity:1; transform:none; }
 }
+
+
+/* Subscription plans: prioritize plan, cycle, amount, status and actions on phones. */
+@media(max-width:900px){
+  .subscription-plans-table{min-width:0;table-layout:fixed}
+}
+@media(max-width:640px){
+  .subscription-plans-table th:nth-child(5),.subscription-plans-table td:nth-child(5){display:none}
+  .subscription-plans-table th:nth-child(2),.subscription-plans-table td:nth-child(2){width:30%}
+  .subscription-plans-table th:nth-child(3),.subscription-plans-table td:nth-child(3){width:20%}
+  .subscription-plans-table th:nth-child(4),.subscription-plans-table td:nth-child(4){width:18%}
+  .subscription-plans-table th:nth-child(6),.subscription-plans-table td:nth-child(6){width:14%}
+  .subscription-plans-table th:nth-child(7),.subscription-plans-table td:nth-child(7){width:18%}
+  .subscription-plans-action-button{padding:.3rem .4rem;font-size:10px}
+}
