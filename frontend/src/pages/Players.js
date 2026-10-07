@@ -1202,7 +1202,7 @@ return (
                             <button
                               className="player-action-button player-action-edit"
                               type="button"
-                              onClick={() => handleEditPlayer(player)}
+                              onClick={(event) => { event.stopPropagation(); handleEditPlayer(player); }}
                               aria-label={`Edit ${player.full_name}`}
                             >
                               Edit
@@ -1210,7 +1210,7 @@ return (
                             <button
                               className="player-action-button player-action-danger"
                               type="button"
-                              onClick={() => handleDeletePlayer(player.id)}
+                              onClick={(event) => { event.stopPropagation(); handleDeletePlayer(player.id); }}
                               aria-label={`Deactivate ${player.full_name}`}
                             >
                               Deactivate
