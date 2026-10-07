@@ -429,6 +429,7 @@ function CoachBatchMapping() {
                     const batch = item.batches;
                     const initials = String(item.coaches?.full_name || "C").trim().split(/\s+/).slice(0, 2).map((part) => part.charAt(0).toUpperCase()).join("");
                     return (
+                      <>
                       <tr key={item.id} className={isSelected ? "coach-mapping-row-selected" : ""} tabIndex={0} aria-selected={isSelected}
                         onClick={() => setSelectedMappingId(isSelected ? null : item.id)}
                         onKeyDown={(event) => handleRowKeyDown(event, item.id)}>
@@ -463,6 +464,7 @@ function CoachBatchMapping() {
                           </td>
                         </tr>
                       )}
+                      </>
                     );
                   }) : (
                     <tr><td className="coach-mapping-empty-state" colSpan={canManageMappings ? 6 : 5}>
