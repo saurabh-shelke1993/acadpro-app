@@ -400,3 +400,35 @@
     display: none !important;
   }
 }
+
+
+/* Role-aware mobile columns: Academy Owner => Plan + Amount; Super Admin => same visible pair without Academy. */
+@media (max-width: 640px) {
+  .subscription-plans-page:not(.subscription-plans-page-super-admin) .subscription-plans-table th:nth-child(1),
+  .subscription-plans-page:not(.subscription-plans-page-super-admin) .subscription-plans-table td:nth-child(1),
+  .subscription-plans-page:not(.subscription-plans-page-super-admin) .subscription-plans-table th:nth-child(3),
+  .subscription-plans-page:not(.subscription-plans-page-super-admin) .subscription-plans-table td:nth-child(3) {
+    display: table-cell;
+  }
+
+  .subscription-plans-page:not(.subscription-plans-page-super-admin) .subscription-plans-table th:nth-child(1),
+  .subscription-plans-page:not(.subscription-plans-page-super-admin) .subscription-plans-table td:nth-child(1) {
+    width: 62%;
+  }
+
+  .subscription-plans-page:not(.subscription-plans-page-super-admin) .subscription-plans-table th:nth-child(3),
+  .subscription-plans-page:not(.subscription-plans-page-super-admin) .subscription-plans-table td:nth-child(3) {
+    width: 38%;
+  }
+
+  .subscription-plans-page:not(.subscription-plans-page-super-admin) .subscription-plans-table th:nth-child(2),
+  .subscription-plans-page:not(.subscription-plans-page-super-admin) .subscription-plans-table td:nth-child(2),
+  .subscription-plans-page:not(.subscription-plans-page-super-admin) .subscription-plans-table th:nth-child(4),
+  .subscription-plans-page:not(.subscription-plans-page-super-admin) .subscription-plans-table td:nth-child(4),
+  .subscription-plans-page:not(.subscription-plans-page-super-admin) .subscription-plans-table th:nth-child(5),
+  .subscription-plans-page:not(.subscription-plans-page-super-admin) .subscription-plans-table td:nth-child(5),
+  .subscription-plans-page:not(.subscription-plans-page-super-admin) .subscription-plans-table th:nth-child(6),
+  .subscription-plans-page:not(.subscription-plans-page-super-admin) .subscription-plans-table td:nth-child(6) {
+    display: none;
+  }
+}
