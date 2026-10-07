@@ -86,3 +86,18 @@
 @media(max-width:1050px){.coach-mapping-form-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.coach-mapping-form-action{grid-column:1/-1;justify-content:flex-end}}
 @media(max-width:800px){.coach-mapping-toolbar,.coach-mapping-list-header,.coach-mapping-assignment-heading{align-items:flex-start;flex-direction:column}.coach-mapping-toolbar-controls{width:100%;align-items:stretch}.coach-mapping-toolbar-field,.coach-mapping-academy-context{flex:1}.coach-mapping-summary-card{text-align:left}.coach-mapping-form-grid{grid-template-columns:1fr}.coach-mapping-form-action{grid-column:auto;justify-content:stretch}.coach-mapping-primary-button{width:100%}.coach-mapping-list-summary{justify-content:flex-start;white-space:normal}}
 @media(max-width:640px){.coach-mapping-toolbar-controls{flex-direction:column}.coach-mapping-summary-card{width:100%;box-sizing:border-box}.coach-mapping-filter-popover{position:fixed;top:auto;left:50%;bottom:1rem;width:min(340px,calc(100vw - 2rem));max-height:60vh;transform:translateX(-50%)}.coach-mapping-row-actions{opacity:1;pointer-events:auto}.coach-mapping-pagination{align-items:flex-start;flex-direction:column}.coach-mapping-pagination-controls{width:100%;justify-content:space-between}}
+
+
+/* Responsive mapping workspace: remove secondary schedule/status columns on phones. */
+@media(max-width:900px){
+  .coach-mapping-table{min-width:0;table-layout:fixed}
+  .coach-mapping-table th:nth-child(4),.coach-mapping-table td:nth-child(4){display:none}
+  .coach-mapping-table th:nth-child(5),.coach-mapping-table td:nth-child(5){width:16%}
+}
+@media(max-width:640px){
+  .coach-mapping-table th:nth-child(5),.coach-mapping-table td:nth-child(5){display:none}
+  .coach-mapping-table th:nth-child(1),.coach-mapping-table td:nth-child(1){width:38%}
+  .coach-mapping-table th:nth-child(2),.coach-mapping-table td:nth-child(2){width:27%}
+  .coach-mapping-table th:nth-child(3),.coach-mapping-table td:nth-child(3){width:22%}
+  .coach-mapping-table th:nth-child(6),.coach-mapping-table td:nth-child(6){width:13%}
+}
