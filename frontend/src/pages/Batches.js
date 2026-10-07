@@ -1119,7 +1119,7 @@ return (
                         </td>
                       )}
                     </tr>
-                    {isAcademyOwner(user) && isSelected && (
+                    {(isSuperAdmin(user) || isAcademyOwner(user)) && isSelected && (
                       <tr className="batches-mobile-actions-row" aria-label={"Actions for " + (batch.batch_name || "batch")}>
                         <td colSpan={3}>
                           <div className="batches-mobile-row-actions">
@@ -1132,7 +1132,7 @@ return (
                               }}
                               aria-label={"Edit " + (batch.batch_name || "batch")}
                             >
-                              ✏️
+                              aria-hidden="true">✏️
                             </button>
                             <button
                               type="button"
@@ -1143,7 +1143,7 @@ return (
                               }}
                               aria-label={"Delete " + (batch.batch_name || "batch")}
                             >
-                              🗑️
+                              aria-hidden="true">🗑️
                             </button>
                           </div>
                         </td>
