@@ -1245,3 +1245,14 @@
   .players-page-owner .players-table th:nth-child(3),.players-page-owner .players-table td:nth-child(3){width:30%}
   .players-page-owner .players-table th:nth-child(4),.players-page-owner .players-table td:nth-child(4){width:25%}
 }
+
+
+/* Academy Owner: player rows open the same detail workspace used by coaches. */
+.players-page-owner .players-table tbody tr{cursor:pointer}
+.players-page-owner .players-table tbody tr:hover,
+.players-page-owner .players-table tbody tr:focus-visible{background:var(--ap-primary-50)}
+.players-page-owner .player-name-cell{font-weight:750;color:var(--ap-slate-950)}
+@media(max-width:640px){
+  .players-page-owner .players-table th,
+  .players-page-owner .players-table td{padding:.55rem .45rem;font-size:12px}
+}
