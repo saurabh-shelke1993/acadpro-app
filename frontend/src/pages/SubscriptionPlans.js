@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import Layout from "../components/Layout";
 import "./SubscriptionPlans.css";
 import { supabase } from "../services/supabase";
@@ -309,7 +309,7 @@ function SubscriptionPlans() {
                   paginatedPlans.map((plan) => {
                     const isSelected = selectedPlanId === plan.id;
                     return (
-                      <React.Fragment key={plan.id}>
+                      <Fragment key={plan.id}>
                         <tr
                           className={isSelected ? "subscription-plans-row-selected" : ""}
                           tabIndex={0}
@@ -394,7 +394,7 @@ function SubscriptionPlans() {
                             </td>
                           </tr>
                         )}
-                      </React.Fragment>
+                      </Fragment>
                     );
                   })
                 }
