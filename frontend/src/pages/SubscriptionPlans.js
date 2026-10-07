@@ -222,7 +222,7 @@ function SubscriptionPlans() {
 
   return (
     <Layout>
-      <div className="subscription-plans-page">
+      <div className={"subscription-plans-page" + (isSuperAdmin(loggedInUser) ? " subscription-plans-page-super-admin" : "")}>
         <section className="subscription-plans-form-card">
           <div className="subscription-plans-form-heading">
             <div>
@@ -309,7 +309,7 @@ function SubscriptionPlans() {
                   paginatedPlans.map((plan) => {
                     const isSelected = selectedPlanId === plan.id;
                     return (
-                      <tbody key={plan.id}>
+                      <tr key={plan.id}>
                         <tr
                           className={isSelected ? "subscription-plans-row-selected" : ""}
                           tabIndex={0}
@@ -394,7 +394,7 @@ function SubscriptionPlans() {
                             </td>
                           </tr>
                         )}
-                      </tbody>
+                      </tr>
                     );
                   })
                 }
