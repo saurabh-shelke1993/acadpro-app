@@ -1132,7 +1132,7 @@ return (
                               }}
                               aria-label={"Edit " + (batch.batch_name || "batch")}
                             >
-                              aria-hidden="true">✏️
+                              <span aria-hidden="true">✏️</span>
                             </button>
                             <button
                               type="button"
