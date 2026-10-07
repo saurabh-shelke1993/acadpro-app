@@ -670,3 +670,22 @@
     pointer-events: auto;
   }
 }
+
+
+/* Responsive owner/admin coach directory: preserve identity, phone, status and actions. */
+@media(max-width:900px){
+  .coaches-page .coaches-table{min-width:0;table-layout:fixed}
+  .coaches-page .coaches-table th:nth-child(3),.coaches-page .coaches-table td:nth-child(3){display:none}
+  .coaches-page .coaches-table th:nth-child(5),.coaches-page .coaches-table td:nth-child(5){display:none}
+  .coaches-page .coaches-name-cell{width:30%}
+  .coaches-page .coaches-table th:nth-child(4),.coaches-page .coaches-table td:nth-child(4){width:25%}
+  .coaches-page .coaches-table th:nth-child(6),.coaches-page .coaches-table td:nth-child(6){width:18%}
+  .coaches-page .coaches-actions-cell{width:27%}
+}
+@media(max-width:640px){
+  .coaches-page .coaches-table th:nth-child(4),.coaches-page .coaches-table td:nth-child(4){display:none}
+  .coaches-page .coaches-name-cell{width:42%}
+  .coaches-page .coaches-table th:nth-child(6),.coaches-page .coaches-table td:nth-child(6){width:23%}
+  .coaches-page .coaches-actions-cell{width:35%}
+  .coaches-page .coaches-action-button{padding:.3rem .4rem;font-size:10px}
+}
