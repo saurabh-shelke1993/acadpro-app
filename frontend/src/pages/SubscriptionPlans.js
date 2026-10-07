@@ -36,6 +36,7 @@ function SubscriptionPlans() {
   const [academyFilter, setAcademyFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [editingPlanId, setEditingPlanId] = useState(null);
+  const [selectedPlanId, setSelectedPlanId] = useState(null);
   const [formError, setFormError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
@@ -117,6 +118,7 @@ function SubscriptionPlans() {
     setAmount("");
     setRegistrationFee("");
     setEditingPlanId(null);
+    setSelectedPlanId(null);
     setFormError("");
   };
 
@@ -304,18 +306,97 @@ function SubscriptionPlans() {
               </tr></thead>
               <tbody>
                 {paginatedPlans.length === 0 ? <tr><td className="subscription-plans-empty-state" colSpan={isSuperAdmin(loggedInUser) ? 7 : 6}><strong>No plans found</strong><span>{statusFilter === "active" ? "Create a plan or switch the status filter to view inactive plans." : "Try a different filter or create a new plan."}</span></td></tr> :
-                  paginatedPlans.map((plan) => <tr key={plan.id}>
-                    {isSuperAdmin(loggedInUser) && <td><strong>{plan.academies?.academy_name || "—"}</strong></td>}
-                    <td><div className="subscription-plans-plan-cell"><strong>{plan.plan_name}</strong><span>{plan.description || "Standard academy plan"}</span></div></td>
-                    <td>{formatBillingCycle(plan.billing_cycle)}</td>
-                    <td className="subscription-plans-money-cell">{formatCurrency(plan.amount)}</td>
-                    <td className="subscription-plans-money-cell">{formatCurrency(plan.registration_fee)}</td>
-                    <td><span className={plan.is_active ? "subscription-plans-status subscription-plans-status-active" : "subscription-plans-status subscription-plans-status-inactive"}>{plan.is_active ? "Active" : "Inactive"}</span></td>
-                    <td className="subscription-plans-actions-cell"><div className="subscription-plans-row-actions">
-                      <button type="button" className="subscription-plans-action-button" onClick={() => handleEditPlan(plan)} aria-label={"Edit " + plan.plan_name + " plan"}>Edit</button>
-                      <button type="button" className={plan.is_active ? "subscription-plans-action-button subscription-plans-action-danger" : "subscription-plans-action-button subscription-plans-action-success"} onClick={() => handleTogglePlanStatus(plan)} aria-label={(plan.is_active ? "Deactivate " : "Reactivate ") + plan.plan_name + " plan"}>{plan.is_active ? "Deactivate" : "Reactivate"}</button>
-                    </div></td>
-                  </tr>)
+                  paginatedPlans.map((plan) => {
+                    const isSelected = selectedPlanId === plan.id;
+                    return (
+                      <tbody key={plan.id}>
+                        <tr
+                          className={isSelected ? "subscription-plans-row-selected" : ""}
+                          tabIndex={0}
+                          onClick={() => setSelectedPlanId(plan.id)}
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter" || event.key === " ") {
+                              event.preventDefault();
+                              setSelectedPlanId(plan.id);
+                            }
+                          }}
+                        >
+                          {isSuperAdmin(loggedInUser) && <td><strong>{plan.academies?.academy_name || "—"}</strong></td>}
+                          <td>
+                            <div className="subscription-plans-plan-cell">
+                              <strong>{plan.plan_name}</strong>
+                              <span>{plan.description || "Standard academy plan"}</span>
+                            </div>
+                          </td>
+                          <td>{formatBillingCycle(plan.billing_cycle)}</td>
+                          <td className="subscription-plans-money-cell">{formatCurrency(plan.amount)}</td>
+                          <td className="subscription-plans-money-cell">{formatCurrency(plan.registration_fee)}</td>
+                          <td><span className={plan.is_active ? "subscription-plans-status subscription-plans-status-active" : "subscription-plans-status subscription-plans-status-inactive"}>{plan.is_active ? "Active" : "Inactive"}</span></td>
+                          <td className="subscription-plans-actions-cell">
+                            <div className="subscription-plans-row-actions">
+                              <button
+                                type="button"
+                                className="subscription-plans-action-button"
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  handleEditPlan(plan);
+                                }}
+                                aria-label={"Edit " + plan.plan_name + " plan"}
+                              >
+                                Edit
+                              </button>
+                              <button
+                                type="button"
+                                className={plan.is_active ? "subscription-plans-action-button subscription-plans-action-danger" : "subscription-plans-action-button subscription-plans-action-success"}
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  handleTogglePlanStatus(plan);
+                                }}
+                                aria-label={(plan.is_active ? "Deactivate " : "Reactivate ") + plan.plan_name + " plan"}
+                              >
+                                {plan.is_active ? "Deactivate" : "Reactivate"}
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                        {isSelected && (
+                          <tr className="subscription-plans-mobile-actions-row">
+                            <td
+                              colSpan={isSuperAdmin(loggedInUser) ? 7 : 6}
+                              className="subscription-plans-mobile-actions-cell"
+                            >
+                              <div className="subscription-plans-mobile-row-actions" aria-label={"Actions for " + plan.plan_name + " plan"}>
+                                <button
+                                  type="button"
+                                  className="subscription-plans-action-button"
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    handleEditPlan(plan);
+                                  }}
+                                  aria-label={"Edit " + plan.plan_name + " plan"}
+                                  title="Edit plan"
+                                >
+                                  ✏️
+                                </button>
+                                <button
+                                  type="button"
+                                  className={plan.is_active ? "subscription-plans-action-button subscription-plans-action-danger" : "subscription-plans-action-button subscription-plans-action-success"}
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    handleTogglePlanStatus(plan);
+                                  }}
+                                  aria-label={(plan.is_active ? "Deactivate " : "Reactivate ") + plan.plan_name + " plan"}
+                                  title={plan.is_active ? "Deactivate plan" : "Reactivate plan"}
+                                >
+                                  🗑️
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    );
+                  })
                 }
               </tbody>
             </table>
