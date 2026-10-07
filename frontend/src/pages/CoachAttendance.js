@@ -374,7 +374,7 @@ return (
                           onChange={() => handleAttendanceChange(player.id, "present")}
                           disabled={isEditMode}
                         />
-                        <span>Present</span>
+                        <span className="attendance-choice-label">P</span>
                       </label>
                     </td>
                     <td>
@@ -386,7 +386,7 @@ return (
                           onChange={() => handleAttendanceChange(player.id, "absent")}
                           disabled={isEditMode}
                         />
-                        <span>Absent</span>
+                        <span className="attendance-choice-label">A</span>
                       </label>
                     </td>
                   </tr>
