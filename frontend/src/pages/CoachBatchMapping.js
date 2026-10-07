@@ -22,6 +22,7 @@ function CoachBatchMapping() {
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedMappingId, setSelectedMappingId] = useState(null);
+  const [editingMappingId, setEditingMappingId] = useState(null);
   const [mappingNotice, setMappingNotice] = useState(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -130,6 +131,82 @@ function CoachBatchMapping() {
     setSelectedCoach("");
     setSelectedCenter("");
     setSelectedBatch("");
+    setEditingMappingId(null);
+  };
+
+  const startEditMapping = (mapping) => {
+    const centerId = mapping.batches?.center_id || mapping.batches?.centers?.id || "";
+    setEditingMappingId(mapping.id);
+    setSelectedMappingId(mapping.id);
+    setSelectedCoach(mapping.coach_id || "");
+    setSelectedCenter(centerId);
+    setSelectedBatch(mapping.batch_id || "");
+    setMappingNotice(null);
+    window.setTimeout(() => {
+      document.getElementById("coach-mapping-assignment-card")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 0);
+  };
+
+  const updateMapping = async () => {
+    setMappingNotice(null);
+    if (!editingMappingId || !selectedAcademy || !selectedCoach || !selectedCenter || !selectedBatch) {
+      setMappingNotice({ type: "error", message: "Select a coach, center, and batch before saving." });
+      return;
+    }
+
+    const duplicate = assignments.find((item) =>
+      item.id !== editingMappingId &&
+      item.is_active &&
+      item.coach_id === selectedCoach &&
+      item.batch_id === selectedBatch
+    );
+    if (duplicate) {
+      setMappingNotice({ type: "error", message: "This coach is already assigned to the selected batch." });
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const { error } = await supabase.from("coach_batch_assignments")
+        .update({
+          coach_id: selectedCoach,
+          batch_id: selectedBatch
+        })
+        .eq("id", editingMappingId)
+        .eq("academy_id", selectedAcademy);
+      if (error) throw error;
+      setMappingNotice({ type: "success", message: "Coach-batch mapping updated successfully." });
+      resetAssignmentForm();
+      await fetchWorkspaceData();
+    } catch (error) {
+      console.error("Failed to update mapping:", error);
+      setMappingNotice({ type: "error", message: error.message || "Failed to update mapping." });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const deleteMapping = async (mapping) => {
+    if (!window.confirm("Are you sure you want to delete this coach-batch mapping?")) return;
+
+    setSaving(true);
+    setMappingNotice(null);
+    try {
+      const { error } = await supabase.from("coach_batch_assignments")
+        .delete()
+        .eq("id", mapping.id)
+        .eq("academy_id", selectedAcademy);
+      if (error) throw error;
+      setSelectedMappingId(null);
+      setEditingMappingId(null);
+      setMappingNotice({ type: "success", message: "Coach-batch mapping deleted successfully." });
+      await fetchWorkspaceData();
+    } catch (error) {
+      console.error("Failed to delete mapping:", error);
+      setMappingNotice({ type: "error", message: error.message || "Failed to delete mapping." });
+    } finally {
+      setSaving(false);
+    }
   };
 
   const assignCoach = async () => {
@@ -346,9 +423,9 @@ function CoachBatchMapping() {
         )}
 
         {canManageMappings && selectedAcademy && (
-          <section className="coach-mapping-assignment-card">
+          <section id="coach-mapping-assignment-card" className={"coach-mapping-assignment-card" + (editingMappingId ? " coach-mapping-assignment-card-editing" : "")}>
             <div className="coach-mapping-assignment-heading">
-              <div><span className="coach-mapping-section-eyebrow">Create mapping</span><h2>Assign Coach</h2></div>
+              <div><span className="coach-mapping-section-eyebrow">{editingMappingId ? "Edit mapping" : "Create mapping"}</span><h2>{editingMappingId ? "Edit Coach Mapping" : "Assign Coach"}</h2></div>
               <p>Coach → Center → Batch</p>
             </div>
             <div className="coach-mapping-form-grid">
@@ -371,9 +448,16 @@ function CoachBatchMapping() {
                 </select>
               </label>
               <div className="coach-mapping-form-action">
-                <button className="coach-mapping-primary-button" type="button" onClick={assignCoach} disabled={saving || !selectedCoach || !selectedCenter || !selectedBatch}>
-                  {saving ? "Saving..." : "Assign"}
-                </button>
+                <div className="coach-mapping-form-actions">
+                  {editingMappingId && (
+                    <button className="coach-mapping-secondary-button" type="button" onClick={resetAssignmentForm} disabled={saving}>
+                      Cancel
+                    </button>
+                  )}
+                  <button className="coach-mapping-primary-button" type="button" onClick={editingMappingId ? updateMapping : assignCoach} disabled={saving || !selectedCoach || !selectedCenter || !selectedBatch}>
+                    {saving ? "Saving..." : editingMappingId ? "Save Changes" : "Assign"}
+                  </button>
+                </div>
               </div>
             </div>
           </section>
@@ -439,8 +523,11 @@ function CoachBatchMapping() {
                         <td>{formatSchedule(batch)}</td>
                         <td><span className={item.is_active ? "mapping-status-badge" : "mapping-status-badge mapping-status-badge-inactive"}>{item.is_active ? "Active" : "Inactive"}</span></td>
                         {canManageMappings && <td className="coach-mapping-actions-cell"><div className="coach-mapping-row-actions">
-                          <button type="button" className="coach-mapping-action-button" onClick={(event) => { event.stopPropagation(); toggleMappingStatus(item); }} disabled={saving} aria-label={(item.is_active ? "Deactivate " : "Reactivate ") + (item.coaches?.full_name || "mapping") + " mapping"}>
-                            {item.is_active ? "Deactivate" : "Reactivate"}
+                          <button type="button" className="coach-mapping-icon-button" onClick={(event) => { event.stopPropagation(); startEditMapping(item); }} disabled={saving} title="Edit mapping" aria-label={"Edit mapping for " + (item.coaches?.full_name || "mapping")}>
+                            ✏️
+                          </button>
+                          <button type="button" className="coach-mapping-icon-button coach-mapping-delete-button" onClick={(event) => { event.stopPropagation(); deleteMapping(item); }} disabled={saving} title="Delete mapping" aria-label={"Delete mapping for " + (item.coaches?.full_name || "mapping")}>
+                            🗑️
                           </button>
                         </div></td>}
                       </tr>
@@ -450,15 +537,29 @@ function CoachBatchMapping() {
                             <div className="coach-mapping-mobile-row-actions">
                               <button
                                 type="button"
-                                className="coach-mapping-action-button"
+                                className="coach-mapping-icon-button"
                                 onClick={(event) => {
                                   event.stopPropagation();
-                                  toggleMappingStatus(item);
+                                  startEditMapping(item);
                                 }}
                                 disabled={saving}
-                                aria-label={(item.is_active ? "Deactivate " : "Reactivate ") + (item.coaches?.full_name || "mapping") + " mapping"}
+                                title="Edit mapping"
+                                aria-label={"Edit mapping for " + (item.coaches?.full_name || "mapping")}
                               >
-                                {item.is_active ? "Deactivate" : "Reactivate"}
+                                ✏️
+                              </button>
+                              <button
+                                type="button"
+                                className="coach-mapping-icon-button coach-mapping-delete-button"
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  deleteMapping(item);
+                                }}
+                                disabled={saving}
+                                title="Delete mapping"
+                                aria-label={"Delete mapping for " + (item.coaches?.full_name || "mapping")}
+                              >
+                                🗑️
                               </button>
                             </div>
                           </td>
