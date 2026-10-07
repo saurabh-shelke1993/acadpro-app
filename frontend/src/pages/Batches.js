@@ -1061,7 +1061,7 @@ return (
                   const isSelected = selectedBatchId === batch.id;
 
                   return (
-                    <>
+                    <React.Fragment key={batch.id}>
                     <tr
                       key={batch.id}
                       className={isSelected ? "batches-row-selected" : ""}
@@ -1120,8 +1120,12 @@ return (
                       )}
                     </tr>
                     {(isSuperAdmin(user) || isAcademyOwner(user)) && isSelected && (
-                      <tr className="batches-mobile-actions-row" aria-label={"Actions for " + (batch.batch_name || "batch")}>
-                        <td colSpan={3}>
+                      <tr
+                        key={batch.id + "-mobile-actions"}
+                        className="batches-mobile-actions-row"
+                        aria-label={"Actions for " + (batch.batch_name || "batch")}
+                      >
+                        <td colSpan={6}>
                           <div className="batches-mobile-row-actions">
                             <button
                               type="button"
@@ -1149,7 +1153,7 @@ return (
                         </td>
                       </tr>
                     )}
-                    </>
+                    </React.Fragment>
                   );
                 })
               )}
