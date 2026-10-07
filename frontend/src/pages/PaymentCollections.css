@@ -542,3 +542,15 @@
     overflow-wrap: anywhere;
   }
 }
+
+@media (max-width: 640px) {
+  .payment-data-table .payment-mobile-player,
+  .payment-data-table .payment-amount-cell,
+  .payment-data-table .payment-mobile-payment-date {
+    display: table-cell !important;
+  }
+
+  .payment-data-table .payment-mobile-player { width: 45% !important; }
+  .payment-data-table .payment-amount-cell { width: 25% !important; }
+  .payment-data-table .payment-mobile-payment-date { width: 30% !important; }
+}
