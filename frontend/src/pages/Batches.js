@@ -1101,7 +1101,7 @@ return (
                               }}
                               aria-label={`Edit ${batch.batch_name || "batch"}`}
                             >
-                              Edit
+                              <span className="batches-action-icon" aria-hidden="true">✎</span><span className="batches-action-label">Edit</span>
                             </button>
                             <button
                               type="button"
@@ -1112,7 +1112,7 @@ return (
                               }}
                               aria-label={`Delete ${batch.batch_name || "batch"}`}
                             >
-                              Delete
+                              <span className="batches-action-icon" aria-hidden="true">×</span><span className="batches-action-label">Delete</span>
                             </button>
                           </div>
                         </td>
