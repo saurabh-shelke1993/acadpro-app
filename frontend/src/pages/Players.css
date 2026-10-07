@@ -1256,3 +1256,31 @@
   .players-page-owner .players-table th,
   .players-page-owner .players-table td{padding:.55rem .45rem;font-size:12px}
 }
+
+/* Standard player management actions inside the owner mobile detail view. */
+.coach-player-modal-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:.4rem;
+  margin:.75rem 0 0;
+}
+.player-modal-action-button{
+  width:36px;
+  min-width:36px;
+  height:36px;
+  padding:0;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid var(--ap-border);
+  border-radius:var(--ap-radius-md);
+  background:var(--ap-surface);
+  color:var(--ap-slate-700);
+  font-size:15px;
+  line-height:1;
+}
+.player-modal-delete-button:hover{
+  color:var(--ap-danger-600);
+  background:var(--ap-danger-50);
+  border-color:var(--ap-danger-100);
+}
