@@ -137,18 +137,6 @@ const [showReceiptModal, setShowReceiptModal] =
 const [receiptData, setReceiptData] =
   useState(null);
 
-const [corrections, setCorrections] = useState([]);
-const [correctionPayment, setCorrectionPayment] = useState(null);
-const [correctionAmount, setCorrectionAmount] = useState("");
-const [correctionReason, setCorrectionReason] = useState("");
-const [showCorrectionModal, setShowCorrectionModal] = useState(false);
-const [rejectionCorrection, setRejectionCorrection] = useState(null);
-const [rejectionReason, setRejectionReason] = useState("");
-const [correctionStatusFilter, setCorrectionStatusFilter] = useState("");
-const [correctionSearch, setCorrectionSearch] = useState("");
-const [correctionCurrentPage, setCorrectionCurrentPage] = useState(1);
-const CORRECTION_PAGE_SIZE = 10;
-
 const receiptRef = useRef(null);
 
 const location = useLocation();
@@ -195,7 +183,6 @@ useEffect(() => {
 
   fetchAcademies();
   fetchPayments();
-  fetchCorrections();
 
 }, [loggedInUser]);
 
@@ -638,58 +625,6 @@ players (
 
 };
 
-const fetchCorrections = async () => {
-  const { data, error } = await supabase
-    .from("payment_corrections")
-    .select(`
-      id,
-      payment_id,
-      due_id,
-      player_id,
-      original_amount,
-      corrected_amount,
-      adjustment_amount,
-      reason,
-      status,
-      requested_by,
-      requested_at,
-      approved_by,
-      approved_at,
-      rejection_reason,
-      players ( id, full_name ),
-      payments ( transaction_reference, receipt_number, payment_date )
-    `)
-    .order("requested_at", { ascending: false });
-  if (error) { console.log(error); return; }
-  setCorrections(data || []);
-};
-
-const filteredCorrections = corrections.filter((correction) => {
-  if (correctionStatusFilter && correction.status !== correctionStatusFilter) return false;
-  if (correctionSearch.trim()) {
-    const search = correctionSearch.trim().toLowerCase();
-    const player = String(correction.players?.full_name || "").toLowerCase();
-    const reference = String(correction.payments?.transaction_reference || "").toLowerCase();
-    const receipt = String(correction.payments?.receipt_number || "").toLowerCase();
-    if (!player.includes(search) && !reference.includes(search) && !receipt.includes(search)) return false;
-  }
-  return true;
-});
-
-const correctionTotalPages = Math.max(1, Math.ceil(filteredCorrections.length / CORRECTION_PAGE_SIZE));
-const paginatedCorrections = filteredCorrections.slice(
-  (correctionCurrentPage - 1) * CORRECTION_PAGE_SIZE,
-  correctionCurrentPage * CORRECTION_PAGE_SIZE
-);
-
-const pendingCorrectionCount = corrections.filter((correction) => correction.status === "pending").length;
-const approvedCorrectionCount = corrections.filter((correction) => correction.status === "approved").length;
-const rejectedCorrectionCount = corrections.filter((correction) => correction.status === "rejected").length;
-
-useEffect(() => {
-  setCorrectionCurrentPage(1);
-}, [correctionStatusFilter, correctionSearch]);
-
 const resetCollectionForm = () => {
 
   setCollectionAcademy("");
@@ -796,98 +731,7 @@ const closeCollectionModal = () => {
     resetCollectionForm();
     await fetchPendingDues(playerId);
     await fetchPayments();
-    await fetchCorrections();
   };
-
-const openCorrectionModal = (payment) => {
-  setCorrectionPayment(payment);
-  setCorrectionAmount(String(payment.amount_paid ?? ""));
-  setCorrectionReason("");
-  setShowCorrectionModal(true);
-};
-
-const closeCorrectionModal = () => {
-  setShowCorrectionModal(false);
-  setCorrectionPayment(null);
-  setCorrectionAmount("");
-  setCorrectionReason("");
-};
-
-const requestCorrection = async () => {
-  if (!correctionPayment) return;
-  const correctedAmount = Number(correctionAmount);
-  if (!Number.isFinite(correctedAmount) || correctedAmount <= 0) {
-    alert("Corrected amount must be greater than zero.");
-    return;
-  }
-  if (correctionReason.trim().length < 5) {
-    alert("Please provide a correction reason of at least 5 characters.");
-    return;
-  }
-  const { error } = await supabase.rpc("request_payment_correction", {
-    p_payment_id: correctionPayment.id,
-    p_corrected_amount: correctedAmount,
-    p_reason: correctionReason.trim()
-  });
-  if (error) { alert(error.message); return; }
-  alert("Payment correction request submitted.");
-  closeCorrectionModal();
-  await fetchCorrections();
-};
-
-const approveCorrection = async (correctionId) => {
-  if (!window.confirm("Approve this payment correction? This will create an adjustment ledger entry and update the due.")) return;
-  const { data, error } = await supabase.rpc("approve_payment_correction", { p_correction_id: correctionId });
-  if (error) { alert(error.message); return; }
-  const result = Array.isArray(data) ? data[0] : data;
-  setCorrections(prev =>
-    prev.map(correction =>
-      correction.id === correctionId
-        ? { ...correction, status: "approved", approved_at: new Date().toISOString() }
-        : correction
-    )
-  );
-  alert(result ? `Correction approved. Adjustment reference: ${result.transaction_reference}` : "Correction approved.");
-  await fetchCorrections();
-  await fetchPayments();
-};
-
-const openRejectionModal = (correction) => {
-  setRejectionCorrection(correction);
-  setRejectionReason("");
-};
-
-const closeRejectionModal = () => {
-  setRejectionCorrection(null);
-  setRejectionReason("");
-};
-
-const rejectCorrection = async () => {
-  if (!rejectionCorrection) return;
-  if (rejectionReason.trim().length < 5) {
-    alert("Please provide a rejection reason of at least 5 characters.");
-    return;
-  }
-  const { error } = await supabase.rpc("reject_payment_correction", {
-    p_correction_id: rejectionCorrection.id,
-    p_rejection_reason: rejectionReason.trim()
-  });
-  if (error) { alert(error.message); return; }
-  setCorrections(prev =>
-    prev.map(correction =>
-      correction.id === rejectionCorrection.id
-        ? {
-            ...correction,
-            status: "rejected",
-            rejection_reason: rejectionReason.trim()
-          }
-        : correction
-    )
-  );
-  alert("Payment correction rejected.");
-  closeRejectionModal();
-  await fetchCorrections();
-};
 
 const printReceipt = () => {
   console.log("Print button clicked");
@@ -1152,7 +996,7 @@ return (
         <div>
           <div className="payment-page-eyebrow">Finance</div>
           <h1>Payment Collections</h1>
-          <p>Collect pending dues, review payment history and manage correction requests.</p>
+          <p>Collect pending dues and review payment history.</p>
         </div>
         <div className="payment-page-summary">
           <span className="payment-summary-label">History records</span>
@@ -1188,10 +1032,10 @@ return (
         ) : (
           <div className="payment-table-wrapper">
             <table className="payment-data-table">
-              <caption className="sr-only">Payment ledger history and available correction actions</caption>
+              <caption className="sr-only">Payment ledger history</caption>
               <thead><tr>
                 {isSuperAdmin(loggedInUser) && <th scope="col">Academy</th>}
-                <th scope="col">Center</th><th scope="col">Batch</th><th scope="col">Player</th><th scope="col">Amount</th><th scope="col">Mode</th><th scope="col">Reference</th><th scope="col">Receipt</th><th scope="col">Entry</th><th scope="col">Payment Date</th><th scope="col">Actions</th>
+                <th scope="col">Center</th><th scope="col">Batch</th><th scope="col">Player</th><th scope="col">Amount</th><th scope="col">Mode</th><th scope="col">Reference</th><th scope="col">Receipt</th><th scope="col">Entry</th><th scope="col">Payment Date</th>
               </tr></thead>
               <tbody>{paginatedPayments.map((payment)=><tr key={payment.id}>
                 {isSuperAdmin(loggedInUser) && <td>{payment.players?.academies?.academy_name || "-"}</td>}
@@ -1204,7 +1048,6 @@ return (
                 <td><span className="payment-reference-cell">{payment.receipt_number || "-"}</span></td>
                 <td><span className={`payment-entry-badge payment-entry-${payment.payment_entry_type}`}>{payment.payment_entry_type === "adjustment" ? "Adjustment" : "Payment"}</span></td>
                 <td>{new Date(payment.payment_date).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}</td>
-                <td>{payment.payment_entry_type==="payment" && <button type="button" className="payment-text-button" onClick={()=>openCorrectionModal(payment)}>Request Correction</button>}</td>
               </tr>)}</tbody>
             </table>
           </div>
@@ -1258,101 +1101,7 @@ return (
         </div>
       )}
 
-      <section className="payment-card payment-corrections-card">
-        <div className="payment-card-header payment-list-header">
-          <div>
-            <h2>Payment Corrections</h2>
-            <p>Correction requests preserve the original ledger entry and follow the approval workflow.</p>
-            <div className="payment-history-summary">
-              <span>{pendingCorrectionCount} pending</span>
-              <span>{approvedCorrectionCount} approved</span>
-              <span>{rejectedCorrectionCount} rejected</span>
-            </div>
-          </div>
-          <span className="payment-count-badge">{corrections.length} requests</span>
-        </div>
-
-        <div className="payment-correction-toolbar">
-          <label className="payment-filter-field payment-correction-search">
-            <span>Search Player / Reference / Receipt</span>
-            <input type="search" value={correctionSearch} placeholder="Search correction requests..." onChange={(e)=>setCorrectionSearch(e.target.value)} />
-          </label>
-          <label className="payment-filter-field payment-correction-status">
-            <span>Status</span>
-            <select value={correctionStatusFilter} onChange={(e)=>setCorrectionStatusFilter(e.target.value)}>
-              <option value="">All Statuses</option>
-              <option value="pending">Pending</option>
-              <option value="approved">Approved</option>
-              <option value="rejected">Rejected</option>
-            </select>
-          </label>
-          {(correctionSearch || correctionStatusFilter) && (
-            <button type="button" className="payment-secondary-button" onClick={()=>{setCorrectionSearch("");setCorrectionStatusFilter("");}}>
-              Reset
-            </button>
-          )}
-        </div>
-
-        {filteredCorrections.length===0 ? (
-          <div className="payment-empty-state">
-            <div className="payment-empty-icon">{corrections.length ? "⌕" : "✓"}</div>
-            <h3>{corrections.length ? "No matching correction requests" : "No correction requests"}</h3>
-            <p>{corrections.length ? "Try a different player, reference, receipt or status filter." : "Payment correction requests will appear here when submitted."}</p>
-          </div>
-        ) : (
-          <div className="payment-table-wrapper">
-            <table className="payment-data-table payment-corrections-table">
-              <caption className="sr-only">Payment correction requests and approval actions</caption>
-              <thead><tr><th scope="col">Player</th><th scope="col">Original</th><th scope="col">Corrected</th><th scope="col">Adjustment</th><th scope="col">Reason</th><th scope="col">Status</th><th scope="col">Requested</th>{(isSuperAdmin(loggedInUser)||loggedInUser?.role==="academy_owner")&&<th scope="col">Actions</th>}</tr></thead>
-              <tbody>{paginatedCorrections.map((correction)=><tr key={correction.id}>
-                <td className="payment-player-cell">{correction.players?.full_name || "-"}</td>
-                <td>₹{correction.original_amount}</td><td>₹{correction.corrected_amount}</td><td>₹{correction.adjustment_amount}</td>
-                <td className="payment-reason-cell">{correction.reason}</td>
-                <td><span className={`payment-status-badge payment-status-${correction.status}`}>{correction.status}</span></td>
-                <td>{new Date(correction.requested_at).toLocaleDateString("en-IN", { day:"2-digit", month:"short", year:"numeric" })}</td>
-                {(isSuperAdmin(loggedInUser)||loggedInUser?.role==="academy_owner")&&<td><div className="payment-action-group">{correction.status==="pending"&&<><button type="button" className="payment-primary-button payment-small-button" onClick={()=>approveCorrection(correction.id)}>Approve</button><button type="button" className="payment-danger-button" onClick={()=>openRejectionModal(correction)}>Reject</button></>}{correction.status==="rejected"&&<span className="payment-rejection-text">{correction.rejection_reason}</span>}</div></td>}
-              </tr>)}</tbody>
-            </table>
-          </div>
-        )}
-
-        {filteredCorrections.length > 0 && (
-          <div className="payment-pagination">
-            <span>Showing {Math.min((correctionCurrentPage - 1) * CORRECTION_PAGE_SIZE + 1, filteredCorrections.length)}–{Math.min(correctionCurrentPage * CORRECTION_PAGE_SIZE, filteredCorrections.length)} of {filteredCorrections.length}</span>
-            <div className="payment-pagination-controls">
-              <button type="button" onClick={() => setCorrectionCurrentPage(page => Math.max(1, page - 1))} disabled={correctionCurrentPage === 1}>Previous</button>
-              <strong>Page {correctionCurrentPage} of {correctionTotalPages}</strong>
-              <button type="button" onClick={() => setCorrectionCurrentPage(page => Math.min(correctionTotalPages, page + 1))} disabled={correctionCurrentPage === correctionTotalPages}>Next</button>
-            </div>
-          </div>
-        )}
-      </section>>
     </div>
-
-    {showCorrectionModal && correctionPayment && (
-      <div className="payment-modal-overlay">
-        <div className="payment-modal" role="dialog" aria-modal="true" aria-labelledby="correction-title">
-          <div className="payment-modal-header"><div><div className="payment-page-eyebrow">Ledger control</div><h2 id="correction-title">Request Payment Correction</h2></div><button type="button" className="payment-modal-close" onClick={closeCorrectionModal} aria-label="Close correction dialog">×</button></div>
-          <div className="payment-modal-body">
-            <div className="payment-detail-row"><span>Player</span><strong>{correctionPayment.players?.full_name || "-"}</strong></div>
-            <div className="payment-detail-row"><span>Original Amount</span><strong>₹{correctionPayment.amount_paid}</strong></div>
-            <label className="payment-field"><span>Corrected Amount</span><input type="number" min="0.01" step="0.01" placeholder="Corrected Amount" value={correctionAmount} onChange={(e)=>setCorrectionAmount(e.target.value)} /></label>
-            <label className="payment-field"><span>Correction Reason</span><textarea placeholder="Reason for correction" value={correctionReason} onChange={(e)=>setCorrectionReason(e.target.value)} rows="4" /></label>
-          </div>
-          <div className="payment-modal-footer"><button type="button" className="payment-primary-button" onClick={requestCorrection}>Submit Correction</button><button type="button" className="payment-secondary-button" onClick={closeCorrectionModal}>Cancel</button></div>
-        </div>
-      </div>
-    )}
-
-    {rejectionCorrection && (
-      <div className="payment-modal-overlay">
-        <div className="payment-modal" role="dialog" aria-modal="true" aria-labelledby="rejection-title">
-          <div className="payment-modal-header"><div><div className="payment-page-eyebrow">Ledger control</div><h2 id="rejection-title">Reject Payment Correction</h2></div><button type="button" className="payment-modal-close" onClick={closeRejectionModal} aria-label="Close rejection dialog">×</button></div>
-          <div className="payment-modal-body"><label className="payment-field"><span>Rejection Reason</span><textarea placeholder="Rejection reason" value={rejectionReason} onChange={(e)=>setRejectionReason(e.target.value)} rows="4" /></label></div>
-          <div className="payment-modal-footer"><button type="button" className="payment-danger-button" onClick={rejectCorrection}>Reject Correction</button><button type="button" className="payment-secondary-button" onClick={closeRejectionModal}>Cancel</button></div>
-        </div>
-      </div>
-    )}
 
     {showReceiptModal && receiptData && (
       <div className="receipt-modal-overlay">
