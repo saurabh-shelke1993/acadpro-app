@@ -1227,3 +1227,21 @@
   .coach-player-detail-grid{grid-template-columns:1fr}
   .coach-player-detail-wide{grid-column:auto}
 }
+
+
+/* Academy Owner: keep the operational player context visible without a wide desktop table. */
+@media(max-width:900px){
+  .players-page-owner .players-table{min-width:0;table-layout:fixed}
+  .players-page-owner .players-table th:nth-child(2),.players-page-owner .players-table td:nth-child(2){display:none}
+}
+@media(max-width:640px){
+  .players-page-owner .players-table th:nth-child(5),.players-page-owner .players-table td:nth-child(5),
+  .players-page-owner .players-table th:nth-child(6),.players-page-owner .players-table td:nth-child(6),
+  .players-page-owner .players-table th:nth-child(7),.players-page-owner .players-table td:nth-child(7),
+  .players-page-owner .players-table th:nth-child(8),.players-page-owner .players-table td:nth-child(8),
+  .players-page-owner .players-table th:nth-child(9),.players-page-owner .players-table td:nth-child(9),
+  .players-page-owner .players-table th:nth-child(10),.players-page-owner .players-table td:nth-child(10){display:none}
+  .players-page-owner .players-table th:nth-child(1),.players-page-owner .players-table td:nth-child(1){width:45%}
+  .players-page-owner .players-table th:nth-child(3),.players-page-owner .players-table td:nth-child(3){width:30%}
+  .players-page-owner .players-table th:nth-child(4),.players-page-owner .players-table td:nth-child(4){width:25%}
+}
