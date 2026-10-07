@@ -1123,10 +1123,15 @@ return (
                       <tr
                         key={batch.id + "-mobile-actions"}
                         className="batches-mobile-actions-row"
-                        aria-label={"Actions for " + (batch.batch_name || "batch")}
                       >
-                        <td colSpan={6}>
-                          <div className="batches-mobile-row-actions">
+                        <td
+                          colSpan={isSuperAdmin(user) ? 6 : 5}
+                          className="batches-mobile-actions-cell"
+                        >
+                          <div
+                            className="batches-mobile-row-actions"
+                            aria-label={"Actions for " + (batch.batch_name || "batch")}
+                          >
                             <button
                               type="button"
                               className="batches-edit-button"
@@ -1135,6 +1140,7 @@ return (
                                 handleEdit(batch);
                               }}
                               aria-label={"Edit " + (batch.batch_name || "batch")}
+                              title="Edit batch"
                             >
                               <span aria-hidden="true">✏️</span>
                             </button>
@@ -1146,6 +1152,7 @@ return (
                                 handleDelete(batch.id);
                               }}
                               aria-label={"Delete " + (batch.batch_name || "batch")}
+                              title="Delete batch"
                             >
                               <span aria-hidden="true">🗑️</span>
                             </button>
