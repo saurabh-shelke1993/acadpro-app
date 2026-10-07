@@ -482,15 +482,29 @@
 }
 
 
-/* Academy Owner: academy is implicit; keep only center + actions. */
-.centers-page-owner .centers-table{min-width:0;table-layout:fixed}
-.centers-page-owner .centers-academy-cell,
-.centers-page-owner .centers-table th:first-child{display:none}
-.centers-page-owner .centers-name-cell{width:auto}
+/* Academy Owner: academy is implicit; render a clean Center + Actions table. */
+.centers-page-owner .centers-table{
+  min-width:0;
+  table-layout:fixed;
+}
+.centers-page-owner .centers-name-cell{
+  width:auto;
+}
 .centers-page-owner .centers-actions-heading,
-.centers-page-owner .centers-actions-cell{width:150px}
+.centers-page-owner .centers-actions-cell{
+  width:150px;
+}
+.centers-page-owner .centers-row-actions{
+  opacity:1;
+  pointer-events:auto;
+  transform:none;
+}
 @media(max-width:700px){
   .centers-page-owner .centers-actions-heading,
-  .centers-page-owner .centers-actions-cell{width:118px}
-  .centers-page-owner .centers-row-actions{opacity:1;pointer-events:auto;transform:none}
+  .centers-page-owner .centers-actions-cell{
+    width:118px;
+  }
+  .centers-page-owner .centers-name-cell{
+    width:calc(100% - 118px);
+  }
 }
