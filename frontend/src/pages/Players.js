@@ -1175,14 +1175,14 @@ return (
                   <tr
                     key={player.id}
                     className={isCoach(loggedInUser) ? "players-coach-row" : ""}
-                    onClick={() => isCoach(loggedInUser) && setSelectedCoachPlayer(player)}
+                    onClick={() => (isCoach(loggedInUser) || isAcademyOwner(loggedInUser)) && setSelectedCoachPlayer(player)}
                     onKeyDown={(event) => {
-                      if (isCoach(loggedInUser) && (event.key === "Enter" || event.key === " ")) {
+                      if ((isCoach(loggedInUser) || isAcademyOwner(loggedInUser)) && (event.key === "Enter" || event.key === " ")) {
                         event.preventDefault();
                         setSelectedCoachPlayer(player);
                       }
                     }}
-                    tabIndex={isCoach(loggedInUser) ? 0 : undefined}
+                    tabIndex={isCoach(loggedInUser) || isAcademyOwner(loggedInUser) ? 0 : undefined}
                   >
                     <td className="player-name-cell">{player.full_name}</td>
                     {!isCoach(loggedInUser) && <td>{player.academies?.academy_name || "—"}</td>}
@@ -1226,7 +1226,7 @@ return (
           </table>
         </div>
 
-        {isCoach(loggedInUser) && selectedCoachPlayer ? (
+        {(isCoach(loggedInUser) || isAcademyOwner(loggedInUser)) && selectedCoachPlayer ? (
           <div className="coach-player-modal-backdrop" role="presentation" onClick={() => setSelectedCoachPlayer(null)}>
             <section
               className="coach-player-modal"
