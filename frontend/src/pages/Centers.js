@@ -452,7 +452,7 @@ return (
                   }}
                   aria-label={`Edit ${center.center_name}`}
                 >
-                  Edit
+                  ✏️
                 </button>
                 <button
                   type="button"
@@ -463,7 +463,7 @@ return (
                   }}
                   aria-label={`Delete ${center.center_name}`}
                 >
-                  Delete
+                  🗑️
                 </button>
               </div>
             </td>
