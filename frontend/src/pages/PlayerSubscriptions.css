@@ -753,15 +753,31 @@
   }
 
   .player-subscriptions-mobile-actions-row {
-    display: table-row;
+    display: table-row !important;
+    visibility: visible !important;
   }
 
   .player-subscriptions-mobile-actions-cell {
-    display: table-cell;
+    display: table-cell !important;
+    visibility: visible !important;
+    width: 100%;
     padding: .5rem .6rem !important;
     border-top: 0 !important;
     border-bottom: 1px solid var(--ap-border) !important;
     background: var(--ap-slate-50);
+  }
+
+  .player-subscriptions-mobile-actions-row td {
+    height: 42px;
+  }
+
+  .player-subscriptions-mobile-row-actions {
+    display: flex !important;
+    visibility: visible !important;
+    align-items: center;
+    justify-content: flex-end;
+    gap: .5rem;
+    min-height: 34px;
   }
 
   .player-subscriptions-table td {
