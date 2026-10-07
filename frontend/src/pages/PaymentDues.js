@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { supabase } from "../supabaseClient";
 import Layout from "../components/Layout";
 import {
@@ -882,7 +882,7 @@ return (
                 {paginatedDues.map((due) => {
                   const isSelected = selectedDueId === due.id;
                   return (
-                    <React.Fragment key={due.id}>
+                    <Fragment key={due.id}>
                       <tr
                         key={due.id}
                         className={`payment-due-row ${isSelected ? "payment-due-row-selected" : ""}`}
@@ -960,7 +960,7 @@ return (
                           </td>
                         </tr>
                       )}
-                    </React.Fragment>
+                    </Fragment>
                   );
                 })}
               </tbody>
