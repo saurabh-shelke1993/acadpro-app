@@ -309,7 +309,7 @@ function CoachBatchMapping() {
 
   return (
     <Layout>
-      <div className="coach-mapping-page">
+      <div className={`coach-mapping-page${isAcademyOwner(user) ? " coach-mapping-page-owner" : ""}`}>
         <section className="coach-mapping-toolbar">
           <div>
             <span className="coach-mapping-eyebrow">Academy management</span>
