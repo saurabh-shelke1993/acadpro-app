@@ -768,8 +768,8 @@ function Coaches() {
                                 coach.full_name
                               }
                             >
-                              Edit
-                            </button>
+                                ✏️
+                              </button>
 
                             <button
                               type="button"
@@ -787,10 +787,8 @@ function Coaches() {
                                 coach.full_name
                               }
                             >
-                              {coach.is_active
-                                ? "Deactivate"
-                                : "Activate"}
-                            </button>
+                              🗑️
+                              </button>
                           </div>
                         </td>
                       )}
