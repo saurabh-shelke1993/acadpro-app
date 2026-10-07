@@ -394,7 +394,6 @@ function SubscriptionPlans() {
                             </td>
                           </tr>
                         )}
-                        </tr>
                       </React.Fragment>
                     );
                   })
