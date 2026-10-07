@@ -1002,6 +1002,9 @@
   }
   .batches-page-owner .batches-actions-cell{width:14%}
 
+}
+
+@media(max-width:640px){
   .batches-page-owner .batches-mobile-actions-row{
     display:table-row !important;
   }
@@ -1009,9 +1012,6 @@
   .batches-page-owner .batches-mobile-actions-cell{
     display:table-cell !important;
   }
-}
-
-@media(max-width:640px){
   .batches-page-owner .batches-table th:nth-child(4),
   .batches-page-owner .batches-table td:nth-child(4){
     display:none;
