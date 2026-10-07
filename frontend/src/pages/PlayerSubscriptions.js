@@ -294,6 +294,7 @@ function PlayerSubscriptions() {
   const resetAssignmentForm = () => {
     setIsEditing(false);
     setEditingSubscriptionId(null);
+    setSelectedSubscriptionId(null);
     setSelectedPlayer("");
     setSelectedPlan("");
     setStartDate(new Date().toISOString().split("T")[0]);
@@ -816,77 +817,129 @@ function PlayerSubscriptions() {
                     </td>
                   </tr>
                 ) : (
-                  paginatedSubscriptions.map((subscription) => (
-                    <tr key={subscription.id}>
-                      {isSuperAdmin(loggedInUser) && (
-                        <td>
-                          <strong>{subscription.players?.academies?.academy_name || "—"}</strong>
-                        </td>
-                      )}
-                      <td>{subscription.players?.centers?.center_name || "—"}</td>
-                      <td>{subscription.players?.batches?.batch_name || "—"}</td>
-                      <td>
-                        <div className="player-subscriptions-player-cell">
-                          <strong>{subscription.players?.full_name || "—"}</strong>
-                        </div>
-                      </td>
-                      <td>
-                        <div className="player-subscriptions-plan-cell">
-                          <strong>{subscription.subscription_plans?.plan_name || "—"}</strong>
-                          <span>
-                            {subscription.subscription_plans?.billing_cycle
-                              ? BILLING_CYCLES[subscription.subscription_plans.billing_cycle]
-                                ? "Per " + BILLING_CYCLES[subscription.subscription_plans.billing_cycle]
-                                : subscription.subscription_plans.billing_cycle
-                              : ""}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="player-subscriptions-money-cell">
-                        {formatCurrency(subscription.subscription_plans?.amount)}
-                      </td>
-                      <td className="player-subscriptions-date-cell">
-                        {formatDate(subscription.start_date)}
-                      </td>
-                      <td className="player-subscriptions-date-cell">
-                        {formatDate(subscription.end_date)}
-                      </td>
-                      <td>
-                        <span
-                          className={
-                            subscription.status === "active"
-                              ? "player-subscriptions-status player-subscriptions-status-active"
-                              : "player-subscriptions-status player-subscriptions-status-inactive"
-                          }
+                  paginatedSubscriptions.map((subscription) => {
+                    const isSelected = selectedSubscriptionId === subscription.id;
+                    return (
+                      <tbody key={subscription.id}>
+                        <tr
+                          className={isSelected ? "player-subscriptions-row-selected" : ""}
+                          tabIndex={0}
+                          onClick={() => setSelectedSubscriptionId(subscription.id)}
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter" || event.key === " ") {
+                              event.preventDefault();
+                              setSelectedSubscriptionId(subscription.id);
+                            }
+                          }}
                         >
-                          <span aria-hidden="true">●</span>
-                          {subscription.status === "active" ? "Active" : "Inactive"}
-                        </span>
-                      </td>
-                      <td className="player-subscriptions-actions-cell">
-                        <div className="player-subscriptions-row-actions">
-                          <button
-                            type="button"
-                            className="player-subscriptions-action-button"
-                            onClick={() => handleEditSubscription(subscription)}
-                            aria-label={"Edit " + (subscription.players?.full_name || "player") + " subscription"}
-                          >
-                            Edit
-                          </button>
-                          {subscription.status === "active" && (
-                            <button
-                              type="button"
-                              className="player-subscriptions-action-button player-subscriptions-action-danger"
-                              onClick={() => handleDeactivateSubscription(subscription.id)}
-                              aria-label={"Deactivate " + (subscription.players?.full_name || "player") + " subscription"}
-                            >
-                              Deactivate
-                            </button>
+                          {isSuperAdmin(loggedInUser) && (
+                            <td>
+                              <strong>{subscription.players?.academies?.academy_name || "—"}</strong>
+                            </td>
                           )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))
+                          <td>{subscription.players?.centers?.center_name || "—"}</td>
+                          <td>{subscription.players?.batches?.batch_name || "—"}</td>
+                          <td>
+                            <div className="player-subscriptions-player-cell">
+                              <strong>{subscription.players?.full_name || "—"}</strong>
+                            </div>
+                          </td>
+                          <td>
+                            <div className="player-subscriptions-plan-cell">
+                              <strong>{subscription.subscription_plans?.plan_name || "—"}</strong>
+                              <span>
+                                {subscription.subscription_plans?.billing_cycle
+                                  ? BILLING_CYCLES[subscription.subscription_plans.billing_cycle]
+                                    ? "Per " + BILLING_CYCLES[subscription.subscription_plans.billing_cycle]
+                                    : subscription.subscription_plans.billing_cycle
+                                  : ""}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="player-subscriptions-money-cell">
+                            {formatCurrency(subscription.subscription_plans?.amount)}
+                          </td>
+                          <td className="player-subscriptions-date-cell">
+                            {formatDate(subscription.start_date)}
+                          </td>
+                          <td className="player-subscriptions-date-cell">
+                            {formatDate(subscription.end_date)}
+                          </td>
+                          <td>
+                            <span className={subscription.status === "active" ? "player-subscriptions-status player-subscriptions-status-active" : "player-subscriptions-status player-subscriptions-status-inactive"}>
+                              <span aria-hidden="true">●</span>
+                              {subscription.status === "active" ? "Active" : "Inactive"}
+                            </span>
+                          </td>
+                          <td className="player-subscriptions-actions-cell">
+                            <div className="player-subscriptions-row-actions">
+                              <button
+                                type="button"
+                                className="player-subscriptions-action-button"
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  handleEditSubscription(subscription);
+                                }}
+                                aria-label={"Edit " + (subscription.players?.full_name || "player") + " subscription"}
+                              >
+                                Edit
+                              </button>
+                              {subscription.status === "active" && (
+                                <button
+                                  type="button"
+                                  className="player-subscriptions-action-button player-subscriptions-action-danger"
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    handleDeactivateSubscription(subscription.id);
+                                  }}
+                                  aria-label={"Deactivate " + (subscription.players?.full_name || "player") + " subscription"}
+                                >
+                                  Deactivate
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                        {isSelected && (
+                          <tr className="player-subscriptions-mobile-actions-row">
+                            <td
+                              colSpan={isSuperAdmin(loggedInUser) ? 10 : 9}
+                              className="player-subscriptions-mobile-actions-cell"
+                            >
+                              <div className="player-subscriptions-mobile-row-actions" aria-label={"Actions for " + (subscription.players?.full_name || "player") + " subscription"}>
+                                <button
+                                  type="button"
+                                  className="player-subscriptions-action-button"
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    handleEditSubscription(subscription);
+                                  }}
+                                  aria-label={"Edit " + (subscription.players?.full_name || "player") + " subscription"}
+                                  title="Edit subscription"
+                                >
+                                  ✏️
+                                </button>
+                                {subscription.status === "active" && (
+                                  <button
+                                    type="button"
+                                    className="player-subscriptions-action-button player-subscriptions-action-danger"
+                                    onClick={(event) => {
+                                      event.stopPropagation();
+                                      handleDeactivateSubscription(subscription.id);
+                                    }}
+                                    aria-label={"Deactivate " + (subscription.players?.full_name || "player") + " subscription"}
+                                    title="Deactivate subscription"
+                                  >
+                                    🗑️
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    );
+                  })
                 )}
               </tbody>
             </table>
