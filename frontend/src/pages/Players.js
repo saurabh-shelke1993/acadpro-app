@@ -862,7 +862,7 @@ setSelectedBatch("");
 
 return (
   <Layout>
-    <div className={`players-page${isCoach(loggedInUser) ? " players-page-coach" : ""}`}>
+    <div className={`players-page${isCoach(loggedInUser) ? " players-page-coach" : ""}${isAcademyOwner(loggedInUser) ? " players-page-owner" : ""}`}>
       <div className="players-page-header">
         <div>
           <span className="players-page-eyebrow">Academy management</span>
