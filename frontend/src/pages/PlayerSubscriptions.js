@@ -937,7 +937,6 @@ function PlayerSubscriptions() {
                             </td>
                           </tr>
                         )}
-                        </tr>
                       </React.Fragment>
                     );
                   })
