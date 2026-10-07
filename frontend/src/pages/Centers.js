@@ -316,7 +316,7 @@ if (!user) {
 
   return (
     <Layout>
-      <div className={`centers-page${isCoach(user) ? " centers-page-coach" : ""}`}>
+      <div className={`centers-page${isCoach(user) ? " centers-page-coach" : ""}${isAcademyOwner(user) ? " centers-page-owner" : ""}`}>
         Loading...
       </div>
     </Layout>
