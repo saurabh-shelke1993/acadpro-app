@@ -985,3 +985,26 @@
     padding:.35rem .7rem;
   }
 }
+
+/* Ensure the selected mobile batch exposes actions directly below the row. */
+@media(max-width:640px){
+  .batches-page-owner .batches-mobile-actions-row{
+    display:table-row !important;
+  }
+  .batches-page-owner .batches-mobile-actions-row td{
+    display:table-cell;
+  }
+  .batches-page-owner .batches-mobile-row-actions{
+    justify-content:flex-end;
+  }
+  .batches-page-owner .batches-mobile-row-actions button{
+    width:34px;
+    min-width:34px;
+    height:34px;
+    padding:0;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    font-size:14px;
+  }
+}
