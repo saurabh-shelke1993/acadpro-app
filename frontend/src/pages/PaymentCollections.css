@@ -385,3 +385,21 @@
     flex:1;
   }
 }
+
+
+/* Responsive payment ledger: keep player, amount, mode, receipt, date and actions. */
+@media(max-width:900px){
+  .payment-data-table{min-width:0;table-layout:fixed}
+  .payment-data-table th:nth-child(2),.payment-data-table td:nth-child(2),
+  .payment-data-table th:nth-child(3),.payment-data-table td:nth-child(3),
+  .payment-data-table th:nth-child(7),.payment-data-table td:nth-child(7),
+  .payment-data-table th:nth-child(9),.payment-data-table td:nth-child(9){display:none}
+}
+@media(max-width:640px){
+  .payment-data-table th:nth-child(6),.payment-data-table td:nth-child(6){display:none}
+  .payment-data-table th:nth-child(4),.payment-data-table td:nth-child(4){width:28%}
+  .payment-data-table th:nth-child(5),.payment-data-table td:nth-child(5){width:18%}
+  .payment-data-table th:nth-child(8),.payment-data-table td:nth-child(8){width:18%}
+  .payment-data-table th:nth-child(10),.payment-data-table td:nth-child(10){width:20%}
+  .payment-data-table th:nth-child(11),.payment-data-table td:nth-child(11){width:16%}
+}
