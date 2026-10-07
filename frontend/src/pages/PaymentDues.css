@@ -689,19 +689,19 @@
 
 /* Responsive payment dues: on tablet/phone prioritize player, due, date, balance, status and action. */
 @media(max-width:900px){
-  .payment-dues-table{min-width:0;table-layout:fixed}
-  .payment-dues-table th:nth-child(1),.payment-dues-table td:nth-child(1),
-  .payment-dues-table th:nth-child(2),.payment-dues-table td:nth-child(2),
-  .payment-dues-table th:nth-child(3),.payment-dues-table td:nth-child(3),
-  .payment-dues-table th:nth-child(5),.payment-dues-table td:nth-child(5),
-  .payment-dues-table th:nth-child(8),.payment-dues-table td:nth-child(8),
-  .payment-dues-table th:nth-child(9),.payment-dues-table td:nth-child(9),
-  .payment-dues-table th:nth-child(10),.payment-dues-table td:nth-child(10){display:none}
+  .payment-data-table{min-width:0;table-layout:fixed}
+  .payment-data-table th:nth-child(1),.payment-data-table td:nth-child(1),
+  .payment-data-table th:nth-child(2),.payment-data-table td:nth-child(2),
+  .payment-data-table th:nth-child(3),.payment-data-table td:nth-child(3),
+  .payment-data-table th:nth-child(5),.payment-data-table td:nth-child(5),
+  .payment-data-table th:nth-child(8),.payment-data-table td:nth-child(8),
+  .payment-data-table th:nth-child(9),.payment-data-table td:nth-child(9),
+  .payment-data-table th:nth-child(10),.payment-data-table td:nth-child(10){display:none}
 }
 @media(max-width:640px){
-  .payment-dues-table th:nth-child(6),.payment-dues-table td:nth-child(6){width:20%}
-  .payment-dues-table th:nth-child(7),.payment-dues-table td:nth-child(7){width:18%}
-  .payment-dues-table th:nth-child(11),.payment-dues-table td:nth-child(11){width:20%}
-  .payment-dues-table th:nth-child(12),.payment-dues-table td:nth-child(12){width:15%}
-  .payment-dues-table th:nth-child(13),.payment-dues-table td:nth-child(13){width:27%}
+  .payment-data-table th:nth-child(6),.payment-data-table td:nth-child(6){width:20%}
+  .payment-data-table th:nth-child(7),.payment-data-table td:nth-child(7){width:18%}
+  .payment-data-table th:nth-child(11),.payment-data-table td:nth-child(11){width:20%}
+  .payment-data-table th:nth-child(12),.payment-data-table td:nth-child(12){width:15%}
+  .payment-data-table th:nth-child(13),.payment-data-table td:nth-child(13){width:27%}
 }
