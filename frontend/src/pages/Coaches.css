@@ -672,36 +672,59 @@
 }
 
 
-/* Responsive owner/admin coach directory: preserve identity, phone, status and actions. */
+/* Desktop/tablet: keep the full coach directory available. */
 @media(max-width:900px){
-  .coaches-page .coaches-table{min-width:0;table-layout:fixed}
-  .coaches-page .coaches-table th:nth-child(3),.coaches-page .coaches-table td:nth-child(3){display:none}
-  .coaches-page .coaches-table th:nth-child(5),.coaches-page .coaches-table td:nth-child(5){display:none}
-  .coaches-page .coaches-name-cell{width:30%}
-  .coaches-page .coaches-table th:nth-child(4),.coaches-page .coaches-table td:nth-child(4){width:25%}
-  .coaches-page .coaches-table th:nth-child(6),.coaches-page .coaches-table td:nth-child(6){width:18%}
-  .coaches-page .coaches-actions-cell{width:27%}
-}
-@media(max-width:640px){
-  .coaches-page .coaches-table th:nth-child(4),.coaches-page .coaches-table td:nth-child(4){display:none}
-  .coaches-page .coaches-name-cell{width:42%}
-  .coaches-page .coaches-table th:nth-child(6),.coaches-page .coaches-table td:nth-child(6){width:23%}
-  .coaches-page .coaches-actions-cell{width:35%}
-  .coaches-page .coaches-action-button{padding:.3rem .4rem;font-size:10px}
+  .coaches-page .coaches-table{
+    min-width:900px;
+  }
+  .coaches-page .coaches-table th,
+  .coaches-page .coaches-table td{
+    white-space:nowrap;
+  }
 }
 
-
-/* Academy Owner: academy is implicit; coach directory only needs coach + actions. */
-.coaches-page-owner .coaches-table{min-width:0;table-layout:fixed}
-.coaches-page-owner .coaches-name-cell{width:auto}
-.coaches-page-owner .coaches-actions-cell{width:150px}
-@media(max-width:900px){
-  .coaches-page-owner .coaches-table th,
-  .coaches-page-owner .coaches-table td{padding:.6rem .65rem}
-  .coaches-page-owner .coaches-actions-cell{width:140px}
+/* Academy Owner: desktop/tablet show full coach details; mobile keeps Coach + Actions. */
+.coaches-page-owner .coaches-table{
+  min-width:900px;
 }
+.coaches-page-owner .coaches-name-cell{
+  min-width:190px;
+}
+.coaches-page-owner .coaches-actions-cell{
+  width:150px;
+}
+
 @media(max-width:640px){
+  .coaches-page-owner .coaches-table{
+    min-width:0;
+    table-layout:fixed;
+  }
+  .coaches-page-owner .coaches-table th:nth-child(2),
+  .coaches-page-owner .coaches-table td:nth-child(2),
+  .coaches-page-owner .coaches-table th:nth-child(3),
+  .coaches-page-owner .coaches-table td:nth-child(3),
+  .coaches-page-owner .coaches-table th:nth-child(4),
+  .coaches-page-owner .coaches-table td:nth-child(4),
+  .coaches-page-owner .coaches-table th:nth-child(5),
+  .coaches-page-owner .coaches-table td:nth-child(5){
+    display:none;
+  }
+  .coaches-page-owner .coaches-name-cell{width:calc(100% - 120px)}
   .coaches-page-owner .coaches-actions-cell{width:120px}
-  .coaches-page-owner .coaches-row-actions{opacity:1;pointer-events:auto}
-  .coaches-page-owner .coaches-action-button{padding:.3rem .4rem;font-size:10px}
+  .coaches-page-owner .coaches-row-actions{
+    opacity:1;
+    pointer-events:auto;
+  }
+  .coaches-page-owner .coaches-action-button{
+    padding:.3rem .4rem;
+    font-size:10px;
+  }
+}
+
+/* Super Admin / Coach mobile compression. */
+@media(max-width:640px){
+  .coaches-page:not(.coaches-page-owner) .coaches-table{
+    min-width:0;
+    table-layout:fixed;
+  }
 }
