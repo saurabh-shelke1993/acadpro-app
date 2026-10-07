@@ -788,3 +788,46 @@
     display: none !important;
   }
 }
+
+
+/* Role-aware mobile columns: Academy Owner => Player + Plan + Amount; Super Admin uses the same three fields. */
+@media (max-width: 640px) {
+  .player-subscriptions-page:not(.player-subscriptions-page-super-admin) .player-subscriptions-table th:nth-child(3),
+  .player-subscriptions-page:not(.player-subscriptions-page-super-admin) .player-subscriptions-table td:nth-child(3),
+  .player-subscriptions-page:not(.player-subscriptions-page-super-admin) .player-subscriptions-table th:nth-child(4),
+  .player-subscriptions-page:not(.player-subscriptions-page-super-admin) .player-subscriptions-table td:nth-child(4),
+  .player-subscriptions-page:not(.player-subscriptions-page-super-admin) .player-subscriptions-table th:nth-child(5),
+  .player-subscriptions-page:not(.player-subscriptions-page-super-admin) .player-subscriptions-table td:nth-child(5) {
+    display: table-cell;
+  }
+
+  .player-subscriptions-page:not(.player-subscriptions-page-super-admin) .player-subscriptions-table th:nth-child(3),
+  .player-subscriptions-page:not(.player-subscriptions-page-super-admin) .player-subscriptions-table td:nth-child(3) {
+    width: 40%;
+  }
+
+  .player-subscriptions-page:not(.player-subscriptions-page-super-admin) .player-subscriptions-table th:nth-child(4),
+  .player-subscriptions-page:not(.player-subscriptions-page-super-admin) .player-subscriptions-table td:nth-child(4) {
+    width: 32%;
+  }
+
+  .player-subscriptions-page:not(.player-subscriptions-page-super-admin) .player-subscriptions-table th:nth-child(5),
+  .player-subscriptions-page:not(.player-subscriptions-page-super-admin) .player-subscriptions-table td:nth-child(5) {
+    width: 28%;
+  }
+
+  .player-subscriptions-page:not(.player-subscriptions-page-super-admin) .player-subscriptions-table th:nth-child(1),
+  .player-subscriptions-page:not(.player-subscriptions-page-super-admin) .player-subscriptions-table td:nth-child(1),
+  .player-subscriptions-page:not(.player-subscriptions-page-super-admin) .player-subscriptions-table th:nth-child(2),
+  .player-subscriptions-page:not(.player-subscriptions-page-super-admin) .player-subscriptions-table td:nth-child(2),
+  .player-subscriptions-page:not(.player-subscriptions-page-super-admin) .player-subscriptions-table th:nth-child(6),
+  .player-subscriptions-page:not(.player-subscriptions-page-super-admin) .player-subscriptions-table td:nth-child(6),
+  .player-subscriptions-page:not(.player-subscriptions-page-super-admin) .player-subscriptions-table th:nth-child(7),
+  .player-subscriptions-page:not(.player-subscriptions-page-super-admin) .player-subscriptions-table td:nth-child(7),
+  .player-subscriptions-page:not(.player-subscriptions-page-super-admin) .player-subscriptions-table th:nth-child(8),
+  .player-subscriptions-page:not(.player-subscriptions-page-super-admin) .player-subscriptions-table td:nth-child(8),
+  .player-subscriptions-page:not(.player-subscriptions-page-super-admin) .player-subscriptions-table th:nth-child(9),
+  .player-subscriptions-page:not(.player-subscriptions-page-super-admin) .player-subscriptions-table td:nth-child(9) {
+    display: none;
+  }
+}
