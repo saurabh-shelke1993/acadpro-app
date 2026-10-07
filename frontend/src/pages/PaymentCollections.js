@@ -1066,7 +1066,7 @@ return (
                 <td className="payment-mobile-hide"><span className="payment-reference-cell">{payment.transaction_reference || "-"}</span></td>
                 <td className="payment-mobile-hide"><span className="payment-reference-cell">{payment.receipt_number || "-"}</span></td>
                 <td className="payment-mobile-hide"><span className={`payment-entry-badge payment-entry-${payment.payment_entry_type}`}>{payment.payment_entry_type === "adjustment" ? "Adjustment" : "Payment"}</span></td>
-                <td>{new Date(payment.payment_date).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}</td>
+                <td className="payment-mobile-payment-date">{new Date(payment.payment_date).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}</td>
               </tr>)}</tbody>
             </table>
           </div>
