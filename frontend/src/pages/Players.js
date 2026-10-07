@@ -1242,6 +1242,34 @@ return (
                 </div>
                 <button type="button" className="coach-player-modal-close" onClick={() => setSelectedCoachPlayer(null)} aria-label="Close player details">×</button>
               </div>
+              {isAcademyOwner(loggedInUser) && (
+                <div className="coach-player-modal-actions">
+                  <button
+                    type="button"
+                    className="player-modal-action-button player-modal-edit-button"
+                    onClick={() => {
+                      handleEditPlayer(selectedCoachPlayer);
+                      setSelectedCoachPlayer(null);
+                    }}
+                    aria-label={"Edit " + selectedCoachPlayer.full_name}
+                    title="Edit player"
+                  >
+                    ✏️
+                  </button>
+                  <button
+                    type="button"
+                    className="player-modal-action-button player-modal-delete-button"
+                    onClick={() => {
+                      handleDeletePlayer(selectedCoachPlayer.id);
+                      setSelectedCoachPlayer(null);
+                    }}
+                    aria-label={"Deactivate " + selectedCoachPlayer.full_name}
+                    title="Delete player"
+                  >
+                    🗑️
+                  </button>
+                </div>
+              )}
               <div className="coach-player-detail-grid">
                 <div><span>Center</span><strong>{selectedCoachPlayer.centers?.center_name || "—"}</strong></div>
                 <div><span>Batch</span><strong>{selectedCoachPlayer.batches?.batch_name || "—"}</strong></div>
