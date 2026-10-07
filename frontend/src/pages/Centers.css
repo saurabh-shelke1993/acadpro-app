@@ -469,17 +469,7 @@
 .centers-page-coach .centers-name-cell{width:100%}
 
 
-/* Academy Owner: academy is implicit, so collapse the table to useful columns on smaller screens. */
-@media(max-width:900px){
-  .centers-page-owner .centers-table{min-width:0;table-layout:fixed}
-  .centers-page-owner .centers-table th:first-child,.centers-page-owner .centers-table td:first-child{display:none}
-  .centers-page-owner .centers-table th:nth-child(2),.centers-page-owner .centers-table td:nth-child(2){width:calc(100% - 92px)}
-  .centers-page-owner .centers-table th:nth-child(3),.centers-page-owner .centers-table td:nth-child(3){width:92px}
-}
-@media(max-width:640px){
-  .centers-page-owner .centers-table th:nth-child(3),.centers-page-owner .centers-table td:nth-child(3){width:82px}
-  .centers-page-owner .centers-edit-button,.centers-page-owner .centers-delete-button{padding:.35rem .45rem;font-size:11px}
-}
+
 
 
 /* Academy Owner: academy is implicit; render a clean Center + Actions table. */
