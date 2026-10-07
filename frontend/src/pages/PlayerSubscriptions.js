@@ -820,7 +820,7 @@ function PlayerSubscriptions() {
                   paginatedSubscriptions.map((subscription) => {
                     const isSelected = selectedSubscriptionId === subscription.id;
                     return (
-                      <tr key={subscription.id}>
+                      <React.Fragment key={subscription.id}>
                         <tr
                           className={isSelected ? "player-subscriptions-row-selected" : ""}
                           tabIndex={0}
@@ -937,7 +937,8 @@ function PlayerSubscriptions() {
                             </td>
                           </tr>
                         )}
-                      </tr>
+                        </tr>
+                      </React.Fragment>
                     );
                   })
                 )}
