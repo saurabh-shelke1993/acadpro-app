@@ -498,3 +498,39 @@
     width:calc(100% - 118px);
   }
 }
+
+/* Standard management actions: compact edit/delete icons across breakpoints. */
+.centers-row-actions{align-items:center;justify-content:flex-end;gap:.35rem}
+.centers-row-actions button{
+  width:34px;
+  min-width:34px;
+  height:34px;
+  padding:0;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:var(--ap-radius-md);
+  font-size:14px;
+  line-height:1;
+}
+.centers-row-actions .centers-delete-button:hover{
+  color:var(--ap-danger-600);
+  background:var(--ap-danger-50);
+  border-color:var(--ap-danger-100);
+}
+@media(max-width:640px){
+  .centers-page-owner .centers-table{
+    width:100%;
+    min-width:0;
+    table-layout:fixed;
+  }
+  .centers-page-owner .centers-name-cell{width:calc(100% - 78px)}
+  .centers-page-owner .centers-actions-heading,
+  .centers-page-owner .centers-actions-cell{width:78px}
+  .centers-page-owner .centers-row-actions{opacity:1;pointer-events:auto}
+  .centers-page-owner .centers-row-actions button{
+    width:32px;
+    min-width:32px;
+    height:32px;
+  }
+}
