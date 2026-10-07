@@ -689,3 +689,19 @@
   .coaches-page .coaches-actions-cell{width:35%}
   .coaches-page .coaches-action-button{padding:.3rem .4rem;font-size:10px}
 }
+
+
+/* Academy Owner: academy is implicit; coach directory only needs coach + actions. */
+.coaches-page-owner .coaches-table{min-width:0;table-layout:fixed}
+.coaches-page-owner .coaches-name-cell{width:auto}
+.coaches-page-owner .coaches-actions-cell{width:150px}
+@media(max-width:900px){
+  .coaches-page-owner .coaches-table th,
+  .coaches-page-owner .coaches-table td{padding:.6rem .65rem}
+  .coaches-page-owner .coaches-actions-cell{width:140px}
+}
+@media(max-width:640px){
+  .coaches-page-owner .coaches-actions-cell{width:120px}
+  .coaches-page-owner .coaches-row-actions{opacity:1;pointer-events:auto}
+  .coaches-page-owner .coaches-action-button{padding:.3rem .4rem;font-size:10px}
+}
