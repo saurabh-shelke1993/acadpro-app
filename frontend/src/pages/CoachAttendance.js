@@ -291,11 +291,11 @@ return (
               <strong>{players.length}</strong>
             </div>
             <div className="attendance-summary-item attendance-summary-present">
-              <span>Present</span>
+              <span className="attendance-choice-label">P</span>
               <strong>{players.filter((player) => player.status === "present").length}</strong>
             </div>
             <div className="attendance-summary-item attendance-summary-absent">
-              <span>Absent</span>
+              <span className="attendance-choice-label">A</span>
               <strong>{players.filter((player) => player.status === "absent").length}</strong>
             </div>
             <div className="attendance-summary-item attendance-summary-unmarked">
@@ -352,8 +352,8 @@ return (
               <tr>
                 <th scope="col">#</th>
                 <th scope="col">Player Name</th>
-                <th scope="col">Present</th>
-                <th scope="col">Absent</th>
+                <th scope="col">P</th>
+                <th scope="col">A</th>
               </tr>
             </thead>
             <tbody>
@@ -366,7 +366,7 @@ return (
                       {!player.status ? <span>Not marked</span> : null}
                     </td>
                     <td>
-                      <label className={`attendance-choice ${player.status === "present" ? "attendance-choice-selected attendance-choice-present" : ""}`}>
+                      <label className={`attendance-choice attendance-choice-present ${player.status === "present" ? "attendance-choice-selected" : ""}`}>
                         <input
                           type="radio"
                           name={`attendance-${player.id}`}
@@ -378,7 +378,7 @@ return (
                       </label>
                     </td>
                     <td>
-                      <label className={`attendance-choice ${player.status === "absent" ? "attendance-choice-selected attendance-choice-absent" : ""}`}>
+                      <label className={`attendance-choice attendance-choice-absent ${player.status === "absent" ? "attendance-choice-selected" : ""}`}>
                         <input
                           type="radio"
                           name={`attendance-${player.id}`}
