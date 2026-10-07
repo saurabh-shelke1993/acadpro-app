@@ -477,7 +477,7 @@ function Coaches() {
 
   return (
     <Layout>
-      <div className="coaches-page">
+      <div className={`coaches-page${isAcademyOwner(user) ? " coaches-page-owner" : ""}`}>
         <div className="coaches-page-header">
           <div>
             <span className="coaches-page-eyebrow">
@@ -672,45 +672,18 @@ function Coaches() {
 
                 {isSuperAdmin(user) && (
                   <th scope="col">
-                    {renderColumnFilter(
-                      "academy",
-                      "Academy",
-                      filterOptions.academy
-                    )}
+                    {renderColumnFilter("academy", "Academy", filterOptions.academy)}
                   </th>
                 )}
 
-                <th scope="col">
-                  {renderColumnFilter(
-                    "email",
-                    "Email",
-                    filterOptions.email
-                  )}
-                </th>
-
-                <th scope="col">
-                  {renderColumnFilter(
-                    "phone",
-                    "Phone",
-                    filterOptions.phone
-                  )}
-                </th>
-
-                <th scope="col">
-                  {renderColumnFilter(
-                    "specialization",
-                    "Specialization",
-                    filterOptions.specialization
-                  )}
-                </th>
-
-                <th scope="col">
-                  {renderColumnFilter(
-                    "status",
-                    "Status",
-                    filterOptions.status
-                  )}
-                </th>
+                {!isAcademyOwner(user) && (
+                  <>
+                    <th scope="col">{renderColumnFilter("email", "Email", filterOptions.email)}</th>
+                    <th scope="col">{renderColumnFilter("phone", "Phone", filterOptions.phone)}</th>
+                    <th scope="col">{renderColumnFilter("specialization", "Specialization", filterOptions.specialization)}</th>
+                    <th scope="col">{renderColumnFilter("status", "Status", filterOptions.status)}</th>
+                  </>
+                )}
 
                 {canManageCoaches && (
                   <th scope="col">Actions</th>
@@ -771,25 +744,18 @@ function Coaches() {
                         </td>
                       )}
 
-                      <td>{coach.email || "—"}</td>
-                      <td>{coach.phone || "—"}</td>
-                      <td>
-                        {coach.specialization || "—"}
-                      </td>
-
-                      <td>
-                        <span
-                          className={
-                            coach.is_active
-                              ? "coach-status-badge"
-                              : "coach-status-badge coach-status-badge-inactive"
-                          }
-                        >
-                          {coach.is_active
-                            ? "Active"
-                            : "Inactive"}
-                        </span>
-                      </td>
+                      {!isAcademyOwner(user) && (
+                        <>
+                          <td>{coach.email || "—"}</td>
+                          <td>{coach.phone || "—"}</td>
+                          <td>{coach.specialization || "—"}</td>
+                          <td>
+                            <span className={coach.is_active ? "coach-status-badge" : "coach-status-badge coach-status-badge-inactive"}>
+                              {coach.is_active ? "Active" : "Inactive"}
+                            </span>
+                          </td>
+                        </>
+                      )}
 
                       {canManageCoaches && (
                         <td className="coaches-actions-cell">
@@ -840,7 +806,7 @@ function Coaches() {
                   <td
                     className="coaches-empty-state"
                     colSpan={
-                      (isSuperAdmin(user) ? 6 : 5) +
+                      (isAcademyOwner(user) ? 1 : (isSuperAdmin(user) ? 6 : 5)) +
                       (canManageCoaches ? 1 : 0)
                     }
                   >
