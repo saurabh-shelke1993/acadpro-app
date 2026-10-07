@@ -822,7 +822,7 @@ const formatBatchSchedule = (startTimeValue, endTimeValue) => {
 
 return (
   <Layout>
-    <div className={`batches-page${isCoach(user) ? " batches-page-coach" : ""}`}>
+    <div className={`batches-page${isCoach(user) ? " batches-page-coach" : ""}${isAcademyOwner(user) ? " batches-page-owner" : ""}`}>
       <div className="batches-page-header">
         <div>
           <span className="batches-page-eyebrow">Academy management</span>
