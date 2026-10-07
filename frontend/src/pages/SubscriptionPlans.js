@@ -309,7 +309,7 @@ function SubscriptionPlans() {
                   paginatedPlans.map((plan) => {
                     const isSelected = selectedPlanId === plan.id;
                     return (
-                      <tr key={plan.id}>
+                      <React.Fragment key={plan.id}>
                         <tr
                           className={isSelected ? "subscription-plans-row-selected" : ""}
                           tabIndex={0}
@@ -394,7 +394,8 @@ function SubscriptionPlans() {
                             </td>
                           </tr>
                         )}
-                      </tr>
+                        </tr>
+                      </React.Fragment>
                     );
                   })
                 }
