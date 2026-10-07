@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import DashboardCharts from "../DashboardCharts";
 import "./AcademyOwnerDashboard.css";
 
 const formatCurrency = (value) =>
@@ -23,22 +22,6 @@ function KpiCard({ label, value, detail, to, tone = "blue" }) {
       {content}
     </Link>
   ) : content;
-}
-
-function AttentionItem({ item }) {
-  return (
-    <Link className="ao-attention-item" to={item.to}>
-      <span className={`ao-attention-icon ao-attention-icon-${item.tone}`}>
-        {item.icon}
-      </span>
-      <span className="ao-attention-content">
-        <strong>{item.title}</strong>
-        <b>{item.value}</b>
-        <small>{item.message}</small>
-      </span>
-      <span className="ao-attention-arrow" aria-hidden="true">→</span>
-    </Link>
-  );
 }
 
 function CenterPerformance({ centers }) {
@@ -113,31 +96,6 @@ function AcademyOwnerDashboard({ user, data, onRefresh }) {
 
   return (
     <div className="ao-dashboard">
-      <header className="ao-dashboard-header">
-        <div>
-          <span className="ao-eyebrow">Academy Owner · Command Center</span>
-          <h1>Academy overview</h1>
-          <p>
-            Welcome back, <strong>{user?.full_name}</strong>. Monitor today's
-            operations and move directly to the areas that need action.
-          </p>
-        </div>
-
-        <div className="ao-header-actions">
-          <span className="ao-role-pill">Academy Owner</span>
-          <span className="ao-date">
-            {new Intl.DateTimeFormat("en-IN", {
-              day: "numeric",
-              month: "short",
-              year: "numeric"
-            }).format(new Date())}
-          </span>
-          <button type="button" className="ao-refresh-button" onClick={onRefresh}>
-            Refresh
-          </button>
-        </div>
-      </header>
-
       <section className="ao-section ao-section-first">
         <div className="ao-section-heading">
           <div>
@@ -224,38 +182,6 @@ function AcademyOwnerDashboard({ user, data, onRefresh }) {
       <section className="ao-section">
         <div className="ao-section-heading">
           <div>
-            <span className="ao-kicker">Needs attention</span>
-            <h2>Action queue</h2>
-          </div>
-          <span className="ao-helper">Operational exceptions first</span>
-        </div>
-
-        {attentionItems.length ? (
-          <div className="ao-attention-grid">
-            {attentionItems.map((item) => (
-              <AttentionItem
-                key={`${item.type}-${item.id || item.title}`}
-                item={item}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="ao-clear-card">
-            <span>✓</span>
-            <div>
-              <strong>No immediate exceptions detected</strong>
-              <small>
-                Today's attendance coverage and current financial balances do not
-                require dashboard follow-up.
-              </small>
-            </div>
-          </div>
-        )}
-      </section>
-
-      <section className="ao-section">
-        <div className="ao-section-heading">
-          <div>
             <span className="ao-kicker">Center performance</span>
             <h2>Centers at a glance</h2>
           </div>
@@ -317,49 +243,6 @@ function AcademyOwnerDashboard({ user, data, onRefresh }) {
         </div>
       </section>
 
-      <section className="ao-section">
-        <div className="ao-section-heading">
-          <div>
-            <span className="ao-kicker">Trends</span>
-            <h2>Academy pulse</h2>
-          </div>
-          <span className="ao-helper">Historical context belongs here, not in the action queue</span>
-        </div>
-
-        <DashboardCharts
-          attendanceTrend={data?.attendanceTrend || []}
-          collectionsTrend={data?.collectionsTrend || []}
-          showSummary={false}
-        />
-      </section>
-
-      <section className="ao-section ao-section-last">
-        <div className="ao-section-heading">
-          <div>
-            <span className="ao-kicker">Quick actions</span>
-            <h2>Common tasks</h2>
-          </div>
-        </div>
-
-        <div className="ao-actions">
-          <Link className="ao-action" to="/players">
-            <span>+</span>
-            <div><strong>Add / manage players</strong><small>Open the player workspace</small></div>
-          </Link>
-          <Link className="ao-action" to="/attendance">
-            <span>✓</span>
-            <div><strong>Mark attendance</strong><small>Record today's attendance</small></div>
-          </Link>
-          <Link className="ao-action" to="/payment-dues">
-            <span>₹</span>
-            <div><strong>Generate / review dues</strong><small>Manage outstanding payment dues</small></div>
-          </Link>
-          <Link className="ao-action" to="/payment-collections">
-            <span>↗</span>
-            <div><strong>Collect payment</strong><small>Record a payment and issue a receipt</small></div>
-          </Link>
-        </div>
-      </section>
     </div>
   );
 }
