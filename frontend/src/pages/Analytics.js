@@ -534,8 +534,6 @@ function Analytics() {
     ? academies.find((academy) => academy.id === selectedAcademyId)?.academy_name
     : "";
 
-  const scopeDescription = selectedAcademyName ||
-    (isSuperAdmin(user) ? "All accessible academies" : "Current access scope");
 
   if (loading) {
     return (
@@ -585,24 +583,6 @@ function Analytics() {
   return (
     <Layout>
       <div className="analytics-page">
-        <header className="analytics-header">
-          <div>
-            <span className="dashboard-eyebrow">Historical intelligence</span>
-            <h1 className="dashboard-title">Analytics</h1>
-            <p className="dashboard-subtitle">
-              Understand how academy performance is changing over time.
-              {` · ${scopeDescription}`}
-            </p>
-          </div>
-
-          <div className="analytics-header-actions">
-            <span className="analytics-scope">{user?.role?.replaceAll("_", " ")}</span>
-            <button type="button" className="analytics-refresh-button" onClick={() => setRefreshKey((value) => value + 1)}>
-              Refresh
-            </button>
-          </div>
-        </header>
-
         <section className="analytics-toolbar">
           <div className="analytics-tabs" role="tablist" aria-label="Analytics sections">
             {visibleTabs.map((tab) => (
