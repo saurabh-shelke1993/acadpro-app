@@ -325,7 +325,7 @@ if (!user) {
 
 return (
   <Layout>
-    <div className={`centers-page${isCoach(user) ? " centers-page-coach" : ""}`}>
+    <div className={`centers-page${isCoach(user) ? " centers-page-coach" : ""}${isAcademyOwner(user) ? " centers-page-owner" : ""}`}>
 
       <div className="centers-page-header">
         <div>
@@ -391,7 +391,7 @@ return (
 
         <thead>
   <tr>
-    <th scope="col">Academy</th>
+    {!isAcademyOwner(user) && <th scope="col">Academy</th>}
     <th scope="col">Center Name</th>
     {(isSuperAdmin(user) || isAcademyOwner(user)) && (
       <th scope="col" className="centers-actions-heading">Actions</th>
@@ -402,7 +402,7 @@ return (
 <tbody>
   {filteredCenters.length === 0 ? (
     <tr>
-      <td className="centers-empty-state" colSpan={3}>
+      <td className="centers-empty-state" colSpan={isAcademyOwner(user) ? 2 : 3}>
         <strong>No active centers</strong>
         <span>{isSuperAdmin(user) && selectedAcademy ? "No centers match the selected academy." : "No active centers are available in your current scope."}</span>
       </td>
@@ -428,7 +428,7 @@ return (
           }}
           tabIndex={0}
         >
-          <td className="centers-academy-cell">{academyName}</td>
+          {!isAcademyOwner(user) && <td className="centers-academy-cell">{academyName}</td>}
           <td className="centers-name-cell">
             <Link
               className="centers-drilldown-link"
