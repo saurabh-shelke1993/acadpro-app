@@ -298,3 +298,105 @@
   .subscription-plans-table th:nth-child(7),.subscription-plans-table td:nth-child(7){width:18%}
   .subscription-plans-action-button{padding:.3rem .4rem;font-size:10px}
 }
+
+
+/* Mobile plan list: show only Plan and Recurring Amount; actions appear after row selection. */
+.subscription-plans-mobile-actions-row,
+.subscription-plans-mobile-actions-cell {
+  display: none;
+}
+
+.subscription-plans-row-selected {
+  background: var(--ap-primary-50);
+  box-shadow: inset 3px 0 0 var(--ap-primary-600);
+}
+
+.subscription-plans-mobile-row-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: .5rem;
+}
+
+.subscription-plans-mobile-row-actions .subscription-plans-action-button {
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  min-height: 34px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+@media (max-width: 640px) {
+  .subscription-plans-table {
+    min-width: 0;
+    table-layout: fixed;
+  }
+
+  .subscription-plans-table th:nth-child(1),
+  .subscription-plans-table td:nth-child(1) {
+    display: none;
+  }
+
+  .subscription-plans-table th:nth-child(3),
+  .subscription-plans-table td:nth-child(3),
+  .subscription-plans-table th:nth-child(5),
+  .subscription-plans-table td:nth-child(5),
+  .subscription-plans-table th:nth-child(6),
+  .subscription-plans-table td:nth-child(6),
+  .subscription-plans-table th:nth-child(7),
+  .subscription-plans-table td:nth-child(7) {
+    display: none;
+  }
+
+  .subscription-plans-table th:nth-child(2),
+  .subscription-plans-table td:nth-child(2) {
+    width: 62%;
+  }
+
+  .subscription-plans-table th:nth-child(4),
+  .subscription-plans-table td:nth-child(4) {
+    width: 38%;
+  }
+
+  .subscription-plans-row-actions {
+    display: none;
+  }
+
+  .subscription-plans-mobile-actions-row {
+    display: table-row;
+  }
+
+  .subscription-plans-mobile-actions-cell {
+    display: table-cell;
+    padding: .5rem .6rem !important;
+    border-top: 0 !important;
+    border-bottom: 1px solid var(--ap-border) !important;
+    background: var(--ap-slate-50);
+  }
+
+  .subscription-plans-table td {
+    padding: .55rem .6rem;
+    font-size: 12px;
+  }
+
+  .subscription-plans-plan-cell {
+    min-width: 0;
+  }
+
+  .subscription-plans-plan-cell strong,
+  .subscription-plans-plan-cell span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+@media (min-width: 641px) {
+  .subscription-plans-mobile-actions-row {
+    display: none !important;
+  }
+}
