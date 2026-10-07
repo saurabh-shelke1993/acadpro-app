@@ -59,6 +59,7 @@ const [showGenerateDueModal, setShowGenerateDueModal] = useState(false);
   const [duesList, setDuesList] = useState([]);
 
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedDueId, setSelectedDueId] = useState(null);
 
   const [columnFilters, setColumnFilters] = useState({
     academy: "",
@@ -878,26 +879,90 @@ return (
                   <th scope="col">Due Date</th><th scope="col">Due Age</th><th scope="col">Total</th><th scope="col">Paid</th><th scope="col">Remaining</th><th scope="col">Status</th><th scope="col">Actions</th>
                 </tr></thead>
               <tbody>
-                {paginatedDues.map((due) => (
-                  <tr key={due.id} className="payment-due-row">
-                    <td>{due.players?.academies?.academy_name || "-"}</td>
-                    <td>{due.players?.centers?.center_name || "-"}</td>
-                    <td>{due.players?.batches?.batch_name || "-"}</td>
-                    <td className="payment-player-cell">{due.players?.full_name || "-"}</td>
-                    <td>{due.player_subscriptions?.subscription_plans?.plan_name || "-"}</td>
-                    <td><span className="payment-type-badge">{due.due_type}</span></td>
-                    <td className="payment-date-cell">{formatDate(due.due_date)}</td>
-                    <td><span className={`payment-due-age ${getDueAge(due.due_date, due.due_status).className}`}>{getDueAge(due.due_date, due.due_status).label}</span></td>
-                    <td className="payment-money-cell">{formatCurrency(due.total_amount)}</td>
-                    <td className="payment-money-cell">{formatCurrency(due.paid_amount)}</td>
-                    <td className="payment-remaining-cell">{formatCurrency(due.remaining_amount)}</td>
-                    <td><span className={`payment-status-badge payment-status-${due.due_status}`}>{due.due_status === "paid" ? "Paid" : due.due_status === "partial" ? "Partial" : "Pending"}</span></td>
-                    <td className="payment-actions-cell"><div className="payment-action-group">
-                      {due.due_status !== "paid" && <button type="button" className="payment-secondary-button" onClick={() => navigate("/payment-collections", { state: { dueId: due.id } })}>Record Payment</button>}
-                      {canGenerateDue(loggedInUser) && <><button type="button" className="payment-text-button" onClick={() => startEdit(due)} aria-label={`Edit due for ${due.players?.full_name || "player"}`}>Edit</button><button type="button" className="payment-danger-button" onClick={() => deleteDue(due)} aria-label={`Delete due for ${due.players?.full_name || "player"}`}>Delete</button></>}
-                    </div></td>
-                  </tr>
-                ))}
+                {paginatedDues.map((due) => {
+                  const isSelected = selectedDueId === due.id;
+                  return (
+                    <React.Fragment key={due.id}>
+                      <tr
+                        key={due.id}
+                        className={`payment-due-row ${isSelected ? "payment-due-row-selected" : ""}`}
+                        tabIndex={0}
+                        onClick={() => setSelectedDueId(due.id)}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
+                            setSelectedDueId(due.id);
+                          }
+                        }}
+                      >
+                        <td>{due.players?.academies?.academy_name || "-"}</td>
+                        <td>{due.players?.centers?.center_name || "-"}</td>
+                        <td>{due.players?.batches?.batch_name || "-"}</td>
+                        <td className="payment-player-cell">{due.players?.full_name || "-"}</td>
+                        <td>{due.player_subscriptions?.subscription_plans?.plan_name || "-"}</td>
+                        <td><span className="payment-type-badge">{due.due_type}</span></td>
+                        <td className="payment-date-cell">{formatDate(due.due_date)}</td>
+                        <td><span className={`payment-due-age ${getDueAge(due.due_date, due.due_status).className}`}>{getDueAge(due.due_date, due.due_status).label}</span></td>
+                        <td className="payment-money-cell">{formatCurrency(due.total_amount)}</td>
+                        <td className="payment-money-cell">{formatCurrency(due.paid_amount)}</td>
+                        <td className="payment-remaining-cell">{formatCurrency(due.remaining_amount)}</td>
+                        <td><span className={`payment-status-badge payment-status-${due.due_status}`}>{due.due_status === "paid" ? "Paid" : due.due_status === "partial" ? "Partial" : "Pending"}</span></td>
+                        <td className="payment-actions-cell"><div className="payment-action-group">
+                          {due.due_status !== "paid" && <button type="button" className="payment-secondary-button" onClick={(event) => { event.stopPropagation(); navigate("/payment-collections", { state: { dueId: due.id } }); }}>Record Payment</button>}
+                          {canGenerateDue(loggedInUser) && <><button type="button" className="payment-text-button" onClick={(event) => { event.stopPropagation(); startEdit(due); }} aria-label={`Edit due for ${due.players?.full_name || "player"}`}>Edit</button><button type="button" className="payment-danger-button" onClick={(event) => { event.stopPropagation(); deleteDue(due); }} aria-label={`Delete due for ${due.players?.full_name || "player"}`}>Delete</button></>}
+                        </div></td>
+                      </tr>
+                      {isSelected && (
+                        <tr className="payment-due-mobile-actions-row">
+                          <td colSpan="13" className="payment-due-mobile-actions-cell">
+                            <div className="payment-due-mobile-actions">
+                              {due.due_status !== "paid" && (
+                                <button
+                                  type="button"
+                                  className="payment-secondary-button"
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    navigate("/payment-collections", { state: { dueId: due.id } });
+                                  }}
+                                >
+                                  Record Payment
+                                </button>
+                              )}
+                              {canGenerateDue(loggedInUser) && (
+                                <>
+                                  <button
+                                    type="button"
+                                    className="payment-text-button payment-mobile-icon-button"
+                                    onClick={(event) => {
+                                      event.stopPropagation();
+                                      startEdit(due);
+                                    }}
+                                    aria-label={`Edit due for ${due.players?.full_name || "player"}`}
+                                    title="Edit due"
+                                  >
+                                    ✏️
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="payment-danger-button payment-mobile-icon-button"
+                                    onClick={(event) => {
+                                      event.stopPropagation();
+                                      deleteDue(due);
+                                    }}
+                                    aria-label={`Delete due for ${due.players?.full_name || "player"}`}
+                                    title="Delete due"
+                                  >
+                                    🗑️
+                                  </button>
+                                </>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  );
+                })}
               </tbody>
             </table>
           </div>
