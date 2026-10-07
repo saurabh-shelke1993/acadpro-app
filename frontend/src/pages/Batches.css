@@ -945,3 +945,33 @@
   .batches-page-owner .batches-actions-cell{width:15%}
   .batches-page-owner .batches-edit-button,.batches-page-owner .batches-delete-button{padding:.3rem .4rem;font-size:10px}
 }
+
+
+/* Academy Owner: compact mobile/tablet batch list without horizontal scrolling. */
+.batches-action-icon{display:none}
+.batches-action-label{display:inline}
+@media(max-width:900px){
+  .batches-page-owner .batches-table{min-width:0;table-layout:fixed}
+  .batches-page-owner .batches-table th:nth-child(4),
+  .batches-page-owner .batches-table td:nth-child(4){display:none}
+  .batches-page-owner .batches-center-cell{width:32%}
+  .batches-page-owner .batches-name-cell{width:32%}
+  .batches-page-owner .batches-schedule-cell{width:22%;white-space:normal;line-height:1.25}
+  .batches-page-owner .batches-actions-cell{width:14%}
+}
+@media(max-width:640px){
+  .batches-page-owner .batches-row-actions{opacity:0;pointer-events:none;transform:none}
+  .batches-page-owner .batches-row-selected .batches-row-actions{opacity:1;pointer-events:auto}
+  .batches-page-owner .batches-action-icon{display:inline}
+  .batches-page-owner .batches-action-label{display:none}
+  .batches-page-owner .batches-row-actions{gap:4px}
+  .batches-page-owner .batches-row-actions button{
+    width:30px;
+    min-width:30px;
+    min-height:30px;
+    padding:.25rem;
+    font-size:15px;
+    line-height:1;
+  }
+  .batches-page-owner .batches-schedule-cell{font-size:11px}
+}
