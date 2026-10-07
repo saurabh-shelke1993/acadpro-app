@@ -678,3 +678,113 @@
   .player-subscriptions-table th:nth-child(8),.player-subscriptions-table td:nth-child(8){width:10%}
   .player-subscriptions-table th:nth-child(9),.player-subscriptions-table td:nth-child(9){width:10%}
 }
+
+
+/* Mobile player subscriptions: show Player, Plan and Amount; actions appear after player-row selection. */
+.player-subscriptions-mobile-actions-row,
+.player-subscriptions-mobile-actions-cell {
+  display: none;
+}
+
+.player-subscriptions-row-selected {
+  background: var(--ap-primary-50);
+  box-shadow: inset 3px 0 0 var(--ap-primary-600);
+}
+
+.player-subscriptions-mobile-row-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: .5rem;
+}
+
+.player-subscriptions-mobile-row-actions .player-subscriptions-action-button {
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  min-height: 34px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+@media (max-width: 640px) {
+  .player-subscriptions-table {
+    min-width: 0;
+    table-layout: fixed;
+  }
+
+  .player-subscriptions-table th:nth-child(1),
+  .player-subscriptions-table td:nth-child(1),
+  .player-subscriptions-table th:nth-child(2),
+  .player-subscriptions-table td:nth-child(2),
+  .player-subscriptions-table th:nth-child(3),
+  .player-subscriptions-table td:nth-child(3),
+  .player-subscriptions-table th:nth-child(7),
+  .player-subscriptions-table td:nth-child(7),
+  .player-subscriptions-table th:nth-child(8),
+  .player-subscriptions-table td:nth-child(8),
+  .player-subscriptions-table th:nth-child(9),
+  .player-subscriptions-table td:nth-child(9),
+  .player-subscriptions-table th:nth-child(10),
+  .player-subscriptions-table td:nth-child(10) {
+    display: none;
+  }
+
+  .player-subscriptions-table th:nth-child(4),
+  .player-subscriptions-table td:nth-child(4) {
+    width: 40%;
+  }
+
+  .player-subscriptions-table th:nth-child(5),
+  .player-subscriptions-table td:nth-child(5) {
+    width: 32%;
+  }
+
+  .player-subscriptions-table th:nth-child(6),
+  .player-subscriptions-table td:nth-child(6) {
+    width: 28%;
+  }
+
+  .player-subscriptions-row-actions {
+    display: none;
+  }
+
+  .player-subscriptions-mobile-actions-row {
+    display: table-row;
+  }
+
+  .player-subscriptions-mobile-actions-cell {
+    display: table-cell;
+    padding: .5rem .6rem !important;
+    border-top: 0 !important;
+    border-bottom: 1px solid var(--ap-border) !important;
+    background: var(--ap-slate-50);
+  }
+
+  .player-subscriptions-table td {
+    padding: .55rem .6rem;
+    font-size: 12px;
+  }
+
+  .player-subscriptions-player-cell,
+  .player-subscriptions-plan-cell {
+    min-width: 0;
+  }
+
+  .player-subscriptions-player-cell strong,
+  .player-subscriptions-plan-cell strong,
+  .player-subscriptions-plan-cell span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+@media (min-width: 641px) {
+  .player-subscriptions-mobile-actions-row {
+    display: none !important;
+  }
+}
