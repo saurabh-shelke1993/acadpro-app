@@ -160,3 +160,77 @@
     gap:.5rem;
   }
 }
+
+
+/* Shared row-action pattern: use the same edit/delete icon treatment as Attendance History. */
+.coach-mapping-row-actions{
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  gap:.35rem;
+}
+.coach-mapping-icon-button{
+  width:34px;
+  min-width:34px;
+  height:34px;
+  padding:0;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid var(--ap-border);
+  border-radius:var(--ap-radius-md);
+  background:var(--ap-surface);
+  color:var(--ap-slate-700);
+  font-size:14px;
+  line-height:1;
+  cursor:pointer;
+}
+.coach-mapping-icon-button:hover:not(:disabled){
+  border-color:var(--ap-primary-100);
+  background:var(--ap-primary-50);
+}
+.coach-mapping-delete-button:hover:not(:disabled){
+  border-color:var(--ap-danger-100);
+  background:var(--ap-danger-50);
+  color:var(--ap-danger-600);
+}
+.coach-mapping-icon-button:disabled{
+  cursor:not-allowed;
+  opacity:.5;
+}
+.coach-mapping-icon-button:focus-visible{
+  outline:2px solid var(--ap-primary-500);
+  outline-offset:2px;
+}
+.coach-mapping-form-actions{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:.5rem;
+}
+.coach-mapping-assignment-card-editing{
+  border-color:var(--ap-primary-200);
+  box-shadow:0 0 0 2px var(--ap-primary-50);
+}
+@media(max-width:800px){
+  .coach-mapping-form-actions{
+    width:100%;
+  }
+  .coach-mapping-form-actions .coach-mapping-primary-button,
+  .coach-mapping-form-actions .coach-mapping-secondary-button{
+    flex:1;
+  }
+}
+@media(max-width:640px){
+  .coach-mapping-mobile-row-actions{
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+    gap:.35rem;
+  }
+  .coach-mapping-mobile-row-actions .coach-mapping-icon-button{
+    width:34px;
+    min-width:34px;
+    height:34px;
+  }
+}
