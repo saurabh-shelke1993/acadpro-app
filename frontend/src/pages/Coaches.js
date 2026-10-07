@@ -676,14 +676,12 @@ function Coaches() {
                   </th>
                 )}
 
-                {!isAcademyOwner(user) && (
-                  <>
-                    <th scope="col">{renderColumnFilter("email", "Email", filterOptions.email)}</th>
-                    <th scope="col">{renderColumnFilter("phone", "Phone", filterOptions.phone)}</th>
-                    <th scope="col">{renderColumnFilter("specialization", "Specialization", filterOptions.specialization)}</th>
-                    <th scope="col">{renderColumnFilter("status", "Status", filterOptions.status)}</th>
-                  </>
-                )}
+                <>
+                  <th scope="col">{renderColumnFilter("email", "Email", filterOptions.email)}</th>
+                  <th scope="col">{renderColumnFilter("phone", "Phone", filterOptions.phone)}</th>
+                  <th scope="col">{renderColumnFilter("specialization", "Specialization", filterOptions.specialization)}</th>
+                  <th scope="col">{renderColumnFilter("status", "Status", filterOptions.status)}</th>
+                </>
 
                 {canManageCoaches && (
                   <th scope="col">Actions</th>
@@ -744,18 +742,16 @@ function Coaches() {
                         </td>
                       )}
 
-                      {!isAcademyOwner(user) && (
-                        <>
-                          <td>{coach.email || "—"}</td>
-                          <td>{coach.phone || "—"}</td>
-                          <td>{coach.specialization || "—"}</td>
-                          <td>
-                            <span className={coach.is_active ? "coach-status-badge" : "coach-status-badge coach-status-badge-inactive"}>
-                              {coach.is_active ? "Active" : "Inactive"}
-                            </span>
-                          </td>
-                        </>
-                      )}
+                      <>
+                        <td>{coach.email || "—"}</td>
+                        <td>{coach.phone || "—"}</td>
+                        <td>{coach.specialization || "—"}</td>
+                        <td>
+                          <span className={coach.is_active ? "coach-status-badge" : "coach-status-badge coach-status-badge-inactive"}>
+                            {coach.is_active ? "Active" : "Inactive"}
+                          </span>
+                        </td>
+                      </>
 
                       {canManageCoaches && (
                         <td className="coaches-actions-cell">
