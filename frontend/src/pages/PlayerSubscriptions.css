@@ -659,3 +659,19 @@
     width: 90px;
   }
 }
+
+
+/* Responsive subscription ledger: keep operational fields visible and drop secondary dates on phones. */
+@media(max-width:900px){
+  .player-subscriptions-table{min-width:0;table-layout:fixed}
+  .player-subscriptions-table th:nth-child(7),.player-subscriptions-table td:nth-child(7),
+  .player-subscriptions-table th:nth-child(8),.player-subscriptions-table td:nth-child(8){display:none}
+}
+@media(max-width:640px){
+  .player-subscriptions-table th:nth-child(2),.player-subscriptions-table td:nth-child(2){width:18%}
+  .player-subscriptions-table th:nth-child(3),.player-subscriptions-table td:nth-child(3){width:22%}
+  .player-subscriptions-table th:nth-child(4),.player-subscriptions-table td:nth-child(4){width:23%}
+  .player-subscriptions-table th:nth-child(5),.player-subscriptions-table td:nth-child(5){width:17%}
+  .player-subscriptions-table th:nth-child(6),.player-subscriptions-table td:nth-child(6){width:10%}
+  .player-subscriptions-table th:nth-child(7),.player-subscriptions-table td:nth-child(7){width:10%}
+}
