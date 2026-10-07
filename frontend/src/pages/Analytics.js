@@ -530,9 +530,6 @@ function Analytics() {
     [user]
   );
 
-  const selectedAcademyName = selectedAcademyId
-    ? academies.find((academy) => academy.id === selectedAcademyId)?.academy_name
-    : "";
 
 
   if (loading) {
