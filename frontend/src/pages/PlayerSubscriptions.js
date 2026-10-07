@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import Layout from "../components/Layout";
 import "./PlayerSubscriptions.css";
 import { supabase } from "../services/supabase";
@@ -53,6 +53,7 @@ function PlayerSubscriptions() {
   const [selectedPlan, setSelectedPlan] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [editingSubscriptionId, setEditingSubscriptionId] = useState(null);
+  const [selectedSubscriptionId, setSelectedSubscriptionId] = useState(null);
   const [startDate, setStartDate] = useState(new Date().toISOString().split("T")[0]);
   const [statusFilter, setStatusFilter] = useState("active");
   const [columnFilters, setColumnFilters] = useState({
@@ -820,7 +821,7 @@ function PlayerSubscriptions() {
                   paginatedSubscriptions.map((subscription) => {
                     const isSelected = selectedSubscriptionId === subscription.id;
                     return (
-                      <React.Fragment key={subscription.id}>
+                      <Fragment key={subscription.id}>
                         <tr
                           className={isSelected ? "player-subscriptions-row-selected" : ""}
                           tabIndex={0}
@@ -937,7 +938,7 @@ function PlayerSubscriptions() {
                             </td>
                           </tr>
                         )}
-                      </React.Fragment>
+                      </Fragment>
                     );
                   })
                 )}
