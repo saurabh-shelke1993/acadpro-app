@@ -1061,6 +1061,7 @@ return (
                   const isSelected = selectedBatchId === batch.id;
 
                   return (
+                    <>
                     <tr
                       key={batch.id}
                       className={isSelected ? "batches-row-selected" : ""}
@@ -1118,6 +1119,37 @@ return (
                         </td>
                       )}
                     </tr>
+                    {isAcademyOwner(user) && isSelected && (
+                      <tr className="batches-mobile-actions-row" aria-label={"Actions for " + (batch.batch_name || "batch")}>
+                        <td colSpan={3}>
+                          <div className="batches-mobile-row-actions">
+                            <button
+                              type="button"
+                              className="batches-edit-button"
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                handleEdit(batch);
+                              }}
+                              aria-label={"Edit " + (batch.batch_name || "batch")}
+                            >
+                              Edit
+                            </button>
+                            <button
+                              type="button"
+                              className="batches-delete-button"
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                handleDelete(batch.id);
+                              }}
+                              aria-label={"Delete " + (batch.batch_name || "batch")}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                    </>
                   );
                 })
               )}
