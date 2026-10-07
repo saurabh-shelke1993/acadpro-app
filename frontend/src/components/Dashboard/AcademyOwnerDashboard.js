@@ -87,8 +87,7 @@ function CenterPerformance({ centers }) {
   );
 }
 
-function AcademyOwnerDashboard({ user, data, onRefresh }) {
-  const attentionItems = data?.attentionItems || [];
+function AcademyOwnerDashboard({ data }) {
   const centers = data?.centers || [];
   const totals = data?.totals || {};
   const attendance = data?.attendance || {};
@@ -200,45 +199,47 @@ function AcademyOwnerDashboard({ user, data, onRefresh }) {
           <span className="ao-helper">Current payment ledger</span>
         </div>
 
-        <div className="ao-financial-grid">
-          <KpiCard
-            label="Total billed"
-            value={formatCurrency(financial.totalBilled)}
-            detail="Current payment due ledger"
-            to="/payment-dues"
-          />
-          <KpiCard
-            label="Collected this month"
-            value={formatCurrency(financial.collectionsThisMonth)}
-            detail={`${financial.collectionRate}% of billed dues collected`}
-            to="/payment-collections"
-            tone="green"
-          />
-          <KpiCard
-            label="Outstanding"
-            value={formatCurrency(financial.outstandingAmount)}
-            detail={`${formatNumber(financial.pendingDues)} pending/partial dues`}
-            to="/payment-dues"
-            tone="orange"
-          />
-        </div>
+        <div className="ao-financial-workspace">
+          <div className="ao-financial-primary">
+            <KpiCard
+              label="Total billed"
+              value={formatCurrency(financial.totalBilled)}
+              detail="Current payment due ledger"
+              to="/payment-dues"
+            />
+            <KpiCard
+              label="Collected this month"
+              value={formatCurrency(financial.collectionsThisMonth)}
+              detail={`${financial.collectionRate}% of billed dues collected`}
+              to="/payment-collections"
+              tone="green"
+            />
+            <KpiCard
+              label="Outstanding"
+              value={formatCurrency(financial.outstandingAmount)}
+              detail={`${formatNumber(financial.pendingDues)} pending/partial dues`}
+              to="/payment-dues"
+              tone="orange"
+            />
+          </div>
 
-        <div className="ao-financial-status">
-          <div>
-            <span>Pending</span>
-            <strong>{formatNumber(financial.pendingDues)}</strong>
-          </div>
-          <div>
-            <span>Partial</span>
-            <strong>{formatNumber(financial.partialDues)}</strong>
-          </div>
-          <div>
-            <span>Paid</span>
-            <strong>{formatNumber(financial.paidDues)}</strong>
-          </div>
-          <div>
-            <span>Collection rate</span>
-            <strong>{financial.collectionRate}%</strong>
+          <div className="ao-financial-status">
+            <div>
+              <span>Pending</span>
+              <strong>{formatNumber(financial.pendingDues)}</strong>
+            </div>
+            <div>
+              <span>Partial</span>
+              <strong>{formatNumber(financial.partialDues)}</strong>
+            </div>
+            <div>
+              <span>Paid</span>
+              <strong>{formatNumber(financial.paidDues)}</strong>
+            </div>
+            <div>
+              <span>Collection rate</span>
+              <strong>{financial.collectionRate}%</strong>
+            </div>
           </div>
         </div>
       </section>
