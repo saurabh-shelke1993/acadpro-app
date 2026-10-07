@@ -925,3 +925,23 @@
   .batches-page-coach .batches-name-cell{width:36%}
   .batches-page-coach .batches-schedule-cell{width:30%;white-space:normal}
 }
+
+
+/* Academy Owner: academy is implicit, so prioritize center, batch, schedule and actions. */
+@media(max-width:900px){
+  .batches-page-owner .batches-table{min-width:0;table-layout:fixed}
+  .batches-page-owner .batches-table th:first-child,.batches-page-owner .batches-table td:first-child{display:none}
+  .batches-page-owner .batches-center-cell{width:24%}
+  .batches-page-owner .batches-name-cell{width:28%}
+  .batches-page-owner .batches-table th:nth-child(4),.batches-page-owner .batches-table td:nth-child(4){width:16%}
+  .batches-page-owner .batches-schedule-cell{width:18%}
+  .batches-page-owner .batches-actions-cell{width:14%}
+}
+@media(max-width:640px){
+  .batches-page-owner .batches-table th:nth-child(4),.batches-page-owner .batches-table td:nth-child(4){display:none}
+  .batches-page-owner .batches-center-cell{width:31%}
+  .batches-page-owner .batches-name-cell{width:31%}
+  .batches-page-owner .batches-schedule-cell{width:23%}
+  .batches-page-owner .batches-actions-cell{width:15%}
+  .batches-page-owner .batches-edit-button,.batches-page-owner .batches-delete-button{padding:.3rem .4rem;font-size:10px}
+}
