@@ -702,7 +702,7 @@ return (
                             onChange={() => handleAttendanceChange(item.player_id, "present")}
                             disabled={disabled}
                           />
-                          <span className="attendance-choice-full">Present</span><span className="attendance-choice-short">P</span>
+                          <span className="attendance-choice-label">P</span>
                         </label>
                       </td>
 
@@ -716,7 +716,7 @@ return (
                             onChange={() => handleAttendanceChange(item.player_id, "absent")}
                             disabled={disabled}
                           />
-                          <span className="attendance-choice-full">Absent</span><span className="attendance-choice-short">A</span>
+                          <span className="attendance-choice-label">A</span>
                         </label>
                       </td>
                     </tr>
