@@ -103,12 +103,17 @@
 }
 
 
-/* Academy Owner: mapping is operationally Coach + Center + Batch. */
-.coach-mapping-page-owner .coach-mapping-table{min-width:0;table-layout:fixed}
+/* Academy Owner: desktop/tablet keep the mapping action column; mobile uses Coach + Center + Batch. */
+.coach-mapping-page-owner .coach-mapping-table{
+  min-width:0;
+  table-layout:fixed;
+}
 .coach-mapping-page-owner .coach-mapping-table th:nth-child(4),
 .coach-mapping-page-owner .coach-mapping-table td:nth-child(4),
 .coach-mapping-page-owner .coach-mapping-table th:nth-child(5),
-.coach-mapping-page-owner .coach-mapping-table td:nth-child(5){display:none}
+.coach-mapping-page-owner .coach-mapping-table td:nth-child(5){
+  display:none;
+}
 .coach-mapping-page-owner .coach-mapping-table th:nth-child(1),
 .coach-mapping-page-owner .coach-mapping-table td:nth-child(1){width:38%}
 .coach-mapping-page-owner .coach-mapping-table th:nth-child(2),
@@ -117,19 +122,41 @@
 .coach-mapping-page-owner .coach-mapping-table td:nth-child(3){width:24%}
 .coach-mapping-page-owner .coach-mapping-table th:nth-child(6),
 .coach-mapping-page-owner .coach-mapping-table td:nth-child(6){width:8%}
-.coach-mapping-page-owner .coach-mapping-row-actions{opacity:0;pointer-events:none}
-.coach-mapping-page-owner .coach-mapping-row-selected .coach-mapping-row-actions,
-.coach-mapping-page-owner .coach-mapping-table tbody tr:hover .coach-mapping-row-actions,
-.coach-mapping-page-owner .coach-mapping-table tbody tr:focus-within .coach-mapping-row-actions{opacity:1;pointer-events:auto}
+
+.coach-mapping-mobile-actions-row{display:none}
+
 @media(max-width:640px){
+  .coach-mapping-page-owner .coach-mapping-table{
+    min-width:0;
+    table-layout:fixed;
+  }
   .coach-mapping-page-owner .coach-mapping-table th,
-  .coach-mapping-page-owner .coach-mapping-table td{padding:.55rem .45rem;font-size:12px}
-  .coach-mapping-page-owner .coach-mapping-table th:nth-child(1),
-  .coach-mapping-page-owner .coach-mapping-table td:nth-child(1){width:34%}
-  .coach-mapping-page-owner .coach-mapping-table th:nth-child(2),
-  .coach-mapping-page-owner .coach-mapping-table td:nth-child(2){width:29%}
-  .coach-mapping-page-owner .coach-mapping-table th:nth-child(3),
-  .coach-mapping-page-owner .coach-mapping-table td:nth-child(3){width:27%}
+  .coach-mapping-page-owner .coach-mapping-table td{
+    padding:.55rem .45rem;
+    font-size:12px;
+  }
   .coach-mapping-page-owner .coach-mapping-table th:nth-child(6),
-  .coach-mapping-page-owner .coach-mapping-table td:nth-child(6){width:10%}
+  .coach-mapping-page-owner .coach-mapping-table td:nth-child(6){
+    display:none;
+  }
+  .coach-mapping-page-owner .coach-mapping-table th:nth-child(1),
+  .coach-mapping-page-owner .coach-mapping-table td:nth-child(1){width:38%}
+  .coach-mapping-page-owner .coach-mapping-table th:nth-child(2),
+  .coach-mapping-page-owner .coach-mapping-table td:nth-child(2){width:31%}
+  .coach-mapping-page-owner .coach-mapping-table th:nth-child(3),
+  .coach-mapping-page-owner .coach-mapping-table td:nth-child(3){width:31%}
+  .coach-mapping-page-owner .coach-mapping-row-actions{display:none}
+  .coach-mapping-page-owner .coach-mapping-mobile-actions-row{
+    display:table-row;
+  }
+  .coach-mapping-page-owner .coach-mapping-mobile-actions-row td{
+    padding:.5rem .6rem;
+    background:var(--ap-slate-50);
+    border-bottom:1px solid var(--ap-border);
+  }
+  .coach-mapping-page-owner .coach-mapping-mobile-row-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:.5rem;
+  }
 }
