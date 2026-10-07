@@ -494,7 +494,7 @@ function PlayerSubscriptions() {
 
   return (
     <Layout>
-      <div className="player-subscriptions-page">
+      <div className={"player-subscriptions-page" + (isSuperAdmin(loggedInUser) ? " player-subscriptions-page-super-admin" : "")}>
         {toast && (
           <div className={"player-subscriptions-toast player-subscriptions-toast-" + toast.type} role="status">
             <span>{toast.type === "success" ? "✓" : "!"}</span>
@@ -820,7 +820,7 @@ function PlayerSubscriptions() {
                   paginatedSubscriptions.map((subscription) => {
                     const isSelected = selectedSubscriptionId === subscription.id;
                     return (
-                      <tbody key={subscription.id}>
+                      <tr key={subscription.id}>
                         <tr
                           className={isSelected ? "player-subscriptions-row-selected" : ""}
                           tabIndex={0}
@@ -937,7 +937,7 @@ function PlayerSubscriptions() {
                             </td>
                           </tr>
                         )}
-                      </tbody>
+                      </tr>
                     );
                   })
                 )}
