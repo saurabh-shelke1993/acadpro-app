@@ -90,6 +90,9 @@ const resetHistoryFilters = () => {
   setHistoryToDate("");
   setHistoryCurrentPage(1);
 };
+const openPaymentDetail = (payment) => setSelectedPaymentDetail(payment);
+const closePaymentDetail = () => setSelectedPaymentDetail(null);
+
 
   const [filteredPayments,
   setFilteredPayments] =
@@ -136,6 +139,9 @@ const [showReceiptModal, setShowReceiptModal] =
 
 const [receiptData, setReceiptData] =
   useState(null);
+
+const [showHistoryFilters, setShowHistoryFilters] = useState(false);
+const [selectedPaymentDetail, setSelectedPaymentDetail] = useState(null);
 
 const receiptRef = useRef(null);
 
@@ -1018,7 +1024,18 @@ return (
             <button type="button" className="payment-clear-filters" onClick={resetHistoryFilters} disabled={!historyAcademy && !historyCenter && !historyBatch && !historyPlayer && !historySearch && !historyPaymentMode && !historyFromDate && !historyToDate}>Clear filters</button>
           </div>
         </div>
-        <div className="payment-list-controls payment-history-controls">
+        <button type="button" className="payment-mobile-filter-trigger" onClick={() => setShowHistoryFilters((visible) => !visible)} aria-expanded={showHistoryFilters}>
+          <span>Filters</span>
+          {[
+            historyAcademy, historyCenter, historyBatch, historyPlayer,
+            historyPaymentMode, historyFromDate, historyToDate
+          ].filter(Boolean).length > 0 && <span className="payment-mobile-filter-count">{[
+            historyAcademy, historyCenter, historyBatch, historyPlayer,
+            historyPaymentMode, historyFromDate, historyToDate
+          ].filter(Boolean).length}</span>}
+          <span aria-hidden="true">{showHistoryFilters ? "−" : "+"}</span>
+        </button>
+        <div className={`payment-list-controls payment-history-controls ${showHistoryFilters ? "payment-history-controls-open" : ""}`}>
           <label className="payment-filter-field"><span>Academy</span><select value={historyAcademy} onChange={(e)=>{setHistoryAcademy(e.target.value);setHistoryCenter("");setHistoryBatch("");setHistoryPlayer("");}}><option value="">All</option>{historyFilterOptions.academies.map(option=><option key={option.id} value={option.id}>{option.name}</option>)}</select></label>
           <label className="payment-filter-field"><span>Center</span><select value={historyCenter} onChange={(e)=>{setHistoryCenter(e.target.value);setHistoryBatch("");setHistoryPlayer("");}}><option value="">All</option>{historyFilterOptions.centers.map(option=><option key={option.id} value={option.id}>{option.name}</option>)}</select></label>
           <label className="payment-filter-field"><span>Batch</span><select value={historyBatch} onChange={(e)=>{setHistoryBatch(e.target.value);setHistoryPlayer("");}}><option value="">All</option>{historyFilterOptions.batches.map(option=><option key={option.id} value={option.id}>{option.name}</option>)}</select></label>
@@ -1034,19 +1051,21 @@ return (
             <table className="payment-data-table">
               <caption className="sr-only">Payment ledger history</caption>
               <thead><tr>
-                {isSuperAdmin(loggedInUser) && <th scope="col">Academy</th>}
-                <th scope="col">Center</th><th scope="col">Batch</th><th scope="col">Player</th><th scope="col">Amount</th><th scope="col">Mode</th><th scope="col">Reference</th><th scope="col">Receipt</th><th scope="col">Entry</th><th scope="col">Payment Date</th>
+                {isSuperAdmin(loggedInUser) && <th scope="col" className="payment-mobile-hide">Academy</th>}
+                <th scope="col" className="payment-mobile-hide">Center</th><th scope="col" className="payment-mobile-hide">Batch</th>
+                <th scope="col">Player</th><th scope="col">Amount</th>
+                <th scope="col" className="payment-mobile-hide">Mode</th><th scope="col" className="payment-mobile-hide">Reference</th><th scope="col" className="payment-mobile-hide">Receipt</th><th scope="col" className="payment-mobile-hide">Entry</th><th scope="col">Payment Date</th>
               </tr></thead>
               <tbody>{paginatedPayments.map((payment)=><tr key={payment.id}>
-                {isSuperAdmin(loggedInUser) && <td>{payment.players?.academies?.academy_name || "-"}</td>}
-                <td>{payment.players?.centers?.center_name || "-"}</td>
-                <td>{payment.players?.batches?.batch_name || "-"}</td>
-                <td className="payment-player-cell">{payment.players?.full_name || "-"}</td>
+                {isSuperAdmin(loggedInUser) && <td className="payment-mobile-hide">{payment.players?.academies?.academy_name || "-"}</td>}
+                <td className="payment-mobile-hide">{payment.players?.centers?.center_name || "-"}</td>
+                <td className="payment-mobile-hide">{payment.players?.batches?.batch_name || "-"}</td>
+                <td className="payment-player-cell"><button type="button" className="payment-player-detail-button" onClick={() => openPaymentDetail(payment)}>{payment.players?.full_name || "-"}</button></td>
                 <td className="payment-amount-cell">₹{Number(payment.amount_paid || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                <td><span className="payment-type-badge">{String(payment.payment_mode || "-").replace(/_/g, " ")}</span></td>
-                <td><span className="payment-reference-cell">{payment.transaction_reference || "-"}</span></td>
-                <td><span className="payment-reference-cell">{payment.receipt_number || "-"}</span></td>
-                <td><span className={`payment-entry-badge payment-entry-${payment.payment_entry_type}`}>{payment.payment_entry_type === "adjustment" ? "Adjustment" : "Payment"}</span></td>
+                <td className="payment-mobile-hide"><span className="payment-type-badge">{String(payment.payment_mode || "-").replace(/_/g, " ")}</span></td>
+                <td className="payment-mobile-hide"><span className="payment-reference-cell">{payment.transaction_reference || "-"}</span></td>
+                <td className="payment-mobile-hide"><span className="payment-reference-cell">{payment.receipt_number || "-"}</span></td>
+                <td className="payment-mobile-hide"><span className={`payment-entry-badge payment-entry-${payment.payment_entry_type}`}>{payment.payment_entry_type === "adjustment" ? "Adjustment" : "Payment"}</span></td>
                 <td>{new Date(payment.payment_date).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}</td>
               </tr>)}</tbody>
             </table>
@@ -1102,6 +1121,26 @@ return (
       )}
 
     </div>
+
+    {selectedPaymentDetail && (
+      <div className="payment-modal-overlay" onMouseDown={(e) => { if (e.target === e.currentTarget) closePaymentDetail(); }}>
+        <div className="payment-modal payment-payment-detail-modal" role="dialog" aria-modal="true" aria-labelledby="payment-detail-title">
+          <div className="payment-modal-header"><div><div className="payment-section-kicker">Payment Details</div><h2 id="payment-detail-title">{selectedPaymentDetail.players?.full_name || "Payment"}</h2></div><button type="button" className="payment-modal-close" onClick={closePaymentDetail} aria-label="Close payment details">×</button></div>
+          <div className="payment-modal-body">
+            <div className="payment-detail-row"><span>Amount</span><strong>₹{Number(selectedPaymentDetail.amount_paid || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></div>
+            <div className="payment-detail-row"><span>Payment Date</span><strong>{new Date(selectedPaymentDetail.payment_date).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}</strong></div>
+            <div className="payment-detail-row"><span>Payment Mode</span><strong>{String(selectedPaymentDetail.payment_mode || "-").replace(/_/g, " ")}</strong></div>
+            <div className="payment-detail-row"><span>Reference</span><strong>{selectedPaymentDetail.transaction_reference || "-"}</strong></div>
+            <div className="payment-detail-row"><span>Receipt</span><strong>{selectedPaymentDetail.receipt_number || "-"}</strong></div>
+            <div className="payment-detail-row"><span>Entry</span><strong>{selectedPaymentDetail.payment_entry_type === "adjustment" ? "Adjustment" : "Payment"}</strong></div>
+            {isSuperAdmin(loggedInUser) && <div className="payment-detail-row"><span>Academy</span><strong>{selectedPaymentDetail.players?.academies?.academy_name || "-"}</strong></div>}
+            <div className="payment-detail-row"><span>Center</span><strong>{selectedPaymentDetail.players?.centers?.center_name || "-"}</strong></div>
+            <div className="payment-detail-row"><span>Batch</span><strong>{selectedPaymentDetail.players?.batches?.batch_name || "-"}</strong></div>
+          </div>
+          <div className="payment-modal-footer"><button type="button" className="payment-secondary-button" onClick={closePaymentDetail}>Close</button></div>
+        </div>
+      </div>
+    )}
 
     {showReceiptModal && receiptData && (
       <div className="receipt-modal-overlay">
