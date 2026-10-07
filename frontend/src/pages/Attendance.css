@@ -685,3 +685,7 @@
 @media(max-width:640px){
   .attendance-choice{min-width:44px;min-height:38px;font-size:13px}
 }
+
+
+/* Final coach attendance control contract: only P/A labels are rendered. */
+.attendance-choice-label{display:inline!important;font-size:inherit;font-weight:800;line-height:1}
