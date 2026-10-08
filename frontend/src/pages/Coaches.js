@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import "./Coaches.css";
 import { supabase } from "../supabaseClient";
@@ -14,6 +15,7 @@ import {
 } from "../utils/roles";
 
 function Coaches() {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [academies, setAcademies] = useState([]);
   const [coaches, setCoaches] = useState([]);
@@ -756,6 +758,19 @@ function Coaches() {
                       {canManageCoaches && (
                         <td className="coaches-actions-cell">
                           <div className="coaches-row-actions">
+                            <button
+                              type="button"
+                              className="coaches-action-button"
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                navigate(`/coaches/${coach.id}`);
+                              }}
+                              aria-label={`View profile of ${coach.full_name}`}
+                              title="View Profile"
+                            >
+                              View
+                            </button>
+
                             <button
                               type="button"
                               className="coaches-action-button"
