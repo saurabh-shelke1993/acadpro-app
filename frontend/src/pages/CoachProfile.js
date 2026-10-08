@@ -443,9 +443,10 @@ const CoachProfile = () => {
               <ProfileField label="Full name" name="full_name" value={form.full_name} onChange={handleChange} required />
               <ProfileField label="Email" name="email" type="email" value={form.email} onChange={handleChange} />
               <ProfileField label="Phone" name="phone" value={form.phone} onChange={handleChange} />
-              <label className="coach-profile-field coach-profile-photo-field">
+              <label htmlFor="coach-profile-photo" className="coach-profile-field coach-profile-photo-field">
                 <span>Profile photo</span>
                 <input
+                  id="coach-profile-photo"
                   type="file"
                   accept="image/png,image/jpeg,image/webp"
                   onChange={handleProfileImageChange}
