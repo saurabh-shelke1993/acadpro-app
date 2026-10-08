@@ -10,7 +10,7 @@
 .payment-form-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}.payment-field{display:flex;flex-direction:column;gap:7px}.payment-field-wide{grid-column:span 2}
 .payment-field>span,.payment-filter-field>span{color:var(--ap-slate-600);font-size:12px;font-weight:700}
 .payment-field input,.payment-field select,.payment-filter-field select,.payment-filter-field input,.payment-field textarea{width:100%;min-height:40px;padding:8px 11px;border:1px solid var(--ap-slate-300);border-radius:8px;background:var(--ap-white);color:var(--ap-slate-900);box-sizing:border-box;font:inherit}
-.payment-field textarea{resize:vertical;min-height:96px}.payment-field input:focus,.payment-field select:focus,.payment-filter-field select:focus,.payment-filter-field input:focus,.payment-field textarea:focus{outline:2px solid rgba(37,99,235,.18);border-color:var(--ap-primary-600)}
+.payment-field textarea{resize:vertical;min-height:96px}
 .payment-form-footer,.payment-modal-footer{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-top:20px}.payment-helper-text{margin-right:auto;color:var(--ap-slate-500);font-size:12px}
 .payment-primary-button,.payment-secondary-button,.payment-text-button,.payment-danger-button{min-height:var(--ap-control-standard-height);padding:8px 13px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;transition:.15s ease}
 .payment-primary-button{border:1px solid var(--ap-primary-600);background:var(--ap-primary-600);color:var(--ap-white)}.payment-primary-button:hover{background:var(--ap-primary-700)}.payment-primary-button:disabled{opacity:.55;cursor:not-allowed}
