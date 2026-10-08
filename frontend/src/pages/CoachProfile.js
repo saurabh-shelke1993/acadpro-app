@@ -186,6 +186,14 @@ const CoachProfile = () => {
     setForm((current) => ({ ...current, [name]: value }));
   };
 
+  const clearProfileImageSelection = () => {
+    if (profileImagePreview?.startsWith("blob:")) {
+      URL.revokeObjectURL(profileImagePreview);
+    }
+    setProfileImageFile(null);
+    setProfileImagePreview("");
+  };
+
   const handleProfileImageChange = (event) => {
     const file = event.target.files?.[0] || null;
 
@@ -201,6 +209,10 @@ const CoachProfile = () => {
       setError("Coach photo must be 2 MB or smaller.");
       event.target.value = "";
       return;
+    }
+
+    if (profileImagePreview?.startsWith("blob:")) {
+      URL.revokeObjectURL(profileImagePreview);
     }
 
     setError("");
@@ -265,8 +277,7 @@ const CoachProfile = () => {
         ...current,
         profile_image: updated?.profile_image || profilePayload.profile_image,
       }));
-      setProfileImageFile(null);
-      setProfileImagePreview("");
+      clearProfileImageSelection();
       setEditing(false);
       setMessage("Profile updated successfully.");
     } catch (saveError) {
@@ -460,7 +471,15 @@ const CoachProfile = () => {
             </div>
 
             <div className="coach-profile-form-actions">
-              <button type="button" className="coach-profile-secondary-button" onClick={() => setEditing(false)} disabled={saving}>
+              <button
+                type="button"
+                className="coach-profile-secondary-button"
+                onClick={() => {
+                  clearProfileImageSelection();
+                  setEditing(false);
+                }}
+                disabled={saving}
+              >
                 Cancel
               </button>
               <button type="submit" className="coach-profile-primary-button" disabled={saving}>
