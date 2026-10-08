@@ -71,6 +71,14 @@
 .coach-profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
 .coach-profile-identity { min-width: 0; flex: 1; }
 .coach-profile-identity h2 { font-size: 1.4rem; }
+
+.coach-profile-hero-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: .5rem;
+  flex-wrap: wrap;
+}
 .coach-profile-identity p { margin: .25rem 0 0; color: var(--ap-slate-500); }
 .coach-profile-status {
   display: inline-flex;
@@ -191,7 +199,22 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 .coach-profile-cert-item span,
 .coach-profile-cert-item small { display: block; }
 .coach-profile-assignment strong,
-.coach-profile-cert-item strong { color: var(--ap-slate-800); font-size: var(--ap-font-size-sm); }
+.coach-profile-assignment-link,
+.coach-profile-cert-item strong {
+  color: var(--ap-slate-800);
+  font-size: var(--ap-font-size-sm);
+}
+
+.coach-profile-assignment-link {
+  display: inline-block;
+  color: var(--ap-primary-700);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.coach-profile-assignment-link:hover {
+  text-decoration: underline;
+}
 .coach-profile-assignment span,
 .coach-profile-cert-item span,
 .coach-profile-cert-item small { margin-top: .18rem; color: var(--ap-slate-500); font-size: var(--ap-font-size-xs); }
@@ -259,7 +282,8 @@ button:disabled { cursor: not-allowed; opacity: .55; }
   .coach-profile-hero,
   .coach-profile-assignment,
   .coach-profile-cert-item { align-items: flex-start; flex-direction: column; }
-  .coach-profile-hero .coach-profile-primary-button { width: 100%; }
+  .coach-profile-hero .coach-profile-hero-actions { width: 100%; }
+  .coach-profile-hero .coach-profile-hero-actions button { flex: 1; }
   .coach-profile-form-grid,
   .coach-profile-details-grid,
   .coach-profile-cert-form { grid-template-columns: 1fr; }
