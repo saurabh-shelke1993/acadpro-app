@@ -143,7 +143,6 @@ describe("CoachProfile role and behavior regression", () => {
           full_name: "Faisal Khan",
           experience_years: "8",
           joining_date: "2025-06-01",
-          profile_image: "https://example.com/faisal.jpg",
           bio: "Updated academy owner bio.",
         })
       );
