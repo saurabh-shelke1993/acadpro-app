@@ -554,3 +554,80 @@
   .payment-data-table .payment-amount-cell { width: 25% !important; }
   .payment-data-table .payment-mobile-payment-date { width: 30% !important; }
 }
+
+
+/* Payment history uses a dedicated mobile table to avoid column-specific responsive conflicts. */
+.payment-history-mobile-table {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .payment-history-desktop-table {
+    display: none !important;
+  }
+
+  .payment-history-mobile-table {
+    display: block !important;
+    overflow-x: hidden;
+  }
+
+  .payment-history-mobile-table .payment-data-table {
+    display: table !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    table-layout: fixed !important;
+  }
+
+  .payment-history-mobile-table .payment-data-table thead,
+  .payment-history-mobile-table .payment-data-table tbody {
+    display: table-row-group !important;
+  }
+
+  .payment-history-mobile-table .payment-data-table tr {
+    display: table-row !important;
+  }
+
+  .payment-history-mobile-table .payment-data-table th,
+  .payment-history-mobile-table .payment-data-table td {
+    display: table-cell !important;
+    visibility: visible !important;
+    padding: 10px 8px;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  .payment-history-mobile-table .payment-data-table th:nth-child(1),
+  .payment-history-mobile-table .payment-data-table td:nth-child(1) {
+    width: 45% !important;
+  }
+
+  .payment-history-mobile-table .payment-data-table th:nth-child(2),
+  .payment-history-mobile-table .payment-data-table td:nth-child(2) {
+    width: 25% !important;
+  }
+
+  .payment-history-mobile-table .payment-data-table th:nth-child(3),
+  .payment-history-mobile-table .payment-data-table td:nth-child(3) {
+    width: 30% !important;
+  }
+
+  .payment-history-mobile-table .payment-player-detail-button {
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--ap-primary-600);
+    font-weight: 700;
+  }
+}
+
+@media (min-width: 641px) {
+  .payment-history-desktop-table {
+    display: block;
+  }
+
+  .payment-history-mobile-table {
+    display: none !important;
+  }
+}
