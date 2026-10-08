@@ -1213,7 +1213,7 @@
 .coach-player-modal{width:min(560px,100%);max-height:min(720px,calc(100vh - 2rem));overflow:auto;box-sizing:border-box;padding:1rem;border:1px solid var(--ap-border);border-radius:var(--ap-radius-xl);background:var(--ap-surface);box-shadow:var(--ap-shadow-lg)}
 .coach-player-modal-header{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;padding-bottom:.8rem;border-bottom:1px solid var(--ap-border)}
 .coach-player-modal-header h2{margin:.15rem 0 0;color:var(--ap-slate-950);font-size:1.25rem}
-.coach-player-modal-close{width:36px;min-width:36px;height:36px;padding:0;border:1px solid var(--ap-border);border-radius:50%;background:var(--ap-surface);color:var(--ap-slate-700);font-size:1.35rem;line-height:1;cursor:pointer}
+.coach-player-modal-close{width:40px;min-width:40px;height:40px;padding:0;border:1px solid var(--ap-border);border-radius:50%;background:var(--ap-surface);color:var(--ap-slate-700);font-size:1.35rem;line-height:1;cursor:pointer}
 .coach-player-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.7rem;margin-top:1rem}
 .coach-player-detail-grid>div{min-width:0;padding:.65rem .7rem;border:1px solid var(--ap-border);border-radius:var(--ap-radius-md);background:var(--ap-slate-50)}
 .coach-player-detail-grid span{display:block;margin-bottom:.2rem;color:var(--ap-slate-500);font-size:var(--ap-font-size-xs)}
