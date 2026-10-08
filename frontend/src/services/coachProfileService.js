@@ -74,6 +74,91 @@ export const getCoachProfile = async (coachId) => {
   return normalizeProfile(data);
 };
 
+const COACH_PHOTO_BUCKET = "coach-photos";
+const COACH_PHOTO_MAX_BYTES = 2 * 1024 * 1024;
+const COACH_PHOTO_TYPES = ["image/png", "image/jpeg", "image/webp"];
+
+export const uploadCoachProfileImage = async (coachId, academyId, file) => {
+  if (!coachId || !academyId) {
+    throw new Error("Coach and academy are required for photo upload.");
+  }
+
+  if (!file) {
+    throw new Error("Please select a coach photo.");
+  }
+
+  if (!COACH_PHOTO_TYPES.includes(file.type)) {
+    throw new Error("Coach photo must be PNG, JPG/JPEG, or WebP.");
+  }
+
+  if (file.size > COACH_PHOTO_MAX_BYTES) {
+    throw new Error("Coach photo must be 2 MB or smaller.");
+  }
+
+  const extension = file.type === "image/png"
+    ? "png"
+    : file.type === "image/webp"
+      ? "webp"
+      : "jpg";
+
+  const path = academyId + "/" + coachId + "/profile-" + Date.now() + "." + extension;
+
+  const { data, error } = await supabase.storage
+    .from(COACH_PHOTO_BUCKET)
+    .upload(path, file, {
+      cacheControl: "3600",
+      contentType: file.type,
+      upsert: false,
+    });
+
+  handleSupabaseError(error, "Failed to upload coach photo.");
+
+  const { data: publicUrlData } = supabase.storage
+    .from(COACH_PHOTO_BUCKET)
+    .getPublicUrl(data.path);
+
+  if (!publicUrlData?.publicUrl) {
+    throw new Error("Coach photo uploaded, but its public URL could not be generated.");
+  }
+
+  return {
+    path: data.path,
+    publicUrl: publicUrlData.publicUrl,
+  };
+};
+
+export const deleteCoachProfileImage = async (path) => {
+  if (!path) return;
+
+  const { error } = await supabase.storage
+    .from(COACH_PHOTO_BUCKET)
+    .remove([path]);
+
+  handleSupabaseError(error, "Failed to remove the previous coach photo.");
+};
+
+const getCoachPhotoStoragePath = (profileImageUrl) => {
+  if (!profileImageUrl) return null;
+
+  try {
+    const url = new URL(profileImageUrl);
+    const marker = "/storage/v1/object/public/coach-photos/";
+    const index = url.pathname.indexOf(marker);
+
+    if (index === -1) return null;
+
+    return decodeURIComponent(url.pathname.slice(index + marker.length));
+  } catch {
+    return null;
+  }
+};
+
+export const deleteCoachProfileImageByUrl = async (profileImageUrl) => {
+  const path = getCoachPhotoStoragePath(profileImageUrl);
+  if (path) {
+    await deleteCoachProfileImage(path);
+  }
+};
 export const updateCoachProfile = async (coachId, profile) => {
   if (!coachId) {
     throw new Error("Coach ID is required.");
