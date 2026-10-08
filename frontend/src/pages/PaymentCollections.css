@@ -650,6 +650,7 @@
 .payment-filter-reset-button:focus-visible,
 .payment-pagination-controls button:focus-visible,
 .payment-mobile-filter-trigger:focus-visible,
+ .payment-modal-close:focus-visible,
 .payment-player-detail-button:focus-visible {
   outline: 3px solid var(--ap-primary-600);
   outline-offset: 2px;
