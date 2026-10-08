@@ -10,18 +10,21 @@
   /* Brand */
   --ap-primary-50: #eff6ff;
   --ap-primary-100: #dbeafe;
+  --ap-primary-200: #bfdbfe;
   --ap-primary-500: #3b82f6;
   --ap-primary-600: #2563eb;
   --ap-primary-700: #1d4ed8;
 
   /* Semantic */
   --ap-success-50: #f0fdf4;
+  --ap-success-100: #dcfce7;
   --ap-success-500: #22c55e;
   --ap-success-600: #16a34a;
   --ap-warning-50: #fffbeb;
   --ap-warning-500: #f59e0b;
   --ap-warning-600: #d97706;
   --ap-danger-50: #fef2f2;
+  --ap-danger-100: #fee2e2;
   --ap-danger-500: #ef4444;
   --ap-danger-600: #dc2626;
   --ap-info-50: #f0f9ff;
@@ -358,7 +361,7 @@ textarea:focus {
    ================================ */
 
 :focus-visible {
-  outline: 3px solid rgba(37, 99, 235, 0.35);
+  outline: 3px solid var(--ap-primary-600);
   outline-offset: 2px;
 }
 
