@@ -723,7 +723,6 @@
   align-items: center;
   justify-content: flex-end;
   gap: .5rem;
-  min-height: 34px;
 }
 
 .payment-due-mobile-actions .payment-secondary-button {
