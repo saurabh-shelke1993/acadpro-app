@@ -174,7 +174,9 @@ describe("CoachProfile role and behavior regression", () => {
     await screen.findByRole("heading", { name: "Faisal Khan" });
     fireEvent.click(screen.getByRole("button", { name: "Edit Profile" }));
 
-    fireEvent.change(screen.getByLabelText("Profile photo"), {
+    const photoInput = document.querySelector('input[type="file"][id="coach-profile-photo"]');
+    expect(photoInput).toBeInTheDocument();
+    fireEvent.change(photoInput, {
       target: { files: [photoFile] },
     });
     fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
