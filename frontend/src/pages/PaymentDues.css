@@ -21,7 +21,6 @@
 .payment-field-wide{grid-column:span 2}
 .payment-field>span,.payment-filter-field>span{color:#475569;font-size:12px;font-weight:700}
 .payment-field input,.payment-field select,.payment-filter-field select{width:100%;min-height:40px;padding:8px 11px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#0f172a;box-sizing:border-box}
-.payment-field input:focus,.payment-field select:focus,.payment-filter-field select:focus{outline:2px solid rgba(37,99,235,.18);border-color:#2563eb}
 .payment-form-footer,.payment-modal-footer{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-top:20px}
 .payment-amount-preview{margin-right:auto;display:flex;align-items:baseline;gap:10px;color:#64748b;font-size:13px}
 .payment-amount-preview strong{color:#0f172a;font-size:20px}
@@ -166,10 +165,6 @@
   color: #334155;
   font-size: 10px;
   font-weight: 600;
-}
-.payment-column-filter select:focus {
-  outline: 2px solid rgba(37,99,235,.18);
-  border-color: #2563eb;
 }
 .payment-data-table td {
   padding: 11px 10px;
@@ -517,10 +512,6 @@
   color: #0f172a;
   font-size: 12px;
   box-sizing: border-box;
-}
-.payment-date-filter-field input:focus {
-  outline: 2px solid rgba(37,99,235,.18);
-  border-color: #2563eb;
 }
 @media (max-width: 760px) {
   .payment-date-filter-field {
