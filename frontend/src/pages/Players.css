@@ -1028,7 +1028,7 @@
 }
 
 .players-list-filter-summary .player-secondary-button {
-  min-height: 32px;
+  min-height: var(--ap-control-standard-height);
   margin-left: 0;
   padding: 0.3rem 0.6rem;
 }
@@ -1128,14 +1128,14 @@
 .players-import-card > section[aria-label="Player Import"] select,
 .players-import-card > section[aria-label="Player Import"] input[type="file"] {
   width: 100%;
-  min-height: 34px;
+  min-height: var(--ap-control-standard-height);
   box-sizing: border-box;
   padding: 0.3rem 0.45rem;
   font-size: var(--ap-font-size-xs);
 }
 
 .players-import-card > section[aria-label="Player Import"] button {
-  min-height: 34px;
+  min-height: var(--ap-control-standard-height);
   padding: 0.35rem 0.6rem;
   font-size: var(--ap-font-size-xs);
 }
