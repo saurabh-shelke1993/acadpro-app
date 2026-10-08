@@ -395,25 +395,6 @@ textarea:focus {
   --ap-text-muted: var(--ap-slate-500);
 }
 
-body {
-  color: var(--ap-text-primary);
-}
-
-input::placeholder,
-textarea::placeholder {
-  color: var(--ap-text-muted);
-}
-
-.ui-button,
-input,
-select {
-  min-height: var(--ap-control-standard-height);
-}
-
-textarea {
-  min-height: var(--ap-control-textarea-min-height);
-}
-
 .ui-button:focus-visible,
 input:focus-visible,
 select:focus-visible,
