@@ -239,17 +239,29 @@ const ParentPortal = () => {
                         : "Not available"
                     }
                   />
-                  <Detail
-                    label="Coaches"
-                    value={
-                      selectedChild.coaches.length > 0
-                        ? selectedChild.coaches
-                            .map((coach) => coach.full_name)
-                            .filter(Boolean)
-                            .join(", ")
-                        : "Not assigned"
-                    }
-                  />
+                  <div>
+                    <span className="parent-portal-detail-label">Coaches</span>
+                    {selectedChild.coaches.length > 0 ? (
+                      <div className="parent-portal-coach-links">
+                        {selectedChild.coaches
+                          .filter((coach) => coach?.id && coach?.full_name)
+                          .map((coach) => (
+                            <button
+                              key={coach.id}
+                              type="button"
+                              className="parent-portal-coach-link"
+                              onClick={() => navigate(`/coaches/${coach.id}`)}
+                              title={`View ${coach.full_name}'s profile`}
+                            >
+                              {coach.full_name}
+                              <span aria-hidden="true">→</span>
+                            </button>
+                          ))}
+                      </div>
+                    ) : (
+                      <p className="parent-portal-detail-value">Not assigned</p>
+                    )}
+                  </div>
                 </div>
               </div>
               </div>
