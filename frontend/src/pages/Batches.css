@@ -170,7 +170,7 @@
 }
 
 .batches-page button {
-  min-height: 38px;
+  min-height: 40px;
   padding: 0.5rem 0.8rem;
   border: 1px solid var(--ap-border);
   border-radius: var(--ap-radius-md);
@@ -346,7 +346,7 @@
 }
 
 .batches-row-actions button {
-  min-height: 32px;
+  min-height: 40px;
   padding: 0.35rem 0.65rem;
 }
 
@@ -395,7 +395,7 @@
 }
 
 .batches-pagination-button {
-  min-height: 34px !important;
+  min-height: 40px !important;
   padding: 0.35rem 0.7rem !important;
   font-size: var(--ap-font-size-xs) !important;
 }
@@ -624,7 +624,7 @@
 
 .batches-page select,
 .batches-page input {
-  min-height: 36px;
+  min-height: 40px;
   padding: 0.4rem 0.65rem;
 }
 
@@ -634,7 +634,7 @@
 }
 
 .batches-page button {
-  min-height: 36px;
+  min-height: 40px;
   padding: 0.4rem 0.7rem;
 }
 
@@ -704,7 +704,7 @@
 }
 
 .batches-list-filter-summary .batches-secondary-button {
-  min-height: 32px;
+  min-height: 40px;
   margin: 0;
   padding: 0.3rem 0.6rem;
 }
@@ -807,7 +807,7 @@
   box-sizing: border-box;
   align-items: center;
   gap: 0.5rem;
-  min-height: 32px;
+  min-height: 40px;
   padding: 0.2rem 0.25rem;
   border-radius: 5px;
   color: var(--ap-slate-700);
@@ -971,7 +971,7 @@
   width:34px;
   min-width:34px;
   height:34px;
-  min-height:34px;
+  min-height:40px;
   padding:0 !important;
   display:inline-flex;
   align-items:center;
