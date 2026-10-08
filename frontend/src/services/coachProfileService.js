@@ -7,7 +7,7 @@ const COACH_PROFILE_SELECT =
   "academies(academy_name), " +
   "coach_batch_assignments(" +
   "id, batch_id, is_active, created_at, " +
-  "batches(batch_name, age_group, start_time, end_time, center_id, " +
+  "batches(id, batch_name, age_group, start_time, end_time, center_id, " +
   "centers(center_name)" +
   ")" +
   ")";
