@@ -141,7 +141,7 @@
 
 .batches-page select:focus-visible,
 .batches-page input:focus-visible {
-  outline: 2px solid var(--ap-primary-500);
+  outline: 3px solid var(--ap-primary-600);
   outline-offset: 2px;
   border-color: var(--ap-primary-300);
 }
