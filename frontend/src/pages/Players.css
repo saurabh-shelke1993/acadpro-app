@@ -786,15 +786,15 @@
   margin-bottom: 0.25rem;
 }
 
-.players-results-filter-grid input,
+ .players-results-filter-grid input,
 .players-results-filter-grid select {
   width: 100%;
-  min-height: 38px;
+  min-height: var(--ap-control-standard-height);
   box-sizing: border-box;
 }
 
-.players-filter-reset-button {
-  min-height: 38px;
+ .players-filter-reset-button {
+  min-height: var(--ap-control-standard-height);
   margin-left: 0;
   white-space: nowrap;
 }
@@ -1265,9 +1265,9 @@
   margin:.75rem 0 0;
 }
 .player-modal-action-button{
-  width:36px;
-  min-width:36px;
-  height:36px;
+  width:var(--ap-control-touch-size);
+  min-width:var(--ap-control-touch-size);
+  height:var(--ap-control-touch-size);
   padding:0;
   display:inline-flex;
   align-items:center;
