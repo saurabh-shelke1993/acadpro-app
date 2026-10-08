@@ -28,6 +28,7 @@ const Batches = () => {
   const [searchParams] = useSearchParams();
   const academyContextId = searchParams.get("academyId") || "";
   const centerContextId = searchParams.get("centerId") || "";
+  const batchContextId = searchParams.get("batchId") || "";
 
   const [academies, setAcademies] =
     useState([]);
@@ -75,7 +76,8 @@ const Batches = () => {
   const filteredBatches = batches.filter((batch) => {
     const matchesContext =
       (!academyContextId || batch.academy_id === academyContextId) &&
-      (!centerContextId || batch.center_id === centerContextId);
+      (!centerContextId || batch.center_id === centerContextId) &&
+      (!batchContextId || batch.id === batchContextId);
 
     const matchesBatch =
       !batchSearchTerm.trim() ||
@@ -279,7 +281,11 @@ const fetchBatches = useCallback(async () => {
 
       setBatches(displayBatches);
       setCurrentPage(1);
-      setSelectedBatchId(null);
+      setSelectedBatchId(
+        batchContextId && displayBatches.some((batch) => batch.id === batchContextId)
+          ? batchContextId
+          : null
+      );
 
       return;
     }
@@ -333,7 +339,11 @@ const scopedBatches =
 
     setBatches(displayBatches);
     setCurrentPage(1);
-    setSelectedBatchId(null);
+    setSelectedBatchId(
+      batchContextId && displayBatches.some((batch) => batch.id === batchContextId)
+        ? batchContextId
+        : null
+    );
 
   } catch (error) {
 
@@ -351,7 +361,8 @@ const scopedBatches =
 }, [
   user,
   centers,
-  academies
+  academies,
+  batchContextId
 ]);
 
 useEffect(() => {
