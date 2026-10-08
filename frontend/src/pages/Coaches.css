@@ -107,7 +107,8 @@
 }
 
 .coaches-field input,
-.coaches-field select {
+.coaches-field select,
+.coaches-field textarea {
   box-sizing: border-box;
   width: 100%;
   min-height: var(--ap-control-standard-height);
@@ -116,6 +117,15 @@
   border-radius: var(--ap-radius-md);
   background: var(--ap-surface);
   color: var(--ap-slate-800);
+}
+
+.coaches-field textarea {
+  min-height: 40px;
+  resize: vertical;
+}
+
+.coaches-field-wide {
+  grid-column: span 2;
 }
 
 .coaches-form-actions {
@@ -274,12 +284,19 @@
   flex: 0 0 32px;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
   border-radius: var(--ap-radius-full);
   background: var(--ap-primary-100);
   color: var(--ap-primary-700);
   font-size: var(--ap-font-size-xs);
   font-weight: 800;
   text-transform: uppercase;
+}
+
+.coach-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .coach-status-badge {
