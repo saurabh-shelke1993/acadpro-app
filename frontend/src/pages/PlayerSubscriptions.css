@@ -34,7 +34,7 @@
 .player-subscriptions-field select,
 .player-subscriptions-field input {
   width: 100%;
-  min-height: 38px;
+  min-height: var(--ap-control-standard-height);
   box-sizing: border-box;
   padding: .45rem .65rem;
   border: 1px solid var(--ap-border);
@@ -52,7 +52,7 @@
 .player-subscriptions-secondary-button:focus-visible,
 .player-subscriptions-action-button:focus-visible,
 .player-subscriptions-pagination button:focus-visible {
-  outline: 2px solid var(--ap-primary-500);
+  outline: 3px solid var(--ap-primary-600);
   outline-offset: 2px;
 }
 
@@ -96,7 +96,7 @@
 }
 
 .player-subscriptions-secondary-button {
-  min-height: 34px;
+  min-height: var(--ap-control-standard-height);
   padding: .4rem .7rem;
   border: 1px solid var(--ap-border);
   border-radius: var(--ap-radius-md);
@@ -128,7 +128,7 @@
 }
 
 .player-subscriptions-primary-button {
-  min-height: 38px;
+  min-height: var(--ap-control-standard-height);
   padding: .45rem .85rem;
   border: 1px solid var(--ap-primary-600);
   border-radius: var(--ap-radius-md);
@@ -357,7 +357,7 @@
 }
 
 .player-subscriptions-action-button {
-  min-height: 34px;
+  min-height: var(--ap-control-standard-height);
   padding: .4rem .65rem;
   border: 1px solid var(--ap-border);
   border-radius: var(--ap-radius-md);
@@ -414,7 +414,7 @@
 }
 
 .player-subscriptions-pagination button {
-  min-height: 34px;
+  min-height: var(--ap-control-standard-height);
   padding: .4rem .65rem;
   border: 1px solid var(--ap-border);
   border-radius: var(--ap-radius-md);
@@ -589,7 +589,7 @@
 }
 
 .player-subscriptions-clear-filters {
-  min-height: 34px;
+  min-height: var(--ap-control-standard-height);
   padding: .4rem .65rem;
   border: 1px solid var(--ap-border);
   border-radius: var(--ap-radius-md);
@@ -624,7 +624,7 @@
 
 .player-subscriptions-table-filter select {
   width: 72px;
-  min-height: 28px;
+  min-height: var(--ap-control-compact-height);
   padding: .2rem 1.25rem .2rem .35rem;
   border: 1px solid transparent;
   border-radius: var(--ap-radius-sm);
@@ -644,8 +644,8 @@
 }
 
 .player-subscriptions-table-filter select:focus-visible {
-  outline: 2px solid var(--ap-primary-500);
-  outline-offset: 1px;
+  outline: 3px solid var(--ap-primary-600);
+  outline-offset: 2px;
 }
 
 @media (max-width: 640px) {
@@ -699,10 +699,10 @@
 }
 
 .player-subscriptions-mobile-row-actions .player-subscriptions-action-button {
-  width: 34px;
-  min-width: 34px;
-  height: 34px;
-  min-height: 34px;
+  width: var(--ap-control-touch-size);
+  min-width: var(--ap-control-touch-size);
+  height: var(--ap-control-touch-size);
+  min-height: var(--ap-control-touch-size);
   padding: 0;
   display: inline-flex;
   align-items: center;

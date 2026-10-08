@@ -678,27 +678,7 @@
 }
 
 
-/* Responsive payment dues: on tablet/phone prioritize player, due, date, balance, status and action. */
-@media(max-width:900px){
-  .payment-data-table{min-width:0;table-layout:fixed}
-  .payment-data-table th:nth-child(1),.payment-data-table td:nth-child(1),
-  .payment-data-table th:nth-child(2),.payment-data-table td:nth-child(2),
-  .payment-data-table th:nth-child(3),.payment-data-table td:nth-child(3),
-  .payment-data-table th:nth-child(5),.payment-data-table td:nth-child(5),
-  .payment-data-table th:nth-child(8),.payment-data-table td:nth-child(8),
-  .payment-data-table th:nth-child(9),.payment-data-table td:nth-child(9),
-  .payment-data-table th:nth-child(10),.payment-data-table td:nth-child(10){display:none}
-}
-@media(max-width:640px){
-  .payment-data-table th:nth-child(6),.payment-data-table td:nth-child(6){width:20%}
-  .payment-data-table th:nth-child(7),.payment-data-table td:nth-child(7){width:18%}
-  .payment-data-table th:nth-child(11),.payment-data-table td:nth-child(11){width:20%}
-  .payment-data-table th:nth-child(12),.payment-data-table td:nth-child(12){width:15%}
-  .payment-data-table th:nth-child(13),.payment-data-table td:nth-child(13){width:27%}
-}
-
-
-/* Mobile payment dues: Player + Total + Paid + Remaining. Row actions appear below selection. */
+/* D7.7-F — Payment Dues responsive consistency */
 .payment-due-mobile-actions-row,
 .payment-due-mobile-actions-cell {
   display: none;
@@ -732,9 +712,18 @@
   text-decoration: none !important;
 }
 
-@media (max-width: 640px) {
+/*
+ * Tablet: reduce secondary metadata columns while keeping the table inside
+ * its scroll container. The viewport itself must not horizontally overflow.
+ */
+@media (max-width: 900px) {
+  .payment-table-wrapper {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
   .payment-data-table {
-    min-width: 0;
+    min-width: 760px;
     table-layout: fixed;
   }
 
@@ -746,6 +735,39 @@
   .payment-data-table td:nth-child(3),
   .payment-data-table th:nth-child(5),
   .payment-data-table td:nth-child(5),
+  .payment-data-table th:nth-child(8),
+  .payment-data-table td:nth-child(8),
+  .payment-data-table th:nth-child(9),
+  .payment-data-table td:nth-child(9),
+  .payment-data-table th:nth-child(10),
+  .payment-data-table td:nth-child(10) {
+    display: none;
+  }
+}
+
+/*
+ * Phone: keep the primary payment information and actions, and allow only
+ * the table wrapper to scroll horizontally. This prevents clipped action
+ * controls and prevents the page viewport from becoming wider than the phone.
+ */
+@media (max-width: 640px) {
+  .payment-table-wrapper {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .payment-data-table {
+    min-width: 620px;
+    table-layout: fixed;
+  }
+
+  .payment-data-table th:nth-child(1),
+  .payment-data-table td:nth-child(1),
+  .payment-data-table th:nth-child(2),
+  .payment-data-table td:nth-child(2),
+  .payment-data-table th:nth-child(3),
+  .payment-data-table td:nth-child(3),
   .payment-data-table th:nth-child(6),
   .payment-data-table td:nth-child(6),
   .payment-data-table th:nth-child(7),
@@ -753,58 +775,62 @@
   .payment-data-table th:nth-child(8),
   .payment-data-table td:nth-child(8),
   .payment-data-table th:nth-child(12),
-  .payment-data-table td:nth-child(12),
-  .payment-data-table th:nth-child(13),
-  .payment-data-table td:nth-child(13) {
+  .payment-data-table td:nth-child(12) {
     display: none;
   }
 
   .payment-data-table th:nth-child(4),
   .payment-data-table td:nth-child(4) {
-    width: 34%;
+    display: table-cell !important;
+    width: 28%;
+  }
+
+  .payment-data-table th:nth-child(5),
+  .payment-data-table td:nth-child(5) {
+    display: table-cell !important;
+    width: 18%;
   }
 
   .payment-data-table th:nth-child(9),
   .payment-data-table td:nth-child(9) {
-    width: 22%;
+    display: table-cell !important;
+    width: 12%;
   }
 
   .payment-data-table th:nth-child(10),
   .payment-data-table td:nth-child(10) {
-    width: 22%;
+    display: table-cell !important;
+    width: 12%;
   }
 
   .payment-data-table th:nth-child(11),
   .payment-data-table td:nth-child(11) {
-    width: 22%;
+    display: table-cell !important;
+    width: 14%;
   }
 
+  .payment-data-table th:nth-child(13),
+  .payment-data-table td:nth-child(13) {
+    display: table-cell !important;
+    width: 16%;
+  }
+
+  .payment-data-table th,
   .payment-data-table td {
     padding: .65rem .55rem;
-    font-size: 12px;
   }
 
-  .payment-due-mobile-actions-row {
-    display: table-row !important;
+  .payment-due-row .payment-text-button,
+  .payment-due-row .payment-danger-button {
+    opacity: 1;
+    transform: none;
   }
 
-  .payment-due-mobile-actions-cell {
-    display: table-cell !important;
-    width: 100%;
-    padding: .5rem .6rem !important;
-    border-top: 0 !important;
-    border-bottom: 1px solid var(--ap-slate-200) !important;
-    background: var(--ap-slate-50);
+  .payment-action-group {
+    min-height: var(--ap-control-standard-height);
+    flex-wrap: nowrap;
   }
 
-  .payment-due-mobile-actions {
-    display: flex !important;
-    visibility: visible !important;
-    justify-content: flex-end;
-  }
-}
-
-@media (min-width: 641px) {
   .payment-due-mobile-actions-row {
     display: none !important;
   }

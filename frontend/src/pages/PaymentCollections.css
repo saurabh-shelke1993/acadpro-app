@@ -632,6 +632,33 @@
   }
 }
 
+/* D7.7-F — Payment Collections responsive consistency */
+.payment-clear-filters,
+.payment-search-clear-button,
+.payment-collect-trigger,
+.payment-player-detail-button {
+  min-height: var(--ap-control-standard-height);
+}
+
+.payment-clear-filters,
+.payment-search-clear-button {
+  padding: 7px 11px;
+}
+
+@media (max-width: 640px) {
+  .payment-clear-filters,
+  .payment-search-clear-button {
+    width: 100%;
+  }
+
+  .payment-player-detail-button {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 6px 0;
+  }
+}
+
 /* D7.7 — Payment Collections: normalize action/filter touch targets */
 .payment-primary-button,
 .payment-secondary-button,
