@@ -110,7 +110,7 @@
 .coaches-field select {
   box-sizing: border-box;
   width: 100%;
-  min-height: 38px;
+  min-height: var(--ap-control-standard-height);
   padding: 0.45rem 0.6rem;
   border: 1px solid var(--ap-border);
   border-radius: var(--ap-radius-md);
@@ -127,7 +127,7 @@
 
 .coaches-primary-button,
 .coaches-secondary-button {
-  min-height: 36px;
+  min-height: var(--ap-control-standard-height);
   padding: 0.4rem 0.75rem;
   border-radius: var(--ap-radius-md);
   font-size: var(--ap-font-size-xs);
@@ -188,7 +188,7 @@
 }
 
 .coaches-list-filter-summary .coaches-secondary-button {
-  min-height: 32px;
+  min-height: var(--ap-control-standard-height);
   padding: 0.3rem 0.6rem;
 }
 
