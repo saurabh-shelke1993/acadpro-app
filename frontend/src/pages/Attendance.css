@@ -689,3 +689,16 @@
 
 /* Final coach attendance control contract: only P/A labels are rendered. */
 .attendance-choice-label{display:inline!important;font-size:inherit;font-weight:800;line-height:1}
+
+/* D7.7 — Attendance controls: consistent touch targets and focus visibility */
+.attendance-secondary-button,
+.attendance-save-button {
+  min-height: 40px;
+}
+
+.attendance-secondary-button:focus-visible,
+.attendance-save-button:focus-visible,
+.attendance-choice:has(input:focus-visible) {
+  outline: 3px solid var(--ap-primary-600);
+  outline-offset: 2px;
+}
