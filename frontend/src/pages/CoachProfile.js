@@ -322,7 +322,15 @@ const CoachProfile = () => {
             <button
               type="button"
               className="coach-profile-secondary-button"
-              onClick={() => navigate(isSelf ? "/coach-dashboard" : "/coaches")}
+              onClick={() =>
+                navigate(
+                  isSelf
+                    ? "/coach-dashboard"
+                    : isParent
+                      ? "/parent-portal"
+                      : "/coaches"
+                )
+              }
             >
               ← Back
             </button>
