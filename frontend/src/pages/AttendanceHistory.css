@@ -111,3 +111,32 @@
 
 /* Summary cards removed: keep history focused on filters and records. */
 .attendance-history-summary{display:none}
+
+/* D7.7 — Attendance History: normalize interactive target size */
+.attendance-history-reset-button,
+.attendance-history-retry-button,
+.attendance-icon-button,
+.attendance-action-button,
+.attendance-history-pagination-controls button,
+.attendance-history-status-select {
+  min-height: 40px;
+}
+
+.attendance-history-field select:focus-visible,
+.attendance-history-field input:focus-visible,
+.attendance-history-status-select:focus-visible,
+.attendance-history-reset-button:focus-visible,
+.attendance-history-retry-button:focus-visible,
+.attendance-icon-button:focus-visible,
+.attendance-action-button:focus-visible,
+.attendance-history-pagination-controls button:focus-visible {
+  outline: 3px solid var(--ap-primary-600);
+  outline-offset: 2px;
+}
+
+@media (max-width: 640px) {
+  .attendance-icon-button,
+  .attendance-action-button {
+    min-width: 40px;
+  }
+}
