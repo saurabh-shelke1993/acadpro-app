@@ -1047,27 +1047,68 @@ return (
         {filteredPayments.length===0 ? (
           <div className="payment-empty-state"><div className="payment-empty-icon">₹</div><h3>No payment history found</h3><p>Adjust the player, payment mode or date filters to view ledger entries.</p></div>
         ) : (
-          <div className="payment-table-wrapper">
+          <div className="payment-table-wrapper payment-history-desktop-table">
             <table className="payment-data-table">
               <caption className="sr-only">Payment ledger history</caption>
               <thead><tr>
-                {isSuperAdmin(loggedInUser) && <th scope="col" className="payment-mobile-hide">Academy</th>}
-                <th scope="col" className="payment-mobile-hide">Center</th><th scope="col" className="payment-mobile-hide">Batch</th>
-                <th scope="col">Player</th><th scope="col">Amount</th>
-                <th scope="col" className="payment-mobile-hide">Mode</th><th scope="col" className="payment-mobile-hide">Reference</th><th scope="col" className="payment-mobile-hide">Receipt</th><th scope="col" className="payment-mobile-hide">Entry</th><th scope="col">Payment Date</th>
+                {isSuperAdmin(loggedInUser) && <th scope="col">Academy</th>}
+                <th scope="col">Center</th><th scope="col">Batch</th><th scope="col">Player</th><th scope="col">Amount</th>
+                <th scope="col">Mode</th><th scope="col">Reference</th><th scope="col">Receipt</th><th scope="col">Entry</th><th scope="col">Payment Date</th>
               </tr></thead>
               <tbody>{paginatedPayments.map((payment)=><tr key={payment.id}>
-                {isSuperAdmin(loggedInUser) && <td className="payment-mobile-hide">{payment.players?.academies?.academy_name || "-"}</td>}
-                <td className="payment-mobile-hide">{payment.players?.centers?.center_name || "-"}</td>
-                <td className="payment-mobile-hide">{payment.players?.batches?.batch_name || "-"}</td>
-                <td className="payment-player-cell"><button type="button" className="payment-player-detail-button" onClick={() => openPaymentDetail(payment)}>{payment.players?.full_name || "-"}</button></td>
+                {isSuperAdmin(loggedInUser) && <td>{payment.players?.academies?.academy_name || "-"}</td>}
+                <td>{payment.players?.centers?.center_name || "-"}</td>
+                <td>{payment.players?.batches?.batch_name || "-"}</td>
+                <td className="payment-player-cell">{payment.players?.full_name || "-"}</td>
                 <td className="payment-amount-cell">₹{Number(payment.amount_paid || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                <td className="payment-mobile-hide"><span className="payment-type-badge">{String(payment.payment_mode || "-").replace(/_/g, " ")}</span></td>
-                <td className="payment-mobile-hide"><span className="payment-reference-cell">{payment.transaction_reference || "-"}</span></td>
-                <td className="payment-mobile-hide"><span className="payment-reference-cell">{payment.receipt_number || "-"}</span></td>
-                <td className="payment-mobile-hide"><span className={`payment-entry-badge payment-entry-${payment.payment_entry_type}`}>{payment.payment_entry_type === "adjustment" ? "Adjustment" : "Payment"}</span></td>
-                <td className="payment-mobile-payment-date">{new Date(payment.payment_date).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}</td>
+                <td><span className="payment-type-badge">{String(payment.payment_mode || "-").replace(/_/g, " ")}</span></td>
+                <td><span className="payment-reference-cell">{payment.transaction_reference || "-"}</span></td>
+                <td><span className="payment-reference-cell">{payment.receipt_number || "-"}</span></td>
+                <td><span className={`payment-entry-badge payment-entry-${payment.payment_entry_type}`}>{payment.payment_entry_type === "adjustment" ? "Adjustment" : "Payment"}</span></td>
+                <td>{new Date(payment.payment_date).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}</td>
               </tr>)}</tbody>
+            </table>
+          </div>
+
+          <div className="payment-table-wrapper payment-history-mobile-table">
+            <table className="payment-data-table">
+              <caption className="sr-only">Mobile payment history</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Player</th>
+                  <th scope="col">Amount</th>
+                  <th scope="col">Payment Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginatedPayments.map((payment) => (
+                  <tr key={payment.id}>
+                    <td className="payment-player-cell">
+                      <button
+                        type="button"
+                        className="payment-player-detail-button"
+                        onClick={() => openPaymentDetail(payment)}
+                        aria-label={`View payment details for ${payment.players?.full_name || "player"}`}
+                      >
+                        {payment.players?.full_name || "-"}
+                      </button>
+                    </td>
+                    <td className="payment-amount-cell">
+                      ₹{Number(payment.amount_paid || 0).toLocaleString("en-IN", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                      })}
+                    </td>
+                    <td>
+                      {new Date(payment.payment_date).toLocaleDateString("en-IN", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric"
+                      })}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
             </table>
           </div>
         )}
