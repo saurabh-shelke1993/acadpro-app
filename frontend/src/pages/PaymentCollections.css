@@ -25,11 +25,11 @@
 .payment-player-cell{font-weight:700;color:var(--ap-slate-900)!important}.payment-reason-cell{max-width:260px;white-space:normal!important;line-height:1.45}
 .payment-type-badge,.payment-status-badge,.payment-entry-badge,.payment-count-badge{display:inline-flex;align-items:center;min-height:24px;padding:3px 8px;border-radius:999px;font-size:11px;font-weight:700}
 .payment-type-badge{background:var(--ap-slate-100);color:var(--ap-slate-600);text-transform:capitalize}.payment-entry-payment{background:var(--ap-primary-50);color:var(--ap-primary-700)}.payment-entry-adjustment{background:#fef3c7;color:#92400e}
-.payment-status-pending{background:var(--ap-danger-50);color:#b91c1c}.payment-status-partial{background:var(--ap-warning-50);color:#b45309}.payment-status-paid{background:#ecfdf5;color:#047857}.payment-status-approved{background:#ecfdf5;color:#047857}.payment-status-rejected{background:var(--ap-danger-50);color:#b91c1c}
+.payment-status-partial{background:var(--ap-warning-50);color:#b45309}.payment-status-paid{background:#ecfdf5;color:#047857}.payment-status-approved{background:#ecfdf5;color:#047857}.payment-status-rejected{background:var(--ap-danger-50);color:#b91c1c}
 .payment-status-pending{background:var(--ap-warning-50);color:#b45309}.payment-action-group{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.payment-count-badge{background:var(--ap-slate-100);color:var(--ap-slate-600)}
 .payment-empty-state{padding:44px 20px;border:1px dashed var(--ap-slate-300);border-radius:10px;background:var(--ap-slate-50);text-align:center}.payment-empty-icon{width:38px;height:38px;margin:0 auto 12px;display:grid;place-items:center;border-radius:10px;background:var(--ap-primary-100);color:var(--ap-primary-600);font-weight:800}.payment-empty-state h3{margin:0;font-size:16px}.payment-empty-state p{margin:7px 0 0;color:var(--ap-slate-500);font-size:13px}
 .payment-modal-overlay{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(15,23,42,.45)}.payment-modal{width:min(520px,100%);background:var(--ap-white);border-radius:14px;box-shadow:0 20px 50px rgba(15,23,42,.22);overflow:hidden}
-.payment-modal-header{display:flex;align-items:flex-start;justify-content:space-between;padding:20px 22px 16px;border-bottom:1px solid var(--ap-slate-200)}.payment-modal-close{border:0;background:transparent;color:var(--ap-slate-500);font-size:24px;cursor:pointer}
+.payment-modal-header{display:flex;align-items:flex-start;justify-content:space-between;padding:20px 22px 16px;border-bottom:1px solid var(--ap-slate-200)}.payment-modal-close{width:40px;min-width:40px;height:40px;padding:0;border:1px solid var(--ap-slate-300);border-radius:var(--ap-radius-md);background:var(--ap-white);color:var(--ap-slate-500);font-size:24px;line-height:1;cursor:pointer}
 .payment-modal-body{display:grid;gap:16px;padding:20px 22px}.payment-modal-footer{justify-content:flex-end;padding:0 22px 22px;margin-top:0}.payment-detail-row{display:flex;justify-content:space-between;gap:20px;padding:10px 12px;background:var(--ap-slate-50);border-radius:8px;font-size:13px}.payment-detail-row span{color:var(--ap-slate-500)}.payment-rejection-text{display:inline-block;max-width:260px;white-space:normal;color:#b91c1c;font-size:12px}
 .receipt-modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.45);display:flex;justify-content:center;align-items:center;padding:20px;z-index:10000}
 .receipt-modal{width:min(560px,100%);background:var(--ap-white);border-radius:14px;padding:24px;box-shadow:0 20px 50px rgba(15,23,42,.22)}
@@ -84,7 +84,7 @@
 .payment-history-summary span{font-variant-numeric:tabular-nums}
 .payment-pagination{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:14px;padding-top:14px;border-top:1px solid var(--ap-slate-200);color:var(--ap-slate-500);font-size:12px}
 .payment-pagination-controls{display:flex;align-items:center;gap:8px}
-.payment-pagination-controls button{min-height:34px;padding:7px 11px;border:1px solid var(--ap-slate-300);border-radius:7px;background:var(--ap-white);color:var(--ap-slate-700);font:inherit;font-weight:700;cursor:pointer}
+.payment-pagination-controls button{min-height:40px;padding:7px 11px;border:1px solid var(--ap-slate-300);border-radius:7px;background:var(--ap-white);color:var(--ap-slate-700);font:inherit;font-weight:700;cursor:pointer}
 .payment-pagination-controls button:hover:not(:disabled){background:var(--ap-slate-50)}
 .payment-pagination-controls button:disabled{opacity:.45;cursor:not-allowed}
 .payment-pagination-controls strong{color:var(--ap-slate-700);font-size:12px;white-space:nowrap}
@@ -215,7 +215,7 @@
 }
 .payment-collection-grid .payment-field input,
 .payment-collection-grid .payment-field select{
-  min-height:36px;
+  min-height:40px;
   padding:6px 9px;
   font-size:13px;
 }
@@ -226,7 +226,7 @@
   margin-top:10px;
 }
 .payment-collection-footer .payment-primary-button{
-  min-height:36px;
+  min-height:40px;
 }
 
 .payment-history-heading{
@@ -242,12 +242,12 @@
   min-width:220px;
 }
 .payment-history-search-field input{
-  min-height:36px;
+  min-height:40px;
   padding:6px 9px;
   font-size:12px;
 }
 .payment-history-top-controls .payment-clear-filters{
-  min-height:36px;
+  min-height:40px;
 }
 .payment-history-controls{
   width:100%;
@@ -268,7 +268,7 @@
 }
 .payment-history-controls .payment-filter-field select,
 .payment-history-controls .payment-filter-field input{
-  min-height:36px;
+  min-height:40px;
   padding:6px 8px;
   font-size:12px;
 }
@@ -320,7 +320,7 @@
   justify-content:flex-end;
 }
 .payment-collect-trigger{
-  min-height:36px;
+  min-height:40px;
   white-space:nowrap;
 }
 .payment-collection-modal{
@@ -339,7 +339,7 @@
 }
 .payment-collection-modal-grid .payment-field input,
 .payment-collection-modal-grid .payment-field select{
-  min-height:38px;
+  min-height:40px;
 }
 .payment-collection-modal .payment-collection-summary{
   margin-top:2px;
@@ -439,7 +439,7 @@
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    min-height: 38px;
+    min-height: 40px;
     margin: 8px 0;
     padding: 8px 11px;
     border: 1px solid var(--ap-slate-300);
@@ -482,7 +482,7 @@
 
   .payment-history-controls .payment-filter-field select,
   .payment-history-controls .payment-filter-field input {
-    min-height: 36px;
+    min-height: 40px;
   }
 
   .payment-data-table {
