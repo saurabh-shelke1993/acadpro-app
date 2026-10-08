@@ -4,7 +4,6 @@
   color: var(--ap-slate-800);
 }
 
-.coach-profile-header,
 .coach-profile-hero,
 .coach-profile-card,
 .coach-profile-state-card {
@@ -13,16 +12,6 @@
   box-shadow: var(--ap-shadow-sm);
 }
 
-.coach-profile-header {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 1rem 1.1rem;
-  border-radius: var(--ap-radius-xl);
-}
-
-.coach-profile-header h1,
 .coach-profile-hero h2,
 .coach-profile-card h2,
 .coach-profile-state-card h1 {
@@ -31,8 +20,6 @@
   letter-spacing: -0.025em;
 }
 
-.coach-profile-header h1 { font-size: 1.75rem; }
-.coach-profile-header p { margin: .35rem 0 0; color: var(--ap-slate-500); font-size: var(--ap-font-size-sm); }
 .coach-profile-eyebrow,
 .coach-profile-section-kicker {
   display: block;
@@ -278,7 +265,6 @@ button:disabled { cursor: not-allowed; opacity: .55; }
   .coach-profile-cert-form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 700px) {
-  .coach-profile-header,
   .coach-profile-hero,
   .coach-profile-assignment,
   .coach-profile-cert-item { align-items: flex-start; flex-direction: column; }
