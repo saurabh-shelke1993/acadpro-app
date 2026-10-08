@@ -23,7 +23,7 @@
 .coach-mapping-field select{box-sizing:border-box;width:100%;min-height:38px;padding:.4rem .6rem;border:1px solid var(--ap-border);border-radius:var(--ap-radius-md);background:var(--ap-surface);color:var(--ap-slate-800)}
 .coach-mapping-field select:disabled{background:var(--ap-slate-50);color:var(--ap-slate-400);cursor:not-allowed}
 .coach-mapping-form-action{display:flex;justify-content:flex-end}
-.coach-mapping-primary-button,.coach-mapping-secondary-button{min-height:34px;padding:.35rem .7rem;border-radius:var(--ap-radius-md);font-size:var(--ap-font-size-xs);font-weight:700;cursor:pointer}
+.coach-mapping-primary-button,.coach-mapping-secondary-button{min-height:40px;padding:.35rem .7rem;border-radius:var(--ap-radius-md);font-size:var(--ap-font-size-xs);font-weight:700;cursor:pointer}
 .coach-mapping-primary-button{border:1px solid var(--ap-primary-600);background:var(--ap-primary-600);color:var(--ap-white)}
 .coach-mapping-primary-button:hover:not(:disabled){background:var(--ap-primary-700)}
 .coach-mapping-primary-button:disabled{cursor:not-allowed;opacity:.55}
@@ -41,7 +41,7 @@
 .coach-mapping-table tbody tr:last-child td{border-bottom:0}
 .coach-mapping-table tbody tr{transition:background 120ms ease}
 .coach-mapping-table tbody tr:hover,.coach-mapping-table tbody tr:focus-visible,.coach-mapping-row-selected{background:var(--ap-primary-50)}
-.coach-mapping-table tbody tr:focus-visible{outline:2px solid var(--ap-primary-500);outline-offset:-2px}
+.coach-mapping-table tbody tr:focus-visible{outline:3px solid var(--ap-primary-600);outline-offset:-2px}
 .coach-mapping-name-cell{min-width:190px;font-weight:700;color:var(--ap-slate-900)!important}
 .coach-mapping-identity{display:inline-flex;align-items:center;gap:.55rem}
 .coach-mapping-avatar{display:inline-flex;width:30px;height:30px;flex:0 0 30px;align-items:center;justify-content:center;border-radius:var(--ap-radius-full);background:var(--ap-primary-100);color:var(--ap-primary-700);font-size:var(--ap-font-size-xs);font-weight:800}
@@ -51,7 +51,7 @@
 .coach-mapping-actions-cell{width:135px}
 .coach-mapping-row-actions{display:flex;justify-content:flex-end;opacity:0;pointer-events:none;transition:opacity 120ms ease}
 .coach-mapping-table tbody tr:hover .coach-mapping-row-actions,.coach-mapping-table tbody tr:focus-within .coach-mapping-row-actions,.coach-mapping-row-selected .coach-mapping-row-actions{opacity:1;pointer-events:auto}
-.coach-mapping-action-button{min-height:30px;padding:.25rem .5rem;border:1px solid var(--ap-border);border-radius:5px;background:var(--ap-surface);color:var(--ap-slate-700);font-size:var(--ap-font-size-xs);font-weight:700;cursor:pointer}
+.coach-mapping-action-button{min-height:40px;padding:.25rem .5rem;border:1px solid var(--ap-border);border-radius:5px;background:var(--ap-surface);color:var(--ap-slate-700);font-size:var(--ap-font-size-xs);font-weight:700;cursor:pointer}
 .coach-mapping-action-button:hover{background:var(--ap-slate-50)}
 .coach-mapping-column-filter{position:relative;width:100%}
 .coach-mapping-filter-trigger{display:inline-flex!important;width:100%;min-height:30px!important;align-items:center;justify-content:space-between;gap:.35rem;margin:0!important;padding:.25rem .15rem!important;border:0!important;border-radius:4px!important;background:transparent!important;color:var(--ap-slate-500)!important;font:inherit;font-size:var(--ap-font-size-xs)!important;font-weight:800!important;letter-spacing:.04em;text-align:left;text-transform:uppercase;cursor:pointer}
@@ -199,7 +199,7 @@
   opacity:.5;
 }
 .coach-mapping-icon-button:focus-visible{
-  outline:2px solid var(--ap-primary-500);
+  outline:3px solid var(--ap-primary-600);
   outline-offset:2px;
 }
 .coach-mapping-form-actions{
