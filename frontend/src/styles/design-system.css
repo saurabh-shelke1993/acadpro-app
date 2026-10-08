@@ -367,3 +367,40 @@ textarea:focus-visible {
   outline: 3px solid var(--ap-primary-600);
   outline-offset: 2px;
 }
+
+/* D7.7 — Typography, contrast & touch-target foundation */
+:root {
+  --ap-text-primary: var(--ap-slate-900);
+  --ap-text-secondary: var(--ap-slate-700);
+  --ap-text-muted: var(--ap-slate-500);
+}
+
+body {
+  color: var(--ap-text-primary);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--ap-text-muted);
+}
+
+.ui-button,
+input,
+select,
+textarea {
+  min-height: 40px;
+}
+
+.ui-button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid var(--ap-primary-600);
+  outline-offset: 2px;
+}
+
+@media (max-width: 640px) {
+  .ui-button {
+    min-height: 40px;
+  }
+}
