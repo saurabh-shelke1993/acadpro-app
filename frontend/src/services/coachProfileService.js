@@ -74,6 +74,38 @@ export const getCoachProfile = async (coachId) => {
   return normalizeProfile(data);
 };
 
+export const updateCoachProfile = async (coachId, profile) => {
+  if (!coachId) {
+    throw new Error("Coach ID is required.");
+  }
+
+  const payload = {
+    full_name: toOptionalText(profile?.full_name) || "",
+    email: toOptionalText(profile?.email),
+    phone: toOptionalText(profile?.phone),
+    profile_image: toOptionalText(profile?.profile_image),
+    specialization: toOptionalText(profile?.specialization),
+    experience_years: toOptionalInteger(profile?.experience_years),
+    joining_date: profile?.joining_date || null,
+    bio: toOptionalText(profile?.bio),
+  };
+
+  if (!payload.full_name) {
+    throw new Error("Coach name is required.");
+  }
+
+  const { data, error } = await supabase
+    .from("coaches")
+    .update(payload)
+    .eq("id", coachId)
+    .select(COACH_PROFILE_SELECT)
+    .single();
+
+  handleSupabaseError(error, "Failed to update coach profile.");
+
+  return normalizeProfile(data);
+};
+
 export const getMyCoachProfile = async () => {
   const {
     data: { user },
