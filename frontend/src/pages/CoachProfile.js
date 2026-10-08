@@ -306,7 +306,7 @@ const CoachProfile = () => {
         <section className="coach-profile-hero">
           <div className="coach-profile-avatar">
             {profile?.profile_image ? (
-              <img src={profile.profile_image} alt="" />
+              <img src={profile.profile_image} alt={`${profile?.full_name || "Coach"} profile`} />
             ) : (
               <span aria-hidden="true">{getInitials(profile?.full_name)}</span>
             )}
