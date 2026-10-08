@@ -352,23 +352,7 @@ textarea:focus {
 }
 
 
-/* D7.7 — Typography, contrast, and touch target baseline */
-.ui-button,
-input,
-select,
-textarea {
-  min-height: 40px;
-}
-
-.ui-button:focus-visible,
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible {
-  outline: 3px solid var(--ap-primary-600);
-  outline-offset: 2px;
-}
-
-/* D7.7 — Typography, contrast & touch-target foundation */
+/* D7.7 — Typography, contrast, touch-target and focus baseline */
 :root {
   --ap-text-primary: var(--ap-slate-900);
   --ap-text-secondary: var(--ap-slate-700);
@@ -397,10 +381,4 @@ select:focus-visible,
 textarea:focus-visible {
   outline: 3px solid var(--ap-primary-600);
   outline-offset: 2px;
-}
-
-@media (max-width: 640px) {
-  .ui-button {
-    min-height: 40px;
-  }
 }
