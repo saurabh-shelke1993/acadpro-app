@@ -968,10 +968,10 @@
 }
 
 .batches-mobile-row-actions button{
-  width:34px;
-  min-width:34px;
-  height:34px;
-  min-height:40px;
+  width:var(--ap-control-touch-size);
+  min-width:var(--ap-control-touch-size);
+  height:var(--ap-control-touch-size);
+  min-height:var(--ap-control-touch-size);
   padding:0 !important;
   display:inline-flex;
   align-items:center;
