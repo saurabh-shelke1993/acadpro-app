@@ -338,7 +338,9 @@ const CoachProfile = () => {
           <form className="coach-profile-card" onSubmit={handleSaveProfile}>
             <div className="coach-profile-card-heading">
               <div>
-                <span className="coach-profile-section-kicker">Self service</span>
+                <span className="coach-profile-section-kicker">
+                  {canManageProfile ? "Coach management" : "Self service"}
+                </span>
                 <h2>Edit profile</h2>
               </div>
             </div>
