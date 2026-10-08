@@ -6,6 +6,7 @@ import {
 } from "react-router-dom";
 
 import ProtectedRoute from "../components/ProtectedRoute";
+import CoachProfile from "../pages/CoachProfile";
 
 // ============================================
 // PAGES
@@ -250,6 +251,34 @@ function AppRoutes() {
               ]}
             >
               <Coaches />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/coaches/:coachId"
+          element={
+            <ProtectedRoute
+              allowedRoles={[
+                "super_admin",
+                "academy_owner",
+                "parent"
+              ]}
+            >
+              <CoachProfile />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/coach-profile"
+          element={
+            <ProtectedRoute
+              allowedRoles={[
+                "coach"
+              ]}
+            >
+              <CoachProfile />
             </ProtectedRoute>
           }
         />
