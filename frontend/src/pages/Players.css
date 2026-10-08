@@ -100,14 +100,6 @@
   font-size: var(--ap-font-size-sm);
 }
 
-.players-page input:focus-visible,
-.players-page select:focus-visible,
-.players-page textarea:focus-visible,
-.players-search input:focus-visible {
-  outline: 2px solid var(--ap-primary-500);
-  outline-offset: 2px;
-  border-color: var(--ap-primary-300);
-}
 
 .players-page input:disabled,
 .players-page select:disabled {
@@ -277,12 +269,6 @@
   background: var(--ap-danger-100);
 }
 
-.player-primary-button:focus-visible,
-.player-secondary-button:focus-visible,
-.player-action-button:focus-visible {
-  outline: 2px solid var(--ap-primary-500);
-  outline-offset: 2px;
-}
 
 .sr-only {
   position: absolute;
