@@ -1047,7 +1047,8 @@ return (
         {filteredPayments.length===0 ? (
           <div className="payment-empty-state"><div className="payment-empty-icon">₹</div><h3>No payment history found</h3><p>Adjust the player, payment mode or date filters to view ledger entries.</p></div>
         ) : (
-          <div className="payment-table-wrapper payment-history-desktop-table">
+          <>
+            <div className="payment-table-wrapper payment-history-desktop-table">
             <table className="payment-data-table">
               <caption className="sr-only">Payment ledger history</caption>
               <thead><tr>
@@ -1110,7 +1111,8 @@ return (
                 ))}
               </tbody>
             </table>
-          </div>
+            </div>
+          </>
         )}
 
         {filteredPayments.length > 0 && (
