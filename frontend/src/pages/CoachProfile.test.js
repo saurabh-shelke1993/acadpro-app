@@ -90,6 +90,15 @@ const renderProfile = (user, initialEntry = "/coaches/coach-1") => {
 };
 
 describe("CoachProfile role and behavior regression", () => {
+  beforeAll(() => {
+    if (!URL.createObjectURL) {
+      URL.createObjectURL = jest.fn(() => "blob:coach-profile-preview");
+    }
+    if (!URL.revokeObjectURL) {
+      URL.revokeObjectURL = jest.fn();
+    }
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
     getCoachCertifications.mockResolvedValue([]);
