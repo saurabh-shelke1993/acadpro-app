@@ -352,9 +352,14 @@ export const getParentCoachProfiles = async () => {
     id: record.coach_id,
     batch_id: record.batch_id,
     full_name: record.coach_name,
+    phone: record.phone,
     profile_image: record.profile_image,
     specialization: record.specialization,
     experience_years: record.experience_years,
     bio: record.bio,
+    academy: record.academy_name
+      ? { academy_name: record.academy_name }
+      : null,
+    assignments: [],
   }));
 };
