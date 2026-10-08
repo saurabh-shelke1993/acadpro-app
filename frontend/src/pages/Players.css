@@ -441,10 +441,9 @@
   font-size: var(--ap-font-size-xs);
 }
 
-.players-page input,
-.players-page select,
-.players-page textarea {
-  min-height: 36px;
+ .players-page input,
+.players-page select {
+  min-height: var(--ap-control-standard-height);
   padding: 0.4rem 0.6rem;
 }
 
@@ -466,7 +465,7 @@
 
 .players-filter-actions .player-secondary-button {
   margin-left: 0;
-  min-height: 34px;
+  min-height: var(--ap-control-standard-height);
   padding: 0.35rem 0.65rem;
 }
 
@@ -495,9 +494,9 @@
   grid-column: span 2;
 }
 
-.players-form-grid textarea {
+ .players-form-grid textarea {
   width: 100%;
-  min-height: 68px;
+  min-height: var(--ap-control-textarea-min-height);
 }
 
 .players-form-actions {
@@ -577,8 +576,8 @@
   transform: translateY(0);
 }
 
-.player-row-actions .player-action-button {
-  min-height: 34px;
+ .player-row-actions .player-action-button {
+  min-height: var(--ap-control-standard-height);
   padding: 0.35rem 0.6rem;
 }
 
@@ -610,7 +609,7 @@
 
 .players-pagination .player-secondary-button {
   margin-left: 0;
-  min-height: 34px;
+  min-height: var(--ap-control-standard-height);
   padding: 0.35rem 0.65rem;
 }
 
@@ -655,12 +654,12 @@
 
 .players-import-wrapper > section[aria-label="Player Import"] select,
 .players-import-wrapper > section[aria-label="Player Import"] input[type="file"] {
-  min-height: 34px;
+  min-height: var(--ap-control-standard-height);
   padding: 0.35rem 0.55rem;
 }
 
 .players-import-wrapper > section[aria-label="Player Import"] button {
-  min-height: 34px;
+  min-height: var(--ap-control-standard-height);
   padding: 0.35rem 0.65rem;
 }
 
