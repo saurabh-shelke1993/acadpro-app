@@ -1,38 +1,16 @@
 import { supabase } from "../supabaseClient";
 
-const COACH_PROFILE_SELECT = [
-  "id",
-  "academy_id",
-  "full_name",
-  "email",
-  "phone",
-  "profile_image",
-  "is_active",
-  "created_at",
-  "updated_at",
-  "experience_years",
-  "joining_date",
-  "salary",
-  "notes",
-  "user_id",
-  "specialization",
-  "bio",
-  "academies(academy_name)",
-  "coach_batch_assignments(",
-  "id,",
-  "batch_id,",
-  "is_active,",
-  "created_at,",
-  "batches(",
-  "batch_name,",
-  "age_group,",
-  "start_time,",
-  "end_time,",
-  "center_id,",
-  "centers(center_name)",
-  ")",
-  ")",
-].join(" ");
+const COACH_PROFILE_SELECT =
+  "id, academy_id, full_name, email, phone, profile_image, is_active, " +
+  "created_at, updated_at, experience_years, joining_date, salary, notes, " +
+  "user_id, specialization, bio, " +
+  "academies(academy_name), " +
+  "coach_batch_assignments(" +
+  "id, batch_id, is_active, created_at, " +
+  "batches(batch_name, age_group, start_time, end_time, center_id, " +
+  "centers(center_name)" +
+  ")" +
+  ")";
 
 const CERTIFICATION_SELECT =
   "id, coach_id, certificate_name, issuing_organization, certificate_number, issue_date, expiry_date, created_at, updated_at";
