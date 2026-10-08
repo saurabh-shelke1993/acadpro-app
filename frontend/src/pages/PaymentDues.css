@@ -819,3 +819,31 @@
     display: none !important;
   }
 }
+
+/* D7.7 — Payment Dues: normalize action/filter touch targets */
+.payment-primary-button,
+.payment-secondary-button,
+.payment-text-button,
+.payment-danger-button,
+.payment-pagination-controls button,
+.payment-clear-filters,
+.payment-date-filter-field input {
+  min-height: 40px;
+}
+
+.payment-primary-button:focus-visible,
+.payment-secondary-button:focus-visible,
+.payment-text-button:focus-visible,
+.payment-danger-button:focus-visible,
+.payment-pagination-controls button:focus-visible,
+.payment-clear-filters:focus-visible,
+.payment-date-filter-field input:focus-visible,
+.payment-column-filter select:focus-visible {
+  outline: 3px solid var(--ap-primary-600);
+  outline-offset: 2px;
+}
+
+.payment-column-filter span {
+  font-size: 11px;
+  line-height: 1.3;
+}
