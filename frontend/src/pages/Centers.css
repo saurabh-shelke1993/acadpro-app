@@ -108,13 +108,13 @@
 
 .centers-page select:focus-visible,
 .centers-page input:focus-visible {
-  outline: 2px solid var(--ap-primary-500);
+  outline: 3px solid var(--ap-primary-600);
   outline-offset: 2px;
   border-color: var(--ap-primary-300);
 }
 
 .centers-page button {
-  min-height: 38px;
+  min-height: 40px;
   padding: 0.5rem 0.8rem;
   border: 1px solid var(--ap-border);
   border-radius: var(--ap-radius-md);
@@ -145,7 +145,7 @@
 }
 
 .centers-page button:focus-visible {
-  outline: 2px solid var(--ap-primary-500);
+  outline: 3px solid var(--ap-primary-600);
   outline-offset: 2px;
 }
 
@@ -251,7 +251,7 @@
 }
 
 .centers-row-actions button {
-  min-height: 32px;
+  min-height: 40px;
   padding: 0.35rem 0.65rem;
 }
 
@@ -284,7 +284,7 @@
 }
 
 .centers-pagination-button {
-  min-height: 34px !important;
+  min-height: 40px !important;
   padding: 0.35rem 0.7rem !important;
   font-size: var(--ap-font-size-xs) !important;
 }
@@ -417,12 +417,12 @@
 
 .centers-page select,
 .centers-page input {
-  min-height: 36px;
+  min-height: 40px;
   padding: 0.4rem 0.65rem;
 }
 
 .centers-page button {
-  min-height: 36px;
+  min-height: 40px;
   padding: 0.4rem 0.7rem;
 }
 
@@ -502,9 +502,9 @@
 /* Standard management actions: compact edit/delete icons across breakpoints. */
 .centers-row-actions{align-items:center;justify-content:flex-end;gap:.35rem}
 .centers-row-actions button{
-  width:34px;
-  min-width:34px;
-  height:34px;
+  width:40px;
+  min-width:40px;
+  height:40px;
   padding:0;
   display:inline-flex;
   align-items:center;
@@ -529,8 +529,8 @@
   .centers-page-owner .centers-actions-cell{width:78px}
   .centers-page-owner .centers-row-actions{opacity:1;pointer-events:auto}
   .centers-page-owner .centers-row-actions button{
-    width:32px;
-    min-width:32px;
-    height:32px;
+    width:40px;
+    min-width:40px;
+    height:40px;
   }
 }
