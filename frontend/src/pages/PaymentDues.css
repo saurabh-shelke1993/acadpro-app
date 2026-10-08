@@ -83,9 +83,9 @@
 .payment-generate-card .payment-field {
   gap: 5px;
 }
-.payment-generate-card .payment-field input,
+ .payment-generate-card .payment-field input,
 .payment-generate-card .payment-field select {
-  min-height: 38px;
+  min-height: var(--ap-control-standard-height);
 }
 .payment-generate-card .payment-form-footer {
   margin-top: 12px;
@@ -118,7 +118,7 @@
   min-width: 140px;
 }
 .payment-clear-filters {
-  min-height: 38px;
+  min-height: var(--ap-control-standard-height);
   padding: 7px 11px;
   border: 1px solid #cbd5e1;
   border-radius: 8px;
@@ -157,7 +157,7 @@
 }
 .payment-column-filter select {
   width: 100%;
-  min-height: 28px;
+  min-height: var(--ap-control-compact-height);
   max-width: 128px;
   padding: 3px 20px 3px 6px;
   border: 1px solid #dbe3ec;
@@ -199,7 +199,7 @@
   width: 1%;
 }
 .payment-action-group {
-  min-height: 36px;
+  min-height: var(--ap-control-standard-height);
 }
 .payment-due-row .payment-text-button,
 .payment-due-row .payment-danger-button {
@@ -509,7 +509,7 @@
 }
 .payment-date-filter-field input {
   width: 100%;
-  min-height: 38px;
+  min-height: var(--ap-control-standard-height);
   padding: 7px 9px;
   border: 1px solid #cbd5e1;
   border-radius: 8px;
@@ -577,7 +577,7 @@
 }
 
 .payment-generate-trigger {
-  min-height: 38px;
+  min-height: var(--ap-control-standard-height);
   white-space: nowrap;
 }
 
@@ -607,7 +607,7 @@
 
 .payment-generate-modal .payment-field input,
 .payment-generate-modal .payment-field select {
-  min-height: 38px;
+  min-height: var(--ap-control-standard-height);
 }
 
 .payment-generate-modal .payment-due-preview {
@@ -630,7 +630,7 @@
 
 .payment-modal-actions .payment-primary-button,
 .payment-modal-actions .payment-secondary-button {
-  min-height: 38px;
+  min-height: var(--ap-control-standard-height);
 }
 
 @media (max-width: 900px) {
@@ -727,14 +727,14 @@
 }
 
 .payment-due-mobile-actions .payment-secondary-button {
-  min-height: 34px;
+  min-height: var(--ap-control-standard-height);
 }
 
 .payment-mobile-icon-button {
-  width: 34px;
-  min-width: 34px;
-  height: 34px;
-  min-height: 34px;
+  width: var(--ap-control-touch-size);
+  min-width: var(--ap-control-touch-size);
+  height: var(--ap-control-touch-size);
+  min-height: var(--ap-control-touch-size);
   padding: 0 !important;
   display: inline-flex;
   align-items: center;
