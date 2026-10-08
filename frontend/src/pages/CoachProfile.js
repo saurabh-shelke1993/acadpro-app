@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import Layout from "../components/Layout";
 import { getCurrentUser } from "../utils/auth";
 import { isAcademyOwner, isCoach, isSuperAdmin } from "../utils/roles";
@@ -417,12 +417,12 @@ const CoachProfile = () => {
                   <article key={assignment.id} className="coach-profile-assignment">
                     <div>
                       {assignment.batch?.id ? (
-                        <a
+                        <Link
                           className="coach-profile-assignment-link"
-                          href={`/batches?academyId=${profile?.academy_id || ""}&centerId=${assignment.batch?.center_id || ""}&batchId=${assignment.batch.id}`}
+                          to={`/batches?academyId=${profile?.academy_id || ""}&centerId=${assignment.batch?.center_id || ""}&batchId=${assignment.batch.id}`}
                         >
                           {assignment.batch?.batch_name || "Batch"}
-                        </a>
+                        </Link>
                       ) : (
                         <strong>{assignment.batch?.batch_name || "Batch"}</strong>
                       )}
