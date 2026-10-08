@@ -191,7 +191,7 @@ describe("CoachProfile role and behavior regression", () => {
     getCoachProfile.mockResolvedValue(baseProfile);
     getCoachCertifications
       .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([certification]);
+      .mockResolvedValue([certification]);
     createCoachCertification.mockResolvedValue(certification);
     updateCoachCertification.mockResolvedValue({
       ...certification,
