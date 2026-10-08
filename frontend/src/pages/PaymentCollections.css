@@ -631,3 +631,34 @@
     display: none !important;
   }
 }
+
+/* D7.7 — Payment Collections: normalize action/filter touch targets */
+.payment-primary-button,
+.payment-secondary-button,
+.payment-text-button,
+.payment-danger-button,
+.payment-filter-reset-button,
+.payment-pagination-controls button,
+.payment-mobile-filter-trigger {
+  min-height: 40px;
+}
+
+.payment-primary-button:focus-visible,
+.payment-secondary-button:focus-visible,
+.payment-text-button:focus-visible,
+.payment-danger-button:focus-visible,
+.payment-filter-reset-button:focus-visible,
+.payment-pagination-controls button:focus-visible,
+.payment-mobile-filter-trigger:focus-visible,
+.payment-player-detail-button:focus-visible {
+  outline: 3px solid var(--ap-primary-600);
+  outline-offset: 2px;
+}
+
+.payment-history-summary span,
+.payment-type-badge,
+.payment-status-badge,
+.payment-entry-badge,
+.payment-count-badge {
+  line-height: 1.3;
+}
