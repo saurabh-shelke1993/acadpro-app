@@ -11,6 +11,7 @@ import {
   getMyCoachProfile,
   getParentCoachProfiles,
   updateCoachCertification,
+  updateCoachProfile,
   updateMyCoachProfile,
 } from "../services/coachProfileService";
 import "./CoachProfile.css";
@@ -74,9 +75,12 @@ const CoachProfile = () => {
 
   const isSelf = isCoach(user);
   const isParent = user?.role === "parent";
+  const canManageProfile =
+    !isParent && (isSuperAdmin(user) || isAcademyOwner(user));
   const canManageCertifications =
     isSuperAdmin(user) || isAcademyOwner(user);
   const canEditOwnProfile = isSelf && !isParent;
+  const canEditProfile = canEditOwnProfile || canManageProfile;
 
   const loadProfile = async () => {
     setLoading(true);
@@ -184,7 +188,9 @@ const CoachProfile = () => {
     setMessage("");
 
     try {
-      const updated = await updateMyCoachProfile(form);
+      const updated = canManageProfile
+        ? await updateCoachProfile(profile?.id, form)
+        : await updateMyCoachProfile(form);
       setProfile(updated);
       setEditing(false);
       setMessage("Profile updated successfully.");
@@ -294,21 +300,6 @@ const CoachProfile = () => {
   return (
     <Layout>
       <main className="coach-profile-page">
-        <header className="coach-profile-header">
-          <div>
-            <span className="coach-profile-eyebrow">Coach management</span>
-            <h1>Coach Profile</h1>
-            <p>Profile details, training assignments and certifications.</p>
-          </div>
-          <button
-            type="button"
-            className="coach-profile-secondary-button"
-            onClick={() => navigate(isSelf ? "/coach-dashboard" : "/coaches")}
-          >
-            ← Back
-          </button>
-        </header>
-
         {error ? <div className="coach-profile-alert coach-profile-alert-error" role="alert">{error}</div> : null}
         {message ? <div className="coach-profile-alert coach-profile-alert-success" role="status" aria-live="polite">{message}</div> : null}
 
@@ -327,14 +318,23 @@ const CoachProfile = () => {
             <h2>{profile?.full_name || "Coach"}</h2>
             <p>{profile?.specialization || "Football Coach"}</p>
           </div>
-          {canEditOwnProfile && !editing ? (
-            <button type="button" className="coach-profile-primary-button" onClick={() => setEditing(true)}>
-              Edit Profile
+          <div className="coach-profile-hero-actions">
+            <button
+              type="button"
+              className="coach-profile-secondary-button"
+              onClick={() => navigate(isSelf ? "/coach-dashboard" : "/coaches")}
+            >
+              ← Back
             </button>
-          ) : null}
+            {canEditProfile && !editing ? (
+              <button type="button" className="coach-profile-primary-button" onClick={() => setEditing(true)}>
+                Edit Profile
+              </button>
+            ) : null}
+          </div>
         </section>
 
-        {editing && canEditOwnProfile ? (
+        {editing && canEditProfile ? (
           <form className="coach-profile-card" onSubmit={handleSaveProfile}>
             <div className="coach-profile-card-heading">
               <div>
@@ -416,7 +416,16 @@ const CoachProfile = () => {
                 profile.assignments.map((assignment) => (
                   <article key={assignment.id} className="coach-profile-assignment">
                     <div>
-                      <strong>{assignment.batch?.batch_name || "Batch"}</strong>
+                      {assignment.batch?.id ? (
+                        <a
+                          className="coach-profile-assignment-link"
+                          href={`/batches?academyId=${profile?.academy_id || ""}&centerId=${assignment.batch?.center_id || ""}&batchId=${assignment.batch.id}`}
+                        >
+                          {assignment.batch?.batch_name || "Batch"}
+                        </a>
+                      ) : (
+                        <strong>{assignment.batch?.batch_name || "Batch"}</strong>
+                      )}
                       <span>{assignment.center?.center_name || "Center not available"}</span>
                     </div>
                     <div className="coach-profile-assignment-meta">
