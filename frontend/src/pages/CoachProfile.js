@@ -13,6 +13,9 @@ import {
   updateCoachCertification,
   updateCoachProfile,
   updateMyCoachProfile,
+  uploadCoachProfileImage,
+  deleteCoachProfileImage,
+  deleteCoachProfileImageByUrl,
 } from "../services/coachProfileService";
 import "./CoachProfile.css";
 
@@ -70,6 +73,8 @@ const CoachProfile = () => {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [form, setForm] = useState(EMPTY_FORM);
+  const [profileImageFile, setProfileImageFile] = useState(null);
+  const [profileImagePreview, setProfileImagePreview] = useState("");
   const [certificationForm, setCertificationForm] = useState(EMPTY_CERTIFICATION);
   const [editingCertificationId, setEditingCertificationId] = useState(null);
 
@@ -181,6 +186,28 @@ const CoachProfile = () => {
     setForm((current) => ({ ...current, [name]: value }));
   };
 
+  const handleProfileImageChange = (event) => {
+    const file = event.target.files?.[0] || null;
+
+    if (!file) return;
+
+    if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
+      setError("Coach photo must be PNG, JPG/JPEG, or WebP.");
+      event.target.value = "";
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      setError("Coach photo must be 2 MB or smaller.");
+      event.target.value = "";
+      return;
+    }
+
+    setError("");
+    setProfileImageFile(file);
+    setProfileImagePreview(URL.createObjectURL(file));
+  };
+
   const handleSaveProfile = async (event) => {
     event.preventDefault();
     setSaving(true);
@@ -188,10 +215,58 @@ const CoachProfile = () => {
     setMessage("");
 
     try {
-      const updated = canManageProfile
-        ? await updateCoachProfile(profile?.id, form)
-        : await updateMyCoachProfile(form);
+      let uploadedPhoto = null;
+      const previousProfileImage = form.profile_image;
+
+      if (profileImageFile) {
+        uploadedPhoto = await uploadCoachProfileImage(
+          profile?.id,
+          profile?.academy_id,
+          profileImageFile
+        );
+      }
+
+      const profilePayload = {
+        ...form,
+        profile_image: uploadedPhoto?.publicUrl || form.profile_image,
+      };
+
+      let updated;
+
+      try {
+        updated = canManageProfile
+          ? await updateCoachProfile(profile?.id, profilePayload)
+          : await updateMyCoachProfile(profilePayload);
+      } catch (updateError) {
+        if (uploadedPhoto?.path) {
+          try {
+            await deleteCoachProfileImage(uploadedPhoto.path);
+          } catch (cleanupError) {
+            console.error("Failed to clean up uploaded coach photo:", cleanupError);
+          }
+        }
+        throw updateError;
+      }
+
+      if (
+        uploadedPhoto?.publicUrl &&
+        previousProfileImage &&
+        previousProfileImage !== uploadedPhoto.publicUrl
+      ) {
+        try {
+          await deleteCoachProfileImageByUrl(previousProfileImage);
+        } catch (cleanupError) {
+          console.error("Failed to remove previous coach photo:", cleanupError);
+        }
+      }
+
       setProfile(updated);
+      setForm((current) => ({
+        ...current,
+        profile_image: updated?.profile_image || profilePayload.profile_image,
+      }));
+      setProfileImageFile(null);
+      setProfileImagePreview("");
       setEditing(false);
       setMessage("Profile updated successfully.");
     } catch (saveError) {
@@ -357,7 +432,24 @@ const CoachProfile = () => {
               <ProfileField label="Full name" name="full_name" value={form.full_name} onChange={handleChange} required />
               <ProfileField label="Email" name="email" type="email" value={form.email} onChange={handleChange} />
               <ProfileField label="Phone" name="phone" value={form.phone} onChange={handleChange} />
-              <ProfileField label="Profile image URL" name="profile_image" value={form.profile_image} onChange={handleChange} />
+              <label className="coach-profile-field coach-profile-photo-field">
+                <span>Profile photo</span>
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  onChange={handleProfileImageChange}
+                />
+                <small>PNG, JPG/JPEG or WebP · max 2 MB</small>
+                {(profileImagePreview || form.profile_image) ? (
+                  <span className="coach-profile-photo-preview">
+                    <img
+                      src={profileImagePreview || form.profile_image}
+                      alt="Coach profile preview"
+                    />
+                    <span>{profileImageFile ? profileImageFile.name : "Current profile photo"}</span>
+                  </span>
+                ) : null}
+              </label>
               <ProfileField label="Specialization" name="specialization" value={form.specialization} onChange={handleChange} />
               <ProfileField label="Experience (years)" name="experience_years" type="number" min="0" step="1" value={form.experience_years} onChange={handleChange} />
               <ProfileField label="Joining date" name="joining_date" type="date" value={form.joining_date} onChange={handleChange} />
