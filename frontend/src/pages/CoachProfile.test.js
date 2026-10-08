@@ -90,7 +90,7 @@ describe("CoachProfile role and behavior regression", () => {
     getParentCoachProfiles.mockResolvedValue([]);
   });
 
-  test("academy owner can view a coach profile and training scope without self-edit controls", async () => {
+  test("academy owner can view a coach profile and managed edit controls", async () => {
     getCoachProfile.mockResolvedValue(baseProfile);
 
     renderProfile({ id: "owner-1", role: "academy_owner" });
@@ -99,7 +99,7 @@ describe("CoachProfile role and behavior regression", () => {
     expect(screen.getAllByText("AFC A")).toHaveLength(2);
     expect(screen.getByText("Thane City FC")).toBeInTheDocument();
     expect(screen.getByText("Juniors")).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Edit Profile" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Edit Profile" })).toBeInTheDocument();
     expect(getCoachProfile).toHaveBeenCalledWith("coach-1");
     expect(getCoachCertifications).toHaveBeenCalledWith("coach-1");
   });
