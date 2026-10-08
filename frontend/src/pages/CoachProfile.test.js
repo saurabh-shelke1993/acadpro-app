@@ -92,7 +92,7 @@ describe("CoachProfile role and behavior regression", () => {
     renderProfile({ id: "owner-1", role: "academy_owner" });
 
     expect(await screen.findByRole("heading", { name: "Faisal Khan" })).toBeInTheDocument();
-    expect(screen.getByText("AFC A")).toBeInTheDocument();
+    expect(screen.getAllByText("AFC A")).toHaveLength(2);
     expect(screen.getByText("Thane City FC")).toBeInTheDocument();
     expect(screen.getByText("Juniors")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Edit Profile" })).not.toBeInTheDocument();
@@ -173,7 +173,7 @@ describe("CoachProfile role and behavior regression", () => {
       );
     });
 
-    expect(screen.getByText("Profile updated successfully.")).toBeInTheDocument();
+    expect(await screen.findByText("Profile updated successfully.")).toBeInTheDocument();
     expect(getCoachProfile).not.toHaveBeenCalled();
   });
 
