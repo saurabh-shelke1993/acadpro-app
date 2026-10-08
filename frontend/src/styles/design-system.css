@@ -84,6 +84,12 @@
   /* Motion */
   --ap-transition-fast: 150ms ease;
   --ap-transition-base: 200ms ease;
+
+  /* D7.7-B — Semantic control categories */
+  --ap-control-standard-height: 40px;
+  --ap-control-compact-height: 32px;
+  --ap-control-touch-size: 40px;
+  --ap-control-textarea-min-height: 96px;
 }
 
 /* ================================
@@ -131,12 +137,12 @@ textarea {
 
 input,
 select {
-  min-height: 40px;
+  min-height: var(--ap-control-standard-height);
   padding: 0.5rem 0.75rem;
 }
 
 textarea {
-  min-height: 96px;
+  min-height: var(--ap-control-textarea-min-height);
   padding: 0.625rem 0.75rem;
   resize: vertical;
 }
@@ -157,6 +163,36 @@ textarea:focus {
 /* ================================
    Reusable buttons
    ================================ */
+
+/* D7.7-B — Semantic control categories
+ * Standard interactive controls: normal buttons, inputs and selects use the
+ * 40px product control height.
+ * Compact table/filter controls: dense table internals may use the compact
+ * category when information density is the primary constraint.
+ * Icon-only touch controls: actionable icon buttons use a 40x40 touch box.
+ * Decorative/non-interactive elements: no control-size requirement applies.
+ *
+ * These categories are semantic guidance; feature CSS may size a control
+ * differently only when its role clearly belongs to another category.
+ */
+.ui-control-standard {
+  min-height: var(--ap-control-standard-height);
+}
+
+.ui-control-compact {
+  min-height: var(--ap-control-compact-height);
+}
+
+.ui-control-icon {
+  width: var(--ap-control-touch-size);
+  min-width: var(--ap-control-touch-size);
+  height: var(--ap-control-touch-size);
+  min-height: var(--ap-control-touch-size);
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
 
 .ui-button {
   display: inline-flex;
@@ -370,9 +406,12 @@ textarea::placeholder {
 
 .ui-button,
 input,
-select,
+select {
+  min-height: var(--ap-control-standard-height);
+}
+
 textarea {
-  min-height: 40px;
+  min-height: var(--ap-control-textarea-min-height);
 }
 
 .ui-button:focus-visible,
