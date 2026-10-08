@@ -29,6 +29,10 @@ function Coaches() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [specialization, setSpecialization] = useState("");
+  const [experienceYears, setExperienceYears] = useState("");
+  const [joiningDate, setJoiningDate] = useState("");
+  const [bio, setBio] = useState("");
+  const [profileImage, setProfileImage] = useState("");
 
   // Table filters.
   const [searchTerm, setSearchTerm] = useState("");
@@ -120,6 +124,10 @@ function Coaches() {
     setEmail("");
     setPhone("");
     setSpecialization("");
+    setExperienceYears("");
+    setJoiningDate("");
+    setBio("");
+    setProfileImage("");
 
     if (!isSuperAdmin(user)) {
       setSelectedAcademy(user?.academy_id || "");
@@ -148,6 +156,10 @@ function Coaches() {
             email: email.trim(),
             phone: phone.trim(),
             specialization: specialization.trim(),
+            experience_years: experienceYears === "" ? null : Number(experienceYears),
+            joining_date: joiningDate || null,
+            bio: bio.trim() || null,
+            profile_image: profileImage.trim() || null,
           })
           .eq("id", editingCoachId);
 
@@ -164,6 +176,10 @@ function Coaches() {
               email: email.trim(),
               phone: phone.trim(),
               specialization: specialization.trim(),
+              experience_years: experienceYears === "" ? null : Number(experienceYears),
+              joining_date: joiningDate || null,
+              bio: bio.trim() || null,
+              profile_image: profileImage.trim() || null,
             },
           ]);
 
@@ -188,6 +204,14 @@ function Coaches() {
     setEmail(coach.email || "");
     setPhone(coach.phone || "");
     setSpecialization(coach.specialization || "");
+    setExperienceYears(
+      coach.experience_years === null || coach.experience_years === undefined
+        ? ""
+        : String(coach.experience_years)
+    );
+    setJoiningDate(coach.joining_date || "");
+    setBio(coach.bio || "");
+    setProfileImage(coach.profile_image || "");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -593,6 +617,47 @@ function Coaches() {
                   }
                 />
               </label>
+
+              <label className="coaches-field">
+                <span>Experience (years)</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="1"
+                  placeholder="e.g. 6"
+                  value={experienceYears}
+                  onChange={(event) => setExperienceYears(event.target.value)}
+                />
+              </label>
+
+              <label className="coaches-field">
+                <span>Joining date</span>
+                <input
+                  type="date"
+                  value={joiningDate}
+                  onChange={(event) => setJoiningDate(event.target.value)}
+                />
+              </label>
+
+              <label className="coaches-field">
+                <span>Profile image URL</span>
+                <input
+                  type="url"
+                  placeholder="https://..."
+                  value={profileImage}
+                  onChange={(event) => setProfileImage(event.target.value)}
+                />
+              </label>
+
+              <label className="coaches-field coaches-field-wide">
+                <span>Bio</span>
+                <textarea
+                  rows="3"
+                  placeholder="Short professional bio"
+                  value={bio}
+                  onChange={(event) => setBio(event.target.value)}
+                />
+              </label>
             </div>
 
             <div className="coaches-form-actions">
@@ -721,12 +786,17 @@ function Coaches() {
                     >
                       <td className="coaches-name-cell">
                         <div className="coach-identity">
-                          <span
-                            className="coach-avatar"
-                            aria-hidden="true"
-                          >
-                            {getInitials(
-                              coach.full_name
+                          <span className="coach-avatar" aria-hidden="true">
+                            {coach.profile_image ? (
+                              <img
+                                src={coach.profile_image}
+                                alt=""
+                                onError={(event) => {
+                                  event.currentTarget.style.display = "none";
+                                }}
+                              />
+                            ) : (
+                              getInitials(coach.full_name)
                             )}
                           </span>
                           <span>
