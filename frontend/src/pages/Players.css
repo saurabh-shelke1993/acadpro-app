@@ -1284,3 +1284,18 @@
   background:var(--ap-danger-50);
   border-color:var(--ap-danger-100);
 }
+
+/* D7.7 — Player actions: consistent touch targets and focus visibility */
+.player-row-actions .player-action-button,
+.players-pagination .player-secondary-button,
+.player-modal-action-button {
+  min-height: 40px;
+}
+
+.player-primary-button:focus-visible,
+.player-secondary-button:focus-visible,
+.player-action-button:focus-visible,
+.player-modal-action-button:focus-visible {
+  outline: 3px solid var(--ap-primary-600);
+  outline-offset: 2px;
+}
