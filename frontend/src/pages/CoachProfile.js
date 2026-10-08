@@ -500,11 +500,11 @@ const CoachProfile = () => {
             </div>
             <div className="coach-profile-details-grid">
               <Detail label="Full name" value={profile?.full_name} />
-              <Detail label="Email" value={profile?.email} />
-              <Detail label="Phone" value={profile?.phone} />
+              {isParent ? null : <Detail label="Email" value={profile?.email} />}
+              {profile?.phone ? <Detail label="Phone" value={profile.phone} /> : null}
               <Detail label="Specialization" value={profile?.specialization} />
               <Detail label="Experience" value={profile?.experience_years != null ? `${profile.experience_years} years` : null} />
-              <Detail label="Joining date" value={formatDate(profile?.joining_date)} />
+              {isParent ? null : <Detail label="Joining date" value={formatDate(profile?.joining_date)} />}
               <Detail label="Academy" value={profile?.academy?.academy_name} />
               <Detail label="Status" value={profile?.is_active === false ? "Inactive" : "Active"} />
             </div>
@@ -516,10 +516,11 @@ const CoachProfile = () => {
             ) : null}
           </section>
 
-          <section className="coach-profile-card">
-            <div className="coach-profile-card-heading">
-              <div>
-                <span className="coach-profile-section-kicker">Training scope</span>
+          {!isParent ? (
+            <section className="coach-profile-card">
+              <div className="coach-profile-card-heading">
+                <div>
+                  <span className="coach-profile-section-kicker">Training scope</span>
                 <h2>Centers & batches</h2>
               </div>
               <span className="coach-profile-count">{profile?.assignments?.length || 0} active batches</span>
@@ -561,8 +562,9 @@ const CoachProfile = () => {
               ) : (
                 <p className="coach-profile-muted">No active batch assignments.</p>
               )}
-            </div>
-          </section>
+              </div>
+            </section>
+          ) : null}
         </div>
 
         {!isParent ? (
