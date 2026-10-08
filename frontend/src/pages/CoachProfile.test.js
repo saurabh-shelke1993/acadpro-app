@@ -11,6 +11,7 @@ import {
   getMyCoachProfile,
   getParentCoachProfiles,
   updateCoachCertification,
+  updateCoachProfile,
   updateMyCoachProfile,
 } from "../services/coachProfileService";
 
@@ -34,6 +35,7 @@ jest.mock("../services/coachProfileService", () => ({
   getMyCoachProfile: jest.fn(),
   getParentCoachProfiles: jest.fn(),
   updateCoachCertification: jest.fn(),
+  updateCoachProfile: jest.fn(),
   updateMyCoachProfile: jest.fn(),
 }));
 
@@ -54,6 +56,8 @@ const baseProfile = {
     {
       id: "assignment-1",
       batch: {
+        id: "batch-1",
+        center_id: "center-1",
         batch_name: "Juniors",
         age_group: "U14",
         start_time: "18:00:00",
@@ -98,6 +102,64 @@ describe("CoachProfile role and behavior regression", () => {
     expect(screen.queryByRole("button", { name: "Edit Profile" })).not.toBeInTheDocument();
     expect(getCoachProfile).toHaveBeenCalledWith("coach-1");
     expect(getCoachCertifications).toHaveBeenCalledWith("coach-1");
+  });
+
+  test("academy owner can edit managed profile details without changing scope fields", async () => {
+    getCoachProfile.mockResolvedValue(baseProfile);
+    updateCoachProfile.mockResolvedValue({
+      ...baseProfile,
+      experience_years: 8,
+      joining_date: "2025-06-01",
+      bio: "Updated academy owner bio.",
+      profile_image: "https://example.com/faisal.jpg",
+    });
+
+    renderProfile({ id: "owner-1", role: "academy_owner" });
+
+    await screen.findByRole("heading", { name: "Faisal Khan" });
+    fireEvent.click(screen.getByRole("button", { name: "Edit Profile" }));
+
+    fireEvent.change(screen.getByLabelText("Experience (years)"), {
+      target: { value: "8" },
+    });
+    fireEvent.change(screen.getByLabelText("Joining date"), {
+      target: { value: "2025-06-01" },
+    });
+    fireEvent.change(screen.getByLabelText("Profile image URL"), {
+      target: { value: "https://example.com/faisal.jpg" },
+    });
+    fireEvent.change(screen.getByLabelText("Bio"), {
+      target: { value: "Updated academy owner bio." },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
+
+    await waitFor(() => {
+      expect(updateCoachProfile).toHaveBeenCalledWith(
+        "coach-1",
+        expect.objectContaining({
+          full_name: "Faisal Khan",
+          experience_years: "8",
+          joining_date: "2025-06-01",
+          profile_image: "https://example.com/faisal.jpg",
+          bio: "Updated academy owner bio.",
+        })
+      );
+    });
+
+    expect(await screen.findByText("Profile updated successfully.")).toBeInTheDocument();
+    expect(updateMyCoachProfile).not.toHaveBeenCalled();
+  });
+
+  test("assigned batch is a navigable drilldown for academy owner", async () => {
+    getCoachProfile.mockResolvedValue(baseProfile);
+
+    renderProfile({ id: "owner-1", role: "academy_owner" });
+
+    const batchLink = await screen.findByRole("link", { name: "Juniors" });
+    expect(batchLink).toHaveAttribute(
+      "href",
+      "/batches?academyId=academy-1&centerId=center-1&batchId=batch-1"
+    );
   });
 
   test("parent can view only a coach returned by the parent-scoped profile RPC", async () => {
