@@ -228,6 +228,9 @@ describe("CoachProfile role and behavior regression", () => {
       id: "coach-1",
       full_name: "Faisal Khan",
       specialization: "AFC A",
+      phone: "9876543210",
+      email: "faisal@example.com",
+      joining_date: "2026-01-10",
       is_active: true,
       experience_years: 6,
       bio: "Youth development coach.",
@@ -240,6 +243,12 @@ describe("CoachProfile role and behavior regression", () => {
 
     expect(await screen.findByRole("heading", { name: "Faisal Khan" })).toBeInTheDocument();
     expect(screen.getByText("Youth development coach.")).toBeInTheDocument();
+    expect(screen.getByText("9876543210")).toBeInTheDocument();
+    expect(screen.getByText("Thane City FC")).toBeInTheDocument();
+    expect(screen.queryByText("faisal@example.com")).not.toBeInTheDocument();
+    expect(screen.queryByText("10 Jan 2026")).not.toBeInTheDocument();
+    expect(screen.queryByText("Training scope")).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Centers & batches" })).not.toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Certifications" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Edit Profile" })).not.toBeInTheDocument();
     expect(getCoachProfile).not.toHaveBeenCalled();
