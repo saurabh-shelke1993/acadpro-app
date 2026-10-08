@@ -6,6 +6,8 @@ import { getCurrentUser } from "../utils/auth";
 import {
   createCoachCertification,
   deleteCoachCertification,
+  deleteCoachProfileImage,
+  deleteCoachProfileImageByUrl,
   getCoachCertifications,
   getCoachProfile,
   getMyCoachProfile,
@@ -13,6 +15,7 @@ import {
   updateCoachCertification,
   updateCoachProfile,
   updateMyCoachProfile,
+  uploadCoachProfileImage,
 } from "../services/coachProfileService";
 
 jest.mock("../components/Layout", () => ({ children }) => <>{children}</>);
@@ -30,6 +33,8 @@ jest.mock("../utils/roles", () => ({
 jest.mock("../services/coachProfileService", () => ({
   createCoachCertification: jest.fn(),
   deleteCoachCertification: jest.fn(),
+  deleteCoachProfileImage: jest.fn(),
+  deleteCoachProfileImageByUrl: jest.fn(),
   getCoachCertifications: jest.fn(),
   getCoachProfile: jest.fn(),
   getMyCoachProfile: jest.fn(),
@@ -37,6 +42,7 @@ jest.mock("../services/coachProfileService", () => ({
   updateCoachCertification: jest.fn(),
   updateCoachProfile: jest.fn(),
   updateMyCoachProfile: jest.fn(),
+  uploadCoachProfileImage: jest.fn(),
 }));
 
 const baseProfile = {
@@ -148,6 +154,54 @@ describe("CoachProfile role and behavior regression", () => {
 
     expect(await screen.findByText("Profile updated successfully.")).toBeInTheDocument();
     expect(updateMyCoachProfile).not.toHaveBeenCalled();
+  });
+
+  test("academy owner can upload a coach profile photo to storage", async () => {
+    const photoFile = new File(["coach-photo"], "faisal.webp", {
+      type: "image/webp",
+    });
+
+    getCoachProfile.mockResolvedValue(baseProfile);
+    uploadCoachProfileImage.mockResolvedValue({
+      path: "academy-1/coach-1/profile-123.webp",
+      publicUrl: "https://example.supabase.co/storage/v1/object/public/coach-photos/academy-1/coach-1/profile-123.webp",
+    });
+    updateCoachProfile.mockResolvedValue({
+      ...baseProfile,
+      profile_image: "https://example.supabase.co/storage/v1/object/public/coach-photos/academy-1/coach-1/profile-123.webp",
+    });
+    deleteCoachProfileImage.mockResolvedValue(undefined);
+    deleteCoachProfileImageByUrl.mockResolvedValue(undefined);
+
+    renderProfile({ id: "owner-1", role: "academy_owner" });
+
+    await screen.findByRole("heading", { name: "Faisal Khan" });
+    fireEvent.click(screen.getByRole("button", { name: "Edit Profile" }));
+
+    fireEvent.change(screen.getByLabelText("Profile photo"), {
+      target: { files: [photoFile] },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
+
+    await waitFor(() => {
+      expect(uploadCoachProfileImage).toHaveBeenCalledWith(
+        "coach-1",
+        "academy-1",
+        photoFile
+      );
+    });
+
+    await waitFor(() => {
+      expect(updateCoachProfile).toHaveBeenCalledWith(
+        "coach-1",
+        expect.objectContaining({
+          profile_image:
+            "https://example.supabase.co/storage/v1/object/public/coach-photos/academy-1/coach-1/profile-123.webp",
+        })
+      );
+    });
+
+    expect(await screen.findByText("Profile updated successfully.")).toBeInTheDocument();
   });
 
   test("assigned batch is a navigable drilldown for academy owner", async () => {
