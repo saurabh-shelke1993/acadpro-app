@@ -131,9 +131,6 @@ describe("CoachProfile role and behavior regression", () => {
     fireEvent.change(screen.getByLabelText("Joining date"), {
       target: { value: "2025-06-01" },
     });
-    fireEvent.change(screen.getByLabelText("Profile image URL"), {
-      target: { value: "https://example.com/faisal.jpg" },
-    });
     fireEvent.change(screen.getByLabelText("Bio"), {
       target: { value: "Updated academy owner bio." },
     });
