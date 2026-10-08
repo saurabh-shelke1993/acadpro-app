@@ -564,17 +564,6 @@
   font-weight: 700;
 }
 
-.coaches-field input:focus-visible,
-.coaches-field select:focus-visible,
-.coaches-primary-button:focus-visible,
-.coaches-secondary-button:focus-visible,
-.coaches-filter-trigger:focus-visible,
-.coaches-filter-clear-button:focus-visible,
-.coaches-filter-done-button:focus-visible,
-.coaches-action-button:focus-visible {
-  outline: 2px solid var(--ap-primary-500);
-  outline-offset: 2px;
-}
 
 .sr-only {
   position: absolute;
