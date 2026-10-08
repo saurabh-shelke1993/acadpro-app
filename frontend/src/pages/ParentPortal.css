@@ -940,6 +940,41 @@
   margin-top:var(--ap-space-4);
 }
 
+.parent-portal-coach-links{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:.4rem;
+  margin-top:.2rem;
+}
+
+.parent-portal-coach-link{
+  display:inline-flex;
+  align-items:center;
+  gap:.3rem;
+  min-height:40px;
+  padding:.35rem .6rem;
+  border:0;
+  border-radius:var(--ap-radius-md);
+  background:transparent;
+  color:var(--ap-primary-700);
+  font:inherit;
+  font-size:var(--ap-font-size-sm);
+  font-weight:750;
+  text-align:left;
+  cursor:pointer;
+}
+
+.parent-portal-coach-link:hover{
+  background:var(--ap-primary-50);
+  color:var(--ap-primary-800);
+}
+
+.parent-portal-coach-link:focus-visible{
+  outline:3px solid var(--ap-primary-600);
+  outline-offset:2px;
+}
+
 .parent-portal-performance-section{
   padding-bottom:0;
 }
