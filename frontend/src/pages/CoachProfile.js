@@ -562,7 +562,7 @@ const CoachProfile = () => {
               ) : (
                 <p className="coach-profile-muted">No active batch assignments.</p>
               )}
-              </div>
+            </div>
             </section>
           ) : null}
         </div>
