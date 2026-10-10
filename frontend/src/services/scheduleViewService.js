@@ -17,8 +17,8 @@ const SCHEDULE_SELECT = `
 const todayIso = () => new Date().toISOString().split("T")[0];
 
 const isoDay = (dateValue) => {
-  const date = new Date(`${dateValue}T00:00:00`);
-  return Number.isNaN(date.getTime()) ? null : date.getDay() === 0 ? 7 : date.getDay();
+  const date = new Date(`${dateValue}T00:00:00Z`);
+  return Number.isNaN(date.getTime()) ? null : date.getUTCDay() === 0 ? 7 : date.getUTCDay();
 };
 
 const formatTime = (value) => (value ? String(value).slice(0, 5) : "");
@@ -34,10 +34,10 @@ const formatSession = (schedule) => {
 };
 
 const getDateForWeekday = (baseDate, dayOfWeek) => {
-  const base = new Date(`${baseDate}T00:00:00`);
-  const current = base.getDay() === 0 ? 7 : base.getDay();
+  const base = new Date(`${baseDate}T00:00:00Z`);
+  const current = base.getUTCDay() === 0 ? 7 : base.getUTCDay();
   const delta = Number(dayOfWeek) - current;
-  base.setDate(base.getDate() + delta);
+  base.setUTCDate(base.getUTCDate() + delta);
   return base.toISOString().split("T")[0];
 };
 
@@ -199,8 +199,8 @@ export const getParentScheduleView = async (childId, dateValue = todayIso()) => 
     ? week
       .map((schedule) => ({
         ...schedule,
-        date: new Date(`${schedule.date}T00:00:00`).setDate(
-          new Date(`${schedule.date}T00:00:00`).getDate() + 7
+        date: new Date(`${schedule.date}T00:00:00Z`).setUTCDate(
+          new Date(`${schedule.date}T00:00:00Z`).getUTCDate() + 7
         ),
       }))
       .map((schedule) => ({
