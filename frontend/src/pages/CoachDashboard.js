@@ -93,6 +93,34 @@ function CoachDashboard() {
 
         <section className="coach-dashboard-section">
           <div className="coach-dashboard-section-heading">
+            <div><span className="coach-dashboard-section-kicker">This week</span><h2>Assigned Schedule</h2></div>
+            <span className="coach-dashboard-helper">{scheduleView.week.length} sessions</span>
+          </div>
+          {scheduleView.week.length ? (
+            <div className="coach-dashboard-batches">
+              {scheduleView.week.map((session) => (
+                <article className="coach-batch-card" key={session.id}>
+                  <div className="coach-batch-card-header">
+                    <div>
+                      <h3 className="coach-batch-name">{session.session_label || session.sessionLabel}</h3>
+                      <p className="coach-batch-center">{session.date} · {session.centers?.center_name || "Center"} · {session.batches?.batch_name || "Batch"}</p>
+                    </div>
+                    <span className="coach-batch-status coach-batch-status-recorded">{session.playerCount} players</span>
+                  </div>
+                  <div className="coach-batch-card-footer">
+                    <span className="coach-dashboard-helper">{formatScheduleTime(session.start_time)}–{formatScheduleTime(session.end_time)}</span>
+                    <Link className="coach-dashboard-link" to={`/coach-attendance?scheduleId=${session.id}`}>Attendance →</Link>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="coach-dashboard-panel coach-dashboard-empty">No recurring sessions are assigned to you.</div>
+          )}
+        </section>
+
+        <section className="coach-dashboard-section">
+          <div className="coach-dashboard-section-heading">
             <div><span className="coach-dashboard-section-kicker">Today</span><h2>Attendance at a glance</h2></div>
             <span className="coach-dashboard-helper">Assigned batches only</span>
           </div>
