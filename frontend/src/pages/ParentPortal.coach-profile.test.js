@@ -14,6 +14,15 @@ jest.mock("../services/parentPortalService", () => ({
   getParentContext: jest.fn(),
 }));
 
+jest.mock("../services/scheduleViewService", () => ({
+  getParentScheduleView: jest.fn().mockResolvedValue({
+    today: [],
+    next: null,
+    week: [],
+  }),
+  formatScheduleTime: jest.fn((value) => (value ? String(value).slice(0, 5) : "")),
+}));
+
 describe("Parent Portal coach profile navigation", () => {
   beforeEach(() => {
     jest.clearAllMocks();
