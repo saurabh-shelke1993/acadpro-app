@@ -882,7 +882,11 @@ const Batches = () => {
           getDayName(day);
 
         const times = daySessions
-          .map((session) => formatSessionTime(session))
+          .map((session) => {
+            const time = formatSessionTime(session);
+            const label = String(session.sessionLabel || "").trim();
+            return label ? `${label}: ${time}` : time;
+          })
           .join(", ");
 
         return `${dayName} ${times}`;
