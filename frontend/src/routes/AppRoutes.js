@@ -30,6 +30,7 @@ import PaymentDues from "../pages/PaymentDues";
 import PaymentCollections from "../pages/PaymentCollections";
 import Coaches from "../pages/Coaches";
 import CoachBatchMapping from "../pages/CoachBatchMapping";
+import CoachScheduleAssignment from "../pages/CoachScheduleAssignment";
 
 import CoachDashboard from "../pages/CoachDashboard";
 import CoachAttendance from "../pages/CoachAttendance";
@@ -281,6 +282,20 @@ function AppRoutes() {
               ]}
             >
               <CoachProfile />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/coach-schedule-assignment"
+          element={
+            <ProtectedRoute
+              allowedRoles={[
+                "super_admin",
+                "academy_owner"
+              ]}
+            >
+              <CoachScheduleAssignment />
             </ProtectedRoute>
           }
         />
