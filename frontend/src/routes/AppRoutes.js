@@ -314,6 +314,34 @@ function AppRoutes() {
           }
         />
 
+        <Route
+          path="/batch-schedules"
+          element={
+            <ProtectedRoute
+              allowedRoles={[
+                "super_admin",
+                "academy_owner"
+              ]}
+            >
+              <BatchSchedules />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/player-schedule-enrollment"
+          element={
+            <ProtectedRoute
+              allowedRoles={[
+                "super_admin",
+                "academy_owner"
+              ]}
+            >
+              <PlayerScheduleEnrollment />
+            </ProtectedRoute>
+          }
+        />
+
         {/* ============================================
             COACH MODULES
         ============================================ */}
