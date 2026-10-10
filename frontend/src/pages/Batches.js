@@ -1125,11 +1125,28 @@ const Batches = () => {
                           `${row.dayOfWeek}-${row.startTime}-${sortedIndex}`
                         }
                       >
-                        <div className="batches-schedule-day">
-                          <strong>{getDayName(row.dayOfWeek)}</strong>
+                        <div className="batches-field batches-schedule-day-field">
+                          <label htmlFor={`schedule-day-${sortedIndex}`}>Day</label>
+                          <select
+                            id={`schedule-day-${sortedIndex}`}
+                            value={Number(row.dayOfWeek)}
+                            onChange={(event) =>
+                              updateScheduleRow(
+                                originalIndex,
+                                "dayOfWeek",
+                                Number(event.target.value)
+                              )
+                            }
+                          >
+                            {DAYS.map((day) => (
+                              <option key={day.value} value={day.value}>
+                                {day.label}
+                              </option>
+                            ))}
+                          </select>
                           {dayCounts[row.dayOfWeek] > 1 && (
-                            <span>
-                              Session {sortedIndex + 1}
+                            <span className="batches-session-row-hint">
+                              {dayCounts[row.dayOfWeek]} sessions this day
                             </span>
                           )}
                         </div>
@@ -1212,7 +1229,8 @@ const Batches = () => {
                 type="button"
                 className="batches-add-session-button"
                 onClick={() => {
-                  const existingDay = scheduleRows[0]?.dayOfWeek || 1;
+                  const existingDay =
+                    scheduleRows[scheduleRows.length - 1]?.dayOfWeek || 1;
                   addScheduleRow(Number(existingDay));
                 }}
               >
