@@ -295,6 +295,20 @@ const ParentPortal = () => {
                     <span>{scheduleByChildId[selectedChild.id].next.session_label || scheduleByChildId[selectedChild.id].next.sessionLabel} · {formatScheduleTime(scheduleByChildId[selectedChild.id].next.start_time)}–{formatScheduleTime(scheduleByChildId[selectedChild.id].next.end_time)}</span>
                   </div>
                 ) : null}
+                {scheduleByChildId[selectedChild.id]?.week?.length ? (
+                  <div className="parent-portal-weekly-schedule">
+                    <p className="parent-portal-section-kicker">Weekly schedule</p>
+                    {scheduleByChildId[selectedChild.id].week.map((session) => (
+                      <div className="parent-portal-schedule-item" key={session.id}>
+                        <div>
+                          <strong>{session.session_label || session.sessionLabel}</strong>
+                          <span>{session.date} · {session.centers?.center_name || "Center"} · {session.batches?.batch_name || "Batch"}</span>
+                        </div>
+                        <span>{formatScheduleTime(session.start_time)}–{formatScheduleTime(session.end_time)}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
               </section>
 
               <div className="parent-portal-attendance-development-grid">
