@@ -193,8 +193,27 @@ export const getParentScheduleView = async (childId, dateValue = todayIso()) => 
   );
 
   const nowTime = new Date().toTimeString().slice(0, 5);
-  const next = today.find((schedule) => formatTime(schedule.end_time) >= nowTime) ||
-    week.find((schedule) => schedule.date > dateValue);
+  const nextToday = today.find((schedule) => formatTime(schedule.end_time) >= nowTime);
+  const nextThisWeek = week.find((schedule) => schedule.date > dateValue);
+  const nextNextWeek = !nextToday && !nextThisWeek
+    ? week
+      .map((schedule) => ({
+        ...schedule,
+        date: new Date(`${schedule.date}T00:00:00`).setDate(
+          new Date(`${schedule.date}T00:00:00`).getDate() + 7
+        ),
+      }))
+      .map((schedule) => ({
+        ...schedule,
+        date: new Date(schedule.date).toISOString().split("T")[0],
+      }))
+      .filter((schedule) =>
+        (!schedule.enrollment_from || schedule.enrollment_from <= schedule.date) &&
+        (!schedule.enrollment_until || schedule.enrollment_until >= schedule.date)
+      )
+      .sort((a, b) => a.date.localeCompare(b.date) || String(a.start_time).localeCompare(String(b.start_time)))[0]
+    : null;
+  const next = nextToday ? { ...nextToday, date: dateValue } : nextThisWeek || nextNextWeek;
 
   return { today, next: next || null, week };
 };
