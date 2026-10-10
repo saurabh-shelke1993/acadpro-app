@@ -1303,3 +1303,25 @@
     grid-column: 1 / -1;
   }
 }
+
+
+.batches-schedule-day-field {
+  align-self: end;
+}
+
+.batches-schedule-day-field select {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.batches-session-row-hint {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--ap-primary-700);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.batches-days-cell {
+  min-width: 75px;
+}
