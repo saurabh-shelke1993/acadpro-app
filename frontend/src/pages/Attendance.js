@@ -295,7 +295,7 @@ setBatches(data || []);
 
       if (existingRows.length > 0) {
         setAttendanceMessage(
-          "Attendance is already recorded for this batch and date. Review it here; use Attendance History to edit existing records."
+          "Attendance is already recorded for this session and date. Review it here; use Attendance History to edit existing records."
         );
       }
     } catch (err) {
@@ -439,6 +439,8 @@ if (players.length === 0) {
         academy_id: selectedAcademy,
         player_id: item.player_id,
         batch_id: selectedBatch,
+        batch_schedule_id: selectedSchedule,
+        center_id: selectedCenter,
         attendance_date: attendanceDate,
         status: attendanceData[item.player_id],
         marked_by: user?.id,
