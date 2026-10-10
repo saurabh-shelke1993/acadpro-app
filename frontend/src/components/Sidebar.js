@@ -99,6 +99,7 @@ function Sidebar({ isOpen = false, onClose = () => {}, closeButtonRef }) {
               <div className="app-nav-group-title">Academy</div>
               {renderLink("/centers", "Centers", "⌂")}
               {renderLink("/batches", "Batches", "◆")}
+              {renderLink("/player-schedule-enrollment", "Player Schedule Enrollment", "◉")}
               {renderLink("/batch-schedules", "Batch Schedules", "◫")}
               {renderLink("/players", "Players", "●")}
             </>
