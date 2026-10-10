@@ -1556,3 +1556,5 @@
 .parent-portal-schedule-item{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.8rem 1rem;border:1px solid var(--ap-border);border-radius:var(--ap-radius-md);background:var(--ap-surface)}
 .parent-portal-schedule-item>div{display:flex;flex-direction:column;gap:.2rem}.parent-portal-schedule-item strong{font-size:.9rem}.parent-portal-schedule-item span{font-size:.8rem;color:var(--ap-slate-500)}
 .parent-portal-next-session{margin-top:.75rem;padding:.7rem .85rem;border-radius:var(--ap-radius-md);background:var(--ap-slate-50);display:flex;gap:.5rem;flex-wrap:wrap;font-size:.85rem}
+
+.parent-portal-weekly-schedule{display:grid;gap:.6rem;margin-top:1rem}.parent-portal-weekly-schedule .parent-portal-section-kicker{margin-bottom:.2rem}
