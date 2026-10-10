@@ -205,6 +205,36 @@ setBatches(data || []);
   };
 
   // =====================================================
+  // FETCH SCHEDULE SESSIONS
+  // =====================================================
+
+  useEffect(() => {
+    if (!selectedBatch) {
+      setScheduleOptions([]);
+      setSelectedSchedule("");
+      return;
+    }
+
+    const loadSessions = async () => {
+      try {
+        setAttendanceError("");
+        const schedules = await getAttendanceSessionsForBatch(selectedBatch, selectedCenter, attendanceDate);
+        setScheduleOptions(schedules || []);
+        setSelectedSchedule((current) =>
+          schedules.some((schedule) => schedule.id === current) ? current : ""
+        );
+      } catch (err) {
+        console.log(err.message);
+        setScheduleOptions([]);
+        setSelectedSchedule("");
+        setAttendanceError("Unable to load sessions for the selected date.");
+      }
+    };
+
+    loadSessions();
+  }, [selectedBatch, selectedCenter, attendanceDate]);
+
+  // =====================================================
   // FETCH PLAYERS
   // =====================================================
 
@@ -535,6 +565,8 @@ return (
                         className={selectedBatch === batch.id ? "coach-batch-picker-option selected" : "coach-batch-picker-option"}
                         onClick={() => {
                           setSelectedBatch(batch.id);
+                          setSelectedSchedule("");
+                          setScheduleOptions([]);
                           setAttendanceData({});
                           setAttendanceExists(false);
                           setAttendanceMessage("");
@@ -554,6 +586,8 @@ return (
                 value={selectedBatch}
                 onChange={(e) => {
                   setSelectedBatch(e.target.value);
+                  setSelectedSchedule("");
+                  setScheduleOptions([]);
                   setAttendanceData({});
                   setAttendanceExists(false);
                   setAttendanceMessage("");
