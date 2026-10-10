@@ -61,7 +61,7 @@ function CoachAttendance() {
 
       const { data, error: attendanceError } = await supabase
         .from("attendance")
-        .select("player_id, status")
+        .select("id, player_id, status")
         .eq("batch_schedule_id", selectedSchedule)
         .eq("attendance_date", attendanceDate)
         .eq("is_deleted", false);
@@ -132,8 +132,19 @@ function CoachAttendance() {
 
       if (existingError) throw existingError;
       if (existing?.length) {
-        setError("Attendance already exists for this session and date. Use the recorded rows above to edit it.");
+        const existingByPlayer = new Map(existing.map((row) => [row.player_id, row]));
+        await Promise.all(
+          players
+            .filter((player) => existingByPlayer.has(player.id))
+            .map((player) =>
+              supabase
+                .from("attendance")
+                .update({ status: player.status })
+                .eq("id", existingByPlayer.get(player.id).id)
+            )
+        );
         setIsEditMode(true);
+        setMessage("Attendance updated successfully.");
         return;
       }
 
@@ -250,7 +261,7 @@ function CoachAttendance() {
               <p>{selectedSchedule ? `${players.length} ${players.length === 1 ? "player" : "players"} enrolled in this session` : "Select a session to load enrolled players."}</p>
             </div>
 
-            {selectedSchedule && players.length > 0 && !isEditMode ? (
+            {selectedSchedule && players.length > 0 ? (
               <div className="attendance-bulk-actions">
                 <button type="button" className="attendance-secondary-button" onClick={() => markAll("present")}>✓ Mark all present</button>
                 <button type="button" className="attendance-secondary-button attendance-secondary-button-muted" onClick={() => markAll("absent")}>Mark all absent</button>
@@ -276,13 +287,13 @@ function CoachAttendance() {
                     <td className="attendance-player-name"><strong>{player.full_name || "—"}</strong>{!player.status ? <span>Not marked</span> : null}</td>
                     <td>
                       <label className={`attendance-choice attendance-choice-present ${player.status === "present" ? "attendance-choice-selected" : ""}`}>
-                        <input type="radio" name={`attendance-${player.id}`} checked={player.status === "present"} onChange={() => handleAttendanceChange(player.id, "present")} disabled={isEditMode} />
+                        <input type="radio" name={`attendance-${player.id}`} checked={player.status === "present"} onChange={() => handleAttendanceChange(player.id, "present")} />
                         <span className="attendance-choice-label">P</span>
                       </label>
                     </td>
                     <td>
                       <label className={`attendance-choice attendance-choice-absent ${player.status === "absent" ? "attendance-choice-selected" : ""}`}>
-                        <input type="radio" name={`attendance-${player.id}`} checked={player.status === "absent"} onChange={() => handleAttendanceChange(player.id, "absent")} disabled={isEditMode} />
+                        <input type="radio" name={`attendance-${player.id}`} checked={player.status === "absent"} onChange={() => handleAttendanceChange(player.id, "absent")} />
                         <span className="attendance-choice-label">A</span>
                       </label>
                     </td>
