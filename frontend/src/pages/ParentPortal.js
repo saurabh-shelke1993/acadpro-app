@@ -6,6 +6,7 @@ import {
   getAttendanceSummaries,
   getParentContext,
 } from "../services/parentPortalService";
+import { getParentScheduleView, formatScheduleTime } from "../services/scheduleViewService";
 
 const ParentPortal = () => {
   const [children, setChildren] = useState([]);
@@ -13,7 +14,8 @@ const ParentPortal = () => {
   const [attendanceByChildId, setAttendanceByChildId] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [secondaryErrors, setSecondaryErrors] = useState([]);\n  const [scheduleByChildId, setScheduleByChildId] = useState({});
+  const [secondaryErrors, setSecondaryErrors] = useState([]);
+  const [scheduleByChildId, setScheduleByChildId] = useState({});
   const [loadAttempt, setLoadAttempt] = useState(0);
   const navigate = useNavigate();
 
@@ -29,16 +31,22 @@ const ParentPortal = () => {
         const { children, coachError } = await getParentContext();
         const childIds = children.map((child) => child.id);
 
-        const attendanceResult = await getAttendanceSummaries(childIds);
+        const [attendanceResult, ...scheduleResults] = await Promise.all([
+          getAttendanceSummaries(childIds),
+          ...childIds.map((childId) => getParentScheduleView(childId)),
+        ]);
 
         if (!mounted) return;
 
         const nextSecondaryErrors = [];
         if (coachError) nextSecondaryErrors.push("Coach assignments could not be loaded.");
-        if (attendanceResult.error) nextSecondaryErrors.push("Attendance data could not be loaded.");\n        const nextScheduleMap = {};\n        childIds.forEach((childId, index) => { nextScheduleMap[childId] = scheduleResults[index] || { today: [], next: null, week: [] }; });
+        if (attendanceResult.error) nextSecondaryErrors.push("Attendance data could not be loaded.");
+        const nextScheduleMap = {};
+        childIds.forEach((childId, index) => { nextScheduleMap[childId] = scheduleResults[index] || { today: [], next: null, week: [] }; });
 
         setChildren(children);
-        setAttendanceByChildId(attendanceResult.summaries);\n        setScheduleByChildId(nextScheduleMap);
+        setAttendanceByChildId(attendanceResult.summaries);
+        setScheduleByChildId(nextScheduleMap);
         setSecondaryErrors(nextSecondaryErrors);
         setSelectedChildId(children[0]?.id || null);
         setLoading(false);
