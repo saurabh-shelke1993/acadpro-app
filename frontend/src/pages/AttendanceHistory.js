@@ -148,6 +148,12 @@ function AttendanceHistory() {
             batch_name,
             centers (center_name)
           ),
+          batch_schedules (
+            day_of_week,
+            start_time,
+            end_time,
+            session_label
+          ),
           users!attendance_marked_by_fkey (full_name)
         `)
         .eq("is_deleted", false)
@@ -556,6 +562,7 @@ function AttendanceHistory() {
                     <th scope="col">Player</th>
                     <th scope="col">Center</th>
                     <th scope="col">Batch</th>
+                    <th scope="col">Session</th>
                     <th scope="col">Status</th>
                     <th scope="col">Marked By</th>
                     <th scope="col">Actions</th>
@@ -570,6 +577,7 @@ function AttendanceHistory() {
                       </td>
                       <td>{item.batches?.centers?.center_name || "—"}</td>
                       <td>{item.batches?.batch_name || "—"}</td>
+                      <td>{item.batch_schedules ? [item.batch_schedules.session_label, item.batch_schedules.start_time ? `${String(item.batch_schedules.start_time).slice(0, 5)}–${String(item.batch_schedules.end_time || "").slice(0, 5)}` : null].filter(Boolean).join(" · ") : "Legacy / batch attendance"}</td>
                       <td>
                         {editingAttendanceId === item.id ? (
                           <select
