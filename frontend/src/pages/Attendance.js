@@ -35,7 +35,7 @@ function Attendance() {
 
   const [selectedAcademy, setSelectedAcademy] = useState("");
   const [selectedCenter, setSelectedCenter] = useState("");
-  const [selectedBatch, setSelectedBatch] = useState("");
+  const [selectedBatch, setSelectedBatch] = useState("");\n  const [scheduleOptions, setScheduleOptions] = useState([]);\n  const [selectedSchedule, setSelectedSchedule] = useState("");
   const [coachBatchMenuOpen, setCoachBatchMenuOpen] = useState(false);
 
   const [attendanceDate, setAttendanceDate] = useState(
@@ -219,7 +219,7 @@ setBatches(data || []);
       setAttendanceMessage("");
       setAttendanceError("");
     }
-  }, [selectedBatch, attendanceDate]);
+  }, [selectedSchedule, attendanceDate]);
 
   const fetchPlayers = async () => {
     setAttendanceLoading(true);
@@ -227,15 +227,23 @@ setBatches(data || []);
     setAttendanceError("");
 
     try {
-      const data = await getAccessiblePlayers(selectedBatch);
-      const safePlayers = data || [];
+      if (!selectedSchedule) {
+        setPlayers([]);
+        setAttendanceData({});
+        setAttendanceExists(false);
+        setAttendanceLoading(false);
+        return;
+      }
+
+      const safePlayers = await getEnrolledPlayersForSchedule(selectedSchedule, attendanceDate);
       setPlayers(safePlayers);
 
       const { data: existingAttendance, error: attendanceError } = await supabase
         .from("attendance")
         .select("player_id, status")
-        .eq("batch_id", selectedBatch)
-        .eq("attendance_date", attendanceDate);
+        .eq("batch_schedule_id", selectedSchedule)
+        .eq("attendance_date", attendanceDate)
+        .eq("is_deleted", false);
 
       if (attendanceError) throw attendanceError;
 
@@ -382,8 +390,9 @@ setBatches(data || []);
         await supabase
           .from("attendance")
           .select("*")
-          .eq("batch_id", selectedBatch)
-          .eq("attendance_date", attendanceDate);
+          .eq("batch_schedule_id", selectedSchedule)
+          .eq("attendance_date", attendanceDate)
+          .eq("is_deleted", false);
 
       if (duplicateError) throw duplicateError;
 
@@ -560,6 +569,30 @@ return (
                 ))}
               </select>
             )}
+          </div>
+
+          <div className="attendance-filter-field">
+            <label htmlFor="attendance-session">Session</label>
+            <select
+              id="attendance-session"
+              value={selectedSchedule}
+              onChange={(e) => {
+                setSelectedSchedule(e.target.value);
+                setPlayers([]);
+                setAttendanceData({});
+                setAttendanceExists(false);
+                setAttendanceMessage("");
+                setAttendanceError("");
+              }}
+              disabled={!selectedBatch || scheduleOptions.length === 0}
+            >
+              <option value="">Select Session</option>
+              {scheduleOptions.map((schedule) => (
+                <option key={schedule.id} value={schedule.id}>
+                  {formatScheduleLabel(schedule)}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="attendance-filter-field">
