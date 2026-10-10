@@ -5,7 +5,6 @@ import "./Attendance.css";
 import {
   getAccessibleAcademies,
   getAccessibleCenters,
-  getAccessiblePlayers,
   getAccessibleBatches,
 } from "../utils/dataScope";
 
@@ -23,6 +22,11 @@ import {
 import {
   saveAttendanceRecords,
 } from "../services/attendanceService";
+import {
+  getAttendanceSessionsForBatch,
+  getEnrolledPlayersForSchedule,
+  formatScheduleLabel,
+} from "../services/scheduleViewService";
 
 function Attendance() {
   const [user, setUser] = useState(null);
