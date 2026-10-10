@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import Layout from "../components/Layout";
 import { getCoachDashboardData } from "../services/dashboardService";
 import { getCurrentUser } from "../utils/auth";
+import { getCoachScheduleView, formatScheduleTime } from "../services/scheduleViewService";
 import "./CoachDashboard.css";
 
 function CoachDashboard() {
@@ -10,6 +11,7 @@ function CoachDashboard() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [scheduleView, setScheduleView] = useState({ today: [], week: [] });
 
   const loadDashboard = async () => {
     try {
@@ -17,9 +19,13 @@ function CoachDashboard() {
       setError("");
       const currentUser = await getCurrentUser();
       if (!currentUser) throw new Error("Unable to load the current user.");
-      const dashboardData = await getCoachDashboardData(currentUser);
+      const [dashboardData, scheduleData] = await Promise.all([
+        getCoachDashboardData(currentUser),
+        getCoachScheduleView(currentUser),
+      ]);
       setUser(currentUser);
       setData(dashboardData);
+      setScheduleView(scheduleData);
     } catch (loadError) {
       console.error("Coach dashboard load error:", loadError);
       setError(loadError.message || "Unable to load your coaching dashboard.");
@@ -56,6 +62,34 @@ function CoachDashboard() {
           </div>
 
         </header>
+
+        <section className="coach-dashboard-section">
+          <div className="coach-dashboard-section-heading">
+            <div><span className="coach-dashboard-section-kicker">Schedule</span><h2>Today&apos;s Sessions</h2></div>
+            <Link className="coach-dashboard-link" to="/coach-attendance">Open attendance →</Link>
+          </div>
+          {scheduleView.today.length ? (
+            <div className="coach-dashboard-batches">
+              {scheduleView.today.map((session) => (
+                <article className="coach-batch-card" key={session.id}>
+                  <div className="coach-batch-card-header">
+                    <div>
+                      <h3 className="coach-batch-name">{session.session_label || session.sessionLabel}</h3>
+                      <p className="coach-batch-center">{session.centers?.center_name || "Center"} · {session.batches?.batch_name || "Batch"}</p>
+                    </div>
+                    <span className="coach-batch-status coach-batch-status-recorded">{session.playerCount} players</span>
+                  </div>
+                  <div className="coach-batch-card-footer">
+                    <span className="coach-dashboard-helper">{formatScheduleTime(session.start_time)}–{formatScheduleTime(session.end_time)}</span>
+                    <Link className="coach-dashboard-link" to={`/coach-attendance?scheduleId=${session.id}`}>Take attendance →</Link>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="coach-dashboard-panel coach-dashboard-empty">No schedule sessions assigned to you today.</div>
+          )}
+        </section>
 
         <section className="coach-dashboard-section">
           <div className="coach-dashboard-section-heading">
