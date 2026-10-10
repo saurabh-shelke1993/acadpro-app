@@ -125,7 +125,7 @@ function CoachAttendance() {
       setError("");
       const { data: existing, error: existingError } = await supabase
         .from("attendance")
-        .select("id")
+        .select("id, player_id")
         .eq("batch_schedule_id", selectedSchedule)
         .eq("attendance_date", attendanceDate)
         .eq("is_deleted", false);
