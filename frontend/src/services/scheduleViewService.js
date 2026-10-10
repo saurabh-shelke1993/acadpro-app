@@ -62,6 +62,7 @@ const enrichSchedulesWithPlayers = async (schedules, dateValue) => {
 
   const bySchedule = new Map();
   (data || []).forEach((enrollment) => {
+    if (enrollment.enrolled_from > dateValue) return;
     if (enrollment.enrolled_until && enrollment.enrolled_until < dateValue) return;
     if (!enrollment.players?.is_active) return;
     const list = bySchedule.get(enrollment.batch_schedule_id) || [];
@@ -156,8 +157,7 @@ export const getParentScheduleView = async (childId, dateValue = todayIso()) => 
       batch_schedules ( ${SCHEDULE_SELECT} )
     `)
     .eq("player_id", childId)
-    .eq("is_active", true)
-    .lte("enrolled_from", dateValue);
+    .eq("is_active", true);
 
   if (error) throw error;
 
