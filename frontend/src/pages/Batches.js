@@ -453,33 +453,44 @@ const Batches = () => {
     existingSchedules
   }) => {
     const retainedIds = new Set();
+    const createdIds = [];
 
-    for (const row of scheduleRows) {
-      const payload = {
-        academyId,
-        batchId,
-        centerId,
-        dayOfWeek: Number(row.dayOfWeek),
-        startTime: row.startTime,
-        endTime: row.endTime,
-        sessionLabel: row.sessionLabel
-      };
+    try {
+      for (const row of scheduleRows) {
+        const payload = {
+          academyId,
+          batchId,
+          centerId,
+          dayOfWeek: Number(row.dayOfWeek),
+          startTime: row.startTime,
+          endTime: row.endTime,
+          sessionLabel: row.sessionLabel
+        };
 
-      if (row.id) {
-        await updateBatchSchedule(row.id, payload);
-        retainedIds.add(row.id);
-      } else {
-        const created = await createBatchSchedule(payload);
-        retainedIds.add(created.id);
+        if (row.id) {
+          await updateBatchSchedule(row.id, payload);
+          retainedIds.add(row.id);
+        } else {
+          const created = await createBatchSchedule(payload);
+          createdIds.push(created.id);
+          retainedIds.add(created.id);
+        }
       }
-    }
 
-    const schedulesToDeactivate = (existingSchedules || []).filter(
-      (schedule) => schedule.id && !retainedIds.has(schedule.id)
-    );
+      const schedulesToDeactivate = (existingSchedules || []).filter(
+        (schedule) => schedule.id && !retainedIds.has(schedule.id)
+      );
 
-    for (const schedule of schedulesToDeactivate) {
-      await deactivateBatchSchedule(schedule.id);
+      for (const schedule of schedulesToDeactivate) {
+        await deactivateBatchSchedule(schedule.id);
+      }
+    } catch (error) {
+      await Promise.all(
+        createdIds.map((scheduleId) =>
+          deactivateBatchSchedule(scheduleId).catch(() => null)
+        )
+      );
+      throw error;
     }
   };
 
@@ -618,16 +629,10 @@ const Batches = () => {
           }))
         )
       );
-    } else if (batch.start_time && batch.end_time) {
-      setScheduleRows([
-        {
-          ...createEmptySession(1),
-          startTime: normalizeTime(batch.start_time),
-          endTime: normalizeTime(batch.end_time),
-          sessionLabel: ""
-        }
-      ]);
     } else {
+      // Legacy batches may still have batches.start_time/end_time, but
+      // those values do not tell us which weekday(s) the batch runs.
+      // Do not invent a weekday; let the admin configure the recurring sessions.
       setScheduleRows([]);
     }
 
