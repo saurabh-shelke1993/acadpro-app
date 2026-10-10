@@ -690,13 +690,13 @@ return (
             <span className="attendance-section-eyebrow">Daily roster</span>
             <h2 id="players-attendance-title">Players Attendance</h2>
             <p>
-              {selectedBatch
-                ? `${players.length} ${players.length === 1 ? "player" : "players"} in the selected batch`
-                : "Select a batch to load players."}
+              {selectedSchedule
+                ? `${players.length} ${players.length === 1 ? "player" : "players"} enrolled in the selected session`
+                : selectedBatch ? "Select a recurring session to load enrolled players." : "Select a batch to load sessions."}
             </p>
           </div>
 
-          {selectedBatch && canManageAttendance(user) && !attendanceExists ? (
+          {selectedSchedule && canManageAttendance(user) && !attendanceExists ? (
             <div className="attendance-bulk-actions">
               <button
                 type="button"
