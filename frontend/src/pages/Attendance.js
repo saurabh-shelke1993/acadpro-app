@@ -35,7 +35,9 @@ function Attendance() {
 
   const [selectedAcademy, setSelectedAcademy] = useState("");
   const [selectedCenter, setSelectedCenter] = useState("");
-  const [selectedBatch, setSelectedBatch] = useState("");\n  const [scheduleOptions, setScheduleOptions] = useState([]);\n  const [selectedSchedule, setSelectedSchedule] = useState("");
+  const [selectedBatch, setSelectedBatch] = useState("");
+  const [scheduleOptions, setScheduleOptions] = useState([]);
+  const [selectedSchedule, setSelectedSchedule] = useState("");
   const [coachBatchMenuOpen, setCoachBatchMenuOpen] = useState(false);
 
   const [attendanceDate, setAttendanceDate] = useState(
