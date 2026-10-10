@@ -300,7 +300,7 @@ const ParentPortal = () => {
                 {scheduleByChildId[selectedChild.id]?.next ? (
                   <div className="parent-portal-next-session">
                     <strong>Next session</strong>
-                    <span>{scheduleByChildId[selectedChild.id].next.session_label || scheduleByChildId[selectedChild.id].next.sessionLabel} · {formatScheduleTime(scheduleByChildId[selectedChild.id].next.start_time)}–{formatScheduleTime(scheduleByChildId[selectedChild.id].next.end_time)}</span>
+                    <span>{formatDate(scheduleByChildId[selectedChild.id].next.date)} · {scheduleByChildId[selectedChild.id].next.session_label || scheduleByChildId[selectedChild.id].next.sessionLabel} · {formatScheduleTime(scheduleByChildId[selectedChild.id].next.start_time)}–{formatScheduleTime(scheduleByChildId[selectedChild.id].next.end_time)}</span>
                   </div>
                 ) : null}
                 {scheduleByChildId[selectedChild.id]?.week?.length ? (
