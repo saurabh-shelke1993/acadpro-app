@@ -13,7 +13,7 @@ const ParentPortal = () => {
   const [attendanceByChildId, setAttendanceByChildId] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [secondaryErrors, setSecondaryErrors] = useState([]);
+  const [secondaryErrors, setSecondaryErrors] = useState([]);\n  const [scheduleByChildId, setScheduleByChildId] = useState({});
   const [loadAttempt, setLoadAttempt] = useState(0);
   const navigate = useNavigate();
 
@@ -35,10 +35,10 @@ const ParentPortal = () => {
 
         const nextSecondaryErrors = [];
         if (coachError) nextSecondaryErrors.push("Coach assignments could not be loaded.");
-        if (attendanceResult.error) nextSecondaryErrors.push("Attendance data could not be loaded.");
+        if (attendanceResult.error) nextSecondaryErrors.push("Attendance data could not be loaded.");\n        const nextScheduleMap = {};\n        childIds.forEach((childId, index) => { nextScheduleMap[childId] = scheduleResults[index] || { today: [], next: null, week: [] }; });
 
         setChildren(children);
-        setAttendanceByChildId(attendanceResult.summaries);
+        setAttendanceByChildId(attendanceResult.summaries);\n        setScheduleByChildId(nextScheduleMap);
         setSecondaryErrors(nextSecondaryErrors);
         setSelectedChildId(children[0]?.id || null);
         setLoading(false);
@@ -265,6 +265,38 @@ const ParentPortal = () => {
                 </div>
               </div>
               </div>
+              <section className="parent-portal-subsection parent-portal-schedule-section">
+                <div className="parent-portal-subsection-heading">
+                  <div>
+                    <p className="parent-portal-section-kicker">Training schedule</p>
+                    <h3 className="parent-portal-subsection-title">Today &amp; weekly sessions</h3>
+                  </div>
+                </div>
+                {scheduleByChildId[selectedChild.id]?.today?.length ? (
+                  <div className="parent-portal-schedule-list">
+                    {scheduleByChildId[selectedChild.id].today.map((session) => (
+                      <div className="parent-portal-schedule-item" key={session.id}>
+                        <div>
+                          <strong>{session.session_label || session.sessionLabel}</strong>
+                          <span>{session.centers?.center_name || "Center"} · {session.batches?.batch_name || "Batch"}</span>
+                        </div>
+                        <span>{formatScheduleTime(session.start_time)}–{formatScheduleTime(session.end_time)}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="parent-portal-attendance-empty">
+                    <div><strong>No session scheduled today</strong><p className="parent-portal-message">The recurring schedule for this child will appear here when a session is assigned.</p></div>
+                  </div>
+                )}
+                {scheduleByChildId[selectedChild.id]?.next ? (
+                  <div className="parent-portal-next-session">
+                    <strong>Next session</strong>
+                    <span>{scheduleByChildId[selectedChild.id].next.session_label || scheduleByChildId[selectedChild.id].next.sessionLabel} · {formatScheduleTime(scheduleByChildId[selectedChild.id].next.start_time)}–{formatScheduleTime(scheduleByChildId[selectedChild.id].next.end_time)}</span>
+                  </div>
+                ) : null}
+              </section>
+
               <div className="parent-portal-attendance-development-grid">
               <div className="parent-portal-subsection parent-portal-attendance-section">
                 <div className="parent-portal-subsection-heading">
