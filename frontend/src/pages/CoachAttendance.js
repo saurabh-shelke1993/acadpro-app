@@ -133,7 +133,7 @@ function CoachAttendance() {
       if (existingError) throw existingError;
       if (existing?.length) {
         const existingByPlayer = new Map(existing.map((row) => [row.player_id, row]));
-        await Promise.all(
+        const updateResults = await Promise.all(
           players
             .filter((player) => existingByPlayer.has(player.id))
             .map((player) =>
@@ -143,6 +143,8 @@ function CoachAttendance() {
                 .eq("id", existingByPlayer.get(player.id).id)
             )
         );
+        const updateError = updateResults.find((result) => result.error)?.error;
+        if (updateError) throw updateError;
         setIsEditMode(true);
         setMessage("Attendance updated successfully.");
         return;
