@@ -20,6 +20,7 @@ import Academy from "../pages/Academy";
 import Centers from "../pages/Centers";
 import Batches from "../pages/Batches";
 import BatchSchedules from "../pages/BatchSchedules";
+import PlayerScheduleEnrollment from "../pages/PlayerScheduleEnrollment";
 import Players from "../pages/Players";
 import Attendance from "../pages/Attendance";
 import AttendanceHistory from "../pages/AttendanceHistory";
