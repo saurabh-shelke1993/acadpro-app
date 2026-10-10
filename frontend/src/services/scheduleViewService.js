@@ -56,8 +56,7 @@ const enrichSchedulesWithPlayers = async (schedules, dateValue) => {
       players ( id, full_name, is_active )
     `)
     .in("batch_schedule_id", scheduleIds)
-    .eq("is_active", true)
-    .lte("enrolled_from", dateValue);
+    .eq("is_active", true);
 
   if (error) throw error;
 
@@ -102,40 +101,44 @@ export const getCoachScheduleView = async (user, dateValue = todayIso()) => {
       batch_schedules ( ${SCHEDULE_SELECT} )
     `)
     .eq("coach_id", coach.id)
-    .eq("is_active", true)
-    .lte("assigned_from", dateValue);
+    .eq("is_active", true);
 
   if (error) throw error;
 
-  const validAssignments = (assignments || []).filter((assignment) =>
-    (!assignment.assigned_until || assignment.assigned_until >= dateValue) &&
-    assignment.batch_schedules?.is_active
+  const assignmentsForToday = (assignments || []).filter((assignment) =>
+    assignment.batch_schedules?.is_active &&
+    assignment.assigned_from <= dateValue &&
+    (!assignment.assigned_until || assignment.assigned_until >= dateValue)
   );
-
-  const todaySchedules = validAssignments
+  const todaySchedules = assignmentsForToday
     .map((assignment) => assignment.batch_schedules)
     .filter((schedule) => Number(schedule.day_of_week) === day);
 
-  const weekSchedules = validAssignments.map((assignment) => ({
-    ...assignment.batch_schedules,
-    assignment_id: assignment.id,
-    assignment_from: assignment.assigned_from,
-    assignment_until: assignment.assigned_until,
-  }));
+  const uniqueAssignments = [...new Map(
+    (assignments || [])
+      .filter((assignment) => assignment.batch_schedules?.is_active)
+      .map((assignment) => [assignment.batch_schedule_id, {
+        ...assignment.batch_schedules,
+        assignment_id: assignment.id,
+        assignment_from: assignment.assigned_from,
+        assignment_until: assignment.assigned_until,
+      }])
+  ).values()];
 
   const enrichedToday = await enrichSchedulesWithPlayers(todaySchedules, dateValue);
-  const enrichedWeek = await enrichSchedulesWithPlayers(
-    [...new Map(weekSchedules.map((schedule) => [schedule.id, schedule])).values()]
-      .sort((a, b) => Number(a.day_of_week) - Number(b.day_of_week) || String(a.start_time).localeCompare(String(b.start_time))),
-    dateValue
+  const enrichedWeek = (await Promise.all(uniqueAssignments.map(async (schedule) => {
+    const sessionDate = getDateForWeekday(dateValue, schedule.day_of_week);
+    if (schedule.assignment_from > sessionDate ||
+        (schedule.assignment_until && schedule.assignment_until < sessionDate)) return null;
+    const [enriched] = await enrichSchedulesWithPlayers([schedule], sessionDate);
+    return enriched ? { ...enriched, date: sessionDate } : null;
+  }))).filter(Boolean).sort((a, b) =>
+    a.date.localeCompare(b.date) || String(a.start_time).localeCompare(String(b.start_time))
   );
 
   return {
     today: enrichedToday.sort((a, b) => String(a.start_time).localeCompare(String(b.start_time))),
-    week: enrichedWeek.map((schedule) => ({
-      ...schedule,
-      date: getDateForWeekday(dateValue, schedule.day_of_week),
-    })),
+    week: enrichedWeek,
   };
 };
 
@@ -158,25 +161,36 @@ export const getParentScheduleView = async (childId, dateValue = todayIso()) => 
 
   if (error) throw error;
 
-  const valid = (data || []).filter((enrollment) =>
-    (!enrollment.enrolled_until || enrollment.enrolled_until >= dateValue) &&
-    enrollment.batch_schedules?.is_active
-  );
-
-  const schedules = valid.map((enrollment) => enrollment.batch_schedules);
-  const enriched = await enrichSchedulesWithPlayers(schedules, dateValue);
+  const valid = (data || []).filter((enrollment) => enrollment.batch_schedules?.is_active);
   const currentDay = isoDay(dateValue);
 
-  const today = enriched
-    .filter((schedule) => Number(schedule.day_of_week) === currentDay)
-    .sort((a, b) => String(a.start_time).localeCompare(String(b.start_time)));
+  const todayEnrollmentRows = valid.filter((enrollment) =>
+    Number(enrollment.batch_schedules.day_of_week) === currentDay &&
+    enrollment.enrolled_from <= dateValue &&
+    (!enrollment.enrolled_until || enrollment.enrolled_until >= dateValue)
+  );
+  const today = await enrichSchedulesWithPlayers(
+    todayEnrollmentRows.map((enrollment) => enrollment.batch_schedules),
+    dateValue
+  );
+  today.sort((a, b) => String(a.start_time).localeCompare(String(b.start_time)));
 
-  const week = enriched
-    .map((schedule) => ({
-      ...schedule,
-      date: getDateForWeekday(dateValue, schedule.day_of_week),
-    }))
-    .sort((a, b) => a.date.localeCompare(b.date) || String(a.start_time).localeCompare(String(b.start_time)));
+  const uniqueSchedules = [...new Map(
+    valid.map((enrollment) => [enrollment.batch_schedule_id, {
+      ...enrollment.batch_schedules,
+      enrollment_from: enrollment.enrolled_from,
+      enrollment_until: enrollment.enrolled_until,
+    }])
+  ).values()];
+  const week = (await Promise.all(uniqueSchedules.map(async (schedule) => {
+    const sessionDate = getDateForWeekday(dateValue, schedule.day_of_week);
+    if (schedule.enrollment_from > sessionDate ||
+        (schedule.enrollment_until && schedule.enrollment_until < sessionDate)) return null;
+    const [enriched] = await enrichSchedulesWithPlayers([schedule], sessionDate);
+    return enriched ? { ...enriched, date: sessionDate } : null;
+  }))).filter(Boolean).sort((a, b) =>
+    a.date.localeCompare(b.date) || String(a.start_time).localeCompare(String(b.start_time))
+  );
 
   const nowTime = new Date().toTimeString().slice(0, 5);
   const next = today.find((schedule) => formatTime(schedule.end_time) >= nowTime) ||
