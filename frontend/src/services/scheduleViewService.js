@@ -239,8 +239,51 @@ export const getParentScheduleView = async (childId, dateValue = todayIso()) => 
 };
 
 export const getCoachAttendanceSessions = async (user, dateValue = todayIso()) => {
-  const view = await getCoachScheduleView(user, dateValue);
-  return view.today;
+  if (!user?.id || dateValue > todayIso()) return [];
+
+  const { data: coach, error: coachError } = await supabase
+    .from("coaches")
+    .select("id")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (coachError) throw coachError;
+  if (!coach) return [];
+
+  const day = isoDay(dateValue);
+  const { data, error } = await supabase
+    .from("coach_batch_schedule_assignments")
+    .select(`
+      id,
+      batch_schedule_id,
+      assigned_from,
+      assigned_until,
+      is_active,
+      batch_schedules ( ${SCHEDULE_SELECT} )
+    `)
+    .eq("coach_id", coach.id)
+    .eq("is_active", true);
+
+  if (error) throw error;
+
+  // For past attendance, allow an active current assignment to be selected for its
+  // matching weekday even if the mapping was created later; future dates are blocked.
+  const schedules = (data || [])
+    .filter((assignment) => {
+      const schedule = assignment.batch_schedules;
+      if (!schedule?.is_active || Number(schedule.day_of_week) !== day) return false;
+      if (dateValue <= todayIso()) {
+        return !assignment.assigned_until || assignment.assigned_until >= dateValue;
+      }
+      return false;
+    })
+    .map((assignment) => ({
+      ...assignment.batch_schedules,
+      assignment_id: assignment.id,
+      center_id: assignment.batch_schedules.center_id,
+      batch_id: assignment.batch_schedules.batch_id,
+    }));
+
+  return enrichSchedulesWithPlayers(schedules, dateValue);
 };
 
 export const getAttendanceSessionsForBatch = async (batchId, centerId = "", dateValue = todayIso()) => {
