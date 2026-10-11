@@ -11,7 +11,7 @@ function CoachDashboard() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [scheduleView, setScheduleView] = useState({ today: [], week: [] });
+  const [scheduleView, setScheduleView] = useState({ today: [], upcoming: [], week: [] });
 
   const loadDashboard = async () => {
     try {
@@ -58,19 +58,19 @@ function CoachDashboard() {
           <div>
             <span className="coach-dashboard-eyebrow">Coach workspace</span>
             <h1 className="coach-dashboard-title">Hi, {user?.full_name || "Coach"}</h1>
-            <p className="coach-dashboard-subtitle">Your batches and today&apos;s attendance at a glance.</p>
+            <p className="coach-dashboard-subtitle">Your batches, upcoming sessions, and attendance at a glance.</p>
           </div>
 
         </header>
 
         <section className="coach-dashboard-section">
           <div className="coach-dashboard-section-heading">
-            <div><span className="coach-dashboard-section-kicker">Schedule</span><h2>Today&apos;s Sessions</h2></div>
+            <div><span className="coach-dashboard-section-kicker">Schedule</span><h2>Upcoming Sessions</h2></div>
             <Link className="coach-dashboard-link" to="/coach-attendance">Open attendance →</Link>
           </div>
-          {scheduleView.today.length ? (
+          {scheduleView.upcoming.length ? (
             <div className="coach-dashboard-batches">
-              {scheduleView.today.map((session) => (
+              {scheduleView.upcoming.map((session) => (
                 <article className="coach-batch-card" key={session.id}>
                   <div className="coach-batch-card-header">
                     <div>
@@ -87,7 +87,7 @@ function CoachDashboard() {
               ))}
             </div>
           ) : (
-            <div className="coach-dashboard-panel coach-dashboard-empty">No schedule sessions assigned to you today.</div>
+            <div className="coach-dashboard-panel coach-dashboard-empty">No upcoming sessions are assigned to you.</div>
           )}
         </section>
 
