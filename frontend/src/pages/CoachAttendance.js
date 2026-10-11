@@ -319,10 +319,10 @@ function CoachAttendance() {
             </table>
           </div>
 
-          {selectedSchedule && players.length > 0 && !isEditMode ? (
+          {selectedSchedule && players.length > 0 ? (
             <div className="attendance-save-bar">
               <button type="button" className="attendance-primary-button" onClick={saveAttendance} disabled={saving}>
-                {saving ? "Saving…" : "Save Attendance"}
+                {saving ? "Saving…" : isEditMode ? "Update Attendance" : "Save Attendance"}
               </button>
             </div>
           ) : null}
