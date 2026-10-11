@@ -118,6 +118,12 @@ function CoachAttendance() {
 
   const saveAttendance = async () => {
     if (!selectedSchedule || !players.length || saving) return;
+    const today = new Date();
+    const localToday = [today.getFullYear(), String(today.getMonth() + 1).padStart(2, "0"), String(today.getDate()).padStart(2, "0")].join("-");
+    if (attendanceDate > localToday) {
+      setError("Attendance cannot be marked for a future date. Select today or an earlier date.");
+      return;
+    }
 
     const unmarked = players.filter((player) => !player.status);
     if (unmarked.length) {
@@ -205,6 +211,7 @@ function CoachAttendance() {
               <input
                 id="coach-attendance-date"
                 type="date"
+                max={new Date().toLocaleDateString("en-CA")}
                 value={attendanceDate}
                 onChange={(e) => {
                   setAttendanceDate(e.target.value);
