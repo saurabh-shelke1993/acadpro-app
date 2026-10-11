@@ -88,13 +88,12 @@ export const saveExpense = async (user, expense, expenseId = null) => {
     payment_method: expense.payment_method || null,
     reference_number: expense.reference_number?.trim() || null,
     reminder_id: expense.reminder_id || null,
-    notes: expense.notes?.trim() || null,
-    created_by: user.id
+    notes: expense.notes?.trim() || null
   };
 
   const request = expenseId
     ? supabase.from("expenses").update(payload).eq("id", expenseId).eq("academy_id", user.academy_id)
-    : supabase.from("expenses").insert(payload);
+    : supabase.from("expenses").insert({ ...payload, created_by: user.id });
 
   const { data, error } = await request.select("id");
   if (error) throw error;
@@ -128,13 +127,12 @@ export const saveExpenseReminder = async (user, reminder, reminderId = null) => 
     expected_amount: Number(reminder.expected_amount),
     next_due_date: reminder.next_due_date,
     is_active: Boolean(reminder.is_active),
-    notes: reminder.notes?.trim() || null,
-    created_by: user.id
+    notes: reminder.notes?.trim() || null
   };
 
   const request = reminderId
     ? supabase.from("expense_reminders").update(payload).eq("id", reminderId).eq("academy_id", user.academy_id)
-    : supabase.from("expense_reminders").insert(payload);
+    : supabase.from("expense_reminders").insert({ ...payload, created_by: user.id });
 
   const { data, error } = await request.select("id");
   if (error) throw error;
