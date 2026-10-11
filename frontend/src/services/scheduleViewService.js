@@ -391,61 +391,84 @@ export const getEnrolledPlayersForSchedule = async (scheduleId, attendanceDate) 
   if (scheduleError) throw scheduleError;
   if (!schedule) return [];
 
+  // Read enrollment rows first, then query players directly. Avoid relying on
+  // PostgREST embedded relationship payloads, which can be null/array-shaped
+  // under different relationship and RLS conditions.
   const { data: scheduleEnrollments, error: enrollmentError } = await supabase
     .from("player_batch_schedules")
-    .select(`
-      player_id,
-      enrolled_from,
-      enrolled_until,
-      players!inner ( id, full_name, is_active, batch_id, center_id )
-    `)
+    .select("player_id, enrolled_from, enrolled_until")
     .eq("batch_schedule_id", scheduleId)
     .eq("is_active", true)
     .lte("enrolled_from", attendanceDate);
 
   if (enrollmentError) throw enrollmentError;
 
-  const enrolledPlayers = (scheduleEnrollments || [])
-    .filter((row) => !row.enrolled_until || row.enrolled_until >= attendanceDate)
-    .map((row) => {
-      const player = Array.isArray(row.players) ? row.players[0] : row.players;
-      if (!player?.is_active) return null;
-      return {
-        id: row.player_id,
-        player_id: row.player_id,
-        full_name: player.full_name,
-        batch_id: player.batch_id,
-        center_id: player.center_id,
-      };
-    })
-    .filter(Boolean);
+  const eligibleEnrollmentIds = [...new Set(
+    (scheduleEnrollments || [])
+      .filter((row) => !row.enrolled_until || row.enrolled_until >= attendanceDate)
+      .map((row) => row.player_id)
+      .filter(Boolean)
+  )];
 
-  if (enrolledPlayers.length) return enrolledPlayers;
+  if (eligibleEnrollmentIds.length) {
+    const { data: enrolledPlayerRows, error: enrolledPlayersError } = await supabase
+      .from("players")
+      .select("id, full_name, is_active, batch_id, center_id")
+      .in("id", eligibleEnrollmentIds)
+      .eq("is_active", true);
 
-  // The current AcadPro player enrollment flow assigns players through player_batches.
-  // Fall back to batch-level enrollment when no session-specific enrollment rows exist.
+    if (enrolledPlayersError) throw enrolledPlayersError;
+
+    const playersById = new Map(
+      (enrolledPlayerRows || []).map((player) => [player.id, player])
+    );
+
+    const enrolledPlayers = eligibleEnrollmentIds
+      .map((playerId) => {
+        const player = playersById.get(playerId);
+        if (!player) return null;
+        return {
+          id: player.id,
+          player_id: player.id,
+          full_name: player.full_name,
+          batch_id: player.batch_id,
+          center_id: player.center_id,
+        };
+      })
+      .filter(Boolean);
+
+    if (enrolledPlayers.length) return enrolledPlayers;
+  }
+
+  // Existing player enrollment flow also supports batch-level assignments.
+  // Query players directly rather than embedding the players relationship.
   const { data: batchEnrollments, error: batchError } = await supabase
     .from("player_batches")
-    .select("player_id, players!inner ( id, full_name, is_active, batch_id, center_id )")
-    .eq("batch_id", schedule.batch_id)
-    .eq("players.is_active", true);
+    .select("player_id")
+    .eq("batch_id", schedule.batch_id);
 
   if (batchError) throw batchError;
 
-  const uniquePlayers = new Map();
-  (batchEnrollments || []).forEach((row) => {
-    const player = Array.isArray(row.players) ? row.players[0] : row.players;
-    if (player?.id) {
-      uniquePlayers.set(player.id, {
-        id: player.id,
-        player_id: player.id,
-        full_name: player.full_name,
-        batch_id: player.batch_id,
-        center_id: player.center_id,
-      });
-    }
-  });
-  return [...uniquePlayers.values()];
+  const batchPlayerIds = [...new Set(
+    (batchEnrollments || []).map((row) => row.player_id).filter(Boolean)
+  )];
+  if (!batchPlayerIds.length) return [];
+
+  const { data: batchPlayers, error: batchPlayersError } = await supabase
+    .from("players")
+    .select("id, full_name, is_active, batch_id, center_id")
+    .in("id", batchPlayerIds)
+    .eq("is_active", true);
+
+  if (batchPlayersError) throw batchPlayersError;
+
+  return (batchPlayers || []).map((player) => ({
+    id: player.id,
+    player_id: player.id,
+    full_name: player.full_name,
+    batch_id: player.batch_id,
+    center_id: player.center_id,
+  }));
 };
 
 export const formatScheduleTime = formatTime;
