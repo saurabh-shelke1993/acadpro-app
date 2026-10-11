@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import Layout from "../components/Layout";
 import "./PlayerSubscriptions.css";
 import { supabase } from "../services/supabase";
@@ -78,14 +78,14 @@ function PlayerSubscriptions() {
   useEffect(() => {
     if (!loggedInUser) return;
     fetchAcademies();
-  }, [loggedInUser]);
+  }, [loggedInUser, fetchAcademies]);
 
   useEffect(() => {
     if (!loggedInUser) return;
     fetchPlayers();
     fetchPlans();
     fetchSubscriptions();
-  }, [loggedInUser, selectedAcademy, selectedCenter, selectedBatch]);
+  }, [loggedInUser, fetchPlayers, fetchPlans, fetchSubscriptions]);
 
   useEffect(() => {
     if (!selectedAcademy) {
@@ -93,19 +93,17 @@ function PlayerSubscriptions() {
       setBatches([]);
       return;
     }
-
     fetchCenters(selectedAcademy);
     fetchPlans();
-  }, [selectedAcademy]);
+  }, [selectedAcademy, fetchCenters, fetchPlans]);
 
   useEffect(() => {
     if (!selectedCenter) {
       setBatches([]);
       return;
     }
-
     fetchBatches(selectedCenter);
-  }, [selectedCenter]);
+  }, [selectedCenter, fetchBatches]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -121,12 +119,12 @@ function PlayerSubscriptions() {
     });
   }, [selectedAcademy, selectedCenter, selectedBatch]);
 
-  const showToast = (type, message) => {
+  const showToast = useCallback((type, message) => {
     setToast({ type, message });
     window.setTimeout(() => setToast(null), 3500);
-  };
+}, []);
 
-  const fetchAcademies = async () => {
+  const fetchAcademies = useCallback(async () => {
     if (!loggedInUser) return;
 
     let query = supabase
@@ -153,9 +151,9 @@ function PlayerSubscriptions() {
     if (!isSuperAdmin(loggedInUser) && nextAcademies.length === 1) {
       setSelectedAcademy(nextAcademies[0].id);
     }
-  };
+}, [loggedInUser, showToast]);
 
-  const fetchCenters = async (academyId) => {
+  const fetchCenters = useCallback(async (academyId) => {
     const { data, error } = await supabase
       .from("centers")
       .select("id, center_name")
@@ -169,9 +167,9 @@ function PlayerSubscriptions() {
     }
 
     setCenters(data || []);
-  };
+}, [showToast]);
 
-  const fetchBatches = async (centerId) => {
+  const fetchBatches = useCallback(async (centerId) => {
     const { data, error } = await supabase
       .from("batches")
       .select("id, batch_name")
@@ -185,9 +183,9 @@ function PlayerSubscriptions() {
     }
 
     setBatches(data || []);
-  };
+}, [showToast]);
 
-  const fetchPlayers = async () => {
+  const fetchPlayers = useCallback(async () => {
     let query = supabase
       .from("players")
       .select("id, full_name, academy_id, center_id, batch_id")
@@ -206,9 +204,9 @@ function PlayerSubscriptions() {
     }
 
     setPlayers(data || []);
-  };
+}, [selectedAcademy, selectedCenter, selectedBatch, showToast]);
 
-  const fetchPlans = async () => {
+  const fetchPlans = useCallback(async () => {
     let query = supabase
       .from("subscription_plans")
       .select("id, academy_id, plan_name, amount, billing_cycle")
@@ -225,9 +223,9 @@ function PlayerSubscriptions() {
     }
 
     setPlans(data || []);
-  };
+}, [selectedAcademy, showToast]);
 
-  const fetchSubscriptions = async () => {
+  const fetchSubscriptions = useCallback(async () => {
     let query = supabase
       .from("player_subscriptions")
       .select(`
@@ -290,7 +288,7 @@ function PlayerSubscriptions() {
     }
 
     setSubscriptions(scopedData);
-  };
+}, [loggedInUser, selectedAcademy, selectedCenter, selectedBatch, showToast]);
 
   const resetAssignmentForm = () => {
     setIsEditing(false);
