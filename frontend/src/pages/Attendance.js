@@ -126,7 +126,7 @@ const loadAssignedBatches = useCallback(async () => {
     console.log(err.message);
   }
 
-}, [user, fetchAcademies, loadAssignedBatches]);
+}, [user]);
 
   // =====================================================
   // FETCH ACADEMIES
@@ -140,7 +140,7 @@ useEffect(() => {
 
   loadAssignedBatches();
 
-}, [user]);
+}, [user, fetchAcademies, loadAssignedBatches]);
 
   const fetchAcademies = useCallback(async () => {
   try {
