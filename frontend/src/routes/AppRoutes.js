@@ -19,8 +19,6 @@ import Analytics from "../pages/Analytics";
 import Academy from "../pages/Academy";
 import Centers from "../pages/Centers";
 import Batches from "../pages/Batches";
-import BatchSchedules from "../pages/BatchSchedules";
-import PlayerScheduleEnrollment from "../pages/PlayerScheduleEnrollment";
 import Players from "../pages/Players";
 import Attendance from "../pages/Attendance";
 import AttendanceHistory from "../pages/AttendanceHistory";
@@ -30,7 +28,6 @@ import PaymentDues from "../pages/PaymentDues";
 import PaymentCollections from "../pages/PaymentCollections";
 import Coaches from "../pages/Coaches";
 import CoachBatchMapping from "../pages/CoachBatchMapping";
-import CoachScheduleAssignment from "../pages/CoachScheduleAssignment";
 
 import CoachDashboard from "../pages/CoachDashboard";
 import CoachAttendance from "../pages/CoachAttendance";
@@ -286,18 +283,10 @@ function AppRoutes() {
           }
         />
 
+        {/* R5: schedule assignments are managed inside Coach Batch Mapping. */}
         <Route
           path="/coach-schedule-assignment"
-          element={
-            <ProtectedRoute
-              allowedRoles={[
-                "super_admin",
-                "academy_owner"
-              ]}
-            >
-              <CoachScheduleAssignment />
-            </ProtectedRoute>
-          }
+          element={<Navigate to="/coach-batch-mapping" replace />}
         />
 
         <Route
@@ -314,32 +303,14 @@ function AppRoutes() {
           }
         />
 
+        {/* R5: schedule management now lives in Batches and Players. */}
         <Route
           path="/batch-schedules"
-          element={
-            <ProtectedRoute
-              allowedRoles={[
-                "super_admin",
-                "academy_owner"
-              ]}
-            >
-              <BatchSchedules />
-            </ProtectedRoute>
-          }
+          element={<Navigate to="/batches" replace />}
         />
-
         <Route
           path="/player-schedule-enrollment"
-          element={
-            <ProtectedRoute
-              allowedRoles={[
-                "super_admin",
-                "academy_owner"
-              ]}
-            >
-              <PlayerScheduleEnrollment />
-            </ProtectedRoute>
-          }
+          element={<Navigate to="/players" replace />}
         />
 
         {/* ============================================
