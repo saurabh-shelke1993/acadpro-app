@@ -83,7 +83,7 @@ const [statusFilter, setStatusFilter] =
 
  const [loggedInUser, setLoggedInUser] =
   useState(null); 
-seEffect(() => {
+useEffect(() => {
 
   if (generationBatch) {
 
