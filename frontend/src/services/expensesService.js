@@ -53,6 +53,7 @@ export const fetchExpenses = async (user, filters = {}) => {
   query = applyAcademyScope(query, user, filters.academyId);
   if (filters.fromDate) query = query.gte("expense_date", filters.fromDate);
   if (filters.toDate) query = query.lte("expense_date", filters.toDate);
+  if (filters.category) query = query.eq("category", filters.category);
 
   const { data, error } = await query;
   if (error) throw error;
