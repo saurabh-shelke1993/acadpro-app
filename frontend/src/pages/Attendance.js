@@ -131,17 +131,6 @@ const loadAssignedBatches = useCallback(async () => {
   // =====================================================
   // FETCH ACADEMIES
   // =====================================================
-
-useEffect(() => {
-
-  if (!user) return;
-
-  fetchAcademies();
-
-  loadAssignedBatches();
-
-}, [user, fetchAcademies, loadAssignedBatches]);
-
   const fetchAcademies = useCallback(async () => {
   try {
     const data = await getAccessibleAcademies(user);
@@ -162,15 +151,6 @@ useEffect(() => {
   // =====================================================
   // FETCH CENTERS
   // =====================================================
-
-  useEffect(() => {
-    if (selectedAcademy) {
-      fetchCenters();
-    } else {
-      setCenters([]);
-    }
-  }, [selectedAcademy, fetchCenters]);
-
  const fetchCenters = useCallback(async () => {
   try {
     const data = await getAccessibleCenters(user);
@@ -188,15 +168,6 @@ useEffect(() => {
   // =====================================================
   // FETCH BATCHES
   // =====================================================
-
-  useEffect(() => {
-    if (selectedCenter) {
-      fetchBatches();
-    } else {
-      setBatches([]);
-    }
-  }, [selectedCenter, fetchBatches]);
-
   const fetchBatches = useCallback(async () => {
     try {
    const data = await getAccessibleBatches(
@@ -243,20 +214,6 @@ setBatches(data || []);
   // =====================================================
   // FETCH PLAYERS
   // =====================================================
-
-  useEffect(() => {
-    if (selectedBatch) {
-      fetchPlayers();
-    } else {
-      setPlayers([]);
-      setAttendanceData({});
-      setAttendanceExists(false);
-      setAttendanceLoading(false);
-      setAttendanceMessage("");
-      setAttendanceError("");
-    }
-  }, [selectedBatch, selectedSchedule, attendanceDate, fetchPlayers]);
-
   const fetchPlayers = useCallback(async () => {
     setAttendanceLoading(true);
     setAttendanceMessage("");
@@ -473,7 +430,48 @@ if (players.length === 0) {
   // UI
   // =====================================================
 
-return (
+
+
+useEffect(() => {
+
+  if (!user) return;
+
+  fetchAcademies();
+
+  loadAssignedBatches();
+
+}, [user, fetchAcademies, loadAssignedBatches]);
+
+useEffect(() => {
+    if (selectedAcademy) {
+      fetchCenters();
+    } else {
+      setCenters([]);
+    }
+  }, [selectedAcademy, fetchCenters]);
+
+useEffect(() => {
+    if (selectedCenter) {
+      fetchBatches();
+    } else {
+      setBatches([]);
+    }
+  }, [selectedCenter, fetchBatches]);
+
+useEffect(() => {
+    if (selectedBatch) {
+      fetchPlayers();
+    } else {
+      setPlayers([]);
+      setAttendanceData({});
+      setAttendanceExists(false);
+      setAttendanceLoading(false);
+      setAttendanceMessage("");
+      setAttendanceError("");
+    }
+  }, [selectedBatch, selectedSchedule, attendanceDate, fetchPlayers]);
+
+  return (
   <Layout>
     <div className="attendance-page">
 
