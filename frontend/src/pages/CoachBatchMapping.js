@@ -176,6 +176,12 @@ function CoachBatchMapping() {
       return;
     }
 
+    const batchSessions = schedules.filter((item) => item.batch_id === selectedBatch);
+    if (batchSessions.length > 0 && selectedScheduleIds.length === 0) {
+      setMappingNotice({ type: "error", message: "Select at least one session for this batch." });
+      return;
+    }
+
     const duplicate = assignments.find((item) =>
       item.id !== editingMappingId &&
       item.is_active &&
