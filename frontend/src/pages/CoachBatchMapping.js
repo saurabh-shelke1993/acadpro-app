@@ -517,13 +517,13 @@ function CoachBatchMapping() {
                 </select>
               </label>
               <label className="coach-mapping-field"><span>Center *</span>
-                <select value={selectedCenter} onChange={(event) => { setSelectedCenter(event.target.value); setSelectedBatch(""); }} aria-required="true">
+                <select value={selectedCenter} onChange={(event) => { setSelectedCenter(event.target.value); setSelectedBatch(""); setSelectedScheduleIds([]); }} aria-required="true">
                   <option value="">Select Center</option>
                   {centers.map((center) => <option key={center.id} value={center.id}>{center.center_name}</option>)}
                 </select>
               </label>
               <label className="coach-mapping-field"><span>Batch *</span>
-                <select value={selectedBatch} onChange={(event) => setSelectedBatch(event.target.value)} disabled={!selectedCenter} aria-required="true">
+                <select value={selectedBatch} onChange={(event) => { setSelectedBatch(event.target.value); setSelectedScheduleIds([]); }} disabled={!selectedCenter} aria-required="true">
                   <option value="">{selectedCenter ? "Select Batch" : "Select Center first"}</option>
                   {batches.map((batch) => <option key={batch.id} value={batch.id}>{batch.batch_name}{batch.age_group ? " · " + batch.age_group : ""}</option>)}
                 </select>
