@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import Layout from "../components/Layout";
 import "./Attendance.css";
@@ -14,7 +14,7 @@ function CoachAttendance() {
   const initialScheduleId = searchParams.get("scheduleId") || "";
   const initialDate = searchParams.get("date") || "";
   const initialBatchId = searchParams.get("batchId") || "";
-  const user = JSON.parse(localStorage.getItem("acadpro_user"));
+  const user = useMemo(() => JSON.parse(localStorage.getItem("acadpro_user")), []);
 
   const [sessions, setSessions] = useState([]);
   const [selectedSchedule, setSelectedSchedule] = useState(initialScheduleId);
@@ -30,7 +30,7 @@ function CoachAttendance() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
-  const loadSessions = async () => {
+  const loadSessions = useCallback(async () => {
     try {
       setLoading(true);
       setError("");
@@ -50,9 +50,9 @@ function CoachAttendance() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, attendanceDate, initialBatchId]);
 
-  const loadPlayers = async () => {
+  const loadPlayers = useCallback(async () => {
     if (!selectedSchedule) {
       setPlayers([]);
       setIsEditMode(false);
@@ -92,15 +92,15 @@ function CoachAttendance() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedSchedule, attendanceDate]);
 
   useEffect(() => {
     loadSessions();
-  }, [attendanceDate]);
+  }, [loadSessions]);
 
   useEffect(() => {
     loadPlayers();
-  }, [selectedSchedule, attendanceDate]);
+  }, [loadPlayers]);
 
   const handleAttendanceChange = (playerId, status) => {
     setPlayers((current) =>
