@@ -973,7 +973,9 @@ const Batches = () => {
               </p>
             </div>
 
-            <div className="batches-form-grid batches-basic-form-grid">
+            <div className="batches-create-layout">
+              <div className="batches-create-details">
+                <div className="batches-form-grid batches-basic-form-grid">
               {isSuperAdmin(user) && (
                 <div className="batches-field">
                   <label htmlFor="batch-academy">Academy *</label>
@@ -1053,8 +1055,10 @@ const Batches = () => {
                   ))}
                 </select>
               </div>
-            </div>
+                </div>
+              </div>
 
+              <div className="batches-create-schedule">
             <div className="batches-schedule-builder">
               <div className="batches-schedule-builder-header">
                 <div>
@@ -1094,10 +1098,10 @@ const Batches = () => {
                         checked={selected}
                         onChange={() => toggleDay(day.value)}
                       />
-                      <span className="batches-day-check" aria-hidden="true">
-                        {selected ? "✓" : ""}
-                      </span>
-                      <span className="batches-day-name">
+                      <span
+                        className="batches-day-check"
+                        aria-hidden="true"
+                      >
                         {day.short}
                       </span>
                       {count > 1 && (
@@ -1224,6 +1228,8 @@ const Batches = () => {
                   Select at least one training day to add the batch schedule.
                 </p>
               )}
+            </div>
+              </div>
             </div>
 
             <div className="batches-form-actions">
