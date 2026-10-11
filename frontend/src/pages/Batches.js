@@ -1302,13 +1302,15 @@ const Batches = () => {
               </caption>
               <thead>
                 <tr>
-                  <th scope="col">
-                    {renderBatchColumnFilter(
-                      "academy",
-                      "Academy",
-                      batchFilterOptions.academy
-                    )}
-                  </th>
+                  {isSuperAdmin(user) && (
+                    <th scope="col">
+                      {renderBatchColumnFilter(
+                        "academy",
+                        "Academy",
+                        batchFilterOptions.academy
+                      )}
+                    </th>
+                  )}
                   <th scope="col">
                     {renderBatchColumnFilter(
                       "center",
@@ -1350,9 +1352,11 @@ const Batches = () => {
                     <td
                       className="batches-empty-state"
                       colSpan={
-                        isSuperAdmin(user) || isAcademyOwner(user)
+                        isSuperAdmin(user)
                           ? 7
-                          : 6
+                          : isAcademyOwner(user)
+                            ? 6
+                            : 5
                       }
                     >
                       <strong>No active batches</strong>
@@ -1405,9 +1409,11 @@ const Batches = () => {
                             }
                           }}
                         >
-                          <td className="batches-academy-cell">
-                            {academyName}
-                          </td>
+                          {isSuperAdmin(user) && (
+                            <td className="batches-academy-cell">
+                              {academyName}
+                            </td>
+                          )}
 
                           <td className="batches-center-cell">
                             {centerName}
