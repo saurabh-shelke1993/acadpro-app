@@ -160,7 +160,7 @@ async () => {
 
     loadBatchSessions();
     return () => { cancelled = true; };
-  }, [selectedBatch, editingPlayerId, isEditing]);
+  }, [selectedBatch, selectedCenter, batches, editingPlayerId, isEditing]);
 
 useEffect(() => {
 
