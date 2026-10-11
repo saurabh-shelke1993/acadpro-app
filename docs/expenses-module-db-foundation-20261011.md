@@ -56,7 +56,7 @@ The corresponding SQL files are committed under `supabase/migrations/`. The earl
 ## Frontend implementation — 2026-10-11
 
 - `frontend/src/services/expensesService.js`: role-aware read/write operations for expenses and reminders; Academy Owner academy scope is applied in service queries and writes.
-- `frontend/src/pages/Expenses.js` and `Expenses.css`: expense register, INR summaries, date filters, actual-expense form, recurring-reminder form, edit/delete actions, empty/loading/error states, and responsive layout.
+- `frontend/src/pages/Expenses.js` and `Expenses.css`: expense register, INR summaries, date/category/academy filters, actual-expense form, recurring-reminder form, edit/delete actions, empty/loading/error states, and responsive layout.
 - `frontend/src/routes/AppRoutes.js`: `/expenses` route protected for `super_admin` and `academy_owner`.
 - `frontend/src/components/Sidebar.js`: Expenses link in Finance navigation for Super Admin and Academy Owner.
 - Super Admin sees academy labels and can filter academies; all mutation controls are hidden for this role.
