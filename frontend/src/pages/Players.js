@@ -559,6 +559,27 @@ if (!joiningDate) {
       return false;
     }
 
+    const chosenSchedules = availableSchedules.filter((schedule) =>
+      selectedScheduleIds.includes(schedule.id)
+    );
+    for (let i = 0; i < chosenSchedules.length; i += 1) {
+      for (let j = i + 1; j < chosenSchedules.length; j += 1) {
+        const first = chosenSchedules[i];
+        const second = chosenSchedules[j];
+        if (
+          Number(first.day_of_week) === Number(second.day_of_week) &&
+          first.start_time < second.end_time &&
+          second.start_time < first.end_time
+        ) {
+          alert("The selected sessions overlap on " + ({
+            1: "Monday", 2: "Tuesday", 3: "Wednesday", 4: "Thursday",
+            5: "Friday", 6: "Saturday", 7: "Sunday"
+          })[Number(first.day_of_week)] + ". Select non-overlapping sessions.");
+          return false;
+        }
+      }
+    }
+
     if (!/^\d{10}$/.test(parentPhone)) {
       alert(
         "Parent phone must be exactly 10 digits"
