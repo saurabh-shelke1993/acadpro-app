@@ -45,7 +45,8 @@ const enrichSchedulesWithPlayers = async (schedules, dateValue) => {
   if (!schedules.length) return [];
 
   const scheduleIds = schedules.map((schedule) => schedule.id);
-  const { data, error } = await supabase
+  const batchIds = [...new Set(schedules.map((schedule) => schedule.batch_id).filter(Boolean))];
+  const { data: enrollments, error: enrollmentError } = await supabase
     .from("player_batch_schedules")
     .select(`
       id,
@@ -58,17 +59,49 @@ const enrichSchedulesWithPlayers = async (schedules, dateValue) => {
     .in("batch_schedule_id", scheduleIds)
     .eq("is_active", true);
 
-  if (error) throw error;
+  if (enrollmentError) throw enrollmentError;
 
   const bySchedule = new Map();
-  (data || []).forEach((enrollment) => {
+  const enrolledScheduleIds = new Set();
+  (enrollments || []).forEach((enrollment) => {
     if (enrollment.enrolled_from > dateValue) return;
     if (enrollment.enrolled_until && enrollment.enrolled_until < dateValue) return;
     if (!enrollment.players?.is_active) return;
     const list = bySchedule.get(enrollment.batch_schedule_id) || [];
     list.push(enrollment.players);
     bySchedule.set(enrollment.batch_schedule_id, list);
+    enrolledScheduleIds.add(enrollment.batch_schedule_id);
   });
+
+  // Player assignments are currently maintained at batch level in player_batches.
+  // Use them when a schedule has no per-session enrollment rows so coaches still
+  // see the players enrolled in their assigned batch.
+  const fallbackBatchIds = [...new Set(
+    schedules
+      .filter((schedule) => !enrolledScheduleIds.has(schedule.id))
+      .map((schedule) => schedule.batch_id)
+      .filter(Boolean)
+  )];
+  if (fallbackBatchIds.length) {
+    const { data: batchAssignments, error: batchError } = await supabase
+      .from("player_batches")
+      .select("batch_id, players!inner(id, full_name, is_active)")
+      .in("batch_id", fallbackBatchIds)
+      .eq("players.is_active", true);
+    if (batchError) throw batchError;
+
+    (batchAssignments || []).forEach((assignment) => {
+      const schedule = schedules.find((item) =>
+        item.batch_id === assignment.batch_id && !enrolledScheduleIds.has(item.id)
+      );
+      if (!schedule) return;
+      const list = bySchedule.get(schedule.id) || [];
+      if (!list.some((player) => player.id === assignment.players?.id)) {
+        list.push(assignment.players);
+      }
+      bySchedule.set(schedule.id, list);
+    });
+  }
 
   return schedules.map((schedule) => ({
     ...schedule,
