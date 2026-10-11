@@ -23,17 +23,7 @@ function Login() {
   const navigate =
     useNavigate();
 
-  const [email,
-    setEmail] =
-    useState("");
-
-  const [password,
-    setPassword] =
-    useState("");
-
-  const [loading,
-    setLoading] =
-    useState(false);
+  const [, setLoading] = useState(false);
 
   // ============================================
   // HANDLE USER SESSION
@@ -158,30 +148,6 @@ navigate(dashboardRoute);
       }
     };
 
-  // ============================================
-  // NORMAL LOGIN
-  // ============================================
-
-  const handleLogin =
-    async () => {
-      console.log("HANDLE LOGIN CALLED");
-      if (
-        !email ||
-        !password
-      ) {
-
-        alert(
-          "Please enter email and password"
-        );
-
-        return;
-      }
-
-      await loginUser(
-        email,
-        password
-      );
-    };
 
 }
 
