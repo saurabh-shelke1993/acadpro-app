@@ -79,7 +79,7 @@ const enrichSchedulesWithPlayers = async (schedules, dateValue) => {
 };
 
 export const getCoachScheduleView = async (user, dateValue = todayIso()) => {
-  if (!user?.id) return { today: [], week: [] };
+  if (!user?.id) return { today: [], upcoming: [], week: [] };
 
   const { data: coach, error: coachError } = await supabase
     .from("coaches")
@@ -88,10 +88,9 @@ export const getCoachScheduleView = async (user, dateValue = todayIso()) => {
     .maybeSingle();
 
   if (coachError) throw coachError;
-  if (!coach) return { today: [], week: [] };
+  if (!coach) return { today: [], upcoming: [], week: [] };
 
   const day = isoDay(dateValue);
-
   const { data: assignments, error } = await supabase
     .from("coach_batch_schedule_assignments")
     .select(`
@@ -106,8 +105,10 @@ export const getCoachScheduleView = async (user, dateValue = todayIso()) => {
 
   if (error) throw error;
 
-  const assignmentsForToday = (assignments || []).filter((assignment) =>
-    assignment.batch_schedules?.is_active &&
+  const validAssignments = (assignments || []).filter((assignment) =>
+    assignment.batch_schedules?.is_active
+  );
+  const assignmentsForToday = validAssignments.filter((assignment) =>
     assignment.assigned_from <= dateValue &&
     (!assignment.assigned_until || assignment.assigned_until >= dateValue)
   );
@@ -115,31 +116,50 @@ export const getCoachScheduleView = async (user, dateValue = todayIso()) => {
     .map((assignment) => assignment.batch_schedules)
     .filter((schedule) => Number(schedule.day_of_week) === day);
 
-  const uniqueAssignments = [...new Map(
-    (assignments || [])
-      .filter((assignment) => assignment.batch_schedules?.is_active)
-      .map((assignment) => [assignment.batch_schedule_id, {
-        ...assignment.batch_schedules,
-        assignment_id: assignment.id,
-        assignment_from: assignment.assigned_from,
-        assignment_until: assignment.assigned_until,
-      }])
-  ).values()];
-
+  // Keep today's list for attendance workflows; the dashboard uses future occurrences.
   const enrichedToday = await enrichSchedulesWithPlayers(todaySchedules, dateValue);
-  const enrichedWeek = (await Promise.all(uniqueAssignments.map(async (schedule) => {
-    const sessionDate = getDateForWeekday(dateValue, schedule.day_of_week);
-    if (schedule.assignment_from > sessionDate ||
-        (schedule.assignment_until && schedule.assignment_until < sessionDate)) return null;
-    const [enriched] = await enrichSchedulesWithPlayers([schedule], sessionDate);
-    return enriched ? { ...enriched, date: sessionDate } : null;
-  }))).filter(Boolean).sort((a, b) =>
+
+  const nowTime = new Date().toTimeString().slice(0, 5);
+  const occurrences = validAssignments.map((assignment) => {
+    const schedule = assignment.batch_schedules;
+    const currentDay = isoDay(dateValue);
+    let delta = (Number(schedule.day_of_week) - currentDay + 7) % 7;
+    if (delta === 0 && dateValue === todayIso() && formatTime(schedule.start_time) <= nowTime) {
+      delta = 7;
+    }
+    const occurrenceDate = new Date(`${dateValue}T00:00:00Z`);
+    occurrenceDate.setUTCDate(occurrenceDate.getUTCDate() + delta);
+    const sessionDate = occurrenceDate.toISOString().split("T")[0];
+
+    if (assignment.assigned_from > sessionDate ||
+        (assignment.assigned_until && assignment.assigned_until < sessionDate)) {
+      return null;
+    }
+
+    return {
+      ...schedule,
+      assignment_id: assignment.id,
+      assignment_from: assignment.assigned_from,
+      assignment_until: assignment.assigned_until,
+      date: sessionDate,
+    };
+  }).filter(Boolean);
+
+  const uniqueOccurrences = [...new Map(
+    occurrences.map((schedule) => [schedule.id, schedule])
+  ).values()].sort((a, b) =>
     a.date.localeCompare(b.date) || String(a.start_time).localeCompare(String(b.start_time))
   );
 
+  const enrichedUpcoming = (await Promise.all(uniqueOccurrences.map(async (schedule) => {
+    const [enriched] = await enrichSchedulesWithPlayers([schedule], schedule.date);
+    return enriched ? { ...enriched, date: schedule.date } : null;
+  }))).filter(Boolean);
+
   return {
     today: enrichedToday.sort((a, b) => String(a.start_time).localeCompare(String(b.start_time))),
-    week: enrichedWeek,
+    upcoming: enrichedUpcoming,
+    week: enrichedUpcoming,
   };
 };
 
