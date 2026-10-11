@@ -74,7 +74,7 @@ function PlayerSubscriptions() {
     };
     loadUser();
   }, []);
-seEffect(() => {
+useEffect(() => {
     setCurrentPage(1);
   }, [selectedAcademy, selectedCenter, selectedBatch, statusFilter, columnFilters]);
 
