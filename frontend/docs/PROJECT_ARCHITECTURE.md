@@ -1,6 +1,6 @@
 # AcadPro Architecture
 
-**Last Updated:** 21 September 2026  
+**Last Updated:** 11 October 2026  
 **Current Branch:** `payment-module-finalization`
 
 ## 1. Platform
@@ -142,32 +142,27 @@ Phase 5.1 security validation is complete:
 
 RLS is enabled on the major role-sensitive tables, including `academies`, `attendance`, `batches`, `centers`, `coach_batch_assignments`, `coach_batches`, `coaches`, `parents`, `payment_dues`, `payments`, `player_batches`, `player_subscriptions`, `players`, `subscription_plans` and `users`.
 
-Known documented limitations:
-
-- `inquiries` and `trial_attendance` are unused legacy tables and remain outside the active authorization scope; RLS is intentionally unchanged for now.
+Phase 7 Security Advisor remediation (11 October 2026):
+- RLS is enabled on `public.inquiries` and `public.trial_attendance`; direct `anon` and `authenticated` table privileges have been revoked. Both tables were empty when inspected and remain deny-by-default until an explicit access model is needed.
+- `public.payment_number_counters` remains RLS-enabled with direct client privileges revoked; it is intended for server-side/database use.
+- Seven authenticated `SECURITY DEFINER` RPC findings remain under review. Their `search_path` is empty and anonymous/PUBLIC execution is denied. Authenticated execution is retained because application workflows depend on these RPCs; do not change grants or security mode without reviewing dependencies and regression-testing.
+- `update_my_coach_profile(...)` is the next candidate for explicit authentication/coach-role and input validation review. No hardening change has yet been applied.
 - Leaked-password protection is unavailable on the current Supabase Free plan and is deferred until a plan upgrade is justified.
 - Performance-advisor findings are tracked separately from authorization completion.
 
+See `docs/PHASE_7_SECURITY_ADVISOR_REMEDIATION.md` for the live finding inventory and `supabase/MIGRATION_RECONCILIATION.md` for the migration-history discrepancy and safety rules.
+
 ## 11. Parent Portal architecture
 
-Current foundation:
+Current V1 scope is complete:
+- Parent role, authentication, login and route protection
+- Parent-to-player association and linked child/player summary
+- Academy, center, batch and training details
+- Attendance summary/history, pending dues, payment history and receipt workflow
+- Parent-safe coach lookup/profile data for coaches assigned to linked players' current batches
+- Parent-specific RLS validation, cross-parent isolation and end-to-end regression
 
-- Parent role and authentication
-- Parent login
-- Parent route protection
-- Parent-to-player association
-- Basic Parent Portal page
-- Parent-safe coach lookup for linked players' current batches; only coach ID/name are returned and no direct parent access is granted to coach-management tables.
-
-Next implementation scope:
-
-- Parent dashboard
-- Linked children/player summary
-- Attendance history
-- Pending dues
-- Payment history
-- Receipt access/download
-- Parent-specific RLS validation and end-to-end regression
+Parent coach details are provided through dedicated RPCs that scope results to the current parent and linked players. No direct parent access to coach-management tables is granted.
 
 ## 12. Production principles
 
