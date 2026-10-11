@@ -57,12 +57,6 @@ function Coaches() {
     setUser(currentUser);
   };
 
-  useEffect(() => {
-    if (!user) return;
-    fetchAcademies();
-    fetchCoaches();
-  }, [user, fetchAcademies, fetchCoaches]);
-
   const fetchAcademies = useCallback(async () => {
     try {
       let query = supabase
@@ -117,6 +111,12 @@ function Coaches() {
       setCoaches([]);
     }
   }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+    fetchAcademies();
+    fetchCoaches();
+  }, [user, fetchAcademies, fetchCoaches]);
 
   const resetForm = () => {
     setEditingCoachId(null);
