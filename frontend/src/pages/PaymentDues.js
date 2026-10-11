@@ -7,7 +7,6 @@ import {
 
 import {
   isSuperAdmin,
-  isAcademyOwner,
   canGenerateDue,
 } from "../utils/permissions";
 
@@ -215,34 +214,7 @@ useEffect(() => {
   statusFilter
 ]);
 
-  const fetchSubscriptions = async () => {
 
-    const { data, error } = await supabase
-      .from("player_subscriptions")
-      .select(`
-  id,
-  player_id,
-
-  players (
-    full_name
-  ),
-
-  subscription_plans (
-    plan_name,
-    amount
-  )
-`)
-
-    if (error) {
-
-      console.log(error);
-
-    } else {
-
-      setSubscriptions(data);
-
-    }
-  };
 
   const fetchLoggedInUser =
 async () => {
