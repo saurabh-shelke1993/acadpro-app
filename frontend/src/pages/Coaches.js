@@ -61,9 +61,9 @@ function Coaches() {
     if (!user) return;
     fetchAcademies();
     fetchCoaches();
-  }, [user]);
+  }, [user, fetchAcademies, fetchCoaches]);
 
-  const fetchAcademies = async () => {
+  const fetchAcademies = useCallback(async () => {
     try {
       let query = supabase
         .from("academies")
@@ -87,9 +87,9 @@ function Coaches() {
       console.error("Failed to load academies:", error);
       setAcademies([]);
     }
-  };
+  }, [user]);
 
-  const fetchCoaches = async () => {
+  const fetchCoaches = useCallback(async () => {
     try {
       let query = supabase
         .from("coaches")
@@ -116,7 +116,7 @@ function Coaches() {
       console.error("Failed to load coaches:", error);
       setCoaches([]);
     }
-  };
+  }, [user]);
 
   const resetForm = () => {
     setEditingCoachId(null);
