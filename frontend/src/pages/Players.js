@@ -5,6 +5,12 @@ import {
   createPlayerTransactional,
   updatePlayerTransactional,
 } from "../services/playerService";
+import {
+  getActiveSchedulesForBatch,
+  getPlayerScheduleEnrollments,
+  enrollPlayerInSchedule,
+  deactivatePlayerScheduleEnrollment,
+} from "../services/playerScheduleService";
 
 import {
   getLoggedInUser,
@@ -36,6 +42,10 @@ function Players() {
   const [academies, setAcademies] = useState([]);
   const [centers, setCenters] = useState([]);
   const [batches, setBatches] = useState([]);
+  const [availableSchedules, setAvailableSchedules] = useState([]);
+  const [selectedScheduleIds, setSelectedScheduleIds] = useState([]);
+  const [scheduleLoading, setScheduleLoading] = useState(false);
+  const [scheduleLoadError, setScheduleLoadError] = useState("");
 
   const [selectedAcademy, setSelectedAcademy] = useState(() => searchParams.get("academyId") || "");
   const [selectedCenter, setSelectedCenter] = useState(() => searchParams.get("centerId") || "");
@@ -98,6 +108,58 @@ async () => {
       fetchBatches(selectedCenter);
     }
   }, [selectedCenter]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadBatchSessions = async () => {
+      if (!selectedBatch) {
+        setAvailableSchedules([]);
+        setSelectedScheduleIds([]);
+        setScheduleLoadError("");
+        return;
+      }
+
+      setScheduleLoading(true);
+      setScheduleLoadError("");
+
+      try {
+        const [schedules, enrollments] = await Promise.all([
+          getActiveSchedulesForBatch(selectedBatch),
+          isEditing && editingPlayerId
+            ? getPlayerScheduleEnrollments({ playerId: editingPlayerId })
+            : Promise.resolve([])
+        ]);
+
+        if (cancelled) return;
+
+        setAvailableSchedules(schedules || []);
+        const activeEnrollments = (enrollments || []).filter(
+          (enrollment) => enrollment.is_active
+        );
+        setSelectedScheduleIds(
+          activeEnrollments
+            .filter((enrollment) =>
+              enrollment.batch_schedules?.batch_id === selectedBatch
+            )
+            .map((enrollment) => enrollment.batch_schedule_id)
+        );
+      } catch (error) {
+        if (cancelled) return;
+        console.error("Failed to load batch sessions:", error);
+        setAvailableSchedules([]);
+        setSelectedScheduleIds([]);
+        setScheduleLoadError(
+          "Unable to load this batch's sessions. Please retry by reselecting the batch."
+        );
+      } finally {
+        if (!cancelled) setScheduleLoading(false);
+      }
+    };
+
+    loadBatchSessions();
+    return () => { cancelled = true; };
+  }, [selectedBatch, editingPlayerId, isEditing]);
 
 useEffect(() => {
 
@@ -511,7 +573,7 @@ if (!joiningDate) {
   }
 
   try {
-    await createPlayerTransactional({
+    const created = await createPlayerTransactional({
       academyId,
       parentName,
       parentPhone,
@@ -525,7 +587,28 @@ if (!joiningDate) {
       batchId: selectedBatch,
     });
 
-    alert("Player Created Successfully");
+    const playerId = created?.playerId || created?.player_id;
+    if (playerId && selectedScheduleIds.length > 0) {
+      try {
+        for (const batchScheduleId of selectedScheduleIds) {
+          await enrollPlayerInSchedule({
+            academyId,
+            playerId,
+            batchScheduleId,
+            enrolledFrom: joiningDate
+          });
+        }
+        alert("Player created and enrolled in the selected sessions.");
+      } catch (scheduleError) {
+        console.error("Player created but session enrollment failed:", scheduleError);
+        alert(
+          "Player was created, but one or more session enrollments failed. Edit the player to review the selected sessions. " +
+          (scheduleError.message || "")
+        );
+      }
+    } else {
+      alert("Player Created Successfully");
+    }
 
     resetForm();
     fetchPlayers();
@@ -536,6 +619,9 @@ if (!joiningDate) {
 };
 
   const handleEditPlayer = (player) => {
+    setSelectedScheduleIds([]);
+    setAvailableSchedules([]);
+    setScheduleLoadError("");
     setIsEditing(true);
 
     setEditingPlayerId(player.id);
@@ -591,7 +677,42 @@ const handleUpdatePlayer = async () => {
       batchId: selectedBatch,
     });
 
-    alert("Player Updated Successfully");
+    try {
+      const activeEnrollments = await getPlayerScheduleEnrollments({
+        playerId: editingPlayerId
+      });
+      const activeBySchedule = new Map(
+        (activeEnrollments || [])
+          .filter((enrollment) => enrollment.is_active)
+          .map((enrollment) => [enrollment.batch_schedule_id, enrollment])
+      );
+      const selectedIds = new Set(selectedScheduleIds);
+
+      for (const enrollment of activeBySchedule.values()) {
+        if (!selectedIds.has(enrollment.batch_schedule_id)) {
+          await deactivatePlayerScheduleEnrollment(enrollment.id);
+        }
+      }
+
+      for (const batchScheduleId of selectedIds) {
+        if (!activeBySchedule.has(batchScheduleId)) {
+          await enrollPlayerInSchedule({
+            academyId,
+            playerId: editingPlayerId,
+            batchScheduleId,
+            enrolledFrom: joiningDate
+          });
+        }
+      }
+
+      alert("Player updated and session enrollments saved.");
+    } catch (scheduleError) {
+      console.error("Player updated but session enrollment sync failed:", scheduleError);
+      alert(
+        "Player details were updated, but session enrollments could not be fully synchronized. Reopen the player and review sessions. " +
+        (scheduleError.message || "")
+      );
+    }
 
     resetForm();
     setIsEditing(false);
@@ -645,7 +766,10 @@ const resetForm = () => {
   setEditingPlayerId(null);
   setEditingParentId(null);
   setSelectedCenter("");
-setSelectedBatch("");
+  setSelectedBatch("");
+  setAvailableSchedules([]);
+  setSelectedScheduleIds([]);
+  setScheduleLoadError("");
 };
 
   useEffect(() => {
@@ -1014,6 +1138,78 @@ return (
                 </select>
               </div>
             </div>
+          </div>
+
+          <div className="players-form-section players-session-enrollment-section">
+            <div className="players-session-enrollment-heading">
+              <h3>Weekly training sessions</h3>
+              <span>
+                {selectedScheduleIds.length} selected
+              </span>
+            </div>
+            {!selectedBatch ? (
+              <p className="players-session-enrollment-hint">
+                Select a batch to choose the sessions this player will attend.
+              </p>
+            ) : scheduleLoading ? (
+              <p className="players-session-enrollment-hint">Loading batch sessions…</p>
+            ) : scheduleLoadError ? (
+              <p className="players-session-enrollment-error" role="alert">
+                {scheduleLoadError}
+              </p>
+            ) : availableSchedules.length === 0 ? (
+              <p className="players-session-enrollment-hint">
+                No weekly sessions are configured for this batch yet. You can save the player and configure sessions from Batches.
+              </p>
+            ) : (
+              <div className="players-session-enrollment-list">
+                {availableSchedules.map((schedule) => {
+                  const dayName = ({
+                    1: "Monday", 2: "Tuesday", 3: "Wednesday",
+                    4: "Thursday", 5: "Friday", 6: "Saturday", 7: "Sunday"
+                  })[Number(schedule.day_of_week)] || "Day";
+                  const formatTime = (value) => {
+                    if (!value) return "—";
+                    const [hourText, minuteText] = value.slice(0, 5).split(":");
+                    const hour = Number(hourText);
+                    return `${hour % 12 || 12}:${minuteText} ${hour >= 12 ? "PM" : "AM"}`;
+                  };
+                  const selected = selectedScheduleIds.includes(schedule.id);
+
+                  return (
+                    <label
+                      key={schedule.id}
+                      className={
+                        "players-session-enrollment-option" +
+                        (selected ? " players-session-enrollment-option-selected" : "")
+                      }
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selected}
+                        onChange={() => setSelectedScheduleIds((current) =>
+                          selected
+                            ? current.filter((id) => id !== schedule.id)
+                            : [...current, schedule.id]
+                        )}
+                      />
+                      <span className="players-session-enrollment-check" aria-hidden="true">
+                        {selected ? "✓" : ""}
+                      </span>
+                      <span className="players-session-enrollment-copy">
+                        <strong>{dayName}</strong>
+                        <span>
+                          {formatTime(schedule.start_time)} – {formatTime(schedule.end_time)}
+                        </span>
+                        {schedule.centers?.center_name && (
+                          <small>{schedule.centers.center_name}</small>
+                        )}
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           <div className="players-form-section">
