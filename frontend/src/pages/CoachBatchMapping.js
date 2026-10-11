@@ -445,12 +445,21 @@ function CoachBatchMapping() {
       item.batch_schedules?.batch_id === mapping.batch_id
     );
     if (assigned.length === 0) return "No sessions assigned";
+
     const dayInitials = { 1: "M", 2: "Tu", 3: "W", 4: "Th", 5: "F", 6: "Sa", 7: "Su" };
-    return assigned.map((item) => {
+    const byTime = new Map();
+
+    assigned.forEach((item) => {
       const schedule = item.batch_schedules;
-      return (dayInitials[Number(schedule.day_of_week)] || "—") + " " +
-        formatTime(schedule.start_time) + "–" + formatTime(schedule.end_time);
-    }).join(", ");
+      const timeKey = `${formatTime(schedule.start_time)}–${formatTime(schedule.end_time)}`;
+      const days = byTime.get(timeKey) || [];
+      days.push(dayInitials[Number(schedule.day_of_week)] || "—");
+      byTime.set(timeKey, days);
+    });
+
+    return [...byTime.entries()]
+      .map(([time, days]) => `${days.join("/") } · ${time}`)
+      .join("; ");
   };
 
   const filterOptions = useMemo(() => ({
