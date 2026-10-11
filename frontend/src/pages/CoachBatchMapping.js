@@ -4,6 +4,12 @@ import "./CoachBatchMapping.css";
 import { supabase } from "../supabaseClient";
 import { getCurrentUser, isSuperAdmin } from "../utils/auth";
 import { isAcademyOwner } from "../utils/roles";
+import {
+  getActiveSchedules,
+  getCoachScheduleAssignments,
+  assignCoachToSchedule,
+  deactivateCoachScheduleAssignment
+} from "../services/coachScheduleAssignmentService";
 
 function CoachBatchMapping() {
   const [user, setUser] = useState(null);
@@ -12,6 +18,9 @@ function CoachBatchMapping() {
   const [coaches, setCoaches] = useState([]);
   const [batches, setBatches] = useState([]);
   const [assignments, setAssignments] = useState([]);
+  const [schedules, setSchedules] = useState([]);
+  const [scheduleAssignments, setScheduleAssignments] = useState([]);
+  const [selectedScheduleIds, setSelectedScheduleIds] = useState([]);
   const [selectedAcademy, setSelectedAcademy] = useState("");
   const [selectedCenter, setSelectedCenter] = useState("");
   const [selectedCoach, setSelectedCoach] = useState("");
@@ -87,14 +96,16 @@ function CoachBatchMapping() {
     setLoading(true);
     setLoadError("");
     try {
-      const [coachResult, centerResult, assignmentResult] = await Promise.all([
+      const [coachResult, centerResult, assignmentResult, scheduleResult, scheduleAssignmentResult] = await Promise.all([
         supabase.from("coaches").select("id, full_name, is_active").eq("academy_id", selectedAcademy).eq("is_active", true).order("full_name"),
         supabase.from("centers").select("id, center_name, is_active").eq("academy_id", selectedAcademy).eq("is_active", true).order("center_name"),
         supabase.from("coach_batch_assignments").select(`
           id, coach_id, batch_id, academy_id, is_active, created_at,
           coaches(full_name),
           batches(batch_name, age_group, start_time, end_time, center_id, centers(center_name))
-        `).eq("academy_id", selectedAcademy).order("created_at", { ascending: false })
+        `).eq("academy_id", selectedAcademy).order("created_at", { ascending: false }),
+        getActiveSchedules({ academyId: selectedAcademy }),
+        getCoachScheduleAssignments({ academyId: selectedAcademy })
       ]);
       if (coachResult.error) throw coachResult.error;
       if (centerResult.error) throw centerResult.error;
@@ -102,12 +113,15 @@ function CoachBatchMapping() {
       setCoaches(coachResult.data || []);
       setCenters(centerResult.data || []);
       setAssignments(assignmentResult.data || []);
+      setSchedules(scheduleResult || []);
+      setScheduleAssignments(scheduleAssignmentResult || []);
       setCurrentPage(1);
       setSelectedMappingId(null);
     } catch (error) {
       console.error("Failed to load mapping workspace:", error);
       setLoadError(error.message || "Unable to load mapping data.");
       setCoaches([]); setCenters([]); setAssignments([]);
+      setSchedules([]); setScheduleAssignments([]);
     } finally {
       setLoading(false);
     }
@@ -131,6 +145,7 @@ function CoachBatchMapping() {
     setSelectedCoach("");
     setSelectedCenter("");
     setSelectedBatch("");
+    setSelectedScheduleIds([]);
     setEditingMappingId(null);
   };
 
@@ -141,6 +156,12 @@ function CoachBatchMapping() {
     setSelectedCoach(mapping.coach_id || "");
     setSelectedCenter(centerId);
     setSelectedBatch(mapping.batch_id || "");
+    setSelectedScheduleIds(
+      scheduleAssignments
+        .filter((item) => item.coach_id === mapping.coach_id && item.batch_schedule_id &&
+          item.batch_schedules?.batch_id === mapping.batch_id)
+        .map((item) => item.batch_schedule_id)
+    );
     setMappingNotice(null);
     window.setTimeout(() => {
       document.getElementById("coach-mapping-assignment-card")?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -167,6 +188,9 @@ function CoachBatchMapping() {
 
     setSaving(true);
     try {
+      const previousMapping = assignments.find((item) => item.id === editingMappingId);
+      const oldBatchId = previousMapping?.batch_id;
+      const oldCoachId = previousMapping?.coach_id;
       const { error } = await supabase.from("coach_batch_assignments")
         .update({
           coach_id: selectedCoach,
@@ -175,7 +199,31 @@ function CoachBatchMapping() {
         .eq("id", editingMappingId)
         .eq("academy_id", selectedAcademy);
       if (error) throw error;
-      setMappingNotice({ type: "success", message: "Coach-batch mapping updated successfully." });
+
+      const previousSessionAssignments = scheduleAssignments.filter((item) =>
+        item.coach_id === oldCoachId && item.batch_schedules?.batch_id === oldBatchId
+      );
+      for (const assignment of previousSessionAssignments) {
+        if (oldCoachId !== selectedCoach || oldBatchId !== selectedBatch ||
+            !selectedScheduleIds.includes(assignment.batch_schedule_id)) {
+          await deactivateCoachScheduleAssignment(assignment.id);
+        }
+      }
+
+      const existingForNewMapping = scheduleAssignments.filter((item) =>
+        item.coach_id === selectedCoach && item.batch_schedules?.batch_id === selectedBatch
+      );
+      for (const scheduleId of selectedScheduleIds) {
+        if (!existingForNewMapping.some((item) => item.batch_schedule_id === scheduleId)) {
+          await assignCoachToSchedule({
+            academyId: selectedAcademy,
+            batchScheduleId: scheduleId,
+            coachId: selectedCoach,
+            assignedFrom: new Date().toISOString().slice(0, 10)
+          });
+        }
+      }
+      setMappingNotice({ type: "success", message: "Coach-batch mapping and session assignments updated successfully." });
       resetAssignmentForm();
       await fetchWorkspaceData();
     } catch (error) {
@@ -192,6 +240,11 @@ function CoachBatchMapping() {
     setSaving(true);
     setMappingNotice(null);
     try {
+      for (const assignment of scheduleAssignments.filter((item) =>
+        item.coach_id === mapping.coach_id && item.batch_schedules?.batch_id === mapping.batch_id
+      )) {
+        await deactivateCoachScheduleAssignment(assignment.id);
+      }
       const { error } = await supabase.from("coach_batch_assignments")
         .delete()
         .eq("id", mapping.id)
@@ -213,6 +266,11 @@ function CoachBatchMapping() {
     setMappingNotice(null);
     if (!selectedAcademy || !selectedCoach || !selectedCenter || !selectedBatch) {
       setMappingNotice({ type: "error", message: "Select an academy, coach, center, and batch before assigning." });
+      return;
+    }
+    const batchSessions = schedules.filter((item) => item.batch_id === selectedBatch);
+    if (batchSessions.length > 0 && selectedScheduleIds.length === 0) {
+      setMappingNotice({ type: "error", message: "Select at least one session for this batch." });
       return;
     }
 
@@ -238,6 +296,20 @@ function CoachBatchMapping() {
         }]);
         if (error) throw error;
         setMappingNotice({ type: "success", message: "Coach assigned to batch successfully." });
+      }
+
+      const existingSessionAssignments = scheduleAssignments.filter((item) =>
+        item.coach_id === selectedCoach && item.batch_schedules?.batch_id === selectedBatch
+      );
+      for (const scheduleId of selectedScheduleIds) {
+        if (!existingSessionAssignments.some((item) => item.batch_schedule_id === scheduleId)) {
+          await assignCoachToSchedule({
+            academyId: selectedAcademy,
+            batchScheduleId: scheduleId,
+            coachId: selectedCoach,
+            assignedFrom: new Date().toISOString().slice(0, 10)
+          });
+        }
       }
       resetAssignmentForm();
       await fetchWorkspaceData();
@@ -279,9 +351,18 @@ function CoachBatchMapping() {
     return (hour % 12 || 12) + ":" + (parts[1] || "00") + " " + (hour >= 12 ? "PM" : "AM");
   };
 
-  const formatSchedule = (batch) => {
-    if (!batch || (!batch.start_time && !batch.end_time)) return "—";
-    return formatTime(batch.start_time) + " – " + formatTime(batch.end_time);
+  const formatSchedule = (mapping) => {
+    const assigned = scheduleAssignments.filter((item) =>
+      item.coach_id === mapping.coach_id &&
+      item.batch_schedules?.batch_id === mapping.batch_id
+    );
+    if (assigned.length === 0) return "No sessions assigned";
+    const dayInitials = { 1: "M", 2: "Tu", 3: "W", 4: "Th", 5: "F", 6: "Sa", 7: "Su" };
+    return assigned.map((item) => {
+      const schedule = item.batch_schedules;
+      return (dayInitials[Number(schedule.day_of_week)] || "—") + " " +
+        formatTime(schedule.start_time) + "–" + formatTime(schedule.end_time);
+    }).join(", ");
   };
 
   const filterOptions = useMemo(() => ({
@@ -447,6 +528,34 @@ function CoachBatchMapping() {
                   {batches.map((batch) => <option key={batch.id} value={batch.id}>{batch.batch_name}{batch.age_group ? " · " + batch.age_group : ""}</option>)}
                 </select>
               </label>
+              {selectedBatch && (
+                <fieldset className="coach-mapping-sessions-fieldset">
+                  <legend>Assign sessions *</legend>
+                  {schedules.filter((item) => item.batch_id === selectedBatch).length === 0 ? (
+                    <p>No sessions are configured for this batch. The coach will have a batch-level mapping only.</p>
+                  ) : (
+                    <div className="coach-mapping-session-options">
+                      {schedules.filter((item) => item.batch_id === selectedBatch).map((schedule) => {
+                        const dayName = getDayName(schedule.day_of_week);
+                        return (
+                          <label key={schedule.id} className="coach-mapping-session-option">
+                            <input
+                              type="checkbox"
+                              checked={selectedScheduleIds.includes(schedule.id)}
+                              onChange={() => setSelectedScheduleIds((current) =>
+                                current.includes(schedule.id)
+                                  ? current.filter((id) => id !== schedule.id)
+                                  : [...current, schedule.id]
+                              )}
+                            />
+                            <span><strong>{dayName}</strong><small>{formatTime(schedule.start_time)} – {formatTime(schedule.end_time)}</small></span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  )}
+                </fieldset>
+              )}
               <div className="coach-mapping-form-action">
                 <div className="coach-mapping-form-actions">
                   {editingMappingId && (
@@ -520,7 +629,7 @@ function CoachBatchMapping() {
                         <td className="coach-mapping-name-cell"><div className="coach-mapping-identity"><span className="coach-mapping-avatar" aria-hidden="true">{initials}</span><span>{item.coaches?.full_name || "—"}</span></div></td>
                         <td>{batch?.centers?.center_name || "—"}</td>
                         <td><strong>{batch?.batch_name || "—"}</strong>{batch?.age_group && <span className="coach-mapping-secondary-line">{batch.age_group}</span>}</td>
-                        <td>{formatSchedule(batch)}</td>
+                        <td>{formatSchedule(item)}</td>
                         <td><span className={item.is_active ? "mapping-status-badge" : "mapping-status-badge mapping-status-badge-inactive"}>{item.is_active ? "Active" : "Inactive"}</span></td>
                         {canManageMappings && <td className="coach-mapping-actions-cell"><div className="coach-mapping-row-actions">
                           <button type="button" className="coach-mapping-icon-button" onClick={(event) => { event.stopPropagation(); startEditMapping(item); }} disabled={saving} title="Edit mapping" aria-label={"Edit mapping for " + (item.coaches?.full_name || "mapping")}>
