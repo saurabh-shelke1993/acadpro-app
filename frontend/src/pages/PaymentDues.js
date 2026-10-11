@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "../supabaseClient";
 import Layout from "../components/Layout";
 import {
@@ -85,34 +85,26 @@ const [statusFilter, setStatusFilter] =
   useState(null); 
 
 useEffect(() => {
-
   if (generationAcademy) {
-
     fetchCenters();
-
   } else {
 
     setCenters([]);
     setGenerationCenter("");
 
   }
-
-}, [generationAcademy]);
+}, [generationAcademy, fetchCenters]);
 
 useEffect(() => {
-
   if (generationCenter) {
-
     fetchBatches();
-
   } else {
 
     setBatches([]);
     setGenerationBatch("");
 
   }
-
-}, [generationCenter]);
+}, [generationCenter, fetchBatches]);
 
 useEffect(() => {
 
@@ -202,17 +194,10 @@ useEffect(() => {
 }, []);
 
 useEffect(() => {
-
   if (!loggedInUser) return;
-
   fetchAcademies();
-
   fetchPaymentDues();
-
-}, [
-  loggedInUser,
-  statusFilter
-]);
+}, [loggedInUser, statusFilter, fetchAcademies, fetchPaymentDues]);
 
 
 
@@ -226,7 +211,7 @@ async () => {
 
 };
 
-const fetchAcademies = async () => {
+const fetchAcademies = useCallback(async () => {
 
   if (!loggedInUser) return;
 
@@ -245,10 +230,10 @@ const fetchAcademies = async () => {
 
   }
 
-};
+}, [loggedInUser]);
 
 
-const fetchCenters = async () => {
+const fetchCenters = useCallback(async () => {
 
   try {
 
@@ -281,10 +266,10 @@ const fetchCenters = async () => {
 
   }
 
-};
+}, [loggedInUser, generationAcademy]);
 
 
-const fetchBatches = async () => {
+const fetchBatches = useCallback(async () => {
 
   try {
 
@@ -302,7 +287,7 @@ const fetchBatches = async () => {
 
   }
 
-};
+}, [loggedInUser, generationCenter]);
 
 
 const fetchPlayers = async (batchId) => {
@@ -375,7 +360,7 @@ const fetchSubscriptionsByPlayer = async (
 
 ////////////////////////////////////////////
 
-const fetchPaymentDues = async (
+const fetchPaymentDues = useCallback(async (
   playerId = null
 ) => {
 
@@ -465,7 +450,7 @@ console.log(
 
   }
 
-};
+}, [loggedInUser, statusFilter]);
 
 //////////////////////////////////////////////////////
   const resetGenerateDueForm = () => {
