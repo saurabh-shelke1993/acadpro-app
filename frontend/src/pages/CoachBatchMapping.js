@@ -193,20 +193,6 @@ function CoachBatchMapping() {
       return;
     }
 
-    const conflictingMapping = assignments.find((item) =>
-      item.id !== editingMappingId &&
-      item.is_active &&
-      item.batch_id === selectedBatch &&
-      item.coach_id !== selectedCoach
-    );
-    if (conflictingMapping) {
-      setMappingNotice({
-        type: "error",
-        message: "This batch already has another active coach. Deactivate or reassign that mapping first."
-      });
-      return;
-    }
-
     setSaving(true);
     try {
       const previousMapping = assignments.find((item) => item.id === editingMappingId);
@@ -292,19 +278,6 @@ function CoachBatchMapping() {
     const batchSessions = schedules.filter((item) => item.batch_id === selectedBatch);
     if (batchSessions.length > 0 && selectedScheduleIds.length === 0) {
       setMappingNotice({ type: "error", message: "Select at least one session for this batch." });
-      return;
-    }
-
-    const conflictingMapping = assignments.find((item) =>
-      item.is_active &&
-      item.batch_id === selectedBatch &&
-      item.coach_id !== selectedCoach
-    );
-    if (conflictingMapping) {
-      setMappingNotice({
-        type: "error",
-        message: "This batch already has an active coach. Edit the existing mapping to change its assigned sessions."
-      });
       return;
     }
 
