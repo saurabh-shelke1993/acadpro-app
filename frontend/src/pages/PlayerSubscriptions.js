@@ -74,38 +74,7 @@ function PlayerSubscriptions() {
     };
     loadUser();
   }, []);
-
-  useEffect(() => {
-    if (!loggedInUser) return;
-    fetchAcademies();
-  }, [loggedInUser, fetchAcademies]);
-
-  useEffect(() => {
-    if (!loggedInUser) return;
-    fetchPlayers();
-    fetchPlans();
-    fetchSubscriptions();
-  }, [loggedInUser, fetchPlayers, fetchPlans, fetchSubscriptions]);
-
-  useEffect(() => {
-    if (!selectedAcademy) {
-      setCenters([]);
-      setBatches([]);
-      return;
-    }
-    fetchCenters(selectedAcademy);
-    fetchPlans();
-  }, [selectedAcademy, fetchCenters, fetchPlans]);
-
-  useEffect(() => {
-    if (!selectedCenter) {
-      setBatches([]);
-      return;
-    }
-    fetchBatches(selectedCenter);
-  }, [selectedCenter, fetchBatches]);
-
-  useEffect(() => {
+seEffect(() => {
     setCurrentPage(1);
   }, [selectedAcademy, selectedCenter, selectedBatch, statusFilter, columnFilters]);
 
@@ -490,6 +459,38 @@ function PlayerSubscriptions() {
 
   const selectedPlayerRecord = players.find((player) => player.id === selectedPlayer);
   const selectedPlanRecord = plans.find((plan) => plan.id === selectedPlan);
+
+  
+
+useEffect(() => {
+    if (!loggedInUser) return;
+    fetchAcademies();
+  }, [loggedInUser, fetchAcademies]);
+
+useEffect(() => {
+    if (!loggedInUser) return;
+    fetchPlayers();
+    fetchPlans();
+    fetchSubscriptions();
+  }, [loggedInUser, fetchPlayers, fetchPlans, fetchSubscriptions]);
+
+useEffect(() => {
+    if (!selectedAcademy) {
+      setCenters([]);
+      setBatches([]);
+      return;
+    }
+    fetchCenters(selectedAcademy);
+    fetchPlans();
+  }, [selectedAcademy, fetchCenters, fetchPlans]);
+
+useEffect(() => {
+    if (!selectedCenter) {
+      setBatches([]);
+      return;
+    }
+    fetchBatches(selectedCenter);
+  }, [selectedCenter, fetchBatches]);
 
   return (
     <Layout>
