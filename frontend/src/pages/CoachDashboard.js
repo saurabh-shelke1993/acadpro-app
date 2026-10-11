@@ -81,7 +81,7 @@ function CoachDashboard() {
                   </div>
                   <div className="coach-batch-card-footer">
                     <span className="coach-dashboard-helper">{formatScheduleTime(session.start_time)}–{formatScheduleTime(session.end_time)}</span>
-                    <Link className="coach-dashboard-link" to={`/coach-attendance?scheduleId=${session.id}`}>Take attendance →</Link>
+                    <Link className="coach-dashboard-link" to={`/coach-attendance?scheduleId=${session.id}&date=${session.date}`}>Take attendance →</Link>
                   </div>
                 </article>
               ))}
