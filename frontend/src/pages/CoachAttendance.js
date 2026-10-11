@@ -12,12 +12,17 @@ import {
 function CoachAttendance() {
   const [searchParams] = useSearchParams();
   const initialScheduleId = searchParams.get("scheduleId") || "";
+  const initialDate = searchParams.get("date") || "";
   const initialBatchId = searchParams.get("batchId") || "";
   const user = JSON.parse(localStorage.getItem("acadpro_user"));
 
   const [sessions, setSessions] = useState([]);
   const [selectedSchedule, setSelectedSchedule] = useState(initialScheduleId);
-  const [attendanceDate, setAttendanceDate] = useState(new Date().toISOString().split("T")[0]);
+  const [attendanceDate, setAttendanceDate] = useState(() => {
+    if (initialDate && /^\\d{4}-\\d{2}-\\d{2}$/.test(initialDate)) return initialDate;
+    const now = new Date();
+    return [now.getFullYear(), String(now.getMonth() + 1).padStart(2, "0"), String(now.getDate()).padStart(2, "0")].join("-");
+  });
   const [players, setPlayers] = useState([]);
   const [isEditMode, setIsEditMode] = useState(false);
   const [loading, setLoading] = useState(false);
