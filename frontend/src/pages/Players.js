@@ -545,6 +545,19 @@ if (!joiningDate) {
   return false;
 }
 
+    if (scheduleLoading) {
+      alert("Please wait for the batch sessions to finish loading.");
+      return false;
+    }
+    if (scheduleLoadError) {
+      alert("Batch sessions could not be loaded. Reselect the batch and try again.");
+      return false;
+    }
+    if (availableSchedules.length > 0 && selectedScheduleIds.length === 0) {
+      alert("Select at least one weekly training session for this player.");
+      return false;
+    }
+
     if (!/^\d{10}$/.test(parentPhone)) {
       alert(
         "Parent phone must be exactly 10 digits"
@@ -661,39 +674,55 @@ const handleUpdatePlayer = async () => {
   }
 
   try {
-    await updatePlayerTransactional({
-      playerId: editingPlayerId,
-      academyId,
-      parentId: editingParentId,
-      parentName,
-      parentPhone,
-      parentEmail,
-      parentAddress,
-      fullName,
-      dob,
-      gender,
-      joiningDate,
-      centerId: selectedCenter,
-      batchId: selectedBatch,
+    const activeEnrollments = await getPlayerScheduleEnrollments({
+      playerId: editingPlayerId
     });
+    const activeBySchedule = new Map(
+      (activeEnrollments || [])
+        .filter((enrollment) => enrollment.is_active)
+        .map((enrollment) => [enrollment.batch_schedule_id, enrollment])
+    );
+    const selectedIds = new Set(selectedScheduleIds);
+    const enrollmentsToDeactivate = [...activeBySchedule.values()].filter(
+      (enrollment) => !selectedIds.has(enrollment.batch_schedule_id)
+    );
+
+    // Deactivate removed sessions before changing the player's batch.
+    // The database validator checks batch consistency on deactivation too.
+    for (const enrollment of enrollmentsToDeactivate) {
+      await deactivatePlayerScheduleEnrollment(enrollment.id);
+    }
 
     try {
-      const activeEnrollments = await getPlayerScheduleEnrollments({
-        playerId: editingPlayerId
+      await updatePlayerTransactional({
+        playerId: editingPlayerId,
+        academyId,
+        parentId: editingParentId,
+        parentName,
+        parentPhone,
+        parentEmail,
+        parentAddress,
+        fullName,
+        dob,
+        gender,
+        joiningDate,
+        centerId: selectedCenter,
+        batchId: selectedBatch,
       });
-      const activeBySchedule = new Map(
-        (activeEnrollments || [])
-          .filter((enrollment) => enrollment.is_active)
-          .map((enrollment) => [enrollment.batch_schedule_id, enrollment])
-      );
-      const selectedIds = new Set(selectedScheduleIds);
-
-      for (const enrollment of activeBySchedule.values()) {
-        if (!selectedIds.has(enrollment.batch_schedule_id)) {
-          await deactivatePlayerScheduleEnrollment(enrollment.id);
+    } catch (playerUpdateError) {
+      for (const enrollment of enrollmentsToDeactivate) {
+        const { error: restoreError } = await supabase
+          .from("player_batch_schedules")
+          .update({ is_active: true })
+          .eq("id", enrollment.id);
+        if (restoreError) {
+          console.error("Could not restore a session enrollment after player update failure:", restoreError);
         }
       }
+      throw playerUpdateError;
+    }
 
+    try {
       for (const batchScheduleId of selectedIds) {
         if (!activeBySchedule.has(batchScheduleId)) {
           await enrollPlayerInSchedule({
@@ -704,7 +733,6 @@ const handleUpdatePlayer = async () => {
           });
         }
       }
-
       alert("Player updated and session enrollments saved.");
     } catch (scheduleError) {
       console.error("Player updated but session enrollment sync failed:", scheduleError);
