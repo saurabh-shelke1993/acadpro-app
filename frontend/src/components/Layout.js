@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import Sidebar from "./Sidebar";
 
@@ -8,7 +8,7 @@ function Layout({ children }) {
   const menuButtonRef = useRef(null);
   const closeButtonRef = useRef(null);
 
-  const closeSidebar = () => {
+  const closeSidebar = useCallback(() => {
     const shouldRestoreFocus =
       typeof window !== "undefined" &&
       window.matchMedia("(max-width: 900px)").matches &&
@@ -21,7 +21,7 @@ function Layout({ children }) {
         menuButtonRef.current?.focus();
       });
     }
-  };
+  }, [sidebarOpen]);
 
   useEffect(() => {
     if (!sidebarOpen) {
@@ -81,7 +81,7 @@ function Layout({ children }) {
       document.removeEventListener("keydown", handleKeyDown);
       document.body.classList.remove("app-sidebar-open");
     };
-  }, [sidebarOpen]);
+  }, [sidebarOpen, closeSidebar]);
 
   useEffect(() => {
     if (sidebarOpen) {
