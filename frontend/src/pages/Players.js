@@ -690,8 +690,23 @@ const handleUpdatePlayer = async () => {
 
     // Deactivate removed sessions before changing the player's batch.
     // The database validator checks batch consistency on deactivation too.
-    for (const enrollment of enrollmentsToDeactivate) {
-      await deactivatePlayerScheduleEnrollment(enrollment.id);
+    const deactivatedEnrollments = [];
+    try {
+      for (const enrollment of enrollmentsToDeactivate) {
+        await deactivatePlayerScheduleEnrollment(enrollment.id);
+        deactivatedEnrollments.push(enrollment);
+      }
+    } catch (deactivationError) {
+      for (const enrollment of deactivatedEnrollments) {
+        const { error: restoreError } = await supabase
+          .from("player_batch_schedules")
+          .update({ is_active: true })
+          .eq("id", enrollment.id);
+        if (restoreError) {
+          console.error("Could not restore a session enrollment after deactivation failure:", restoreError);
+        }
+      }
+      throw deactivationError;
     }
 
     try {
