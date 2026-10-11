@@ -83,30 +83,7 @@ const [statusFilter, setStatusFilter] =
 
  const [loggedInUser, setLoggedInUser] =
   useState(null); 
-
-useEffect(() => {
-  if (generationAcademy) {
-    fetchCenters();
-  } else {
-
-    setCenters([]);
-    setGenerationCenter("");
-
-  }
-}, [generationAcademy, fetchCenters]);
-
-useEffect(() => {
-  if (generationCenter) {
-    fetchBatches();
-  } else {
-
-    setBatches([]);
-    setGenerationBatch("");
-
-  }
-}, [generationCenter, fetchBatches]);
-
-useEffect(() => {
+seEffect(() => {
 
   if (generationBatch) {
 
@@ -192,15 +169,6 @@ useEffect(() => {
   fetchLoggedInUser();
 
 }, []);
-
-useEffect(() => {
-  if (!loggedInUser) return;
-  fetchAcademies();
-  fetchPaymentDues();
-}, [loggedInUser, statusFilter, fetchAcademies, fetchPaymentDues]);
-
-
-
   const fetchLoggedInUser =
 async () => {
 
@@ -776,7 +744,37 @@ const hasActiveFilters =
 const totalPages = Math.max(1, Math.ceil(filteredDues.length / 7));
 const paginatedDues = filteredDues.slice((currentPage - 1) * 7, currentPage * 7);
 
-return (
+
+
+useEffect(() => {
+  if (generationAcademy) {
+    fetchCenters();
+  } else {
+
+    setCenters([]);
+    setGenerationCenter("");
+
+  }
+}, [generationAcademy, fetchCenters]);
+
+useEffect(() => {
+  if (generationCenter) {
+    fetchBatches();
+  } else {
+
+    setBatches([]);
+    setGenerationBatch("");
+
+  }
+}, [generationCenter, fetchBatches]);
+
+useEffect(() => {
+  if (!loggedInUser) return;
+  fetchAcademies();
+  fetchPaymentDues();
+}, [loggedInUser, statusFilter, fetchAcademies, fetchPaymentDues]);
+
+  return (
   <Layout>
     <div className="payment-dues-page">
       <div className="payment-page-header">
