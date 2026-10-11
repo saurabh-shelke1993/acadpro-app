@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import Layout from "../components/Layout";
 import "./SubscriptionPlans.css";
 import { supabase } from "../services/supabase";
@@ -52,9 +52,9 @@ function SubscriptionPlans() {
     if (!loggedInUser) return;
     fetchAcademies();
     fetchPlans();
-  }, [loggedInUser]);
+  }, [loggedInUser, fetchAcademies, fetchPlans]);
 
-  const fetchAcademies = async () => {
+  const fetchAcademies = useCallback(async () => {
     let query = supabase
       .from("academies")
       .select("id, academy_name")
@@ -77,9 +77,9 @@ function SubscriptionPlans() {
     if (!isSuperAdmin(loggedInUser) && nextAcademies.length === 1 && !selectedAcademy) {
       setSelectedAcademy(nextAcademies[0].id);
     }
-  };
+  }, [loggedInUser, selectedAcademy]);
 
-  const fetchPlans = async () => {
+  const fetchPlans = useCallback(async () => {
     let query = supabase
       .from("subscription_plans")
       .select(`
@@ -109,7 +109,7 @@ function SubscriptionPlans() {
       return;
     }
     setPlans(data || []);
-  };
+  }, [loggedInUser]);
 
   const resetForm = () => {
     setSelectedAcademy(isSuperAdmin(loggedInUser) ? "" : (academies.length === 1 ? academies[0].id : selectedAcademy));
