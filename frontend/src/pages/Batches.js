@@ -30,13 +30,13 @@ import {
 import "./Batches.css";
 
 const DAYS = [
-  { value: 1, label: "Monday", short: "Mon" },
-  { value: 2, label: "Tuesday", short: "Tue" },
-  { value: 3, label: "Wednesday", short: "Wed" },
-  { value: 4, label: "Thursday", short: "Thu" },
-  { value: 5, label: "Friday", short: "Fri" },
-  { value: 6, label: "Saturday", short: "Sat" },
-  { value: 7, label: "Sunday", short: "Sun" }
+  { value: 1, label: "Monday", short: "M" },
+  { value: 2, label: "Tuesday", short: "T" },
+  { value: 3, label: "Wednesday", short: "W" },
+  { value: 4, label: "Thursday", short: "T" },
+  { value: 5, label: "Friday", short: "F" },
+  { value: 6, label: "Saturday", short: "S" },
+  { value: 7, label: "Sunday", short: "S" }
 ];
 
 const AGE_GROUPS = [
@@ -51,12 +51,11 @@ const AGE_GROUPS = [
   "Elite"
 ];
 
-const createEmptySession = (dayOfWeek = 1) => ({
+const createEmptySession = (dayOfWeek = 1, defaults = {}) => ({
   id: null,
   dayOfWeek,
-  startTime: "",
-  endTime: "",
-  sessionLabel: ""
+  startTime: defaults.startTime || "",
+  endTime: defaults.endTime || ""
 });
 
 const normalizeTime = (value) => String(value || "").slice(0, 5);
@@ -300,7 +299,6 @@ const Batches = () => {
           dayOfWeek: Number(schedule.day_of_week),
           startTime: normalizeTime(schedule.start_time),
           endTime: normalizeTime(schedule.end_time),
-          sessionLabel: schedule.session_label || "",
           centerId: schedule.center_id,
           academyId: schedule.academy_id,
           batchId: schedule.batch_id
@@ -377,20 +375,37 @@ const Batches = () => {
   };
 
   const addScheduleRow = (dayOfWeek = 1) => {
-    setScheduleRows((current) => [
-      ...current,
-      createEmptySession(dayOfWeek)
-    ]);
+    setScheduleRows((current) => {
+      const monday = current.find((row) => Number(row.dayOfWeek) === 1);
+      const sameDay = [...current].reverse().find(
+        (row) => Number(row.dayOfWeek) === Number(dayOfWeek)
+      );
+      return [...current, createEmptySession(dayOfWeek, sameDay || monday || {})];
+    });
   };
 
   const updateScheduleRow = (index, field, value) => {
-    setScheduleRows((current) =>
-      current.map((row, rowIndex) =>
-        rowIndex === index
-          ? { ...row, [field]: value }
-          : row
-      )
-    );
+    setScheduleRows((current) => {
+      const editedRow = current[index];
+      if (!editedRow) return current;
+      const previousValue = editedRow[field];
+      const nextRows = current.map((row, rowIndex) =>
+        rowIndex === index ? { ...row, [field]: value } : row
+      );
+
+      // Monday is the default time template; preserve customized times.
+      if (Number(editedRow.dayOfWeek) === 1 &&
+          (field === "startTime" || field === "endTime")) {
+        return nextRows.map((row, rowIndex) => {
+          if (rowIndex === index) return row;
+          if (!row[field] || row[field] === previousValue) {
+            return { ...row, [field]: value };
+          }
+          return row;
+        });
+      }
+      return nextRows;
+    });
   };
 
   const removeScheduleRow = (index) => {
@@ -464,7 +479,6 @@ const Batches = () => {
           dayOfWeek: Number(row.dayOfWeek),
           startTime: row.startTime,
           endTime: row.endTime,
-          sessionLabel: row.sessionLabel
         };
 
         if (row.id) {
@@ -624,8 +638,7 @@ const Batches = () => {
             id: schedule.id,
             dayOfWeek: Number(schedule.dayOfWeek),
             startTime: normalizeTime(schedule.startTime),
-            endTime: normalizeTime(schedule.endTime),
-            sessionLabel: schedule.sessionLabel || ""
+            endTime: normalizeTime(schedule.endTime)
           }))
         )
       );
@@ -866,30 +879,14 @@ const Batches = () => {
       return "Schedule not configured";
     }
 
-    const grouped = new Map();
+    const uniqueTimes = [...new Set(
+      sessions.map((session) => `${normalizeTime(session.startTime)}|${normalizeTime(session.endTime)}`)
+    )];
 
-    sessions.forEach((session) => {
-      const day = Number(session.dayOfWeek);
-      if (!grouped.has(day)) grouped.set(day, []);
-      grouped.get(day).push(session);
-    });
-
-    return [...grouped.entries()]
-      .sort((a, b) => a[0] - b[0])
-      .map(([day, daySessions]) => {
-        const dayName =
-          DAYS.find((item) => item.value === day)?.short ||
-          getDayName(day);
-
-        const times = daySessions
-          .map((session) => {
-            const time = formatSessionTime(session);
-            const label = String(session.sessionLabel || "").trim();
-            return label ? `${label}: ${time}` : time;
-          })
-          .join(", ");
-
-        return `${dayName} ${times}`;
+    return uniqueTimes
+      .map((key) => {
+        const [startTime, endTime] = key.split("|");
+        return formatSessionTime({ startTime, endTime });
       })
       .join(" · ");
   };
@@ -1101,7 +1098,7 @@ const Batches = () => {
                         {selected ? "✓" : ""}
                       </span>
                       <span className="batches-day-name">
-                        {day.label}
+                        {day.short}
                       </span>
                       {count > 1 && (
                         <span className="batches-day-count">
@@ -1185,25 +1182,6 @@ const Batches = () => {
                               updateScheduleRow(
                                 originalIndex,
                                 "endTime",
-                                event.target.value
-                              )
-                            }
-                          />
-                        </div>
-
-                        <div className="batches-field batches-session-label-field">
-                          <label htmlFor={`schedule-label-${sortedIndex}`}>
-                            Session label
-                          </label>
-                          <input
-                            id={`schedule-label-${sortedIndex}`}
-                            type="text"
-                            placeholder="e.g. Morning"
-                            value={row.sessionLabel}
-                            onChange={(event) =>
-                              updateScheduleRow(
-                                originalIndex,
-                                "sessionLabel",
                                 event.target.value
                               )
                             }
