@@ -8,7 +8,8 @@ import {
   getActiveSchedules,
   getCoachScheduleAssignments,
   assignCoachToSchedule,
-  deactivateCoachScheduleAssignment
+  deactivateCoachScheduleAssignment,
+  setCoachScheduleAssignmentActive
 } from "../services/coachScheduleAssignmentService";
 
 function CoachBatchMapping() {
@@ -186,6 +187,20 @@ function CoachBatchMapping() {
       return;
     }
 
+    const conflictingMapping = assignments.find((item) =>
+      item.id !== editingMappingId &&
+      item.is_active &&
+      item.batch_id === selectedBatch &&
+      item.coach_id !== selectedCoach
+    );
+    if (conflictingMapping) {
+      setMappingNotice({
+        type: "error",
+        message: "This batch already has another active coach. Deactivate or reassign that mapping first."
+      });
+      return;
+    }
+
     setSaving(true);
     try {
       const previousMapping = assignments.find((item) => item.id === editingMappingId);
@@ -274,6 +289,19 @@ function CoachBatchMapping() {
       return;
     }
 
+    const conflictingMapping = assignments.find((item) =>
+      item.is_active &&
+      item.batch_id === selectedBatch &&
+      item.coach_id !== selectedCoach
+    );
+    if (conflictingMapping) {
+      setMappingNotice({
+        type: "error",
+        message: "This batch already has an active coach. Edit the existing mapping to change its assigned sessions."
+      });
+      return;
+    }
+
     const existing = assignments.find((item) =>
       item.coach_id === selectedCoach && item.batch_id === selectedBatch
     );
@@ -329,15 +357,56 @@ function CoachBatchMapping() {
     setSaving(true);
     setMappingNotice(null);
     try {
+      if (nextStatus) {
+        const conflictingMapping = assignments.find((item) =>
+          item.id !== mapping.id &&
+          item.is_active &&
+          item.batch_id === mapping.batch_id &&
+          item.coach_id !== mapping.coach_id
+        );
+        if (conflictingMapping) {
+          throw new Error("This batch already has another active coach. Deactivate or reassign that mapping first.");
+        }
+      }
+
       const { error } = await supabase.from("coach_batch_assignments")
         .update({ is_active: nextStatus }).eq("id", mapping.id);
       if (error) throw error;
+
+      // Keep session-level access aligned with the parent coach-batch mapping.
+      // Reactivation restores only previously assigned sessions that are still active;
+      // it does not silently assign every session in the batch.
+      const relatedSessionAssignments = await getCoachScheduleAssignments({
+        academyId: selectedAcademy,
+        batchId: mapping.batch_id,
+        coachId: mapping.coach_id,
+        includeInactive: true
+      });
+
+      for (const assignment of relatedSessionAssignments) {
+        if (!nextStatus && assignment.is_active) {
+          await deactivateCoachScheduleAssignment(assignment.id);
+        } else if (
+          nextStatus &&
+          !assignment.is_active &&
+          assignment.batch_schedules?.is_active
+        ) {
+          await setCoachScheduleAssignmentActive(assignment.id, true);
+        }
+      }
+
       setSelectedMappingId(null);
-      setMappingNotice({ type: "success", message: "Mapping " + (nextStatus ? "reactivated" : "deactivated") + " successfully." });
+      setMappingNotice({
+        type: "success",
+        message: nextStatus
+          ? "Mapping reactivated and its previous active sessions restored."
+          : "Mapping and its session assignments deactivated successfully."
+      });
       await fetchWorkspaceData();
     } catch (error) {
       console.error("Failed to update mapping:", error);
       setMappingNotice({ type: "error", message: error.message || "Failed to update mapping." });
+      await fetchWorkspaceData();
     } finally {
       setSaving(false);
     }
