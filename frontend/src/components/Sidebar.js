@@ -118,12 +118,9 @@ function Sidebar({ isOpen = false, onClose = () => {}, closeButtonRef }) {
               {isSuperAdmin(user) && renderLink("/academy", "Academies", "▦")}
               {renderLink("/centers", "Centers", "⌂")}
               {renderLink("/batches", "Batches", "◆")}
-              {renderLink("/batch-schedules", "Batch Schedules", "◫")}
-              {renderLink("/player-schedule-enrollment", "Player Schedule Enrollment", "◉")}
               {renderLink("/players", "Players", "●")}
               {renderLink("/coaches", "Coaches", "♟")}
               {renderLink("/coach-batch-mapping", "Coach Batch Mapping", "↔")}
-              {renderLink("/coach-schedule-assignment", "Coach Schedule Assignment", "◌")}
 
               <div className="app-nav-group-title">Performance</div>
               {renderLink("/player-performance-report", "Performance Report", "▥")}
