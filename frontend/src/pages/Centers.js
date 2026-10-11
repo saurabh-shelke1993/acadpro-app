@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import Layout from "../components/Layout";
 import { supabase } from "../services/supabase";
@@ -55,16 +55,6 @@ useEffect(() => {
 
 }, []);
 
-useEffect(() => {
-
-  if (!user) return;
-
-  fetchAcademies();
-
-  fetchCenters();
-
-}, [user]);
-
   // =========================
   // FETCH ACADEMIES
   // =========================
@@ -74,7 +64,7 @@ const loadUser = async () => {
     await getLoggedInUser();
 
   setUser(currentUser);
-}, [user, selectedAcademy]);
+};
 
   const fetchAcademies = useCallback(async () => {
     try {
@@ -90,7 +80,7 @@ const loadUser = async () => {
   // FETCH CENTERS
   // =========================
 
-const fetchCenters = async () => {
+const fetchCenters = useCallback(async () => {
 
   if (!user) {
     return;
@@ -117,7 +107,17 @@ const fetchCenters = async () => {
 
     setCenters([]);
   }
-};
+}, [user, academyContextId]);
+
+useEffect(() => {
+
+  if (!user) return;
+
+  fetchAcademies();
+
+  fetchCenters();
+
+}, [user]);
 
 // =========================
 // ACADEMY CHANGE
