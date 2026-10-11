@@ -177,7 +177,7 @@ useEffect(() => {
   );
 
 }, [dueId]);
-eEffect(() => {
+useEffect(() => {
   let filtered = payments || [];
 
   if (historyAcademy) filtered = filtered.filter(payment => payment.players?.academy_id === historyAcademy);
