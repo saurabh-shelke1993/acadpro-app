@@ -199,7 +199,7 @@ export const getCoachScheduleView = async (user, dateValue = todayIso()) => {
 export const getParentScheduleView = async (childId, dateValue = todayIso()) => {
   if (!childId) return { today: [], next: null, week: [] };
 
-  const { data, error } = await supabase
+  const { data: sessionEnrollments, error: enrollmentError } = await supabase
     .from("player_batch_schedules")
     .select(`
       id,
@@ -212,20 +212,63 @@ export const getParentScheduleView = async (childId, dateValue = todayIso()) => 
     .eq("player_id", childId)
     .eq("is_active", true);
 
-  if (error) throw error;
+  if (enrollmentError) throw enrollmentError;
 
-  const valid = (data || []).filter((enrollment) => enrollment.batch_schedules?.is_active);
-  const currentDay = isoDay(dateValue);
-
-  const todayEnrollmentRows = valid.filter((enrollment) =>
-    Number(enrollment.batch_schedules.day_of_week) === currentDay &&
-    enrollment.enrolled_from <= dateValue &&
+  let valid = (sessionEnrollments || []).filter((enrollment) =>
+    enrollment.batch_schedules?.is_active &&
+    (!enrollment.enrolled_from || enrollment.enrolled_from <= dateValue) &&
     (!enrollment.enrolled_until || enrollment.enrolled_until >= dateValue)
   );
-  const today = await enrichSchedulesWithPlayers(
-    todayEnrollmentRows.map((enrollment) => enrollment.batch_schedules),
-    dateValue
-  );
+
+  // Player management currently maintains enrollment at batch level. If no
+  // session-specific enrollments exist, derive the child's recurring sessions
+  // from their active player_batches assignment instead of showing an empty week.
+  if (valid.length === 0) {
+    const { data: batchAssignments, error: batchError } = await supabase
+      .from("player_batches")
+      .select("batch_id")
+      .eq("player_id", childId);
+
+    if (batchError) throw batchError;
+
+    let batchIds = [...new Set((batchAssignments || []).map((row) => row.batch_id).filter(Boolean))];
+
+    // Compatibility fallback for player records that still store their primary batch.
+    if (!batchIds.length) {
+      const { data: player, error: playerError } = await supabase
+        .from("players")
+        .select("batch_id")
+        .eq("id", childId)
+        .maybeSingle();
+      if (playerError) throw playerError;
+      if (player?.batch_id) batchIds = [player.batch_id];
+    }
+
+    if (batchIds.length) {
+      const { data: schedules, error: scheduleError } = await supabase
+        .from("batch_schedules")
+        .select(SCHEDULE_SELECT)
+        .in("batch_id", batchIds)
+        .eq("is_active", true)
+        .order("day_of_week")
+        .order("start_time");
+
+      if (scheduleError) throw scheduleError;
+
+      valid = (schedules || []).map((schedule) => ({
+        batch_schedule_id: schedule.id,
+        batch_schedules: schedule,
+        enrolled_from: null,
+        enrolled_until: null,
+      }));
+    }
+  }
+
+  const currentDay = isoDay(dateValue);
+  const todaySchedules = valid
+    .filter((enrollment) => Number(enrollment.batch_schedules.day_of_week) === currentDay)
+    .map((enrollment) => enrollment.batch_schedules);
+  const today = await enrichSchedulesWithPlayers(todaySchedules, dateValue);
   today.sort((a, b) => String(a.start_time).localeCompare(String(b.start_time)));
 
   const uniqueSchedules = [...new Map(
@@ -237,8 +280,8 @@ export const getParentScheduleView = async (childId, dateValue = todayIso()) => 
   ).values()];
   const week = (await Promise.all(uniqueSchedules.map(async (schedule) => {
     const sessionDate = getDateForWeekday(dateValue, schedule.day_of_week);
-    if (schedule.enrollment_from > sessionDate ||
-        (schedule.enrollment_until && schedule.enrollment_until < sessionDate)) return null;
+    if (schedule.enrollment_from && schedule.enrollment_from > sessionDate ||
+        schedule.enrollment_until && schedule.enrollment_until < sessionDate) return null;
     const [enriched] = await enrichSchedulesWithPlayers([schedule], sessionDate);
     return enriched ? { ...enriched, date: sessionDate } : null;
   }))).filter(Boolean).sort((a, b) =>
