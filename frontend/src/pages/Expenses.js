@@ -61,6 +61,7 @@ function Expenses() {
   const [reminders, setReminders] = useState([]);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
   const [activeTab, setActiveTab] = useState("expenses");
   const [expenseForm, setExpenseForm] = useState(EMPTY_EXPENSE);
   const [reminderForm, setReminderForm] = useState(EMPTY_REMINDER);
@@ -82,7 +83,7 @@ function Expenses() {
     setError("");
     try {
       const [nextExpenses, nextReminders] = await Promise.all([
-        fetchExpenses(currentUser, { academyId: academyFilter, fromDate, toDate }),
+        fetchExpenses(currentUser, { academyId: academyFilter, fromDate, toDate, category: categoryFilter }),
         fetchExpenseReminders(currentUser, { academyId: academyFilter })
       ]);
       setExpenses(nextExpenses);
@@ -92,7 +93,7 @@ function Expenses() {
     } finally {
       setLoading(false);
     }
-  }, [user, academyFilter, fromDate, toDate]);
+  }, [user, academyFilter, fromDate, toDate, categoryFilter]);
 
   useEffect(() => {
     let active = true;
@@ -298,7 +299,8 @@ function Expenses() {
             {isAdmin && <label className="expenses-field"><span>Academy</span><select value={academyFilter} onChange={(e) => setAcademyFilter(e.target.value)}><option value="">All academies</option>{academies.map((academy) => <option key={academy.id} value={academy.id}>{academy.academy_name}</option>)}</select></label>}
             <label className="expenses-field"><span>From date</span><input type="date" value={fromDate} max={toDate || undefined} onChange={(e) => setFromDate(e.target.value)} /></label>
             <label className="expenses-field"><span>To date</span><input type="date" value={toDate} min={fromDate || undefined} onChange={(e) => setToDate(e.target.value)} /></label>
-            <button type="button" className="expenses-button expenses-button-quiet" onClick={() => { setFromDate(""); setToDate(""); if (isAdmin) setAcademyFilter(""); }}>Reset filters</button>
+            <label className="expenses-field"><span>Category</span><select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}><option value="">All categories</option>{CATEGORIES.map((category) => <option key={category} value={category}>{category}</option>)}</select></label>
+            <button type="button" className="expenses-button expenses-button-quiet" onClick={() => { setFromDate(""); setToDate(""); setCategoryFilter(""); if (isAdmin) setAcademyFilter(""); }}>Reset filters</button>
           </div>
 
           <div className="expenses-tabs" role="tablist" aria-label="Expense sections">
