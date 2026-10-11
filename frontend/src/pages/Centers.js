@@ -74,9 +74,9 @@ const loadUser = async () => {
     await getLoggedInUser();
 
   setUser(currentUser);
-};
+}, [user, selectedAcademy]);
 
-  const fetchAcademies = async () => {
+  const fetchAcademies = useCallback(async () => {
     try {
       const data = await getAccessibleAcademies(user);
       setAcademies(data || []);
