@@ -74,7 +74,7 @@ const loadUser = async () => {
       console.error("Failed to load academies:", error);
       setAcademies([]);
     }
-  };
+  }, [user]);
 
   // =========================
   // FETCH CENTERS
@@ -117,7 +117,7 @@ useEffect(() => {
 
   fetchCenters();
 
-}, [user]);
+}, [user, fetchAcademies, fetchCenters]);
 
 // =========================
 // ACADEMY CHANGE
