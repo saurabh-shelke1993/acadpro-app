@@ -133,6 +133,7 @@ function Sidebar({ isOpen = false, onClose = () => {}, closeButtonRef }) {
               {renderLink("/player-subscriptions", "Player Subscriptions", "▤")}
               {renderLink("/payment-dues", "Payment Dues", "₹")}
               {renderLink("/payment-collections", "Payment Collections", "↗")}
+              {renderLink("/expenses", "Expenses", "−")}
             </>
           )}
         </nav>
