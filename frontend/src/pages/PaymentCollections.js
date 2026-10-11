@@ -994,7 +994,7 @@ useEffect(() => {
 
   fetchCenters(collectionAcademy);
 
-}, [collectionAcademy]);
+}, [collectionAcademy, fetchCenters]);
 
   return (
   <Layout>
