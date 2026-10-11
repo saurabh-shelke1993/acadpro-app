@@ -1,7 +1,8 @@
 import React, {
   useState,
   useEffect,
-  useRef
+  useRef,
+  useCallback
 } from "react";
 import { supabase } from "../services/supabase";
 import "./PaymentCollections.css";
@@ -181,7 +182,7 @@ useEffect(() => {
 
   loadDueFromNavigation();
 
-}, [dueId]);
+}, [loadDueFromNavigation]);
 
 useEffect(() => {
 
@@ -190,7 +191,7 @@ useEffect(() => {
   fetchAcademies();
   fetchPayments();
 
-}, [loggedInUser]);
+}, [loggedInUser, fetchAcademies, fetchPayments]);
 
 useEffect(() => {
 
@@ -265,7 +266,7 @@ useEffect(() => {
   historyToDate
 ]);
 
-const fetchAcademies = async () => {
+const fetchAcademies = useCallback(async () => {
 
   if (!loggedInUser) return;
 
@@ -300,9 +301,9 @@ const fetchAcademies = async () => {
 
   }
 
-};
+}, [loggedInUser]);
 
-const fetchCenters = async (academyId) => {
+const fetchCenters = useCallback(async (academyId) => {
 
   const { data, error } = await supabase
     .from("centers")
@@ -328,9 +329,9 @@ if (error) {
     return data;
 
 }
-};
+}, []);
 
-const fetchBatches = async (centerId) => {
+const fetchBatches = useCallback(async (centerId) => {
 
     const { data, error } = await supabase
 
@@ -364,9 +365,9 @@ if (error) {
 
 }
 
-};
+}, []);
 
-const fetchPlayers = async (batchId) => {
+const fetchPlayers = useCallback(async (batchId) => {
 
       console.log(
         "fetchPlayers called with:",
@@ -403,10 +404,9 @@ if (error) {
     return data;
 
 }
-};
+}, []);
 
-const fetchPendingDues =
-async (
+const fetchPendingDues = useCallback(async (
   playerId = null
 ) => {
 
@@ -469,11 +469,11 @@ if (error) {
     return data;
 
 }
-  };
+}, []);
 
 
 
-const loadDueFromNavigation = async () => {
+const loadDueFromNavigation = useCallback(async () => {
 
   if (!dueId) return;
 
@@ -552,10 +552,10 @@ setSelectedDueData(
 
 
   setShowCollectionModal(true);
-};
+}, [dueId, fetchCenters, fetchBatches, fetchPlayers, fetchPendingDues]);
 
 
-const fetchPayments = async () => {
+const fetchPayments = useCallback(async () => {
 
   let query = supabase
     .from("payments")
@@ -629,7 +629,7 @@ players (
 
   }
 
-};
+}, [loggedInUser]);
 
 const resetCollectionForm = () => {
 
