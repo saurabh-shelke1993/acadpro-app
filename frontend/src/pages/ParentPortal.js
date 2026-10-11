@@ -270,54 +270,24 @@ const ParentPortal = () => {
                       <p className="parent-portal-detail-value">Not assigned</p>
                     )}
                   </div>
-                </div>
-              </div>
-              </div>
-              <section className="parent-portal-subsection parent-portal-schedule-section">
-                <div className="parent-portal-subsection-heading">
                   <div>
-                    <p className="parent-portal-section-kicker">Training schedule</p>
-                    <h3 className="parent-portal-subsection-title">Today &amp; weekly sessions</h3>
+                    <span className="parent-portal-detail-label">Assigned sessions</span>
+                    {scheduleByChildId[selectedChild.id]?.week?.length ? (
+                      <div className="parent-portal-coach-links">
+                        {scheduleByChildId[selectedChild.id].week.map((session) => (
+                          <p className="parent-portal-detail-value" key={session.id}>
+                            {({ 1: "Monday", 2: "Tuesday", 3: "Wednesday", 4: "Thursday", 5: "Friday", 6: "Saturday", 7: "Sunday" })[Number(session.day_of_week)] || "Training"}{" "}
+                            · {formatScheduleTime(session.start_time)}–{formatScheduleTime(session.end_time)}
+                          </p>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="parent-portal-detail-value">No sessions assigned</p>
+                    )}
                   </div>
                 </div>
-                {scheduleByChildId[selectedChild.id]?.today?.length ? (
-                  <div className="parent-portal-schedule-list">
-                    {scheduleByChildId[selectedChild.id].today.map((session) => (
-                      <div className="parent-portal-schedule-item" key={session.id}>
-                        <div>
-                          <strong>{session.session_label || session.sessionLabel}</strong>
-                          <span>{session.centers?.center_name || "Center"} · {session.batches?.batch_name || "Batch"}</span>
-                        </div>
-                        <span>{formatScheduleTime(session.start_time)}–{formatScheduleTime(session.end_time)}</span>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="parent-portal-attendance-empty">
-                    <div><strong>No session scheduled today</strong><p className="parent-portal-message">There is no training session today. Check the weekly schedule below for the next training days and times.</p></div>
-                  </div>
-                )}
-                {scheduleByChildId[selectedChild.id]?.next ? (
-                  <div className="parent-portal-next-session">
-                    <strong>Next session</strong>
-                    <span>{formatDate(scheduleByChildId[selectedChild.id].next.date)} · {scheduleByChildId[selectedChild.id].next.session_label || scheduleByChildId[selectedChild.id].next.sessionLabel} · {formatScheduleTime(scheduleByChildId[selectedChild.id].next.start_time)}–{formatScheduleTime(scheduleByChildId[selectedChild.id].next.end_time)}</span>
-                  </div>
-                ) : null}
-                {scheduleByChildId[selectedChild.id]?.week?.length ? (
-                  <div className="parent-portal-weekly-schedule">
-                    <p className="parent-portal-section-kicker">Weekly schedule</p>
-                    {scheduleByChildId[selectedChild.id].week.map((session) => (
-                      <div className="parent-portal-schedule-item" key={session.id}>
-                        <div>
-                          <strong>{session.session_label || session.sessionLabel}</strong>
-                          <span>{new Date(`${session.date}T00:00:00`).toLocaleDateString("en-IN", { weekday: "long", day: "2-digit", month: "short" })} · {session.centers?.center_name || "Center"} · {session.batches?.batch_name || "Batch"}</span>
-                        </div>
-                        <span>{formatScheduleTime(session.start_time)}–{formatScheduleTime(session.end_time)}</span>
-                      </div>
-                    ))}
-                  </div>
-                ) : null}
-              </section>
+              </div>
+              </div>
 
               <div className="parent-portal-attendance-development-grid">
               <div className="parent-portal-subsection parent-portal-attendance-section">
