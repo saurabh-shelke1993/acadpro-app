@@ -418,6 +418,19 @@ function CoachBatchMapping() {
     }
   };
 
+  const getDayName = (dayOfWeek) => {
+    const dayNames = {
+      1: "Monday",
+      2: "Tuesday",
+      3: "Wednesday",
+      4: "Thursday",
+      5: "Friday",
+      6: "Saturday",
+      7: "Sunday"
+    };
+    return dayNames[Number(dayOfWeek)] || "Unknown day";
+  };
+
   const formatTime = (value) => {
     if (!value) return "—";
     const parts = String(value).split(":");
