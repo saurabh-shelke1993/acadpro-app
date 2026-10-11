@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Layout from "../components/Layout";
 import "./CoachBatchMapping.css";
 import { supabase } from "../supabaseClient";
@@ -40,7 +40,7 @@ function CoachBatchMapping() {
   const PAGE_SIZE = 10;
 
   useEffect(() => { loadUser(); }, []);
-  useEffect(() => { if (user) fetchAcademies(); }, [user]);
+  useEffect(() => { if (user) fetchAcademies(); }, [user, fetchAcademies]);
 
   useEffect(() => {
     if (!selectedAcademy) {
@@ -50,7 +50,7 @@ function CoachBatchMapping() {
     setSelectedCenter("");
     setSelectedBatch("");
     fetchWorkspaceData();
-  }, [selectedAcademy]);
+  }, [selectedAcademy, fetchWorkspaceData]);
 
   useEffect(() => {
     if (!selectedCenter) {
@@ -59,7 +59,7 @@ function CoachBatchMapping() {
       return;
     }
     fetchBatches();
-  }, [selectedCenter]);
+  }, [selectedCenter, fetchBatches]);
 
   useEffect(() => {
     if (!openFilter) return;
@@ -79,7 +79,7 @@ function CoachBatchMapping() {
 
   const loadUser = async () => setUser(await getCurrentUser());
 
-  const fetchAcademies = async () => {
+  const fetchAcademies = useCallback(async () => {
     try {
       let query = supabase.from("academies").select("id, academy_name").eq("is_active", true).order("academy_name");
       if (!isSuperAdmin(user)) query = query.eq("id", user.academy_id);
@@ -91,9 +91,9 @@ function CoachBatchMapping() {
       console.error("Failed to load academies:", error);
       setLoadError("Unable to load academies.");
     }
-  };
+  }, [user]);
 
-  const fetchWorkspaceData = async () => {
+  const fetchWorkspaceData = useCallback(async () => {
     setLoading(true);
     setLoadError("");
     try {
@@ -126,9 +126,9 @@ function CoachBatchMapping() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedAcademy]);
 
-  const fetchBatches = async () => {
+  const fetchBatches = useCallback(async () => {
     try {
       const { data, error } = await supabase.from("batches")
         .select("id, batch_name, age_group, start_time, end_time, center_id")
@@ -140,7 +140,7 @@ function CoachBatchMapping() {
       console.error("Failed to load batches:", error);
       setBatches([]);
     }
-  };
+  }, [selectedAcademy, selectedCenter]);
 
   const resetAssignmentForm = () => {
     setSelectedCoach("");
