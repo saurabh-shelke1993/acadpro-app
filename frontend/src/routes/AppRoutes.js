@@ -26,6 +26,7 @@ import SubscriptionPlans from "../pages/SubscriptionPlans";
 import PlayerSubscriptions from "../pages/PlayerSubscriptions";
 import PaymentDues from "../pages/PaymentDues";
 import PaymentCollections from "../pages/PaymentCollections";
+import Expenses from "../pages/Expenses";
 import Coaches from "../pages/Coaches";
 import CoachBatchMapping from "../pages/CoachBatchMapping";
 
@@ -237,6 +238,20 @@ function AppRoutes() {
               ]}
             >
               <PaymentCollections />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/expenses"
+          element={
+            <ProtectedRoute
+              allowedRoles={[
+                "super_admin",
+                "academy_owner"
+              ]}
+            >
+              <Expenses />
             </ProtectedRoute>
           }
         />
