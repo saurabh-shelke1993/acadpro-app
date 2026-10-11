@@ -8,7 +8,7 @@ The Expenses module database foundation is deployed to the live AcadPro Supabase
 - Repository branch: `payment-module-finalization`
 - Migration versions: `20261011135131` and `20261011135208`
 
-This is a database-only milestone. The React UI, service layer, route/navigation, and browser regression tests are not implemented by these migrations.
+The database foundation is deployed. The React service layer, Expenses page, route, and Finance navigation are now implemented in the frontend. Browser regression testing remains pending.
 
 ## Data model
 
@@ -53,14 +53,24 @@ The corresponding SQL files are committed under `supabase/migrations/`. The earl
 - The timestamp trigger function is not SECURITY DEFINER and has an empty search path.
 - Supabase Security Advisor shows no new no-policy finding for either Expenses table. Existing unrelated findings remain outside this scope.
 
-## Next implementation steps
+## Frontend implementation — 2026-10-11
 
-1. Add an Expenses service layer using the existing Supabase client and role/data-scope conventions.
-2. Build the Expenses page: list, date filters, category filters, add/edit/delete transaction, and clear empty/loading/error states.
-3. Build the recurring reminders section with monthly/quarterly cadence and next-due visibility.
-4. Add route/sidebar visibility for Academy Owner and read-only Super Admin.
-5. Test Super Admin, Academy Owner, Coach, and Parent behavior in the browser, including cross-academy isolation.
-6. Run the frontend build and regression tests; review the final Git diff and live migration ledger.
+- `frontend/src/services/expensesService.js`: role-aware read/write operations for expenses and reminders; Academy Owner academy scope is applied in service queries and writes.
+- `frontend/src/pages/Expenses.js` and `Expenses.css`: expense register, INR summaries, date filters, actual-expense form, recurring-reminder form, edit/delete actions, empty/loading/error states, and responsive layout.
+- `frontend/src/routes/AppRoutes.js`: `/expenses` route protected for `super_admin` and `academy_owner`.
+- `frontend/src/components/Sidebar.js`: Expenses link in Finance navigation for Super Admin and Academy Owner.
+- Super Admin sees academy labels and can filter academies; all mutation controls are hidden for this role.
+- Academy Owner can manage only their academy. Coach and Parent do not see the navigation item and are blocked by the route. Database RLS remains the authoritative access control.
+- Actual expense records and recurring reminders are separate. Reminders do not create transactions automatically.
+- Frontend build/Jest validation and browser role regression are not yet confirmed.
+
+## Next steps
+
+1. Review the GitHub Actions frontend validation run for Jest and production build.
+2. Browser-test Academy Owner create/edit/delete workflows and reminder handling.
+3. Browser-test Super Admin cross-academy read-only view.
+4. Verify Coach/Parent cannot access `/expenses` directly.
+5. Fix any issues found, then review the final Git diff and role isolation.
 
 ## Operational note
 
