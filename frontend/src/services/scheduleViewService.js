@@ -45,7 +45,6 @@ const enrichSchedulesWithPlayers = async (schedules, dateValue) => {
   if (!schedules.length) return [];
 
   const scheduleIds = schedules.map((schedule) => schedule.id);
-  const batchIds = [...new Set(schedules.map((schedule) => schedule.batch_id).filter(Boolean))];
   const { data: enrollments, error: enrollmentError } = await supabase
     .from("player_batch_schedules")
     .select(`
@@ -280,8 +279,8 @@ export const getParentScheduleView = async (childId, dateValue = todayIso()) => 
   ).values()];
   const week = (await Promise.all(uniqueSchedules.map(async (schedule) => {
     const sessionDate = getDateForWeekday(dateValue, schedule.day_of_week);
-    if (schedule.enrollment_from && schedule.enrollment_from > sessionDate ||
-        schedule.enrollment_until && schedule.enrollment_until < sessionDate) return null;
+    if ((schedule.enrollment_from && schedule.enrollment_from > sessionDate) ||
+        (schedule.enrollment_until && schedule.enrollment_until < sessionDate)) return null;
     const [enriched] = await enrichSchedulesWithPlayers([schedule], sessionDate);
     return enriched ? { ...enriched, date: sessionDate } : null;
   }))).filter(Boolean).sort((a, b) =>
