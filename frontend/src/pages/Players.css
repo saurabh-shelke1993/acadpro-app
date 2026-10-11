@@ -1284,3 +1284,137 @@
   outline: 3px solid var(--ap-primary-600);
   outline-offset: 2px;
 }
+
+
+/* R3 — select the recurring sessions each player is enrolled in. */
+.players-session-enrollment-section {
+  margin-top: .85rem;
+}
+
+.players-session-enrollment-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  margin-bottom: .65rem;
+}
+
+.players-session-enrollment-heading h3 {
+  margin: 0;
+}
+
+.players-session-enrollment-heading > span {
+  flex: 0 0 auto;
+  padding: .2rem .55rem;
+  border: 1px solid var(--ap-primary-200);
+  border-radius: 999px;
+  background: var(--ap-primary-50);
+  color: var(--ap-primary-700);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.players-session-enrollment-hint,
+.players-session-enrollment-error {
+  margin: .2rem 0 0;
+  color: var(--ap-slate-500);
+  font-size: var(--ap-font-size-xs);
+  line-height: 1.5;
+}
+
+.players-session-enrollment-error {
+  color: var(--ap-danger-700);
+}
+
+.players-session-enrollment-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .5rem;
+}
+
+.players-session-enrollment-option {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  min-width: 0;
+  padding: .65rem .7rem;
+  border: 1px solid var(--ap-border);
+  border-radius: var(--ap-radius-md);
+  background: var(--ap-surface);
+  cursor: pointer;
+  transition: border-color var(--ap-transition-fast), background-color var(--ap-transition-fast);
+}
+
+.players-session-enrollment-option:hover {
+  border-color: var(--ap-primary-300);
+  background: var(--ap-primary-50);
+}
+
+.players-session-enrollment-option-selected {
+  border-color: var(--ap-primary-500);
+  background: var(--ap-primary-50);
+}
+
+.players-session-enrollment-option > input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.players-session-enrollment-option > input:focus-visible + .players-session-enrollment-check {
+  outline: 3px solid var(--ap-primary-600);
+  outline-offset: 2px;
+}
+
+.players-session-enrollment-check {
+  display: inline-flex;
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--ap-slate-300);
+  border-radius: 6px;
+  background: var(--ap-surface);
+  color: var(--ap-white);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.players-session-enrollment-option-selected .players-session-enrollment-check {
+  border-color: var(--ap-primary-600);
+  background: var(--ap-primary-600);
+}
+
+.players-session-enrollment-copy {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  gap: .15rem;
+}
+
+.players-session-enrollment-copy strong {
+  color: var(--ap-slate-900);
+  font-size: var(--ap-font-size-sm);
+}
+
+.players-session-enrollment-copy span {
+  color: var(--ap-slate-700);
+  font-size: var(--ap-font-size-xs);
+}
+
+.players-session-enrollment-copy small {
+  overflow: hidden;
+  color: var(--ap-slate-500);
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .players-session-enrollment-list {
+    grid-template-columns: 1fr;
+  }
+}
