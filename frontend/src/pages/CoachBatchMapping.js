@@ -39,28 +39,6 @@ function CoachBatchMapping() {
   const [loadError, setLoadError] = useState("");
   const PAGE_SIZE = 10;
 
-  useEffect(() => { loadUser(); }, []);
-  useEffect(() => { if (user) fetchAcademies(); }, [user, fetchAcademies]);
-
-  useEffect(() => {
-    if (!selectedAcademy) {
-      setCenters([]); setCoaches([]); setBatches([]); setAssignments([]);
-      return;
-    }
-    setSelectedCenter("");
-    setSelectedBatch("");
-    fetchWorkspaceData();
-  }, [selectedAcademy, fetchWorkspaceData]);
-
-  useEffect(() => {
-    if (!selectedCenter) {
-      setBatches([]);
-      setSelectedBatch("");
-      return;
-    }
-    fetchBatches();
-  }, [selectedCenter, fetchBatches]);
-
   useEffect(() => {
     if (!openFilter) return;
     const handleOutsideClick = (event) => {
@@ -141,6 +119,29 @@ function CoachBatchMapping() {
       setBatches([]);
     }
   }, [selectedAcademy, selectedCenter]);
+
+  useEffect(() => { loadUser(); }, []);
+  useEffect(() => { if (user) fetchAcademies(); }, [user, fetchAcademies]);
+
+  useEffect(() => {
+    if (!selectedAcademy) {
+      setCenters([]); setCoaches([]); setBatches([]); setAssignments([]);
+      return;
+    }
+    setSelectedCenter("");
+    setSelectedBatch("");
+    fetchWorkspaceData();
+  }, [selectedAcademy, fetchWorkspaceData]);
+
+  useEffect(() => {
+    if (!selectedCenter) {
+      setBatches([]);
+      setSelectedBatch("");
+      return;
+    }
+    fetchBatches();
+  }, [selectedCenter, fetchBatches]);
+
 
   const resetAssignmentForm = () => {
     setSelectedCoach("");
