@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "../services/supabase";
 import {
@@ -101,13 +101,13 @@ async () => {
     if (selectedAcademy) {
       fetchCenters(selectedAcademy);
     }
-  }, [selectedAcademy]);
+  }, [selectedAcademy, fetchCenters]);
 
   useEffect(() => {
     if (selectedCenter) {
       fetchBatches(selectedCenter);
     }
-  }, [selectedCenter]);
+  }, [selectedCenter, fetchBatches]);
 
   useEffect(() => {
     let cancelled = false;
@@ -163,13 +163,14 @@ async () => {
   }, [selectedBatch, selectedCenter, batches, editingPlayerId, isEditing]);
 
 useEffect(() => {
-
   if (!loggedInUser) return;
-
   fetchAcademies();
-  fetchPlayers();
+}, [loggedInUser, fetchAcademies]);
 
-}, [loggedInUser]);
+useEffect(() => {
+  if (!loggedInUser) return;
+  fetchPlayers();
+}, [loggedInUser, fetchPlayers]);
 
   const formatCoachDob = (dob) => {
     if (!dob) return "—";
@@ -203,7 +204,7 @@ useEffect(() => {
 
     return age;
   };
-  const fetchAcademies = async () => {
+  const fetchAcademies = useCallback(async () => {
 
   if (!loggedInUser) return;
 
@@ -235,9 +236,9 @@ useEffect(() => {
 
     setAcademies([]);
   }
-};
+}, [loggedInUser]);
 
- const fetchCenters = async () => {
+ const fetchCenters = useCallback(async () => {
   if (!loggedInUser || !selectedAcademy) {
     setCenters([]);
     return;
@@ -273,8 +274,8 @@ useEffect(() => {
 
     setCenters([]);
   }
-};
-const fetchBatches = async () => {
+}, [loggedInUser, selectedAcademy, selectedCenter]);
+const fetchBatches = useCallback(async () => {
   if (
     !loggedInUser ||
     !selectedCenter
@@ -311,8 +312,8 @@ const fetchBatches = async () => {
     setBatches([]);
     setSelectedBatch("");
   }
-};
-  const fetchPlayers = async () => {
+}, [loggedInUser, selectedCenter, selectedBatch]);
+  const fetchPlayers = useCallback(async () => {
   if (!loggedInUser) {
     return;
   }
@@ -521,7 +522,7 @@ const fetchBatches = async () => {
 
     setPlayers([]);
   }
-};
+}, [loggedInUser, selectedAcademy, selectedCenter, selectedBatch]);
   const validateForm = () => {
     if (
       !selectedAcademy ||
