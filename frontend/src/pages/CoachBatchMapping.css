@@ -316,3 +316,26 @@
     grid-template-columns: 1fr;
   }
 }
+
+
+/* R4 follow-up: show assigned sessions in the Academy Owner mapping directory. */
+@media (min-width: 641px) {
+  .coach-mapping-page-owner .coach-mapping-table th:nth-child(4),
+  .coach-mapping-page-owner .coach-mapping-table td:nth-child(4),
+  .coach-mapping-page-owner .coach-mapping-table th:nth-child(5),
+  .coach-mapping-page-owner .coach-mapping-table td:nth-child(5) {
+    display: table-cell;
+  }
+  .coach-mapping-page-owner .coach-mapping-table th:nth-child(1),
+  .coach-mapping-page-owner .coach-mapping-table td:nth-child(1) { width: 20%; }
+  .coach-mapping-page-owner .coach-mapping-table th:nth-child(2),
+  .coach-mapping-page-owner .coach-mapping-table td:nth-child(2) { width: 17%; }
+  .coach-mapping-page-owner .coach-mapping-table th:nth-child(3),
+  .coach-mapping-page-owner .coach-mapping-table td:nth-child(3) { width: 17%; }
+  .coach-mapping-page-owner .coach-mapping-table th:nth-child(4),
+  .coach-mapping-page-owner .coach-mapping-table td:nth-child(4) { width: 27%; }
+  .coach-mapping-page-owner .coach-mapping-table th:nth-child(5),
+  .coach-mapping-page-owner .coach-mapping-table td:nth-child(5) { width: 9%; }
+  .coach-mapping-page-owner .coach-mapping-table th:nth-child(6),
+  .coach-mapping-page-owner .coach-mapping-table td:nth-child(6) { width: 10%; }
+}
