@@ -1325,3 +1325,32 @@
 .batches-days-cell {
   min-width: 75px;
 }
+
+
+/* R2 follow-up: compact day checklist and time-only batch summaries. */
+.batches-schedule-builder { margin-top: .65rem; padding: .75rem; }
+.batches-schedule-builder-header { margin-bottom: .55rem; }
+.batches-schedule-builder-header h3 { font-size: .98rem; }
+.batches-schedule-builder-header p { margin-top: .2rem; }
+.batches-day-picker { grid-template-columns: repeat(7,minmax(0,1fr)); gap: .35rem; }
+.batches-day-option { min-height: 44px; flex-direction: row; justify-content: flex-start; gap: .4rem; padding: .3rem .4rem; }
+.batches-day-check { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 5px; }
+.batches-day-name { font-size: .72rem; }
+.batches-day-count { display: none; }
+.batches-schedule-rows { gap: .4rem; margin-top: .55rem; }
+.batches-schedule-row { grid-template-columns: 112px minmax(130px,1fr) minmax(130px,1fr) 36px; gap: .5rem; padding: .5rem; }
+.batches-schedule-row .batches-field label { font-size: .72rem; }
+.batches-schedule-row .batches-field input, .batches-schedule-day-field select { min-height: 34px; }
+.batches-add-session-button { margin-top: .55rem; min-height: 34px !important; }
+.batches-days-cell { letter-spacing: .02em; white-space: nowrap; }
+.batches-schedule-cell { max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 1100px) {
+  .batches-schedule-row { grid-template-columns: 105px repeat(2,minmax(110px,1fr)) 36px; }
+}
+@media (max-width: 760px) {
+  .batches-day-picker { grid-template-columns: repeat(4,minmax(0,1fr)); }
+  .batches-day-option { min-height: 42px; }
+  .batches-schedule-row { grid-template-columns: 1fr 1fr 36px; }
+  .batches-schedule-day-field { grid-column: 1 / -1; }
+  .batches-remove-session-button { grid-column: auto; width: 36px; }
+}
