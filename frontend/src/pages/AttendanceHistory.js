@@ -244,22 +244,7 @@ function AttendanceHistory() {
     return filteredHistory.slice(start, start + PAGE_SIZE);
   }, [filteredHistory, currentPage]);
 
-  const summary = useMemo(() => {
-    const records = filteredHistory.length;
-    const present = filteredHistory.filter(
-      (item) => item.status === "present"
-    ).length;
-    const absent = filteredHistory.filter(
-      (item) => item.status === "absent"
-    ).length;
 
-    return {
-      records,
-      present,
-      absent,
-      rate: records ? Math.round((present / records) * 1000) / 10 : 0,
-    };
-  }, [filteredHistory]);
 
   const hasActiveFilters = Boolean(
     selectedAcademy ||
