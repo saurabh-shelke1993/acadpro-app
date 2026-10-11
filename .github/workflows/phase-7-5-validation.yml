@@ -29,8 +29,14 @@ jobs:
       - name: Run Jest test suite
         env:
           CI: "true"
+          # Non-production placeholders: tests must not require production credentials.
+          REACT_APP_SUPABASE_URL: https://example.supabase.co
+          REACT_APP_SUPABASE_KEY: ci-placeholder-key-not-for-deployment
         run: npm test -- --watchAll=false
       - name: Create production build
         env:
           CI: "true"
+          # This build is a validation artifact only and is not deployed.
+          REACT_APP_SUPABASE_URL: https://example.supabase.co
+          REACT_APP_SUPABASE_KEY: ci-placeholder-key-not-for-deployment
         run: npm run build
