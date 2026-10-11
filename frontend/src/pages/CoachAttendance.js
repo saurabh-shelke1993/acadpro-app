@@ -19,7 +19,7 @@ function CoachAttendance() {
   const [sessions, setSessions] = useState([]);
   const [selectedSchedule, setSelectedSchedule] = useState(initialScheduleId);
   const [attendanceDate, setAttendanceDate] = useState(() => {
-    if (initialDate && /^\\d{4}-\\d{2}-\\d{2}$/.test(initialDate)) return initialDate;
+    if (initialDate && /^\d{4}-\d{2}-\d{2}$/.test(initialDate)) return initialDate;
     const now = new Date();
     return [now.getFullYear(), String(now.getMonth() + 1).padStart(2, "0"), String(now.getDate()).padStart(2, "0")].join("-");
   });
