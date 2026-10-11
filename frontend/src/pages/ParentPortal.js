@@ -294,7 +294,7 @@ const ParentPortal = () => {
                   </div>
                 ) : (
                   <div className="parent-portal-attendance-empty">
-                    <div><strong>No session scheduled today</strong><p className="parent-portal-message">The recurring schedule for this child will appear here when a session is assigned.</p></div>
+                    <div><strong>No session scheduled today</strong><p className="parent-portal-message">There is no training session today. Check the weekly schedule below for the next training days and times.</p></div>
                   </div>
                 )}
                 {scheduleByChildId[selectedChild.id]?.next ? (
@@ -310,7 +310,7 @@ const ParentPortal = () => {
                       <div className="parent-portal-schedule-item" key={session.id}>
                         <div>
                           <strong>{session.session_label || session.sessionLabel}</strong>
-                          <span>{session.date} · {session.centers?.center_name || "Center"} · {session.batches?.batch_name || "Batch"}</span>
+                          <span>{new Date(`${session.date}T00:00:00`).toLocaleDateString("en-IN", { weekday: "long", day: "2-digit", month: "short" })} · {session.centers?.center_name || "Center"} · {session.batches?.batch_name || "Batch"}</span>
                         </div>
                         <span>{formatScheduleTime(session.start_time)}–{formatScheduleTime(session.end_time)}</span>
                       </div>
