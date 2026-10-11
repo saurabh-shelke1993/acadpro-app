@@ -704,6 +704,16 @@ function CoachBatchMapping() {
                           <button type="button" className="coach-mapping-icon-button" onClick={(event) => { event.stopPropagation(); startEditMapping(item); }} disabled={saving} title="Edit mapping" aria-label={"Edit mapping for " + (item.coaches?.full_name || "mapping")}>
                             ✏️
                           </button>
+                          <button
+                            type="button"
+                            className="coach-mapping-icon-button"
+                            onClick={(event) => { event.stopPropagation(); toggleMappingStatus(item); }}
+                            disabled={saving}
+                            title={item.is_active ? "Deactivate mapping" : "Reactivate mapping"}
+                            aria-label={(item.is_active ? "Deactivate" : "Reactivate") + " mapping for " + (item.coaches?.full_name || "mapping")}
+                          >
+                            {item.is_active ? "⏸" : "▶"}
+                          </button>
                           <button type="button" className="coach-mapping-icon-button coach-mapping-delete-button" onClick={(event) => { event.stopPropagation(); deleteMapping(item); }} disabled={saving} title="Delete mapping" aria-label={"Delete mapping for " + (item.coaches?.full_name || "mapping")}>
                             🗑️
                           </button>
@@ -725,6 +735,19 @@ function CoachBatchMapping() {
                                 aria-label={"Edit mapping for " + (item.coaches?.full_name || "mapping")}
                               >
                                 ✏️
+                              </button>
+                              <button
+                                type="button"
+                                className="coach-mapping-icon-button"
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  toggleMappingStatus(item);
+                                }}
+                                disabled={saving}
+                                title={item.is_active ? "Deactivate mapping" : "Reactivate mapping"}
+                                aria-label={(item.is_active ? "Deactivate" : "Reactivate") + " mapping for " + (item.coaches?.full_name || "mapping")}
+                              >
+                                {item.is_active ? "⏸" : "▶"}
                               </button>
                               <button
                                 type="button"
