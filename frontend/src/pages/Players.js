@@ -96,20 +96,7 @@ async () => {
   setLoggedInUser(user);
 
 };
-
-  useEffect(() => {
-    if (selectedAcademy) {
-      fetchCenters(selectedAcademy);
-    }
-  }, [selectedAcademy, fetchCenters]);
-
-  useEffect(() => {
-    if (selectedCenter) {
-      fetchBatches(selectedCenter);
-    }
-  }, [selectedCenter, fetchBatches]);
-
-  useEffect(() => {
+ useEffect(() => {
     let cancelled = false;
 
     const loadBatchSessions = async () => {
@@ -161,18 +148,7 @@ async () => {
     loadBatchSessions();
     return () => { cancelled = true; };
   }, [selectedBatch, selectedCenter, batches, editingPlayerId, isEditing]);
-
-useEffect(() => {
-  if (!loggedInUser) return;
-  fetchAcademies();
-}, [loggedInUser, fetchAcademies]);
-
-useEffect(() => {
-  if (!loggedInUser) return;
-  fetchPlayers();
-}, [loggedInUser, fetchPlayers]);
-
-  const formatCoachDob = (dob) => {
+ const formatCoachDob = (dob) => {
     if (!dob) return "—";
     const date = new Date(dob);
     if (Number.isNaN(date.getTime())) return "—";
@@ -1050,7 +1026,31 @@ const resetForm = () => {
     );
   };
 
-return (
+
+
+useEffect(() => {
+    if (selectedAcademy) {
+      fetchCenters(selectedAcademy);
+    }
+  }, [selectedAcademy, fetchCenters]);
+
+useEffect(() => {
+    if (selectedCenter) {
+      fetchBatches(selectedCenter);
+    }
+  }, [selectedCenter, fetchBatches]);
+
+useEffect(() => {
+  if (!loggedInUser) return;
+  fetchAcademies();
+}, [loggedInUser, fetchAcademies]);
+
+useEffect(() => {
+  if (!loggedInUser) return;
+  fetchPlayers();
+}, [loggedInUser, fetchPlayers]);
+
+  return (
   <Layout>
     <div className={`players-page${isCoach(loggedInUser) ? " players-page-coach" : ""}${isAcademyOwner(loggedInUser) ? " players-page-owner" : ""}`}>
       <div className="players-page-header">
