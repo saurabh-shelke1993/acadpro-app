@@ -117,6 +117,7 @@ async () => {
         setAvailableSchedules([]);
         setSelectedScheduleIds([]);
         setScheduleLoadError("");
+        setScheduleLoading(false);
         return;
       }
 
