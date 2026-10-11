@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "../supabaseClient";
 import {
   getAccessibleCenters,
@@ -103,7 +103,7 @@ function AttendanceHistory() {
     };
 
     fetchCenters();
-  }, [user, selectedAcademy]);
+  }, [user, selectedAcademy, selectedCenter, selectedBatch]);
 
   useEffect(() => {
     if (!user || (!selectedAcademy && !isSuperAdmin(user))) {
@@ -132,7 +132,7 @@ function AttendanceHistory() {
     fetchBatches();
   }, [user, selectedAcademy, selectedCenter]);
 
-  const fetchAttendanceHistory = async () => {
+  const fetchAttendanceHistory = useCallback(async () => {
     if (!user) return;
 
     try {
@@ -200,7 +200,7 @@ function AttendanceHistory() {
     } finally {
       setLoading(false);
     }
-  };
+}, [user, selectedAcademy, selectedCenter, selectedBatch, startDate, endDate]);
 
   useEffect(() => {
     if (!user) return;
