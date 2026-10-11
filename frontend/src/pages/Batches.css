@@ -1354,3 +1354,118 @@
   .batches-schedule-day-field { grid-column: 1 / -1; }
   .batches-remove-session-button { grid-column: auto; width: 36px; }
 }
+
+
+/* R2 layout refinement: keep batch details at 30% and schedule at 70%. */
+.batches-create-layout {
+  display: grid;
+  grid-template-columns: minmax(240px, 3fr) minmax(0, 7fr);
+  align-items: start;
+  gap: 1rem;
+}
+
+.batches-create-details,
+.batches-create-schedule {
+  min-width: 0;
+}
+
+.batches-create-details .batches-basic-form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: .8rem;
+}
+
+.batches-create-details .batches-field {
+  width: 100%;
+}
+
+.batches-create-schedule .batches-schedule-builder {
+  margin-top: 0;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.batches-create-schedule .batches-day-picker {
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.batches-create-schedule .batches-day-option {
+  min-height: 58px;
+  flex-direction: column;
+  justify-content: center;
+  gap: .3rem;
+  padding: .35rem .2rem;
+  text-align: center;
+}
+
+.batches-create-schedule .batches-day-check {
+  display: inline-flex;
+  position: relative;
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--ap-slate-300);
+  border-radius: 50%;
+  background: var(--ap-surface);
+  color: var(--ap-slate-700);
+  font-size: .8rem;
+  font-weight: 800;
+  transition: background-color var(--ap-transition-fast), color var(--ap-transition-fast), border-color var(--ap-transition-fast);
+}
+
+.batches-create-schedule .batches-day-option-selected .batches-day-check {
+  border-color: var(--ap-primary-600);
+  background: var(--ap-primary-600);
+  color: var(--ap-white);
+  box-shadow: 0 0 0 3px var(--ap-primary-100);
+}
+
+.batches-create-schedule .batches-day-name {
+  font-size: .68rem;
+  line-height: 1.1;
+}
+
+.batches-create-schedule .batches-schedule-row {
+  grid-template-columns: 100px minmax(100px, 1fr) minmax(100px, 1fr) 34px;
+  gap: .45rem;
+}
+
+@media (max-width: 1050px) {
+  .batches-create-layout {
+    grid-template-columns: minmax(220px, 0.8fr) minmax(0, 1.2fr);
+    gap: .75rem;
+  }
+
+  .batches-create-schedule .batches-day-picker {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .batches-create-schedule .batches-schedule-row {
+    grid-template-columns: 1fr 1fr 34px;
+  }
+
+  .batches-create-schedule .batches-schedule-day-field {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 760px) {
+  .batches-create-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .batches-create-details .batches-basic-form-grid {
+    gap: .65rem;
+  }
+
+  .batches-create-schedule .batches-day-picker {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .batches-create-schedule .batches-schedule-row {
+    grid-template-columns: 1fr 1fr 34px;
+  }
+}
