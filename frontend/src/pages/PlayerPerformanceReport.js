@@ -50,33 +50,7 @@ const assessmentColumns = [
 const playerColumns =
   "id, full_name, academy_id, center_id, batch_id, academies(academy_name), centers(center_name), batches!inner(batch_name, age_group, start_time, end_time, is_active)";
 
-const getReportCopy = (user) => {
-  if (isSuperAdmin(user)) {
-    return {
-      emptyMessage: "No active players are currently available across the academies you can access.",
-      subtitle: "Filter the player scope, then review the top 5 latest performance scores.",
-    };
-  }
 
-  if (isAcademyOwner(user)) {
-    return {
-      emptyMessage: "No active players are currently available in your academy.",
-      subtitle: "Filter by center and batch, then review player performance.",
-    };
-  }
-
-  if (isParent(user)) {
-    return {
-      emptyMessage: "No linked players are currently available for this account.",
-      subtitle: "View performance insights for your linked player(s).",
-    };
-  }
-
-  return {
-    emptyMessage: "No players are currently available in your active assigned batches.",
-    subtitle: "Filter your assigned scope, then review player performance.",
-  };
-};
 
 const toValidScore = (value) => {
   if (value === null || value === undefined || value === "") return null;
@@ -114,13 +88,7 @@ const formatDate = (value) => {
     });
 };
 
-const formatTime = (value) => {
-  if (!value) return "—";
-  const parts = String(value).split(":");
-  const hour = Number(parts[0]);
-  if (Number.isNaN(hour)) return value;
-  return `${hour % 12 || 12}:${parts[1] || "00"} ${hour >= 12 ? "PM" : "AM"}`;
-};
+
 
 const getSkillGroups = (assessment) => {
   if (!assessment) return { strengths: [], improvementAreas: [] };
