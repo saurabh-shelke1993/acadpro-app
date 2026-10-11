@@ -1,6 +1,6 @@
--- PROPOSAL ONLY — not an active Supabase migration.
--- Review against the live AcadPro schema before creating a timestamped migration.
--- Do not run this file directly against production.
+-- HISTORICAL PROPOSAL — superseded by the applied migrations below.
+-- Do not run this proposal file directly against production.
+-- Active migrations: 20261011135131_expenses_module_foundation and 20261011135208_tighten_expenses_table_grants.
 --
 -- Expense model:
 --   * expense_reminders stores recurring expectations (monthly/quarterly).
