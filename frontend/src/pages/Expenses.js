@@ -13,7 +13,13 @@ import {
 } from "../services/expensesService";
 import "./Expenses.css";
 
-const today = () => new Date().toLocaleDateString("en-CA");
+const today = () => {
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
 const EMPTY_EXPENSE = {
   expense_date: today(),
   category: "",
@@ -256,7 +262,9 @@ function Expenses() {
     }
   };
 
-  const linkedReminderOptions = reminders.filter((reminder) => reminder.is_active);
+  const linkedReminderOptions = reminders.filter((reminder) => (
+    reminder.is_active || reminder.id === expenseForm.reminder_id
+  ));
 
   return (
     <Layout>
