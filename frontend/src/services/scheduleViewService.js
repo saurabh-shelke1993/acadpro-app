@@ -341,7 +341,15 @@ export const getAttendanceSessionsForBatch = async (batchId, centerId = "", date
 export const getEnrolledPlayersForSchedule = async (scheduleId, attendanceDate) => {
   if (!scheduleId) return [];
 
-  const { data, error } = await supabase
+  const { data: schedule, error: scheduleError } = await supabase
+    .from("batch_schedules")
+    .select("id, batch_id")
+    .eq("id", scheduleId)
+    .maybeSingle();
+  if (scheduleError) throw scheduleError;
+  if (!schedule) return [];
+
+  const { data: scheduleEnrollments, error: enrollmentError } = await supabase
     .from("player_batch_schedules")
     .select(`
       player_id,
@@ -353,9 +361,9 @@ export const getEnrolledPlayersForSchedule = async (scheduleId, attendanceDate) 
     .eq("is_active", true)
     .lte("enrolled_from", attendanceDate);
 
-  if (error) throw error;
+  if (enrollmentError) throw enrollmentError;
 
-  return (data || [])
+  const enrolledPlayers = (scheduleEnrollments || [])
     .filter((row) => !row.enrolled_until || row.enrolled_until >= attendanceDate)
     .filter((row) => row.players?.is_active)
     .map((row) => ({
@@ -365,6 +373,32 @@ export const getEnrolledPlayersForSchedule = async (scheduleId, attendanceDate) 
       batch_id: row.players?.batch_id,
       center_id: row.players?.center_id,
     }));
+
+  if (enrolledPlayers.length) return enrolledPlayers;
+
+  // The current AcadPro player enrollment flow assigns players through player_batches.
+  // Fall back to batch-level enrollment when no session-specific enrollment rows exist.
+  const { data: batchEnrollments, error: batchError } = await supabase
+    .from("player_batches")
+    .select("player_id, players!inner ( id, full_name, is_active, batch_id, center_id )")
+    .eq("batch_id", schedule.batch_id)
+    .eq("players.is_active", true);
+
+  if (batchError) throw batchError;
+
+  const uniquePlayers = new Map();
+  (batchEnrollments || []).forEach((row) => {
+    if (row.players?.id) {
+      uniquePlayers.set(row.players.id, {
+        id: row.players.id,
+        player_id: row.players.id,
+        full_name: row.players.full_name,
+        batch_id: row.players.batch_id,
+        center_id: row.players.center_id,
+      });
+    }
+  });
+  return [...uniquePlayers.values()];
 };
 
 export const formatScheduleTime = formatTime;
