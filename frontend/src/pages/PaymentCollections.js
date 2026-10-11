@@ -177,51 +177,7 @@ useEffect(() => {
   );
 
 }, [dueId]);
-
-useEffect(() => {
-
-  loadDueFromNavigation();
-
-}, [loadDueFromNavigation]);
-
-useEffect(() => {
-
-  if (!loggedInUser) return;
-
-  fetchAcademies();
-  fetchPayments();
-
-}, [loggedInUser, fetchAcademies, fetchPayments]);
-
-useEffect(() => {
-
-  if (!collectionAcademy) {
-    setCenters([]);
-    setCollectionCenter("");
-    setBatches([]);
-    setCollectionBatch("");
-    setPlayers([]);
-    setCollectionPlayer("");
-    setDues([]);
-    setSelectedDue("");
-    setSelectedDueData(null);
-    return;
-  }
-
-  setCollectionCenter("");
-  setCollectionBatch("");
-  setCollectionPlayer("");
-  setBatches([]);
-  setPlayers([]);
-  setDues([]);
-  setSelectedDue("");
-  setSelectedDueData(null);
-
-  fetchCenters(collectionAcademy);
-
-}, [collectionAcademy]);
-
-useEffect(() => {
+eEffect(() => {
   let filtered = payments || [];
 
   if (historyAcademy) filtered = filtered.filter(payment => payment.players?.academy_id === historyAcademy);
@@ -995,7 +951,52 @@ printWindow.onload = () => {
 
 };
 
-return (
+
+
+useEffect(() => {
+
+  loadDueFromNavigation();
+
+}, [loadDueFromNavigation]);
+
+useEffect(() => {
+
+  if (!loggedInUser) return;
+
+  fetchAcademies();
+  fetchPayments();
+
+}, [loggedInUser, fetchAcademies, fetchPayments]);
+
+useEffect(() => {
+
+  if (!collectionAcademy) {
+    setCenters([]);
+    setCollectionCenter("");
+    setBatches([]);
+    setCollectionBatch("");
+    setPlayers([]);
+    setCollectionPlayer("");
+    setDues([]);
+    setSelectedDue("");
+    setSelectedDueData(null);
+    return;
+  }
+
+  setCollectionCenter("");
+  setCollectionBatch("");
+  setCollectionPlayer("");
+  setBatches([]);
+  setPlayers([]);
+  setDues([]);
+  setSelectedDue("");
+  setSelectedDueData(null);
+
+  fetchCenters(collectionAcademy);
+
+}, [collectionAcademy]);
+
+  return (
   <Layout>
     <div className="payment-collections-page">
       <div className="payment-page-header">
