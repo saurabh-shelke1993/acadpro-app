@@ -103,7 +103,7 @@ function AttendanceHistory() {
     };
 
     fetchCenters();
-  }, [user, selectedAcademy, selectedCenter, selectedBatch]);
+  }, [user, selectedAcademy, selectedCenter]);
 
   useEffect(() => {
     if (!user || (!selectedAcademy && !isSuperAdmin(user))) {
@@ -130,7 +130,7 @@ function AttendanceHistory() {
     };
 
     fetchBatches();
-  }, [user, selectedAcademy, selectedCenter]);
+  }, [user, selectedAcademy, selectedCenter, selectedBatch]);
 
   const fetchAttendanceHistory = useCallback(async () => {
     if (!user) return;
@@ -205,7 +205,7 @@ function AttendanceHistory() {
   useEffect(() => {
     if (!user) return;
     fetchAttendanceHistory();
-  }, [user, selectedAcademy, selectedCenter, selectedBatch, startDate, endDate]);
+  }, [user, fetchAttendanceHistory]);
 
   const playerOptions = useMemo(() => {
     const map = new Map();
