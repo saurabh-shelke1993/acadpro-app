@@ -761,13 +761,13 @@ useEffect(() => {
                     <tr key={item.player_id} className={status ? `attendance-row-${status}` : "attendance-row-unmarked"}>
                       <td className="attendance-player-number">{index + 1}</td>
                       <td className="attendance-player-name">
-                        <strong>{item.players?.full_name}</strong>
+                        <strong>{item.full_name}</strong>
                         {!status ? <span>Not marked</span> : null}
                       </td>
 
                       <td>
                         <label className={`attendance-choice attendance-choice-present ${status === "present" ? "attendance-choice-selected" : ""}`}
-                          aria-label={`Mark ${item.players?.full_name || "player"} present`}>
+                          aria-label={`Mark ${item.full_name || "player"} present`}>
                           <input
                             type="radio"
                             name={`attendance-${item.player_id}`}
@@ -781,7 +781,7 @@ useEffect(() => {
 
                       <td>
                         <label className={`attendance-choice attendance-choice-absent ${status === "absent" ? "attendance-choice-selected" : ""}`}
-                          aria-label={`Mark ${item.players?.full_name || "player"} absent`}>
+                          aria-label={`Mark ${item.full_name || "player"} absent`}>
                           <input
                             type="radio"
                             name={`attendance-${item.player_id}`}
