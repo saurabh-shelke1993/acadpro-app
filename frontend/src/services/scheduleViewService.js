@@ -407,14 +407,18 @@ export const getEnrolledPlayersForSchedule = async (scheduleId, attendanceDate) 
 
   const enrolledPlayers = (scheduleEnrollments || [])
     .filter((row) => !row.enrolled_until || row.enrolled_until >= attendanceDate)
-    .filter((row) => row.players?.is_active)
-    .map((row) => ({
-      id: row.player_id,
-      player_id: row.player_id,
-      full_name: row.players?.full_name,
-      batch_id: row.players?.batch_id,
-      center_id: row.players?.center_id,
-    }));
+    .map((row) => {
+      const player = Array.isArray(row.players) ? row.players[0] : row.players;
+      if (!player?.is_active) return null;
+      return {
+        id: row.player_id,
+        player_id: row.player_id,
+        full_name: player.full_name,
+        batch_id: player.batch_id,
+        center_id: player.center_id,
+      };
+    })
+    .filter(Boolean);
 
   if (enrolledPlayers.length) return enrolledPlayers;
 
@@ -430,13 +434,14 @@ export const getEnrolledPlayersForSchedule = async (scheduleId, attendanceDate) 
 
   const uniquePlayers = new Map();
   (batchEnrollments || []).forEach((row) => {
-    if (row.players?.id) {
-      uniquePlayers.set(row.players.id, {
-        id: row.players.id,
-        player_id: row.players.id,
-        full_name: row.players.full_name,
-        batch_id: row.players.batch_id,
-        center_id: row.players.center_id,
+    const player = Array.isArray(row.players) ? row.players[0] : row.players;
+    if (player?.id) {
+      uniquePlayers.set(player.id, {
+        id: player.id,
+        player_id: player.id,
+        full_name: player.full_name,
+        batch_id: player.batch_id,
+        center_id: player.center_id,
       });
     }
   });
