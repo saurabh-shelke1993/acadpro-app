@@ -30,14 +30,16 @@ export const getCoachScheduleAssignments = async ({
   centerId = "",
   batchId = "",
   scheduleId = "",
-  coachId = ""
+  coachId = "",
+  includeInactive = false
 } = {}) => {
   let query = supabase
     .from("coach_batch_schedule_assignments")
     .select(ASSIGNMENT_SELECT)
-    .eq("is_active", true)
     .order("assigned_from")
     .order("coach_id");
+
+  if (!includeInactive) query = query.eq("is_active", true);
 
   if (academyId) query = query.eq("academy_id", academyId);
   if (scheduleId) query = query.eq("batch_schedule_id", scheduleId);
@@ -101,6 +103,15 @@ export const deactivateCoachScheduleAssignment = async (assignmentId) => {
   const { error } = await supabase
     .from("coach_batch_schedule_assignments")
     .update({ is_active: false })
+    .eq("id", assignmentId);
+
+  if (error) throw error;
+};
+
+export const setCoachScheduleAssignmentActive = async (assignmentId, isActive) => {
+  const { error } = await supabase
+    .from("coach_batch_schedule_assignments")
+    .update({ is_active: Boolean(isActive) })
     .eq("id", assignmentId);
 
   if (error) throw error;
