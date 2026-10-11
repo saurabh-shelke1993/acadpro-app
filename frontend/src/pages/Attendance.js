@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import Layout from "../components/Layout";
 import "./Attendance.css";
@@ -92,7 +92,7 @@ const getLoggedInUser = async () => {
   }
 };
 
-const loadAssignedBatches = async () => {
+const loadAssignedBatches = useCallback(async () => {
 
   if (!isCoach(user)) {
     return;
@@ -126,7 +126,7 @@ const loadAssignedBatches = async () => {
     console.log(err.message);
   }
 
-};
+}, [user, fetchAcademies, loadAssignedBatches]);
 
   // =====================================================
   // FETCH ACADEMIES
@@ -142,7 +142,7 @@ useEffect(() => {
 
 }, [user]);
 
-  const fetchAcademies = async () => {
+  const fetchAcademies = useCallback(async () => {
   try {
     const data = await getAccessibleAcademies(user);
 
@@ -158,7 +158,7 @@ useEffect(() => {
   } catch (err) {
     console.log(err.message);
   }
-};
+}, [user]);
   // =====================================================
   // FETCH CENTERS
   // =====================================================
@@ -169,9 +169,9 @@ useEffect(() => {
     } else {
       setCenters([]);
     }
-  }, [selectedAcademy]);
+  }, [selectedAcademy, fetchCenters]);
 
- const fetchCenters = async () => {
+ const fetchCenters = useCallback(async () => {
   try {
     const data = await getAccessibleCenters(user);
 
@@ -183,7 +183,7 @@ useEffect(() => {
   } catch (err) {
     console.log(err.message);
   }
-};
+}, [user, selectedAcademy]);
 
   // =====================================================
   // FETCH BATCHES
@@ -195,9 +195,9 @@ useEffect(() => {
     } else {
       setBatches([]);
     }
-  }, [selectedCenter]);
+  }, [selectedCenter, fetchBatches]);
 
-  const fetchBatches = async () => {
+  const fetchBatches = useCallback(async () => {
     try {
    const data = await getAccessibleBatches(
   user,
@@ -208,7 +208,7 @@ setBatches(data || []);
     } catch (err) {
       console.log(err.message);
     }
-  };
+}, [user, selectedCenter]);
 
   // =====================================================
   // FETCH SCHEDULE SESSIONS
@@ -255,9 +255,9 @@ setBatches(data || []);
       setAttendanceMessage("");
       setAttendanceError("");
     }
-  }, [selectedSchedule, attendanceDate]);
+  }, [selectedBatch, selectedSchedule, attendanceDate, fetchPlayers]);
 
-  const fetchPlayers = async () => {
+  const fetchPlayers = useCallback(async () => {
     setAttendanceLoading(true);
     setAttendanceMessage("");
     setAttendanceError("");
@@ -313,7 +313,7 @@ setBatches(data || []);
     } finally {
       setAttendanceLoading(false);
     }
-  };
+}, [selectedSchedule, attendanceDate]);
   // =====================================================
   // HANDLE ATTENDANCE CHANGE
   // =====================================================
