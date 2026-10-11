@@ -48,12 +48,6 @@ function SubscriptionPlans() {
     loadUser();
   }, []);
 
-  useEffect(() => {
-    if (!loggedInUser) return;
-    fetchAcademies();
-    fetchPlans();
-  }, [loggedInUser, fetchAcademies, fetchPlans]);
-
   const fetchAcademies = useCallback(async () => {
     let query = supabase
       .from("academies")
@@ -110,6 +104,12 @@ function SubscriptionPlans() {
     }
     setPlans(data || []);
   }, [loggedInUser]);
+
+  useEffect(() => {
+    if (!loggedInUser) return;
+    fetchAcademies();
+    fetchPlans();
+  }, [loggedInUser, fetchAcademies, fetchPlans]);
 
   const resetForm = () => {
     setSelectedAcademy(isSuperAdmin(loggedInUser) ? "" : (academies.length === 1 ? academies[0].id : selectedAcademy));
