@@ -1,6 +1,6 @@
 # AcadPro Architecture
 
-**Last Updated:** 11 October 2026  
+**Last Updated:** 12 October 2026  
 **Current Branch:** `payment-module-finalization`
 
 ## 1. Platform
@@ -151,6 +151,14 @@ Phase 7 Security Advisor remediation (11 October 2026):
 - Performance-advisor findings are tracked separately from authorization completion.
 
 See `docs/PHASE_7_SECURITY_ADVISOR_REMEDIATION.md` for the live finding inventory and `supabase/MIGRATION_RECONCILIATION.md` for the migration-history discrepancy and safety rules.
+
+## 10A. Academy UPI Settings (P1.2)
+
+The `public.academy_payment_settings` table stores one row per academy for UPI ID, payee name, QR object path, enabled state and audit timestamps. RLS grants owner-scoped create/update, Super Admin read-only access, and Parent read access only to enabled settings for academies of linked children. Coach and anon access is denied.
+
+The `academy-upi-qr` Storage bucket is public-read so parent pages can display QR images; uploads/replacements/deletes are restricted by Storage RLS to the authenticated Academy Owner and the academy UUID path prefix. Images are PNG/JPEG/WebP up to 2 MiB. Public-read means anyone with the QR URL can view the image; it must not contain sensitive information.
+
+The parent-facing component is displayed in Parent Financial Overview for the currently selected linked child. It is display-only and does not create payment records or change dues. Manual UPI submission/UTR verification and Razorpay remain future work. See `docs/ACADEMY_UPI_SETTINGS.md`.
 
 ## 11. Parent Portal architecture
 
