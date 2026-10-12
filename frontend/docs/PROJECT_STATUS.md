@@ -78,9 +78,9 @@ Implemented on 12 October 2026:
 - Expected totals are derived from active monthly/quarterly reminders; actual spend comes only from saved expense rows and includes one-off costs.
 - Added **Record occurrence** for active recurring reminders. The owner confirms the actual paid amount and date; no expense is generated automatically.
 - Added `record_expense_occurrence(...)`, which validates Academy Owner/academy scope, locks the reminder, inserts the linked expense and advances the next due date by one month or three months atomically.
-- Direct client INSERT with a reminder link is blocked; existing expense rows cannot be linked/relinked during edit to bypass occurrence recording.
+- Direct client INSERT with a reminder link is blocked; existing expense rows cannot be linked/relinked during edit to bypass occurrence recording. Linked recurring occurrences cannot be deleted, preserving the occurrence history; deleting a reminder keeps the expense row and clears the link.
 - Academy Owner manages their academy; Super Admin is read-only; other roles are denied.
-- Live migration applied as ledger version `20261012031132 / expense_occurrence_recording`. Live checks confirmed RPC security configuration, INSERT policy and reminder-link guard trigger.
+- Live migrations applied as ledger versions `20261012031132 / expense_occurrence_recording` and `20261012031710 / protect_recurring_expense_history`. Live checks confirmed RPC security configuration, INSERT policy and recurring-expense history guard triggers.
 - Pure monthly/quarterly calculation tests added. GitHub Actions passed 14 Jest suites / 92 tests and the production build on run https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/38198976040. Browser/RBAC acceptance remains pending.
 
 See `frontend/docs/P1.6_EXPENSE_FINANCIAL_OVERVIEW.md`.
