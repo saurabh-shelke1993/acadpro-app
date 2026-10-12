@@ -42,6 +42,7 @@ export const calculateExpenseOverview = ({
   expenses = [],
   reminders = [],
   payments = [],
+  dues = [],
   periodType = "monthly",
   referenceDate = new Date(),
 }) => {
@@ -68,6 +69,9 @@ export const calculateExpenseOverview = ({
 
   const expectedAmount = monthlyExpected + quarterlyExpected;
   const paidAmount = periodExpenses.reduce((sum, expense) => sum + Number(expense.amount_paid || 0), 0);
+  const expectedIncome = dues
+    .filter((due) => due.due_date >= period.startDate && due.due_date <= period.endDate)
+    .reduce((sum, due) => sum + Number(due.total_amount || 0), 0);
   const incomeCollected = payments
     .filter((payment) => payment.payment_entry_type === "payment")
     .reduce((sum, payment) => sum + Number(payment.amount_paid || 0), 0);
@@ -79,6 +83,7 @@ export const calculateExpenseOverview = ({
     ...period,
     expectedAmount,
     paidAmount,
+    expectedIncome,
     incomeCollected,
     netCashMovement,
     varianceAmount: expectedAmount - paidAmount,
