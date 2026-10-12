@@ -94,3 +94,13 @@ Phase 7.4 audit is documented. Historical migration source reconciliation is
 original SQL for many remote-applied migrations. No migration was replayed,
 no migration-ledger rows were edited, and no business data was changed as part
 of this reconciliation audit.
+
+
+## P1.5 parent UPI claim ledger recording (12 October 2026)
+
+- Live ledger entry: `20261012025707 / parent_upi_claim_ledger_recording`.
+- Repository migration: `supabase/migrations/20261012025707_parent_upi_claim_ledger_recording.sql`.
+- Applied to the active `acadpro-db` project after the P1.5 source was committed.
+- Verified live: `payment_id`, `recorded_by_user_id`, and `recorded_at` columns exist; the unique payment-link index exists; `record_accepted_parent_upi_submission(uuid)` exists as SECURITY DEFINER with an empty search path, denies anon execution, and grants authenticated execution.
+- The wrapper calls the existing secured `collect_payment` RPC; no live test payment was created as part of migration verification.
+- Browser acceptance remains pending. Do not replay this migration or create test ledger entries against real financial records merely to prove idempotency; use controlled test claims and inspect the resulting ledger state.
