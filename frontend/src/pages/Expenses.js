@@ -392,7 +392,7 @@ function Expenses() {
                       <td className="expenses-date">{formatDate(expense.expense_date)}</td>
                       <td><div className="expenses-description"><strong>{expense.description}</strong>{expense.reference_number && <small>Ref: {expense.reference_number}</small>}</div></td>
                       <td>{expense.category}</td><td>{expense.vendor || "—"}</td><td className="expenses-amount">{formatCurrency(expense.amount_paid)}</td><td>{expense.payment_method || "—"}</td>
-                      {canManage && <td><div className="expenses-row-actions"><button type="button" className="expenses-text-action" onClick={() => handleEditExpense(expense)}>Edit</button><button type="button" className="expenses-text-action expenses-danger-action" onClick={() => handleDeleteExpense(expense)}>Delete</button></div></td>}
+                      {canManage && <td><div className="expenses-row-actions"><button type="button" className="expenses-text-action" onClick={() => handleEditExpense(expense)}>Edit</button>{expense.reminder_id ? <span className="expenses-row-action-note">Occurrence retained</span> : <button type="button" className="expenses-text-action expenses-danger-action" onClick={() => handleDeleteExpense(expense)}>Delete</button>}</div></td>}
                     </tr>)}
                 </tbody>
               </table>
