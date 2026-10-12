@@ -19,6 +19,7 @@ const makeQueryBuilder = (data = []) => {
     eq: jest.fn(() => builder),
     gte: jest.fn(() => builder),
     lt: jest.fn(() => builder),
+    lte: jest.fn(() => builder),
     order: jest.fn(() => builder),
     then: (resolve, reject) => Promise.resolve({ data, error: null }).then(resolve, reject),
   };
