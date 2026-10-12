@@ -52,7 +52,8 @@ RLS is enabled. Client table grants are limited to authenticated SELECT/INSERT/U
 
 - `20261012013143_academy_upi_settings_foundation.sql` — table, RLS, grants, timestamp trigger, bucket and Storage policies.
 - `20261012013320_academy_upi_settings_policy_tuning.sql` — consolidates SELECT scope into one policy and adds the audit FK index.
-- Both versions were observed in the live migration ledger. Existing historical migration drift remains untouched; no historical migration was replayed or renamed.
+- `20261012013452_academy_upi_settings_remove_redundant_index.sql` — removes a redundant partial index because the primary key already supports one-row-per-academy lookups.
+- All three versions were observed in the live migration ledger. Existing historical migration drift remains untouched; no historical migration was replayed or renamed.
 
 ## Automated validation
 
