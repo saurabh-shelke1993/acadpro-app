@@ -152,6 +152,12 @@ Phase 7 Security Advisor remediation (11 October 2026):
 
 See `docs/PHASE_7_SECURITY_ADVISOR_REMEDIATION.md` for the live finding inventory and `supabase/MIGRATION_RECONCILIATION.md` for the migration-history discrepancy and safety rules.
 
+## 10C. Parent UPI Payment Submission and Review (P1.4)
+
+Parents can submit a claim against an outstanding due from Parent Financial Overview when UPI settings are enabled. The `public.parent_payment_submissions` table stores the claim and review audit state separately from the payment ledger. `submit_parent_upi_payment(...)` validates parent-to-player and due-to-player scope, remaining balance, UTR uniqueness and date/amount rules. `review_parent_upi_payment(...)` is Academy Owner-only, rechecks balance before acceptance, and requires a rejection reason. Super Admin can read claims but cannot review them. Parents see their own claims; Coach and anon access is denied.
+
+The table grants authenticated clients SELECT only; mutations use controlled SECURITY DEFINER RPCs with empty search paths and explicit authorization checks. One active pending/accepted claim is allowed per due. **Accepting a claim does not create a row in `payments`, update `payment_dues`, or issue a receipt.** P1.5 will implement safe posting through the existing secured collection workflow. See `docs/P1.4_PARENT_UPI_SUBMISSION_REVIEW.md`.
+
 ## 10B. Parent UPI QR and WhatsApp Sharing (P1.3)
 
 The parent portal embeds `ParentUpiPaymentDetails` for the selected linked child, in addition to the same component on Parent Financial Overview. It reads enabled settings through the academy-scoped `academy_payment_settings` RLS policy. A user-initiated WhatsApp link shares academy name, payee, optional UPI ID and the public QR image URL. It does not create a payment submission or alter the payment ledger. No schema or Storage changes are part of P1.3. See `docs/P1.3_PARENT_UPI_WHATSAPP_SHARING.md`.
@@ -162,7 +168,7 @@ The `public.academy_payment_settings` table stores one row per academy for UPI I
 
 The `academy-upi-qr` Storage bucket is public-read so parent pages can display QR images; uploads/replacements/deletes are restricted by Storage RLS to the authenticated Academy Owner and the academy UUID path prefix. Images are PNG/JPEG/WebP up to 2 MiB. Public-read means anyone with the QR URL can view the image; it must not contain sensitive information.
 
-The parent-facing component is displayed in Parent Financial Overview for the currently selected linked child. It is display-only and does not create payment records or change dues. Manual UPI submission/UTR verification and Razorpay remain future work. See `docs/ACADEMY_UPI_SETTINGS.md`.
+The parent-facing component is displayed in Parent Financial Overview for the currently selected linked child. It is display-only and does not create payment records or change dues. Parent UPI submission/UTR verification is covered by P1.4; ledger posting remains P1.5. Razorpay remains future work. See `docs/ACADEMY_UPI_SETTINGS.md`.
 
 ## 11. Parent Portal architecture
 
