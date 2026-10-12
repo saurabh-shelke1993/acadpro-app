@@ -331,3 +331,27 @@ AcadPro V1.0 aims to provide academy administration, center and batch management
 - [ ] R6 — Run controlled transactional/RBAC regression, Jest, production build, CI and browser acceptance.
 
 **Current state:** R2 database/security foundation and R3 frontend implementation are committed. R3 automated validation and browser acceptance remain pending. R4 status/trial-date editing is implemented but automated/browser validation remains pending; R5 owner-only atomic conversion is implemented; automated, CI and browser/transaction validation remains pending. Do not test conversion by creating ad-hoc records in the active database; use controlled fixtures or an isolated development branch.
+
+
+## AcadPro Enquiries V1 — Current Development Checkpoint (13 October 2026)
+
+**Implementation status:** R1–R5 implemented. **R6 release validation is deferred by the user so development can continue; do not mark the feature release-ready.**
+
+- [x] R1 — Freeze Enquiries V1 specification.
+- [x] R2 — Database/security foundation applied and live-verified; existing `public.inquiries` table reused.
+- [x] R3 — Role-aware list, quick capture, filters and duplicate advisory.
+- [x] R4 — Status/trial-date editor, trial date required for Trial Scheduled, Lost reopen Owner-only and Converted immutable.
+- [x] R5 — Academy Owner-only atomic conversion through `record_inquiry_conversion`.
+- [x] Automated frontend validation on code commit `fa87d7d79152a3807f7c86e070d4b3be9ec97b50`: 14 Jest suites / 101 tests passed; production build compiled successfully.
+- [x] Vercel combined status for the tested code HEAD reported success; user confirmed latest Preview renders Enquiries and Parent UPI Payment Claims for Academy Owner.
+- [x] Read-only live inquiry grants/RLS/RPC configuration reviewed; existing converted record's Player/Parent/player-batch linkage verified.
+- [ ] Isolated transaction tests: success, idempotent retry, concurrency, rollback, parent reuse and no unintended financial/attendance side effects.
+- [ ] Runtime authorization tests for Super Admin, Owner, Coach, Parent, anonymous and cross-academy/center tampering.
+- [ ] Full Enquiries browser lifecycle and role acceptance.
+- [ ] Existing Player, Attendance, subscriptions, payment/receipt, Parent Portal and UPI regression.
+- [ ] Final diff/status and Production release review.
+
+**Data safety:** live project has existing business records; do not create fake enquiries/players or run destructive/rollback/concurrency tests against it. No Supabase development branches were listed during the 13 October inspection. See `frontend/docs/ENQUIRIES_R6_REGRESSION_RELEASE_CHECKLIST.md` for the full gate and exact observed evidence.
+
+### Next development task
+The next product feature has not yet been selected after Enquiries implementation. Expenses was previously excluded from the P1.6 UPI release scope; that exclusion did not authorize adding Expenses to P1.6. If selected now, Expenses must be handled as its own feature/phase with separate scope and regression checks.
