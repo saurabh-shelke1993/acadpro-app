@@ -202,11 +202,11 @@ Inspect current state → Plan minimal change → Implement → Build/Test → F
 ## 9. Working Baseline and Handoff
 
 **Branch:** `payment-module-finalization`  
-**Latest focus:** P1.2/P1.3 are implemented; P1.4 submission/review code and migrations are committed/applied. P1.4 automated validation passed (13 suites / 86 tests; production build passed); browser acceptance is pending. Vercel reported preview deployment rate-limited for 24 hours on the current plan. P1.5 ledger posting is not implemented. Phase 7 RPC hardening remains deferred until the payment UX validation gate.
+**Latest focus:** P1.2/P1.3 are implemented; P1.4 submission/review migrations are applied and browser acceptance remains pending. P1.5 source code and migration are now committed: an Academy Owner can explicitly record an accepted claim through a new database wrapper around the existing secured `collect_payment` RPC, with payment/receipt/balance writes in one transaction and duplicate recording blocked. The P1.5 migration has NOT been applied to the live database yet; CI is running. Vercel previously reported preview deployment rate-limited for 24 hours on the current plan. Phase 7 RPC hardening remains deferred until the payment UX validation gate.
 
 Useful documents:
 - `docs/PHASE_7_SECURITY_ADVISOR_REMEDIATION.md` — current findings and remediation record
 - `supabase/MIGRATION_RECONCILIATION.md` — migration history drift and safe reconciliation rules
 - `frontend/docs/PROJECT_ARCHITECTURE.md` — architecture, roles and data scope
 
-**Next development work:** Validate P1.4, then proceed to P1.5 ledger posting only after the current claim/review workflow passes its tests and browser acceptance.
+**Next development work:** Complete CI and review the P1.5 migration, then reconcile/apply it to the live database and run P1.5 browser/security acceptance. P1.4 browser acceptance is still outstanding and must be completed as part of that regression gate.
