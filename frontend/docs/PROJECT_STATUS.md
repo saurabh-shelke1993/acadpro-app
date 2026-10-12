@@ -70,6 +70,22 @@ Historical verification recorded:
 
 Detailed record: `docs/PHASE_7_SECURITY_ADVISOR_REMEDIATION.md`.
 
+### P1.4 — Parent UPI Payment Submission and Verification: IMPLEMENTED; VALIDATION PENDING
+
+Implemented on 12 October 2026:
+- Parent Financial Overview form for submitting a UPI claim against a linked child's outstanding due.
+- Claim captures amount, UPI transaction reference/UTR, payment date and optional note.
+- Academy Owner review queue with accept/reject decisions and rejection reason.
+- Super Admin read-only queue access; Coach and anonymous access denied.
+- New `parent_payment_submissions` table, RLS, role/academy-scoped RPCs, unique UTR and one-active-claim-per-due constraints.
+- Acceptance revalidates the current remaining due. Submission/review do not change the payment ledger or issue receipts.
+
+Validation still required:
+- Run Jest and production build on the latest branch head.
+- Verify migration ledger, grants, RLS and function definitions in Supabase; run Security Advisor.
+- Complete browser acceptance from `docs/P1.4_PARENT_UPI_SUBMISSION_REVIEW.md`, including negative cross-parent/cross-academy tests and unchanged-ledger checks.
+- P1.5 must record accepted claims through the secured payment workflow and prevent duplicate posting.
+
 ### P1.3 — Parent Portal UPI QR and WhatsApp Sharing: AUTOMATED VALIDATION PASSED; BROWSER ACCEPTANCE PENDING
 
 Implemented on 12 October 2026:
@@ -122,6 +138,7 @@ Still required before marking complete:
 | Notifications | Planned | Not started |
 | Academy UPI Settings | Automated validation passed; browser acceptance pending | Owner-managed UPI ID/QR, Super Admin read-only, parent linked-child display; payment submission and UTR verification deferred |
 | Parent UPI QR / WhatsApp sharing | Automated validation passed; browser acceptance pending | Parent Portal and Financial Overview display; user-initiated WhatsApp share; no payment ledger changes |
+| Parent UPI submission / owner review | Implemented; automated validation pending | Claim form, secure RPCs, owner verification queue; accepted claims do not alter ledger; P1.5 posting deferred |
 | Online Payments / Razorpay | Planned | Production flow pending; no Razorpay code or credentials in P1.2 |
 
 ## 4. Current Priorities
@@ -185,11 +202,11 @@ Inspect current state → Plan minimal change → Implement → Build/Test → F
 ## 9. Working Baseline and Handoff
 
 **Branch:** `payment-module-finalization`  
-**Latest focus:** P1.2 and P1.3 are implemented; automated validation passed (11 suites / 75 tests and production build). Browser acceptance is pending. Phase 7 RPC hardening remains deferred unless resumed after payment UX validation.
+**Latest focus:** P1.2/P1.3 are implemented; P1.4 submission/review code and migrations are committed/applied. P1.4 automated validation and browser acceptance are pending. P1.5 ledger posting is not implemented. Phase 7 RPC hardening remains deferred until the payment UX validation gate.
 
 Useful documents:
 - `docs/PHASE_7_SECURITY_ADVISOR_REMEDIATION.md` — current findings and remediation record
 - `supabase/MIGRATION_RECONCILIATION.md` — migration history drift and safe reconciliation rules
 - `frontend/docs/PROJECT_ARCHITECTURE.md` — architecture, roles and data scope
 
-**Next development work:** The user intends to return later and begin a different development task. Treat the Phase 7 RPC hardening as deferred, not as the immediate task, unless the user explicitly resumes it.
+**Next development work:** Validate P1.4, then proceed to P1.5 ledger posting only after the current claim/review workflow passes its tests and browser acceptance.
