@@ -220,3 +220,20 @@ The Expenses feature changes previously added under P1.6 were reverted because t
 ## P1.6 UPI Release Gate — 12 October 2026
 
 The approved P1.6 scope is regression testing, role/security verification, documentation and release readiness for P1.2–P1.5 UPI integration. No Expenses feature work belongs in this phase. See `docs/P1.6_UPI_RELEASE_CHECKLIST.md`. Automated CI and live schema/grant inspection have passed on the previously recorded head; browser acceptance and CI for the documentation head remain pending. Overall release is blocked until the browser/RBAC/ledger acceptance gates pass.
+
+
+## AcadPro Enquiries V1 — R2 Database/Security Foundation (12 October 2026)
+
+**R1 specification:** frozen in `docs/ENQUIRIES_MODULE_SPEC.md`.  
+**R2:** applied and live-verified; frontend implementation has not started.
+
+- Live migration: `20261012035934 / enquiries_r2_database_security`.
+- Extended `public.inquiries`; added status/trial/conversion fields, constraints, indexes and audit fields.
+- RLS-enabled, authenticated SELECT only; no direct authenticated INSERT/UPDATE/DELETE; anon denied.
+- Added role/academy/center-scoped `create_inquiry`, `update_inquiry` and Academy Owner-only `record_inquiry_conversion` RPCs, each SECURITY DEFINER with an empty search path.
+- Coach center access is derived from active coach-batch assignments, batches and centers. Read-only scope smoke test passed for allowed vs foreign-academy center.
+- `public.trial_attendance` remains untouched and locked down. No live enquiry/player test records were created.
+- Security Advisor now reports 13 authenticated SECURITY DEFINER warnings (10 previously reviewed plus the 3 new scoped enquiry RPCs). Two unrelated RLS-enabled/no-policy INFO findings remain for `trial_attendance` and `payment_number_counters`; leaked-password protection remains a plan limitation.
+- Controlled transaction/authorization tests and browser acceptance are still pending; do not mark the feature release-ready.
+
+Detailed record: `docs/ENQUIRIES_R2_DATABASE_SECURITY.md`. Next phase: **R3 — Enquiries service, list and quick-create UI**.
