@@ -264,3 +264,18 @@ Detailed implementation and acceptance checklist: `docs/ENQUIRIES_R3_FRONTEND_IM
 - [ ] Exercise write-path authorization using controlled fixtures or an isolated Supabase development branch; do not create fake records in the active project.
 
 R4 code is implemented but is not verified/release-ready until automated and browser acceptance pass. R5 Academy Owner-only conversion remains separate.
+
+
+## AcadPro Enquiries V1 — R5 Atomic Player Conversion (13 October 2026)
+
+- [x] Added owner-only conversion action and enrollment dialog.
+- [x] Uses the existing `record_inquiry_conversion` SECURITY DEFINER RPC; no direct browser Player/Parent writes and no separate non-atomic enquiry update.
+- [x] Prefills the enquiry's player name, phone and DOB summary; collects parent name, gender, joining date, center and batch; parent email/address are optional.
+- [x] Center is fixed when already assigned; otherwise owner selects an active center. Batch list is scoped to the selected center.
+- [x] Added conversion validation unit tests.
+- [x] Documented R5 design and acceptance checklist in `docs/ENQUIRIES_R5_ATOMIC_CONVERSION.md`.
+- [ ] Run Jest, production build and check GitHub Actions on the latest R5 head.
+- [ ] Browser acceptance for owner-only access, conversion success/retry, parent reuse, batch invariants and rollback using a genuine enrollment or controlled isolated fixtures.
+- [ ] Do not convert the user's existing enquiry unless it is a genuine enrollment decision; do not create fake test Players in the active database.
+
+R5 is implemented but not verified/release-ready until automated, CI and browser acceptance pass. R6 regression and release readiness remain.
