@@ -323,9 +323,9 @@ AcadPro V1.0 aims to provide academy administration, center and batch management
 - [x] R2 — Extend existing `public.inquiries` schema, add audit/conversion linkage, status/source constraints and indexes.
 - [x] R2 — Add RLS-scoped read access, deny direct authenticated mutations, and add scoped create/update RPCs plus Academy Owner-only atomic conversion RPC.
 - [x] R2 — Apply live migration `20261012035934 / enquiries_r2_database_security`; verify live schema, grants, policies, function search paths and coach center scope.
-- [ ] R3 — Build enquiry service, role-aware list, quick-create form, search/filter and duplicate warning.
+- [x] R3 — Enquiry service, role-aware list, quick-create form, search/filter, scoped center selection and duplicate warning implemented.\n- [ ] R3 validation — Run Jest, production build, CI and browser acceptance; validate role/data scope with controlled fixtures.
 - [ ] R4 — Build status and optional trial-date editing UI.
 - [ ] R5 — Integrate Academy Owner conversion with existing player enrollment fields and transactional workflow.
 - [ ] R6 — Run controlled transactional/RBAC regression, Jest, production build, CI and browser acceptance.
 
-**Current state:** Database/security foundation applied. No enquiry UI exists yet. Do not test conversion by creating ad-hoc records in the active database; use controlled fixtures or an isolated development branch.
+**Current state:** R2 database/security foundation and R3 frontend implementation are committed. R3 automated validation and browser acceptance remain pending. R4 status/trial-date editing and R5 owner-only atomic conversion are not implemented yet. Do not test conversion by creating ad-hoc records in the active database; use controlled fixtures or an isolated development branch.
