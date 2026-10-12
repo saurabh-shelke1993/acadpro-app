@@ -106,19 +106,6 @@ of this reconciliation audit.
 - Browser acceptance remains pending. Do not replay this migration or create test ledger entries against real financial records merely to prove idempotency; use controlled test claims and inspect the resulting ledger state.
 
 
-## P1.6 expense occurrence recording (12 October 2026)
+## P1.6 Expenses changes reverted (12 October 2026)
 
-- Live ledger entry: `20261012031132 / expense_occurrence_recording`.
-- Repository migration: `supabase/migrations/20261012031132_expense_occurrence_recording.sql`.
-- Applied to the active `acadpro-db` project.
-- Verified live: `record_expense_occurrence(...)` exists as SECURITY DEFINER with an empty search path; anon execution is denied and authenticated execution is granted. The `expenses_insert_owner` policy requires `reminder_id IS NULL`, and the `expenses_prevent_reminder_relink` trigger is present.
-- No expense transaction was inserted as part of migration verification. Browser acceptance must test the RPC with a controlled test reminder and confirm the expense insert and next due date update succeed or roll back together.
-
-
-## P1.6 recurring expense history protection (12 October 2026)
-
-- Live ledger entry: `20261012031710 / protect_recurring_expense_history`.
-- Repository migration: `supabase/migrations/20261012031710_protect_recurring_expense_history.sql`.
-- Replaced the reminder-link guard so FK-driven unlinking when a reminder is deleted remains allowed, while ordinary client reassignment stays blocked.
-- Added a trigger that prevents deleting an expense linked to a recurring reminder; the owner can edit the expense details, and deleting the reminder preserves the expense row with a null reminder link.
-- This migration is additive; do not replay it or edit the live ledger.
+The P1.6 Expenses UI/service changes were reverted to the source state immediately before the P1.6 work. The two applied migrations `20261012031132 / expense_occurrence_recording` and `20261012031710 / protect_recurring_expense_history` remain in the migration history and repository as historical migrations; do not delete or rewrite applied migration ledger entries. Their database changes were compensated by `20261012032425 / revert_p16_expense_changes`, which removes the P1.6 RPC/triggers and restores the original `expenses_insert_owner` policy. No expense or payment rows were deleted or rewritten. Live verification confirmed the original insert policy is restored and the P1.6 function/triggers are absent.
