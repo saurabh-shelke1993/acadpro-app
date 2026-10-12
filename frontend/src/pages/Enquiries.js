@@ -10,6 +10,8 @@ import {
   fetchEnquiries,
   findPotentialDuplicateEnquiries,
   validateQuickEnquiry,
+  validateEnquiryStatusUpdate,
+  updateEnquiryStatus,
 } from "../services/enquiriesService";
 import "./Enquiries.css";
 
@@ -58,6 +60,11 @@ function Enquiries() {
   const [formError, setFormError] = useState("");
   const [duplicateCandidates, setDuplicateCandidates] = useState([]);
   const [pendingPayload, setPendingPayload] = useState(null);
+  const [editingEnquiryId, setEditingEnquiryId] = useState(null);
+  const [editStatus, setEditStatus] = useState("new");
+  const [editTrialDate, setEditTrialDate] = useState("");
+  const [statusSavingId, setStatusSavingId] = useState(null);
+  const [statusError, setStatusError] = useState("");
 
   const isAdmin = isSuperAdmin(user);
   const isOwner = isAcademyOwner(user);
@@ -246,6 +253,43 @@ function Enquiries() {
     setDuplicateCandidates([]);
     setPendingPayload(null);
     await saveEnquiry(payload);
+  };
+
+  const startStatusEdit = (enquiry) => {
+    setEditingEnquiryId(enquiry.id);
+    setEditStatus(enquiry.status || "new");
+    setEditTrialDate(enquiry.trial_date || "");
+    setStatusError("");
+  };
+
+  const cancelStatusEdit = () => {
+    setEditingEnquiryId(null);
+    setStatusError("");
+  };
+
+  const saveStatusEdit = async (enquiry) => {
+    const validationError = validateEnquiryStatusUpdate({
+      status: editStatus,
+      trialDate: editTrialDate,
+    });
+    if (validationError) {
+      setStatusError(validationError);
+      return;
+    }
+
+    setStatusSavingId(enquiry.id);
+    setStatusError("");
+    setNotice("");
+    try {
+      await updateEnquiryStatus(enquiry, editStatus, editTrialDate);
+      setEditingEnquiryId(null);
+      setNotice("Enquiry status updated successfully.");
+      await loadEnquiries();
+    } catch (updateError) {
+      setStatusError(updateError.message || "Unable to update enquiry status. Please retry.");
+    } finally {
+      setStatusSavingId(null);
+    }
   };
 
   const clearFilters = () => {
@@ -497,6 +541,7 @@ function Enquiries() {
                     <th scope="col">Status</th>
                     <th scope="col">Trial date</th>
                     <th scope="col">Created</th>
+                    {!isAdmin && <th scope="col">Actions</th>}
                   </tr>
                 </thead>
                 <tbody>
@@ -508,9 +553,66 @@ function Enquiries() {
                       <td>{formatDate(enquiry.dob)}</td>
                       <td>{enquiry.inquiry_source || "Not specified"}</td>
                       <td>{centerNames.get(enquiry.assigned_center_id) || "Unassigned"}</td>
-                      <td><span className={`enquiries-status enquiries-status-${enquiry.status || "new"}`}>{statusLabel(enquiry.status)}</span></td>
+                      <td>
+                        {editingEnquiryId === enquiry.id ? (
+                          <div className="enquiries-status-editor">
+                            <label className="enquiries-inline-field">
+                              <span>Status</span>
+                              <select
+                                value={editStatus}
+                                onChange={(event) => {
+                                  setEditStatus(event.target.value);
+                                  setStatusError("");
+                                }}
+                                disabled={statusSavingId === enquiry.id}
+                              >
+                                {ENQUIRY_STATUSES
+                                  .filter((item) => item.value !== "converted")
+                                  .filter((item) => isOwner || enquiry.status !== "lost" || item.value === "lost")
+                                  .map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
+                              </select>
+                            </label>
+                            <label className="enquiries-inline-field">
+                              <span>Trial date {editStatus === "trial_scheduled" ? "*" : "(optional)"}</span>
+                              <input
+                                type="date"
+                                value={editTrialDate}
+                                onChange={(event) => {
+                                  setEditTrialDate(event.target.value);
+                                  setStatusError("");
+                                }}
+                                disabled={statusSavingId === enquiry.id}
+                                required={editStatus === "trial_scheduled"}
+                              />
+                            </label>
+                            {statusError && editingEnquiryId === enquiry.id && (
+                              <div className="enquiries-inline-error" role="alert">{statusError}</div>
+                            )}
+                            <div className="enquiries-inline-actions">
+                              <button type="button" className="enquiries-secondary-button" onClick={cancelStatusEdit} disabled={statusSavingId === enquiry.id}>Cancel</button>
+                              <button type="button" className="enquiries-primary-button" onClick={() => saveStatusEdit(enquiry)} disabled={statusSavingId === enquiry.id}>
+                                {statusSavingId === enquiry.id ? "Saving…" : "Save"}
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <span className={`enquiries-status enquiries-status-${enquiry.status || "new"}`}>{statusLabel(enquiry.status)}</span>
+                        )}
+                      </td>
                       <td>{formatDate(enquiry.trial_date)}</td>
                       <td>{formatDate(enquiry.created_at)}</td>
+                      {!isAdmin && enquiry.status !== "converted" && (
+                        <td>
+                          <button
+                            type="button"
+                            className="enquiries-secondary-button"
+                            onClick={() => startStatusEdit(enquiry)}
+                            disabled={Boolean(statusSavingId)}
+                          >
+                            Update status
+                          </button>
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>
