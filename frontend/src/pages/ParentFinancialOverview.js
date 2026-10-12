@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import Layout from "../components/Layout";
 import "./ParentFinancialOverview.css";
 import { getChildFinancialData, getParentContext } from "../services/parentPortalService";
+import ParentUpiPaymentDetails from "../components/ParentUpiPaymentDetails";
 
 const ParentFinancialOverview = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -357,6 +358,8 @@ const ParentFinancialOverview = () => {
 
               </div>
             </section>
+
+            <ParentUpiPaymentDetails academyId={selectedChild?.academy_id} academyName={selectedChild?.academy?.academy_name} />
 
             <section className="parent-finance-section" aria-labelledby="payment-history-heading">
               <div className="parent-finance-section-heading">
