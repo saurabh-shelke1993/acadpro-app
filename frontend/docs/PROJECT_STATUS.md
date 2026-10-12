@@ -80,9 +80,9 @@ Implemented on 12 October 2026:
 - New `parent_payment_submissions` table, RLS, role/academy-scoped RPCs, unique UTR and one-active-claim-per-due constraints.
 - Acceptance revalidates the current remaining due. Submission/review do not change the payment ledger or issue receipts.
 
-Validation still required:
-- Run Jest and production build on the latest branch head.
-- Verify migration ledger, grants, RLS and function definitions in Supabase; run Security Advisor.
+Automated validation passed on 12 October 2026: **13 Jest suites / 86 tests passed** and the production build compiled successfully. Run: https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/38196597158
+
+Live Supabase checks confirmed both migrations are recorded, RLS is enabled, authenticated clients have SELECT but no direct INSERT/UPDATE/DELETE, the two RPCs deny anon execution and use empty search paths, and the active-claim index is present. Security Advisor was run; the two new authenticated SECURITY DEFINER RPC warnings are intentional and documented.
 - Complete browser acceptance from `docs/P1.4_PARENT_UPI_SUBMISSION_REVIEW.md`, including negative cross-parent/cross-academy tests and unchanged-ledger checks.
 - P1.5 must record accepted claims through the secured payment workflow and prevent duplicate posting.
 
@@ -202,7 +202,7 @@ Inspect current state → Plan minimal change → Implement → Build/Test → F
 ## 9. Working Baseline and Handoff
 
 **Branch:** `payment-module-finalization`  
-**Latest focus:** P1.2/P1.3 are implemented; P1.4 submission/review code and migrations are committed/applied. P1.4 automated validation and browser acceptance are pending. P1.5 ledger posting is not implemented. Phase 7 RPC hardening remains deferred until the payment UX validation gate.
+**Latest focus:** P1.2/P1.3 are implemented; P1.4 submission/review code and migrations are committed/applied. P1.4 automated validation passed (13 suites / 86 tests; production build passed); browser acceptance is pending. Vercel reported preview deployment rate-limited for 24 hours on the current plan. P1.5 ledger posting is not implemented. Phase 7 RPC hardening remains deferred until the payment UX validation gate.
 
 Useful documents:
 - `docs/PHASE_7_SECURITY_ADVISOR_REMEDIATION.md` — current findings and remediation record
