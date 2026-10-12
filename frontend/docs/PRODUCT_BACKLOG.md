@@ -298,3 +298,20 @@ Validation covered role scenarios, cross-academy access, mutation attempts and d
 # Product Vision — V1.0
 
 AcadPro V1.0 aims to provide academy administration, center and batch management, player and coach management, attendance, subscriptions, payments, receipts, dashboard analytics and a secure Parent Portal. The immediate roadmap is Player Performance, payment reliability, automated reminders, Razorpay and production QA.
+
+
+## P1.6 — UPI Payment Integration Release Gate (12 October 2026)
+
+**Scope:** Regression testing, role/security verification, documentation and release readiness for P1.2–P1.5 only. No Expenses feature work is in scope.
+
+- [x] Document the end-to-end release checklist in `docs/P1.6_UPI_RELEASE_CHECKLIST.md`.
+- [x] Document P1.5 accepted-claim recording and current live schema/grant verification in `docs/P1.4_PARENT_UPI_SUBMISSION_REVIEW.md`.
+- [x] Align project status and migration reconciliation notes with the approved scope correction.
+- [x] Previously recorded CI after rollback passed: 13 Jest suites / 86 tests and production build (run 38199699967).
+- [ ] Re-run CI for the current documentation head and confirm the result.
+- [ ] Complete P1.2–P1.5 browser acceptance across Academy Owner, Super Admin, Parent, Coach and anonymous scenarios.
+- [ ] Verify exactly-once payment recording, external UTR linkage, receipt generation, due balance/status updates and atomic rollback using controlled test fixtures.
+- [ ] Re-run Security Advisor and compare against the documented baseline.
+- [ ] Complete final diff/status review and mark release ready only after all required gates pass.
+
+**Current release state: BLOCKED.** Browser acceptance and CI for the final documentation head are pending. See `docs/P1.6_UPI_RELEASE_CHECKLIST.md`.
