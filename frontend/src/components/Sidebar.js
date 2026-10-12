@@ -100,6 +100,7 @@ function Sidebar({ isOpen = false, onClose = () => {}, closeButtonRef }) {
               {renderLink("/centers", "Centers", "⌂")}
               {renderLink("/batches", "Batches", "◆")}
               {renderLink("/players", "Players", "●")}
+              {renderLink("/enquiries", "Enquiries", "◎")}
             </>
           ) : isParent(user) ? (
             <>
@@ -119,6 +120,7 @@ function Sidebar({ isOpen = false, onClose = () => {}, closeButtonRef }) {
               {renderLink("/centers", "Centers", "⌂")}
               {renderLink("/batches", "Batches", "◆")}
               {renderLink("/players", "Players", "●")}
+              {renderLink("/enquiries", "Enquiries", "◎")}
               {renderLink("/coaches", "Coaches", "♟")}
               {renderLink("/coach-batch-mapping", "Coach Batch Mapping", "↔")}
 
