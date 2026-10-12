@@ -279,3 +279,17 @@ R4 code is implemented but is not verified/release-ready until automated and bro
 - [ ] Do not convert the user's existing enquiry unless it is a genuine enrollment decision; do not create fake test Players in the active database.
 
 R5 is implemented but not verified/release-ready until automated, CI and browser acceptance pass. R6 regression and release readiness remain.
+
+
+## AcadPro Enquiries V1 — R6 Regression and Release Readiness (13 October 2026)
+
+- [x] Added consolidated regression/release checklist at `docs/ENQUIRIES_R6_REGRESSION_RELEASE_CHECKLIST.md`.
+- [x] Defined role matrix, existing application regression coverage, isolated transactional tests, browser acceptance, data-safety constraints and explicit release exit criteria.
+- [ ] Run `npm test -- --watchAll=false` from `frontend` on the latest branch head and record exact results.
+- [ ] Run `npm run build` from `frontend` on the latest branch head and record exact results.
+- [ ] Confirm GitHub/Vercel status for the exact tested HEAD.
+- [ ] Complete controlled authorization/transaction tests in an isolated Supabase development environment.
+- [ ] Complete browser acceptance for Super Admin, Academy Owner, Coach, Parent/anonymous and existing player/payment/attendance/Parent Portal flows.
+- [ ] Update this section with actual evidence and tested commit SHA before calling R6 PASS.
+
+A Vercel success was observed for documentation commit `041a8c27e063abd32d853d2078c84bc69eaa922a`; this is not a substitute for checking the latest HEAD. No local Jest/build or browser/transaction test is claimed as passed. R6 remains **validation in progress**, not release-ready.
