@@ -11,7 +11,7 @@ import {
   saveExpense,
   saveExpenseReminder
 } from "../services/expensesService";
-import { calculateExpenseOverview } from "../utils/expenseFinancialOverview";
+import { calculateExpenseOverview, getExpenseOverviewPeriod } from "../utils/expenseFinancialOverview";
 import "./Expenses.css";
 
 const today = () => {
@@ -59,6 +59,7 @@ function Expenses() {
   const [academies, setAcademies] = useState([]);
   const [academyFilter, setAcademyFilter] = useState("");
   const [expenses, setExpenses] = useState([]);
+  const [overviewExpenses, setOverviewExpenses] = useState([]);
   const [reminders, setReminders] = useState([]);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
@@ -84,18 +85,25 @@ function Expenses() {
     setLoading(true);
     setError("");
     try {
-      const [nextExpenses, nextReminders] = await Promise.all([
+      const overviewRange = getExpenseOverviewPeriod(overviewPeriod);
+      const [nextExpenses, nextReminders, nextOverviewExpenses] = await Promise.all([
         fetchExpenses(currentUser, { academyId: academyFilter, fromDate, toDate, category: categoryFilter }),
-        fetchExpenseReminders(currentUser, { academyId: academyFilter })
+        fetchExpenseReminders(currentUser, { academyId: academyFilter }),
+        fetchExpenses(currentUser, {
+          academyId: academyFilter,
+          fromDate: overviewRange.startDate,
+          toDate: overviewRange.endDate,
+        }),
       ]);
       setExpenses(nextExpenses);
       setReminders(nextReminders);
+      setOverviewExpenses(nextOverviewExpenses);
     } catch (err) {
       setError(err.message || "Unable to load Expenses.");
     } finally {
       setLoading(false);
     }
-  }, [user, academyFilter, fromDate, toDate, categoryFilter]);
+  }, [user, academyFilter, fromDate, toDate, categoryFilter, overviewPeriod]);
 
   useEffect(() => {
     let active = true;
@@ -134,10 +142,10 @@ function Expenses() {
   )), [expenses, academyFilter]);
 
   const overview = useMemo(() => calculateExpenseOverview({
-    expenses,
+    expenses: overviewExpenses,
     reminders,
     periodType: overviewPeriod,
-  }), [expenses, reminders, overviewPeriod]);
+  }), [overviewExpenses, reminders, overviewPeriod]);
 
   const resetExpenseForm = () => {
     setExpenseForm({ ...EMPTY_EXPENSE, expense_date: today() });
