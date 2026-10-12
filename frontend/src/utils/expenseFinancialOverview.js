@@ -11,16 +11,19 @@ export const getExpenseOverviewPeriod = (periodType = "monthly", referenceDate =
   let start;
   let end;
   let label;
+  let nextPeriodStart;
 
   if (periodType === "quarterly") {
     const quarter = Math.floor(monthIndex / 3) + 1;
     const startMonth = (quarter - 1) * 3;
     start = new Date(year, startMonth, 1);
     end = new Date(year, startMonth + 3, 0);
+    nextPeriodStart = new Date(year, startMonth + 3, 1);
     label = `Q${quarter} ${year}`;
   } else {
     start = new Date(year, monthIndex, 1);
     end = new Date(year, monthIndex + 1, 0);
+    nextPeriodStart = new Date(year, monthIndex + 1, 1);
     label = referenceDate.toLocaleDateString("en-IN", { month: "long", year: "numeric" });
   }
 
@@ -28,6 +31,8 @@ export const getExpenseOverviewPeriod = (periodType = "monthly", referenceDate =
     periodType: periodType === "quarterly" ? "quarterly" : "monthly",
     startDate: toDateString(start),
     endDate: toDateString(end),
+    startDateTime: start.toISOString(),
+    endDateTimeExclusive: nextPeriodStart.toISOString(),
     label,
     monthCount: periodType === "quarterly" ? 3 : 1,
   };
@@ -36,6 +41,7 @@ export const getExpenseOverviewPeriod = (periodType = "monthly", referenceDate =
 export const calculateExpenseOverview = ({
   expenses = [],
   reminders = [],
+  payments = [],
   periodType = "monthly",
   referenceDate = new Date(),
 }) => {
@@ -62,6 +68,10 @@ export const calculateExpenseOverview = ({
 
   const expectedAmount = monthlyExpected + quarterlyExpected;
   const paidAmount = periodExpenses.reduce((sum, expense) => sum + Number(expense.amount_paid || 0), 0);
+  const incomeCollected = payments
+    .filter((payment) => payment.payment_entry_type === "payment")
+    .reduce((sum, payment) => sum + Number(payment.amount_paid || 0), 0);
+  const netCashMovement = incomeCollected - paidAmount;
   const today = toDateString(referenceDate);
   const overdueReminderCount = activeReminders.filter((reminder) => reminder.next_due_date < today).length;
 
@@ -69,6 +79,8 @@ export const calculateExpenseOverview = ({
     ...period,
     expectedAmount,
     paidAmount,
+    incomeCollected,
+    netCashMovement,
     varianceAmount: expectedAmount - paidAmount,
     activeReminderCount: activeReminders.length,
     overdueReminderCount,
