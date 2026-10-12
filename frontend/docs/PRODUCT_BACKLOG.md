@@ -234,7 +234,7 @@ Validation covered role scenarios, cross-academy access, mutation attempts and d
 - [x] Atomic linked expense insert + next due date advance
 - [x] Restrict direct client inserts with reminder links and block reminder reassignment
 - [x] Pure calculation tests for monthly and quarterly totals
-- [ ] CI and production build verification for P1.6
+- [x] CI and production build verification for P1.6 (14 suites / 92 tests; build passed)
 - [ ] Browser/RBAC acceptance and failure/rollback checks
 
 Implementation notes: `frontend/docs/P1.6_EXPENSE_FINANCIAL_OVERVIEW.md`. Live migration version `20261012031132 / expense_occurrence_recording`.
