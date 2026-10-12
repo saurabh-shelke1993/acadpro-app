@@ -172,11 +172,11 @@ Parent-safe coach visibility uses dedicated RPCs that scope results to the authe
 RLS is enabled on the major role-sensitive tables, including academies, attendance, batches, centers, coach_batch_assignments, coach_batches, coaches, parents, payment_dues, payments, player_batches, player_subscriptions, players, subscription_plans and users.
 
 Phase 7 table lockdown:
-- `public.inquiries`: RLS enabled; direct anon/authenticated privileges revoked; no policies by design until an access model is required.
+- `public.inquiries`: R2 access model is applied; authenticated SELECT is scoped by Super Admin / Academy Owner / authorized Coach policy, direct authenticated writes are denied, and mutations use validated RPCs. See `docs/ENQUIRIES_R2_DATABASE_SECURITY.md`.
 - `public.trial_attendance`: RLS enabled; direct anon/authenticated privileges revoked; no policies by design until an access model is required.
 - `public.payment_number_counters`: RLS enabled; direct client privileges revoked; intended for server-side/database use.
 - Leaked-password protection: unavailable on Supabase Free; deferred.
-- Ten authenticated `SECURITY DEFINER` warnings are reported in the 12 October 2026 snapshot: seven pre-existing RPCs, two P1.4 parent UPI submission/review RPCs, and the P1.5 recording wrapper. These UPI RPCs intentionally require authenticated execution and enforce role/scope checks; do not change grants or security mode without reviewing dependencies and regression-testing.
+- The latest documented Security Advisor snapshot reports 13 authenticated `SECURITY DEFINER` warnings: 10 pre-existing findings plus the three scoped Enquiries RPCs. Review each function's authorization/search path before changing grants or security mode. Two no-policy INFO findings remain for intentionally locked-down `trial_attendance` and `payment_number_counters`.
 
 ## 7. Technical Debt and Deferred Work
 
