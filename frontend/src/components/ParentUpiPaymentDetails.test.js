@@ -49,6 +49,7 @@ describe("ParentUpiPaymentDetails", () => {
 
     const shareMessage = decodeURIComponent(shareLink.href.split("?text=")[1]);
     expect(shareMessage).toContain("UPI payment details for Thane City FC");
+    expect(shareMessage).toContain(["UPI payment details for Thane City FC", "Payee name: Thane City FC"].join(String.fromCharCode(10)));
     expect(shareMessage).toContain("Payee name: Thane City FC");
     expect(shareMessage).toContain("UPI ID: thanecity@okaxis");
     expect(shareMessage).toContain("UPI QR image: https://example.test/academy-qr.png");
