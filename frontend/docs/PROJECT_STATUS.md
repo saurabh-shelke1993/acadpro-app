@@ -1,6 +1,6 @@
 # AcadPro Project Status
 
-**Last Updated:** 11 October 2026  
+**Last Updated:** 12 October 2026  
 **Current Version:** V1.0 Beta  
 **Current Git Branch:** `payment-module-finalization`
 
@@ -70,6 +70,20 @@ Historical verification recorded:
 
 Detailed record: `docs/PHASE_7_SECURITY_ADVISOR_REMEDIATION.md`.
 
+### P1.2 — Academy UPI Settings: IMPLEMENTED; VALIDATION PENDING
+
+Implemented on 12 October 2026:
+- Academy-scoped `academy_payment_settings` table with RLS and least-privilege grants.
+- Public-read QR bucket `academy-upi-qr`, owner-only object mutations scoped by academy UUID path.
+- Owner configuration screen, Super Admin read-only view, and enabled settings in Parent Financial Overview.
+- UPI/QR validation tests and documented browser acceptance checklist.
+- Two new migrations recorded in the live ledger; historical migration drift was preserved.
+
+Still required before marking complete:
+- Run Jest/build/CI and inspect the exact changed-file diff.
+- Complete browser acceptance across Academy Owner, Super Admin, Parent and negative cross-tenant scenarios.
+- Re-run Supabase Security Advisor; distinguish new findings from existing intentional findings.
+
 ## 3. Module Status
 
 | Module | Status | Current State |
@@ -93,14 +107,14 @@ Detailed record: `docs/PHASE_7_SECURITY_ADVISOR_REMEDIATION.md`.
 | Player Performance | V1 complete | Assessment entry/report, role-aware mutation scope, historical tracking, parent read-only access and RLS/RBAC regression verified |
 | Reports | Planned | Not started |
 | Notifications | Planned | Not started |
-| Online Payments / Razorpay | Planned | Production flow pending |
+| Academy UPI Settings | Implemented; validation pending | Owner-managed UPI ID/QR, Super Admin read-only, parent linked-child display; payment submission and UTR verification deferred |\n| Online Payments / Razorpay | Planned | Production flow pending; no Razorpay code or credentials in P1.2 |
 
 ## 4. Current Priorities
 
-1. Continue Phase 7 Security Advisor remediation, starting with `update_my_coach_profile(...)` review/hardening.
-2. Complete focused regression tests for coach profile, parent coach visibility and payment RPCs after any database changes.
-3. Keep leaked-password protection documented as deferred on Free plan.
-4. Continue planned product work when selected: automated reminders, Razorpay production flow, production QA and other development priorities.
+1. Complete P1.2 automated tests/build and browser role/isolation acceptance.\n2. Continue Phase 7 Security Advisor remediation, starting with `update_my_coach_profile(...)` review/hardening.
+3. Complete focused regression tests for coach profile, parent coach visibility and payment RPCs after any database changes.
+4. Keep leaked-password protection documented as deferred on Free plan.
+5. Continue planned product work when selected: automated reminders, Razorpay production flow, production QA and other development priorities.
 
 ## 5. Parent Portal Completion Status
 
@@ -155,7 +169,7 @@ Inspect current state → Plan minimal change → Implement → Build/Test → F
 ## 9. Working Baseline and Handoff
 
 **Branch:** `payment-module-finalization`  
-**Latest focus:** Phase 7 Security Advisor remediation, paused after documenting current state. No changes have yet been made to `update_my_coach_profile(...)`; its hardening is the next security task if Phase 7 is resumed.
+**Latest focus:** P1.2 Academy UPI Settings implemented; automated tests/build and browser acceptance are pending. Phase 7 RPC hardening remains deferred unless resumed after P1.2 validation.
 
 Useful documents:
 - `docs/PHASE_7_SECURITY_ADVISOR_REMEDIATION.md` — current findings and remediation record
