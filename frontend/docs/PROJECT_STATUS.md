@@ -57,7 +57,7 @@ Historical verification recorded:
 - Revoked direct `anon` and `authenticated` privileges on those tables; both were empty when inspected.
 - Revoked direct client privileges on `public.payment_number_counters`, keeping it for server-side/database use.
 - Verified RLS is enabled and client SELECT/INSERT is denied for all three tables.
-- Reviewed the original seven flagged `SECURITY DEFINER` RPCs. All seven have an empty `search_path`; anonymous and PUBLIC execution are denied. P1.4 adds two intentionally authenticated `SECURITY DEFINER` RPCs (`submit_parent_upi_payment` and `review_parent_upi_payment`) with empty search paths, explicit role/scope checks, and anon/PUBLIC execution revoked. The Security Advisor now reports nine authenticated SECURITY DEFINER RPC warnings in total.
+- Reviewed the original seven flagged `SECURITY DEFINER` RPCs. All seven have an empty `search_path`; anonymous and PUBLIC execution are denied. P1.4 adds two intentionally authenticated `SECURITY DEFINER` RPCs (`submit_parent_upi_payment` and `review_parent_upi_payment`) with empty search paths, explicit role/scope checks, and anon/PUBLIC execution revoked. The Security Advisor snapshot on 12 October 2026 reports ten authenticated SECURITY DEFINER RPC warnings: seven pre-existing functions, the two P1.4 submission/review RPCs, and the P1.5 accepted-claim recording wrapper. These are reviewed findings; keep intentional grants only with role/scope tests and documented dependencies.
 - Reviewed role, authentication, academy-scope and business-rule checks in the payment correction and parent coach RPCs.
 - Confirmed frontend dependencies exist for the coach profile RPCs, parent coach RPCs and payment collection RPC. Do not revoke authenticated execution or change them to SECURITY INVOKER without regression testing.
 
@@ -84,7 +84,7 @@ Automated validation passed on 12 October 2026: **13 Jest suites / 86 tests pass
 
 Live Supabase checks confirmed both migrations are recorded, RLS is enabled, authenticated clients have SELECT but no direct INSERT/UPDATE/DELETE, the two RPCs deny anon execution and use empty search paths, and the active-claim index is present. Security Advisor was run; the two new authenticated SECURITY DEFINER RPC warnings are intentional and documented.
 - Complete browser acceptance from `docs/P1.4_PARENT_UPI_SUBMISSION_REVIEW.md`, including negative cross-parent/cross-academy tests and unchanged-ledger checks.
-- P1.5 must record accepted claims through the secured payment workflow and prevent duplicate posting.
+- P1.5 is implemented and applied: `record_accepted_parent_upi_submission(uuid)` invokes the existing secured `collect_payment` RPC in the same transaction, attaches the submitted UTR, records the payment ID/receipt metadata, updates the claim to `recorded`, and rejects duplicate posting. Browser acceptance remains pending.
 
 ### P1.3 — Parent Portal UPI QR and WhatsApp Sharing: AUTOMATED VALIDATION PASSED; BROWSER ACCEPTANCE PENDING
 
@@ -143,11 +143,11 @@ Still required before marking complete:
 
 ## 4. Current Priorities
 
-1. Complete P1.2 browser role/isolation acceptance and P1.3 Parent Portal/WhatsApp browser validation.
-2. Continue Phase 7 Security Advisor remediation, starting with `update_my_coach_profile(...)` review/hardening.
-3. Complete focused regression tests for coach profile, parent coach visibility and payment RPCs after any database changes.
-4. Keep leaked-password protection documented as deferred on Free plan.
-5. Continue planned product work when selected: automated reminders, Razorpay production flow, production QA and other development priorities.
+1. Complete the P1.6 UPI release gate in `docs/P1.6_UPI_RELEASE_CHECKLIST.md`: browser regression, role/security negative tests, exactly-once ledger recording, receipt/balance checks and final CI.
+2. Keep P1.2–P1.5 browser acceptance marked pending until executed on an accessible preview with controlled test fixtures.
+3. Continue Phase 7 Security Advisor remediation only as a separate scoped task; do not mix it into UPI release testing.
+4. Keep leaked-password protection documented as deferred on the Free plan.
+5. Resume other product work only after the UPI release gate or when explicitly reprioritized.
 
 ## 5. Parent Portal Completion Status
 
@@ -176,7 +176,7 @@ Phase 7 table lockdown:
 - `public.trial_attendance`: RLS enabled; direct anon/authenticated privileges revoked; no policies by design until an access model is required.
 - `public.payment_number_counters`: RLS enabled; direct client privileges revoked; intended for server-side/database use.
 - Leaked-password protection: unavailable on Supabase Free; deferred.
-- Nine authenticated `SECURITY DEFINER` warnings are reported: seven pre-existing RPCs plus the two P1.4 parent UPI submission/review RPCs. The two P1.4 RPCs intentionally require authenticated execution and enforce role/scope checks; do not change grants or security mode without reviewing dependencies and regression-testing.
+- Ten authenticated `SECURITY DEFINER` warnings are reported in the 12 October 2026 snapshot: seven pre-existing RPCs, two P1.4 parent UPI submission/review RPCs, and the P1.5 recording wrapper. These UPI RPCs intentionally require authenticated execution and enforce role/scope checks; do not change grants or security mode without reviewing dependencies and regression-testing.
 
 ## 7. Technical Debt and Deferred Work
 
@@ -215,3 +215,8 @@ Useful documents:
 ## P1.6 Scope Correction — 12 October 2026
 
 The Expenses feature changes previously added under P1.6 were reverted because they are outside the parent UPI payment integration scope. P1.6 remains the payment integration regression, documentation and release gate; do not introduce new Expenses functionality as part of this phase. P1.4/P1.5 UPI code and payment ledger workflows were preserved. Browser acceptance remains pending.
+
+
+## P1.6 UPI Release Gate — 12 October 2026
+
+The approved P1.6 scope is regression testing, role/security verification, documentation and release readiness for P1.2–P1.5 UPI integration. No Expenses feature work belongs in this phase. See `docs/P1.6_UPI_RELEASE_CHECKLIST.md`. Automated CI and live schema/grant inspection have passed on the previously recorded head; browser acceptance and CI for the documentation head remain pending. Overall release is blocked until the browser/RBAC/ledger acceptance gates pass.
