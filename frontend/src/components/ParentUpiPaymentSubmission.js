@@ -145,7 +145,7 @@ function ParentUpiPaymentSubmission({ playerId, academyId, pendingDues = [] }) {
       </section>
     );
   }
-  if (!enabled) return null;
+  if (!enabled && submissions.length === 0) return null;
 
   return (
     <section className="parent-upi-submission" aria-labelledby="parent-upi-submit-heading">
@@ -160,7 +160,11 @@ function ParentUpiPaymentSubmission({ playerId, academyId, pendingDues = [] }) {
       {error ? <p className="parent-upi-submission-alert is-error" role="alert">{error}</p> : null}
       {notice ? <p className="parent-upi-submission-alert is-success" role="status">{notice}</p> : null}
 
-      {eligibleDues.length === 0 ? (
+      {!enabled ? (
+        <p className="parent-upi-submission-disclaimer">
+          New UPI payment claims are currently disabled by the academy. Your existing claim history remains available below.
+        </p>
+      ) : eligibleDues.length === 0 ? (
         <div className="parent-upi-submission-empty">
           <strong>No outstanding fee dues</strong>
           <p>There are no eligible fee dues for this child right now.</p>
