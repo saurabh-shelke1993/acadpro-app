@@ -20,6 +20,7 @@ import Academy from "../pages/Academy";
 import Centers from "../pages/Centers";
 import Batches from "../pages/Batches";
 import Players from "../pages/Players";
+import Enquiries from "../pages/Enquiries";
 import Attendance from "../pages/Attendance";
 import AttendanceHistory from "../pages/AttendanceHistory";
 import SubscriptionPlans from "../pages/SubscriptionPlans";
@@ -158,6 +159,21 @@ function AppRoutes() {
     </ProtectedRoute>
   }
 />
+
+        <Route
+          path="/enquiries"
+          element={
+            <ProtectedRoute
+              allowedRoles={[
+                "super_admin",
+                "academy_owner",
+                "coach"
+              ]}
+            >
+              <Enquiries />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/attendance"
