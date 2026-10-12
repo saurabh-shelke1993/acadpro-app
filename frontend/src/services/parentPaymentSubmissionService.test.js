@@ -30,5 +30,6 @@ describe("Parent UPI payment submission validation", () => {
     expect(formatSubmissionStatus("pending")).toBe("Pending verification");
     expect(formatSubmissionStatus("accepted")).toMatch(/awaiting ledger recording/);
     expect(formatSubmissionStatus("rejected")).toBe("Rejected");
+    expect(formatSubmissionStatus("recorded")).toBe("Recorded in payment ledger");
   });
 });
