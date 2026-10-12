@@ -1,6 +1,6 @@
 # P1.2 — Academy UPI Settings
 
-**Status:** Implemented; automated validation and browser role checks pending  
+**Status:** Implemented; automated validation passed (11 suites / 75 tests, production build passed); browser role checks pending  
 **Branch:** `payment-module-finalization`  
 **Scope:** Academy-owned UPI ID / QR configuration and read-only parent display
 
@@ -57,7 +57,7 @@ RLS is enabled. Client table grants are limited to authenticated SELECT/INSERT/U
 
 ## Automated validation
 
-The service unit tests cover UPI ID normalization/format validation, QR MIME type and size validation, and the QR-optional case.
+The service unit tests cover UPI ID normalization/format validation, QR MIME type and size validation, and the QR-optional case. Current branch validation completed successfully: 11 Jest suites, 75 tests, and a production build.
 
 ## Browser acceptance checklist
 
