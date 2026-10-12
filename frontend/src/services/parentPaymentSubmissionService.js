@@ -77,10 +77,11 @@ export const getAcademyPaymentSubmissions = async (status = "pending") => {
     .select(`
       id, academy_id, parent_id, player_id, due_id, amount,
       transaction_reference, payment_date, parent_note, status,
-      review_note, created_at, reviewed_at,
+      review_note, created_at, reviewed_at, payment_id, recorded_at,
       players!parent_payment_submissions_player_id_fkey(full_name),
       payment_dues!parent_payment_submissions_due_id_fkey(due_type, due_date, total_amount, paid_amount, remaining_amount),
-      parents!parent_payment_submissions_parent_id_fkey(parent_name)
+      parents!parent_payment_submissions_parent_id_fkey(parent_name),
+      payments!parent_payment_submissions_payment_id_fkey(receipt_number, transaction_reference, external_transaction_reference)
     `)
     .order("created_at", { ascending: false });
 
@@ -102,6 +103,16 @@ export const reviewParentUpiPayment = async (submissionId, decision, reviewNote 
     p_submission_id: submissionId,
     p_decision: decision,
     p_review_note: reviewNote.trim() || null,
+  });
+  if (error) throw error;
+  return data;
+};
+
+
+export const recordAcceptedParentUpiPayment = async (submissionId) => {
+  if (!submissionId) throw new Error("Payment claim is required.");
+  const { data, error } = await supabase.rpc("record_accepted_parent_upi_submission", {
+    p_submission_id: submissionId,
   });
   if (error) throw error;
   return data;
