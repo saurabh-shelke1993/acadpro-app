@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Layout from "../components/Layout";
 import { getLoggedInUser, isSuperAdmin } from "../utils/auth";
 import { isAcademyOwner, isCoach } from "../utils/roles";
-import { getAccessibleAcademies, getAccessibleCenters } from "../utils/dataScope";
+import { getAccessibleAcademies, getAccessibleBatches, getAccessibleCenters } from "../utils/dataScope";
 import {
   createEnquiry,
   ENQUIRY_SOURCES,
@@ -12,6 +12,8 @@ import {
   validateQuickEnquiry,
   validateEnquiryStatusUpdate,
   updateEnquiryStatus,
+  convertEnquiryToPlayer,
+  validateEnquiryConversion,
 } from "../services/enquiriesService";
 import "./Enquiries.css";
 
@@ -65,6 +67,20 @@ function Enquiries() {
   const [editTrialDate, setEditTrialDate] = useState("");
   const [statusSavingId, setStatusSavingId] = useState(null);
   const [statusError, setStatusError] = useState("");
+  const [conversionEnquiry, setConversionEnquiry] = useState(null);
+  const [conversionForm, setConversionForm] = useState({
+    parentName: "",
+    parentEmail: "",
+    parentAddress: "",
+    gender: "",
+    joiningDate: today(),
+    centerId: "",
+    batchId: "",
+  });
+  const [conversionBatches, setConversionBatches] = useState([]);
+  const [conversionLoadingBatches, setConversionLoadingBatches] = useState(false);
+  const [conversionSaving, setConversionSaving] = useState(false);
+  const [conversionError, setConversionError] = useState("");
 
   const isAdmin = isSuperAdmin(user);
   const isOwner = isAcademyOwner(user);
@@ -292,6 +308,113 @@ function Enquiries() {
     }
   };
 
+  const openConversionForm = (enquiry) => {
+    const initialCenterId = enquiry.assigned_center_id || "";
+    setConversionEnquiry(enquiry);
+    setConversionForm({
+      parentName: "",
+      parentEmail: "",
+      parentAddress: "",
+      gender: "",
+      joiningDate: today(),
+      centerId: initialCenterId,
+      batchId: "",
+    });
+    setConversionBatches([]);
+    setConversionError("");
+  };
+
+  const closeConversionForm = () => {
+    if (conversionSaving) return;
+    setConversionEnquiry(null);
+    setConversionBatches([]);
+    setConversionError("");
+  };
+
+  useEffect(() => {
+    let active = true;
+    const loadConversionBatches = async () => {
+      if (!conversionEnquiry || !conversionForm.centerId || !user || !isOwner) {
+        setConversionBatches([]);
+        setConversionLoadingBatches(false);
+        return;
+      }
+
+      setConversionLoadingBatches(true);
+      setConversionError("");
+      try {
+        const batchesForCenter = await getAccessibleBatches(user, conversionForm.centerId);
+        if (active) setConversionBatches(batchesForCenter || []);
+      } catch (batchError) {
+        if (active) {
+          setConversionBatches([]);
+          setConversionError(batchError.message || "Unable to load active batches for this center.");
+        }
+      } finally {
+        if (active) setConversionLoadingBatches(false);
+      }
+    };
+
+    loadConversionBatches();
+    return () => { active = false; };
+  }, [conversionEnquiry, conversionForm.centerId, user, isOwner]);
+
+  const updateConversionForm = (field, value) => {
+    setConversionForm((current) => ({
+      ...current,
+      [field]: value,
+      ...(field === "centerId" ? { batchId: "" } : {}),
+    }));
+    setConversionError("");
+  };
+
+  const submitConversion = async (event) => {
+    event.preventDefault();
+    if (!conversionEnquiry || !isOwner) return;
+
+    const validationError = validateEnquiryConversion(conversionForm);
+    if (validationError) {
+      setConversionError(validationError);
+      return;
+    }
+    if (!centers.some((center) => center.id === conversionForm.centerId)) {
+      setConversionError("Select an active center in your academy.");
+      return;
+    }
+    if (!conversionBatches.some((batch) => batch.id === conversionForm.batchId)) {
+      setConversionError("Select an active batch belonging to the selected center.");
+      return;
+    }
+    if (
+      conversionEnquiry.assigned_center_id &&
+      conversionEnquiry.assigned_center_id !== conversionForm.centerId
+    ) {
+      setConversionError("The conversion center must match the enquiry center. Close this form and update the enquiry center first.");
+      return;
+    }
+
+    setConversionSaving(true);
+    setConversionError("");
+    setNotice("");
+    try {
+      const result = await convertEnquiryToPlayer({
+        enquiryId: conversionEnquiry.id,
+        ...conversionForm,
+      });
+      setConversionEnquiry(null);
+      setNotice(
+        result?.alreadyConverted
+          ? "This enquiry was already converted. No additional player was created."
+          : "Enquiry converted successfully. The player and parent were created using the transactional enrollment workflow."
+      );
+      await loadEnquiries();
+    } catch (conversionFailure) {
+      setConversionError(conversionFailure.message || "Unable to convert this enquiry. No partial conversion should be committed.");
+    } finally {
+      setConversionSaving(false);
+    }
+  };
+
   const clearFilters = () => {
     setSearchTerm("");
     setCenterFilter("");
@@ -457,6 +580,125 @@ function Enquiries() {
           </section>
         )}
 
+        {conversionEnquiry && isOwner && (
+          <div className="enquiries-modal-backdrop">
+            <section
+              className="enquiries-conversion-modal"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="enquiry-conversion-title"
+            >
+              <header className="enquiries-section-heading">
+                <div>
+                  <span className="enquiries-eyebrow">Enrollment</span>
+                  <h2 id="enquiry-conversion-title">Convert enquiry to Player</h2>
+                  <p>Complete the enrollment details missing from this enquiry. Player creation and enquiry conversion happen in one database transaction.</p>
+                </div>
+                <button type="button" className="enquiries-secondary-button" onClick={closeConversionForm} disabled={conversionSaving}>Close</button>
+              </header>
+
+              <div className="enquiries-conversion-summary">
+                <span>Player</span><strong>{conversionEnquiry.player_name}</strong>
+                <span>Parent contact</span><strong>{conversionEnquiry.phone}</strong>
+                <span>Date of birth</span><strong>{formatDate(conversionEnquiry.dob)}</strong>
+              </div>
+
+              <form onSubmit={submitConversion} noValidate>
+                <div className="enquiries-form-grid">
+                  <label className="enquiries-field">
+                    Parent name <span aria-hidden="true">*</span>
+                    <input
+                      value={conversionForm.parentName}
+                      onChange={(event) => updateConversionForm("parentName", event.target.value)}
+                      maxLength={120}
+                      autoComplete="name"
+                      required
+                      disabled={conversionSaving}
+                    />
+                  </label>
+                  <label className="enquiries-field">
+                    Parent email <span className="enquiries-optional">(optional)</span>
+                    <input
+                      type="email"
+                      value={conversionForm.parentEmail}
+                      onChange={(event) => updateConversionForm("parentEmail", event.target.value)}
+                      autoComplete="email"
+                      disabled={conversionSaving}
+                    />
+                  </label>
+                  <label className="enquiries-field enquiries-field-wide">
+                    Parent address <span className="enquiries-optional">(optional)</span>
+                    <textarea
+                      rows={2}
+                      value={conversionForm.parentAddress}
+                      onChange={(event) => updateConversionForm("parentAddress", event.target.value)}
+                      maxLength={1000}
+                      autoComplete="street-address"
+                      disabled={conversionSaving}
+                    />
+                  </label>
+                  <label className="enquiries-field">
+                    Gender <span aria-hidden="true">*</span>
+                    <select value={conversionForm.gender} onChange={(event) => updateConversionForm("gender", event.target.value)} required disabled={conversionSaving}>
+                      <option value="">Select gender</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                    </select>
+                  </label>
+                  <label className="enquiries-field">
+                    Joining date <span aria-hidden="true">*</span>
+                    <input
+                      type="date"
+                      value={conversionForm.joiningDate}
+                      onChange={(event) => updateConversionForm("joiningDate", event.target.value)}
+                      required
+                      disabled={conversionSaving}
+                    />
+                  </label>
+                  <label className="enquiries-field">
+                    Center <span aria-hidden="true">*</span>
+                    <select
+                      value={conversionForm.centerId}
+                      onChange={(event) => updateConversionForm("centerId", event.target.value)}
+                      required
+                      disabled={conversionSaving || Boolean(conversionEnquiry.assigned_center_id)}
+                    >
+                      <option value="">Select center</option>
+                      {centers.map((center) => (
+                        <option key={center.id} value={center.id}>{center.center_name}</option>
+                      ))}
+                    </select>
+                    {conversionEnquiry.assigned_center_id && <span className="enquiries-optional">Must match the enquiry's assigned center.</span>}
+                  </label>
+                  <label className="enquiries-field">
+                    Batch <span aria-hidden="true">*</span>
+                    <select
+                      value={conversionForm.batchId}
+                      onChange={(event) => updateConversionForm("batchId", event.target.value)}
+                      required
+                      disabled={conversionSaving || !conversionForm.centerId || conversionLoadingBatches}
+                    >
+                      <option value="">{conversionLoadingBatches ? "Loading batches…" : "Select batch"}</option>
+                      {conversionBatches.map((batch) => (
+                        <option key={batch.id} value={batch.id}>{batch.batch_name}</option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+
+                {conversionError && <div className="enquiries-alert enquiries-alert-error" role="alert">{conversionError}</div>}
+
+                <div className="enquiries-form-actions">
+                  <button type="button" className="enquiries-secondary-button" onClick={closeConversionForm} disabled={conversionSaving}>Cancel</button>
+                  <button type="submit" className="enquiries-primary-button" disabled={conversionSaving || conversionLoadingBatches}>
+                    {conversionSaving ? "Converting…" : "Confirm conversion"}
+                  </button>
+                </div>
+              </form>
+            </section>
+          </div>
+        )}
+
         <section className="enquiries-list-section" aria-labelledby="enquiries-list-title">
           <div className="enquiries-list-heading">
             <div>
@@ -603,14 +845,26 @@ function Enquiries() {
                       <td>{formatDate(enquiry.created_at)}</td>
                       {!isAdmin && enquiry.status !== "converted" && (
                         <td>
-                          <button
-                            type="button"
-                            className="enquiries-secondary-button"
-                            onClick={() => startStatusEdit(enquiry)}
-                            disabled={Boolean(statusSavingId)}
-                          >
-                            Update status
-                          </button>
+                          <div className="enquiries-row-actions">
+                            <button
+                              type="button"
+                              className="enquiries-secondary-button"
+                              onClick={() => startStatusEdit(enquiry)}
+                              disabled={Boolean(statusSavingId)}
+                            >
+                              Update status
+                            </button>
+                            {isOwner && enquiry.status !== "lost" && (
+                              <button
+                                type="button"
+                                className="enquiries-primary-button"
+                                onClick={() => openConversionForm(enquiry)}
+                                disabled={Boolean(statusSavingId) || conversionSaving}
+                              >
+                                Convert to Player
+                              </button>
+                            )}
+                          </div>
                         </td>
                       )}
                     </tr>
