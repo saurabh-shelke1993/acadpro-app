@@ -81,7 +81,7 @@ Implemented on 12 October 2026:
 - Direct client INSERT with a reminder link is blocked; existing expense rows cannot be linked/relinked during edit to bypass occurrence recording.
 - Academy Owner manages their academy; Super Admin is read-only; other roles are denied.
 - Live migration applied as ledger version `20261012031132 / expense_occurrence_recording`. Live checks confirmed RPC security configuration, INSERT policy and reminder-link guard trigger.
-- Pure monthly/quarterly calculation tests added. Full CI and browser/RBAC acceptance are pending.
+- Pure monthly/quarterly calculation tests added. GitHub Actions passed 14 Jest suites / 92 tests and the production build on run https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/38198976040. Browser/RBAC acceptance remains pending.
 
 See `frontend/docs/P1.6_EXPENSE_FINANCIAL_OVERVIEW.md`.
 
@@ -218,7 +218,7 @@ Inspect current state → Plan minimal change → Implement → Build/Test → F
 ## 9. Working Baseline and Handoff
 
 **Branch:** `payment-module-finalization`  
-**Latest focus:** P1.2–P1.5 source and migrations are implemented; P1.4/P1.5 browser acceptance remains pending. P1.5 ledger recording migration is live at version `20261012025707`. P1.6 Expenses overview and atomic manual recurring-occurrence recording are implemented; migration is live at version `20261012031132`. P1.6 CI and browser/RBAC acceptance are pending. Vercel previously reported preview deployment rate-limited for 24 hours on the current plan. Phase 7 RPC hardening remains deferred until the payment UX validation gate.
+**Latest focus:** P1.2–P1.5 source and migrations are implemented; P1.4/P1.5 browser acceptance remains pending. P1.5 ledger recording migration is live at version `20261012025707`. P1.6 Expenses overview and atomic manual recurring-occurrence recording are implemented; migration is live at version `20261012031132`. P1.6 automated CI/build passed (14 suites / 92 tests); browser/RBAC acceptance is pending. Vercel previously reported preview deployment rate-limited for 24 hours on the current plan. Phase 7 RPC hardening remains deferred until the payment UX validation gate.
 
 Useful documents:
 - `docs/PHASE_7_SECURITY_ADVISOR_REMEDIATION.md` — current findings and remediation record
