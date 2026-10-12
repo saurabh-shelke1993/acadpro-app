@@ -65,7 +65,7 @@ function ParentUpiPaymentDetails({ academyId, academyName }) {
     qrUrl ? `UPI QR image: ${qrUrl}` : null,
     "",
     "Please verify the transaction with the academy. Fee balances update only after the academy records the payment.",
-  ].filter(Boolean).join("\\n");
+  ].filter(Boolean).join(String.fromCharCode(10));
   const whatsappShareUrl = `https://wa.me/?text=${encodeURIComponent(shareMessage)}`;
 
   return (
