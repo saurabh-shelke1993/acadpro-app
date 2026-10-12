@@ -37,6 +37,7 @@ import PlayerPerformanceReport from "../pages/PlayerPerformanceReport";
 import ParentPortal from "../pages/ParentPortal";
 import ParentFinancialOverview from "../pages/ParentFinancialOverview";
 import AcademyUpiSettings from "../pages/AcademyUpiSettings";
+import ParentUpiPaymentReview from "../pages/ParentUpiPaymentReview";
 
 // ============================================
 // APP ROUTES
@@ -239,6 +240,15 @@ function AppRoutes() {
               ]}
             >
               <PaymentCollections />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/parent-upi-submissions"
+          element={
+            <ProtectedRoute allowedRoles={["super_admin", "academy_owner"]}>
+              <ParentUpiPaymentReview />
             </ProtectedRoute>
           }
         />
