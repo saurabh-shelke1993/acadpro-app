@@ -21,11 +21,22 @@ function AcademyUpiSettings() {
   const [payeeName, setPayeeName] = useState("");
   const [isEnabled, setIsEnabled] = useState(false);
   const [qrFile, setQrFile] = useState(null);
+  const [qrPreviewUrl, setQrPreviewUrl] = useState("");
   const [removeQr, setRemoveQr] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+
+  useEffect(() => {
+    if (!qrFile) {
+      setQrPreviewUrl("");
+      return undefined;
+    }
+    const previewUrl = URL.createObjectURL(qrFile);
+    setQrPreviewUrl(previewUrl);
+    return () => URL.revokeObjectURL(previewUrl);
+  }, [qrFile]);
 
   const canManage = isAcademyOwner(user);
   const isAdmin = isSuperAdmin(user);
@@ -225,7 +236,7 @@ function AcademyUpiSettings() {
                 <div className="academy-upi-qr-row">
                   <div className="academy-upi-qr-preview">
                     {qrFile ? (
-                      <img src={URL.createObjectURL(qrFile)} alt="Selected UPI QR preview" />
+                      <img src={qrPreviewUrl} alt="Selected UPI QR preview" />
                     ) : qrUrl && !removeQr ? (
                       <img src={qrUrl} alt="Academy UPI QR code" />
                     ) : (
