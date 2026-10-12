@@ -116,7 +116,7 @@ BEGIN
      OR length(btrim(p_transaction_reference)) NOT BETWEEN 3 AND 120 THEN
     RAISE EXCEPTION 'Enter a valid UPI transaction reference';
   END IF;
-  IF p_payment_date IS NULL OR p_payment_date > pg_catalog.current_date THEN
+  IF p_payment_date IS NULL OR p_payment_date > CURRENT_DATE THEN
     RAISE EXCEPTION 'Payment date cannot be in the future';
   END IF;
   IF p_parent_note IS NOT NULL AND length(p_parent_note) > 500 THEN
