@@ -37,6 +37,7 @@ The following new migrations are aligned between the repository and live ledger:
 |---|---|---|---|
 | Academy UPI settings foundation | `20261012013143` / `academy_upi_settings_foundation` | `20261012013143_academy_upi_settings_foundation.sql` | Applied and recorded |
 | Academy UPI policy tuning | `20261012013320` / `academy_upi_settings_policy_tuning` | `20261012013320_academy_upi_settings_policy_tuning.sql` | Applied and recorded |
+| Academy UPI redundant-index cleanup | `20261012013452` / `academy_upi_settings_remove_redundant_index` | `20261012013452_academy_upi_settings_remove_redundant_index.sql` | Applied and recorded |
 
 These are new migrations only. Existing historical drift was not modified, replayed or reconciled as part of P1.2.
 
