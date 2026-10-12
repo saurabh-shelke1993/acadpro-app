@@ -83,3 +83,5 @@
 .expenses-overview-note{margin:0;color:var(--ap-slate-500,#64748b);font-size:11px;line-height:1.5}
 @media(max-width:1050px){.expenses-overview .expenses-summary-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:700px){.expenses-overview{padding:12px}.expenses-overview-heading{align-items:stretch;flex-direction:column;gap:10px}.expenses-period-switch{display:grid;grid-template-columns:1fr 1fr}.expenses-overview .expenses-summary-grid{grid-template-columns:1fr}}
+
+.expenses-row-action-note{color:var(--ap-slate-500,#64748b);font-size:10px;font-weight:700;white-space:nowrap}
