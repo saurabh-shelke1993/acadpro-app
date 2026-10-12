@@ -70,21 +70,6 @@ Historical verification recorded:
 
 Detailed record: `docs/PHASE_7_SECURITY_ADVISOR_REMEDIATION.md`.
 
-### P1.6 — Expenses and Monthly / Quarterly Financial Overview: IMPLEMENTED; VALIDATION PENDING
-
-Implemented on 12 October 2026:
-- Added current-month and current-quarter views comparing expected recurring costs with actual recorded expenses.
-- Integrated expected fee income from dues by due date, collected income from payment-ledger entries by payment date, and net cash movement (income collected minus recorded expenses); this is not presented as cash-in-hand.
-- Expected totals are derived from active monthly/quarterly reminders; actual spend comes only from saved expense rows and includes one-off costs.
-- Added **Record occurrence** for active recurring reminders. The owner confirms the actual paid amount and date; no expense is generated automatically.
-- Added `record_expense_occurrence(...)`, which validates Academy Owner/academy scope, locks the reminder, inserts the linked expense and advances the next due date by one month or three months atomically.
-- Direct client INSERT with a reminder link is blocked; existing expense rows cannot be linked/relinked during edit to bypass occurrence recording. Linked recurring occurrences cannot be deleted, preserving the occurrence history; deleting a reminder keeps the expense row and clears the link.
-- Academy Owner manages their academy; Super Admin is read-only; other roles are denied.
-- Live migrations applied as ledger versions `20261012031132 / expense_occurrence_recording` and `20261012031710 / protect_recurring_expense_history`. Live checks confirmed RPC security configuration, INSERT policy and recurring-expense history guard triggers.
-- Pure monthly/quarterly calculation tests added. GitHub Actions passed 15 Jest suites / 98 tests and the production build on run https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/38199452517. Browser/RBAC acceptance remains pending.
-
-See `frontend/docs/P1.6_EXPENSE_FINANCIAL_OVERVIEW.md`.
-
 ### P1.4 — Parent UPI Payment Submission and Verification: IMPLEMENTED; VALIDATION PENDING
 
 Implemented on 12 October 2026:
@@ -99,7 +84,7 @@ Automated validation passed on 12 October 2026: **13 Jest suites / 86 tests pass
 
 Live Supabase checks confirmed both migrations are recorded, RLS is enabled, authenticated clients have SELECT but no direct INSERT/UPDATE/DELETE, the two RPCs deny anon execution and use empty search paths, and the active-claim index is present. Security Advisor was run; the two new authenticated SECURITY DEFINER RPC warnings are intentional and documented.
 - Complete browser acceptance from `docs/P1.4_PARENT_UPI_SUBMISSION_REVIEW.md`, including negative cross-parent/cross-academy tests and unchanged-ledger checks.
-- P1.5 ledger recording is implemented through the secured existing payment collection workflow; automated validation passed, browser/security acceptance remains pending.
+- P1.5 must record accepted claims through the secured payment workflow and prevent duplicate posting.
 
 ### P1.3 — Parent Portal UPI QR and WhatsApp Sharing: AUTOMATED VALIDATION PASSED; BROWSER ACCEPTANCE PENDING
 
@@ -191,8 +176,7 @@ Phase 7 table lockdown:
 - `public.trial_attendance`: RLS enabled; direct anon/authenticated privileges revoked; no policies by design until an access model is required.
 - `public.payment_number_counters`: RLS enabled; direct client privileges revoked; intended for server-side/database use.
 - Leaked-password protection: unavailable on Supabase Free; deferred.
-- Security Advisor rerun on 12 October 2026 reports 11 authenticated `SECURITY DEFINER` warnings: seven pre-existing RPCs, two P1.4 parent UPI RPCs, the P1.5 ledger-recording RPC, and the P1.6 expense-occurrence RPC. P1.5 and P1.6 RPCs intentionally require authenticated execution and validate role/scope with empty search paths; do not change grants or security mode without reviewing dependencies and regression-testing.
-- The same run reports three existing RLS-enabled/no-policy INFO findings (`inquiries`, `payment_number_counters`, `trial_attendance`) and leaked-password protection disabled on the current plan.
+- Nine authenticated `SECURITY DEFINER` warnings are reported: seven pre-existing RPCs plus the two P1.4 parent UPI submission/review RPCs. The two P1.4 RPCs intentionally require authenticated execution and enforce role/scope checks; do not change grants or security mode without reviewing dependencies and regression-testing.
 
 ## 7. Technical Debt and Deferred Work
 
@@ -218,11 +202,16 @@ Inspect current state → Plan minimal change → Implement → Build/Test → F
 ## 9. Working Baseline and Handoff
 
 **Branch:** `payment-module-finalization`  
-**Latest focus:** P1.2–P1.6 source and migrations are implemented; P1.4/P1.5/P1.6 browser acceptance remains pending. P1.5 ledger recording migration is live at version `20261012025707`. P1.6 Expenses overview and atomic manual recurring-occurrence recording are implemented; migrations are live at versions `20261012031132` and `20261012031710`. P1.6 automated CI/build passed (15 suites / 98 tests); browser/RBAC acceptance is pending. Vercel previously reported preview deployment rate-limited for 24 hours on the current plan. Phase 7 RPC hardening remains deferred until the payment UX validation gate.
+**Latest focus:** P1.2/P1.3 are implemented; P1.4 submission/review migrations are applied and browser acceptance remains pending. P1.5 source code and migration are now committed: an Academy Owner can explicitly record an accepted claim through a new database wrapper around the existing secured `collect_payment` RPC, with payment/receipt/balance writes in one transaction and duplicate recording blocked. The P1.5 migration is applied to the live database (ledger version `20261012025707`) and verified. GitHub Actions passed Jest and production build on run https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/38197741398; browser/security acceptance is pending. Vercel previously reported preview deployment rate-limited for 24 hours on the current plan. Phase 7 RPC hardening remains deferred until the payment UX validation gate.
 
 Useful documents:
 - `docs/PHASE_7_SECURITY_ADVISOR_REMEDIATION.md` — current findings and remediation record
 - `supabase/MIGRATION_RECONCILIATION.md` — migration history drift and safe reconciliation rules
 - `frontend/docs/PROJECT_ARCHITECTURE.md` — architecture, roles and data scope
 
-**Next development work:** Validate P1.6 monthly/quarterly calculations, manual occurrence recording, atomic due-date advancement, and role isolation. Then complete P1.4/P1.5 browser acceptance when a preview is available. Vercel preview remains rate-limited; do not claim browser acceptance until actually tested.
+**Next development work:** Complete P1.4/P1.5 browser and security acceptance when a preview is available, especially exactly-once posting, receipt generation, balance updates, stale-balance rollback and role isolation. Vercel preview remains rate-limited; do not claim browser acceptance until actually tested.
+
+
+## P1.6 Scope Correction — 12 October 2026
+
+The Expenses feature changes previously added under P1.6 were reverted because they are outside the parent UPI payment integration scope. P1.6 remains the payment integration regression, documentation and release gate; do not introduce new Expenses functionality as part of this phase. P1.4/P1.5 UPI code and payment ledger workflows were preserved. Browser acceptance remains pending.
