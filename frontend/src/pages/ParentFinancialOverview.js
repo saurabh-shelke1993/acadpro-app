@@ -4,6 +4,7 @@ import Layout from "../components/Layout";
 import "./ParentFinancialOverview.css";
 import { getChildFinancialData, getParentContext } from "../services/parentPortalService";
 import ParentUpiPaymentDetails from "../components/ParentUpiPaymentDetails";
+import ParentUpiPaymentSubmission from "../components/ParentUpiPaymentSubmission";
 
 const ParentFinancialOverview = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -360,6 +361,7 @@ const ParentFinancialOverview = () => {
             </section>
 
             <ParentUpiPaymentDetails academyId={selectedChild?.academy_id} academyName={selectedChild?.academy?.academy_name} />
+            <ParentUpiPaymentSubmission playerId={selectedChild?.id} academyId={selectedChild?.academy_id} pendingDues={pendingDues} />
 
             <section className="parent-finance-section" aria-labelledby="payment-history-heading">
               <div className="parent-finance-section-heading">
