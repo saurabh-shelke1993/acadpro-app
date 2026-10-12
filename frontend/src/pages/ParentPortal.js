@@ -7,6 +7,7 @@ import {
   getParentContext,
 } from "../services/parentPortalService";
 import { getParentScheduleView, formatScheduleTime } from "../services/scheduleViewService";
+import ParentUpiPaymentDetails from "../components/ParentUpiPaymentDetails";
 
 const ParentPortal = () => {
   const [children, setChildren] = useState([]);
@@ -336,6 +337,10 @@ const ParentPortal = () => {
               </div>
               </div>
 
+              <ParentUpiPaymentDetails
+                academyId={selectedChild.academy_id}
+                academyName={selectedChild.academy?.academy_name}
+              />
             </section>
           )}
         </>
