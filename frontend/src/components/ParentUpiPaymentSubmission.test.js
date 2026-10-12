@@ -64,7 +64,7 @@ describe("ParentUpiPaymentSubmission", () => {
   test("blocks an amount greater than the selected due remaining balance", async () => {
     render(<ParentUpiPaymentSubmission playerId="player-1" academyId="academy-1" pendingDues={dues} />);
     fireEvent.change(await screen.findByLabelText("Fee due"), { target: { value: "due-1" } });
-    fireEvent.change(screen.getByLabelText("Amount paid (₹)"), { target: { value: "4500" } });
+    fireEvent.change(screen.getByLabelText(/Amount paid/), { target: { value: "4500" } });
     fireEvent.change(screen.getByLabelText("UPI transaction reference / UTR"), { target: { value: "UPI123456789" } });
     fireEvent.change(screen.getByLabelText("Payment date"), { target: { value: "2026-10-11" } });
     fireEvent.click(screen.getByRole("button", { name: "Submit payment for verification" }));
