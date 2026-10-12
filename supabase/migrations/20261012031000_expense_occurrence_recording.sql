@@ -127,3 +127,27 @@ CREATE POLICY expenses_insert_owner
     AND academy_id = (SELECT private.current_academy_id())
     AND (created_by IS NULL OR created_by = (SELECT auth.uid()))
   );
+
+
+-- Existing expense edits must not bypass the occurrence RPC by attaching or
+-- reassigning a reminder without advancing its schedule.
+CREATE OR REPLACE FUNCTION private.prevent_expense_reminder_relink()
+RETURNS trigger
+LANGUAGE plpgsql
+SET search_path = ''
+AS $function$
+BEGIN
+  IF OLD.reminder_id IS DISTINCT FROM NEW.reminder_id THEN
+    RAISE EXCEPTION 'A recurring reminder cannot be linked or changed on an existing expense; record a new occurrence instead';
+  END IF;
+  RETURN NEW;
+END;
+$function$;
+
+REVOKE ALL ON FUNCTION private.prevent_expense_reminder_relink() FROM PUBLIC, anon, authenticated;
+
+DROP TRIGGER IF EXISTS expenses_prevent_reminder_relink ON public.expenses;
+CREATE TRIGGER expenses_prevent_reminder_relink
+  BEFORE UPDATE OF reminder_id ON public.expenses
+  FOR EACH ROW
+  EXECUTE FUNCTION private.prevent_expense_reminder_relink();
