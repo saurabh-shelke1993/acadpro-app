@@ -70,6 +70,19 @@ Historical verification recorded:
 
 Detailed record: `docs/PHASE_7_SECURITY_ADVISOR_REMEDIATION.md`.
 
+### P1.3 — Parent Portal UPI QR and WhatsApp Sharing: IMPLEMENTED; CI VALIDATION PENDING
+
+Implemented on 12 October 2026:
+- Display enabled academy UPI details in Parent Portal for the selected linked child.
+- Keep the existing Parent Financial Overview display.
+- Add a user-initiated WhatsApp share link for academy name, payee, UPI ID and QR URL.
+- Add component tests for enabled/disabled settings, QR-only configuration and share-message content.
+- No schema, Storage, RLS or payment-ledger changes.
+
+Still required:
+- Confirm Jest and production build for the P1.3 commit.
+- Complete Parent Portal browser validation, including switching linked children and opening the WhatsApp share link.
+
 ### P1.2 — Academy UPI Settings: IMPLEMENTED; VALIDATION PENDING
 
 Implemented on 12 October 2026:
