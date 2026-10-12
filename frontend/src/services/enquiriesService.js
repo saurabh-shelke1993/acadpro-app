@@ -149,3 +149,57 @@ export const updateEnquiryStatus = async (enquiry, status, trialDate) => {
 
   if (error) throw error;
 };
+
+export const convertEnquiryToPlayer = async ({
+  enquiryId,
+  parentName,
+  parentEmail,
+  parentAddress,
+  gender,
+  joiningDate,
+  centerId,
+  batchId,
+}) => {
+  const { data, error } = await supabase.rpc("record_inquiry_conversion", {
+    p_inquiry_id: enquiryId,
+    p_parent_name: String(parentName || "").trim(),
+    p_parent_email: String(parentEmail || "").trim() || null,
+    p_parent_address: String(parentAddress || "").trim() || null,
+    p_gender: gender || null,
+    p_joining_date: joiningDate,
+    p_center_id: centerId,
+    p_batch_id: batchId,
+  });
+
+  if (error) throw error;
+  return data;
+};
+
+export const validateEnquiryConversion = ({
+  parentName,
+  gender,
+  joiningDate,
+  centerId,
+  batchId,
+}) => {
+  if (!String(parentName || "").trim()) {
+    return "Parent name is required to register the player.";
+  }
+  if (!gender || !["Male", "Female"].includes(gender)) {
+    return "Select the player's gender.";
+  }
+  if (!joiningDate) {
+    return "Joining date is required.";
+  }
+  const parsedJoiningDate = new Date(`${joiningDate}T00:00:00`);
+  if (Number.isNaN(parsedJoiningDate.getTime())) {
+    return "Enter a valid joining date.";
+  }
+  if (!centerId) {
+    return "Select a center.";
+  }
+  if (!batchId) {
+    return "Select a batch.";
+  }
+  return "";
+};
