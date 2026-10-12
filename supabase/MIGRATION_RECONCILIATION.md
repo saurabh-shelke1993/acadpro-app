@@ -109,3 +109,16 @@ of this reconciliation audit.
 ## P1.6 Expenses changes reverted (12 October 2026)
 
 The P1.6 Expenses UI/service changes were reverted to the source state immediately before the P1.6 work. The two applied migrations `20261012031132 / expense_occurrence_recording` and `20261012031710 / protect_recurring_expense_history` remain in the migration history and repository as historical migrations; do not delete or rewrite applied migration ledger entries. Their database changes were compensated by `20261012032425 / revert_p16_expense_changes`, which removes the P1.6 RPC/triggers and restores the original `expenses_insert_owner` policy. No expense or payment rows were deleted or rewritten. Live verification confirmed the original insert policy is restored and the P1.6 function/triggers are absent.
+
+
+## AcadPro Enquiries R2 database/security (12 October 2026)
+
+- Live ledger entry: `20261012035934 / enquiries_r2_database_security`.
+- Repository source: `supabase/migrations/20261012035934_enquiries_r2_database_security.sql`.
+- Applied successfully; repository filename was aligned to the actual live migration version/name after the tool recorded the migration.
+- Evolved the existing `public.inquiries` table. No parallel enquiry table was created.
+- Live verification confirmed RLS enabled; authenticated SELECT only; anon and authenticated direct writes denied; one scoped SELECT policy; three public mutation RPCs have empty search paths and deny anon execution.
+- `private.inquiry_can_access_center(uuid)` uses active coach-to-batch and batch-to-center relationships. Read-only authenticated-role smoke test returned true for an authorized coach center and false for a foreign-academy center.
+- Both `public.inquiries` and `public.trial_attendance` remained at zero rows; no live enquiry/player/payment records were created or changed by testing. `trial_attendance` was not modified.
+- Security Advisor after this migration reports 13 authenticated SECURITY DEFINER warnings, including the three intentionally scoped enquiry RPCs; two remaining no-policy INFO findings are for `trial_attendance` and `payment_number_counters`.
+- Controlled create/update/conversion rollback and concurrency tests remain pending. Do not replay this migration, modify the live ledger, or use live financial/player records as test fixtures.
