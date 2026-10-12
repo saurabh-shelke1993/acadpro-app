@@ -66,7 +66,7 @@ Historical verification recorded:
 - Review/test the seven authenticated `SECURITY DEFINER` functions and their frontend call sites. The Advisor warning may remain when authenticated execution is intentional.
 - Re-run Security Advisor after further changes.
 - Leaked-password protection is unavailable on the current Supabase Free plan; accepted as a documented plan limitation and deferred until a plan upgrade is justified.
-- The three RLS-enabled/no-policy INFO findings (`inquiries`, `trial_attendance`, `payment_number_counters`) are intentional deny-by-default configurations. Define explicit policies before introducing a client-facing workflow for either unused table.
+- At the pre-Enquiries Phase 7 snapshot, the three RLS-enabled/no-policy INFO findings (`inquiries`, `trial_attendance`, `payment_number_counters`) were intentional deny-by-default configurations. Enquiries R2 has since added the scoped `inquiries` SELECT policy; the remaining no-policy INFO findings are `trial_attendance` and `payment_number_counters`.
 
 Detailed record: `docs/PHASE_7_SECURITY_ADVISOR_REMEDIATION.md`.
 
@@ -143,11 +143,10 @@ Still required before marking complete:
 
 ## 4. Current Priorities
 
-1. Complete the P1.6 UPI release gate in `docs/P1.6_UPI_RELEASE_CHECKLIST.md`: browser regression, role/security negative tests, exactly-once ledger recording, receipt/balance checks and final CI.
-2. Keep P1.2–P1.5 browser acceptance marked pending until executed on an accessible preview with controlled test fixtures.
-3. Continue Phase 7 Security Advisor remediation only as a separate scoped task; do not mix it into UPI release testing.
-4. Keep leaked-password protection documented as deferred on the Free plan.
-5. Resume other product work only after the UPI release gate or when explicitly reprioritized.
+1. Complete Enquiries R3 automated validation and browser acceptance, then proceed to R4 status/trial-date UI and R5 owner-only conversion as separate phases.
+2. Use controlled fixtures or an isolated database branch for Enquiries write-path and cross-tenant negative tests; do not create fake enquiries in the active database.
+3. Keep the P1.6 UPI release gate in `docs/P1.6_UPI_RELEASE_CHECKLIST.md` separate and blocked until its own browser/security/ledger checks pass.
+4. Continue Phase 7 Security Advisor remediation only as a separately scoped task; leaked-password protection remains unavailable on the current plan.
 
 ## 5. Parent Portal Completion Status
 
@@ -209,7 +208,7 @@ Useful documents:
 - `supabase/MIGRATION_RECONCILIATION.md` — migration history drift and safe reconciliation rules
 - `frontend/docs/PROJECT_ARCHITECTURE.md` — architecture, roles and data scope
 
-**Next development work:** Complete P1.4/P1.5 browser and security acceptance when a preview is available, especially exactly-once posting, receipt generation, balance updates, stale-balance rollback and role isolation. Vercel preview remains rate-limited; do not claim browser acceptance until actually tested.
+**Separate payment release gate:** P1.4/P1.5 browser and security acceptance remains pending, including exactly-once posting, receipt generation, balance updates, stale-balance rollback and role isolation. Vercel preview was previously rate-limited; do not claim browser acceptance until actually tested. Current development focus is Enquiries R3; see `docs/ENQUIRIES_R3_FRONTEND_IMPLEMENTATION.md`.
 
 
 ## P1.6 Scope Correction — 12 October 2026
@@ -237,3 +236,16 @@ The approved P1.6 scope is regression testing, role/security verification, docum
 - Controlled transaction/authorization tests and browser acceptance are still pending; do not mark the feature release-ready.
 
 Detailed record: `docs/ENQUIRIES_R2_DATABASE_SECURITY.md`. Next phase: **R3 — Enquiries service, list and quick-create UI**.
+
+
+## AcadPro Enquiries V1 — R3 Frontend (13 October 2026)
+
+- [x] Enquiry service reads through the R2 RLS policy and creates through the validated `create_inquiry` RPC.
+- [x] Role-aware list: Super Admin read-only; Academy Owner and Coach can quick-capture within their R2-authorized scope.
+- [x] Search, status/source/center filters, Super Admin academy filter, optional source/note, owner-optional center and coach-authorized center selection.
+- [x] Advisory duplicate warning; no automatic merge or rejection.
+- [x] Protected route, role-appropriate sidebar links, responsive styling, loading/error/empty/success states and validation tests added.
+- [ ] Run Jest and production build on the latest head; confirm GitHub Actions status.
+- [ ] Browser acceptance, including role visibility and read-only filter behavior. Do not create fake leads in the active Supabase project.
+
+Detailed implementation and acceptance checklist: `docs/ENQUIRIES_R3_FRONTEND_IMPLEMENTATION.md`. R4 status/trial-date editing and R5 conversion remain out of scope for this implementation.
