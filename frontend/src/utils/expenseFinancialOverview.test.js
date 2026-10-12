@@ -80,4 +80,25 @@ describe("expense financial overview periods", () => {
     expect(result.paidAmount).toBe(7200);
     expect(result.varianceAmount).toBe(-200);
   });
+
+  test("uses collected payment ledger entries as income and excludes adjustment events", () => {
+    const result = calculateExpenseOverview({
+      referenceDate: new Date(2026, 9, 12),
+      periodType: "monthly",
+      expenses: [
+        { id: "e1", reminder_id: null, expense_date: "2026-10-03", amount_paid: 3000 },
+      ],
+      reminders: [],
+      payments: [
+        { id: "p1", payment_entry_type: "payment", amount_paid: 15000 },
+        { id: "p2", payment_entry_type: "payment", amount_paid: 2500 },
+        { id: "a1", payment_entry_type: "adjustment", amount_paid: -1000 },
+      ],
+    });
+
+    expect(result.incomeCollected).toBe(17500);
+    expect(result.paidAmount).toBe(3000);
+    expect(result.netCashMovement).toBe(14500);
+  });
+
 });
