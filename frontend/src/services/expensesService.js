@@ -92,6 +92,37 @@ export const saveExpense = async (user, expense, expenseId = null) => {
     notes: expense.notes?.trim() || null
   };
 
+  if (!expenseId && payload.reminder_id) {
+    const { data, error } = await supabase.rpc("record_expense_occurrence", {
+      p_reminder_id: payload.reminder_id,
+      p_expense_date: payload.expense_date,
+      p_amount_paid: payload.amount_paid,
+      p_description: payload.description,
+      p_vendor: payload.vendor,
+      p_payment_method: payload.payment_method,
+      p_reference_number: payload.reference_number,
+      p_notes: payload.notes,
+    });
+    if (error) throw error;
+    return data;
+  }
+
+  if (expenseId) {
+    const { data: existingExpense, error: lookupError } = await supabase
+      .from("expenses")
+      .select("reminder_id")
+      .eq("id", expenseId)
+      .eq("academy_id", user.academy_id)
+      .maybeSingle();
+    if (lookupError) throw lookupError;
+    if (!existingExpense) {
+      throw new Error("Expense was not found. Refresh the list and try again.");
+    }
+    if (existingExpense.reminder_id !== payload.reminder_id) {
+      throw new Error("A recurring reminder cannot be linked or changed while editing an existing expense. Record a new occurrence from the reminder instead.");
+    }
+  }
+
   const request = expenseId
     ? supabase.from("expenses").update(payload).eq("id", expenseId).eq("academy_id", user.academy_id)
     : supabase.from("expenses").insert({ ...payload, created_by: user.id });
