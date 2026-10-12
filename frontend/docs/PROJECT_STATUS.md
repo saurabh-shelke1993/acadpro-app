@@ -120,7 +120,7 @@ Still required before marking complete:
 | Player Performance | V1 complete | Assessment entry/report, role-aware mutation scope, historical tracking, parent read-only access and RLS/RBAC regression verified |
 | Reports | Planned | Not started |
 | Notifications | Planned | Not started |
-| Academy UPI Settings | Implemented; validation pending | Owner-managed UPI ID/QR, Super Admin read-only, parent linked-child display; payment submission and UTR verification deferred 
+| Academy UPI Settings | Automated validation passed; browser acceptance pending | Owner-managed UPI ID/QR, Super Admin read-only, parent linked-child display; payment submission and UTR verification deferred |
 | Parent UPI QR / WhatsApp sharing | Automated validation passed; browser acceptance pending | Parent Portal and Financial Overview display; user-initiated WhatsApp share; no payment ledger changes |
 | Online Payments / Razorpay | Planned | Production flow pending; no Razorpay code or credentials in P1.2 |
 
