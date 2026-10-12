@@ -249,3 +249,18 @@ Detailed record: `docs/ENQUIRIES_R2_DATABASE_SECURITY.md`. Next phase: **R3 — 
 - [ ] Browser acceptance, including role visibility and read-only filter behavior. Do not create fake leads in the active Supabase project.
 
 Detailed implementation and acceptance checklist: `docs/ENQUIRIES_R3_FRONTEND_IMPLEMENTATION.md`. R4 status/trial-date editing and R5 conversion remain out of scope for this implementation.
+
+
+## AcadPro Enquiries V1 — R4 Status and Trial Tracking (13 October 2026)
+
+- [x] Added inline status/trial-date editor to the Enquiries list for Academy Owner and Coach.
+- [x] Status changes call the R2 `update_inquiry` RPC with the existing enquiry fields; no direct table writes or new migration.
+- [x] Trial Scheduled requires a trial date in the UI and is also enforced by the database RPC/constraint.
+- [x] Converted enquiries remain immutable in the UI; conversion is not exposed through ordinary status editing.
+- [x] Reopening Lost is available to Academy Owner only; Coaches cannot reopen Lost enquiries.
+- [x] Added validation tests for valid/invalid status and trial-date combinations.
+- [ ] Run Jest and production build on the latest head; check GitHub Actions result.
+- [ ] Browser acceptance: status changes, trial date required, Lost reopen role restriction, Converted read-only, and cross-center/academy access denied.
+- [ ] Exercise write-path authorization using controlled fixtures or an isolated Supabase development branch; do not create fake records in the active project.
+
+R4 code is implemented but is not verified/release-ready until automated and browser acceptance pass. R5 Academy Owner-only conversion remains separate.
