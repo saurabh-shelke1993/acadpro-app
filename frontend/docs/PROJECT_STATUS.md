@@ -77,7 +77,7 @@ Implemented on 12 October 2026:
 - Public-read QR bucket `academy-upi-qr`, owner-only object mutations scoped by academy UUID path.
 - Owner configuration screen, Super Admin read-only view, and enabled settings in Parent Financial Overview.
 - UPI/QR validation tests and documented browser acceptance checklist.
-- Two new migrations recorded in the live ledger; historical migration drift was preserved.
+- Three new migrations recorded in the live ledger; historical migration drift was preserved.
 
 Still required before marking complete:
 - Run Jest/build/CI and inspect the exact changed-file diff.
