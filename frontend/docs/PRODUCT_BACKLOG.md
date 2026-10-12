@@ -227,6 +227,7 @@ Validation covered role scenarios, cross-academy access, mutation attempts and d
 
 - [x] Reuse existing expenses and expense_reminders tables and route
 - [x] Current month / current quarter expected recurring costs vs actual recorded spend
+- [x] Existing payment collections as income; net cash movement = income collected minus recorded expenses
 - [x] Keep one-off actual expenses separate from expected recurring estimates
 - [x] Academy Owner management and Super Admin read-only view
 - [x] Manual recurring occurrence action; no automatic expense generation
