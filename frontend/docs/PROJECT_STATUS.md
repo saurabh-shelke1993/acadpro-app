@@ -191,7 +191,8 @@ Phase 7 table lockdown:
 - `public.trial_attendance`: RLS enabled; direct anon/authenticated privileges revoked; no policies by design until an access model is required.
 - `public.payment_number_counters`: RLS enabled; direct client privileges revoked; intended for server-side/database use.
 - Leaked-password protection: unavailable on Supabase Free; deferred.
-- Nine authenticated `SECURITY DEFINER` warnings were reported after P1.4: seven pre-existing RPCs plus the two P1.4 parent UPI submission/review RPCs. P1.6 adds the authenticated `record_expense_occurrence(...)` RPC with an empty search path and explicit Academy Owner/academy validation; rerun Security Advisor to refresh the current warning inventory. Do not change grants or security mode without reviewing dependencies and regression-testing.
+- Security Advisor rerun on 12 October 2026 reports 11 authenticated `SECURITY DEFINER` warnings: seven pre-existing RPCs, two P1.4 parent UPI RPCs, the P1.5 ledger-recording RPC, and the P1.6 expense-occurrence RPC. P1.5 and P1.6 RPCs intentionally require authenticated execution and validate role/scope with empty search paths; do not change grants or security mode without reviewing dependencies and regression-testing.
+- The same run reports three existing RLS-enabled/no-policy INFO findings (`inquiries`, `payment_number_counters`, `trial_attendance`) and leaked-password protection disabled on the current plan.
 
 ## 7. Technical Debt and Deferred Work
 
