@@ -60,6 +60,29 @@ export const fetchExpenses = async (user, filters = {}) => {
   return data || [];
 };
 
+export const fetchPaymentIncome = async (user, filters = {}) => {
+  assertCanView(user);
+
+  let query = supabase
+    .from("payments")
+    .select("id, payment_date, amount_paid, payment_entry_type, players!inner(academy_id)")
+    .eq("payment_entry_type", "payment")
+    .order("payment_date", { ascending: false });
+
+  if (filters.fromDateTime) query = query.gte("payment_date", filters.fromDateTime);
+  if (filters.toDateTimeExclusive) query = query.lt("payment_date", filters.toDateTimeExclusive);
+
+  if (isAcademyOwner(user)) {
+    query = query.eq("players.academy_id", user.academy_id);
+  } else if (filters.academyId) {
+    query = query.eq("players.academy_id", filters.academyId);
+  }
+
+  const { data, error } = await query;
+  if (error) throw error;
+  return data || [];
+};
+
 export const fetchExpenseReminders = async (user, filters = {}) => {
   assertCanView(user);
 
