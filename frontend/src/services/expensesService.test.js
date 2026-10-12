@@ -11,7 +11,7 @@ jest.mock("../utils/roles", () => ({
 }));
 
 import { supabase } from "../supabaseClient";
-import { fetchPaymentIncome, saveExpense } from "./expensesService";
+import { fetchExpectedIncome, fetchPaymentIncome, saveExpense } from "./expensesService";
 
 const makeQueryBuilder = (data = []) => {
   const builder = {
@@ -86,6 +86,24 @@ describe("Expenses service recurring occurrence and income scope", () => {
     await fetchPaymentIncome(user, { academyId: "academy-2" });
 
     expect(builder.eq).toHaveBeenCalledWith("players.academy_id", "academy-2");
+  });
+
+
+  test("scopes expected income by due date and academy", async () => {
+    const user = { id: "owner-1", role: "academy_owner", academy_id: "academy-1" };
+    const builder = makeQueryBuilder([{ id: "due-1", total_amount: 8000, due_date: "2026-10-15" }]);
+    supabase.from.mockReturnValue(builder);
+
+    const data = await fetchExpectedIncome(user, {
+      fromDate: "2026-10-01",
+      toDate: "2026-10-31",
+    });
+
+    expect(data).toHaveLength(1);
+    expect(supabase.from).toHaveBeenCalledWith("payment_dues");
+    expect(builder.eq).toHaveBeenCalledWith("players.academy_id", "academy-1");
+    expect(builder.gte).toHaveBeenCalledWith("due_date", "2026-10-01");
+    expect(builder.lte).toHaveBeenCalledWith("due_date", "2026-10-31");
   });
 
   test("rejects Coach access before querying the database", async () => {
