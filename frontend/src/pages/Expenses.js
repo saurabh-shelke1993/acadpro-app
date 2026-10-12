@@ -7,13 +7,10 @@ import {
   deleteExpenseReminder,
   fetchExpenseAcademies,
   fetchExpenses,
-  fetchExpectedIncome,
-  fetchPaymentIncome,
   fetchExpenseReminders,
   saveExpense,
   saveExpenseReminder
 } from "../services/expensesService";
-import { calculateExpenseOverview, getExpenseOverviewPeriod } from "../utils/expenseFinancialOverview";
 import "./Expenses.css";
 
 const today = () => {
@@ -61,15 +58,11 @@ function Expenses() {
   const [academies, setAcademies] = useState([]);
   const [academyFilter, setAcademyFilter] = useState("");
   const [expenses, setExpenses] = useState([]);
-  const [overviewExpenses, setOverviewExpenses] = useState([]);
-  const [overviewPayments, setOverviewPayments] = useState([]);
-  const [overviewDues, setOverviewDues] = useState([]);
   const [reminders, setReminders] = useState([]);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [activeTab, setActiveTab] = useState("expenses");
-  const [overviewPeriod, setOverviewPeriod] = useState("monthly");
   const [expenseForm, setExpenseForm] = useState(EMPTY_EXPENSE);
   const [reminderForm, setReminderForm] = useState(EMPTY_REMINDER);
   const [editingExpenseId, setEditingExpenseId] = useState(null);
@@ -89,37 +82,18 @@ function Expenses() {
     setLoading(true);
     setError("");
     try {
-      const overviewRange = getExpenseOverviewPeriod(overviewPeriod);
-      const [nextExpenses, nextReminders, nextOverviewExpenses, nextOverviewPayments, nextOverviewDues] = await Promise.all([
+      const [nextExpenses, nextReminders] = await Promise.all([
         fetchExpenses(currentUser, { academyId: academyFilter, fromDate, toDate, category: categoryFilter }),
-        fetchExpenseReminders(currentUser, { academyId: academyFilter }),
-        fetchExpenses(currentUser, {
-          academyId: academyFilter,
-          fromDate: overviewRange.startDate,
-          toDate: overviewRange.endDate,
-        }),
-        fetchPaymentIncome(currentUser, {
-          academyId: academyFilter,
-          fromDateTime: overviewRange.startDateTime,
-          toDateTimeExclusive: overviewRange.endDateTimeExclusive,
-        }),
-        fetchExpectedIncome(currentUser, {
-          academyId: academyFilter,
-          fromDate: overviewRange.startDate,
-          toDate: overviewRange.endDate,
-        }),
+        fetchExpenseReminders(currentUser, { academyId: academyFilter })
       ]);
       setExpenses(nextExpenses);
       setReminders(nextReminders);
-      setOverviewExpenses(nextOverviewExpenses);
-      setOverviewPayments(nextOverviewPayments);
-      setOverviewDues(nextOverviewDues);
     } catch (err) {
       setError(err.message || "Unable to load Expenses.");
     } finally {
       setLoading(false);
     }
-  }, [user, academyFilter, fromDate, toDate, categoryFilter, overviewPeriod]);
+  }, [user, academyFilter, fromDate, toDate, categoryFilter]);
 
   useEffect(() => {
     let active = true;
@@ -157,13 +131,15 @@ function Expenses() {
     !academyFilter || expense.academy_id === academyFilter
   )), [expenses, academyFilter]);
 
-  const overview = useMemo(() => calculateExpenseOverview({
-    expenses: overviewExpenses,
-    reminders,
-    payments: overviewPayments,
-    dues: overviewDues,
-    periodType: overviewPeriod,
-  }), [overviewExpenses, reminders, overviewPayments, overviewDues, overviewPeriod]);
+  const totalSpend = visibleExpenses.reduce((total, expense) => total + Number(expense.amount_paid || 0), 0);
+  const currentMonthSpend = visibleExpenses.reduce((total, expense) => {
+    if (!expense.expense_date) return total;
+    const [year, month] = expense.expense_date.split("-").map(Number);
+    const now = new Date();
+    return year === now.getFullYear() && month === now.getMonth() + 1
+      ? total + Number(expense.amount_paid || 0) : total;
+  }, 0);
+  const activeReminderCount = reminders.filter((reminder) => reminder.is_active).length;
 
   const resetExpenseForm = () => {
     setExpenseForm({ ...EMPTY_EXPENSE, expense_date: today() });
@@ -189,14 +165,9 @@ function Expenses() {
     setError("");
     setNotice("");
     try {
-      const isRecurringOccurrence = Boolean(expenseForm.reminder_id) && !editingExpenseId;
       await saveExpense(user, expenseForm, editingExpenseId);
       resetExpenseForm();
-      setNotice(editingExpenseId
-        ? "Expense updated."
-        : isRecurringOccurrence
-          ? "Recurring expense occurrence recorded. The next due date has advanced."
-          : "Expense recorded.");
+      setNotice(editingExpenseId ? "Expense updated." : "Expense recorded.");
       await loadData(user);
     } catch (err) {
       setError(err.message || "Unable to save expense.");
@@ -245,26 +216,6 @@ function Expenses() {
     setShowExpenseForm(true);
     setActiveTab("expenses");
     setError("");
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const handleRecordOccurrence = (reminder) => {
-    setExpenseForm({
-      expense_date: today(),
-      category: reminder.category || "",
-      description: reminder.title || "",
-      vendor: "",
-      amount_paid: String(reminder.expected_amount ?? ""),
-      payment_method: "",
-      reference_number: "",
-      reminder_id: reminder.id,
-      notes: ""
-    });
-    setEditingExpenseId(null);
-    setShowExpenseForm(true);
-    setActiveTab("expenses");
-    setError("");
-    setNotice("");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -334,25 +285,10 @@ function Expenses() {
         {error && <div className="expenses-alert expenses-alert-error" role="alert">{error}</div>}
         {notice && <div className="expenses-alert expenses-alert-success" role="status">{notice}</div>}
 
-        <section className="expenses-overview" aria-labelledby="expenses-overview-title">
-          <div className="expenses-overview-heading">
-            <div>
-              <h2 id="expenses-overview-title">Financial overview</h2>
-              <p>{overview.label} · Expected recurring costs compared with actual expenses recorded</p>
-            </div>
-            <div className="expenses-period-switch" role="group" aria-label="Financial overview period">
-              <button type="button" aria-pressed={overviewPeriod === "monthly"} className={overviewPeriod === "monthly" ? "is-active" : ""} onClick={() => setOverviewPeriod("monthly")}>Monthly</button>
-              <button type="button" aria-pressed={overviewPeriod === "quarterly"} className={overviewPeriod === "quarterly" ? "is-active" : ""} onClick={() => setOverviewPeriod("quarterly")}>Quarterly</button>
-            </div>
-          </div>
-          <div className="expenses-summary-grid" aria-label="Expense summary">
-            <article className="expenses-summary-card"><span>Expected income</span><strong>{formatCurrency(overview.expectedIncome)}</strong><small>Fee dues scheduled in this period</small></article>
-            <article className="expenses-summary-card"><span>Income collected</span><strong>{formatCurrency(overview.incomeCollected)}</strong><small>Payment ledger entries in this period</small></article>
-            <article className="expenses-summary-card"><span>Expected expenses</span><strong>{formatCurrency(overview.expectedAmount)}</strong><small>Recurring cost estimates for this period</small></article>
-            <article className="expenses-summary-card"><span>Expenses paid</span><strong>{formatCurrency(overview.paidAmount)}</strong><small>{overview.expenseCount} recorded {overview.expenseCount === 1 ? "expense" : "expenses"} in this {overviewPeriod === "monthly" ? "month" : "quarter"}</small></article>
-            <article className="expenses-summary-card"><span>Net cash movement</span><strong>{formatCurrency(overview.netCashMovement)}</strong><small>Income collected minus expenses paid</small></article>
-          </div>
-          <p className="expenses-overview-note">Expected income is measured by fee due date; income collected is measured by payment date. Expected expenses are estimates, while expenses paid include all recorded costs, including one-off expenses. Net cash movement is not a cash-in-hand balance. {overview.activeReminderCount} active recurring reminders · {overview.overdueReminderCount} overdue. Record each recurring occurrence manually when the cost has actually been paid.</p>
+        <section className="expenses-summary-grid" aria-label="Expense summary">
+          <article className="expenses-summary-card"><span>Spend in selected period</span><strong>{formatCurrency(totalSpend)}</strong><small>{visibleExpenses.length} recorded {visibleExpenses.length === 1 ? "expense" : "expenses"}</small></article>
+          <article className="expenses-summary-card"><span>Spend this month</span><strong>{formatCurrency(currentMonthSpend)}</strong><small>Based on loaded expense records</small></article>
+          <article className="expenses-summary-card"><span>Active reminders</span><strong>{activeReminderCount}</strong><small>Monthly and quarterly</small></article>
         </section>
 
         <section className="expenses-panel">
@@ -383,7 +319,7 @@ function Expenses() {
                 <label className="expenses-field"><span>Vendor / paid to</span><input maxLength={120} value={expenseForm.vendor} onChange={(e) => setExpenseForm({ ...expenseForm, vendor: e.target.value })} /></label>
                 <label className="expenses-field"><span>Payment method</span><select value={expenseForm.payment_method} onChange={(e) => setExpenseForm({ ...expenseForm, payment_method: e.target.value })}><option value="">Select method</option>{PAYMENT_METHODS.map((method) => <option key={method} value={method}>{method}</option>)}</select></label>
                 <label className="expenses-field"><span>Reference number</span><input maxLength={100} value={expenseForm.reference_number} onChange={(e) => setExpenseForm({ ...expenseForm, reference_number: e.target.value })} /></label>
-                <label className="expenses-field"><span>Linked reminder{editingExpenseId ? " (fixed for existing records)" : ""}</span><select disabled={Boolean(editingExpenseId)} value={expenseForm.reminder_id} onChange={(e) => setExpenseForm({ ...expenseForm, reminder_id: e.target.value })}><option value="">None</option>{linkedReminderOptions.map((reminder) => <option key={reminder.id} value={reminder.id}>{reminder.title}</option>)}</select></label>
+                <label className="expenses-field"><span>Linked reminder</span><select value={expenseForm.reminder_id} onChange={(e) => setExpenseForm({ ...expenseForm, reminder_id: e.target.value })}><option value="">None</option>{linkedReminderOptions.map((reminder) => <option key={reminder.id} value={reminder.id}>{reminder.title}</option>)}</select></label>
                 <label className="expenses-field expenses-field-wide"><span>Notes</span><textarea rows="2" maxLength={1000} value={expenseForm.notes} onChange={(e) => setExpenseForm({ ...expenseForm, notes: e.target.value })} /></label>
               </div>
               <div className="expenses-form-footer"><span>Fields marked * are required.</span><div><button type="button" className="expenses-button expenses-button-secondary" onClick={resetExpenseForm}>Cancel</button><button type="submit" className="expenses-button expenses-button-primary" disabled={saving}>{saving ? "Saving…" : editingExpenseId ? "Update expense" : "Save expense"}</button></div></div>
@@ -400,7 +336,7 @@ function Expenses() {
                       <td className="expenses-date">{formatDate(expense.expense_date)}</td>
                       <td><div className="expenses-description"><strong>{expense.description}</strong>{expense.reference_number && <small>Ref: {expense.reference_number}</small>}</div></td>
                       <td>{expense.category}</td><td>{expense.vendor || "—"}</td><td className="expenses-amount">{formatCurrency(expense.amount_paid)}</td><td>{expense.payment_method || "—"}</td>
-                      {canManage && <td><div className="expenses-row-actions"><button type="button" className="expenses-text-action" onClick={() => handleEditExpense(expense)}>Edit</button>{expense.reminder_id ? <span className="expenses-row-action-note">Occurrence retained</span> : <button type="button" className="expenses-text-action expenses-danger-action" onClick={() => handleDeleteExpense(expense)}>Delete</button>}</div></td>}
+                      {canManage && <td><div className="expenses-row-actions"><button type="button" className="expenses-text-action" onClick={() => handleEditExpense(expense)}>Edit</button><button type="button" className="expenses-text-action expenses-danger-action" onClick={() => handleDeleteExpense(expense)}>Delete</button></div></td>}
                     </tr>)}
                 </tbody>
               </table>
@@ -430,7 +366,7 @@ function Expenses() {
                     : reminders.map((reminder) => <tr key={reminder.id}>
                       {isAdmin && <td>{reminder.academies?.academy_name || "—"}</td>}
                       <td><div className="expenses-description"><strong>{reminder.title}</strong>{reminder.description && <small>{reminder.description}</small>}</div></td><td>{reminder.category}</td><td><span className="expenses-frequency">{reminder.frequency === "quarterly" ? "Quarterly" : "Monthly"}</span></td><td className="expenses-amount">{formatCurrency(reminder.expected_amount)}</td><td className="expenses-date">{formatDate(reminder.next_due_date)}</td><td><span className={reminder.is_active ? "expenses-status expenses-status-active" : "expenses-status expenses-status-inactive"}>{reminder.is_active ? "Active" : "Inactive"}</span></td>
-                      {canManage && <td><div className="expenses-row-actions">{reminder.is_active && <button type="button" className="expenses-text-action" onClick={() => handleRecordOccurrence(reminder)}>Record occurrence</button>}<button type="button" className="expenses-text-action" onClick={() => handleEditReminder(reminder)}>Edit</button><button type="button" className="expenses-text-action expenses-danger-action" onClick={() => handleDeleteReminder(reminder)}>Delete</button></div></td>}
+                      {canManage && <td><div className="expenses-row-actions"><button type="button" className="expenses-text-action" onClick={() => handleEditReminder(reminder)}>Edit</button><button type="button" className="expenses-text-action expenses-danger-action" onClick={() => handleDeleteReminder(reminder)}>Delete</button></div></td>}
                     </tr>)}
                 </tbody>
               </table>
