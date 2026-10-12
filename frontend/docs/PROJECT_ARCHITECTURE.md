@@ -193,7 +193,7 @@ The `/expenses` module separates recurring expectations from actual expense reco
 
 - `expense_reminders` stores monthly/quarterly cadence, expected amount, active state and next due date.
 - `expenses` stores actual recorded spend, including optional link to the reminder occurrence.
-- Monthly and quarterly overview uses active reminder expectations, sums actual expenses in the selected calendar period, and reuses existing payment-ledger rows (payment entries only) as collected income. It shows net cash movement as income collected minus recorded expenses, not cash-in-hand. Overview queries are independent of expense-register date/category filters.
+- Monthly and quarterly overview sums fee dues by due date as expected income, payment-ledger payment entries by payment date as income collected, active reminder expectations as expected expenses, and saved expense rows by expense date as expenses paid. It shows net cash movement as income collected minus recorded expenses, not cash-in-hand. Overview queries are independent of expense-register date/category filters.
 - The Academy Owner manages their academy; Super Admin is read-only across academies; Coach and Parent are denied.
 - The owner explicitly records each recurring occurrence after payment. `record_expense_occurrence(...)` locks the reminder, inserts the linked expense and advances the next due date in one transaction. Expected amounts are never treated as paid automatically.
 - Client INSERTs can only create non-recurring expenses directly. Linked occurrences must use the secured RPC; existing expense reminder links cannot be reassigned during edit.
