@@ -101,4 +101,18 @@ describe("expense financial overview periods", () => {
     expect(result.netCashMovement).toBe(14500);
   });
 
+  test("calculates expected income from dues by due date, regardless of payment status", () => {
+    const result = calculateExpenseOverview({
+      referenceDate: new Date(2026, 9, 12),
+      periodType: "monthly",
+      dues: [
+        { id: "d1", due_date: "2026-10-05", total_amount: 10000, paid_amount: 10000, due_status: "paid" },
+        { id: "d2", due_date: "2026-10-20", total_amount: 8000, paid_amount: 2000, due_status: "partial" },
+        { id: "d3", due_date: "2026-11-01", total_amount: 5000, paid_amount: 0, due_status: "pending" },
+      ],
+    });
+
+    expect(result.expectedIncome).toBe(18000);
+  });
+
 });
