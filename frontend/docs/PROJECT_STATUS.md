@@ -70,7 +70,7 @@ Historical verification recorded:
 
 Detailed record: `docs/PHASE_7_SECURITY_ADVISOR_REMEDIATION.md`.
 
-### P1.3 — Parent Portal UPI QR and WhatsApp Sharing: IMPLEMENTED; CI VALIDATION PENDING
+### P1.3 — Parent Portal UPI QR and WhatsApp Sharing: AUTOMATED VALIDATION PASSED; BROWSER ACCEPTANCE PENDING
 
 Implemented on 12 October 2026:
 - Display enabled academy UPI details in Parent Portal for the selected linked child.
@@ -80,10 +80,10 @@ Implemented on 12 October 2026:
 - No schema, Storage, RLS or payment-ledger changes.
 
 Still required:
-- Confirm Jest and production build for the P1.3 commit.
+- Automated validation passed: 11 Jest suites, 75 tests, and production build.
 - Complete Parent Portal browser validation, including switching linked children and opening the WhatsApp share link.
 
-### P1.2 — Academy UPI Settings: IMPLEMENTED; VALIDATION PENDING
+### P1.2 — Academy UPI Settings: AUTOMATED VALIDATION PASSED; BROWSER ACCEPTANCE PENDING
 
 Implemented on 12 October 2026:
 - Academy-scoped `academy_payment_settings` table with RLS and least-privilege grants.
@@ -93,7 +93,7 @@ Implemented on 12 October 2026:
 - Three new migrations recorded in the live ledger; historical migration drift was preserved.
 
 Still required before marking complete:
-- Run Jest/build/CI and inspect the exact changed-file diff.
+- Automated Jest/build validation passed on the current feature branch.
 - Complete browser acceptance across Academy Owner, Super Admin, Parent and negative cross-tenant scenarios.
 - Re-run Supabase Security Advisor; distinguish new findings from existing intentional findings.
 
@@ -182,7 +182,7 @@ Inspect current state → Plan minimal change → Implement → Build/Test → F
 ## 9. Working Baseline and Handoff
 
 **Branch:** `payment-module-finalization`  
-**Latest focus:** P1.2 Academy UPI Settings implemented; automated tests/build and browser acceptance are pending. Phase 7 RPC hardening remains deferred unless resumed after P1.2 validation.
+**Latest focus:** P1.2 and P1.3 are implemented; automated validation passed (11 suites / 75 tests and production build). Browser acceptance is pending. Phase 7 RPC hardening remains deferred unless resumed after payment UX validation.
 
 Useful documents:
 - `docs/PHASE_7_SECURITY_ADVISOR_REMEDIATION.md` — current findings and remediation record
