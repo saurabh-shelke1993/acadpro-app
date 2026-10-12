@@ -79,7 +79,7 @@
 .expenses-period-switch button{min-height:36px;padding:7px 13px;border:0;border-radius:6px;background:transparent;color:var(--ap-slate-600,#475569);font:inherit;font-size:12px;font-weight:750;cursor:pointer}
 .expenses-period-switch button.is-active{background:#fff;color:var(--ap-primary-700,#1d4ed8);box-shadow:0 1px 3px rgb(15 23 42 / 12%)}
 .expenses-period-switch button:focus-visible{outline:3px solid var(--ap-primary-600,#2563eb);outline-offset:2px}
-.expenses-overview .expenses-summary-grid{grid-template-columns:repeat(6,minmax(0,1fr));margin-bottom:12px}
+.expenses-overview .expenses-summary-grid{grid-template-columns:repeat(5,minmax(0,1fr));margin-bottom:12px}
 .expenses-overview-note{margin:0;color:var(--ap-slate-500,#64748b);font-size:11px;line-height:1.5}
 @media(max-width:1050px){.expenses-overview .expenses-summary-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:700px){.expenses-overview{padding:12px}.expenses-overview-heading{align-items:stretch;flex-direction:column;gap:10px}.expenses-period-switch{display:grid;grid-template-columns:1fr 1fr}.expenses-overview .expenses-summary-grid{grid-template-columns:1fr}}
