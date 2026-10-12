@@ -120,11 +120,14 @@ Still required before marking complete:
 | Player Performance | V1 complete | Assessment entry/report, role-aware mutation scope, historical tracking, parent read-only access and RLS/RBAC regression verified |
 | Reports | Planned | Not started |
 | Notifications | Planned | Not started |
-| Academy UPI Settings | Implemented; validation pending | Owner-managed UPI ID/QR, Super Admin read-only, parent linked-child display; payment submission and UTR verification deferred |\n| Online Payments / Razorpay | Planned | Production flow pending; no Razorpay code or credentials in P1.2 |
+| Academy UPI Settings | Implemented; validation pending | Owner-managed UPI ID/QR, Super Admin read-only, parent linked-child display; payment submission and UTR verification deferred 
+| Parent UPI QR / WhatsApp sharing | Automated validation passed; browser acceptance pending | Parent Portal and Financial Overview display; user-initiated WhatsApp share; no payment ledger changes |
+| Online Payments / Razorpay | Planned | Production flow pending; no Razorpay code or credentials in P1.2 |
 
 ## 4. Current Priorities
 
-1. Complete P1.2 automated tests/build and browser role/isolation acceptance.\n2. Continue Phase 7 Security Advisor remediation, starting with `update_my_coach_profile(...)` review/hardening.
+1. Complete P1.2 browser role/isolation acceptance and P1.3 Parent Portal/WhatsApp browser validation.
+2. Continue Phase 7 Security Advisor remediation, starting with `update_my_coach_profile(...)` review/hardening.
 3. Complete focused regression tests for coach profile, parent coach visibility and payment RPCs after any database changes.
 4. Keep leaked-password protection documented as deferred on Free plan.
 5. Continue planned product work when selected: automated reminders, Razorpay production flow, production QA and other development priorities.
