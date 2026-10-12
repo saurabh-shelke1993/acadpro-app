@@ -41,6 +41,15 @@ The following new migrations are aligned between the repository and live ledger:
 
 These are new migrations only. Existing historical drift was not modified, replayed or reconciled as part of P1.2.
 
+## P1.4 Parent UPI Submission and Review (12 October 2026)
+
+| Feature | Live version/name | Repository file | Status |
+|---|---|---|---|
+| Parent UPI submission/review foundation | `20261012014000_parent_upi_payment_submissions` | `20261012014000_parent_upi_payment_submissions.sql` | Applied; verify live ledger and grants |
+| Active-claim and review-time invariants | `20261012014100_parent_upi_submission_invariants` | `20261012014100_parent_upi_submission_invariants.sql` | Applied; verify live indexes and function body |
+
+These are additive migrations. They do not write to `public.payments` or mutate `public.payment_dues`. Historical migration drift remains untouched.
+
 ## Current-state checks already performed
 
 - Seven academy consistency checks returned zero mismatches for player/batch,
