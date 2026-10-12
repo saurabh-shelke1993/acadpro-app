@@ -501,7 +501,7 @@ BEGIN
   v_role := private.current_user_role();
   v_academy_id := private.current_academy_id();
 
-  IF v_role NOT IN ('academy_owner', 'coach') OR v_academy_id IS NULL THEN
+  IF v_role IS NULL OR v_role NOT IN ('academy_owner', 'coach') OR v_academy_id IS NULL THEN
     RAISE EXCEPTION 'Only an Academy Owner or authorized Coach can update an enquiry.'
       USING ERRCODE = '42501';
   END IF;
