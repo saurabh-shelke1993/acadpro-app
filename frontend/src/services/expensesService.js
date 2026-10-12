@@ -60,51 +60,6 @@ export const fetchExpenses = async (user, filters = {}) => {
   return data || [];
 };
 
-export const fetchExpectedIncome = async (user, filters = {}) => {
-  assertCanView(user);
-
-  let query = supabase
-    .from("payment_dues")
-    .select("id, due_date, total_amount, paid_amount, due_status, players!inner(academy_id)")
-    .order("due_date", { ascending: true });
-
-  if (filters.fromDate) query = query.gte("due_date", filters.fromDate);
-  if (filters.toDate) query = query.lte("due_date", filters.toDate);
-
-  if (isAcademyOwner(user)) {
-    query = query.eq("players.academy_id", user.academy_id);
-  } else if (filters.academyId) {
-    query = query.eq("players.academy_id", filters.academyId);
-  }
-
-  const { data, error } = await query;
-  if (error) throw error;
-  return data || [];
-};
-
-export const fetchPaymentIncome = async (user, filters = {}) => {
-  assertCanView(user);
-
-  let query = supabase
-    .from("payments")
-    .select("id, payment_date, amount_paid, payment_entry_type, players!inner(academy_id)")
-    .eq("payment_entry_type", "payment")
-    .order("payment_date", { ascending: false });
-
-  if (filters.fromDateTime) query = query.gte("payment_date", filters.fromDateTime);
-  if (filters.toDateTimeExclusive) query = query.lt("payment_date", filters.toDateTimeExclusive);
-
-  if (isAcademyOwner(user)) {
-    query = query.eq("players.academy_id", user.academy_id);
-  } else if (filters.academyId) {
-    query = query.eq("players.academy_id", filters.academyId);
-  }
-
-  const { data, error } = await query;
-  if (error) throw error;
-  return data || [];
-};
-
 export const fetchExpenseReminders = async (user, filters = {}) => {
   assertCanView(user);
 
@@ -136,37 +91,6 @@ export const saveExpense = async (user, expense, expenseId = null) => {
     reminder_id: expense.reminder_id || null,
     notes: expense.notes?.trim() || null
   };
-
-  if (!expenseId && payload.reminder_id) {
-    const { data, error } = await supabase.rpc("record_expense_occurrence", {
-      p_reminder_id: payload.reminder_id,
-      p_expense_date: payload.expense_date,
-      p_amount_paid: payload.amount_paid,
-      p_description: payload.description,
-      p_vendor: payload.vendor,
-      p_payment_method: payload.payment_method,
-      p_reference_number: payload.reference_number,
-      p_notes: payload.notes,
-    });
-    if (error) throw error;
-    return data;
-  }
-
-  if (expenseId) {
-    const { data: existingExpense, error: lookupError } = await supabase
-      .from("expenses")
-      .select("reminder_id")
-      .eq("id", expenseId)
-      .eq("academy_id", user.academy_id)
-      .maybeSingle();
-    if (lookupError) throw lookupError;
-    if (!existingExpense) {
-      throw new Error("Expense was not found. Refresh the list and try again.");
-    }
-    if (existingExpense.reminder_id !== payload.reminder_id) {
-      throw new Error("A recurring reminder cannot be linked or changed while editing an existing expense. Record a new occurrence from the reminder instead.");
-    }
-  }
 
   const request = expenseId
     ? supabase.from("expenses").update(payload).eq("id", expenseId).eq("academy_id", user.academy_id)
