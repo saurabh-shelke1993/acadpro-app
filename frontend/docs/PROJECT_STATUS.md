@@ -74,6 +74,7 @@ Detailed record: `docs/PHASE_7_SECURITY_ADVISOR_REMEDIATION.md`.
 
 Implemented on 12 October 2026:
 - Added current-month and current-quarter views comparing expected recurring costs with actual recorded expenses.
+- Integrated existing payment ledger entries as income and calculated net cash movement (income collected minus recorded expenses); this is not presented as cash-in-hand.
 - Expected totals are derived from active monthly/quarterly reminders; actual spend comes only from saved expense rows and includes one-off costs.
 - Added **Record occurrence** for active recurring reminders. The owner confirms the actual paid amount and date; no expense is generated automatically.
 - Added `record_expense_occurrence(...)`, which validates Academy Owner/academy scope, locks the reminder, inserts the linked expense and advances the next due date by one month or three months atomically.
