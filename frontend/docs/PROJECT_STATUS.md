@@ -293,3 +293,30 @@ R5 is implemented but not verified/release-ready until automated, CI and browser
 - [ ] Update this section with actual evidence and tested commit SHA before calling R6 PASS.
 
 A Vercel success was observed for documentation commit `041a8c27e063abd32d853d2078c84bc69eaa922a`; this is not a substitute for checking the latest HEAD. No local Jest/build or browser/transaction test is claimed as passed. R6 remains **validation in progress**, not release-ready.
+
+
+## Current Development Handoff — 13 October 2026
+
+**Code validation baseline:** `fa87d7d79152a3807f7c86e070d4b3be9ec97b50` on `payment-module-finalization`.
+
+### Enquiries V1 / R6 checkpoint
+- R1 specification, R2 database/security foundation, R3 list/quick capture, R4 status/trial tracking and R5 Academy Owner-only atomic Player conversion are implemented.
+- User ran the latest code's frontend test suite: **14 Jest suites / 101 tests passed**.
+- User ran the production build: **compiled successfully**. Non-failing warnings remain for React Router v7 future flags, multiple GoTrueClient instances in `App.test.js`, and an unwrapped React state update in a Parent UPI component test.
+- GitHub combined status for the tested code commit reported Vercel success.
+- User verified the latest Preview deployment can open `/enquiries` and `/parent-upi-submissions` as Academy Owner; expected sidebar links render.
+- Read-only live database review confirmed the enquiry table's direct-write restrictions, the scoped SELECT policy, and the three enquiry RPCs' empty search paths / anon execution denial.
+- The existing converted enquiry has a Player, Parent and player-batch mapping. No live test data was created.
+
+### Deferred release validation — explicitly postponed
+The user has chosen to return to these checks later so development can continue. Do not mark R6 or Production release-ready. Remaining items:
+- Isolated success/retry/concurrency/rollback and role/cross-tenant authorization tests.
+- Full browser acceptance for Super Admin, Academy Owner, Coach, Parent/anonymous and the Enquiries lifecycle.
+- Existing-module regression for Player CRUD, Attendance, subscriptions, payment dues/collections/receipts, Parent Portal and UPI flows.
+- Final diff/status review and Production verification.
+
+Live data inspected during read-only checks: 1 enquiry, 49 players, 59 parents, 48 player-batch rows, 42 payments, 26 payment dues, 131 attendance rows and 0 trial-attendance rows. No Supabase development branches were listed. Never create disposable enquiry/player records or run rollback/concurrency tests against this live project.
+
+Latest Security Advisor snapshot: 13 authenticated SECURITY DEFINER warnings, two intentional RLS-enabled/no-policy INFO findings (`payment_number_counters`, `trial_attendance`), and leaked-password protection unavailable on the current plan. The enquiry RPC warnings still require role/tenant runtime tests; this is not a release approval.
+
+**Current state:** Enquiries implementation and automated validation are complete for the observed code HEAD; R6 release validation is **deferred / in progress**. Continue development on the current branch without representing deferred checks as passed.
