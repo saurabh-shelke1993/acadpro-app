@@ -110,3 +110,42 @@ export const findPotentialDuplicateEnquiries = async ({
     return sameName || sameDob;
   });
 };
+
+export const validateEnquiryStatusUpdate = ({ status, trialDate }) => {
+  const allowedStatuses = ENQUIRY_STATUSES
+    .map((item) => item.value)
+    .filter((value) => value !== "converted");
+
+  if (!allowedStatuses.includes(status)) {
+    return "Select a valid enquiry status.";
+  }
+
+  if (status === "trial_scheduled" && !trialDate) {
+    return "A trial date is required for Trial Scheduled status.";
+  }
+
+  if (trialDate) {
+    const parsedTrialDate = new Date(`${trialDate}T00:00:00`);
+    if (Number.isNaN(parsedTrialDate.getTime())) {
+      return "Enter a valid trial date.";
+    }
+  }
+
+  return "";
+};
+
+export const updateEnquiryStatus = async (enquiry, status, trialDate) => {
+  const { error } = await supabase.rpc("update_inquiry", {
+    p_inquiry_id: enquiry.id,
+    p_player_name: enquiry.player_name,
+    p_phone: enquiry.phone,
+    p_dob: enquiry.dob,
+    p_inquiry_source: enquiry.inquiry_source || null,
+    p_assigned_center_id: enquiry.assigned_center_id || null,
+    p_notes: enquiry.notes || null,
+    p_status: status,
+    p_trial_date: trialDate || null,
+  });
+
+  if (error) throw error;
+};
