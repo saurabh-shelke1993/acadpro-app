@@ -2,6 +2,7 @@ import {
   normalizeIndianMobile,
   validateQuickEnquiry,
   validateEnquiryStatusUpdate,
+  validateEnquiryConversion,
 } from "./enquiriesService";
 
 describe("enquiriesService quick-capture validation", () => {
@@ -90,5 +91,53 @@ describe("enquiriesService status and trial-date validation", () => {
       status: "unknown",
       trialDate: "",
     })).toBe("Select a valid enquiry status.");
+  });
+});
+
+
+describe("enquiriesService conversion validation", () => {
+  const validConversion = {
+    parentName: "Parent More",
+    gender: "Male",
+    joiningDate: "2026-10-13",
+    centerId: "center-1",
+    batchId: "batch-1",
+  };
+
+  test("requires parent name", () => {
+    expect(validateEnquiryConversion({
+      ...validConversion,
+      parentName: " ",
+    })).toBe("Parent name is required to register the player.");
+  });
+
+  test("requires supported gender", () => {
+    expect(validateEnquiryConversion({
+      ...validConversion,
+      gender: "",
+    })).toBe("Select the player's gender.");
+    expect(validateEnquiryConversion({
+      ...validConversion,
+      gender: "Other",
+    })).toBe("Select the player's gender.");
+  });
+
+  test("requires joining date, center and batch", () => {
+    expect(validateEnquiryConversion({
+      ...validConversion,
+      joiningDate: "",
+    })).toBe("Joining date is required.");
+    expect(validateEnquiryConversion({
+      ...validConversion,
+      centerId: "",
+    })).toBe("Select a center.");
+    expect(validateEnquiryConversion({
+      ...validConversion,
+      batchId: "",
+    })).toBe("Select a batch.");
+  });
+
+  test("accepts valid enrollment details", () => {
+    expect(validateEnquiryConversion(validConversion)).toBe("");
   });
 });
