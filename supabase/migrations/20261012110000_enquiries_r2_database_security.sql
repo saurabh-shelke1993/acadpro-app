@@ -3,6 +3,9 @@
 -- Existing client access remains deny-by-default until this migration commits atomically.
 
 DO $preflight$
+DECLARE
+  v_status_column text;
+  v_has_invalid_status boolean;
 BEGIN
   IF EXISTS (
     SELECT 1
@@ -18,25 +21,70 @@ BEGIN
   END IF;
 
   IF EXISTS (
-    SELECT 1
-    FROM public.inquiries
-    WHERE trial_status IS NOT NULL
-      AND lower(pg_catalog.btrim(trial_status)) NOT IN (
-        'pending', 'new', 'contacted', 'scheduled', 'trial_scheduled',
-        'completed', 'trial_completed', 'follow_up_required', 'lost'
-      )
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'inquiries' AND column_name = 'trial_status'
   ) THEN
-    RAISE EXCEPTION
-      'Enquiries R2 preflight failed: an existing enquiry has an unsupported legacy trial_status. Review and map it before retrying.';
+    v_status_column := 'trial_status';
+  ELSIF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'inquiries' AND column_name = 'status'
+  ) THEN
+    v_status_column := 'status';
+  ELSE
+    RAISE EXCEPTION 'Enquiries R2 preflight failed: neither trial_status nor status exists.';
   END IF;
 
-  IF EXISTS (
-    SELECT 1
-    FROM public.inquiries
-    WHERE lower(pg_catalog.btrim(coalesce(trial_status, ''))) = 'converted'
-  ) THEN
-    RAISE EXCEPTION
-      'Enquiries R2 preflight failed: legacy converted enquiries need a verified player link before conversion invariants can be enabled.';
+  IF v_status_column = 'trial_status' THEN
+    EXECUTE $sql$
+      SELECT EXISTS (
+        SELECT 1 FROM public.inquiries
+        WHERE trial_status IS NOT NULL
+          AND lower(pg_catalog.btrim(trial_status)) NOT IN (
+            'pending', 'new', 'contacted', 'scheduled', 'trial_scheduled',
+            'completed', 'trial_completed', 'follow_up_required', 'lost'
+          )
+      )
+    $sql$ INTO v_has_invalid_status;
+
+    IF v_has_invalid_status THEN
+      RAISE EXCEPTION
+        'Enquiries R2 preflight failed: an existing enquiry has an unsupported legacy trial_status. Review and map it before retrying.';
+    END IF;
+
+    IF EXISTS (
+      SELECT 1 FROM public.inquiries
+      WHERE lower(pg_catalog.btrim(coalesce(trial_status, ''))) = 'converted'
+    ) THEN
+      RAISE EXCEPTION
+        'Enquiries R2 preflight failed: legacy converted enquiries need a verified player link before conversion invariants can be enabled.';
+    END IF;
+
+    IF EXISTS (
+      SELECT 1 FROM public.inquiries i
+      WHERE lower(pg_catalog.btrim(coalesce(i.trial_status, ''))) IN ('scheduled', 'trial_scheduled')
+        AND NOT EXISTS (
+          SELECT 1 FROM public.trial_attendance ta
+          WHERE ta.inquiry_id = i.id
+        )
+    ) THEN
+      RAISE EXCEPTION
+        'Enquiries R2 preflight failed: a scheduled legacy trial has no trial date to migrate. Review it before retrying.';
+    END IF;
+  ELSE
+    EXECUTE $sql$
+      SELECT EXISTS (
+        SELECT 1 FROM public.inquiries
+        WHERE status IS NULL
+           OR status NOT IN (
+             'new', 'contacted', 'trial_scheduled', 'trial_completed',
+             'follow_up_required', 'converted', 'lost'
+           )
+      )
+    $sql$ INTO v_has_invalid_status;
+
+    IF v_has_invalid_status THEN
+      RAISE EXCEPTION 'Enquiries R2 preflight failed: an existing status value is unsupported.';
+    END IF;
   END IF;
 
   IF EXISTS (
@@ -50,19 +98,6 @@ BEGIN
   ) THEN
     RAISE EXCEPTION
       'Enquiries R2 preflight failed: an existing inquiry_source is outside the supported source list. Review and map it before retrying.';
-  END IF;
-
-  IF EXISTS (
-    SELECT 1
-    FROM public.inquiries i
-    WHERE lower(pg_catalog.btrim(coalesce(i.trial_status, ''))) IN ('scheduled', 'trial_scheduled')
-      AND NOT EXISTS (
-        SELECT 1 FROM public.trial_attendance ta
-        WHERE ta.inquiry_id = i.id
-      )
-  ) THEN
-    RAISE EXCEPTION
-      'Enquiries R2 preflight failed: a scheduled legacy trial has no trial date to migrate. Review it before retrying.';
   END IF;
 END;
 $preflight$;
@@ -350,7 +385,7 @@ BEGIN
   v_role := private.current_user_role();
   v_academy_id := private.current_academy_id();
 
-  IF v_role NOT IN ('academy_owner', 'coach') OR v_academy_id IS NULL THEN
+  IF v_role IS NULL OR v_role NOT IN ('academy_owner', 'coach') OR v_academy_id IS NULL THEN
     RAISE EXCEPTION 'Only an Academy Owner or authorized Coach can create an enquiry.'
       USING ERRCODE = '42501';
   END IF;
