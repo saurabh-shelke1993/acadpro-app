@@ -60,6 +60,28 @@ export const fetchExpenses = async (user, filters = {}) => {
   return data || [];
 };
 
+export const fetchExpectedIncome = async (user, filters = {}) => {
+  assertCanView(user);
+
+  let query = supabase
+    .from("payment_dues")
+    .select("id, due_date, total_amount, paid_amount, due_status, players!inner(academy_id)")
+    .order("due_date", { ascending: true });
+
+  if (filters.fromDate) query = query.gte("due_date", filters.fromDate);
+  if (filters.toDate) query = query.lte("due_date", filters.toDate);
+
+  if (isAcademyOwner(user)) {
+    query = query.eq("players.academy_id", user.academy_id);
+  } else if (filters.academyId) {
+    query = query.eq("players.academy_id", filters.academyId);
+  }
+
+  const { data, error } = await query;
+  if (error) throw error;
+  return data || [];
+};
+
 export const fetchPaymentIncome = async (user, filters = {}) => {
   assertCanView(user);
 
