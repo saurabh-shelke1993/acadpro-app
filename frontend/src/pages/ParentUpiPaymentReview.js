@@ -3,6 +3,7 @@ import Layout from "../components/Layout";
 import {
   formatSubmissionStatus,
   getAcademyPaymentSubmissions,
+  recordAcceptedParentUpiPayment,
   reviewParentUpiPayment,
 } from "../services/parentPaymentSubmissionService";
 import "./ParentUpiPaymentReview.css";
@@ -46,6 +47,28 @@ function ParentUpiPaymentReview() {
   }, [filter]);
 
   useEffect(() => { loadSubmissions(); }, [loadSubmissions]);
+
+  const handleRecordPayment = async (submission) => {
+    const confirmed = window.confirm(
+      `Record ₹${Number(submission.amount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} in the payment ledger, update the fee balance, and generate a receipt for this accepted UPI claim? This action cannot be repeated.`
+    );
+    if (!confirmed) return;
+
+    setBusyId(submission.id);
+    setError("");
+    setNotice("");
+    try {
+      const result = await recordAcceptedParentUpiPayment(submission.id);
+      setNotice(
+        `Payment recorded successfully. Receipt: ${result?.receipt_number || "generated"}.`
+      );
+      await loadSubmissions();
+    } catch (recordError) {
+      setError(recordError.message || "The accepted claim could not be recorded.");
+    } finally {
+      setBusyId("");
+    }
+  };
 
   const handleReview = async (submission, decision) => {
     const note = reviewNotes[submission.id] || "";
@@ -93,13 +116,14 @@ function ParentUpiPaymentReview() {
               <option value="pending">Pending</option>
               <option value="accepted">Accepted</option>
               <option value="rejected">Rejected</option>
+              <option value="recorded">Recorded</option>
               <option value="all">All claims</option>
             </select>
           </label>
         </header>
 
         <div className="parent-upi-review-integrity-note">
-          <strong>Financial integrity:</strong> Accepting a claim records the review decision only. It does not create a payment, issue a receipt, or change a fee balance.
+          <strong>Financial integrity:</strong> Accepting only verifies the claim. The Academy Owner must explicitly record an accepted claim to create one ledger payment, update the fee balance, and issue a receipt.
         </div>
 
         {error ? <p className="parent-upi-review-alert is-error" role="alert">{error}</p> : null}
@@ -141,6 +165,25 @@ function ParentUpiPaymentReview() {
                   ) : null}
                   {submission.review_note ? (
                     <p className="parent-upi-review-note"><strong>Review note:</strong> {submission.review_note}</p>
+                  ) : null}
+                  {submission.status === "recorded" ? (
+                    <p className="parent-upi-review-note">
+                      <strong>Receipt:</strong> {submission.payments?.receipt_number || "Recorded"}
+                      {submission.recorded_at ? ` · Recorded ${formatDate(submission.recorded_at, true)}` : ""}
+                    </p>
+                  ) : null}
+
+                  {canReview && submission.status === "accepted" ? (
+                    <div className="parent-upi-review-actions">
+                      <p>This claim is verified. Recording creates the ledger payment and receipt and updates the outstanding balance.</p>
+                      <button
+                        type="button"
+                        disabled={busyId === submission.id}
+                        onClick={() => handleRecordPayment(submission)}
+                      >
+                        {busyId === submission.id ? "Recording…" : "Record payment & issue receipt"}
+                      </button>
+                    </div>
                   ) : null}
 
                   {canReview && submission.status === "pending" ? (
