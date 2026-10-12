@@ -1,0 +1,30 @@
+.parent-upi-review-page{max-width:1180px;margin:0 auto;padding:28px 24px 48px;color:#172033}
+.parent-upi-review-heading{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:22px}
+.parent-upi-review-heading>div>span,.parent-upi-review-kicker{font-size:.76rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#64748b}
+.parent-upi-review-heading h1{font-size:clamp(1.5rem,3vw,2rem);margin:6px 0}
+.parent-upi-review-heading p{margin:0;color:#64748b}
+.parent-upi-review-heading label{display:grid;gap:6px;font-size:.85rem;font-weight:600}
+.parent-upi-review-heading select,.parent-upi-review-actions textarea{border:1px solid #cbd5e1;border-radius:8px;padding:10px;background:#fff;color:#172033;font:inherit}
+.parent-upi-review-integrity-note{padding:14px 16px;border:1px solid #bfdbfe;border-radius:10px;background:#eff6ff;color:#1e40af;line-height:1.5;margin-bottom:18px}
+.parent-upi-review-alert{padding:12px 14px;border-radius:8px}.parent-upi-review-alert.is-error{background:#fef2f2;color:#991b1b}.parent-upi-review-alert.is-success{background:#ecfdf5;color:#065f46}
+.parent-upi-review-list{display:grid;gap:16px}
+.parent-upi-review-card{border:1px solid #dbe3ef;border-radius:14px;background:#fff;padding:20px;min-width:0}
+.parent-upi-review-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.parent-upi-review-card-top h2{font-size:1.5rem;margin:7px 0 4px}
+.parent-upi-review-card-top p{margin:0;color:#64748b}
+.parent-upi-review-status{display:inline-flex;max-width:50%;padding:6px 10px;border-radius:999px;background:#f1f5f9;color:#334155;font-size:.78rem;font-weight:700}
+.parent-upi-review-status.status-accepted{background:#eff6ff;color:#1d4ed8}.parent-upi-review-status.status-rejected{background:#fef2f2;color:#991b1b}
+.parent-upi-review-details{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:20px 0}
+.parent-upi-review-details div{min-width:0;padding:12px;background:#f8fafc;border-radius:8px}
+.parent-upi-review-details dt{font-size:.78rem;color:#64748b;margin-bottom:5px}.parent-upi-review-details dd{margin:0;font-weight:650;overflow-wrap:anywhere}
+.parent-upi-review-note{margin:10px 0;color:#475569;overflow-wrap:anywhere}
+.parent-upi-review-actions{border-top:1px solid #e2e8f0;margin-top:18px;padding-top:16px}
+.parent-upi-review-actions label{display:grid;gap:7px;font-size:.88rem;font-weight:600}
+.parent-upi-review-actions textarea{width:100%;resize:vertical}
+.parent-upi-review-actions>div{display:flex;gap:10px;margin-top:12px}
+.parent-upi-review-actions button{border:0;border-radius:8px;padding:10px 14px;background:#0f766e;color:#fff;font-weight:700;cursor:pointer}
+.parent-upi-review-actions button.is-reject{background:#b91c1c}
+.parent-upi-review-actions button:disabled{opacity:.6;cursor:wait}
+.parent-upi-review-empty{padding:34px 20px;text-align:center;border:1px dashed #cbd5e1;border-radius:12px;color:#64748b}
+.parent-upi-review-empty strong{display:block;color:#172033;margin-bottom:5px}.parent-upi-review-empty p{margin:0}
+@media(max-width:700px){.parent-upi-review-page{padding:20px 14px 36px}.parent-upi-review-heading{align-items:stretch;flex-direction:column}.parent-upi-review-details{grid-template-columns:1fr}.parent-upi-review-card{padding:15px}.parent-upi-review-card-top{flex-direction:column}.parent-upi-review-status{max-width:100%}.parent-upi-review-actions>div{flex-wrap:wrap}}
