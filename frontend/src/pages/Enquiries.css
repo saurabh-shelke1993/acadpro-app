@@ -439,3 +439,55 @@
     align-self: flex-start;
   }
 }
+
+.enquiries-status-editor {
+  display: grid;
+  min-width: 190px;
+  gap: 0.55rem;
+}
+
+.enquiries-inline-field {
+  display: grid;
+  gap: 0.25rem;
+  color: var(--ap-slate-600);
+  font-size: var(--ap-font-size-xs);
+  font-weight: 750;
+}
+
+.enquiries-inline-field input,
+.enquiries-inline-field select {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--ap-control-standard-height);
+  padding: 0.4rem 0.55rem;
+  border: 1px solid var(--ap-border);
+  border-radius: var(--ap-radius-md);
+  background: var(--ap-surface);
+  color: var(--ap-slate-800);
+  font: inherit;
+  font-size: var(--ap-font-size-sm);
+}
+
+.enquiries-inline-field input:focus,
+.enquiries-inline-field select:focus {
+  outline: 2px solid var(--ap-primary-500);
+  outline-offset: 1px;
+}
+
+.enquiries-inline-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.enquiries-inline-actions .enquiries-primary-button,
+.enquiries-inline-actions .enquiries-secondary-button {
+  min-height: 32px;
+  padding: 0.3rem 0.55rem;
+}
+
+.enquiries-inline-error {
+  color: var(--ap-danger-700, #b42318);
+  font-size: var(--ap-font-size-xs);
+  line-height: 1.4;
+}
