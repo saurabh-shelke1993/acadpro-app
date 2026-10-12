@@ -58,6 +58,15 @@ function ParentUpiPaymentDetails({ academyId, academyName }) {
   }
 
   const qrUrl = settings.qr_image_path ? getPublicQrUrl(settings.qr_image_path) : "";
+  const shareMessage = [
+    `UPI payment details for ${academyName || "your academy"}`,
+    `Payee name: ${settings.payee_name}`,
+    settings.upi_id ? `UPI ID: ${settings.upi_id}` : null,
+    qrUrl ? `UPI QR image: ${qrUrl}` : null,
+    "",
+    "Please verify the transaction with the academy. Fee balances update only after the academy records the payment.",
+  ].filter(Boolean).join("\\n");
+  const whatsappShareUrl = `https://wa.me/?text=${encodeURIComponent(shareMessage)}`;
 
   return (
     <section className="parent-upi-section" aria-labelledby="parent-upi-heading">
@@ -90,6 +99,15 @@ function ParentUpiPaymentDetails({ academyId, academyName }) {
             </div>
           ) : null}
           {copyNotice ? <p className="parent-upi-copy-notice" role="status">{copyNotice}</p> : null}
+          <a
+            className="parent-upi-whatsapp-share"
+            href={whatsappShareUrl}
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Share payment details on WhatsApp"
+          >
+            <span aria-hidden="true">↗</span> Share payment details on WhatsApp
+          </a>
         </div>
       </div>
 
