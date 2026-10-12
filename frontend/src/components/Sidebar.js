@@ -134,6 +134,7 @@ function Sidebar({ isOpen = false, onClose = () => {}, closeButtonRef }) {
               {renderLink("/payment-dues", "Payment Dues", "₹")}
               {renderLink("/payment-collections", "Payment Collections", "↗")}
               {renderLink("/expenses", "Expenses", "−")}
+              {renderLink("/academy-upi-settings", "Academy UPI Settings", "▦")}
             </>
           )}
         </nav>
