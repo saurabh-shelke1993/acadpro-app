@@ -1,0 +1,20 @@
+.parent-upi-section{margin-top:14px;padding:18px;border:1px solid var(--ap-border,#e2e8f0);border-radius:13px;background:var(--ap-surface,#fff);box-shadow:var(--ap-shadow-sm,0 1px 3px #0f172a0a)}
+.parent-upi-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:15px;margin-bottom:14px}
+.parent-upi-eyebrow{display:block;color:var(--ap-primary-600,#2563eb);font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.parent-upi-heading h2{margin:4px 0 4px;color:var(--ap-slate-950,#020617);font-size:18px}
+.parent-upi-heading p{margin:0;color:var(--ap-slate-500,#64748b);font-size:12px;line-height:1.5}
+.parent-upi-enabled-label{display:inline-flex;align-items:center;min-height:26px;padding:0 9px;border-radius:999px;background:var(--ap-success-50,#f0fdf4);color:var(--ap-success-700,#15803d);font-size:10px;font-weight:800;white-space:nowrap}
+.parent-upi-content{display:flex;align-items:center;gap:18px}
+.parent-upi-qr{display:flex;flex:0 0 160px;flex-direction:column;align-items:center;gap:7px}
+.parent-upi-qr img{width:150px;height:150px;object-fit:contain;border:1px solid var(--ap-border,#e2e8f0);border-radius:8px;background:#fff}
+.parent-upi-qr a{color:var(--ap-primary-600,#2563eb);font-size:11px;font-weight:700}
+.parent-upi-details{display:flex;flex:1;flex-wrap:wrap;gap:16px;min-width:0}
+.parent-upi-details>div{display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-width:140px}
+.parent-upi-details span{color:var(--ap-slate-500,#64748b);font-size:11px}
+.parent-upi-details strong{color:var(--ap-slate-900,#0f172a);font-size:13px;overflow-wrap:anywhere}
+.parent-upi-id{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.parent-upi-copy{min-height:30px;padding:4px 9px;border:1px solid var(--ap-border-strong,#cbd5e1);border-radius:6px;background:#fff;color:var(--ap-slate-700,#334155);font-size:11px;font-weight:750;cursor:pointer}
+.parent-upi-copy-notice{margin:0;color:var(--ap-success-700,#15803d);font-size:11px}
+.parent-upi-disclaimer{margin:15px 0 0;padding:10px 12px;border:1px solid #fde68a;border-radius:8px;background:#fffbeb;color:#92400e;font-size:11px;line-height:1.55}
+.parent-upi-muted{margin:0;color:var(--ap-slate-500,#64748b);font-size:12px}
+@media(max-width:560px){.parent-upi-heading{flex-direction:column}.parent-upi-content{align-items:flex-start;flex-direction:column}.parent-upi-qr{flex-basis:auto}.parent-upi-details{width:100%}}
