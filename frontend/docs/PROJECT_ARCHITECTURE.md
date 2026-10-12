@@ -152,6 +152,10 @@ Phase 7 Security Advisor remediation (11 October 2026):
 
 See `docs/PHASE_7_SECURITY_ADVISOR_REMEDIATION.md` for the live finding inventory and `supabase/MIGRATION_RECONCILIATION.md` for the migration-history discrepancy and safety rules.
 
+## 10B. Parent UPI QR and WhatsApp Sharing (P1.3)
+
+The parent portal embeds `ParentUpiPaymentDetails` for the selected linked child, in addition to the same component on Parent Financial Overview. It reads enabled settings through the academy-scoped `academy_payment_settings` RLS policy. A user-initiated WhatsApp link shares academy name, payee, optional UPI ID and the public QR image URL. It does not create a payment submission or alter the payment ledger. No schema or Storage changes are part of P1.3. See `docs/P1.3_PARENT_UPI_WHATSAPP_SHARING.md`.
+
 ## 10A. Academy UPI Settings (P1.2)
 
 The `public.academy_payment_settings` table stores one row per academy for UPI ID, payee name, QR object path, enabled state and audit timestamps. RLS grants owner-scoped create/update, Super Admin read-only access, and Parent read access only to enabled settings for academies of linked children. Coach and anon access is denied.
