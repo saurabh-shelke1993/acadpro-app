@@ -145,7 +145,7 @@ RLS is enabled on the major role-sensitive tables, including `academies`, `atten
 Phase 7 Security Advisor remediation (11 October 2026):
 - RLS is enabled on `public.inquiries` and `public.trial_attendance`; direct `anon` and `authenticated` table privileges have been revoked. Both tables were empty when inspected and remain deny-by-default until an explicit access model is needed.
 - `public.payment_number_counters` remains RLS-enabled with direct client privileges revoked; it is intended for server-side/database use.
-- Seven authenticated `SECURITY DEFINER` RPC findings remain under review. Their `search_path` is empty and anonymous/PUBLIC execution is denied. Authenticated execution is retained because application workflows depend on these RPCs; do not change grants or security mode without reviewing dependencies and regression-testing.
+- The Security Advisor reports nine authenticated `SECURITY DEFINER` RPC findings: seven pre-existing functions plus the two P1.4 parent UPI submission/review RPCs. The P1.4 functions use empty `search_path`, deny anonymous/PUBLIC execution, and validate role and scope before mutation. Authenticated execution is required by the application; do not change grants or security mode without reviewing dependencies and regression-testing.
 - `update_my_coach_profile(...)` is the next candidate for explicit authentication/coach-role and input validation review. No hardening change has yet been applied.
 - Leaked-password protection is unavailable on the current Supabase Free plan and is deferred until a plan upgrade is justified.
 - Performance-advisor findings are tracked separately from authorization completion.
