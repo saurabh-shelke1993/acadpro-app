@@ -1,6 +1,7 @@
 import {
   normalizeIndianMobile,
   validateQuickEnquiry,
+  validateEnquiryStatusUpdate,
 } from "./enquiriesService";
 
 describe("enquiriesService quick-capture validation", () => {
@@ -51,5 +52,43 @@ describe("enquiriesService quick-capture validation", () => {
       parentPhone: "(98765) 43210",
       dob: "2015-05-12",
     })).toBe("");
+  });
+});
+
+
+describe("enquiriesService status and trial-date validation", () => {
+  test("requires a trial date for Trial Scheduled", () => {
+    expect(validateEnquiryStatusUpdate({
+      status: "trial_scheduled",
+      trialDate: "",
+    })).toBe("A trial date is required for Trial Scheduled status.");
+  });
+
+  test("accepts a scheduled trial with a date", () => {
+    expect(validateEnquiryStatusUpdate({
+      status: "trial_scheduled",
+      trialDate: "2026-10-20",
+    })).toBe("");
+  });
+
+  test("allows other statuses without a trial date", () => {
+    expect(validateEnquiryStatusUpdate({
+      status: "contacted",
+      trialDate: "",
+    })).toBe("");
+  });
+
+  test("does not allow Converted through the ordinary status editor", () => {
+    expect(validateEnquiryStatusUpdate({
+      status: "converted",
+      trialDate: "",
+    })).toBe("Select a valid enquiry status.");
+  });
+
+  test("rejects an unknown status", () => {
+    expect(validateEnquiryStatusUpdate({
+      status: "unknown",
+      trialDate: "",
+    })).toBe("Select a valid enquiry status.");
   });
 });
