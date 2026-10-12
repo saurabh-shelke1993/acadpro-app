@@ -185,18 +185,3 @@ Parent coach details are provided through dedicated RPCs that scope results to t
 ## 12. Production principles
 
 Before production, AcadPro must complete full module regression, negative authorization testing, parent/player isolation testing, authentication/session review, environment hardening, development-feature removal and production security review.
-
-
-## 10D. Expenses and Recurring Cost Overview (P1.6)
-
-The `/expenses` module separates recurring expectations from actual expense records:
-
-- `expense_reminders` stores monthly/quarterly cadence, expected amount, active state and next due date.
-- `expenses` stores actual recorded spend, including optional link to the reminder occurrence.
-- Monthly and quarterly overview sums fee dues by due date as expected income, payment-ledger payment entries by payment date as income collected, active reminder expectations as expected expenses, and saved expense rows by expense date as expenses paid. It shows net cash movement as income collected minus recorded expenses, not cash-in-hand. Overview queries are independent of expense-register date/category filters.
-- The Academy Owner manages their academy; Super Admin is read-only across academies; Coach and Parent are denied.
-- The owner explicitly records each recurring occurrence after payment. `record_expense_occurrence(...)` locks the reminder, inserts the linked expense and advances the next due date in one transaction. Expected amounts are never treated as paid automatically.
-- Client INSERTs can only create non-recurring expenses directly. Linked occurrences must use the secured RPC; existing expense reminder links cannot be reassigned during edit.
-- This module does not write to `payments` or `payment_dues` and does not affect parent fee balances.
-
-See `frontend/docs/P1.6_EXPENSE_FINANCIAL_OVERVIEW.md` for calculations and validation cases.
