@@ -218,7 +218,7 @@ Inspect current state → Plan minimal change → Implement → Build/Test → F
 ## 9. Working Baseline and Handoff
 
 **Branch:** `payment-module-finalization`  
-**Latest focus:** P1.2–P1.5 source and migrations are implemented; P1.4/P1.5 browser acceptance remains pending. P1.5 ledger recording migration is live at version `20261012025707`. P1.6 Expenses overview and atomic manual recurring-occurrence recording are implemented; migration is live at version `20261012031132`. P1.6 automated CI/build passed (14 suites / 92 tests); browser/RBAC acceptance is pending. Vercel previously reported preview deployment rate-limited for 24 hours on the current plan. Phase 7 RPC hardening remains deferred until the payment UX validation gate.
+**Latest focus:** P1.2–P1.6 source and migrations are implemented; P1.4/P1.5/P1.6 browser acceptance remains pending. P1.5 ledger recording migration is live at version `20261012025707`. P1.6 Expenses overview and atomic manual recurring-occurrence recording are implemented; migrations are live at versions `20261012031132` and `20261012031710`. P1.6 automated CI/build passed (14 suites / 92 tests); browser/RBAC acceptance is pending. Vercel previously reported preview deployment rate-limited for 24 hours on the current plan. Phase 7 RPC hardening remains deferred until the payment UX validation gate.
 
 Useful documents:
 - `docs/PHASE_7_SECURITY_ADVISOR_REMEDIATION.md` — current findings and remediation record
