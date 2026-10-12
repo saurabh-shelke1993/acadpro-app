@@ -223,7 +223,22 @@ Validation covered role scenarios, cross-academy access, mutation attempts and d
 - [x] Coach payment sidebar access removed
 - [x] Production build passed after P2 role changes
 
-## 2. Automated Payment Reminders
+### P1.6 — Expenses and Monthly / Quarterly Financial Overview
+
+- [x] Reuse existing expenses and expense_reminders tables and route
+- [x] Current month / current quarter expected recurring costs vs actual recorded spend
+- [x] Keep one-off actual expenses separate from expected recurring estimates
+- [x] Academy Owner management and Super Admin read-only view
+- [x] Manual recurring occurrence action; no automatic expense generation
+- [x] Atomic linked expense insert + next due date advance
+- [x] Restrict direct client inserts with reminder links and block reminder reassignment
+- [x] Pure calculation tests for monthly and quarterly totals
+- [ ] CI and production build verification for P1.6
+- [ ] Browser/RBAC acceptance and failure/rollback checks
+
+Implementation notes: `frontend/docs/P1.6_EXPENSE_FINANCIAL_OVERVIEW.md`. Live migration version `20261012031132 / expense_occurrence_recording`.
+
+# 2. Automated Payment Reminders
 
 - [ ] Reminder eligibility rules
 - [ ] Scheduling and due-date rules
