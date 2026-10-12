@@ -57,7 +57,7 @@ Historical verification recorded:
 - Revoked direct `anon` and `authenticated` privileges on those tables; both were empty when inspected.
 - Revoked direct client privileges on `public.payment_number_counters`, keeping it for server-side/database use.
 - Verified RLS is enabled and client SELECT/INSERT is denied for all three tables.
-- Reviewed seven flagged `SECURITY DEFINER` RPCs. All seven have an empty `search_path`; anonymous and PUBLIC execution are denied.
+- Reviewed the original seven flagged `SECURITY DEFINER` RPCs. All seven have an empty `search_path`; anonymous and PUBLIC execution are denied. P1.4 adds two intentionally authenticated `SECURITY DEFINER` RPCs (`submit_parent_upi_payment` and `review_parent_upi_payment`) with empty search paths, explicit role/scope checks, and anon/PUBLIC execution revoked. The Security Advisor now reports nine authenticated SECURITY DEFINER RPC warnings in total.
 - Reviewed role, authentication, academy-scope and business-rule checks in the payment correction and parent coach RPCs.
 - Confirmed frontend dependencies exist for the coach profile RPCs, parent coach RPCs and payment collection RPC. Do not revoke authenticated execution or change them to SECURITY INVOKER without regression testing.
 
@@ -176,7 +176,7 @@ Phase 7 table lockdown:
 - `public.trial_attendance`: RLS enabled; direct anon/authenticated privileges revoked; no policies by design until an access model is required.
 - `public.payment_number_counters`: RLS enabled; direct client privileges revoked; intended for server-side/database use.
 - Leaked-password protection: unavailable on Supabase Free; deferred.
-- Seven authenticated `SECURITY DEFINER` warnings remain under review. Their authenticated execution is currently retained because app workflows call them; any grant/behavior change requires role and regression testing.
+- Nine authenticated `SECURITY DEFINER` warnings are reported: seven pre-existing RPCs plus the two P1.4 parent UPI submission/review RPCs. The two P1.4 RPCs intentionally require authenticated execution and enforce role/scope checks; do not change grants or security mode without reviewing dependencies and regression-testing.
 
 ## 7. Technical Debt and Deferred Work
 
