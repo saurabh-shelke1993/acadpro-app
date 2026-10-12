@@ -22,7 +22,7 @@ function ParentUpiPaymentDetails({ academyId, academyName }) {
       try {
         const result = await getAcademyPaymentSettings(academyId);
         if (active) setSettings(result?.is_enabled ? result : null);
-      } catch (error) {
+      } catch {
         // RLS remains the authorization boundary; avoid exposing internal errors in the parent UI.
         if (active) setSettings(null);
       } finally {
