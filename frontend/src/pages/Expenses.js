@@ -11,6 +11,7 @@ import {
   saveExpense,
   saveExpenseReminder
 } from "../services/expensesService";
+import { calculateExpenseOverview } from "../utils/expenseFinancialOverview";
 import "./Expenses.css";
 
 const today = () => {
@@ -63,6 +64,7 @@ function Expenses() {
   const [toDate, setToDate] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [activeTab, setActiveTab] = useState("expenses");
+  const [overviewPeriod, setOverviewPeriod] = useState("monthly");
   const [expenseForm, setExpenseForm] = useState(EMPTY_EXPENSE);
   const [reminderForm, setReminderForm] = useState(EMPTY_REMINDER);
   const [editingExpenseId, setEditingExpenseId] = useState(null);
@@ -131,15 +133,11 @@ function Expenses() {
     !academyFilter || expense.academy_id === academyFilter
   )), [expenses, academyFilter]);
 
-  const totalSpend = visibleExpenses.reduce((total, expense) => total + Number(expense.amount_paid || 0), 0);
-  const currentMonthSpend = visibleExpenses.reduce((total, expense) => {
-    if (!expense.expense_date) return total;
-    const [year, month] = expense.expense_date.split("-").map(Number);
-    const now = new Date();
-    return year === now.getFullYear() && month === now.getMonth() + 1
-      ? total + Number(expense.amount_paid || 0) : total;
-  }, 0);
-  const activeReminderCount = reminders.filter((reminder) => reminder.is_active).length;
+  const overview = useMemo(() => calculateExpenseOverview({
+    expenses,
+    reminders,
+    periodType: overviewPeriod,
+  }), [expenses, reminders, overviewPeriod]);
 
   const resetExpenseForm = () => {
     setExpenseForm({ ...EMPTY_EXPENSE, expense_date: today() });
@@ -165,9 +163,14 @@ function Expenses() {
     setError("");
     setNotice("");
     try {
+      const isRecurringOccurrence = Boolean(expenseForm.reminder_id) && !editingExpenseId;
       await saveExpense(user, expenseForm, editingExpenseId);
       resetExpenseForm();
-      setNotice(editingExpenseId ? "Expense updated." : "Expense recorded.");
+      setNotice(editingExpenseId
+        ? "Expense updated."
+        : isRecurringOccurrence
+          ? "Recurring expense occurrence recorded. The next due date has advanced."
+          : "Expense recorded.");
       await loadData(user);
     } catch (err) {
       setError(err.message || "Unable to save expense.");
@@ -216,6 +219,26 @@ function Expenses() {
     setShowExpenseForm(true);
     setActiveTab("expenses");
     setError("");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleRecordOccurrence = (reminder) => {
+    setExpenseForm({
+      expense_date: today(),
+      category: reminder.category || "",
+      description: reminder.title || "",
+      vendor: "",
+      amount_paid: String(reminder.expected_amount ?? ""),
+      payment_method: "",
+      reference_number: "",
+      reminder_id: reminder.id,
+      notes: ""
+    });
+    setEditingExpenseId(null);
+    setShowExpenseForm(true);
+    setActiveTab("expenses");
+    setError("");
+    setNotice("");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -285,10 +308,24 @@ function Expenses() {
         {error && <div className="expenses-alert expenses-alert-error" role="alert">{error}</div>}
         {notice && <div className="expenses-alert expenses-alert-success" role="status">{notice}</div>}
 
-        <section className="expenses-summary-grid" aria-label="Expense summary">
-          <article className="expenses-summary-card"><span>Spend in selected period</span><strong>{formatCurrency(totalSpend)}</strong><small>{visibleExpenses.length} recorded {visibleExpenses.length === 1 ? "expense" : "expenses"}</small></article>
-          <article className="expenses-summary-card"><span>Spend this month</span><strong>{formatCurrency(currentMonthSpend)}</strong><small>Based on loaded expense records</small></article>
-          <article className="expenses-summary-card"><span>Active reminders</span><strong>{activeReminderCount}</strong><small>Monthly and quarterly</small></article>
+        <section className="expenses-overview" aria-labelledby="expenses-overview-title">
+          <div className="expenses-overview-heading">
+            <div>
+              <h2 id="expenses-overview-title">Financial overview</h2>
+              <p>{overview.label} · Expected recurring costs compared with actual expenses recorded</p>
+            </div>
+            <div className="expenses-period-switch" role="group" aria-label="Financial overview period">
+              <button type="button" aria-pressed={overviewPeriod === "monthly"} className={overviewPeriod === "monthly" ? "is-active" : ""} onClick={() => setOverviewPeriod("monthly")}>Monthly</button>
+              <button type="button" aria-pressed={overviewPeriod === "quarterly"} className={overviewPeriod === "quarterly" ? "is-active" : ""} onClick={() => setOverviewPeriod("quarterly")}>Quarterly</button>
+            </div>
+          </div>
+          <div className="expenses-summary-grid" aria-label="Expense summary">
+            <article className="expenses-summary-card"><span>Expected recurring costs</span><strong>{formatCurrency(overview.expectedAmount)}</strong><small>Based on active monthly / quarterly reminders</small></article>
+            <article className="expenses-summary-card"><span>Actual expenses paid</span><strong>{formatCurrency(overview.paidAmount)}</strong><small>{overview.expenseCount} recorded {overview.expenseCount === 1 ? "expense" : "expenses"} in this {overviewPeriod === "monthly" ? "month" : "quarter"}</small></article>
+            <article className="expenses-summary-card"><span>Expected − actual paid</span><strong>{formatCurrency(overview.varianceAmount)}</strong><small>{overview.varianceAmount >= 0 ? "Expected costs not yet matched by recorded spend" : "Actual spend exceeds expected recurring costs"}</small></article>
+            <article className="expenses-summary-card"><span>Active reminders</span><strong>{overview.activeReminderCount}</strong><small>{overview.overdueReminderCount} overdue · reminders never create expenses automatically</small></article>
+          </div>
+          <p className="expenses-overview-note">Expected costs are estimates, not payments. Actual spend includes all recorded expenses, including one-off costs. Record each recurring occurrence manually when the cost has actually been paid.</p>
         </section>
 
         <section className="expenses-panel">
@@ -319,7 +356,7 @@ function Expenses() {
                 <label className="expenses-field"><span>Vendor / paid to</span><input maxLength={120} value={expenseForm.vendor} onChange={(e) => setExpenseForm({ ...expenseForm, vendor: e.target.value })} /></label>
                 <label className="expenses-field"><span>Payment method</span><select value={expenseForm.payment_method} onChange={(e) => setExpenseForm({ ...expenseForm, payment_method: e.target.value })}><option value="">Select method</option>{PAYMENT_METHODS.map((method) => <option key={method} value={method}>{method}</option>)}</select></label>
                 <label className="expenses-field"><span>Reference number</span><input maxLength={100} value={expenseForm.reference_number} onChange={(e) => setExpenseForm({ ...expenseForm, reference_number: e.target.value })} /></label>
-                <label className="expenses-field"><span>Linked reminder</span><select value={expenseForm.reminder_id} onChange={(e) => setExpenseForm({ ...expenseForm, reminder_id: e.target.value })}><option value="">None</option>{linkedReminderOptions.map((reminder) => <option key={reminder.id} value={reminder.id}>{reminder.title}</option>)}</select></label>
+                <label className="expenses-field"><span>Linked reminder{editingExpenseId ? " (fixed for existing records)" : ""}</span><select disabled={Boolean(editingExpenseId)} value={expenseForm.reminder_id} onChange={(e) => setExpenseForm({ ...expenseForm, reminder_id: e.target.value })}><option value="">None</option>{linkedReminderOptions.map((reminder) => <option key={reminder.id} value={reminder.id}>{reminder.title}</option>)}</select></label>
                 <label className="expenses-field expenses-field-wide"><span>Notes</span><textarea rows="2" maxLength={1000} value={expenseForm.notes} onChange={(e) => setExpenseForm({ ...expenseForm, notes: e.target.value })} /></label>
               </div>
               <div className="expenses-form-footer"><span>Fields marked * are required.</span><div><button type="button" className="expenses-button expenses-button-secondary" onClick={resetExpenseForm}>Cancel</button><button type="submit" className="expenses-button expenses-button-primary" disabled={saving}>{saving ? "Saving…" : editingExpenseId ? "Update expense" : "Save expense"}</button></div></div>
@@ -366,7 +403,7 @@ function Expenses() {
                     : reminders.map((reminder) => <tr key={reminder.id}>
                       {isAdmin && <td>{reminder.academies?.academy_name || "—"}</td>}
                       <td><div className="expenses-description"><strong>{reminder.title}</strong>{reminder.description && <small>{reminder.description}</small>}</div></td><td>{reminder.category}</td><td><span className="expenses-frequency">{reminder.frequency === "quarterly" ? "Quarterly" : "Monthly"}</span></td><td className="expenses-amount">{formatCurrency(reminder.expected_amount)}</td><td className="expenses-date">{formatDate(reminder.next_due_date)}</td><td><span className={reminder.is_active ? "expenses-status expenses-status-active" : "expenses-status expenses-status-inactive"}>{reminder.is_active ? "Active" : "Inactive"}</span></td>
-                      {canManage && <td><div className="expenses-row-actions"><button type="button" className="expenses-text-action" onClick={() => handleEditReminder(reminder)}>Edit</button><button type="button" className="expenses-text-action expenses-danger-action" onClick={() => handleDeleteReminder(reminder)}>Delete</button></div></td>}
+                      {canManage && <td><div className="expenses-row-actions">{reminder.is_active && <button type="button" className="expenses-text-action" onClick={() => handleRecordOccurrence(reminder)}>Record occurrence</button>}<button type="button" className="expenses-text-action" onClick={() => handleEditReminder(reminder)}>Edit</button><button type="button" className="expenses-text-action expenses-danger-action" onClick={() => handleDeleteReminder(reminder)}>Delete</button></div></td>}
                     </tr>)}
                 </tbody>
               </table>
