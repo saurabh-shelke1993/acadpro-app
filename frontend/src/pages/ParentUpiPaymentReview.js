@@ -90,7 +90,7 @@ function ParentUpiPaymentReview() {
       await reviewParentUpiPayment(submission.id, decision, note);
       setNotice(
         decision === "accepted"
-          ? "Claim accepted. The payment ledger and fee balance are unchanged; record the collection separately in the next workflow."
+          ? "Claim accepted. The payment ledger and fee balance are unchanged; use “Record payment & issue receipt” to post the verified claim."
           : "Claim rejected."
       );
       await loadSubmissions();
