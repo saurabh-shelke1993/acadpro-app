@@ -29,6 +29,17 @@ Compared the live Supabase migration ledger with the migration files in
 | Schedule attendance fixes (Oct 11) | `20261011083110`, `20261011083351` | Local files `20261011090000_allow_batch_enrolled_players_in_coach_attendance.sql` and `20261011093000_allow_coach_retroactive_attendance_and_block_future_dates.sql` | **Same functional area, timestamp drift**; current live helper definitions match the reviewed behavior | Preserve both local files and remote ledger; do not replay |
 | Phase 7 hardening (Oct 11) | `20261011105104` | Matching `20261011105104_phase_7_harden_rpc_grants_and_schedule_search_paths.sql` | **Exact version/name match** | Already applied; verified grants and search-path settings |
 
+## P1.2 Academy UPI Settings (12 October 2026)
+
+The following new migrations are aligned between the repository and live ledger:
+
+| Feature | Live version/name | Repository file | Status |
+|---|---|---|---|
+| Academy UPI settings foundation | `20261012013143` / `academy_upi_settings_foundation` | `20261012013143_academy_upi_settings_foundation.sql` | Applied and recorded |
+| Academy UPI policy tuning | `20261012013320` / `academy_upi_settings_policy_tuning` | `20261012013320_academy_upi_settings_policy_tuning.sql` | Applied and recorded |
+
+These are new migrations only. Existing historical drift was not modified, replayed or reconciled as part of P1.2.
+
 ## Current-state checks already performed
 
 - Seven academy consistency checks returned zero mismatches for player/batch,
