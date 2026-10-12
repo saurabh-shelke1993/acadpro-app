@@ -7,6 +7,7 @@ import {
   deleteExpenseReminder,
   fetchExpenseAcademies,
   fetchExpenses,
+  fetchPaymentIncome,
   fetchExpenseReminders,
   saveExpense,
   saveExpenseReminder
@@ -60,6 +61,7 @@ function Expenses() {
   const [academyFilter, setAcademyFilter] = useState("");
   const [expenses, setExpenses] = useState([]);
   const [overviewExpenses, setOverviewExpenses] = useState([]);
+  const [overviewPayments, setOverviewPayments] = useState([]);
   const [reminders, setReminders] = useState([]);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
@@ -86,7 +88,7 @@ function Expenses() {
     setError("");
     try {
       const overviewRange = getExpenseOverviewPeriod(overviewPeriod);
-      const [nextExpenses, nextReminders, nextOverviewExpenses] = await Promise.all([
+      const [nextExpenses, nextReminders, nextOverviewExpenses, nextOverviewPayments] = await Promise.all([
         fetchExpenses(currentUser, { academyId: academyFilter, fromDate, toDate, category: categoryFilter }),
         fetchExpenseReminders(currentUser, { academyId: academyFilter }),
         fetchExpenses(currentUser, {
@@ -94,10 +96,16 @@ function Expenses() {
           fromDate: overviewRange.startDate,
           toDate: overviewRange.endDate,
         }),
+        fetchPaymentIncome(currentUser, {
+          academyId: academyFilter,
+          fromDateTime: overviewRange.startDateTime,
+          toDateTimeExclusive: overviewRange.endDateTimeExclusive,
+        }),
       ]);
       setExpenses(nextExpenses);
       setReminders(nextReminders);
       setOverviewExpenses(nextOverviewExpenses);
+      setOverviewPayments(nextOverviewPayments);
     } catch (err) {
       setError(err.message || "Unable to load Expenses.");
     } finally {
@@ -144,8 +152,9 @@ function Expenses() {
   const overview = useMemo(() => calculateExpenseOverview({
     expenses: overviewExpenses,
     reminders,
+    payments: overviewPayments,
     periodType: overviewPeriod,
-  }), [overviewExpenses, reminders, overviewPeriod]);
+  }), [overviewExpenses, reminders, overviewPayments, overviewPeriod]);
 
   const resetExpenseForm = () => {
     setExpenseForm({ ...EMPTY_EXPENSE, expense_date: today() });
@@ -328,12 +337,14 @@ function Expenses() {
             </div>
           </div>
           <div className="expenses-summary-grid" aria-label="Expense summary">
+            <article className="expenses-summary-card"><span>Income collected</span><strong>{formatCurrency(overview.incomeCollected)}</strong><small>Recorded fee payments in this period</small></article>
             <article className="expenses-summary-card"><span>Expected recurring costs</span><strong>{formatCurrency(overview.expectedAmount)}</strong><small>Based on active monthly / quarterly reminders</small></article>
             <article className="expenses-summary-card"><span>Actual expenses paid</span><strong>{formatCurrency(overview.paidAmount)}</strong><small>{overview.expenseCount} recorded {overview.expenseCount === 1 ? "expense" : "expenses"} in this {overviewPeriod === "monthly" ? "month" : "quarter"}</small></article>
             <article className="expenses-summary-card"><span>Expected − actual paid</span><strong>{formatCurrency(overview.varianceAmount)}</strong><small>{overview.varianceAmount >= 0 ? "Expected costs not yet matched by recorded spend" : "Actual spend exceeds expected recurring costs"}</small></article>
-            <article className="expenses-summary-card"><span>Active reminders</span><strong>{overview.activeReminderCount}</strong><small>{overview.overdueReminderCount} overdue · reminders never create expenses automatically</small></article>
+            <article className="expenses-summary-card"><span>Net cash movement</span><strong>{formatCurrency(overview.netCashMovement)}</strong><small>Income collected minus recorded expenses</small></article>
+            <article className="expenses-summary-card"><span>Active reminders</span><strong>{overview.activeReminderCount}</strong><small>{overview.overdueReminderCount} overdue · no automatic expense creation</small></article>
           </div>
-          <p className="expenses-overview-note">Expected costs are estimates, not payments. Actual spend includes all recorded expenses, including one-off costs. Record each recurring occurrence manually when the cost has actually been paid.</p>
+          <p className="expenses-overview-note">Expected costs are estimates, not payments. Actual spend includes all recorded expenses, including one-off costs. Income collected comes from existing payment ledger entries; net cash movement is not a cash-in-hand balance. Record each recurring occurrence manually when the cost has actually been paid.</p>
         </section>
 
         <section className="expenses-panel">
