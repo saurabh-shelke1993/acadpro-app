@@ -13,12 +13,12 @@
 | Category | Required evidence | Current result |
 |---|---|---|
 | Repository/source review | Branch and diff review; no unintended migration/history edits | Reviewed in source; full local diff review pending |
-| Unit tests | `cd frontend && npm test -- --watchAll=false` | Not executed in this environment |
-| Production build | `cd frontend && npm run build` | Not executed in this environment |
-| GitHub/Vercel | Check status for the current branch HEAD, not an earlier docs commit | A Vercel success was observed on commit `041a8c27e063abd32d853d2078c84bc69eaa922a`; confirm status for the current HEAD after pulling |
-| Browser acceptance | Role, capture, status, conversion and regression scenarios below | Pending user-run browser checks |
-| Database authorization/transactions | Controlled fixtures or isolated Supabase development branch | Not executed; do not seed fake leads/players in active project |
-| Release documentation | R1–R6 status and known limitations recorded | This checklist added; update final result after validation |
+| Unit tests | `npm test -- --watchAll=false` from `frontend` | **PASS — 14 suites, 101 tests passed**; user ran on code HEAD `fa87d7d79152a3807f7c86e070d4b3be9ec97b50` on 13 Oct 2026. Warnings remain (React Router future flags, multiple GoTrueClient instances in `App.test.js`, and unwrapped React state updates in a Parent UPI component test); none failed the suite. |
+| Production build | `npm run build` from `frontend` | **PASS — Compiled successfully** on code HEAD `fa87d7d79152a3807f7c86e070d4b3be9ec97b50` on 13 Oct 2026. Existing non-failing warnings are documented above; no warnings were suppressed. |
+| GitHub/Vercel | Check status for the tested code HEAD and distinguish Preview from Production | GitHub combined status reported Vercel **success** for code HEAD `fa87d7d79152a3807f7c86e070d4b3be9ec97b50`. The latest Preview was opened by the user; Production remains unverified and must not be treated as released. |
+| Browser acceptance | Role, capture, status, conversion and regression scenarios below | **PARTIAL** — user verified Academy Owner can open `/enquiries` and `/parent-upi-submissions` in the latest Preview; sidebar shows Enquiries and Finance. Full lifecycle, other roles and existing-module regression remain pending. |
+| Database authorization/transactions | Controlled fixtures or isolated Supabase development branch | **PARTIAL CONFIGURATION REVIEW** — live read-only checks confirmed inquiry table grants/RLS policy and enquiry RPC SECURITY DEFINER/search_path/anon EXECUTE settings. Live data counts were inspected; one existing enquiry is already Converted and its Player/Parent/player-batch links are present. No transaction, rollback, concurrency or authenticated role simulation was run. No Supabase development branches are currently listed. Do not seed fake leads/players in active project. |
+| Release documentation | R1–R6 status and known limitations recorded | Updated 13 Oct 2026 with the observed automated, Preview, and read-only database results. R6 remains **validation in progress**. |
 
 ## A. Existing application regression
 
@@ -105,3 +105,31 @@ R6 can be marked **PASS** only when all are true:
 - Docs record actual results and the exact tested commit SHA.
 
 Until then, report R6 as **validation in progress**, not release-ready.
+
+
+## Current checkpoint — 13 October 2026
+
+**Code commit tested:** `fa87d7d79152a3807f7c86e070d4b3be9ec97b50` (branch `payment-module-finalization`). The subsequent documentation-only commits are not part of that code test SHA.
+
+### Observed passes
+- Jest: 14/14 suites and 101/101 tests passed.
+- Production build: compiled successfully.
+- Vercel status for the tested code HEAD: success.
+- Latest Preview browser smoke check: Academy Owner opened Enquiries and Parent UPI Payment Claims; the expected sidebar links rendered.
+- Read-only live schema/grant review: direct client writes to `public.inquiries` denied; anon inquiry access denied; the three enquiry RPCs use empty search paths and deny anon execution.
+- Read-only conversion integrity check: the existing converted enquiry has a Player, Parent and player-batch mapping.
+
+### Deferred by user
+The following R6 checks are intentionally deferred until the user returns to release validation:
+- Isolated conversion success/retry/concurrency/rollback and role/cross-tenant tests.
+- Full browser acceptance for Super Admin, Academy Owner, Coach, Parent/anonymous.
+- Existing Player, Attendance, subscriptions, dues/collections/receipts, Parent Portal and UPI end-to-end regression.
+- Final Production verification/release decision.
+
+### Safety and warning notes
+- Live project inspection showed 1 enquiry, 49 players, 59 parents, 48 player-batch rows, 42 payments, 26 payment dues, 131 attendance rows and 0 trial-attendance rows. These are live business records; do not create disposable test data there.
+- No Supabase development branches were listed at the time of inspection.
+- Security Advisor snapshot: 13 authenticated SECURITY DEFINER warnings, two RLS-enabled/no-policy INFO findings (`payment_number_counters`, `trial_attendance`), and leaked-password protection disabled on the current plan. The three enquiry RPC warnings are expected from the chosen RPC design but still require role/tenant runtime tests.
+- React Router future-flag, duplicate GoTrueClient and Parent UPI test act() warnings remain non-failing; do not suppress them as part of unrelated work.
+
+**Release decision: NOT RELEASE-READY.** Automated checks and limited Preview navigation passed, but the deferred checks above are still required before release.
