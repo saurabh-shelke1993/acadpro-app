@@ -133,6 +133,7 @@ function Sidebar({ isOpen = false, onClose = () => {}, closeButtonRef }) {
               {renderLink("/player-subscriptions", "Player Subscriptions", "▤")}
               {renderLink("/payment-dues", "Payment Dues", "₹")}
               {renderLink("/payment-collections", "Payment Collections", "↗")}
+              {renderLink("/parent-upi-submissions", "Parent UPI Claims", "✓")}
               {renderLink("/expenses", "Expenses", "−")}
               {renderLink("/academy-upi-settings", "Academy UPI Settings", "▦")}
             </>
