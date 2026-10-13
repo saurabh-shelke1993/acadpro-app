@@ -24,16 +24,11 @@ function Sidebar({ isOpen = false, onClose = () => {}, closeButtonRef }) {
         .eq("id", user.academy_id)
         .maybeSingle();
 
-      if (!error && mounted) {
-        setAcademy(data || null);
-      }
+      if (!error && mounted) setAcademy(data || null);
     };
 
     loadAcademy();
-
-    return () => {
-      mounted = false;
-    };
+    return () => { mounted = false; };
   }, [user?.academy_id]);
 
   const handleLogout = async () => {
@@ -65,11 +60,13 @@ function Sidebar({ isOpen = false, onClose = () => {}, closeButtonRef }) {
         aria-label="Sidebar navigation"
       >
         <div className="app-brand">
-          <div className="app-brand-mark" aria-hidden="true">⚽</div>
-          <div>
-            <div className="app-brand-name">AcadPro</div>
+          <div className="app-brand-mark">
+            <img src="/assets/kheltriva-mark.svg" alt="" />
+          </div>
+          <div className="app-brand-copy">
+            <div className="app-brand-name">Kheltriva</div>
             <div className="app-brand-caption">
-              {academy?.academy_name || "Academy management"}
+              {academy?.academy_name || "Football academy management"}
             </div>
           </div>
 
@@ -146,11 +143,7 @@ function Sidebar({ isOpen = false, onClose = () => {}, closeButtonRef }) {
           <div className="app-user-chip">
             <span className="app-user-avatar" aria-hidden="true">
               {academy?.academy_logo ? (
-                <img
-                  src={academy.academy_logo}
-                  alt=""
-                  className="app-user-avatar-logo"
-                />
+                <img src={academy.academy_logo} alt="" className="app-user-avatar-logo" />
               ) : (
                 academy?.academy_name
                   ? academy.academy_name
