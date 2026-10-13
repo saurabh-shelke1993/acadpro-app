@@ -24,14 +24,10 @@ function Layout({ children }) {
   }, [sidebarOpen]);
 
   useEffect(() => {
-    if (!sidebarOpen) {
-      return undefined;
-    }
+    if (!sidebarOpen) return undefined;
 
     const isMobile = window.matchMedia("(max-width: 900px)").matches;
-    if (!isMobile) {
-      return undefined;
-    }
+    if (!isMobile) return undefined;
 
     const handleKeyDown = (event) => {
       if (event.key === "Escape") {
@@ -40,14 +36,10 @@ function Layout({ children }) {
         return;
       }
 
-      if (event.key !== "Tab") {
-        return;
-      }
+      if (event.key !== "Tab") return;
 
       const sidebar = document.querySelector(".app-sidebar-open");
-      if (!sidebar) {
-        return;
-      }
+      if (!sidebar) return;
 
       const focusable = sidebar.querySelectorAll(
         'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
@@ -73,9 +65,7 @@ function Layout({ children }) {
     document.addEventListener("keydown", handleKeyDown);
     document.body.classList.add("app-sidebar-open");
 
-    requestAnimationFrame(() => {
-      closeButtonRef.current?.focus();
-    });
+    requestAnimationFrame(() => closeButtonRef.current?.focus());
 
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
@@ -84,14 +74,8 @@ function Layout({ children }) {
   }, [sidebarOpen, closeSidebar]);
 
   useEffect(() => {
-    if (sidebarOpen) {
-      return undefined;
-    }
-
-    requestAnimationFrame(() => {
-      document.getElementById("main-content")?.focus();
-    });
-
+    if (sidebarOpen) return undefined;
+    requestAnimationFrame(() => document.getElementById("main-content")?.focus());
     return undefined;
   }, [location.pathname, sidebarOpen]);
 
@@ -132,9 +116,9 @@ function Layout({ children }) {
             <span />
           </button>
 
-          <div className="app-mobile-brand">
-            <span className="app-mobile-brand-mark">⚽</span>
-            <span>AcadPro</span>
+          <div className="app-mobile-brand" aria-label="Kheltriva">
+            <img src="/assets/kheltriva-mark.svg" alt="" />
+            <span>Kheltriva</span>
           </div>
         </header>
 
