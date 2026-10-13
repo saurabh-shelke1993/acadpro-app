@@ -545,3 +545,44 @@
   color: var(--ap-white);
   border-radius: var(--ap-radius-full);
 }
+
+/* Kheltriva application identity */
+.app-brand {
+  gap: var(--ap-space-3);
+}
+
+.app-brand-mark {
+  overflow: hidden;
+  padding: 3px;
+  background: #f8fafc;
+  border: 1px solid rgba(147, 197, 253, 0.3);
+}
+
+.app-brand-mark img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.app-brand-copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.app-brand-name {
+  letter-spacing: -0.035em;
+}
+
+.app-mobile-brand img {
+  display: block;
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  border-radius: var(--ap-radius-md);
+}
+
+.app-mobile-brand {
+  color: #172554;
+  letter-spacing: -0.02em;
+}
