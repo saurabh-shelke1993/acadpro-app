@@ -1,1 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 220" role="img" aria-labelledby="title"><title id="title">Kheltriva mark</title><defs><linearGradient id="b" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#172554"/><stop offset="1" stop-color="#2563EB"/></linearGradient></defs><path d="M24 20 H102 L70 78 L26 109 L8 186 Q6 196 18 196 H73 L96 128 L145 196 H222 L160 111 L216 25 Q220 16 208 16 H154 L105 87 L51 121Z" fill="url(#b)"/><path d="M24 177 L96 133 L166 91 L211 52 L184 94 L105 147Z" fill="#16A34A"/><path d="M48 151 L65 129 L78 122 L86 105 L96 104 L100 115 L95 124 L107 133 L120 128 L125 134 L110 145 L96 144 L85 158 L77 175 L65 180 L69 157 L59 168 L49 181 L42 179 L49 163Z" fill="#F8FAFC"/><g transform="translate(170 4)"><circle cx="28" cy="28" r="27" fill="#F8FAFC" stroke="#172554" stroke-width="4"/><path d="M28 12 L39 20 L35 33 L21 33 L17 20Z" fill="#172554"/><path d="M28 12 L28 3 M39 20 L50 16 M35 33 L42 44 M21 33 L13 43 M17 20 L6 16" stroke="#172554" stroke-width="5" stroke-linecap="round"/></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 220" role="img" aria-labelledby="title desc">
+<title id="title">Kheltriva football mark</title><desc id="desc">Dynamic K with a white running footballer, green and white speed trails, and a clear football.</desc>
+<defs><linearGradient id="b" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#172554"/><stop offset="1" stop-color="#2563EB"/></linearGradient></defs>
+<path d="M24 20 H102 L70 78 L26 109 L8 186 Q6 196 18 196 H73 L96 128 L145 196 H222 L160 111 L216 25 Q220 16 208 16 H154 L105 87 L51 121Z" fill="url(#b)"/>
+<path d="M24 177 L94 133 L166 91 L211 52 L184 94 L105 147Z" fill="#FFFFFF"/>
+<path d="M30 184 L99 141 L170 99 L211 61 L185 99 L106 153Z" fill="#16A34A"/>
+<circle cx="98" cy="84" r="10" fill="#FFFFFF"/>
+<path d="M92 97 L107 101 L117 117 L107 125 L95 112 L87 129 L74 136 L66 130 L78 118 L82 103Z" fill="#FFFFFF"/>
+<path d="M90 104 L73 110 L61 123 L53 119 L67 102 L87 94Z" fill="#FFFFFF"/>
+<path d="M104 104 L120 104 L133 95 L139 101 L125 116 L107 118Z" fill="#FFFFFF"/>
+<path d="M94 123 L109 124 L119 139 L138 149 L133 157 L110 149 L95 136 L82 150 L69 164 L60 159 L73 139Z" fill="#FFFFFF"/>
+<path d="M84 125 L73 138 L63 144 L51 159 L42 154 L53 136 L68 124Z" fill="#FFFFFF"/>
+<g transform="translate(164 2)"><circle cx="30" cy="30" r="28" fill="#FFFFFF" stroke="#172554" stroke-width="4"/><path d="M30 16 L41 24 L37 37 L23 37 L19 24Z" fill="#172554"/><path d="M30 16 L30 4 M41 24 L54 19 M37 37 L44 50 M23 37 L14 49 M19 24 L6 19" fill="none" stroke="#172554" stroke-width="3.5" stroke-linecap="round"/></g>
+</svg>
