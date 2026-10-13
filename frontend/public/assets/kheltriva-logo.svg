@@ -8,6 +8,6 @@
 <path d="M50 151 L65 129 L78 122 L86 105 L96 104 L100 115 L95 124 L107 133 L120 128 L125 134 L110 145 L96 144 L85 158 L77 175 L65 180 L69 157 L59 168 L49 181 L42 179 L49 163Z" fill="#F8FAFC"/>
 <g transform="translate(174 4)"><circle cx="28" cy="28" r="27" fill="#F8FAFC" stroke="#172554" stroke-width="4"/><path d="M28 12 L39 20 L35 33 L21 33 L17 20Z" fill="#172554"/><path d="M28 12 L28 3 M39 20 L50 16 M35 33 L42 44 M21 33 L13 43 M17 20 L6 16" stroke="#172554" stroke-width="5" stroke-linecap="round"/></g>
 </g>
-<text x="265" y="133" font-family="Arial, Helvetica, sans-serif" font-size="100" font-weight="800" letter-spacing="-3"><tspan fill="#172554">Khel</tspan><tspan fill="#2563EB">triva</tspan></text><circle cx="610" cy="30" r="7" fill="#16A34A"/>
-<text x="270" y="174" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="600" letter-spacing="3.1" fill="#64748B">FOOTBALL ACADEMY MANAGEMENT PLATFORM</text>
+<text x="265" y="132" font-family="Arial, Helvetica, sans-serif" font-size="100" font-weight="800" letter-spacing="-3"><tspan fill="#172554">Khel</tspan><tspan fill="#2563EB">triva</tspan></text>
+<text x="270" y="176" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700" letter-spacing="2.2" fill="#64748B">FOOTBALL ACADEMY MANAGEMENT</text>
 </svg>
