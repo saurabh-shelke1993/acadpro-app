@@ -1,12 +1,23 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 230" role="img" aria-labelledby="title desc">
-<title id="title">Kheltriva</title><desc id="desc">Kheltriva football academy management platform logo with a dynamic K, running player, football, and motion trails.</desc>
-<defs><linearGradient id="blue" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#172554"/><stop offset="1" stop-color="#2563EB"/></linearGradient><linearGradient id="trail" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#16A34A"/><stop offset="1" stop-color="#22C55E"/></linearGradient></defs>
-<g transform="translate(8 12)">
-<path d="M24 24 Q26 16 36 16 H107 L73 85 L28 121 L6 183 Q4 194 17 194 H75 L98 126 L145 194 H225 L164 112 L219 27 Q223 16 211 16 H155 L106 88 L51 123 Z" fill="url(#blue)"/>
-<path d="M25 173 L86 126 L143 87 L186 47 L161 93 L91 142 L25 173Z" fill="#172554"/>
-<path d="M30 178 L101 135 L170 94 L211 57 L185 96 L107 149 L30 178Z" fill="url(#trail)"/>
-<path d="M50 151 L65 129 L78 122 L86 105 L96 104 L100 115 L95 124 L107 133 L120 128 L125 134 L110 145 L96 144 L85 158 L77 175 L65 180 L69 157 L59 168 L49 181 L42 179 L49 163Z" fill="#F8FAFC"/>
-<g transform="translate(174 4)"><circle cx="28" cy="28" r="27" fill="#F8FAFC" stroke="#172554" stroke-width="4"/><path d="M28 12 L39 20 L35 33 L21 33 L17 20Z" fill="#172554"/><path d="M28 12 L28 3 M39 20 L50 16 M35 33 L42 44 M21 33 L13 43 M17 20 L6 16" stroke="#172554" stroke-width="5" stroke-linecap="round"/></g>
+<title id="title">Kheltriva</title><desc id="desc">Kheltriva football academy management platform: a bold K, white running footballer, green and white speed trails, and a clearly visible football.</desc>
+<defs><linearGradient id="blue" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#172554"/><stop offset="1" stop-color="#2563EB"/></linearGradient></defs>
+<g transform="translate(4 10)">
+  <path d="M22 24 Q24 15 36 15 H105 L70 84 L26 119 L5 183 Q3 196 17 196 H74 L98 126 L145 196 H225 L164 111 L219 26 Q223 15 210 15 H154 L105 87 L50 122 Z" fill="url(#blue)"/>
+  <path d="M21 174 L83 131 L145 91 L185 53 L161 94 L93 145 L21 174Z" fill="#FFFFFF"/>
+  <path d="M28 181 L96 139 L166 98 L207 61 L182 99 L103 151 L28 181Z" fill="#16A34A"/>
+  <!-- White athlete silhouette: distinct head, torso, arms, and running legs -->
+  <circle cx="102" cy="91" r="10" fill="#FFFFFF"/>
+  <path d="M96 104 L111 108 L121 124 L111 132 L99 119 L91 136 L78 143 L70 137 L82 125 L86 110Z" fill="#FFFFFF"/>
+  <path d="M94 111 L77 117 L65 130 L57 126 L71 109 L91 101Z" fill="#FFFFFF"/>
+  <path d="M108 111 L124 111 L137 102 L143 108 L129 123 L111 125Z" fill="#FFFFFF"/>
+  <path d="M98 130 L113 131 L123 146 L142 156 L137 164 L114 156 L99 143 L86 157 L73 171 L64 166 L77 146Z" fill="#FFFFFF"/>
+  <path d="M88 132 L77 145 L67 151 L55 166 L46 161 L57 143 L72 131Z" fill="#FFFFFF"/>
+  <!-- Large, readable football with pentagon and seams -->
+  <g transform="translate(177 9)">
+    <circle cx="29" cy="29" r="27" fill="#FFFFFF" stroke="#172554" stroke-width="4"/>
+    <path d="M29 16 L40 24 L36 37 L22 37 L18 24Z" fill="#172554"/>
+    <path d="M29 16 L29 4 M40 24 L52 19 M36 37 L43 49 M22 37 L14 48 M18 24 L6 19" fill="none" stroke="#172554" stroke-width="3.5" stroke-linecap="round"/>
+  </g>
 </g>
 <text x="265" y="132" font-family="Arial, Helvetica, sans-serif" font-size="100" font-weight="800" letter-spacing="-3"><tspan fill="#172554">Khel</tspan><tspan fill="#2563EB">triva</tspan></text>
 <text x="270" y="176" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700" letter-spacing="2.2" fill="#64748B">FOOTBALL ACADEMY MANAGEMENT</text>
