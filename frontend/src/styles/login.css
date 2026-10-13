@@ -43,13 +43,13 @@
 .login-story-brand {
   position: relative;
   z-index: 1;
-  width: min(100%, 390px);
+  width: min(100%, 430px);
 }
 .login-story-brand img {
   display: block;
   width: 100%;
   height: auto;
-  padding: 12px;
+  padding: 8px;
   border-radius: 14px;
   background: #f8fafc;
 }
