@@ -17,8 +17,8 @@
   flex-direction: column;
   padding: var(--ap-space-5);
   overflow-y: auto;
-  background: var(--ap-slate-950);
-  color: var(--ap-white);
+  background: var(--ap-brand-navy);
+  color: var(--ap-brand-white);
   scrollbar-width: thin;
   scrollbar-color: var(--ap-slate-700) transparent;
 }
@@ -554,7 +554,7 @@
 .app-brand-mark {
   overflow: hidden;
   padding: 3px;
-  background: #f8fafc;
+  background: var(--ap-brand-white);
   border: 1px solid rgba(147, 197, 253, 0.3);
 }
 
@@ -583,6 +583,6 @@
 }
 
 .app-mobile-brand {
-  color: #172554;
+  color: var(--ap-brand-navy);
   letter-spacing: -0.02em;
 }
