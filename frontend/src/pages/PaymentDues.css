@@ -7,7 +7,7 @@
   color: #0f172a;
 }
 .payment-page-header{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:24px}
-.payment-page-eyebrow{color:#2563eb;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
+.payment-page-eyebrow{color:var(--ap-primary-600);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
 .payment-page-header h1,.payment-card-header h2,.payment-modal-header h2{margin:0;color:#0f172a}
 .payment-page-header h1{font-size:30px}
 .payment-page-header p,.payment-card-header p{margin:7px 0 0;color:#64748b;font-size:14px}
@@ -25,9 +25,9 @@
 .payment-amount-preview{margin-right:auto;display:flex;align-items:baseline;gap:10px;color:#64748b;font-size:13px}
 .payment-amount-preview strong{color:#0f172a;font-size:20px}
 .payment-primary-button,.payment-secondary-button,.payment-text-button,.payment-danger-button{min-height:40px;padding:8px 13px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;transition:.15s ease}
-.payment-primary-button{border:1px solid #2563eb;background:#2563eb;color:#fff}.payment-primary-button:hover{background:#1d4ed8}
+.payment-primary-button{border:1px solid var(--ap-primary-600);background:var(--ap-primary-600);color:#fff}.payment-primary-button:hover{background:var(--ap-primary-700)}
 .payment-secondary-button{border:1px solid #cbd5e1;background:#fff;color:#334155}.payment-secondary-button:hover{background:#f8fafc}
-.payment-text-button{border:0;background:transparent;color:#2563eb;padding-left:5px;padding-right:5px}
+.payment-text-button{border:0;background:transparent;color:var(--ap-primary-600);padding-left:5px;padding-right:5px}
 .payment-danger-button{border:0;background:transparent;color:#dc2626;padding-left:5px;padding-right:5px}
 .payment-list-header{align-items:flex-end}
 .payment-filter-field{min-width:150px;display:flex;flex-direction:column;gap:7px}
@@ -41,7 +41,7 @@
 .payment-type-badge{background:#f1f5f9;color:#475569;text-transform:capitalize}.payment-status-pending{background:#fef2f2;color:#b91c1c}.payment-status-partial{background:#fffbeb;color:#b45309}.payment-status-paid{background:#ecfdf5;color:#047857}
 .payment-action-group{display:flex;align-items:center;gap:8px}
 .payment-empty-state{padding:44px 20px;border:1px dashed #cbd5e1;border-radius:10px;background:#f8fafc;text-align:center}
-.payment-empty-icon{width:38px;height:38px;margin:0 auto 12px;display:grid;place-items:center;border-radius:10px;background:#dbeafe;color:#2563eb;font-weight:800}
+.payment-empty-icon{width:38px;height:38px;margin:0 auto 12px;display:grid;place-items:center;border-radius:10px;background:var(--ap-primary-100);color:var(--ap-primary-600);font-weight:800}
 .payment-empty-state h3{margin:0;font-size:16px}.payment-empty-state p{margin:7px 0 0;color:#64748b;font-size:13px}
 .payment-modal-overlay{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(15,23,42,.45)}
 .payment-modal{width:min(460px,100%);background:#fff;border-radius:14px;box-shadow:0 20px 50px rgba(15,23,42,.22);overflow:hidden}
@@ -63,7 +63,7 @@
 }
 .payment-section-kicker {
   margin-bottom: 4px;
-  color: #2563eb;
+  color: var(--ap-primary-600);
   font-size: 10px;
   font-weight: 800;
   letter-spacing: .08em;
@@ -330,7 +330,7 @@
 .payment-due-preview {
   margin-top: 14px;
   padding: 13px 14px;
-  border: 1px solid #dbeafe;
+  border: 1px solid var(--ap-primary-100);
   border-radius: 10px;
   background: #f8fbff;
 }
@@ -440,8 +440,8 @@
   color: #c2410c;
 }
 .payment-due-age-upcoming {
-  background: #eff6ff;
-  color: #1d4ed8;
+  background: var(--ap-primary-50);
+  color: var(--ap-primary-700);
 }
 .payment-due-age-paid {
   background: #ecfdf5;
