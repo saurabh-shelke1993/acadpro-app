@@ -78,7 +78,7 @@
 
 .app-nav-group-title {
   margin: var(--ap-space-4) var(--ap-space-2) var(--ap-space-2);
-  color: var(--ap-slate-500);
+  color: var(--ap-slate-200);
   font-size: 0.625rem;
   font-weight: 800;
   letter-spacing: 0.1em;
@@ -184,7 +184,7 @@
 .app-user-meta span {
   margin-top: 2px;
   overflow: hidden;
-  color: var(--ap-slate-500);
+  color: var(--ap-slate-200);
   font-size: 0.625rem;
   text-transform: capitalize;
   text-overflow: ellipsis;
