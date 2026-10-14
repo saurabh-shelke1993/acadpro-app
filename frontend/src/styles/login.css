@@ -62,7 +62,7 @@
 }
 .login-eyebrow {
   margin: 0 0 16px;
-  color: #86efac;
+  color: var(--ap-brand-accent);
   font-size: 0.78rem;
   font-weight: 800;
   letter-spacing: 0.16em;
