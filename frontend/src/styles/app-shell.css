@@ -17,7 +17,7 @@
   flex-direction: column;
   padding: var(--ap-space-5);
   overflow-y: auto;
-  background: var(--ap-brand-navy);
+  background: var(--ap-brand-sidebar);
   color: var(--ap-brand-white);
   scrollbar-width: thin;
   scrollbar-color: var(--ap-slate-700) transparent;
