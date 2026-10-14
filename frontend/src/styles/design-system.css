@@ -7,6 +7,11 @@
  */
 
 :root {
+  /* Kheltriva brand */
+  --ap-brand-navy: #172554;
+  --ap-brand-blue: #2563eb;
+  --ap-brand-white: #f8fafc;
+
   /* Brand */
   --ap-primary-50: #eff6ff;
   --ap-primary-100: #dbeafe;
