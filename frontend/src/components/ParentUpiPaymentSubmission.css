@@ -22,6 +22,6 @@
 .parent-upi-submission-row span,.parent-upi-submission-row small{overflow-wrap:anywhere}
 .parent-upi-submission-row>div>span,.parent-upi-submission-row small{font-size:.82rem;color:#64748b}
 .parent-upi-submission-status{display:inline-flex;align-items:center;max-width:48%;padding:6px 9px;border-radius:999px;background:#f1f5f9;color:#334155;font-size:.78rem;font-weight:700}
-.parent-upi-submission-status.status-accepted{background:#eff6ff;color:#1d4ed8}
+.parent-upi-submission-status.status-accepted{background:var(--ap-primary-50);color:var(--ap-primary-700)}
 .parent-upi-submission-status.status-rejected{background:#fef2f2;color:#991b1b}
 @media(max-width:680px){.parent-upi-submission{padding:16px}.parent-upi-submission-form{grid-template-columns:1fr}.parent-upi-submission-note{grid-column:auto}.parent-upi-submission-row{flex-direction:column}.parent-upi-submission-status{max-width:100%}}
