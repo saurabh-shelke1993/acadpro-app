@@ -52,7 +52,7 @@
 
 .app-brand-caption {
   margin-top: 1px;
-  color: var(--ap-slate-400);
+  color: var(--ap-slate-200);
   font-size: 0.6875rem;
 }
 
@@ -125,7 +125,7 @@
   flex: 0 0 22px;
   align-items: center;
   justify-content: center;
-  color: var(--ap-slate-400);
+  color: var(--ap-slate-300);
   font-size: 0.9rem;
   font-weight: 700;
 }
