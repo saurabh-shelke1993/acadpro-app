@@ -739,7 +739,9 @@
 
 
 /* Kheltriva approved dashboard refinement — visual only. */
+/* Explicitly restore the header hidden by the legacy dashboard simplification rule above. */
 .ao-dashboard-header {
+  display: flex;
   align-items: center;
   padding: var(--ap-space-5) 0 var(--ap-space-6);
   border-bottom-color: var(--ap-border);
