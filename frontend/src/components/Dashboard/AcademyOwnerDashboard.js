@@ -87,14 +87,36 @@ function CenterPerformance({ centers }) {
   );
 }
 
-function AcademyOwnerDashboard({ data }) {
+function AcademyOwnerDashboard({ data, user, onRefresh }) {
   const centers = data?.centers || [];
   const totals = data?.totals || {};
   const attendance = data?.attendance || {};
   const financial = data?.financial || {};
+  const today = new Intl.DateTimeFormat("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric"
+  }).format(new Date());
 
   return (
     <div className="ao-dashboard">
+      <header className="ao-dashboard-header">
+        <div>
+          <span className="ao-eyebrow">Academy overview</span>
+          <h1>Welcome back{user?.full_name ? `, ${user.full_name}` : ""}</h1>
+          <p>
+            Here’s your academy at a glance: <strong>{data?.academyName || "Your academy"}</strong>.
+          </p>
+        </div>
+        <div className="ao-header-actions">
+          <span className="ao-role-pill">Academy owner</span>
+          <span className="ao-date">{today}</span>
+          <button type="button" className="ao-refresh-button" onClick={onRefresh}>
+            Refresh
+          </button>
+        </div>
+      </header>
+
       <section className="ao-section ao-section-first">
         <div className="ao-section-heading">
           <div>
@@ -149,9 +171,7 @@ function AcademyOwnerDashboard({ data }) {
         <div className="ao-operations-card">
           <div className="ao-operations-summary">
             <div>
-              <strong>
-                {attendance.coveragePercentage || 0}%
-              </strong>
+              <strong>{attendance.coveragePercentage || 0}%</strong>
               <span>attendance coverage</span>
             </div>
             <div>
@@ -243,7 +263,6 @@ function AcademyOwnerDashboard({ data }) {
           </div>
         </div>
       </section>
-
     </div>
   );
 }
