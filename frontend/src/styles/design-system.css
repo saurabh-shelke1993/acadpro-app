@@ -11,7 +11,7 @@
   --ap-brand-navy: #16324f;
   --ap-brand-sidebar: #0b1f3a;
   --ap-brand-blue: #2563eb;
-  --ap-brand-accent: #38bdf8;
+  --ap-brand-accent: #c4f047;
   --ap-brand-white: #f1f5f9;
 
   /* Brand */
@@ -53,9 +53,9 @@
   --ap-white: #ffffff;
 
   /* Surfaces */
-  --ap-page-bg: #f1f5f9;
+  --ap-page-bg: #f7f9fc;
   --ap-surface: #ffffff;
-  --ap-surface-muted: #f1f5f9;
+  --ap-surface-muted: #f7f9fc;
   --ap-border: #e2e8f0;
   --ap-border-strong: #cbd5e1;
 
