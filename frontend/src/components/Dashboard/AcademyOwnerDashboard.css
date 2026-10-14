@@ -736,3 +736,102 @@
     grid-template-columns: 1fr;
   }
 }
+
+
+/* Kheltriva approved dashboard refinement — visual only. */
+.ao-dashboard-header {
+  align-items: center;
+  padding: var(--ap-space-5) 0 var(--ap-space-6);
+  border-bottom-color: var(--ap-border);
+}
+
+.ao-eyebrow,
+.ao-kicker {
+  color: var(--ap-primary-600);
+}
+
+.ao-dashboard-header h1 {
+  color: var(--ap-brand-navy);
+  font-size: clamp(1.65rem, 2.5vw, 2.1rem);
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+
+.ao-dashboard-header p {
+  line-height: 1.55;
+}
+
+.ao-role-pill {
+  border-color: rgba(196, 240, 71, 0.7);
+  background: rgba(196, 240, 71, 0.18);
+  color: var(--ap-brand-sidebar);
+}
+
+.ao-refresh-button {
+  min-height: var(--ap-control-standard-height);
+  padding: 0.5rem 0.875rem;
+  border-color: var(--ap-primary-600);
+  background: var(--ap-primary-600);
+  color: var(--ap-white);
+  transition: background-color var(--ap-transition-fast), box-shadow var(--ap-transition-fast);
+}
+
+.ao-refresh-button:hover {
+  border-color: var(--ap-primary-700);
+  background: var(--ap-primary-700);
+  color: var(--ap-white);
+}
+
+.ao-kpi-card {
+  min-height: 126px;
+  border-radius: var(--ap-radius-lg);
+  box-shadow: var(--ap-shadow-sm);
+}
+
+.ao-kpi-card[data-tone="blue"]::before {
+  background: var(--ap-primary-600);
+}
+
+.ao-kpi-card[data-tone="green"]::before {
+  background: var(--ap-success-600);
+}
+
+.ao-kpi-card[data-tone="orange"]::before {
+  background: var(--ap-warning-600);
+}
+
+.ao-kpi-card[data-tone="purple"]::before {
+  background: var(--ap-brand-accent);
+}
+
+.ao-coverage-track span,
+.ao-rate-track span {
+  background: var(--ap-primary-600);
+}
+
+.ao-center-row:hover,
+.ao-center-row:focus-visible {
+  background: var(--ap-primary-50);
+}
+
+.ao-operations-card,
+.ao-center-table-wrap,
+.ao-financial-status > div {
+  box-shadow: var(--ap-shadow-sm);
+}
+
+@media (max-width: 900px) {
+  .ao-dashboard-header {
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 640px) {
+  .ao-dashboard-header {
+    padding-top: var(--ap-space-3);
+  }
+
+  .ao-dashboard-header h1 {
+    font-size: 1.65rem;
+  }
+}
