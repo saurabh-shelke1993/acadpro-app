@@ -13,7 +13,7 @@
 .parent-upi-review-card-top h2{font-size:1.5rem;margin:7px 0 4px}
 .parent-upi-review-card-top p{margin:0;color:#64748b}
 .parent-upi-review-status{display:inline-flex;max-width:50%;padding:6px 10px;border-radius:999px;background:#f1f5f9;color:#334155;font-size:.78rem;font-weight:700}
-.parent-upi-review-status.status-accepted{background:var(--ap-primary-50);color:#1d4ed8}.parent-upi-review-status.status-rejected{background:#fef2f2;color:#991b1b}
+.parent-upi-review-status.status-accepted{background:var(--ap-primary-50);color:var(--ap-primary-700)}.parent-upi-review-status.status-rejected{background:#fef2f2;color:#991b1b}
 .parent-upi-review-details{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:20px 0}
 .parent-upi-review-details div{min-width:0;padding:12px;background:#f8fafc;border-radius:8px}
 .parent-upi-review-details dt{font-size:.78rem;color:#64748b;margin-bottom:5px}.parent-upi-review-details dd{margin:0;font-weight:650;overflow-wrap:anywhere}
@@ -22,7 +22,7 @@
 .parent-upi-review-actions label{display:grid;gap:7px;font-size:.88rem;font-weight:600}
 .parent-upi-review-actions textarea{width:100%;resize:vertical}
 .parent-upi-review-actions>div{display:flex;gap:10px;margin-top:12px}
-.parent-upi-review-actions button{border:0;border-radius:8px;padding:10px 14px;background:#0f766e;color:#fff;font-weight:700;cursor:pointer}
+.parent-upi-review-actions button{border:0;border-radius:8px;padding:10px 14px;background:var(--ap-primary-600);color:#fff;font-weight:700;cursor:pointer}
 .parent-upi-review-actions button.is-reject{background:#b91c1c}
 .parent-upi-review-actions button:disabled{opacity:.6;cursor:wait}
 .parent-upi-review-empty{padding:34px 20px;text-align:center;border:1px dashed #cbd5e1;border-radius:12px;color:#64748b}
