@@ -170,7 +170,7 @@
 
 .ao-kpi-card[data-tone="green"]::before { background: var(--ap-success-500); }
 .ao-kpi-card[data-tone="orange"]::before { background: var(--ap-warning-500); }
-.ao-kpi-card[data-tone="purple"]::before { background: #9333ea; }
+.ao-kpi-card[data-tone="purple"]::before { background: var(--ap-brand-accent); }
 
 .ao-kpi-card > span,
 .ao-kpi-card > strong,
