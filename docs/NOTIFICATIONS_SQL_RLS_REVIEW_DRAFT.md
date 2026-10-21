@@ -236,3 +236,48 @@ The repository root has `backend/`, `frontend/`, and `docs/`; no `supabase/` dir
 6. Inspect exact current definitions for every business RPC before deciding whether to modify RPC bodies, wrap them, or use carefully scoped triggers/outbox.
 
 No production changes were made by these checks.
+
+
+## Business RPC source review (read-only, 2026-10-21)
+
+The complete live definitions of the seven candidate business RPCs were retrieved and inspected:
+
+- `submit_parent_upi_payment`: validates parent identity, ownership of the due through the player's parent link, remaining balance, and transaction-reference uniqueness; inserts a pending claim only. Candidate notification: owner(s) of that academy after successful claim insert.
+- `review_parent_upi_payment`: Academy Owner only, locks the claim, verifies academy and pending state, validates remaining due on acceptance, then updates claim status. It deliberately does not record a payment. Candidate parent notification: only after accepted/rejected status update succeeds.
+- `record_accepted_parent_upi_submission`: Academy Owner only; locks claim and due, calls `collect_payment`, records external reference and marks the claim recorded in the same transaction. Payment-recorded notification belongs at this authoritative ledger boundary, not at claim acceptance.
+- `collect_payment`: validates owner/Super Admin role and due scope, locks the due, inserts payment, and updates due state in the same transaction. Avoid creating duplicate payment notifications both here and in the parent-claim wrapper; establish one canonical event source before integration.
+- `create_inquiry`: owner/coach role and academy/center scope validation precedes insertion. Candidate owner notification after successful insert; decide whether creator-owner self-notifications should be suppressed.
+- `update_inquiry`: owner/coach scope and state validation precede update. Only transition-specific events such as entering `trial_scheduled` should notify; ordinary field edits should not. Avoid repeated notifications if status/date is edited without a meaningful transition.
+- `record_inquiry_conversion`: Academy Owner only; locks inquiry, creates player and marks inquiry converted transactionally. Candidate conversion event is owner-only, but notifying the actor who just performed the action may be redundant; choose suppression or no event.
+
+All seven functions are SECURITY DEFINER with empty search_path and the current execute grants were inspected. The migration should preserve their signatures, role checks, transaction behavior, and grants. Prefer a small, separately reviewable event integration strategy rather than replacing multiple long business function definitions blindly.
+
+## Recommended first-release event cut (for final review)
+
+To reduce risk in the first release, implement only event families with a clear recipient and authoritative transaction boundary:
+1. UPI claim submitted → Academy Owner(s) for the claim academy.
+2. UPI claim accepted/rejected → submitting Parent.
+3. UPI claim recorded as a ledger payment → submitting Parent; do not emit a second payment-recorded notification from both `collect_payment` and its wrapper.
+4. Inquiry created → Academy Owner(s) for the academy, with a documented self-notification policy.
+5. Inquiry converted → do not notify the acting owner by default; reconsider only if there are other intended recipients.
+6. Trial scheduled → defer until a precise transition/idempotency rule is implemented.
+7. Schedule changes → defer from the first migration because recipient fan-out must reconcile current and prior coach assignments plus linked player schedule enrollments.
+8. Announcements → owner-authorized publication RPC and recipient fan-out, with idempotency and audience scope verified.
+
+This event cut is a recommendation for the final review, not a user-approved change to the event matrix. Before final SQL, ensure event recipients and notification copy are finalized.
+
+## Final migration readiness checklist
+
+- [x] Read-only table/FK/RLS inspection completed for relevant identity, player, coach, schedule, inquiry, and payment tables.
+- [x] Core helper definitions, security-definer status, search_path configuration, and reported execute grants inspected.
+- [x] Parent/player academy consistency snapshot checked (49 pairs, 0 mismatches in current data).
+- [x] Candidate business RPC definitions, grants, and related trigger inventory inspected.
+- [x] Realtime publication state checked; no target notification/announcement tables currently present.
+- [x] Scheduler checked; `cron.job` is absent and `pg_cron` is not installed.
+- [x] Repository root inspected; no `supabase/` migration directory appears at root.
+- [ ] Resolve canonical migration repository/workflow and live-history synchronization.
+- [ ] Finalize first-release event list, announcement audience inclusion, actor self-notification behavior, and announcement publishing RPC.
+- [ ] Decide retention scheduler implementation compatible with the project.
+- [ ] Draft final executable migration for review, including RLS, grants, safe definer functions, idempotency, tests/rollback notes, and explicitly gated Realtime/retention setup.
+
+No production changes were made.
