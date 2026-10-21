@@ -500,9 +500,23 @@ $function$;
 
 revoke all on function private.delete_expired_notifications() from public, anon, authenticated;
 
--- Realtime publication membership is intentionally not altered here.
--- Verify the live publication and deployment convention first; add
--- public.notifications to supabase_realtime only in the approved final migration.
+-- The live supabase_realtime publication exists. The last read-only
+-- publication-table query showed no notification table membership. Add only
+-- the notifications table, and only if not already present. This remains
+-- proposal SQL and must not be applied before explicit approval.
+do $publication$
+begin
+  if not exists (
+    select 1
+    from pg_catalog.pg_publication_tables pt
+    where pt.pubname = 'supabase_realtime'
+      and pt.schemaname = 'public'
+      and pt.tablename = 'notifications'
+  ) then
+    execute 'alter publication supabase_realtime add table public.notifications';
+  end if;
+end;
+$publication$;
 
 commit;
 
