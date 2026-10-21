@@ -543,6 +543,40 @@
   font-weight: 700;
 }
 
+.player-identity {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.player-avatar {
+  display: inline-flex;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: var(--ap-radius-full);
+  background: var(--ap-primary-100);
+  color: var(--ap-primary-700);
+  font-size: var(--ap-font-size-xs);
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.player-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.player-identity-name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
 .player-row-actions {
   display: flex;
   align-items: center;
