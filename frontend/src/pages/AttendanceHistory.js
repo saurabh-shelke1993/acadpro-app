@@ -15,16 +15,6 @@ function AttendanceHistory() {
 
   const [selectedDate, setSelectedDate] = useState("");
 
-  useEffect(() => {
-    fetchAcademies();
-    fetchAttendanceHistory();
-  }, [fetchAttendanceHistory]);
-
-  useEffect(() => {
-    if (selectedAcademy) fetchBatches();
-    else setBatches([]);
-  }, [selectedAcademy, fetchBatches]);
-
   const fetchAcademies = async () => {
 
     const { data, error } = await supabase
@@ -127,6 +117,16 @@ function AttendanceHistory() {
       setAttendanceList(data);
     }
   }, []);
+
+  useEffect(() => {
+    fetchAcademies();
+    fetchAttendanceHistory();
+  }, [fetchAttendanceHistory]);
+
+  useEffect(() => {
+    if (selectedAcademy) fetchBatches();
+    else setBatches([]);
+  }, [selectedAcademy, fetchBatches]);
 
   return (
 
