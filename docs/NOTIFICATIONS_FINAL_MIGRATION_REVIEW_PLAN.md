@@ -35,13 +35,23 @@ For this review branch, keep proposal artifacts in `docs/` and do not make them 
 11. Defer schedule-change fan-out until old/new affected coach assignments and linked player schedule enrollments are safely calculated.
 12. Editing a published announcement does not fan out duplicate notifications; publish is an explicit controlled lifecycle action.
 
+## Additional live-schema validation (read-only)
+
+- Confirmed `public.inquiries` contains the columns used by the proposal, including `academy_id`, `created_by`, `status`, and `updated_at`.
+- Confirmed enquiry statuses include `new`, `contacted`, `trial_scheduled`, `trial_completed`, `follow_up_required`, `converted`, and `lost`; a constraint requires `trial_date` when status is `trial_scheduled`. Trial notifications remain deferred.
+- Confirmed `public.parent_payment_submissions` has the columns used by the proposed trigger and statuses `pending`, `accepted`, `rejected`, and `recorded`, with constraints requiring payment ledger fields when status is `recorded`.
+- Confirmed current user role snapshot includes `academy_owner`, `coach`, `parent`, and `super_admin`. This is a current snapshot, not a guarantee for future accounts.
+- Confirmed an existing `BEFORE UPDATE` trigger `inquiries_set_updated_at` calls `private.set_inquiry_updated_at()`. The proposal adds an `AFTER INSERT` trigger only and does not replace the existing inquiry update trigger.
+- Confirmed `supabase_realtime` exists, with insert/update/delete publication operations enabled. The notification membership change is guarded in the proposal.
+- The schema/constraint inspection was read-only. It does not validate the proposed SQL's syntax or runtime behavior.
+
 ## Proposal artifact
 
 - [Final migration review SQL proposal](./NOTIFICATIONS_FINAL_MIGRATION_REVIEW.sql) — schema, RLS, mark-read RPCs, owner announcement publish/archive RPCs, idempotent notification insertion, triggers for verified UPI submission/review/recorded transitions and enquiry creation, and a 12-month cleanup routine without scheduling.
 - [Original migration sketch](./NOTIFICATIONS_MIGRATION_DRAFT.sql) — retained for comparison; do not apply.
 - [SQL/RLS review notes](./NOTIFICATIONS_SQL_RLS_REVIEW_DRAFT.md) — read-only schema, helper, policy and event-boundary findings.
 
-The proposal has been authored but has **not** been parsed or executed against a disposable database. It is not certified safe to apply. It contains a guarded Realtime publication addition for `public.notifications`; the cleanup routine is not scheduled.
+The proposal has been compared with relevant live table columns, constraints, helper functions, and publication metadata. It has **not** been parsed or executed against a disposable database and is not certified safe to apply. It contains a guarded Realtime publication addition for `public.notifications`; the cleanup routine is not scheduled.
 
 ## Required review fixes/checks before approval
 
