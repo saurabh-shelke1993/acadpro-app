@@ -1482,7 +1482,31 @@ useEffect(() => {
                     tabIndex={0}
                     aria-label={`View profile for ${player.full_name}`}
                   >
-                    <td className="player-name-cell">{player.full_name}</td>
+                    <td className="player-name-cell">
+                      <div className="player-identity">
+                        <span className="player-avatar" aria-hidden="true">
+                          {player.profile_image ? (
+                            <img
+                              src={player.profile_image}
+                              alt=""
+                              onError={(event) => {
+                                event.currentTarget.style.display = "none";
+                              }}
+                            />
+                          ) : (
+                            (player.full_name || "")
+                              .trim()
+                              .split(/\\s+/)
+                              .filter(Boolean)
+                              .slice(0, 2)
+                              .map((part) => part[0])
+                              .join("")
+                              .toUpperCase() || "P"
+                          )}
+                        </span>
+                        <span className="player-identity-name">{player.full_name}</span>
+                      </div>
+                    </td>
                     {!isCoach(loggedInUser) && <td>{player.academies?.academy_name || "—"}</td>}
                     <td>{player.centers?.center_name || "—"}</td>
                     <td>{player.batches?.batch_name || "—"}</td>
