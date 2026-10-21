@@ -59,7 +59,12 @@ function AttendanceHistory() {
     }
   }, [selectedAcademy]);
 
-  const fetchAttendanceHistory = useCallback(async () => {
+  const fetchAttendanceHistory = useCallback(async (filters = {}) => {
+    const {
+      academyId = "",
+      batchId = "",
+      date = "",
+    } = filters;
 
     let query = supabase
       .from("attendance")
@@ -81,27 +86,27 @@ function AttendanceHistory() {
         )
       `);
 
-    if (selectedAcademy) {
+    if (academyId) {
 
       query = query.eq(
         "academy_id",
-        selectedAcademy
+        academyId
       );
     }
 
-    if (selectedBatch) {
+    if (batchId) {
 
       query = query.eq(
         "batch_id",
-        selectedBatch
+        batchId
       );
     }
 
-    if (selectedDate) {
+    if (date) {
 
       query = query.eq(
         "attendance_date",
-        selectedDate
+        date
       );
     }
 
@@ -121,7 +126,7 @@ function AttendanceHistory() {
 
       setAttendanceList(data);
     }
-  }, [selectedAcademy, selectedBatch, selectedDate]);
+  }, []);
 
   return (
 
@@ -215,7 +220,11 @@ function AttendanceHistory() {
       <br />
 
       <button
-        onClick={fetchAttendanceHistory}
+        onClick={() => fetchAttendanceHistory({
+          academyId: selectedAcademy,
+          batchId: selectedBatch,
+          date: selectedDate,
+        })}
       >
         Apply Filters
       </button>
