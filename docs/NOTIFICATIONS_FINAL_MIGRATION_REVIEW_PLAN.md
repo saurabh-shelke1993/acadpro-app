@@ -10,7 +10,7 @@
 - `frontend/package.json` contains only React build/start/test scripts; `backend/package.json` contains only a Node server start script and a placeholder failing test script. No Supabase CLI migration script was found in these package manifests.
 - Notification artifacts are intentionally under `docs/`, not in an executable migration directory.
 - Existing payment and enquiry RPCs have authorization checks and transactional boundaries. Their definitions are not replaced by the review proposal.
-- A read-only query returned no rows for the current `supabase_realtime` publication table listing. This needs a more targeted permissions/publication check before any Realtime publication change.
+- A targeted read-only query confirmed the `supabase_realtime` publication exists (`puballtables = false`, insert/update/delete enabled). No table membership was returned by the prior publication-table listing, so the SQL proposal adds `public.notifications` conditionally only if it is not already a member.
 - `pg_cron` was available in the extension catalog but not installed at the last confirmed check; `cron.job` was absent.
 - No notification/announcement schema, RLS, Realtime publication, or retention job was created by this review.
 
@@ -41,7 +41,7 @@ For this review branch, keep proposal artifacts in `docs/` and do not make them 
 - [Original migration sketch](./NOTIFICATIONS_MIGRATION_DRAFT.sql) — retained for comparison; do not apply.
 - [SQL/RLS review notes](./NOTIFICATIONS_SQL_RLS_REVIEW_DRAFT.md) — read-only schema, helper, policy and event-boundary findings.
 
-The proposal has been authored but has **not** been parsed or executed against a disposable database. It is not certified safe to apply. The Realtime publication is intentionally not altered, and the cleanup routine is not scheduled.
+The proposal has been authored but has **not** been parsed or executed against a disposable database. It is not certified safe to apply. It contains a guarded Realtime publication addition for `public.notifications`; the cleanup routine is not scheduled.
 
 ## Required review fixes/checks before approval
 
@@ -52,7 +52,7 @@ The proposal has been authored but has **not** been parsed or executed against a
 5. Verify owner announcement lifecycle, draft editing, publish/archive, audience feed RLS, multi-child parent scope, inactive coach/parent behavior, and cross-academy denial.
 6. Verify trigger syntax and trigger behavior for UPI status transitions; ensure a recorded-payment notification cannot duplicate through `collect_payment` and its wrapper.
 7. Test idempotency, transaction rollback, recipient-only reads, mark-read isolation, and role isolation.
-8. Re-query Realtime publication metadata with a targeted check and decide the approved publication change.
+8. Re-query Realtime publication membership at final review and verify the guarded addition behaves correctly in the target deployment.
 9. Choose and verify the 12-month retention scheduler before scheduling the cleanup routine.
 
 ## Explicitly out of scope
