@@ -1457,7 +1457,7 @@ useEffect(() => {
                 <tr>
                   <td
                     className="players-empty-state"
-                    colSpan={isCoach(loggedInUser) ? 3 : 10}
+                    colSpan={isCoach(loggedInUser) ? 3 : isAcademyOwner(loggedInUser) ? 10 : 9}
                   >
                     <strong>No players found</strong>
                     <span>
