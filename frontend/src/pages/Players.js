@@ -32,6 +32,7 @@ import {
 import Layout from "../components/Layout";
 import PlayerImport from "../components/PlayerImport";
 import { getPlayerProfileSnapshot } from "../services/playerProfileService";
+import { getPlayerPhotoUrl, uploadPlayerPhoto } from "../services/playerPhotoService";
 import "./Players.css";
 
 function Players() {
@@ -77,6 +78,9 @@ function Players() {
   const [profileSnapshot, setProfileSnapshot] = useState(null);
   const [profileSnapshotLoading, setProfileSnapshotLoading] = useState(false);
   const [profileSnapshotError, setProfileSnapshotError] = useState("");
+  const [playerPhotoUrls, setPlayerPhotoUrls] = useState({});
+  const [playerPhotoUploading, setPlayerPhotoUploading] = useState(false);
+  const [playerPhotoError, setPlayerPhotoError] = useState("");
   const [columnFilters, setColumnFilters] = useState({
     academy: [],
     center: [],
@@ -87,6 +91,38 @@ function Players() {
 
   const PAGE_SIZE = 8;
   const canViewPlayerFees = isSuperAdmin(loggedInUser) || isAcademyOwner(loggedInUser);
+
+  useEffect(() => {
+    let cancelled = false;
+    const loadPlayerPhotoUrls = async () => {
+      const entries = await Promise.all((players || []).filter((player) => player.profile_image).map(async (player) => {
+        try { return [player.id, await getPlayerPhotoUrl(player.profile_image)]; }
+        catch (error) { console.warn("Unable to load private player photo:", error); return [player.id, null]; }
+      }));
+      if (!cancelled) setPlayerPhotoUrls((current) => ({ ...current, ...Object.fromEntries(entries) }));
+    };
+    loadPlayerPhotoUrls();
+    return () => { cancelled = true; };
+  }, [players]);
+
+  const handlePlayerPhotoChange = async (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file || !selectedCoachPlayer) return;
+    setPlayerPhotoUploading(true);
+    setPlayerPhotoError("");
+    try {
+      const result = await uploadPlayerPhoto({ player: selectedCoachPlayer, file });
+      setPlayerPhotoUrls((current) => ({ ...current, [selectedCoachPlayer.id]: result.url }));
+      setSelectedCoachPlayer((current) => current ? { ...current, profile_image: result.path } : current);
+      setPlayers((current) => current.map((player) => player.id === selectedCoachPlayer.id ? { ...player, profile_image: result.path } : player));
+    } catch (error) {
+      console.error("Failed to upload player photo:", error);
+      setPlayerPhotoError(error.message || "Unable to upload player photo.");
+    } finally {
+      setPlayerPhotoUploading(false);
+    }
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -1485,9 +1521,9 @@ useEffect(() => {
                     <td className="player-name-cell">
                       <div className="player-identity">
                         <span className="player-avatar" aria-hidden="true">
-                          {player.profile_image ? (
+                          {playerPhotoUrls[player.id] ? (
                             <img
-                              src={player.profile_image}
+                              src={playerPhotoUrls[player.id]}
                               alt=""
                               onError={(event) => {
                                 event.currentTarget.style.display = "none";
@@ -1594,8 +1630,8 @@ useEffect(() => {
               )}
               <div className="player-profile-identity">
                 <div className="player-profile-avatar" aria-label={`Photo placeholder for ${selectedCoachPlayer.full_name || "player"}`}>
-                  {(selectedCoachPlayer.profile_image && selectedCoachPlayer.profile_image.trim()) ? (
-                    <img src={selectedCoachPlayer.profile_image} alt={selectedCoachPlayer.full_name || "Player"} />
+                  {playerPhotoUrls[selectedCoachPlayer.id] ? (
+                    <img src={playerPhotoUrls[selectedCoachPlayer.id]} alt={selectedCoachPlayer.full_name || "Player"} />
                   ) : (
                     (selectedCoachPlayer.full_name || "Player")
                       .trim()
@@ -1609,6 +1645,16 @@ useEffect(() => {
                   <span className="player-profile-kicker">Player profile</span>
                   <h3>{selectedCoachPlayer.full_name}</h3>
                   <p>{selectedCoachPlayer.batches?.batch_name || "Batch not assigned"} · {selectedCoachPlayer.centers?.center_name || "Center not assigned"}</p>
+                  {isAcademyOwner(loggedInUser) && (
+                    <div className="player-photo-controls">
+                      <label className="player-photo-upload-button">
+                        {playerPhotoUploading ? "Uploading photo…" : playerPhotoUrls[selectedCoachPlayer.id] ? "Change photo" : "Upload photo"}
+                        <input type="file" accept="image/png,image/jpeg,image/webp" disabled={playerPhotoUploading} onChange={handlePlayerPhotoChange} />
+                      </label>
+                      <span>JPG, PNG or WebP · max 2 MB</span>
+                    </div>
+                  )}
+                  {playerPhotoError && <p className="player-profile-error" role="alert">{playerPhotoError}</p>}
                 </div>
               </div>
               <div className="player-profile-section">
