@@ -1570,7 +1570,8 @@ useEffect(() => {
               )}
               <div className="player-profile-identity">
                 <div className="player-profile-avatar" aria-hidden="true">
-                  {(selectedCoachPlayer.full_name || "P").trim().charAt(0).toUpperCase()}
+                  <span className="player-profile-avatar-ball">⚽</span>
+                  <span className="player-profile-avatar-initial">{(selectedCoachPlayer.full_name || "P").trim().charAt(0).toUpperCase()}</span>
                 </div>
                 <div>
                   <span className="player-profile-kicker">Player profile</span>
