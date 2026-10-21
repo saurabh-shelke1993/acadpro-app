@@ -31,6 +31,7 @@ import {
 
 import Layout from "../components/Layout";
 import PlayerImport from "../components/PlayerImport";
+import { getPlayerProfileSnapshot } from "../services/playerProfileService";
 import "./Players.css";
 
 function Players() {
@@ -73,6 +74,9 @@ function Players() {
   const [currentPage, setCurrentPage] = useState(1);
   const [openFilter, setOpenFilter] = useState(null);
   const [selectedCoachPlayer, setSelectedCoachPlayer] = useState(null);
+  const [profileSnapshot, setProfileSnapshot] = useState(null);
+  const [profileSnapshotLoading, setProfileSnapshotLoading] = useState(false);
+  const [profileSnapshotError, setProfileSnapshotError] = useState("");
   const [columnFilters, setColumnFilters] = useState({
     academy: [],
     center: [],
@@ -82,6 +86,37 @@ function Players() {
   });
 
   const PAGE_SIZE = 8;
+  const canViewPlayerFees = isSuperAdmin(loggedInUser) || isAcademyOwner(loggedInUser);
+
+  useEffect(() => {
+    let cancelled = false;
+    const loadProfileSnapshot = async () => {
+      if (!selectedCoachPlayer?.id) {
+        setProfileSnapshot(null);
+        setProfileSnapshotError("");
+        setProfileSnapshotLoading(false);
+        return;
+      }
+      setProfileSnapshotLoading(true);
+      setProfileSnapshotError("");
+      try {
+        const snapshot = await getPlayerProfileSnapshot(selectedCoachPlayer.id, {
+          includeFees: canViewPlayerFees,
+        });
+        if (!cancelled) setProfileSnapshot(snapshot);
+      } catch (error) {
+        console.error("Failed to load player profile snapshot:", error);
+        if (!cancelled) {
+          setProfileSnapshot(null);
+          setProfileSnapshotError("Some profile metrics could not be loaded. Please close and reopen this profile.");
+        }
+      } finally {
+        if (!cancelled) setProfileSnapshotLoading(false);
+      }
+    };
+    loadProfileSnapshot();
+    return () => { cancelled = true; };
+  }, [selectedCoachPlayer?.id, canViewPlayerFees]);
 
 useEffect(() => {
   fetchLoggedInUser();
@@ -1437,14 +1472,15 @@ useEffect(() => {
                   <tr
                     key={player.id}
                     className={isCoach(loggedInUser) ? "players-coach-row" : ""}
-                    onClick={() => (isCoach(loggedInUser) || isAcademyOwner(loggedInUser)) && setSelectedCoachPlayer(player)}
+                    onClick={() => setSelectedCoachPlayer(player)}
                     onKeyDown={(event) => {
-                      if ((isCoach(loggedInUser) || isAcademyOwner(loggedInUser)) && (event.key === "Enter" || event.key === " ")) {
+                      if (event.key === "Enter" || event.key === " ") {
                         event.preventDefault();
                         setSelectedCoachPlayer(player);
                       }
                     }}
-                    tabIndex={isCoach(loggedInUser) || isAcademyOwner(loggedInUser) ? 0 : undefined}
+                    tabIndex={0}
+                    aria-label={`View profile for ${player.full_name}`}
                   >
                     <td className="player-name-cell">{player.full_name}</td>
                     {!isCoach(loggedInUser) && <td>{player.academies?.academy_name || "—"}</td>}
@@ -1488,7 +1524,7 @@ useEffect(() => {
           </table>
         </div>
 
-        {(isCoach(loggedInUser) || isAcademyOwner(loggedInUser)) && selectedCoachPlayer ? (
+        {selectedCoachPlayer ? (
           <div className="coach-player-modal-backdrop" role="presentation" onClick={() => setSelectedCoachPlayer(null)}>
             <section
               className="coach-player-modal"
@@ -1532,7 +1568,19 @@ useEffect(() => {
                   </button>
                 </div>
               )}
-              <div className="coach-player-detail-grid">
+              <div className="player-profile-identity">
+                <div className="player-profile-avatar" aria-hidden="true">
+                  {(selectedCoachPlayer.full_name || "P").trim().charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <span className="player-profile-kicker">Player profile</span>
+                  <h3>{selectedCoachPlayer.full_name}</h3>
+                  <p>{selectedCoachPlayer.batches?.batch_name || "Batch not assigned"} · {selectedCoachPlayer.centers?.center_name || "Center not assigned"}</p>
+                </div>
+              </div>
+              <div className="player-profile-section">
+                <h3>Player information</h3>
+                <div className="coach-player-detail-grid">
                 <div><span>Center</span><strong>{selectedCoachPlayer.centers?.center_name || "—"}</strong></div>
                 <div><span>Batch</span><strong>{selectedCoachPlayer.batches?.batch_name || "—"}</strong></div>
                 <div><span>Date of birth</span><strong>{formatCoachDob(selectedCoachPlayer.dob)}</strong></div>
@@ -1542,7 +1590,67 @@ useEffect(() => {
                 <div><span>Parent phone</span><strong>{selectedCoachPlayer.parents?.phone || "—"}</strong></div>
                 <div><span>Parent email</span><strong>{selectedCoachPlayer.parents?.email || "—"}</strong></div>
                 <div className="coach-player-detail-wide"><span>Address</span><strong>{selectedCoachPlayer.parents?.address || "—"}</strong></div>
+                </div>
               </div>
+              <div className="player-profile-snapshot-grid">
+                <section className="player-profile-section">
+                  <div className="player-profile-section-heading">
+                    <h3>Training schedule</h3>
+                    <span>{profileSnapshot?.schedule?.length || 0} sessions</span>
+                  </div>
+                  {profileSnapshotLoading ? (
+                    <p className="player-profile-muted">Loading schedule…</p>
+                  ) : profileSnapshot?.schedule?.length ? (
+                    <div className="player-profile-schedule-list">
+                      {profileSnapshot.schedule.map((session) => (
+                        <div className="player-profile-schedule-row" key={session.id}>
+                          <strong>{session.day.slice(0, 3)}</strong>
+                          <div><span>{session.timeLabel || "Time not set"}</span><small>{session.centerName} · {session.batchName}</small></div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="player-profile-muted">No active sessions assigned.</p>
+                  )}
+                </section>
+                <section className="player-profile-section">
+                  <h3>Attendance snapshot</h3>
+                  {profileSnapshotLoading ? (
+                    <p className="player-profile-muted">Loading attendance…</p>
+                  ) : profileSnapshot?.attendance?.recordedSessions ? (
+                    <>
+                      <div className="player-profile-attendance-rate">{profileSnapshot.attendance.rate}%</div>
+                      <p className="player-profile-muted">Attendance rate across recorded sessions</p>
+                      <div className="player-profile-attendance-stats">
+                        <div><strong>{profileSnapshot.attendance.present}</strong><span>Present</span></div>
+                        <div><strong>{profileSnapshot.attendance.absent}</strong><span>Absent</span></div>
+                      </div>
+                    </>
+                  ) : (
+                    <p className="player-profile-muted">No attendance recorded.</p>
+                  )}
+                </section>
+              </div>
+              {canViewPlayerFees && (
+                <section className="player-profile-section player-profile-fees-section">
+                  <div className="player-profile-section-heading">
+                    <div><h3>Fees paid</h3><p>Recorded payments for the last three calendar months</p></div>
+                  </div>
+                  {profileSnapshotLoading ? (
+                    <p className="player-profile-muted">Loading payment totals…</p>
+                  ) : (
+                    <div className="player-profile-fees-grid">
+                      {(profileSnapshot?.monthlyPayments || []).map((month) => (
+                        <div key={month.key}>
+                          <span>{month.label}</span>
+                          <strong>{month.formattedAmount}</strong>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </section>
+              )}
+              {profileSnapshotError && <p className="player-profile-error" role="alert">{profileSnapshotError}</p>}
             </section>
           </div>
         ) : null}
