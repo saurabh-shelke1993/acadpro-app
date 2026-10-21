@@ -1418,3 +1418,179 @@
     grid-template-columns: 1fr;
   }
 }
+
+
+/* Shared Player Profile snapshot (P3.3) */
+.player-profile-identity {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1rem 0 1.25rem;
+  padding: 1rem;
+  border: 1px solid var(--ap-border);
+  border-radius: var(--ap-radius-xl);
+  background: var(--ap-slate-50);
+}
+.player-profile-avatar {
+  display: grid;
+  flex: 0 0 56px;
+  width: 56px;
+  height: 56px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--ap-primary-600);
+  color: var(--ap-white);
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+.player-profile-kicker {
+  color: var(--ap-primary-600);
+  font-size: var(--ap-font-size-xs);
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.player-profile-identity h3 {
+  margin: .2rem 0;
+  color: var(--ap-slate-950);
+  font-size: 1.2rem;
+}
+.player-profile-identity p {
+  margin: 0;
+  color: var(--ap-slate-500);
+  font-size: var(--ap-font-size-sm);
+}
+.player-profile-section {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid var(--ap-border);
+  border-radius: var(--ap-radius-lg);
+  background: var(--ap-surface);
+}
+.player-profile-section h3 {
+  margin: 0 0 .85rem;
+  color: var(--ap-slate-900);
+  font-size: 1rem;
+}
+.player-profile-snapshot-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, .8fr);
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.player-profile-section-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: .75rem;
+}
+.player-profile-section-heading > span {
+  color: var(--ap-slate-500);
+  font-size: var(--ap-font-size-xs);
+  white-space: nowrap;
+}
+.player-profile-section-heading p {
+  margin: -.4rem 0 .8rem;
+  color: var(--ap-slate-500);
+  font-size: var(--ap-font-size-xs);
+}
+.player-profile-schedule-list {
+  display: grid;
+  gap: .6rem;
+}
+.player-profile-schedule-row {
+  display: flex;
+  align-items: flex-start;
+  gap: .7rem;
+  padding: .6rem;
+  border-radius: var(--ap-radius-md);
+  background: var(--ap-slate-50);
+}
+.player-profile-schedule-row > strong {
+  display: inline-grid;
+  min-width: 42px;
+  min-height: 30px;
+  place-items: center;
+  border-radius: var(--ap-radius-md);
+  background: var(--ap-primary-50);
+  color: var(--ap-primary-700);
+  font-size: var(--ap-font-size-xs);
+}
+.player-profile-schedule-row div,
+.player-profile-schedule-row span,
+.player-profile-schedule-row small {
+  display: block;
+}
+.player-profile-schedule-row span {
+  color: var(--ap-slate-800);
+  font-size: var(--ap-font-size-sm);
+  font-weight: 750;
+}
+.player-profile-schedule-row small {
+  margin-top: .2rem;
+  color: var(--ap-slate-500);
+  font-size: var(--ap-font-size-xs);
+}
+.player-profile-attendance-rate {
+  color: var(--ap-primary-600);
+  font-size: 2.1rem;
+  font-weight: 850;
+  line-height: 1.1;
+}
+.player-profile-muted {
+  margin: .25rem 0;
+  color: var(--ap-slate-500);
+  font-size: var(--ap-font-size-sm);
+}
+.player-profile-attendance-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .6rem;
+  margin-top: 1rem;
+}
+.player-profile-attendance-stats > div,
+.player-profile-fees-grid > div {
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+  padding: .7rem;
+  border-radius: var(--ap-radius-md);
+  background: var(--ap-slate-50);
+}
+.player-profile-attendance-stats strong {
+  color: var(--ap-slate-900);
+  font-size: 1.1rem;
+}
+.player-profile-attendance-stats span,
+.player-profile-fees-grid span {
+  color: var(--ap-slate-500);
+  font-size: var(--ap-font-size-xs);
+}
+.player-profile-fees-section {
+  margin-top: 1rem;
+}
+.player-profile-fees-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .7rem;
+}
+.player-profile-fees-grid strong {
+  color: var(--ap-slate-950);
+  font-size: 1.1rem;
+}
+.player-profile-error {
+  margin: 1rem 0 0;
+  color: var(--ap-danger-700, #b91c1c);
+  font-size: var(--ap-font-size-sm);
+}
+@media (max-width: 720px) {
+  .player-profile-snapshot-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .player-profile-fees-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .player-profile-identity {
+    align-items: flex-start;
+  }
+}
