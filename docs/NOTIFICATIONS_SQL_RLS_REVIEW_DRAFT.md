@@ -198,3 +198,41 @@ The helper definitions and grants were retrieved through read-only information-s
 A read-only aggregate over `public.parents` joined to `public.players` by `players.parent_id = parents.id` returned 49 linked parent/player pairs, 0 rows where `players.academy_id` differs from `parents.academy_id`, and 0 parent profiles with a cross-academy linked-player mismatch in the current data snapshot.
 
 This supports using the parent profile's academy as an initial candidate scope, but it does not prove a database invariant or guarantee future records remain consistent. Before final announcement RLS, confirm whether the schema enforces the equality transactionally. The notification recipient query should still verify the linked-player relationship where the product event is child-specific.
+
+
+## Extended pre-migration inspection (read-only, 2026-10-21)
+
+### Security-definer helper configuration
+The live catalog confirms the reviewed private helpers are owned by `postgres` and marked SECURITY DEFINER. Their configured search paths differ:
+- Empty search path: `can_manage_academy`, `is_coach_assigned_to_schedule`, `is_my_coach_schedule_assignment`, `parent_has_schedule`.
+- Non-empty search paths: `current_academy_id` uses `public, pg_catalog`; `current_parent_id` uses `public, private, pg_catalog`; `current_user_role` and `is_coach_assigned_to_batch` use `public, private`.
+Some definitions use schema-qualified names while others rely on search-path resolution. This is an existing hardening consideration, not something to alter as part of notifications. Any new SECURITY DEFINER functions should use `SET search_path = ''` and schema-qualify all object references.
+
+### Relationship constraints
+- `public.users.id` references `auth.users.id` with ON DELETE CASCADE.
+- `public.parents.user_id` references `public.users.id` and is UNIQUE, so one user can map to at most one parent profile.
+- `public.coaches.user_id` references `auth.users.id` with ON DELETE SET NULL.
+- Schedule/coach assignment FKs use RESTRICT for schedule, coach, and academy; legacy `coach_batch_assignments` uses CASCADE. Do not conflate these assignment models.
+- `public.players.parent_id` is nullable and uses ON DELETE SET NULL. Parent audience resolution must only include currently linked players.
+
+### Business-function boundaries and grants
+The seven relevant SECURITY DEFINER business RPCs were confirmed in the catalog with empty search path: `submit_parent_upi_payment`, `review_parent_upi_payment`, `record_accepted_parent_upi_submission`, `collect_payment`, `create_inquiry`, `update_inquiry`, and `record_inquiry_conversion`. The inspected execute grants include `authenticated`, `postgres`, and `service_role` for each function. Preserve these function contracts and grants when designing event integration; do not replace full function bodies without reviewing each complete definition.
+
+Current triggers on the relevant tables are validation/timestamp/financial-invariant triggers; the query found no existing triggers on the listed payment submission, payment, inquiry, or schedule tables that perform notification fan-out. Any new notification integration must not interfere with existing trigger order or business transaction semantics.
+
+### Realtime and retention scheduler
+- The live publication query returned no entries for `notifications` or `announcements` (neither table exists yet); it also returned no entries for selected existing schedule tables. Realtime setup should therefore be explicitly verified against the project's publication strategy at implementation time, rather than inferred from table presence.
+- `pg_cron` appears in the Supabase extension catalog as available, but is not installed in `pg_extension`; `to_regclass('cron.job')` returned NULL. A 12-month cleanup job cannot be assumed ready. A migration may install/configure scheduling only after a separate review of Supabase support/permissions, or retention must be handled by an approved external scheduler.
+
+### Repository migration workflow
+The repository root has `backend/`, `frontend/`, and `docs/`; no `supabase/` directory was found at the root listing. The live database does have migration history through `20261021052601`. Therefore, the canonical local migration folder/history synchronization is unresolved. Do not invent a repository path or assume that placing a file under `docs/` makes it deployable. Before the final executable migration, establish how migrations are maintained/deployed for this repo and reconcile it with the live Supabase history.
+
+### Current blockers before final migration
+1. Confirm the canonical repository migration workflow/history source.
+2. Choose and test announcement audience semantics: recommend `all_academy` includes owners, coaches and parents in the academy; `coaches` is coach-only; `parents` is parent-only. Super Admin remains excluded from academy inboxes by default.
+3. Choose announcement publish operation: recommend an owner-authorized RPC that validates the draft, transitions to published, and inserts recipient notifications atomically; direct client status updates should not publish.
+4. Confirm the first-release event set and exact notification copy/recipients. The current design's candidate events remain proposals, not all approved.
+5. Decide scheduler approach for 12-month retention; `pg_cron` is not currently installed.
+6. Inspect exact current definitions for every business RPC before deciding whether to modify RPC bodies, wrap them, or use carefully scoped triggers/outbox.
+
+No production changes were made by these checks.
