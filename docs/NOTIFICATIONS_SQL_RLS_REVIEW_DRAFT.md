@@ -164,3 +164,30 @@ The live migration history includes versions through `20261021052601` (`private_
 The extension catalog lists `pg_cron` as available, but the earlier live check did not establish that it is installed or that `cron.job` exists. Do not schedule cleanup yet. Verify the installed extension and scheduler capability; then implement and monitor a 12-month retention cleanup only in an approved migration. Realtime publication configuration also remains unchanged and must be explicitly reviewed when the notifications table is approved.
 
 **Safety status:** This update records read-only schema findings and a review/test proposal. It does not approve or apply schema changes, RLS policies, Realtime publication changes, or scheduled jobs.
+
+
+## Helper-function definition and execute-grant verification (read-only, 2026-10-21)
+
+The database exposed the following helper definitions through `information_schema.routines`:
+
+- `private.current_user_role()`: selects `public.users.role` for `id = auth.uid()`, limited to one row. Security type reported as DEFINER.
+- `private.current_academy_id()`: selects `public.users.academy_id` for `id = auth.uid()`, limited to one row. Security type reported as DEFINER.
+- `private.current_parent_id()`: joins `public.parents` to `public.users` on `users.id = parents.user_id`; requires `parents.user_id = auth.uid()`, role `parent`, and `parents.is_active = true`; limited to one row. Security type reported as DEFINER.
+- `private.is_coach_assigned_to_batch(p_batch_id)`: checks `public.coaches` joined to `public.coach_batch_assignments`; requires `coaches.user_id = auth.uid()`, matching batch, and active assignment. Security type reported as DEFINER.
+- `private.is_coach_assigned_to_schedule(p_schedule_id)`: checks the signed-in coach against `public.coach_batch_schedule_assignments` and `public.batch_schedules`; requires active assignment and schedule, `assigned_from <= CURRENT_DATE + 7`, and no expired `assigned_until`. Security type reported as DEFINER.
+- `private.parent_has_schedule(p_schedule_id)`: checks linked players through `public.player_batch_schedules` and `public.batch_schedules`; requires current active parent, active enrollment and schedule, `enrolled_from <= CURRENT_DATE + 7`, and no expired `enrolled_until`. Security type reported as DEFINER.
+- `private.is_my_coach_schedule_assignment(p_coach_id)`: verifies the supplied coach profile belongs to `auth.uid()` and current role is `coach`. Security type reported as DEFINER.
+- `private.can_manage_academy(p_academy_id)`: returns true for Super Admin or an Academy Owner whose `current_academy_id()` equals the supplied academy ID. Security type reported as DEFINER.
+
+### Execute grants observed
+
+The information-schema grant query reported EXECUTE for `authenticated` and `postgres` on the listed helpers. It additionally reported EXECUTE for `PUBLIC` on `private.is_coach_assigned_to_batch`. This is a concrete least-privilege review item: confirm whether PUBLIC execute is intentional and revoke it if not required, in a separate explicitly approved security change. No grants were changed during this review.
+
+### Notification-design implications
+
+- Parent audience checks can use `current_parent_id()` to identify an active parent profile, but the helper itself does not determine which academy announcement should be visible. The parent-to-child-to-academy relationship must still be applied.
+- Batch-level coach checks and schedule-level coach checks are not interchangeable. Schedule notifications should use schedule assignment/enrollment semantics; batch-level events should use the batch-level access rule appropriate to the event.
+- The schedule helpers include a seven-day look-ahead and active/date checks. This should be reflected in any schedule-change recipient query, with tests for future assignments, inactive assignments, and expired assignments.
+- `can_manage_academy()` grants Super Admin management capability at the helper level. That does not change the product decision that Super Admin should not receive or read academy inbox notifications by default; notification RLS must express that separately.
+
+The helper definitions and grants were retrieved through read-only information-schema queries. Function ownership, full ACL nuances beyond the reported grants, and all underlying constraints were not exhaustively audited. Treat this as evidence for the review, not final migration approval.
