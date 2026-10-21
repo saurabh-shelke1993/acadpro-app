@@ -111,3 +111,56 @@ If notifications are added to these functions, preserve their authorization chec
 ## Safety boundary
 
 No database schema, RLS policy, production data, application code, or Realtime configuration was changed while preparing this document.
+
+
+## Audience relationship verification (read-only, 2026-10-21)
+
+Live table metadata confirms the following actual paths:
+
+- Owner identity: `public.users.id` is the auth-linked user key and `public.users.academy_id` references `public.academies.id`. The existing private helper `private.current_academy_id()` reads this mapping.
+- Coach identity: `public.coaches.user_id` references `auth.users.id`; `public.coaches.academy_id` references `public.academies.id`. Assignment tables include `public.coach_batches(coach_id, batch_id)`, `public.coach_batch_assignments(coach_id, batch_id, academy_id, is_active)`, and `public.coach_batch_schedule_assignments(coach_id, batch_schedule_id, academy_id, is_active, assigned_from, assigned_until)`. These are distinct and must not be substituted for one another without matching the desired audience semantics.
+- Parent identity: `public.parents.user_id` references `public.users.id`, and `public.parents.academy_id` references `public.academies.id`. `public.players.parent_id` references `public.parents.id`, while `public.players.academy_id` independently references `public.academies.id`. This supports validating parent access through the parent profile and, where needed, the parent's linked players.
+- The metadata query returned no `public.notifications` or `public.announcements` tables at the time of inspection.
+
+These are relationship facts from live table metadata, not a final authorization approval. The metadata does not by itself establish active-account semantics, whether cross-academy parent links are permitted by application invariants, or which coach assignment table is canonical for every feature. Those behaviors must be checked against existing RLS policies/functions and application flows before final SQL is approved.
+
+## Announcement audience policy proposal (review only; not executable)
+
+Use a published-announcement feed predicate with explicit role branches rather than a single academy helper for every role:
+
+1. **Academy Owner:** only announcements where `academy_id = private.current_academy_id()`, and only if the current role is `academy_owner`.
+2. **Coach:** require an authenticated coach profile linked by `coaches.user_id = auth.uid()`, with `coaches.academy_id = announcements.academy_id`. For audience `coaches`, include it; for `all_academy`, include it only if product semantics explicitly intend academy-wide announcements to include coaches. Do not require a batch assignment unless the product decision is that coach announcements are restricted to assigned batches or centers.
+3. **Parent:** require the authenticated user to map to an active parent profile. Scope the announcement to the parent profile's academy and/or a verified linked player's academy according to the product's final multi-academy rule. Audience `parents` is parent-only; `all_academy` may include parents if the owner chose an all-academy audience. Do not assume `private.current_academy_id()` alone correctly represents parent scope.
+4. **Super Admin:** no academy announcement feed access by default.
+5. **Draft/archived:** not visible in the audience feed. Owner management policies remain separate from audience read policies.
+
+Before turning this into SQL, confirm whether a parent may have children in multiple academies and whether `parents.academy_id` is guaranteed to match every linked player's `academy_id`. Also confirm coach active/inactive semantics and the canonical coach assignment table for any assignment-scoped audience.
+
+## Role-isolation test matrix (required before migration approval)
+
+| Test | Expected result |
+|---|---|
+| Owner reads own academy drafts | Allowed through owner-management policy only |
+| Owner reads another academy's announcements | Denied |
+| Coach reads published `coaches` audience in their academy | Allowed |
+| Coach reads another academy's announcement | Denied |
+| Coach reads draft or archived announcement | Denied from audience feed |
+| Parent reads published `parents` audience for an eligible linked-child academy | Allowed |
+| Parent reads another academy's parent-only announcement | Denied |
+| Parent with children in two academies | Only the explicitly approved linked-child/parent-academy scope is visible; test both academies |
+| Super Admin queries an academy audience feed | Denied by default |
+| Anonymous user queries announcement feed | Denied |
+| Owner attempts to change `academy_id` or `created_by_user_id` on update | Denied |
+| Owner attempts to publish by bypassing approved lifecycle action | Denied; publication must be controlled |
+| Editing a published announcement | Does not fan out duplicate notifications |
+| Repeated authoritative event for same recipient/dedupe key | No duplicate notification row |
+| User calls mark-read for another user's notification ID | No other user's row is changed |
+| User calls mark-all-read | Only caller's unread rows change |
+
+## Migration workflow and retention follow-up
+
+The live migration history includes versions through `20261021052601` (`private_player_photo_storage`). The repository's checked-in notification SQL remains under `docs/`, not `supabase/migrations/`; reconcile the canonical migration workflow and migration-history baseline before creating a timestamped executable migration.
+
+The extension catalog lists `pg_cron` as available, but the earlier live check did not establish that it is installed or that `cron.job` exists. Do not schedule cleanup yet. Verify the installed extension and scheduler capability; then implement and monitor a 12-month retention cleanup only in an approved migration. Realtime publication configuration also remains unchanged and must be explicitly reviewed when the notifications table is approved.
+
+**Safety status:** This update records read-only schema findings and a review/test proposal. It does not approve or apply schema changes, RLS policies, Realtime publication changes, or scheduled jobs.
