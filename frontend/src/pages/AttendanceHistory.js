@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 
 function AttendanceHistory() {
@@ -16,22 +16,14 @@ function AttendanceHistory() {
   const [selectedDate, setSelectedDate] = useState("");
 
   useEffect(() => {
-
     fetchAcademies();
-
     fetchAttendanceHistory();
-
-  }, []);
+  }, [fetchAttendanceHistory]);
 
   useEffect(() => {
-
-    if (selectedAcademy) {
-
-      fetchBatches();
-
-    }
-
-  }, [selectedAcademy]);
+    if (selectedAcademy) fetchBatches();
+    else setBatches([]);
+  }, [selectedAcademy, fetchBatches]);
 
   const fetchAcademies = async () => {
 
@@ -50,7 +42,7 @@ function AttendanceHistory() {
     }
   };
 
-  const fetchBatches = async () => {
+  const fetchBatches = useCallback(async () => {
 
     const { data, error } = await supabase
       .from("batches")
@@ -64,11 +56,10 @@ function AttendanceHistory() {
     } else {
 
       setBatches(data);
-
     }
-  };
+  }, [selectedAcademy]);
 
-  const fetchAttendanceHistory = async () => {
+  const fetchAttendanceHistory = useCallback(async () => {
 
     let query = supabase
       .from("attendance")
@@ -129,9 +120,8 @@ function AttendanceHistory() {
     } else {
 
       setAttendanceList(data);
-
     }
-  };
+  }, [selectedAcademy, selectedBatch, selectedDate]);
 
   return (
 
