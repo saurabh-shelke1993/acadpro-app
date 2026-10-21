@@ -105,6 +105,36 @@ function Players() {
     return () => { cancelled = true; };
   }, [players]);
 
+  const handleEditingPlayerPhotoChange = async (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file || !editingPlayerId) return;
+
+    const editingPlayer = players.find((player) => player.id === editingPlayerId);
+    if (!editingPlayer) {
+      setPlayerPhotoError("Unable to find the player being edited. Close and reopen the edit form.");
+      return;
+    }
+
+    setPlayerPhotoUploading(true);
+    setPlayerPhotoError("");
+    try {
+      const result = await uploadPlayerPhoto({ player: editingPlayer, file });
+      setPlayerPhotoUrls((current) => ({ ...current, [editingPlayer.id]: result.url }));
+      setPlayers((current) => current.map((player) =>
+        player.id === editingPlayer.id ? { ...player, profile_image: result.path } : player
+      ));
+      setSelectedCoachPlayer((current) => current?.id === editingPlayer.id
+        ? { ...current, profile_image: result.path }
+        : current);
+    } catch (error) {
+      console.error("Failed to upload player photo from edit form:", error);
+      setPlayerPhotoError(error.message || "Unable to upload player photo.");
+    } finally {
+      setPlayerPhotoUploading(false);
+    }
+  };
+
   const handlePlayerPhotoChange = async (event) => {
     const file = event.target.files?.[0];
     event.target.value = "";
@@ -1152,6 +1182,39 @@ useEffect(() => {
                 : "Add a player to the selected academy, center, and batch."}
             </p>
           </div>
+
+          {isEditing && isAcademyOwner(loggedInUser) && (
+            <div className="players-form-section players-edit-photo-section">
+              <h3>Player photo</h3>
+              <div className="players-edit-photo-row">
+                <div className="player-profile-avatar players-edit-photo-avatar" aria-label={`Photo placeholder for ${fullName || "player"}`}>
+                  {playerPhotoUrls[editingPlayerId] ? (
+                    <img src={playerPhotoUrls[editingPlayerId]} alt={fullName || "Player"} />
+                  ) : (
+                    (fullName || "Player")
+                      .trim()
+                      .split(/\s+/)
+                      .slice(0, 2)
+                      .map((part) => part.charAt(0).toUpperCase())
+                      .join("")
+                  )}
+                </div>
+                <div className="player-photo-controls">
+                  <label className="player-photo-upload-button">
+                    {playerPhotoUploading ? "Uploading photo…" : playerPhotoUrls[editingPlayerId] ? "Change photo" : "Upload photo"}
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp"
+                      disabled={playerPhotoUploading}
+                      onChange={handleEditingPlayerPhotoChange}
+                    />
+                  </label>
+                  <span>JPG, PNG or WebP · max 2 MB</span>
+                  {playerPhotoError && <p className="player-profile-error" role="alert">{playerPhotoError}</p>}
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="players-form-section">
             <h3>Player information</h3>
