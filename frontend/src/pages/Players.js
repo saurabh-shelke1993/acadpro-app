@@ -1446,7 +1446,7 @@ useEffect(() => {
                     <th scope="col">Joining Date</th>
                     <th scope="col">{renderColumnFilter("status", "Status", filterOptions.status)}</th>
                     <th scope="col">Parent Phone</th>
-                    <th scope="col">Actions</th>
+                    {isAcademyOwner(loggedInUser) && <th scope="col">Actions</th>}
                   </>
                 )}
               </tr>
@@ -1495,7 +1495,7 @@ useEffect(() => {
                           <span className="player-status-badge">{player.player_status || "Active"}</span>
                         </td>
                         <td>{player.parents?.phone || "—"}</td>
-                        <td>
+                        {isAcademyOwner(loggedInUser) && <td>
                           <div className="player-row-actions">
                             <button
                               className="player-action-button player-action-edit"
@@ -1514,7 +1514,7 @@ useEffect(() => {
                               Deactivate
                             </button>
                           </div>
-                        </td>
+                        </td>}
                       </>
                     )}
                   </tr>
