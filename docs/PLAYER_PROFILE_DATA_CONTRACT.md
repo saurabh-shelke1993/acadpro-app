@@ -122,6 +122,33 @@ Avoid accepting academy/player IDs from UI as proof of authorization. IDs select
 
 P3.2 establishes the contract only; it is not release sign-off.
 
+## 11. P3.5 role and regression verification (2026-10-21)
+
+User confirmed P3.5 changes are accepted. This is a user acceptance checkpoint, not evidence that automated build/test commands were executed in this environment.
+
+- [x] User accepted the P3.5 profile/security changes.
+- [x] Private bucket and role-scoped Storage policy definitions inspected in the active Supabase project.
+- [x] Player photo service rejects stored absolute HTTP(S) URLs and resolves photos through the private bucket only (commit `93b72290cd73078a8713f5a9c619fbbf09318bfa`).
+- [ ] Run `npm test -- --watchAll=false` from `frontend/`.
+- [ ] Run `npm run build` from `frontend/`.
+- [ ] Reconfirm role-based photo access and upload behavior in the browser after pulling the latest commit.
+- [ ] Confirm no lint/build regressions, especially existing `useEffect` dependency warnings treated as CI errors.
+
+## 12. P3.6 release verification checklist
+
+P3.6 is release verification only; do not add unrelated features or broaden existing RLS policies as part of this checkpoint.
+
+1. Pull the latest `payment-module-finalization` branch.
+2. Run frontend tests and production build.
+3. If either command fails, capture the first actionable error and fix only profile-related regressions without disturbing attendance, player editing, session enrollment, deactivation, or payment collection.
+4. Complete a final browser smoke test for Super Admin, Academy Owner, and Coach.
+5. Verify photo upload/replace is Academy Owner-only; private photo reads are limited by player-row RLS; signed URL refresh and initials fallback work.
+6. Verify schedule empty state and active sessions, attendance calculation/empty state, and three calendar-month fee totals including linked signed adjustments.
+7. Record actual command results and any remaining blockers before calling the Player Profile work release-ready.
+
+Current status: **P3.5 accepted by user; P3.6 release verification in progress.** Automated test/build results have not been recorded in this document.
+
+
 
 ## 10. P3.4 private player-photo implementation (2026-10-21)
 
