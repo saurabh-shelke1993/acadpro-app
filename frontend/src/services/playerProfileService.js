@@ -111,6 +111,7 @@ export const getPlayerProfileSnapshot = async (playerId, { includeFees = false }
       .from("payments")
       .select("payment_date, amount_paid, payment_entry_type, related_payment_id")
       .eq("player_id", playerId)
+      .in("payment_entry_type", ["payment", "adjustment"])
       .gte("payment_date", window.start)
       .lt("payment_date", window.end)
       .order("payment_date", { ascending: true });
