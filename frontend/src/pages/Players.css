@@ -1765,3 +1765,42 @@
     height: 60px;
   }
 }
+
+
+/* Private player photo upload controls */
+.player-photo-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 0.6rem;
+}
+
+.player-photo-upload-button {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  padding: 0.35rem 0.65rem;
+  border: 1px solid var(--ap-border);
+  border-radius: var(--ap-radius-md);
+  background: var(--ap-surface);
+  color: var(--ap-primary-700) !important;
+  font-size: var(--ap-font-size-xs) !important;
+  font-weight: 750 !important;
+  cursor: pointer;
+}
+
+.player-photo-upload-button:hover {
+  border-color: var(--ap-primary-300);
+  background: var(--ap-primary-50);
+}
+
+.player-photo-upload-button input[type="file"] {
+  display: none;
+}
+
+.player-photo-controls > span {
+  color: var(--ap-slate-500);
+  font-size: var(--ap-font-size-xs);
+}
