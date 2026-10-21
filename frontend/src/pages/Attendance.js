@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 
 function Attendance() {
@@ -20,24 +20,12 @@ function Attendance() {
   }, []);
 
   useEffect(() => {
-
-    if (selectedAcademy) {
-
-      fetchBatches();
-
-    }
-
-  }, [selectedAcademy]);
+    if (selectedAcademy) fetchBatches();
+  }, [selectedAcademy, fetchBatches]);
 
   useEffect(() => {
-
-    if (selectedBatch) {
-
-      fetchPlayers();
-
-    }
-
-  }, [selectedBatch]);
+    if (selectedBatch) fetchPlayers();
+  }, [selectedBatch, fetchPlayers]);
 
   const fetchAcademies = async () => {
 
@@ -56,7 +44,7 @@ function Attendance() {
     }
   };
 
-  const fetchBatches = async () => {
+  const fetchBatches = useCallback(async () => {
 
     const { data, error } = await supabase
       .from("batches")
@@ -70,11 +58,10 @@ function Attendance() {
     } else {
 
       setBatches(data);
-
     }
-  };
+  }, [selectedAcademy]);
 
-  const fetchPlayers = async () => {
+  const fetchPlayers = useCallback(async () => {
 
     const { data, error } = await supabase
       .from("player_batches")
@@ -94,9 +81,8 @@ function Attendance() {
     } else {
 
       setPlayers(data);
-
     }
-  };
+  }, [selectedBatch]);
 
   const handleStatusChange = (
     playerId,
