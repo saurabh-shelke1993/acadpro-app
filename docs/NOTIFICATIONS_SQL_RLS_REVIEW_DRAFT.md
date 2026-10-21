@@ -191,3 +191,10 @@ The information-schema grant query reported EXECUTE for `authenticated` and `pos
 - `can_manage_academy()` grants Super Admin management capability at the helper level. That does not change the product decision that Super Admin should not receive or read academy inbox notifications by default; notification RLS must express that separately.
 
 The helper definitions and grants were retrieved through read-only information-schema queries. Function ownership, full ACL nuances beyond the reported grants, and all underlying constraints were not exhaustively audited. Treat this as evidence for the review, not final migration approval.
+
+
+## Current parent/player academy consistency snapshot (read-only, 2026-10-21)
+
+A read-only aggregate over `public.parents` joined to `public.players` by `players.parent_id = parents.id` returned 49 linked parent/player pairs, 0 rows where `players.academy_id` differs from `parents.academy_id`, and 0 parent profiles with a cross-academy linked-player mismatch in the current data snapshot.
+
+This supports using the parent profile's academy as an initial candidate scope, but it does not prove a database invariant or guarantee future records remain consistent. Before final announcement RLS, confirm whether the schema enforces the equality transactionally. The notification recipient query should still verify the linked-player relationship where the product event is child-specific.
