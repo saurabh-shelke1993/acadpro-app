@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { supabase } from "../services/supabase";
@@ -23,11 +23,7 @@ function Dashboard() {
   const [payments, setPayments] = useState([]);
   const [paymentDues, setPaymentDues] = useState([]);
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
-
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     try {
       let academyPlayers = [];
 
@@ -165,7 +161,11 @@ let paymentsQuery = supabase
     } catch (error) {
       console.error(error);
     }
-  };
+  }, [academyId]);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
 
   const handleLogout = () => {
     logoutUser();
