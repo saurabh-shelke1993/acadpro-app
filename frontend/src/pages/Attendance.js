@@ -13,20 +13,6 @@ function Attendance() {
 
   const [attendanceData, setAttendanceData] = useState({});
 
-  useEffect(() => {
-
-    fetchAcademies();
-
-  }, []);
-
-  useEffect(() => {
-    if (selectedAcademy) fetchBatches();
-  }, [selectedAcademy, fetchBatches]);
-
-  useEffect(() => {
-    if (selectedBatch) fetchPlayers();
-  }, [selectedBatch, fetchPlayers]);
-
   const fetchAcademies = async () => {
 
     const { data, error } = await supabase
@@ -83,6 +69,20 @@ function Attendance() {
       setPlayers(data);
     }
   }, [selectedBatch]);
+
+  useEffect(() => {
+
+    fetchAcademies();
+
+  }, []);
+
+  useEffect(() => {
+    if (selectedAcademy) fetchBatches();
+  }, [selectedAcademy, fetchBatches]);
+
+  useEffect(() => {
+    if (selectedBatch) fetchPlayers();
+  }, [selectedBatch, fetchPlayers]);
 
   const handleStatusChange = (
     playerId,
