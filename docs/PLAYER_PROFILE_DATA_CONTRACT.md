@@ -2,7 +2,7 @@
 
 Branch: `payment-module-finalization`
 
-Status: Design/data-contract only. No application code, database schema, RLS policy, Storage bucket, or production data was changed by this phase.
+Status: P3.2 data contract; P3.4 private player-photo implementation added on 2026-10-21. Browser and role-security verification remain pending.
 
 ## 1. Purpose and scope
 
@@ -121,3 +121,26 @@ Avoid accepting academy/player IDs from UI as proof of authorization. IDs select
 - [ ] Run build/lint and regression tests before release sign-off.
 
 P3.2 establishes the contract only; it is not release sign-off.
+
+
+## 10. P3.4 private player-photo implementation (2026-10-21)
+
+Implemented on `payment-module-finalization`:
+- Created private Storage bucket `player-photos`, with 2 MiB limit and PNG/JPEG/WebP MIME allowlist.
+- Added Storage SELECT policy for authenticated users whose existing player-row RLS permits access to the player. This is intended to preserve Super Admin, Academy Owner, and assigned-batch Coach read scope; verify with role-specific sessions.
+- Added Academy Owner-only insert/update/delete policies scoped to the current academy and a trusted player row.
+- Object path format: `<academy-uuid>/<player-uuid>/<unique-filename>.<png|jpg|jpeg|webp>`.
+- Added `frontend/src/services/playerPhotoService.js` for client-side validation, upload, storing the private object path in existing `players.profile_image`, and generating a 30-minute signed URL.
+- Extended the existing Players profile modal with Academy Owner-only upload/change control; initials remain the fallback when no signed photo URL is available.
+- Kept Super Admin and Coach read-only in the UI. No parent-portal photo UI was added.
+
+Verification status:
+- [x] Private bucket exists in the active Supabase project and is configured with the expected size/type limits.
+- [x] Four named Storage policies exist for authorized read and owner insert/update/delete.
+- [ ] Browser-test upload/change as Academy Owner.
+- [ ] Verify Super Admin and assigned-batch Coach can view but cannot upload/replace/delete.
+- [ ] Verify cross-academy owner access and arbitrary player IDs are denied.
+- [ ] Verify signed URL expiration/refresh and image fallback behavior.
+- [ ] Run frontend build/lint and regression checks.
+
+Security note: the read policy relies on the existing RLS on `public.players`; confirm it with real role sessions before release. P3.4 is implemented but not yet release-signed-off.
