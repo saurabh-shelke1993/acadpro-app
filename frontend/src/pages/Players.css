@@ -1599,8 +1599,8 @@
 /* P3.3 UX refinement: full-viewport profile with the same visual hierarchy as Coach Profile. */
 .coach-player-modal-backdrop {
   position: fixed;
-  inset: 0;
-  z-index: 1200;
+  inset: 0 0 0 var(--app-sidebar-width, 220px);
+  z-index: 20;
   display: block;
   overflow-y: auto;
   padding: clamp(1rem, 2.5vw, 2.5rem);
@@ -1661,36 +1661,24 @@
   box-shadow: var(--ap-shadow-sm);
 }
 .player-profile-avatar {
-  position: relative;
-  display: grid;
+  display: flex;
   flex: 0 0 72px;
   width: 72px;
   height: 72px;
-  place-items: center;
+  align-items: center;
+  justify-content: center;
   overflow: hidden;
+  border: 1px solid var(--ap-primary-200);
   border-radius: var(--ap-radius-full);
   background: var(--ap-primary-100);
   color: var(--ap-primary-700);
-}
-.player-profile-avatar-ball {
-  font-size: 2rem;
-  line-height: 1;
-  opacity: .95;
-}
-.player-profile-avatar-initial {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  display: grid;
-  width: 25px;
-  height: 25px;
-  place-items: center;
-  border: 2px solid var(--ap-surface);
-  border-radius: var(--ap-radius-full);
-  background: var(--ap-primary-600);
-  color: var(--ap-white);
-  font-size: .7rem;
+  font-size: 1.25rem;
   font-weight: 800;
+}
+.player-profile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 .player-profile-identity h3 {
   margin: .2rem 0;
@@ -1707,8 +1695,9 @@
 .player-profile-fees-section {
   margin-top: .75rem;
 }
-@media (max-width: 700px) {
+@media (max-width: 900px) {
   .coach-player-modal-backdrop {
+    left: 0;
     padding: .75rem;
   }
   .coach-player-modal {
