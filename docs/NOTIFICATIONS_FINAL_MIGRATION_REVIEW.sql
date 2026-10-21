@@ -202,6 +202,24 @@ create policy announcements_published_audience_select
 revoke all on public.announcements from public, anon, authenticated;
 grant select, insert, update on public.announcements to authenticated;
 
+create or replace function private.set_announcement_updated_at()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $function$
+begin
+  new.updated_at := pg_catalog.now();
+  return new;
+end;
+$function$;
+
+revoke all on function private.set_announcement_updated_at() from public, anon, authenticated;
+
+create trigger announcements_set_updated_at
+before update on public.announcements
+for each row execute function private.set_announcement_updated_at();
+
 -- Internal notification insertion helper. No client EXECUTE grant.
 create or replace function private.insert_notification(
   p_recipient_user_id uuid,
