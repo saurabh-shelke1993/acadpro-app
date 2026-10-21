@@ -1432,16 +1432,24 @@
   background: var(--ap-slate-50);
 }
 .player-profile-avatar {
-  display: grid;
+  display: inline-flex;
   flex: 0 0 56px;
   width: 56px;
   height: 56px;
-  place-items: center;
-  border-radius: 50%;
-  background: var(--ap-primary-600);
-  color: var(--ap-white);
-  font-size: 1.5rem;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: var(--ap-radius-full);
+  background: var(--ap-primary-100);
+  color: var(--ap-primary-700);
+  font-size: 1rem;
   font-weight: 800;
+  text-transform: uppercase;
+}
+.player-profile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 .player-profile-kicker {
   color: var(--ap-primary-600);
