@@ -1569,9 +1569,17 @@ useEffect(() => {
                 </div>
               )}
               <div className="player-profile-identity">
-                <div className="player-profile-avatar" aria-hidden="true">
-                  <span className="player-profile-avatar-ball">⚽</span>
-                  <span className="player-profile-avatar-initial">{(selectedCoachPlayer.full_name || "P").trim().charAt(0).toUpperCase()}</span>
+                <div className="player-profile-avatar" aria-label={`Photo placeholder for ${selectedCoachPlayer.full_name || "player"}`}>
+                  {(selectedCoachPlayer.profile_image && selectedCoachPlayer.profile_image.trim()) ? (
+                    <img src={selectedCoachPlayer.profile_image} alt={selectedCoachPlayer.full_name || "Player"} />
+                  ) : (
+                    (selectedCoachPlayer.full_name || "Player")
+                      .trim()
+                      .split(/\s+/)
+                      .slice(0, 2)
+                      .map((part) => part.charAt(0).toUpperCase())
+                      .join("")
+                  )}
                 </div>
                 <div>
                   <span className="player-profile-kicker">Player profile</span>
