@@ -7,9 +7,11 @@ const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 export const getPlayerPhotoUrl = async (storedValue) => {
   if (!storedValue) return null;
 
-  // Keep compatibility with any legacy absolute URLs, but newly uploaded
-  // player photos are stored as private bucket object paths.
-  if (/^https?:\/\//i.test(storedValue)) return storedValue;
+  // Player photos must resolve through the private bucket. Never render a
+  // stored absolute URL, which could bypass the private-photo access contract.
+  if (/^https?:\/\//i.test(storedValue)) {
+    throw new Error("Player photo must use a private storage object path.");
+  }
 
   const { data, error } = await supabase.storage
     .from(BUCKET)
