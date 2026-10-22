@@ -654,6 +654,7 @@ export async function getAcademyOwnerDashboardData(user) {
     academyResult,
     centersResult,
     batchesResult,
+    schedulesResult,
     playersResult,
     assignmentsResult,
     attendanceResult,
@@ -680,6 +681,14 @@ export async function getAcademyOwnerDashboardData(user) {
       .eq("academy_id", academyId)
       .eq("is_active", true)
       .order("batch_name"),
+    supabase
+      .from("batch_schedules")
+      .select("id, batch_id, center_id, day_of_week, start_time, end_time, is_active, batches!inner(id, batch_name, is_active), centers!inner(id, center_name, is_active)")
+      .eq("academy_id", academyId)
+      .eq("is_active", true)
+      .eq("batches.is_active", true)
+      .eq("centers.is_active", true)
+      .order("start_time"),
     supabase
       .from("players")
       .select("id")
@@ -731,6 +740,7 @@ export async function getAcademyOwnerDashboardData(user) {
     academyResult,
     centersResult,
     batchesResult,
+    schedulesResult,
     playersResult,
     assignmentsResult,
     attendanceResult,
@@ -825,13 +835,42 @@ export async function getAcademyOwnerDashboardData(user) {
       : 0;
   });
 
+  const weekday = new Date().getDay() === 0 ? 7 : new Date().getDay();
+  const scheduleRows = (schedulesResult.data || []).filter((row) => Number(row.day_of_week) === weekday);
+  const todaySessions = scheduleRows.map((row) => {
+    const batch = batchMap.get(row.batch_id);
+    const center = centerMap.get(row.center_id);
+    return {
+      id: row.id,
+      batchId: row.batch_id,
+      batchName: batch?.batch_name || row.batches?.batch_name || "Batch",
+      centerName: center?.name || row.centers?.center_name || "Center",
+      startTime: String(row.start_time || "").slice(0, 5),
+      endTime: String(row.end_time || "").slice(0, 5),
+      attendanceRecorded: (attendanceResult.data || []).some((record) => record.attendance_date === today && record.batch_id === row.batch_id)
+    };
+  }).sort((a, b) => a.startTime.localeCompare(b.startTime));
+
   const attendanceRecordsToday = (attendanceResult.data || []).filter(
     (record) => record.attendance_date === today
   );
-
-  const presentPlayers = attendanceRecordsToday.filter(
-    (record) => record.status === "present"
-  ).length;
+  const attendanceByBatch = (batchesResult.data || []).map((batch) => {
+    const batchRecords = attendanceRecordsToday.filter((record) => record.batch_id === batch.id);
+    const attendanceRecorded = batchRecords.length > 0;
+    const presentPlayers = batchRecords.filter((record) => record.status === "present").length;
+    const assignedPlayerIds = new Set((assignmentsResult.data || [])
+      .filter((assignment) => assignment.batch_id === batch.id)
+      .map((assignment) => assignment.player_id));
+    return {
+      id: batch.id,
+      batchId: batch.id,
+      batchName: batch.batch_name,
+      centerName: centerMap.get(batch.center_id)?.name || "Center",
+      expectedPlayers: assignedPlayerIds.size,
+      presentPlayers,
+      attendanceRecorded
+    };
+  });
 
   const absentPlayers = attendanceRecordsToday.filter(
     (record) => record.status === "absent"
@@ -966,6 +1005,8 @@ export async function getAcademyOwnerDashboardData(user) {
       collectionsThisMonth
     },
     centers,
+    todaySessions,
+    attendanceByBatch,
     attentionItems: attentionItems.slice(0, 6),
     attendanceTrend,
     collectionsTrend
