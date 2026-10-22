@@ -872,6 +872,10 @@ export async function getAcademyOwnerDashboardData(user) {
     };
   });
 
+  const presentPlayers = attendanceRecordsToday.filter(
+    (record) => record.status === "present"
+  ).length;
+
   const absentPlayers = attendanceRecordsToday.filter(
     (record) => record.status === "absent"
   ).length;
