@@ -3,7 +3,6 @@ import "./AcademyOwnerDashboard.css";
 
 const formatCurrency = (value) => `₹${Number(value || 0).toLocaleString("en-IN")}`;
 const formatNumber = (value) => Number(value || 0).toLocaleString("en-IN");
-const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 function KpiCard({ label, value, detail, to, tone = "blue" }) {
   const content = <div className="ao-kpi-card" data-tone={tone}><span>{label}</span><strong>{value}</strong><small>{detail}</small>{to && <b aria-hidden="true">→</b>}</div>;
