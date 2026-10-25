@@ -979,3 +979,47 @@
   .ao-distribution-card-compact { min-height: 220px; padding: var(--ap-space-3); }
   .ao-donut-chart { width: 210px; }
 }
+
+
+/* Player center insight: donut left, selected center's age profile right. */
+.ao-distribution-card-compact {
+  display: grid;
+  grid-template-columns: minmax(250px, .9fr) minmax(0, 1.1fr);
+  align-items: center;
+  gap: clamp(1rem, 3vw, 2.5rem);
+  min-height: 320px;
+  height: auto;
+  padding: clamp(1rem, 2vw, 1.75rem);
+}
+.ao-donut-column { min-width: 0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.ao-donut-chart { width: min(100%, 300px); height: auto; overflow: visible; }
+.ao-donut-slice { cursor:pointer; outline:none; transition:stroke-width .16s ease, opacity .16s ease; }
+.ao-donut-slice:hover,.ao-donut-slice:focus-visible,.ao-donut-slice.is-selected { stroke-width:34; }
+.ao-donut-slice:focus-visible { filter:drop-shadow(0 0 2px rgba(37,99,235,.45)); }
+.ao-donut-center-name { font-size:11px; font-weight:650; fill:var(--ap-slate-600); }
+.ao-donut-center-count { font-size:27px; font-weight:800; fill:var(--ap-slate-950); }
+.ao-donut-center-caption { font-size:10px; fill:var(--ap-slate-500); }
+.ao-donut-hint { margin:.25rem 0 0; font-size:var(--ap-font-size-xs); color:var(--ap-slate-500); }
+.ao-age-breakdown { min-width:0; padding:var(--ap-space-2) 0; }
+.ao-age-heading { display:flex; justify-content:space-between; align-items:flex-end; gap:var(--ap-space-3); margin-bottom:var(--ap-space-5); }
+.ao-age-heading h3 { margin:0; color:var(--ap-slate-900); font-size:var(--ap-font-size-xl); overflow-wrap:anywhere; }
+.ao-age-total { flex-shrink:0; border-radius:999px; padding:.35rem .65rem; background:var(--ap-primary-50); color:var(--ap-primary-700); font-size:var(--ap-font-size-xs); font-weight:700; }
+.ao-age-groups { display:grid; gap:var(--ap-space-4); }
+.ao-age-row { display:grid; gap:.5rem; }
+.ao-age-label { display:flex; justify-content:space-between; align-items:center; gap:var(--ap-space-3); color:var(--ap-slate-700); font-size:var(--ap-font-size-sm); }
+.ao-age-label > span { min-width:0; overflow-wrap:anywhere; font-weight:650; }
+.ao-age-label strong { flex-shrink:0; color:var(--ap-slate-900); font-variant-numeric:tabular-nums; }
+.ao-age-label small { color:var(--ap-slate-500); font-weight:500; }
+.ao-age-track { height:10px; border-radius:999px; background:var(--ap-slate-100); overflow:hidden; }
+.ao-age-track span { display:block; height:100%; border-radius:inherit; transition:width .2s ease; }
+.ao-age-empty { display:grid; gap:.35rem; padding:var(--ap-space-4); border-radius:var(--ap-radius-lg); background:var(--ap-slate-50); }
+.ao-age-empty strong { font-size:var(--ap-font-size-sm); color:var(--ap-slate-800); }
+.ao-age-empty span { color:var(--ap-slate-500); font-size:var(--ap-font-size-xs); line-height:1.5; }
+.ao-age-link { display:inline-flex; gap:.5rem; align-items:center; margin-top:var(--ap-space-5); color:var(--ap-primary-700); font-size:var(--ap-font-size-sm); font-weight:700; text-decoration:none; }
+.ao-age-link:hover { text-decoration:underline; }
+@media (max-width: 760px) {
+  .ao-distribution-card-compact { grid-template-columns:minmax(0,1fr); gap:var(--ap-space-5); padding:var(--ap-space-4); }
+  .ao-donut-chart { width:min(100%,245px); }
+  .ao-age-breakdown { width:100%; }
+  .ao-age-heading { margin-bottom:var(--ap-space-4); }
+}
