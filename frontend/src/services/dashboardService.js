@@ -819,25 +819,28 @@ export async function getAcademyOwnerDashboardData(user) {
   (batchesResult.data || []).forEach((batch) => {
     const center = centerMap.get(batch.center_id);
     if (!center) return;
-    const ageGroup = String(batch.age_group || "").trim() || "Age group not set";
+    const batchName = String(batch.batch_name || "Unnamed batch").trim();
+    const ageGroup = String(batch.age_group || "").trim();
+    const label = ageGroup ? `${batchName} (${ageGroup})` : batchName;
     if (!ageGroupPlayersByCenter.has(center.id)) {
       ageGroupPlayersByCenter.set(center.id, new Map());
     }
     const groupMap = ageGroupPlayersByCenter.get(center.id);
-    if (!groupMap.has(ageGroup)) groupMap.set(ageGroup, new Set());
+    if (!groupMap.has(label)) groupMap.set(label, new Set());
   });
 
-  // Count each active player once per center and age group, even if assigned
-  // to multiple batches of the same age group at that center.
+  // Count each player once within each batch at a center.
   (assignmentsResult.data || []).forEach((assignment) => {
     const batch = batchMap.get(assignment.batch_id);
     const center = batch?.center;
     if (!center) return;
-    const ageGroup = String(batch.age_group || "").trim() || "Age group not set";
+    const batchName = String(batch.batch_name || "Unnamed batch").trim();
+    const ageGroup = String(batch.age_group || "").trim();
+    const label = ageGroup ? `${batchName} (${ageGroup})` : batchName;
     const groupMap = ageGroupPlayersByCenter.get(center.id);
     if (!groupMap) return;
-    if (!groupMap.has(ageGroup)) groupMap.set(ageGroup, new Set());
-    groupMap.get(ageGroup).add(assignment.player_id);
+    if (!groupMap.has(label)) groupMap.set(label, new Set());
+    groupMap.get(label).add(assignment.player_id);
   });
 
   centers.forEach((center) => {
@@ -892,6 +895,7 @@ export async function getAcademyOwnerDashboardData(user) {
     return {
       id: row.id,
       batchId: row.batch_id,
+      centerId: row.center_id,
       batchName: batch?.batch_name || row.batches?.batch_name || "Batch",
       centerName: center?.name || row.centers?.center_name || "Center",
       startTime: String(row.start_time || "").slice(0, 5),
