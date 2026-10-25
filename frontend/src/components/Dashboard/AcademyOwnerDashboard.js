@@ -74,19 +74,34 @@ function TodaySessions({ sessions }) {
 function BatchAttendanceChart({ batches }) {
   if (!batches.length) return <div className="ao-empty-card"><strong>No active batches found.</strong><span>Active batches will appear here when configured.</span></div>;
   const hasAnyRecords = batches.some((batch) => batch.recordedSessions > 0);
-  return <div className="ao-weekly-attendance-chart" role="img" aria-label="Weekly attendance percentage by batch">
-    <div className="ao-weekly-axis"><span>Batch / center</span><div className="ao-weekly-ticks">{[0, 25, 50, 75, 100].map((tick) => <span key={tick}>{tick}%</span>)}</div></div>
-    {batches.map((batch) => {
-      const percent = batch.attendanceRate || 0;
-      const recorded = batch.recordedSessions > 0;
-      return <div className="ao-weekly-row" key={batch.id}>
-        <div className="ao-weekly-label"><strong>{batch.batchName}</strong><span>{batch.centerName}</span></div>
-        <div className="ao-weekly-plot"><div className="ao-weekly-gridlines" aria-hidden="true"><i /><i /><i /><i /><i /></div><div className={`ao-weekly-bar ${recorded ? "" : "is-unrecorded"}`} style={{ width: `${recorded ? percent : 0}%` }} /></div>
-        <div className="ao-weekly-value">{recorded ? <><strong>{percent}%</strong><small>{batch.presentRecords}/{batch.totalRecords} marks · {batch.recordedSessions} day{batch.recordedSessions === 1 ? "" : "s"}</small></> : <span className="ao-not-recorded">No data</span>}</div>
-      </div>;
-    })}
-    {!hasAnyRecords && <p className="ao-weekly-note">No attendance has been recorded in the last 7 days. Bars will populate as attendance is marked.</p>}
-    <p className="ao-weekly-note">Weekly rate = present marks ÷ (present + absent marks) across the last 7 days. Unrecorded sessions are excluded.</p>
+  const chartHeight = Math.max(170, batches.length * 54 + 40);
+  const labelWidth = 160;
+  const plotWidth = 620;
+  const rightPadding = 72;
+  const topPadding = 28;
+  const rowHeight = 54;
+  return <div className="ao-weekly-bar-chart">
+    <div className="ao-weekly-chart-scroll">
+      <svg className="ao-weekly-chart-svg" viewBox={`0 0 ${labelWidth + plotWidth + rightPadding} ${chartHeight}`} role="img" aria-label="Horizontal bar chart showing attendance percentage by batch over the last seven days">
+        {[0, 25, 50, 75, 100].map((tick) => {
+          const x = labelWidth + (tick / 100) * plotWidth;
+          return <g key={tick}><line x1={x} y1={topPadding - 8} x2={x} y2={chartHeight - 18} className="ao-weekly-svg-gridline" /><text x={x} y="14" textAnchor="middle" className="ao-weekly-svg-tick">{tick}%</text></g>;
+        })}
+        {batches.map((batch, index) => {
+          const y = topPadding + index * rowHeight;
+          const recorded = batch.recordedSessions > 0;
+          const percent = recorded ? Math.max(0, Math.min(100, batch.attendanceRate || 0)) : 0;
+          const barWidth = (percent / 100) * plotWidth;
+          return <g key={batch.id}>
+            <text x="0" y={y + 7} className="ao-weekly-svg-batch">{batch.batchName.length > 22 ? `${batch.batchName.slice(0, 21)}…` : batch.batchName}</text>
+            <text x="0" y={y + 23} className="ao-weekly-svg-center">{batch.centerName.length > 25 ? `${batch.centerName.slice(0, 24)}…` : batch.centerName}</text>
+            {recorded ? <><rect x={labelWidth} y={y - 5} width={barWidth} height="25" rx="4" className="ao-weekly-svg-bar" /><text x={Math.min(labelWidth + barWidth + 9, labelWidth + plotWidth + 8)} y={y + 12} className="ao-weekly-svg-value">{percent}%</text></> : <text x={labelWidth + 10} y={y + 12} className="ao-weekly-svg-no-data">No data</text>}
+          </g>;
+        })}
+      </svg>
+    </div>
+    {!hasAnyRecords && <p className="ao-weekly-note">No attendance has been recorded in the last 7 days. Bars will appear when attendance is marked.</p>}
+    <p className="ao-weekly-note">Weekly attendance = present marks ÷ (present + absent marks). Only recorded attendance marks from the last 7 days are included.</p>
   </div>;
 }
 
