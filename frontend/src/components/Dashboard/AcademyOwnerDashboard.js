@@ -17,7 +17,7 @@ function describeArc(cx, cy, radius, startAngle, endAngle) {
   return `M ${start.x} ${start.y} A ${radius} ${radius} 0 ${largeArc} 1 ${end.x} ${end.y}`;
 }
 
-function PlayerDistribution({ centers }) {
+function PlayerDistribution({ centers, academyPlayerTotal }) {
   const populated = centers.filter((center) => center.players > 0);
   const colors = ["#2563eb", "#0d9488", "#d97706", "#7c3aed", "#db2777", "#64748b"];
   const totalPlayers = populated.reduce((sum, center) => sum + center.players, 0);
@@ -40,7 +40,7 @@ function PlayerDistribution({ centers }) {
   return <div className="ao-distribution-card ao-distribution-card-compact">
     <div className="ao-donut-column">
       <svg className="ao-donut-chart" viewBox="0 0 200 200" role="group" aria-label="Active player distribution by center">
-        {slices.map((slice) => <path key={slice.id} d={describeArc(100, 100, 72, slice.startAngle, slice.endAngle - 0.012)} fill="none" stroke={slice.color} strokeWidth="30" strokeLinecap="round" tabIndex="0" role="button" aria-label={`${slice.name}, ${slice.players} active players. Select center`} aria-pressed={slice.id === selectedCenter?.id} className={slice.id === selectedCenter?.id ? "ao-donut-slice is-selected" : "ao-donut-slice"} onClick={() => setSelectedCenterId(slice.id)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setSelectedCenterId(slice.id); } }} />)}
+        {slices.map((slice) => <path key={slice.id} d={describeArc(100, 100, 72, slice.startAngle, slice.endAngle - 0.035)} fill="none" stroke={slice.color} strokeWidth="28" strokeLinecap="butt" tabIndex="0" role="button" aria-label={`${slice.name}, ${slice.players} active players. Select center`} aria-pressed={slice.id === selectedCenter?.id} className={slice.id === selectedCenter?.id ? "ao-donut-slice is-selected" : "ao-donut-slice"} onClick={() => setSelectedCenterId(slice.id)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setSelectedCenterId(slice.id); } }} />)}
         <text x="100" y="91" textAnchor="middle" className="ao-donut-center-name">{selectedCenter?.name || "All centers"}</text>
         <text x="100" y="119" textAnchor="middle" className="ao-donut-center-count">{formatNumber(selectedCenter?.players || totalPlayers)}</text>
         <text x="100" y="136" textAnchor="middle" className="ao-donut-center-caption">active players</text>
@@ -95,8 +95,11 @@ function AcademyOwnerDashboard({ data, onRefresh }) {
   return <div className="ao-dashboard">
     <div className="ao-dashboard-top-grid">
       <section className="ao-section ao-player-overview">
-        <div className="ao-section-heading"><div><span className="ao-kicker">Player overview</span><h2>Players by center</h2></div></div>
-        <PlayerDistribution centers={centers} />
+        <div className="ao-section-heading ao-player-overview-heading">
+          <div><span className="ao-kicker">Player overview</span><h2>Players by center</h2></div>
+          <div className="ao-academy-player-total"><span>Total academy players</span><strong>{formatNumber(data?.totals?.players || 0)}</strong></div>
+        </div>
+        <PlayerDistribution centers={centers} academyPlayerTotal={data?.totals?.players || 0} />
       </section>
       <section className="ao-section ao-today-operations">
         <div className="ao-section-heading"><div><span className="ao-kicker">Today's operations</span><h2>Today's sessions</h2></div><button type="button" className="ao-refresh-button ao-inline-refresh" onClick={onRefresh}>Refresh</button></div>
