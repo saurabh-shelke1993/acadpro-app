@@ -104,7 +104,7 @@ function BatchAttendanceChart({ batches }) {
       <span className="ao-weekly-period">Last 7 days</span>
     </div>
     <div className="ao-column-chart-scroll">
-      <svg className={`ao-column-chart-svg ${chartBatches.length > 15 ? "is-dense" : ""}`} viewBox={`0 0 ${chartWidth} ${chartHeight}`} role="img" aria-label="Weekly attendance column chart grouped by center, with percentage on the vertical axis.">
+      <svg className={`ao-column-chart-svg ${chartBatches.length > 15 ? "is-dense" : ""}`} viewBox={`0 0 ${chartWidth} ${chartHeight}`} preserveAspectRatio="none" style={{ width: `max(100%, ${chartWidth}px)` }} role="img" aria-label="Weekly attendance column chart grouped by center, with percentage on the vertical axis.">
         {[0, 25, 50, 75, 100].map((tick) => {
           const y = plot.bottom - tick / 100 * plotHeight;
           return <g key={tick}><line x1={plot.left} y1={y} x2={plot.right} y2={y} className="ao-column-gridline" /><text x={plot.left - 8} y={y + 4} textAnchor="end" className="ao-column-y-tick">{tick}%</text></g>;
