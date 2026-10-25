@@ -892,21 +892,22 @@ export async function getAcademyOwnerDashboardData(user) {
   const attendanceRecordsToday = (attendanceResult.data || []).filter(
     (record) => record.attendance_date === today
   );
+  // Last-seven-day batch attendance rate uses actual present/absent marks only.
   const attendanceByBatch = (batchesResult.data || []).map((batch) => {
-    const batchRecords = attendanceRecordsToday.filter((record) => record.batch_id === batch.id);
-    const attendanceRecorded = batchRecords.length > 0;
-    const presentPlayers = batchRecords.filter((record) => record.status === "present").length;
-    const assignedPlayerIds = new Set((assignmentsResult.data || [])
-      .filter((assignment) => assignment.batch_id === batch.id)
-      .map((assignment) => assignment.player_id));
+    const batchRecords = (attendanceResult.data || []).filter(
+      (record) => record.batch_id === batch.id && (record.status === "present" || record.status === "absent")
+    );
+    const presentRecords = batchRecords.filter((record) => record.status === "present").length;
+    const absentRecords = batchRecords.filter((record) => record.status === "absent").length;
+    const totalRecords = presentRecords + absentRecords;
+    const recordedSessions = new Set(batchRecords.map((record) => record.attendance_date)).size;
+    const assignedPlayerIds = new Set((assignmentsResult.data || []).filter((assignment) => assignment.batch_id === batch.id).map((assignment) => assignment.player_id));
     return {
-      id: batch.id,
-      batchId: batch.id,
-      batchName: batch.batch_name,
+      id: batch.id, batchId: batch.id, batchName: batch.batch_name,
       centerName: centerMap.get(batch.center_id)?.name || "Center",
-      expectedPlayers: assignedPlayerIds.size,
-      presentPlayers,
-      attendanceRecorded
+      expectedPlayers: assignedPlayerIds.size, presentPlayers: presentRecords,
+      attendanceRecorded: recordedSessions > 0, presentRecords, absentRecords, totalRecords, recordedSessions,
+      attendanceRate: totalRecords ? Math.round((presentRecords / totalRecords) * 100) : 0
     };
   });
 
