@@ -119,7 +119,7 @@ function AcademyOwnerDashboard({ data, onRefresh }) {
       </section>
     </div>
     <section className="ao-section">
-      <div className="ao-section-heading"><div><span className="ao-kicker">Attendance</span><h2>Attendance by batch</h2></div><span className="ao-helper">Present players / assigned players</span></div>
+      <div className="ao-section-heading"><div><span className="ao-kicker">Attendance</span><h2>Weekly attendance by batch</h2></div><span className="ao-helper">Present marks ÷ all recorded marks · Last 7 days</span></div>
       <div className="ao-operations-card"><BatchAttendanceChart batches={attendanceBatches} /></div>
     </section>
     <section className="ao-section">
