@@ -1128,3 +1128,8 @@
  .ao-weekly-summary { gap:.6rem .9rem; }
  .ao-weekly-period { margin-left:0; }
 }
+
+/* Center grouping and dense-batch sizing for weekly attendance columns */
+.ao-column-chart-svg.is-dense{min-width:600px}
+.ao-column-group-label{fill:var(--ap-primary-700);font-size:10px;font-weight:750}
+.ao-column-group-divider{stroke:var(--ap-border);stroke-width:1;stroke-dasharray:3 3}
