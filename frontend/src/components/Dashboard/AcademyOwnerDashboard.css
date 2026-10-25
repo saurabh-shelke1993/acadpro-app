@@ -1320,3 +1320,45 @@
 /* Keep today's sessions compact instead of stretching to fill the dashboard column. */
 .ao-today-operations .ao-session-list { height: auto; max-height: 430px; overflow-y: auto; }
 @media (max-width: 640px) { .ao-today-operations .ao-session-list { max-height: none; } }
+
+
+/* Responsive attendance columns: use the available width without desktop scrolling. */
+.ao-column-chart-scroll {
+  width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
+.ao-column-chart-svg {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  height: 246px;
+}
+.ao-column-chart-svg.is-dense {
+  min-width: 0;
+  height: 246px;
+}
+.ao-column-bar-rail {
+  fill: var(--ap-slate-50, #f8fafc);
+  stroke: var(--ap-border);
+  stroke-width: 1;
+}
+.ao-column-bar {
+  fill: var(--ap-primary-600);
+}
+.ao-column-x-label {
+  font-size: 10px;
+}
+.ao-column-group-label {
+  font-size: 11px;
+  font-weight: 800;
+}
+@media (max-width: 700px) {
+  .ao-column-chart-scroll {
+    overflow-x: auto;
+  }
+  .ao-column-chart-svg {
+    min-width: 720px;
+  }
+}
