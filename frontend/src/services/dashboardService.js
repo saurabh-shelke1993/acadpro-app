@@ -319,9 +319,7 @@ export async function getSuperAdminDashboardData() {
     batchesResult,
     attendanceResult,
     duesResult,
-    paymentsResult,
-    expensesResult,
-    inquiriesResult
+    paymentsResult
   ];
 
   const failed = results.find((result) => result.error);
