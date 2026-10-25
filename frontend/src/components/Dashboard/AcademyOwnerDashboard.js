@@ -73,28 +73,49 @@ function TodaySessions({ sessions }) {
 
 function BatchAttendanceChart({ batches }) {
   if (!batches.length) return <div className="ao-empty-card"><strong>No active batches found.</strong><span>Active batches will appear here when configured.</span></div>;
-  const batchesWithData = batches.filter((batch) => batch.totalRecords > 0);
+  const batchesWithData = batches.filter((batch) => (batch.totalRecords || 0) > 0);
   const presentTotal = batches.reduce((sum, batch) => sum + (batch.presentRecords || 0), 0);
   const markedTotal = batches.reduce((sum, batch) => sum + (batch.totalRecords || 0), 0);
   const academyRate = markedTotal ? Math.round((presentTotal / markedTotal) * 100) : null;
-  return <div className="ao-weekly-compact-chart">
+  const chartWidth = Math.max(600, batches.length * 78 + 64);
+  const chartHeight = 270;
+  const plot = { left: 42, right: chartWidth - 18, top: 24, bottom: 174 };
+  const plotHeight = plot.bottom - plot.top;
+  const step = (plot.right - plot.left) / batches.length;
+  const barWidth = Math.min(34, step * 0.56);
+  return <div className="ao-column-attendance">
     <div className="ao-weekly-summary">
       <div className="ao-weekly-summary-primary"><span>Weekly attendance</span><strong>{academyRate === null ? "—" : `${academyRate}%`}</strong></div>
       <div className="ao-weekly-summary-detail"><strong>{batchesWithData.length} of {batches.length}</strong><span>batches with attendance recorded</span></div>
       <span className="ao-weekly-period">Last 7 days</span>
     </div>
-    <div className="ao-weekly-compact-axis"><span>Batch / center</span><div className="ao-weekly-compact-scale"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div><span className="ao-weekly-compact-axis-value">Rate</span></div>
-    <div className="ao-weekly-compact-rows">{batches.map((batch) => {
-      const recorded = (batch.totalRecords || 0) > 0;
-      const percent = recorded ? Math.max(0, Math.min(100, batch.attendanceRate || 0)) : 0;
-      return <div className="ao-weekly-compact-row" key={batch.id}>
-        <div className="ao-weekly-compact-label"><strong title={batch.batchName}>{batch.batchName}</strong><span title={batch.centerName}>{batch.centerName}</span></div>
-        <div className="ao-weekly-compact-track" aria-label={recorded ? `${percent}% attendance` : "No attendance recorded"}><span className={recorded ? "ao-weekly-compact-bar" : "ao-weekly-compact-bar is-empty"} style={{ width: `${recorded ? percent : 0}%` }} /></div>
-        <div className="ao-weekly-compact-rate">{recorded ? `${percent}%` : "No data"}</div>
-      </div>;
-    })}</div>
-    {academyRate === null && <p className="ao-weekly-note">No attendance has been recorded in the last 7 days. The chart will populate when coaches mark players present or absent.</p>}
-    <p className="ao-weekly-note">Rate = present marks ÷ (present + absent marks). Only recorded marks from the last 7 days are included.</p>
+    <div className="ao-column-chart-scroll">
+      <svg className="ao-column-chart-svg" viewBox={`0 0 ${chartWidth} ${chartHeight}`} role="img" aria-label="Column chart of weekly attendance percentage by batch. Vertical axis is attendance percentage from zero to one hundred.">
+        {[0, 25, 50, 75, 100].map((tick) => {
+          const y = plot.bottom - (tick / 100) * plotHeight;
+          return <g key={tick}><line x1={plot.left} y1={y} x2={plot.right} y2={y} className="ao-column-gridline" /><text x={plot.left - 8} y={y + 4} textAnchor="end" className="ao-column-y-tick">{tick}%</text></g>;
+        })}
+        {batches.map((batch, index) => {
+          const recorded = (batch.totalRecords || 0) > 0;
+          const percent = recorded ? Math.max(0, Math.min(100, batch.attendanceRate || 0)) : 0;
+          const x = plot.left + step * index + (step - barWidth) / 2;
+          const barHeight = (percent / 100) * plotHeight;
+          const label = String(batch.batchName || "Batch");
+          const center = String(batch.centerName || "");
+          const labelMax = step > 82 ? 14 : 10;
+          const shortLabel = label.length > labelMax ? `${label.slice(0, labelMax - 1)}…` : label;
+          const shortCenter = center.length > 12 ? `${center.slice(0, 11)}…` : center;
+          return <g key={batch.id}>
+            {recorded && <><rect x={x} y={plot.bottom - barHeight} width={barWidth} height={Math.max(2, barHeight)} rx="3" className="ao-column-bar"><title>{`${label} · ${center}: ${percent}% attendance`}</title></rect><text x={x + barWidth / 2} y={Math.max(plot.top + 12, plot.bottom - barHeight - 7)} textAnchor="middle" className="ao-column-value">{percent}%</text></>}
+            {!recorded && <text x={x + barWidth / 2} y={plot.bottom - 8} textAnchor="middle" className="ao-column-no-data">—</text>}
+            <text x={x + barWidth / 2} y={plot.bottom + 21} textAnchor="middle" className="ao-column-x-label"><title>{label}</title>{shortLabel}</text>
+            <text x={x + barWidth / 2} y={plot.bottom + 38} textAnchor="middle" className="ao-column-center-label"><title>{center}</title>{shortCenter}</text>
+          </g>;
+        })}
+      </svg>
+    </div>
+    {academyRate === null && <p className="ao-weekly-note">No attendance has been recorded in the last 7 days. Columns will appear when coaches mark players present or absent.</p>}
+    <p className="ao-weekly-note">Weekly rate = present marks ÷ (present + absent marks). Only recorded marks from the last 7 days are included. A dash indicates no data.</p>
   </div>;
 }
 
