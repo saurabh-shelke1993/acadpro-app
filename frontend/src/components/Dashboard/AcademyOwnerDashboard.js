@@ -184,10 +184,9 @@ function AcademyOwnerDashboard({ data, onRefresh }) {
           {(data?.enquirySummary?.groups || []).length ? data.enquirySummary.groups.slice(0, 4).map((group) => (
             <div className="ao-enquiry-center" key={group.centerId}>
               <div className="ao-enquiry-center-heading"><strong>{group.centerName}</strong><span>{group.total}</span></div>
-              {group.batches.slice(0, 3).map((batch) => <div className="ao-enquiry-batch" key={batch.batchId}><span>{batch.batchName}</span><strong>{batch.count}</strong></div>)}
-              {group.batches.length > 3 && <small className="ao-enquiry-more">+{group.batches.length - 3} more batches</small>}
+
             </div>
-          )) : <div className="ao-enquiry-empty"><strong>No enquiries this month</strong><span>New enquiries will appear here, grouped by center and batch.</span></div>}
+          )) : <div className="ao-enquiry-empty"><strong>No enquiries this month</strong><span>New enquiries will appear here, grouped by center.</span></div>}
         </div>
       </aside>
     </section>
