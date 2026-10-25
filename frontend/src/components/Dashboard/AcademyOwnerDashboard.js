@@ -73,45 +73,60 @@ function TodaySessions({ sessions }) {
 
 function BatchAttendanceChart({ batches }) {
   if (!batches.length) return <div className="ao-empty-card"><strong>No active batches found.</strong><span>Active batches will appear here when configured.</span></div>;
-  const batchesWithData = batches.filter((batch) => (batch.totalRecords || 0) > 0);
-  const presentTotal = batches.reduce((sum, batch) => sum + (batch.presentRecords || 0), 0);
-  const markedTotal = batches.reduce((sum, batch) => sum + (batch.totalRecords || 0), 0);
+  const groups = batches.reduce((result, batch) => {
+    const name = batch.centerName || "Unassigned center";
+    let group = result.find((item) => item.centerName === name);
+    if (!group) { group = { centerName: name, batches: [] }; result.push(group); }
+    group.batches.push(batch);
+    return result;
+  }, []);
+  const chartBatches = groups.flatMap((group) => group.batches);
+  const batchesWithData = chartBatches.filter((batch) => (batch.totalRecords || 0) > 0);
+  const presentTotal = chartBatches.reduce((sum, batch) => sum + (batch.presentRecords || 0), 0);
+  const markedTotal = chartBatches.reduce((sum, batch) => sum + (batch.totalRecords || 0), 0);
   const academyRate = markedTotal ? Math.round((presentTotal / markedTotal) * 100) : null;
-  const chartWidth = Math.max(600, batches.length * 78 + 64);
-  const chartHeight = 270;
-  const plot = { left: 42, right: chartWidth - 18, top: 24, bottom: 174 };
+  const step = chartBatches.length > 15 ? 54 : 72;
+  const chartWidth = Math.max(600, chartBatches.length * step + 58 + Math.max(0, groups.length - 1) * 10);
+  const chartHeight = 282;
+  const plot = { left: 42, right: chartWidth - 18, top: 24, bottom: 168 };
   const plotHeight = plot.bottom - plot.top;
-  const step = (plot.right - plot.left) / batches.length;
-  const barWidth = Math.min(34, step * 0.56);
+  let offset = plot.left;
+  const layouts = groups.map((group, index) => {
+    const layout = { ...group, x: offset, width: group.batches.length * step };
+    offset += layout.width + (index < groups.length - 1 ? 10 : 0);
+    return layout;
+  });
+  const barWidth = Math.min(30, step * 0.54);
   return <div className="ao-column-attendance">
     <div className="ao-weekly-summary">
       <div className="ao-weekly-summary-primary"><span>Weekly attendance</span><strong>{academyRate === null ? "—" : `${academyRate}%`}</strong></div>
-      <div className="ao-weekly-summary-detail"><strong>{batchesWithData.length} of {batches.length}</strong><span>batches with attendance recorded</span></div>
+      <div className="ao-weekly-summary-detail"><strong>{batchesWithData.length} of {chartBatches.length}</strong><span>batches with attendance recorded</span></div>
       <span className="ao-weekly-period">Last 7 days</span>
     </div>
     <div className="ao-column-chart-scroll">
-      <svg className="ao-column-chart-svg" viewBox={`0 0 ${chartWidth} ${chartHeight}`} role="img" aria-label="Column chart of weekly attendance percentage by batch. Vertical axis is attendance percentage from zero to one hundred.">
+      <svg className={`ao-column-chart-svg ${chartBatches.length > 15 ? "is-dense" : ""}`} viewBox={`0 0 ${chartWidth} ${chartHeight}`} role="img" aria-label="Weekly attendance column chart grouped by center, with percentage on the vertical axis.">
         {[0, 25, 50, 75, 100].map((tick) => {
-          const y = plot.bottom - (tick / 100) * plotHeight;
+          const y = plot.bottom - tick / 100 * plotHeight;
           return <g key={tick}><line x1={plot.left} y1={y} x2={plot.right} y2={y} className="ao-column-gridline" /><text x={plot.left - 8} y={y + 4} textAnchor="end" className="ao-column-y-tick">{tick}%</text></g>;
         })}
-        {batches.map((batch, index) => {
+        {layouts.map((group, index) => <g key={group.centerName}>
+          {index > 0 && <line x1={group.x - 5} y1={plot.top - 4} x2={group.x - 5} y2={chartHeight - 36} className="ao-column-group-divider" />}
+          <text x={group.x + group.width / 2} y={chartHeight - 17} textAnchor="middle" className="ao-column-group-label"><title>{group.centerName}</title>{group.centerName.length > 26 ? `${group.centerName.slice(0, 25)}…` : group.centerName}</text>
+        </g>)}
+        {layouts.flatMap((group) => group.batches.map((batch, index) => {
           const recorded = (batch.totalRecords || 0) > 0;
           const percent = recorded ? Math.max(0, Math.min(100, batch.attendanceRate || 0)) : 0;
-          const x = plot.left + step * index + (step - barWidth) / 2;
-          const barHeight = (percent / 100) * plotHeight;
+          const x = group.x + index * step + (step - barWidth) / 2;
+          const barHeight = percent / 100 * plotHeight;
           const label = String(batch.batchName || "Batch");
-          const center = String(batch.centerName || "");
-          const labelMax = step > 82 ? 14 : 10;
-          const shortLabel = label.length > labelMax ? `${label.slice(0, labelMax - 1)}…` : label;
-          const shortCenter = center.length > 12 ? `${center.slice(0, 11)}…` : center;
+          const max = step < 60 ? 8 : 12;
+          const short = label.length > max ? `${label.slice(0, max - 1)}…` : label;
           return <g key={batch.id}>
-            {recorded && <><rect x={x} y={plot.bottom - barHeight} width={barWidth} height={Math.max(2, barHeight)} rx="3" className="ao-column-bar"><title>{`${label} · ${center}: ${percent}% attendance`}</title></rect><text x={x + barWidth / 2} y={Math.max(plot.top + 12, plot.bottom - barHeight - 7)} textAnchor="middle" className="ao-column-value">{percent}%</text></>}
-            {!recorded && <text x={x + barWidth / 2} y={plot.bottom - 8} textAnchor="middle" className="ao-column-no-data">—</text>}
-            <text x={x + barWidth / 2} y={plot.bottom + 21} textAnchor="middle" className="ao-column-x-label"><title>{label}</title>{shortLabel}</text>
-            <text x={x + barWidth / 2} y={plot.bottom + 38} textAnchor="middle" className="ao-column-center-label"><title>{center}</title>{shortCenter}</text>
+            {recorded && <><rect x={x} y={plot.bottom - barHeight} width={barWidth} height={Math.max(2, barHeight)} rx="3" className="ao-column-bar"><title>{`${label} · ${group.centerName}: ${percent}% attendance`}</title></rect><text x={x + barWidth / 2} y={Math.max(plot.top + 12, plot.bottom - barHeight - 6)} textAnchor="middle" className="ao-column-value">{percent}%</text></>}
+            {!recorded && <text x={x + barWidth / 2} y={plot.bottom - 7} textAnchor="middle" className="ao-column-no-data">—</text>}
+            <text x={x + barWidth / 2} y={plot.bottom + 20} textAnchor="middle" className="ao-column-x-label"><title>{label}</title>{short}</text>
           </g>;
-        })}
+        }))}
       </svg>
     </div>
     {academyRate === null && <p className="ao-weekly-note">No attendance has been recorded in the last 7 days. Columns will appear when coaches mark players present or absent.</p>}
