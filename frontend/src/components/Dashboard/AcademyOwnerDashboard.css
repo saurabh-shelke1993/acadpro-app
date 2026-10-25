@@ -1242,3 +1242,77 @@
   outline: 2px solid var(--ap-primary-600);
   outline-offset: 3px;
 }
+
+
+/* Academy owner dashboard: clickable overview totals and grouped sessions */
+.ao-academy-total-link {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color 120ms ease, background-color 120ms ease, box-shadow 120ms ease;
+}
+.ao-academy-total-link:hover {
+  border-color: var(--ap-primary-300, #93c5fd);
+  background: var(--ap-primary-50, #eff6ff);
+}
+.ao-academy-total-link:focus-visible {
+  outline: 2px solid var(--ap-primary-600, #2563eb);
+  outline-offset: 3px;
+}
+.ao-session-center-group + .ao-session-center-group {
+  border-top: 1px solid var(--ap-border);
+}
+.ao-session-center-heading {
+  margin: 0;
+  padding: 14px 16px 8px;
+  color: var(--ap-slate-950);
+  font-size: var(--ap-font-size-md);
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+.ao-session-center-batches {
+  display: grid;
+}
+.ao-session-center-batches .ao-session-row {
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  padding: 10px 16px 14px;
+}
+.ao-session-center-batches .ao-session-main strong {
+  font-size: var(--ap-font-size-sm);
+  font-weight: 750;
+}
+.ao-session-center-batches .ao-session-time {
+  display: block;
+  margin-top: 4px;
+  font-size: var(--ap-font-size-xs);
+  font-weight: 500;
+  color: var(--ap-slate-600);
+}
+.ao-session-attendance-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  align-self: center;
+  padding: 8px 11px;
+  border: 1px solid var(--ap-primary-200, #bfdbfe);
+  border-radius: var(--ap-radius-md);
+  color: var(--ap-primary-700);
+  font-size: var(--ap-font-size-xs);
+  font-weight: 750;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.ao-session-attendance-link:hover {
+  background: var(--ap-primary-50, #eff6ff);
+}
+.ao-session-attendance-link:focus-visible {
+  outline: 2px solid var(--ap-primary-600, #2563eb);
+  outline-offset: 2px;
+}
+@media (max-width: 520px) {
+  .ao-session-center-heading { padding: 12px 12px 6px; }
+  .ao-session-center-batches .ao-session-row { padding: 10px 12px 12px; gap: 8px; }
+  .ao-session-attendance-link { padding: 7px 8px; }
+}
