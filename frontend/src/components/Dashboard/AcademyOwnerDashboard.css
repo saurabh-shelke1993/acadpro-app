@@ -1137,3 +1137,10 @@
 /* Keep chart height fixed as batch count grows; horizontal scrolling handles dense data */
 .ao-column-chart-svg{height:282px;width:100%;min-width:600px}
 .ao-column-chart-svg.is-dense{height:282px}
+
+/* Give batch labels room at normal counts; retain horizontal scroll for large academies */
+.ao-column-chart-scroll{max-width:100%;overscroll-behavior-x:contain;scrollbar-width:thin}
+.ao-column-chart-svg{flex:none}
+.ao-column-x-label{font-size:11px;font-weight:700}
+.ao-column-group-label{font-size:11px}
+@media(max-width:700px){.ao-column-x-label{font-size:10px}.ao-column-group-label{font-size:10px}}
