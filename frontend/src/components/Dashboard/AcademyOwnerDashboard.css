@@ -1071,3 +1071,18 @@
  .ao-weekly-value { grid-column:2; grid-row:1; }
  .ao-weekly-plot { grid-column:1 / -1; grid-row:2; }
 }
+
+/* Conventional horizontal bar chart for weekly attendance */
+.ao-weekly-bar-chart { width:100%; min-width:0; }
+.ao-weekly-chart-scroll { width:100%; overflow-x:auto; }
+.ao-weekly-chart-svg { display:block; width:100%; min-width:680px; height:auto; overflow:visible; }
+.ao-weekly-svg-gridline { stroke:var(--ap-border); stroke-width:1; stroke-dasharray:3 4; }
+.ao-weekly-svg-tick { fill:var(--ap-slate-500); font-size:11px; }
+.ao-weekly-svg-batch { fill:var(--ap-slate-900); font-size:12px; font-weight:700; }
+.ao-weekly-svg-center { fill:var(--ap-slate-500); font-size:10px; }
+.ao-weekly-svg-bar { fill:var(--ap-primary-600); }
+.ao-weekly-svg-value { fill:var(--ap-slate-900); font-size:12px; font-weight:750; }
+.ao-weekly-svg-no-data { fill:var(--ap-slate-500); font-size:11px; font-style:italic; }
+@media (max-width:700px) {
+ .ao-weekly-chart-svg { min-width:680px; }
+}
