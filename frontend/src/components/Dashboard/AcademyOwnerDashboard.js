@@ -48,7 +48,7 @@ function PlayerDistribution({ centers, academyPlayerTotal }) {
       <p className="ao-donut-hint">Select a segment to view a center</p>
     </div>
     <div className="ao-age-breakdown">
-      <div className="ao-age-heading"><div><span className="ao-kicker">Age profile</span><h3>{selectedCenter?.name}</h3></div><span className="ao-age-total">{formatNumber(selectedCenter?.players)} players</span></div>
+      <div className="ao-age-heading"><div><span className="ao-kicker">Batch profile</span><h3>{selectedCenter?.name}</h3></div><span className="ao-age-total">{formatNumber(selectedCenter?.players)} players</span></div>
       {groups.length ? <div className="ao-age-groups">{groups.map((group, index) => {
         const percentage = ageGroupTotal ? Math.round((group.players / ageGroupTotal) * 100) : 0;
         return <div className="ao-age-row" key={group.name}>
@@ -61,14 +61,41 @@ function PlayerDistribution({ centers, academyPlayerTotal }) {
   </div>;
 }
 
+const formatTime12Hour = (value) => {
+  if (!value) return "Time TBC";
+  const [hours, minutes] = String(value).split(":").map(Number);
+  if (!Number.isFinite(hours) || !Number.isFinite(minutes)) return value;
+  const date = new Date();
+  date.setHours(hours, minutes, 0, 0);
+  return date.toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit", hour12: true });
+};
+
 function TodaySessions({ sessions }) {
   if (!sessions.length) return <div className="ao-empty-card ao-empty-sessions"><strong>No sessions scheduled today.</strong><span>Check batch schedules if you expected training sessions to appear.</span></div>;
-  return <div className="ao-session-list">{sessions.map((session) => <div className="ao-session-row" key={session.id}>
-    <div className="ao-session-time">{session.startTime || "Time TBC"}<span>{session.endTime ? `– ${session.endTime}` : ""}</span></div>
-    <div className="ao-session-main"><strong>{session.batchName}</strong><span>{session.centerName}</span></div>
-    <span className={`ao-session-status ${session.attendanceRecorded ? "is-recorded" : "is-pending"}`}>{session.attendanceRecorded ? "Recorded" : "Not recorded"}</span>
-    <Link to={`/attendance?batchId=${session.batchId}`} aria-label={`Open attendance for ${session.batchName}`}>→</Link>
-  </div>)}</div>;
+  const groups = sessions.reduce((result, session) => {
+    const key = session.centerId || session.centerName || "unassigned";
+    let group = result.find((item) => item.key === key);
+    if (!group) {
+      group = { key, centerName: session.centerName || "Unassigned center", sessions: [] };
+      result.push(group);
+    }
+    group.sessions.push(session);
+    return result;
+  }, []);
+  return <div className="ao-session-list">{groups.map((group) => (
+    <section className="ao-session-center-group" key={group.key}>
+      <h3 className="ao-session-center-heading">{group.centerName}</h3>
+      <div className="ao-session-center-batches">{group.sessions.map((session) => (
+        <div className="ao-session-row" key={session.id}>
+          <div className="ao-session-main">
+            <strong>{session.batchName}</strong>
+            <span className="ao-session-time">{formatTime12Hour(session.startTime)}{session.endTime ? ` – ${formatTime12Hour(session.endTime)}` : ""}</span>
+          </div>
+          <Link className="ao-session-attendance-link" to={`/attendance?centerId=${encodeURIComponent(session.centerId || "")}&batchId=${encodeURIComponent(session.batchId)}`} aria-label={`Open attendance for ${session.batchName} at ${group.centerName}`}>Attendance <span aria-hidden="true">→</span></Link>
+        </div>
+      ))}</div>
+    </section>
+  ))}</div>;
 }
 
 function BatchAttendanceChart({ batches }) {
@@ -146,7 +173,11 @@ function AcademyOwnerDashboard({ data, onRefresh }) {
       <section className="ao-section ao-player-overview">
         <div className="ao-section-heading ao-player-overview-heading">
           <div><span className="ao-kicker">Player overview</span><h2>Players by center</h2></div>
-          <div className="ao-academy-totals" aria-label="Academy totals"><div className="ao-academy-total"><span>Players</span><strong>{formatNumber(data?.totals?.players || 0)}</strong></div><div className="ao-academy-total"><span>Centers</span><strong>{formatNumber(data?.totals?.centers || 0)}</strong></div><div className="ao-academy-total"><span>Batches</span><strong>{formatNumber(data?.totals?.batches || 0)}</strong></div></div>
+          <div className="ao-academy-totals" aria-label="Academy totals">
+            <Link className="ao-academy-total ao-academy-total-link" to="/players" aria-label={`View ${data?.totals?.players || 0} players`}><span>Players</span><strong>{formatNumber(data?.totals?.players || 0)}</strong></Link>
+            <Link className="ao-academy-total ao-academy-total-link" to="/centers" aria-label={`View ${data?.totals?.centers || 0} centers`}><span>Centers</span><strong>{formatNumber(data?.totals?.centers || 0)}</strong></Link>
+            <Link className="ao-academy-total ao-academy-total-link" to="/batches" aria-label={`View ${data?.totals?.batches || 0} batches`}><span>Batches</span><strong>{formatNumber(data?.totals?.batches || 0)}</strong></Link>
+          </div>
         </div>
         <PlayerDistribution centers={centers} academyPlayerTotal={data?.totals?.players || 0} />
       </section>
