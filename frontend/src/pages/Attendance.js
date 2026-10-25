@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import Layout from "../components/Layout";
 import "./Attendance.css";
@@ -29,6 +30,9 @@ import {
 } from "../services/scheduleViewService";
 
 function Attendance() {
+  const [searchParams] = useSearchParams();
+  const requestedCenterId = searchParams.get("centerId") || "";
+  const requestedBatchId = searchParams.get("batchId") || "";
   const [user, setUser] = useState(null);
 
   const [academies, setAcademies] = useState([]);
@@ -451,12 +455,24 @@ useEffect(() => {
   }, [selectedAcademy, fetchCenters]);
 
 useEffect(() => {
+  if (!requestedCenterId || !centers.length) return;
+  const requestedCenter = centers.find((center) => center.id === requestedCenterId);
+  if (requestedCenter) setSelectedCenter(requestedCenter.id);
+}, [requestedCenterId, centers]);
+
+useEffect(() => {
     if (selectedCenter) {
       fetchBatches();
     } else {
       setBatches([]);
     }
   }, [selectedCenter, fetchBatches]);
+
+useEffect(() => {
+  if (!requestedBatchId || !batches.length) return;
+  const requestedBatch = batches.find((batch) => batch.id === requestedBatchId);
+  if (requestedBatch) setSelectedBatch(requestedBatch.id);
+}, [requestedBatchId, batches]);
 
 useEffect(() => {
     if (selectedBatch) {
