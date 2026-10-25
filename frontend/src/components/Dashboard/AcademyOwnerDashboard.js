@@ -162,9 +162,19 @@ function BatchAttendanceChart({ batches }) {
       <svg className="ao-column-chart-svg" viewBox={`0 0 ${chartWidth} ${chartHeight}`} preserveAspectRatio="none" role="img" aria-label="Weekly attendance column chart grouped by center, with percentage on the vertical axis.">
         {layouts.map((group, index) => {
           const label = abbreviateAttendanceLabel(group.centerName, step * group.batches.length < 160 ? 16 : 24);
+          const groupX = Math.max(plot.left - 5, group.x - 4);
+          const groupWidth = group.width + 2;
           return <g key={group.centerName}>
+            <rect
+              x={groupX}
+              y="25"
+              width={groupWidth}
+              height={chartHeight - 48}
+              rx="5"
+              className={`ao-column-center-band ${index % 2 === 0 ? "is-even" : "is-odd"}`}
+            />
             <text x={group.x + group.width / 2} y="17" textAnchor="middle" className="ao-column-group-label"><title>{group.centerName}</title>{label.shortLabel}</text>
-            {index > 0 && <line x1={group.x - 4} y1="25" x2={group.x - 4} y2={chartHeight - 25} className="ao-column-group-divider" />}
+            {index > 0 && <line x1={group.x - 4} y1="24" x2={group.x - 4} y2={chartHeight - 23} className="ao-column-group-divider" />}
           </g>;
         })}
         {[0, 25, 50, 75, 100].map((tick) => {
