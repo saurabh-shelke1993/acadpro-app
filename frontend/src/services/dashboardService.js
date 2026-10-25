@@ -703,7 +703,8 @@ export async function getAcademyOwnerDashboardData(user) {
           id,
           center_id,
           academy_id,
-          is_active
+          is_active,
+          age_group
         ),
         players!inner(
           id,
@@ -766,7 +767,8 @@ export async function getAcademyOwnerDashboardData(user) {
     attendanceRecords: 0,
     attendanceRate: 0,
     recordedBatches: 0,
-    attendanceCoverage: 0
+    attendanceCoverage: 0,
+    ageGroups: []
   }));
 
   const centerMap = new Map(centers.map((center) => [center.id, center]));
@@ -798,6 +800,31 @@ export async function getAcademyOwnerDashboardData(user) {
       const center = centerMap.get(centerId);
       if (center) center.players += 1;
     });
+  });
+
+  // Count each active player once per center and age group, even if assigned
+  // to multiple batches at that center.
+  const ageGroupPlayersByCenter = new Map();
+  (assignmentsResult.data || []).forEach((assignment) => {
+    const batch = batchMap.get(assignment.batch_id);
+    const center = batch?.center;
+    if (!center) return;
+    const ageGroup = String(batch.age_group || "").trim() || "Age group not set";
+    if (!ageGroupPlayersByCenter.has(center.id)) {
+      ageGroupPlayersByCenter.set(center.id, new Map());
+    }
+    const groupMap = ageGroupPlayersByCenter.get(center.id);
+    if (!groupMap.has(ageGroup)) groupMap.set(ageGroup, new Set());
+    groupMap.get(ageGroup).add(assignment.player_id);
+  });
+
+  centers.forEach((center) => {
+    const groupMap = ageGroupPlayersByCenter.get(center.id);
+    center.ageGroups = groupMap
+      ? [...groupMap.entries()]
+          .map(([name, playerIds]) => ({ name, players: playerIds.size }))
+          .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }))
+      : [];
   });
 
   const todayRecordedBatchIds = new Set();
