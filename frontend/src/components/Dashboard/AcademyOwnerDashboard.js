@@ -12,7 +12,7 @@ function KpiCard({ label, value, detail, to, tone = "blue" }) {
 
 function describeArc(cx, cy, radius, startAngle, endAngle) {
   const start = { x: cx + radius * Math.cos(startAngle), y: cy + radius * Math.sin(startAngle) };
-  const end = { x: cx + radius * Math.sin(endAngle), y: cy - radius * Math.cos(endAngle) };
+  const end = { x: cx + radius * Math.cos(endAngle), y: cy + radius * Math.sin(endAngle) };
   const largeArc = endAngle - startAngle > Math.PI ? 1 : 0;
   return `M ${start.x} ${start.y} A ${radius} ${radius} 0 ${largeArc} 1 ${end.x} ${end.y}`;
 }
