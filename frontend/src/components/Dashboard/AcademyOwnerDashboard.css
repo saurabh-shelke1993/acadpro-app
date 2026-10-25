@@ -1189,3 +1189,56 @@
 .enquiries-delete-button { color: var(--ap-danger-700, #b42318); border-color: var(--ap-danger-200, #fecaca); }
 .enquiries-delete-button:hover:not(:disabled) { background: var(--ap-danger-50, #fef2f2); }
 .enquiries-edit-modal { width: min(900px, 100%); }
+
+
+/* Center-based enquiry summary: align center labels and make counts navigable. */
+.ao-enquiry-groups {
+  display: grid;
+  gap: 0;
+}
+.ao-enquiry-center {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--ap-border);
+}
+.ao-enquiry-center:first-child {
+  padding-top: 2px;
+}
+.ao-enquiry-center:last-child {
+  padding-bottom: 2px;
+  border-bottom: 0;
+}
+.ao-enquiry-center-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+}
+.ao-enquiry-center-heading strong {
+  min-width: 0;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.ao-enquiry-count-link {
+  display: inline-flex;
+  min-width: 30px;
+  min-height: 30px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8px;
+  border-radius: var(--ap-radius-full);
+  background: var(--ap-primary-50);
+  color: var(--ap-primary-700);
+  font-size: var(--ap-font-size-sm);
+  font-weight: 800;
+  line-height: 1;
+  text-decoration: none;
+  transition: background-color 120ms ease, box-shadow 120ms ease;
+}
+.ao-enquiry-count-link:hover {
+  background: var(--ap-primary-100, #dbeafe);
+  box-shadow: 0 0 0 2px var(--ap-primary-100, #dbeafe);
+}
+.ao-enquiry-count-link:focus-visible {
+  outline: 2px solid var(--ap-primary-600);
+  outline-offset: 3px;
+}
