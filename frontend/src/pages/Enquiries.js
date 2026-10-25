@@ -12,6 +12,8 @@ import {
   validateQuickEnquiry,
   validateEnquiryStatusUpdate,
   updateEnquiryStatus,
+  updateEnquiry,
+  deleteEnquiry,
   convertEnquiryToPlayer,
   validateEnquiryConversion,
 } from "../services/enquiriesService";
@@ -67,6 +69,11 @@ function Enquiries() {
   const [editTrialDate, setEditTrialDate] = useState("");
   const [statusSavingId, setStatusSavingId] = useState(null);
   const [statusError, setStatusError] = useState("");
+  const [editingEnquiry, setEditingEnquiry] = useState(null);
+  const [editForm, setEditForm] = useState(EMPTY_FORM);
+  const [editError, setEditError] = useState("");
+  const [editSaving, setEditSaving] = useState(false);
+  const [deletingEnquiryId, setDeletingEnquiryId] = useState(null);
   const [conversionEnquiry, setConversionEnquiry] = useState(null);
   const [conversionForm, setConversionForm] = useState({
     parentName: "",
@@ -305,6 +312,74 @@ function Enquiries() {
       setStatusError(updateError.message || "Unable to update enquiry status. Please retry.");
     } finally {
       setStatusSavingId(null);
+    }
+  };
+
+  const openEditEnquiry = (enquiry) => {
+    setEditingEnquiry(enquiry);
+    setEditForm({
+      playerName: enquiry.player_name || "",
+      parentPhone: enquiry.phone || "",
+      dob: enquiry.dob || "",
+      source: enquiry.inquiry_source || "",
+      centerId: enquiry.assigned_center_id || "",
+      notes: enquiry.notes || "",
+    });
+    setEditStatus(enquiry.status || "new");
+    setEditTrialDate(enquiry.trial_date || "");
+    setEditError("");
+  };
+
+  const saveEnquiryEdit = async (event) => {
+    event.preventDefault();
+    if (!editingEnquiry || !isOwner) return;
+    const validationError = validateQuickEnquiry(editForm) || validateEnquiryStatusUpdate({
+      status: editStatus,
+      trialDate: editTrialDate,
+    });
+    if (validationError) {
+      setEditError(validationError);
+      return;
+    }
+    if (editForm.centerId && !centers.some((center) => center.id === editForm.centerId)) {
+      setEditError("Select an active center in your academy.");
+      return;
+    }
+    setEditSaving(true);
+    setEditError("");
+    setNotice("");
+    try {
+      await updateEnquiry(editingEnquiry, {
+        ...editForm,
+        status: editStatus,
+        trialDate: editTrialDate,
+      });
+      setEditingEnquiry(null);
+      setNotice("Enquiry updated successfully.");
+      await loadEnquiries();
+    } catch (updateError) {
+      setEditError(updateError.message || "Unable to update enquiry. Please retry.");
+    } finally {
+      setEditSaving(false);
+    }
+  };
+
+  const handleDeleteEnquiry = async (enquiry) => {
+    if (!isOwner || enquiry.status === "converted") return;
+    const confirmed = window.confirm(`Delete the enquiry for ${enquiry.player_name}? This action cannot be undone.`);
+    if (!confirmed) return;
+    setDeletingEnquiryId(enquiry.id);
+    setError("");
+    setNotice("");
+    try {
+      await deleteEnquiry(enquiry.id);
+      setNotice("Enquiry deleted successfully.");
+      if (editingEnquiry?.id === enquiry.id) setEditingEnquiry(null);
+      await loadEnquiries();
+    } catch (deleteError) {
+      setError(deleteError.message || "Unable to delete enquiry. Please retry.");
+    } finally {
+      setDeletingEnquiryId(null);
     }
   };
 
@@ -850,18 +925,38 @@ function Enquiries() {
                               type="button"
                               className="enquiries-secondary-button"
                               onClick={() => startStatusEdit(enquiry)}
-                              disabled={Boolean(statusSavingId)}
+                              disabled={Boolean(statusSavingId) || Boolean(deletingEnquiryId)}
                             >
                               Update status
                             </button>
+                            {isOwner && (
+                              <button
+                                type="button"
+                                className="enquiries-secondary-button"
+                                onClick={() => openEditEnquiry(enquiry)}
+                                disabled={Boolean(statusSavingId) || Boolean(deletingEnquiryId) || conversionSaving}
+                              >
+                                Edit enquiry
+                              </button>
+                            )}
                             {isOwner && enquiry.status !== "lost" && (
                               <button
                                 type="button"
                                 className="enquiries-primary-button"
                                 onClick={() => openConversionForm(enquiry)}
-                                disabled={Boolean(statusSavingId) || conversionSaving}
+                                disabled={Boolean(statusSavingId) || conversionSaving || Boolean(deletingEnquiryId)}
                               >
                                 Convert to Player
+                              </button>
+                            )}
+                            {isOwner && (
+                              <button
+                                type="button"
+                                className="enquiries-secondary-button enquiries-delete-button"
+                                onClick={() => handleDeleteEnquiry(enquiry)}
+                                disabled={Boolean(statusSavingId) || conversionSaving || Boolean(deletingEnquiryId) || enquiry.status === "converted"}
+                              >
+                                {deletingEnquiryId === enquiry.id ? "Deleting…" : "Delete"}
                               </button>
                             )}
                           </div>
@@ -875,6 +970,60 @@ function Enquiries() {
           )}
         </section>
       </section>
+      {editingEnquiry && isOwner && (
+        <div className="enquiries-modal-backdrop" role="presentation">
+          <section className="enquiries-conversion-modal enquiries-edit-modal" role="dialog" aria-modal="true" aria-labelledby="edit-enquiry-title">
+            <div className="enquiries-section-heading">
+              <div>
+                <h2 id="edit-enquiry-title">Edit enquiry</h2>
+                <p>Update the prospective player's details and follow-up status.</p>
+              </div>
+              <button type="button" className="enquiries-secondary-button" onClick={() => setEditingEnquiry(null)} disabled={editSaving}>Close</button>
+            </div>
+            <form onSubmit={saveEnquiryEdit} noValidate>
+              <div className="enquiries-form-grid">
+                <label className="enquiries-field">Player name *
+                  <input maxLength={120} value={editForm.playerName} onChange={(event) => setEditForm((current) => ({ ...current, playerName: event.target.value }))} required />
+                </label>
+                <label className="enquiries-field">Parent contact *
+                  <input type="tel" inputMode="numeric" maxLength={20} value={editForm.parentPhone} onChange={(event) => setEditForm((current) => ({ ...current, parentPhone: event.target.value }))} required />
+                </label>
+                <label className="enquiries-field">Player date of birth *
+                  <input type="date" max={today()} value={editForm.dob} onChange={(event) => setEditForm((current) => ({ ...current, dob: event.target.value }))} required />
+                </label>
+                <label className="enquiries-field">Source
+                  <select value={editForm.source} onChange={(event) => setEditForm((current) => ({ ...current, source: event.target.value }))}>
+                    <option value="">Not specified</option>
+                    {ENQUIRY_SOURCES.map((source) => <option key={source} value={source}>{source}</option>)}
+                  </select>
+                </label>
+                <label className="enquiries-field">Center
+                  <select value={editForm.centerId} onChange={(event) => setEditForm((current) => ({ ...current, centerId: event.target.value }))}>
+                    <option value="">Unassigned</option>
+                    {centers.map((center) => <option key={center.id} value={center.id}>{center.center_name}</option>)}
+                  </select>
+                </label>
+                <label className="enquiries-field">Status
+                  <select value={editStatus} onChange={(event) => setEditStatus(event.target.value)}>
+                    {ENQUIRY_STATUSES.filter((item) => item.value !== "converted").map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
+                  </select>
+                </label>
+                <label className="enquiries-field">Trial date {editStatus === "trial_scheduled" ? "*" : "(optional)"}
+                  <input type="date" value={editTrialDate} onChange={(event) => setEditTrialDate(event.target.value)} required={editStatus === "trial_scheduled"} />
+                </label>
+                <label className="enquiries-field enquiries-field-wide">Internal note
+                  <textarea rows={3} maxLength={2000} value={editForm.notes} onChange={(event) => setEditForm((current) => ({ ...current, notes: event.target.value }))} />
+                </label>
+              </div>
+              {editError && <div className="enquiries-alert enquiries-alert-error" role="alert">{editError}</div>}
+              <div className="enquiries-form-actions">
+                <button type="button" className="enquiries-secondary-button" onClick={() => setEditingEnquiry(null)} disabled={editSaving}>Cancel</button>
+                <button type="submit" className="enquiries-primary-button" disabled={editSaving}>{editSaving ? "Saving…" : "Save changes"}</button>
+              </div>
+            </form>
+          </section>
+        </div>
+      )}
     </Layout>
   );
 }
