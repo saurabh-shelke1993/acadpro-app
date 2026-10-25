@@ -1316,3 +1316,7 @@
   .ao-session-center-batches .ao-session-row { padding: 10px 12px 12px; gap: 8px; }
   .ao-session-attendance-link { padding: 7px 8px; }
 }
+
+/* Keep today's sessions compact instead of stretching to fill the dashboard column. */
+.ao-today-operations .ao-session-list { height: auto; max-height: 430px; overflow-y: auto; }
+@media (max-width: 640px) { .ao-today-operations .ao-session-list { max-height: none; } }
