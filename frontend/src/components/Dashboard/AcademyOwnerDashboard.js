@@ -12,16 +12,16 @@ function KpiCard({ label, value, detail, to, tone = "blue" }) {
 
 function describeArc(cx, cy, radius, startAngle, endAngle) {
   const start = { x: cx + radius * Math.cos(startAngle), y: cy + radius * Math.sin(startAngle) };
-  const end = { x: cx + radius * Math.cos(endAngle), y: cy + radius * Math.sin(endAngle) };
+  const end = { x: cx + radius * Math.sin(endAngle), y: cy - radius * Math.cos(endAngle) };
   const largeArc = endAngle - startAngle > Math.PI ? 1 : 0;
   return `M ${start.x} ${start.y} A ${radius} ${radius} 0 ${largeArc} 1 ${end.x} ${end.y}`;
 }
 
 function PlayerDistribution({ centers }) {
   const populated = centers.filter((center) => center.players > 0);
-  const [selectedCenterId, setSelectedCenterId] = useState(populated[0]?.id || null);
   const colors = ["#2563eb", "#0d9488", "#d97706", "#7c3aed", "#db2777", "#64748b"];
   const totalPlayers = populated.reduce((sum, center) => sum + center.players, 0);
+  const [selectedCenterId, setSelectedCenterId] = useState(populated[0]?.id || null);
   const selectedCenter = populated.find((center) => center.id === selectedCenterId) || populated[0];
   let angle = -Math.PI / 2;
   const slices = populated.map((center, index) => {
@@ -35,15 +35,28 @@ function PlayerDistribution({ centers }) {
     return <div className="ao-empty-card"><strong>No player assignments found.</strong><span>Active players are counted at a center when assigned to one of its active batches.</span></div>;
   }
 
+  const groups = selectedCenter?.ageGroups || [];
+  const ageGroupTotal = groups.reduce((sum, group) => sum + group.players, 0);
   return <div className="ao-distribution-card ao-distribution-card-compact">
-    <div className="ao-donut-wrap">
+    <div className="ao-donut-column">
       <svg className="ao-donut-chart" viewBox="0 0 200 200" role="group" aria-label="Active player distribution by center">
-        {slices.map((slice) => <path key={slice.id} d={describeArc(100, 100, 72, slice.startAngle, slice.endAngle - 0.012)} fill="none" stroke={slice.color} strokeWidth="30" strokeLinecap="butt" tabIndex="0" role="button" aria-label={`${slice.name}, ${slice.players} active players. Select center`} aria-pressed={slice.id === selectedCenter?.id} className={slice.id === selectedCenter?.id ? "ao-donut-slice is-selected" : "ao-donut-slice"} onClick={() => setSelectedCenterId(slice.id)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setSelectedCenterId(slice.id); } }} />)}
+        {slices.map((slice) => <path key={slice.id} d={describeArc(100, 100, 72, slice.startAngle, slice.endAngle - 0.012)} fill="none" stroke={slice.color} strokeWidth="30" strokeLinecap="round" tabIndex="0" role="button" aria-label={`${slice.name}, ${slice.players} active players. Select center`} aria-pressed={slice.id === selectedCenter?.id} className={slice.id === selectedCenter?.id ? "ao-donut-slice is-selected" : "ao-donut-slice"} onClick={() => setSelectedCenterId(slice.id)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setSelectedCenterId(slice.id); } }} />)}
         <text x="100" y="91" textAnchor="middle" className="ao-donut-center-name">{selectedCenter?.name || "All centers"}</text>
         <text x="100" y="119" textAnchor="middle" className="ao-donut-center-count">{formatNumber(selectedCenter?.players || totalPlayers)}</text>
         <text x="100" y="136" textAnchor="middle" className="ao-donut-center-caption">active players</text>
       </svg>
       <p className="ao-donut-hint">Select a segment to view a center</p>
+    </div>
+    <div className="ao-age-breakdown">
+      <div className="ao-age-heading"><div><span className="ao-kicker">Age profile</span><h3>{selectedCenter?.name}</h3></div><span className="ao-age-total">{formatNumber(selectedCenter?.players)} players</span></div>
+      {groups.length ? <div className="ao-age-groups">{groups.map((group, index) => {
+        const percentage = ageGroupTotal ? Math.round((group.players / ageGroupTotal) * 100) : 0;
+        return <div className="ao-age-row" key={group.name}>
+          <div className="ao-age-label"><span>{group.name}</span><strong>{formatNumber(group.players)} <small>({percentage}%)</small></strong></div>
+          <div className="ao-age-track"><span style={{ width: `${percentage}%`, background: colors[index % colors.length] }} /></div>
+        </div>;
+      })}</div> : <div className="ao-age-empty"><strong>No age-group data available</strong><span>Check whether active batches have an age group assigned.</span></div>}
+      <Link className="ao-age-link" to={`/players?academyId=${selectedCenter?.academyId || ""}&centerId=${selectedCenter?.id || ""}`}>View center players <span aria-hidden="true">→</span></Link>
     </div>
   </div>;
 }
@@ -85,18 +98,15 @@ function AcademyOwnerDashboard({ data, onRefresh }) {
         <div className="ao-section-heading"><div><span className="ao-kicker">Player overview</span><h2>Players by center</h2></div></div>
         <PlayerDistribution centers={centers} />
       </section>
-
       <section className="ao-section ao-today-operations">
         <div className="ao-section-heading"><div><span className="ao-kicker">Today's operations</span><h2>Today's sessions</h2></div><button type="button" className="ao-refresh-button ao-inline-refresh" onClick={onRefresh}>Refresh</button></div>
         <TodaySessions sessions={sessions} />
       </section>
     </div>
-
     <section className="ao-section">
       <div className="ao-section-heading"><div><span className="ao-kicker">Attendance</span><h2>Attendance by batch</h2></div><span className="ao-helper">Present players / assigned players</span></div>
       <div className="ao-operations-card"><BatchAttendanceChart batches={attendanceBatches} /></div>
     </section>
-
     <section className="ao-section">
       <div className="ao-section-heading"><div><span className="ao-kicker">Financial snapshot</span><h2>Collections and outstanding</h2></div><span className="ao-helper">Current payment ledger</span></div>
       <div className="ao-financial-workspace">
