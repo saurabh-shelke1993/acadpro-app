@@ -662,6 +662,8 @@ export async function getAcademyOwnerDashboardData(user) {
     attendanceResult,
     duesResult,
     paymentsResult,
+    expensesResult,
+    inquiriesResult,
     attendanceTrend,
     collectionsTrend
   ] = await Promise.all([
@@ -755,7 +757,9 @@ export async function getAcademyOwnerDashboardData(user) {
     assignmentsResult,
     attendanceResult,
     duesResult,
-    paymentsResult
+    paymentsResult,
+    expensesResult,
+    inquiriesResult
   ];
 
   const failed = results.find((result) => result.error);
