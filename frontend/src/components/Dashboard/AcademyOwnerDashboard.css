@@ -1023,3 +1023,20 @@
   .ao-age-breakdown { width:100%; }
   .ao-age-heading { margin-bottom:var(--ap-space-4); }
 }
+
+/* Dashboard chart polish and academy-wide player total */
+.ao-player-overview-heading { align-items:center; }
+.ao-academy-player-total {
+  display:flex; align-items:center; gap:.65rem; padding:.5rem .75rem;
+  border:1px solid var(--ap-border); border-radius:var(--ap-radius-lg);
+  background:var(--ap-surface); white-space:nowrap;
+}
+.ao-academy-player-total span { color:var(--ap-slate-500); font-size:var(--ap-font-size-xs); }
+.ao-academy-player-total strong { color:var(--ap-slate-950); font-size:1.2rem; font-weight:800; font-variant-numeric:tabular-nums; }
+.ao-donut-slice { stroke-linecap:butt; }
+.ao-donut-slice:hover,.ao-donut-slice:focus-visible,.ao-donut-slice.is-selected { stroke-width:30; }
+.ao-age-row { gap:.45rem; }
+@media (max-width: 640px) {
+  .ao-player-overview-heading { align-items:flex-start; flex-direction:column; }
+  .ao-academy-player-total { width:fit-content; }
+}
