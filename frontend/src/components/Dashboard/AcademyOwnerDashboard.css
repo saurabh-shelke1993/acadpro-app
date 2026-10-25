@@ -1133,3 +1133,7 @@
 .ao-column-chart-svg.is-dense{min-width:600px}
 .ao-column-group-label{fill:var(--ap-primary-700);font-size:10px;font-weight:750}
 .ao-column-group-divider{stroke:var(--ap-border);stroke-width:1;stroke-dasharray:3 3}
+
+/* Keep chart height fixed as batch count grows; horizontal scrolling handles dense data */
+.ao-column-chart-svg{height:282px;width:100%;min-width:600px}
+.ao-column-chart-svg.is-dense{height:282px}
