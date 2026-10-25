@@ -73,17 +73,21 @@ function TodaySessions({ sessions }) {
 
 function BatchAttendanceChart({ batches }) {
   if (!batches.length) return <div className="ao-empty-card"><strong>No active batches found.</strong><span>Active batches will appear here when configured.</span></div>;
-  return <div className="ao-batch-chart">{batches.map((batch) => {
-    const denominator = batch.expectedPlayers || 0;
-    const present = batch.presentPlayers || 0;
-    const percent = denominator ? Math.min(100, Math.round((present / denominator) * 100)) : 0;
-    const recorded = batch.attendanceRecorded;
-    return <div className="ao-batch-chart-row" key={batch.id}>
-      <div className="ao-batch-chart-label"><strong>{batch.batchName}</strong><span>{batch.centerName}</span></div>
-      <div className="ao-batch-chart-track" aria-label={recorded ? `${present} present out of ${denominator} assigned players` : "Attendance not recorded"}><span style={{ width: `${recorded ? percent : 0}%` }} /></div>
-      <div className="ao-batch-chart-value">{recorded ? <><strong>{present}/{denominator}</strong><small>{percent}%</small></> : <span className="ao-not-recorded">Not recorded</span>}</div>
-    </div>;
-  })}</div>;
+  const hasAnyRecords = batches.some((batch) => batch.recordedSessions > 0);
+  return <div className="ao-weekly-attendance-chart" role="img" aria-label="Weekly attendance percentage by batch">
+    <div className="ao-weekly-axis"><span>Batch / center</span><div className="ao-weekly-ticks">{[0, 25, 50, 75, 100].map((tick) => <span key={tick}>{tick}%</span>)}</div></div>
+    {batches.map((batch) => {
+      const percent = batch.attendanceRate || 0;
+      const recorded = batch.recordedSessions > 0;
+      return <div className="ao-weekly-row" key={batch.id}>
+        <div className="ao-weekly-label"><strong>{batch.batchName}</strong><span>{batch.centerName}</span></div>
+        <div className="ao-weekly-plot"><div className="ao-weekly-gridlines" aria-hidden="true"><i /><i /><i /><i /><i /></div><div className={`ao-weekly-bar ${recorded ? "" : "is-unrecorded"}`} style={{ width: `${recorded ? percent : 0}%` }} /></div>
+        <div className="ao-weekly-value">{recorded ? <><strong>{percent}%</strong><small>{batch.presentRecords}/{batch.totalRecords} marks · {batch.recordedSessions} day{batch.recordedSessions === 1 ? "" : "s"}</small></> : <span className="ao-not-recorded">No data</span>}</div>
+      </div>;
+    })}
+    {!hasAnyRecords && <p className="ao-weekly-note">No attendance has been recorded in the last 7 days. Bars will populate as attendance is marked.</p>}
+    <p className="ao-weekly-note">Weekly rate = present marks ÷ (present + absent marks) across the last 7 days. Unrecorded sessions are excluded.</p>
+  </div>;
 }
 
 function AcademyOwnerDashboard({ data, onRefresh }) {
@@ -97,7 +101,7 @@ function AcademyOwnerDashboard({ data, onRefresh }) {
       <section className="ao-section ao-player-overview">
         <div className="ao-section-heading ao-player-overview-heading">
           <div><span className="ao-kicker">Player overview</span><h2>Players by center</h2></div>
-          <div className="ao-academy-player-total"><span>Total academy players</span><strong>{formatNumber(data?.totals?.players || 0)}</strong></div>
+          <div className="ao-academy-totals" aria-label="Academy totals"><div className="ao-academy-total"><span>Players</span><strong>{formatNumber(data?.totals?.players || 0)}</strong></div><div className="ao-academy-total"><span>Centers</span><strong>{formatNumber(data?.totals?.centers || 0)}</strong></div><div className="ao-academy-total"><span>Batches</span><strong>{formatNumber(data?.totals?.batches || 0)}</strong></div></div>
         </div>
         <PlayerDistribution centers={centers} academyPlayerTotal={data?.totals?.players || 0} />
       </section>
