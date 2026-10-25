@@ -1152,3 +1152,7 @@
 .ao-column-chart-svg.is-dense .ao-column-x-label{font-size:12px}
 .ao-column-chart-svg.is-dense .ao-column-group-label{font-size:12px}
 @media(max-width:700px){.ao-column-x-label{font-size:12px}.ao-column-group-label{font-size:11px}}
+
+/* Use the available desktop chart width; overflow remains contained on narrow screens */
+.ao-column-chart-scroll{width:100%;min-width:0;overflow-x:auto;overflow-y:hidden}
+.ao-column-chart-svg{display:block;width:auto!important;height:282px;min-width:0;max-width:none;flex:none}
