@@ -1144,3 +1144,11 @@
 .ao-column-x-label{font-size:11px;font-weight:700}
 .ao-column-group-label{font-size:11px}
 @media(max-width:700px){.ao-column-x-label{font-size:10px}.ao-column-group-label{font-size:10px}}
+
+/* Prevent distorted SVG text and improve batch/center label legibility */
+.ao-column-chart-svg{width:auto!important;height:282px;min-width:0;max-width:none}
+.ao-column-x-label{font-size:14px;font-weight:700}
+.ao-column-group-label{font-size:13px;font-weight:800}
+.ao-column-chart-svg.is-dense .ao-column-x-label{font-size:12px}
+.ao-column-chart-svg.is-dense .ao-column-group-label{font-size:12px}
+@media(max-width:700px){.ao-column-x-label{font-size:12px}.ao-column-group-label{font-size:11px}}
