@@ -1362,3 +1362,46 @@
     min-width: 720px;
   }
 }
+
+
+/* Clear center ownership at a glance: alternating center bands and solid separators. */
+.ao-column-chart-scroll {
+  overflow-x: hidden !important;
+  overflow-y: hidden;
+}
+.ao-column-chart-svg {
+  width: 100% !important;
+  height: 246px !important;
+  min-width: 0 !important;
+  max-width: 100%;
+}
+.ao-column-center-band {
+  stroke: var(--ap-border);
+  stroke-width: 1;
+}
+.ao-column-center-band.is-even {
+  fill: var(--ap-slate-50, #f8fafc);
+}
+.ao-column-center-band.is-odd {
+  fill: var(--ap-surface, #ffffff);
+}
+.ao-column-group-divider {
+  stroke: var(--ap-primary-300, #93c5fd);
+  stroke-width: 2;
+  stroke-dasharray: none;
+}
+.ao-column-group-label {
+  fill: var(--ap-primary-700);
+  font-size: 11px;
+  font-weight: 850;
+}
+@media (max-width: 700px) {
+  .ao-column-chart-scroll {
+    overflow-x: auto !important;
+  }
+  .ao-column-chart-svg {
+    width: 720px !important;
+    min-width: 720px !important;
+    max-width: none;
+  }
+}
