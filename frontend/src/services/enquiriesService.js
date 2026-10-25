@@ -150,6 +150,28 @@ export const updateEnquiryStatus = async (enquiry, status, trialDate) => {
   if (error) throw error;
 };
 
+export const updateEnquiry = async (enquiry, updates) => {
+  const { error } = await supabase.rpc("update_inquiry", {
+    p_inquiry_id: enquiry.id,
+    p_player_name: String(updates.playerName || "").trim(),
+    p_phone: normalizeIndianMobile(updates.parentPhone),
+    p_dob: updates.dob,
+    p_inquiry_source: updates.source || null,
+    p_assigned_center_id: updates.centerId || null,
+    p_notes: String(updates.notes || "").trim() || null,
+    p_status: updates.status,
+    p_trial_date: updates.trialDate || null,
+  });
+  if (error) throw error;
+};
+
+export const deleteEnquiry = async (enquiryId) => {
+  const { error } = await supabase.rpc("delete_inquiry", {
+    p_inquiry_id: enquiryId,
+  });
+  if (error) throw error;
+};
+
 export const convertEnquiryToPlayer = async ({
   enquiryId,
   parentName,
