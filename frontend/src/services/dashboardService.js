@@ -319,7 +319,9 @@ export async function getSuperAdminDashboardData() {
     batchesResult,
     attendanceResult,
     duesResult,
-    paymentsResult
+    paymentsResult,
+    expensesResult,
+    inquiriesResult
   ];
 
   const failed = results.find((result) => result.error);
@@ -725,7 +727,7 @@ export async function getAcademyOwnerDashboardData(user) {
       .eq("is_deleted", false),
     supabase
       .from("payment_dues")
-      .select("player_id, total_amount, paid_amount, due_status, players!inner(academy_id, is_active)")
+      .select("player_id, due_date, total_amount, paid_amount, due_status, players!inner(academy_id, is_active)")
       .eq("players.academy_id", academyId)
       .eq("players.is_active", true),
     supabase
@@ -733,6 +735,13 @@ export async function getAcademyOwnerDashboardData(user) {
       .select("amount_paid, payment_date, players!inner(academy_id, is_active)")
       .eq("players.academy_id", academyId)
       .eq("players.is_active", true),
+    supabase.from("expenses").select("id, expense_date, amount_paid").eq("academy_id", academyId)
+      .gte("expense_date", new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().slice(0, 10))
+      .lt("expense_date", new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).toISOString().slice(0, 10)),
+    supabase.from("inquiries").select("id, assigned_center_id, assigned_batch_id, created_at")
+      .eq("academy_id", academyId)
+      .gte("created_at", new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString())
+      .lt("created_at", new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).toISOString()),
     getAttendanceTrend({ type: "academy", academyId }, 7),
     getCollectionsTrend({ type: "academy", academyId }, 6)
   ]);
@@ -931,6 +940,14 @@ export async function getAcademyOwnerDashboardData(user) {
     (total, due) => total + Number(due.total_amount || 0),
     0
   );
+  const billingNow = new Date();
+  const monthStartDate = new Date(billingNow.getFullYear(), billingNow.getMonth(), 1);
+  const nextMonthStartDate = new Date(billingNow.getFullYear(), billingNow.getMonth() + 1, 1);
+  const totalBilledThisMonth = dues.reduce((total, due) => {
+    if (!due.due_date) return total;
+    const dueDate = new Date(String(due.due_date) + "T00:00:00");
+    return dueDate >= monthStartDate && dueDate < nextMonthStartDate ? total + Number(due.total_amount || 0) : total;
+  }, 0);
   const totalPaid = dues.reduce(
     (total, due) => total + Math.min(
       Number(due.paid_amount || 0),
@@ -969,9 +986,26 @@ export async function getAcademyOwnerDashboardData(user) {
   );
 
   const outstandingAmount = Math.max(totalBilled - totalPaid, 0);
-  const collectionRate = totalBilled
-    ? Math.round((totalPaid / totalBilled) * 100)
-    : 0;
+  const collectionRate = totalBilledThisMonth ? Math.round((collectionsThisMonth / totalBilledThisMonth) * 100) : 0;
+  const expensesThisMonth = (expensesResult.data || []).reduce((sum, expense) => sum + Number(expense.amount_paid || 0), 0);
+  const enquiries = inquiriesResult.data || [];
+  const centerNames = new Map(centers.map((center) => [center.id, center.name]));
+  const batchNames = new Map((batchesResult.data || []).map((batch) => [batch.id, batch.batch_name]));
+  const enquiryGroupsMap = new Map();
+  enquiries.forEach((enquiry) => {
+    const centerId = enquiry.assigned_center_id || "unassigned-center";
+    const centerName = centerNames.get(enquiry.assigned_center_id) || "Unassigned center";
+    const batchId = enquiry.assigned_batch_id || "unassigned-batch";
+    const batchName = batchNames.get(enquiry.assigned_batch_id) || "Unassigned batch";
+    if (!enquiryGroupsMap.has(centerId)) enquiryGroupsMap.set(centerId, { centerId, centerName, total: 0, batches: new Map() });
+    const group = enquiryGroupsMap.get(centerId);
+    group.total += 1;
+    if (!group.batches.has(batchId)) group.batches.set(batchId, { batchId, batchName, count: 0 });
+    group.batches.get(batchId).count += 1;
+  });
+  const enquiryGroups = [...enquiryGroupsMap.values()].map((group) => ({
+    ...group, batches: [...group.batches.values()].sort((a, b) => b.count - a.count || a.batchName.localeCompare(b.batchName))
+  })).sort((a, b) => b.total - a.total || a.centerName.localeCompare(b.centerName));
 
   const attentionItems = [];
 
@@ -1039,6 +1073,8 @@ export async function getAcademyOwnerDashboardData(user) {
     },
     financial: {
       totalBilled,
+      totalBilledThisMonth,
+      expensesThisMonth,
       totalPaid,
       outstandingAmount,
       collectionRate,
@@ -1048,6 +1084,7 @@ export async function getAcademyOwnerDashboardData(user) {
       collectionsThisMonth
     },
     centers,
+    enquirySummary: { total: enquiries.length, groups: enquiryGroups },
     todaySessions,
     attendanceByBatch,
     attentionItems: attentionItems.slice(0, 6),
