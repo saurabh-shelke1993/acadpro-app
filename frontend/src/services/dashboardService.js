@@ -802,18 +802,29 @@ export async function getAcademyOwnerDashboardData(user) {
     });
   });
 
-  // Count each active player once per center and age group, even if assigned
-  // to multiple batches at that center.
+  // Seed age groups from every active batch first so groups with zero
+  // assigned players still appear in the center's age profile.
   const ageGroupPlayersByCenter = new Map();
-  (assignmentsResult.data || []).forEach((assignment) => {
-    const batch = batchMap.get(assignment.batch_id);
-    const center = batch?.center;
+  (batchesResult.data || []).forEach((batch) => {
+    const center = centerMap.get(batch.center_id);
     if (!center) return;
     const ageGroup = String(batch.age_group || "").trim() || "Age group not set";
     if (!ageGroupPlayersByCenter.has(center.id)) {
       ageGroupPlayersByCenter.set(center.id, new Map());
     }
     const groupMap = ageGroupPlayersByCenter.get(center.id);
+    if (!groupMap.has(ageGroup)) groupMap.set(ageGroup, new Set());
+  });
+
+  // Count each active player once per center and age group, even if assigned
+  // to multiple batches of the same age group at that center.
+  (assignmentsResult.data || []).forEach((assignment) => {
+    const batch = batchMap.get(assignment.batch_id);
+    const center = batch?.center;
+    if (!center) return;
+    const ageGroup = String(batch.age_group || "").trim() || "Age group not set";
+    const groupMap = ageGroupPlayersByCenter.get(center.id);
+    if (!groupMap) return;
     if (!groupMap.has(ageGroup)) groupMap.set(ageGroup, new Set());
     groupMap.get(ageGroup).add(assignment.player_id);
   });
