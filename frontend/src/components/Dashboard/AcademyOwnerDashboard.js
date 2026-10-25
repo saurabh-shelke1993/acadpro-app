@@ -181,12 +181,24 @@ function AcademyOwnerDashboard({ data, onRefresh }) {
         <div className="ao-section-heading ao-enquiry-heading"><div><span className="ao-kicker">Admissions</span><h2>Enquiries</h2></div><Link className="ao-enquiry-view-all" to="/enquiries">View all →</Link></div>
         <div className="ao-enquiry-summary"><strong>{formatNumber(data?.enquirySummary?.total || 0)}</strong><span>received this month</span></div>
         <div className="ao-enquiry-groups">
-          {(data?.enquirySummary?.groups || []).length ? data.enquirySummary.groups.slice(0, 4).map((group) => (
-            <div className="ao-enquiry-center" key={group.centerId}>
-              <div className="ao-enquiry-center-heading"><strong>{group.centerName}</strong><span>{group.total}</span></div>
-
-            </div>
-          )) : <div className="ao-enquiry-empty"><strong>No enquiries this month</strong><span>New enquiries will appear here, grouped by center.</span></div>}
+          {(data?.enquirySummary?.groups || []).length ? [...data.enquirySummary.groups]
+            .sort((a, b) => b.total - a.total || a.centerName.localeCompare(b.centerName))
+            .slice(0, 4)
+            .map((group) => (
+              <div className="ao-enquiry-center" key={group.centerId}>
+                <div className="ao-enquiry-center-heading">
+                  <strong title={group.centerName}>{group.centerName}</strong>
+                  <Link
+                    className="ao-enquiry-count-link"
+                    to={`/enquiries?centerId=${encodeURIComponent(group.centerId || "")}`}
+                    aria-label={`View ${group.total} enquiries for ${group.centerName}`}
+                    title={`View enquiries for ${group.centerName}`}
+                  >
+                    {formatNumber(group.total)}
+                  </Link>
+                </div>
+              </div>
+            )) : <div className="ao-enquiry-empty"><strong>No enquiries this month</strong><span>New enquiries will appear here, grouped by center.</span></div>}
         </div>
       </aside>
     </section>
