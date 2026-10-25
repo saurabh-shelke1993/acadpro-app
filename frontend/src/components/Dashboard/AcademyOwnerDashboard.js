@@ -85,7 +85,7 @@ function BatchAttendanceChart({ batches }) {
   const presentTotal = chartBatches.reduce((sum, batch) => sum + (batch.presentRecords || 0), 0);
   const markedTotal = chartBatches.reduce((sum, batch) => sum + (batch.totalRecords || 0), 0);
   const academyRate = markedTotal ? Math.round((presentTotal / markedTotal) * 100) : null;
-  const step = chartBatches.length > 15 ? 54 : 72;
+  const step = chartBatches.length > 15 ? 76 : 104;
   const chartWidth = Math.max(600, chartBatches.length * step + 58 + Math.max(0, groups.length - 1) * 10);
   const chartHeight = 282;
   const plot = { left: 42, right: chartWidth - 18, top: 24, bottom: 168 };
@@ -119,7 +119,7 @@ function BatchAttendanceChart({ batches }) {
           const x = group.x + index * step + (step - barWidth) / 2;
           const barHeight = percent / 100 * plotHeight;
           const label = String(batch.batchName || "Batch");
-          const max = step < 60 ? 8 : 12;
+          const max = step < 80 ? 11 : 18;
           const short = label.length > max ? `${label.slice(0, max - 1)}…` : label;
           return <g key={batch.id}>
             {recorded && <><rect x={x} y={plot.bottom - barHeight} width={barWidth} height={Math.max(2, barHeight)} rx="3" className="ao-column-bar"><title>{`${label} · ${group.centerName}: ${percent}% attendance`}</title></rect><text x={x + barWidth / 2} y={Math.max(plot.top + 12, plot.bottom - barHeight - 6)} textAnchor="middle" className="ao-column-value">{percent}%</text></>}
