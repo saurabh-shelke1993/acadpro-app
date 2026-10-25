@@ -159,21 +159,37 @@ function AcademyOwnerDashboard({ data, onRefresh }) {
       <div className="ao-section-heading"><div><span className="ao-kicker">Attendance</span><h2>Weekly attendance by batch</h2></div><span className="ao-helper">Present marks ÷ all recorded marks · Last 7 days</span></div>
       <div className="ao-operations-card"><BatchAttendanceChart batches={attendanceBatches} /></div>
     </section>
-    <section className="ao-section">
-      <div className="ao-section-heading"><div><span className="ao-kicker">Financial snapshot</span><h2>Collections and outstanding</h2></div><span className="ao-helper">Current payment ledger</span></div>
-      <div className="ao-financial-workspace">
-        <div className="ao-financial-primary">
-          <KpiCard label="Total billed" value={formatCurrency(financial.totalBilled)} detail="Current payment due ledger" to="/payment-dues" />
-          <KpiCard label="Collected this month" value={formatCurrency(financial.collectionsThisMonth)} detail={`${financial.collectionRate || 0}% of billed dues collected`} to="/payment-collections" tone="green" />
-          <KpiCard label="Outstanding" value={formatCurrency(financial.outstandingAmount)} detail={`${formatNumber((financial.pendingDues || 0) + (financial.partialDues || 0))} pending/partial dues`} to="/payment-dues" tone="orange" />
-        </div>
-        <div className="ao-financial-status">
-          <div><span>Pending</span><strong>{formatNumber(financial.pendingDues)}</strong></div>
-          <div><span>Partial</span><strong>{formatNumber(financial.partialDues)}</strong></div>
-          <div><span>Paid</span><strong>{formatNumber(financial.paidDues)}</strong></div>
-          <div><span>Collection rate</span><strong>{financial.collectionRate || 0}%</strong></div>
+    <section className="ao-section ao-bottom-workspace">
+      <div className="ao-financial-panel">
+        <div className="ao-section-heading"><div><span className="ao-kicker">Financial snapshot</span><h2>Monthly finances</h2></div><span className="ao-helper">{new Date().toLocaleDateString("en-IN", { month: "long", year: "numeric" })}</span></div>
+        <div className="ao-financial-workspace">
+          <div className="ao-financial-primary ao-financial-monthly">
+            <KpiCard label="Billed this month" value={formatCurrency(financial.totalBilledThisMonth)} detail="Dues scheduled this month" to="/payment-dues" />
+            <KpiCard label="Collected this month" value={formatCurrency(financial.collectionsThisMonth)} detail={`${financial.collectionRate || 0}% of this month's billed dues`} to="/payment-collections" tone="green" />
+            <KpiCard label="Expenses this month" value={formatCurrency(financial.expensesThisMonth)} detail="Recorded actual expenses" to="/expenses" tone="orange" />
+            <KpiCard label="Outstanding dues" value={formatCurrency(financial.outstandingAmount)} detail={`${formatNumber((financial.pendingDues || 0) + (financial.partialDues || 0))} pending or partial dues`} to="/payment-dues" tone="orange" />
+          </div>
+          <div className="ao-financial-status ao-financial-status-compact">
+            <div><span>Pending</span><strong>{formatNumber(financial.pendingDues)}</strong></div>
+            <div><span>Partial</span><strong>{formatNumber(financial.partialDues)}</strong></div>
+            <div><span>Paid</span><strong>{formatNumber(financial.paidDues)}</strong></div>
+            <div><span>Collection rate</span><strong>{financial.collectionRate || 0}%</strong></div>
+          </div>
         </div>
       </div>
+      <aside className="ao-enquiry-panel">
+        <div className="ao-section-heading ao-enquiry-heading"><div><span className="ao-kicker">Admissions</span><h2>Enquiries</h2></div><Link className="ao-enquiry-view-all" to="/enquiries">View all →</Link></div>
+        <div className="ao-enquiry-summary"><strong>{formatNumber(data?.enquirySummary?.total || 0)}</strong><span>received this month</span></div>
+        <div className="ao-enquiry-groups">
+          {(data?.enquirySummary?.groups || []).length ? data.enquirySummary.groups.slice(0, 4).map((group) => (
+            <div className="ao-enquiry-center" key={group.centerId}>
+              <div className="ao-enquiry-center-heading"><strong>{group.centerName}</strong><span>{group.total}</span></div>
+              {group.batches.slice(0, 3).map((batch) => <div className="ao-enquiry-batch" key={batch.batchId}><span>{batch.batchName}</span><strong>{batch.count}</strong></div>)}
+              {group.batches.length > 3 && <small className="ao-enquiry-more">+{group.batches.length - 3} more batches</small>}
+            </div>
+          )) : <div className="ao-enquiry-empty"><strong>No enquiries this month</strong><span>New enquiries will appear here, grouped by center and batch.</span></div>}
+        </div>
+      </aside>
     </section>
   </div>;
 }
