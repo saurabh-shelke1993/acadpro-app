@@ -85,8 +85,9 @@ function BatchAttendanceChart({ batches }) {
   const presentTotal = chartBatches.reduce((sum, batch) => sum + (batch.presentRecords || 0), 0);
   const markedTotal = chartBatches.reduce((sum, batch) => sum + (batch.totalRecords || 0), 0);
   const academyRate = markedTotal ? Math.round((presentTotal / markedTotal) * 100) : null;
-  const step = chartBatches.length > 15 ? 76 : 104;
-  const chartWidth = Math.max(600, chartBatches.length * step + 58 + Math.max(0, groups.length - 1) * 10);
+  const groupGaps = Math.max(0, groups.length - 1) * 10;
+  const chartWidth = chartBatches.length <= 15 ? 1400 : Math.max(1400, chartBatches.length * 76 + 58 + groupGaps);
+  const step = (chartWidth - 58 - groupGaps) / chartBatches.length;
   const chartHeight = 282;
   const plot = { left: 42, right: chartWidth - 18, top: 24, bottom: 168 };
   const plotHeight = plot.bottom - plot.top;
