@@ -1110,3 +1110,21 @@
 .ao-weekly-compact-bar.is-empty{background:transparent}
 .ao-weekly-compact-rate{text-align:right;font-size:var(--ap-font-size-xs);font-weight:700;color:var(--ap-slate-900);white-space:nowrap}
 @media(max-width:700px){.ao-weekly-compact-axis,.ao-weekly-compact-row{grid-template-columns:minmax(95px,.9fr) minmax(110px,1.5fr) 54px;gap:8px}.ao-weekly-period{margin-left:0}}
+
+/* Compact vertical column chart for weekly batch attendance */
+.ao-column-attendance { display:grid; gap:.65rem; min-width:0; }
+.ao-column-chart-scroll { width:100%; min-width:0; overflow-x:auto; overflow-y:hidden; }
+.ao-column-chart-svg { display:block; width:100%; min-width:600px; height:auto; }
+.ao-column-gridline { stroke:var(--ap-border); stroke-width:1; }
+.ao-column-y-tick { fill:var(--ap-slate-500); font-size:10px; }
+.ao-column-bar { fill:var(--ap-primary-600); transition:opacity .15s ease; }
+.ao-column-bar:hover { opacity:.78; }
+.ao-column-value { fill:var(--ap-slate-900); font-size:10px; font-weight:750; }
+.ao-column-x-label { fill:var(--ap-slate-800); font-size:10px; font-weight:700; }
+.ao-column-center-label { fill:var(--ap-slate-500); font-size:9px; }
+.ao-column-no-data { fill:var(--ap-slate-400); font-size:15px; }
+@media(max-width:700px) {
+ .ao-column-chart-svg { min-width:600px; }
+ .ao-weekly-summary { gap:.6rem .9rem; }
+ .ao-weekly-period { margin-left:0; }
+}
