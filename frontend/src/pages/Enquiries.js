@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Layout from "../components/Layout";
+import { useSearchParams } from "react-router-dom";
 import { getLoggedInUser, isSuperAdmin } from "../utils/auth";
 import { isAcademyOwner, isCoach } from "../utils/roles";
 import { getAccessibleAcademies, getAccessibleBatches, getAccessibleCenters } from "../utils/dataScope";
@@ -45,12 +46,13 @@ const statusLabel = (value) =>
   ENQUIRY_STATUSES.find((status) => status.value === value)?.label || value || "New";
 
 function Enquiries() {
+  const [searchParams] = useSearchParams();
   const [user, setUser] = useState(null);
   const [academies, setAcademies] = useState([]);
   const [centers, setCenters] = useState([]);
   const [enquiries, setEnquiries] = useState([]);
   const [academyFilter, setAcademyFilter] = useState("");
-  const [centerFilter, setCenterFilter] = useState("");
+  const [centerFilter, setCenterFilter] = useState(() => searchParams.get("centerId") || "");
   const [statusFilter, setStatusFilter] = useState("");
   const [sourceFilter, setSourceFilter] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
