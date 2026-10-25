@@ -1105,7 +1105,7 @@
 .ao-weekly-compact-label strong,.ao-weekly-compact-label span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ao-weekly-compact-label strong{font-size:var(--ap-font-size-sm);color:var(--ap-slate-900)}
 .ao-weekly-compact-label span{font-size:10px;color:var(--ap-slate-500)}
-.ao-weekly-compact-track{height:13px;overflow:hidden;border-radius:4px;background:var(--ap-slate-50);position:relative}
+.ao-weekly-compact-track{height:13px;overflow:hidden;border-radius:4px;background-color:var(--ap-slate-50);background-image:linear-gradient(to right,transparent calc(25% - .5px),var(--ap-border) calc(25% - .5px),var(--ap-border) calc(25% + .5px),transparent calc(25% + .5px),transparent calc(50% - .5px),var(--ap-border) calc(50% - .5px),var(--ap-border) calc(50% + .5px),transparent calc(50% + .5px),transparent calc(75% - .5px),var(--ap-border) calc(75% - .5px),var(--ap-border) calc(75% + .5px),transparent calc(75% + .5px));position:relative}
 .ao-weekly-compact-bar{display:block;height:100%;border-radius:4px;background:var(--ap-primary-600)}
 .ao-weekly-compact-bar.is-empty{background:transparent}
 .ao-weekly-compact-rate{text-align:right;font-size:var(--ap-font-size-xs);font-weight:700;color:var(--ap-slate-900);white-space:nowrap}
