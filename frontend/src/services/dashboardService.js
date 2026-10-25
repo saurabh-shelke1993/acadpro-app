@@ -677,7 +677,7 @@ export async function getAcademyOwnerDashboardData(user) {
       .order("center_name"),
     supabase
       .from("batches")
-      .select("id, center_id, batch_name")
+      .select("id, center_id, batch_name, age_group")
       .eq("academy_id", academyId)
       .eq("is_active", true)
       .order("batch_name"),
