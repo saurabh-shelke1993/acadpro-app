@@ -1086,3 +1086,27 @@
 @media (max-width:700px) {
  .ao-weekly-chart-svg { min-width:680px; }
 }
+
+/* Compact weekly attendance chart */
+.ao-weekly-compact-chart{display:grid;gap:10px}
+.ao-weekly-summary{display:flex;align-items:center;gap:20px;flex-wrap:wrap;padding:10px 12px;border:1px solid var(--ap-border);border-radius:var(--ap-radius-lg);background:var(--ap-surface)}
+.ao-weekly-summary-primary{display:flex;align-items:baseline;gap:8px}
+.ao-weekly-summary-primary strong{font-size:1.45rem;font-weight:800;color:var(--ap-slate-950)}
+.ao-weekly-summary-primary span,.ao-weekly-summary-detail span,.ao-weekly-period{font-size:var(--ap-font-size-xs);color:var(--ap-slate-500)}
+.ao-weekly-summary-detail{display:flex;align-items:baseline;gap:5px}
+.ao-weekly-period{margin-left:auto}
+.ao-weekly-compact-axis,.ao-weekly-compact-row{display:grid;grid-template-columns:minmax(130px,.8fr) minmax(160px,2.6fr) 65px;gap:12px;align-items:center}
+.ao-weekly-compact-axis{font-size:10px;color:var(--ap-slate-500)}
+.ao-weekly-compact-scale{display:flex;justify-content:space-between}
+.ao-weekly-compact-axis-value,.ao-weekly-compact-rate{text-align:right}
+.ao-weekly-compact-rows{display:grid;gap:4px}
+.ao-weekly-compact-row{min-height:38px;padding:4px 2px}
+.ao-weekly-compact-label{min-width:0;display:grid;gap:2px}
+.ao-weekly-compact-label strong,.ao-weekly-compact-label span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ao-weekly-compact-label strong{font-size:var(--ap-font-size-sm);color:var(--ap-slate-900)}
+.ao-weekly-compact-label span{font-size:10px;color:var(--ap-slate-500)}
+.ao-weekly-compact-track{height:13px;overflow:hidden;border-radius:4px;background:var(--ap-slate-50);position:relative}
+.ao-weekly-compact-bar{display:block;height:100%;border-radius:4px;background:var(--ap-primary-600)}
+.ao-weekly-compact-bar.is-empty{background:transparent}
+.ao-weekly-compact-rate{text-align:right;font-size:var(--ap-font-size-xs);font-weight:700;color:var(--ap-slate-900);white-space:nowrap}
+@media(max-width:700px){.ao-weekly-compact-axis,.ao-weekly-compact-row{grid-template-columns:minmax(95px,.9fr) minmax(110px,1.5fr) 54px;gap:8px}.ao-weekly-period{margin-left:0}}
