@@ -1405,3 +1405,25 @@
     max-width: none;
   }
 }
+
+
+/* Keep the financial status metrics at their content height; do not stretch to match the 2x2 finance cards. */
+.ao-financial-workspace {
+  align-items: start;
+}
+.ao-financial-status-compact {
+  align-self: start;
+  align-content: start;
+  grid-auto-rows: minmax(100px, auto);
+}
+.ao-financial-status-compact > div {
+  min-height: 100px;
+  height: auto;
+  align-self: start;
+  justify-content: center;
+}
+@media (max-width: 900px) {
+  .ao-financial-status-compact {
+    align-self: stretch;
+  }
+}
