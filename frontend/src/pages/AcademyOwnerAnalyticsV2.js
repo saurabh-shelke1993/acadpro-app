@@ -40,6 +40,48 @@ function MetricCard({ label, value, note, quality = "unavailable", tone = "defau
   );
 }
 
+function MetricBreakdown({ title, description, firstLabel, firstValue, secondLabel, secondValue, firstTone = "blue", secondTone = "muted", formatter = formatNumber }) {
+  const hasFirst = typeof firstValue === "number" && Number.isFinite(firstValue) && firstValue >= 0;
+  const hasSecond = typeof secondValue === "number" && Number.isFinite(secondValue) && secondValue >= 0;
+  if (!hasFirst || !hasSecond) return null;
+
+  const total = firstValue + secondValue;
+  const firstShare = total > 0 ? (firstValue / total) * 100 : 0;
+  const secondShare = total > 0 ? (secondValue / total) * 100 : 0;
+
+  return (
+    <section className="owner-analytics-breakdown" aria-label={title}>
+      <div className="owner-analytics-breakdown-heading">
+        <div>
+          <strong>{title}</strong>
+          <p>{description}</p>
+        </div>
+        <span>{total > 0 ? `${Math.round(firstShare)}% / ${Math.round(secondShare)}%` : "No recorded activity"}</span>
+      </div>
+      <div
+        className="owner-analytics-breakdown-track"
+        role="img"
+        aria-label={`${firstLabel}: ${formatter(firstValue)}; ${secondLabel}: ${formatter(secondValue)}`}
+      >
+        <span className={`owner-analytics-breakdown-fill owner-analytics-breakdown-fill-${firstTone}`} style={{ width: `${firstShare}%` }} />
+        <span className={`owner-analytics-breakdown-fill owner-analytics-breakdown-fill-${secondTone}`} style={{ width: `${secondShare}%` }} />
+      </div>
+      <div className="owner-analytics-breakdown-legend">
+        <div>
+          <span className={`owner-analytics-breakdown-dot owner-analytics-breakdown-dot-${firstTone}`} />
+          <span>{firstLabel}</span>
+          <strong>{formatter(firstValue)}</strong>
+        </div>
+        <div>
+          <span className={`owner-analytics-breakdown-dot owner-analytics-breakdown-dot-${secondTone}`} />
+          <span>{secondLabel}</span>
+          <strong>{formatter(secondValue)}</strong>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function MetricNotes({ metric }) {
   if (!metric?.notes?.length) return null;
   return (
@@ -176,6 +218,16 @@ function AcademyOwnerAnalyticsV2({ user }) {
               tone="primary"
             />
           </div>
+          <MetricBreakdown
+            title="Attendance mix"
+            description="Share of supported marks recorded this month"
+            firstLabel="Present"
+            firstValue={attendance.presentMarks?.value}
+            secondLabel="Absent"
+            secondValue={attendance.absentMarks?.value}
+            firstTone="green"
+            secondTone="orange"
+          />
           <div className="owner-analytics-quality-note">
             <strong>How to read this</strong>
             <p>This is the percentage among supported attendance marks recorded in the system. It is not attendance coverage against all expected training sessions.</p>
@@ -231,6 +283,17 @@ function AcademyOwnerAnalyticsV2({ user }) {
               tone="primary"
             />
           </div>
+          <MetricBreakdown
+            title="Collections vs expenses"
+            description="Recorded gross collections and expenses for the selected month"
+            firstLabel="Collections"
+            firstValue={finance.grossRecordedCollections?.value}
+            secondLabel="Expenses"
+            secondValue={finance.recordedExpenses?.value}
+            firstTone="blue"
+            secondTone="orange"
+            formatter={formatCurrency}
+          />
           <div className="owner-analytics-grid owner-analytics-grid-two owner-analytics-grid-secondary">
             <MetricCard
               label="Current outstanding"
