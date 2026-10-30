@@ -14,6 +14,19 @@ const getCurrentMonth = () => {
   return year && month ? `${year}-${month}` : new Date().toISOString().slice(0, 7);
 };
 
+const getMonthDateRange = (month) => {
+  const [year, monthNumber] = month.split("-").map(Number);
+  const lastDay = new Date(Date.UTC(year, monthNumber, 0)).getUTCDate();
+  return { startDate: `${month}-01`, endDate: `${month}-${String(lastDay).padStart(2, "0")}` };
+};
+
+const getPreviousMonthRange = (month) => {
+  const [year, monthNumber] = month.split("-").map(Number);
+  const previous = new Date(Date.UTC(year, monthNumber - 2, 1));
+  const previousMonth = `${previous.getUTCFullYear()}-${String(previous.getUTCMonth() + 1).padStart(2, "0")}`;
+  return getMonthDateRange(previousMonth);
+};
+
 const formatCurrency = (value) =>
   value === null || value === undefined
     ? "—"
@@ -93,6 +106,8 @@ function MetricNotes({ metric }) {
 
 function AcademyOwnerAnalyticsV2({ user }) {
   const [month, setMonth] = useState(getCurrentMonth);
+  const [attendanceRange, setAttendanceRange] = useState(() => getMonthDateRange(getCurrentMonth()));
+  const [comparisonRange, setComparisonRange] = useState(() => getPreviousMonthRange(getCurrentMonth()));
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -105,7 +120,7 @@ function AcademyOwnerAnalyticsV2({ user }) {
       setLoading(true);
       setError("");
       try {
-        const preview = await getAcademyOwnerAnalyticsV2(user, `${month}-01`);
+        const preview = await getAcademyOwnerAnalyticsV2(user, `${month}-01`, attendanceRange, comparisonRange);
         if (active) setResult(preview);
       } catch (loadError) {
         if (active) {
@@ -119,7 +134,7 @@ function AcademyOwnerAnalyticsV2({ user }) {
     };
     load();
     return () => { active = false; };
-  }, [user, month, refreshKey]);
+  }, [user, month, attendanceRange, comparisonRange, refreshKey]);
 
   const monthLabel = new Date(`${month}-01T00:00:00+05:30`).toLocaleDateString("en-IN", {
     month: "long",
@@ -213,7 +228,28 @@ function AcademyOwnerAnalyticsV2({ user }) {
               <span>TRAINING ACTIVITY</span>
               <h2>Attendance</h2>
             </div>
-            <p>Recorded attendance marks in the selected month</p>
+            <p>Actual stored attendance marks within your selected date range</p>
+          </div>
+          <div className="owner-analytics-date-range-controls">
+            <label>
+              <span>Primary range · From</span>
+              <input type="date" value={attendanceRange.startDate} max={attendanceRange.endDate} onChange={(event) => setAttendanceRange((range) => ({ ...range, startDate: event.target.value }))} />
+            </label>
+            <label>
+              <span>To</span>
+              <input type="date" value={attendanceRange.endDate} min={attendanceRange.startDate} max={new Date().toISOString().slice(0, 10)} onChange={(event) => setAttendanceRange((range) => ({ ...range, endDate: event.target.value }))} />
+            </label>
+            <label>
+              <span>Compare · From</span>
+              <input type="date" value={comparisonRange.startDate} max={comparisonRange.endDate} onChange={(event) => setComparisonRange((range) => ({ ...range, startDate: event.target.value }))} />
+            </label>
+            <label>
+              <span>To</span>
+              <input type="date" value={comparisonRange.endDate} min={comparisonRange.startDate} max={new Date().toISOString().slice(0, 10)} onChange={(event) => setComparisonRange((range) => ({ ...range, endDate: event.target.value }))} />
+            </label>
+          </div>
+          <div className="owner-analytics-range-caption">
+            Primary: {attendanceRange.startDate} to {attendanceRange.endDate} · Comparison: {comparisonRange.startDate} to {comparisonRange.endDate}
           </div>
           <div className="owner-analytics-grid owner-analytics-grid-three">
             <MetricCard
@@ -240,7 +276,7 @@ function AcademyOwnerAnalyticsV2({ user }) {
           </div>
           <MetricBreakdown
             title="Attendance mix"
-            description="Share of supported marks recorded this month"
+            description="Share of supported marks recorded in the primary date range"
             firstLabel="Present"
             firstValue={attendance.presentMarks?.value}
             secondLabel="Absent"
@@ -252,6 +288,22 @@ function AcademyOwnerAnalyticsV2({ user }) {
             <strong>How to read this</strong>
             <p>This is the percentage among supported attendance marks recorded in the system. It is not attendance coverage against all expected training sessions.</p>
           </div>
+          {attendance.comparison && (
+            <section className="owner-analytics-comparison">
+              <div className="owner-analytics-section-heading">
+                <div><span>HISTORICAL COMPARISON</span><h3>Selected range vs comparison range</h3></div>
+                <p>Ranges are compared as selected; lengths may differ.</p>
+              </div>
+              <div className="owner-analytics-grid owner-analytics-grid-three">
+                <MetricCard label="Present marks · comparison" value={formatNumber(attendance.comparison.presentMarks?.value)} quality={attendance.comparison.presentMarks?.quality} />
+                <MetricCard label="Absent marks · comparison" value={formatNumber(attendance.comparison.absentMarks?.value)} quality={attendance.comparison.absentMarks?.quality} />
+                <MetricCard label="Recorded-mark rate · comparison" value={formatPercent(attendance.comparison.attendanceRatePercent?.value)} quality={attendance.comparison.attendanceRatePercent?.quality} />
+              </div>
+              <div className="owner-analytics-range-caption">
+                Unsupported statuses: {formatNumber(attendance.comparison.ignoredStatusCount?.value)} · Missing schedule references: {formatNumber(attendance.comparison.missingScheduleIdCount?.value)}
+              </div>
+            </section>
+          )}
           <div className="owner-analytics-diagnostics">
             <div>
               <span>Unsupported status records</span>
@@ -264,6 +316,14 @@ function AcademyOwnerAnalyticsV2({ user }) {
               <small>{attendance.missingScheduleIdCount?.quality || "unavailable"}</small>
             </div>
           </div>
+          {attendance.unsupportedStatusBreakdown?.value && (
+            <div className="owner-analytics-detail">
+              <h3>Unsupported status breakdown</h3>
+              {Object.entries(attendance.unsupportedStatusBreakdown.value).map(([status, count]) => (
+                <div key={status}><span>{status}</span><strong>{formatNumber(count)}</strong></div>
+              ))}
+            </div>
+          )}
         </section>
         )}
 
