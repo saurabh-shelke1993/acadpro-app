@@ -491,3 +491,121 @@
     margin-left: 2.85rem;
   }
 }
+
+
+.owner-analytics-breakdown {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1.1rem 1.2rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  background: #fff;
+  box-shadow: 0 4px 18px rgba(16, 42, 67, 0.035);
+}
+
+.owner-analytics-breakdown-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.owner-analytics-breakdown-heading strong {
+  color: #102a43;
+  font-size: 0.88rem;
+}
+
+.owner-analytics-breakdown-heading p {
+  margin: 0.25rem 0 0;
+  color: #64748b;
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
+.owner-analytics-breakdown-heading > span {
+  flex: 0 0 auto;
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.owner-analytics-breakdown-track {
+  display: flex;
+  overflow: hidden;
+  width: 100%;
+  height: 0.7rem;
+  border-radius: 999px;
+  background: #f1f5f9;
+}
+
+.owner-analytics-breakdown-fill {
+  display: block;
+  height: 100%;
+  transition: width 180ms ease;
+}
+
+.owner-analytics-breakdown-fill-green {
+  background: #16a34a;
+}
+
+.owner-analytics-breakdown-fill-orange {
+  background: #f59e0b;
+}
+
+.owner-analytics-breakdown-fill-blue {
+  background: #1d4ed8;
+}
+
+.owner-analytics-breakdown-fill-muted {
+  background: #94a3b8;
+}
+
+.owner-analytics-breakdown-legend {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem 1.25rem;
+}
+
+.owner-analytics-breakdown-legend > div {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.owner-analytics-breakdown-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+}
+
+.owner-analytics-breakdown-dot-green { background: #16a34a; }
+.owner-analytics-breakdown-dot-orange { background: #f59e0b; }
+.owner-analytics-breakdown-dot-blue { background: #1d4ed8; }
+.owner-analytics-breakdown-dot-muted { background: #94a3b8; }
+
+.owner-analytics-breakdown-legend span:not(.owner-analytics-breakdown-dot) {
+  overflow: hidden;
+  color: #64748b;
+  font-size: 0.72rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.owner-analytics-breakdown-legend strong {
+  color: #102a43;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 640px) {
+  .owner-analytics-breakdown {
+    padding: 0.95rem;
+  }
+
+  .owner-analytics-breakdown-legend {
+    grid-template-columns: 1fr;
+  }
+}
