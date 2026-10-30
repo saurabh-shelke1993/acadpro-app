@@ -5,7 +5,8 @@ import DashboardCharts from "../components/DashboardCharts";
 import { getAnalyticsSummary } from "../services/analyticsService";
 import { getSuperAdminDashboardData } from "../services/dashboardService";
 import { getAccessibleAcademies } from "../utils/dataScope";
-import { isSuperAdmin } from "../utils/roles";
+import { isAcademyOwner, isSuperAdmin } from "../utils/roles";
+import AcademyOwnerAnalyticsV2 from "./AcademyOwnerAnalyticsV2";
 import { getCurrentUser } from "../utils/auth";
 import "./Analytics.css";
 
@@ -466,7 +467,7 @@ function Analytics() {
   }, []);
 
   useEffect(() => {
-    if (!userReady || !user) return;
+    if (!userReady || !user || isAcademyOwner(user)) return;
 
     let isMounted = true;
 
@@ -530,7 +531,11 @@ function Analytics() {
     [user]
   );
 
-
+  // Academy Owners use the authenticated V2 preview. Super Admin and other
+  // existing role routes retain the established Analytics implementation.
+  if (user && isAcademyOwner(user)) {
+    return <AcademyOwnerAnalyticsV2 user={user} />;
+  }
 
   if (loading) {
     return (
