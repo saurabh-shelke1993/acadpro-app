@@ -94,6 +94,6 @@ See [Phase D1 authorization review](../../frontend/docs/ANALYTICS_V2_PHASE_D1_AU
 - Manual attendance comparison accepts `attendanceStartDate` + `attendanceEndDate` and optional `comparisonStartDate` + `comparisonEndDate`, each inclusive and validated as real calendar dates. Each range is limited to five years.
 - Academy, center and batch predicates remain academy-first. The manual date range cannot widen the caller's authorized tenant scope.
 - When no manual attendance range is supplied, the API retains the existing selected-month attendance behavior. Finance continues to use `snapshotMonth` and is unchanged by attendance date filters.
-- Comparison ranges are independent and may have different lengths. The response reports both periods; it does not normalize per-day rates or imply expected-session coverage.
+- The frontend defaults comparison to the immediately preceding period with the same number of calendar days; the Academy Owner can override it with a manually selected range and reset to automatic comparison. Manually selected ranges may differ in length; the response does not normalize per-day rates or imply expected-session coverage.
 - Empty ranges and ranges containing no supported marks remain unavailable rather than verified zero. Mark quality remains partial because expected-session coverage cannot be reconstructed.
 - This is a read-only preview contract. It does not add schema, write attendance data, publish snapshots or deploy the Edge Function.
