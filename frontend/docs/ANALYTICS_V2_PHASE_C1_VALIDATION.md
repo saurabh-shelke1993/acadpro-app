@@ -136,3 +136,14 @@ A branch-scoped GitHub Actions workflow was added at `.github/workflows/analytic
 The first native run caught a malformed literal newline in the attendance test source. After correcting it, all 21 tests passed. Type checking then exposed a duplicated legacy block in `index.ts`, an undefined attendance query helper, and two type mismatches. The duplicate block was removed, query scoping was wired through the tested academy-first helpers, and the generic query result/attendance row types were corrected. The final workflow run validates the corrected commit.
 
 This validation proves the pure test suite and Edge Function static type-check only. It does not prove live Edge Function behavior, database ownership/RLS integration, deployment configuration, or snapshot publishing.
+
+
+## Zero-cost PostgreSQL fixture CI — 30 October 2026
+
+A second job was added to `.github/workflows/analytics-deno-validation.yml`:
+- Starts a fresh PostgreSQL 17 service container for the GitHub Actions job.
+- Creates minimal `academies`, `centers` and `batches` tables with the foreign keys needed by the fixture.
+- Runs `supabase/tests/analytics/scope_isolation.integration.test.sql` with `psql -v ON_ERROR_STOP=1`.
+- The fixture transaction rolls back its inserted records.
+
+This avoids a paid Supabase development branch and does not connect to the production project. It validates fixture SQL execution and ownership predicates against PostgreSQL, but it is not a substitute for testing the complete Supabase schema, RLS policies, Edge Function runtime or deployment authorization. The new CI job's result is pending verification at the time of this documentation update.
