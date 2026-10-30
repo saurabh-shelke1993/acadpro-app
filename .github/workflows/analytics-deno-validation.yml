@@ -30,3 +30,59 @@ jobs:
 
       - name: Type-check analytics Edge Function
         run: deno check supabase/functions/generate-analytics-snapshot/index.ts
+
+  analytics-scope-isolation:
+    name: Disposable PostgreSQL scope-isolation fixture
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: analytics_test
+          POSTGRES_PASSWORD: analytics_test
+          POSTGRES_DB: analytics_scope_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U analytics_test -d analytics_scope_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: localhost
+      PGPORT: 5432
+      PGUSER: analytics_test
+      PGPASSWORD: analytics_test
+      PGDATABASE: analytics_scope_test
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes postgresql-client
+
+      - name: Create isolated fixture schema
+        run: |
+          psql -v ON_ERROR_STOP=1 <<'SQL'
+          create table public.academies (
+            id uuid primary key,
+            academy_name text not null,
+            owner_name text
+          );
+          create table public.centers (
+            id uuid primary key,
+            academy_id uuid not null references public.academies(id),
+            center_name text not null
+          );
+          create table public.batches (
+            id uuid primary key,
+            academy_id uuid not null references public.academies(id),
+            center_id uuid references public.centers(id),
+            batch_name text not null
+          );
+          SQL
+
+      - name: Run rollback-only scope-isolation fixture
+        run: psql -v ON_ERROR_STOP=1 -f supabase/tests/analytics/scope_isolation.integration.test.sql
