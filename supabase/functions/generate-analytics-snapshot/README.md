@@ -18,7 +18,11 @@ The pure metric helpers, request/scope helpers, deterministic unit tests and pre
 ## Data-quality behavior
 - Malformed or whitespace-only numeric values are rejected by `sum`.
 - A cohort containing malformed amounts or unclassified linked payment-entry types returns null monetary metrics with `quality: "unavailable"`.
-- Attendance counts, rates and diagnostic counts are unavailable (null) when no rows exist; empty source data is never presented as numeric zero.\n- When rows exist but none has a supported present/absent status, attendance totals and rate are null/unavailable; unsupported statuses and missing schedule IDs remain visible as partial-quality diagnostics.\n- When supported marks exist, counts and the recorded-mark rate are partial because expected-session coverage is not established. Unsupported statuses and missing schedule IDs are surfaced separately and excluded from the rate.\n- An all-absent set of supported marks correctly yields a 0% recorded-mark rate; this is not a claim of expected-session coverage.\n- Due-ledger reconciliation excludes unclassified rows from recognized ledger totals and marks affected dues incomplete. It is a current-state diagnostic, not historical month-end reconciliation.
+- Attendance counts, rates and diagnostic counts are unavailable (null) when no rows exist; empty source data is never presented as numeric zero.
+- When rows exist but none has a supported present/absent status, attendance totals and rate are null/unavailable; unsupported statuses and missing schedule IDs remain visible as partial-quality diagnostics.
+- When supported marks exist, counts and the recorded-mark rate are partial because expected-session coverage is not established. Unsupported statuses and missing schedule IDs are surfaced separately and excluded from the rate.
+- An all-absent set of supported marks correctly yields a 0% recorded-mark rate; this is not a claim of expected-session coverage.
+- Due-ledger reconciliation excludes unclassified rows from recognized ledger totals and marks affected dues incomplete. It is a current-state diagnostic, not historical month-end reconciliation.
 - Gross payments and signed adjustments remain separate; net is their sum.
 - Reporting periods are half-open: start inclusive, end exclusive, using Asia/Kolkata (+05:30).
 
