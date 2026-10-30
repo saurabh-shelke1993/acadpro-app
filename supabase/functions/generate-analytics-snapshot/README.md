@@ -56,3 +56,14 @@ The pure metric helpers, request/scope helpers, deterministic unit tests and pre
 4. Review snapshot historical-integrity and publisher design before any deployment.
 
 Do not deploy or publish snapshots until Phase C and Phase D acceptance criteria are met and explicitly approved.
+
+
+## Frontend integration security gate
+
+The current preview handler authorizes requests by exact-match comparison with the server-side `SUPABASE_SERVICE_ROLE_KEY`. It does not authenticate an end-user JWT or resolve application roles. Therefore it is trusted-server-only in its current form:
+- Never invoke it directly from React/browser code.
+- Never expose the service-role key in frontend environment variables, client bundles or browser requests.
+- Before frontend integration, approve a server-to-server invocation design or redesign the handler to authenticate the user and enforce application role plus tenant scope.
+- Verify the Edge Function gateway JWT configuration before any deployment.
+
+The function has not been deployed. This gate must be resolved before Phase E connects the React Analytics page.
