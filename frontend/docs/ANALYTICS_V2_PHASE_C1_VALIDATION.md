@@ -70,3 +70,54 @@ Do not apply `kheltriva_analytics_isolated_test_migration.sql` to production. Th
 ## Next checkpoint
 
 Implement the smallest isolated R1.6 helper fixes and regression tests on this branch. Then run native Deno validation in the intended environment. Scope isolation and snapshot/historical integrity remain Phase D; React integration remains Phase E; final release validation remains Phase F.
+
+
+## Phase C — Historical attendance denominator feasibility review (30 October 2026)
+
+This was a read-only review of the live schema, current aggregate records, batch schedule editor behavior and attendance workflow. No database or application data was changed.
+
+### Schema evidence
+
+- `batch_schedules` stores `day_of_week`, `start_time`, `end_time`, `is_active`, `created_at` and `updated_at`. It has no effective-from/effective-to dates or schedule-version history.
+- `Batches.js` updates an existing schedule row in place when a session is edited. Sessions removed from the editor are deactivated. This does not preserve the prior weekday/time definition for historical dates.
+- `player_batch_schedules` has `enrolled_from` and nullable `enrolled_until`, which is a useful effective-dated enrollment shape. However, the current live audit found 16 rows, all active, with zero populated `enrolled_until` values. It cannot establish historical exit dates for current records.
+- Legacy `player_batches` contains `assigned_date` but no end date or status/effective-period history. It is not sufficient by itself to reconstruct historical batch membership.
+- `players.joining_date` is not a substitute for a batch/session enrollment period.
+- The schedule table has an `is_active` flag, but no schedule validity dates. Current active state must not be projected backward over earlier reporting periods.
+
+### Live aggregate observations
+
+| Check | Read-only result |
+|---|---:|
+| Batch schedule rows | 29 |
+| Currently active batch schedules | 26 |
+| Currently inactive batch schedules | 3 |
+| Player-to-schedule enrollment rows | 16 |
+| Enrollment rows with `enrolled_until` | 0 |
+| Inactive enrollment rows | 0 |
+| Legacy player-batch assignments | 48 |
+| Non-deleted attendance rows | 129 |
+| Non-deleted attendance rows without `batch_schedule_id` | 109 |
+| Non-deleted attendance linked to inactive schedule | 0 |
+| Non-deleted attendance with orphaned schedule reference | 0 |
+
+The 109 missing schedule references mean that attendance records cannot be safely attributed to a particular recurring session. The 20 rows that do have schedule IDs are not enough to establish complete expected-session coverage.
+
+### Decision
+
+**Do not implement or publish an expected-session attendance denominator from the current tables.** The existing attendance metric remains a recorded-mark metric only:
+- supported present/absent marks may be counted;
+- the percentage is explicitly the rate among recorded supported marks, not attendance coverage against expected sessions;
+- quality remains partial while expected-session coverage is unproven;
+- missing schedule references and unsupported statuses remain diagnostics;
+- no rows or no supported statuses remain unavailable rather than zero.
+
+A valid future denominator requires durable history for both sides of eligibility:
+1. versioned/effective-dated batch schedules (including when a schedule is replaced or stopped); and
+2. effective-dated player-to-session enrollment with reliable start and end dates.
+
+It also needs a definition of whether an expected recurring session counts when it was cancelled, the center was closed, or training was not held. The current schema does not record actual session occurrence/cancellation, so a timetable alone would still represent planned sessions, not necessarily sessions held.
+
+### Safe next design step
+
+Keep Phase C attendance coverage explicitly unavailable. Treat any schema redesign for schedule history, enrollment history and actual session occurrence as a separately reviewed data-model change; do not retrofit a denominator by guessing historical values. No migration is proposed or applied in this checkpoint.
