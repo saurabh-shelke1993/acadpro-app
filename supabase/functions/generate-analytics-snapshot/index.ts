@@ -97,11 +97,11 @@ async function fetchAttendanceByBatch(scope: Scope, range: DateRange) {
   );
   const batchIds = [...new Set(rows.map(row => String(row.batch_id || "")).filter(Boolean))];
   if (!batchIds.length) return [];
-  let batchQuery = adminSupabase.from("batches").select("id, name").in("id", batchIds).eq("academy_id", scope.academyId);
+  let batchQuery = adminSupabase.from("batches").select("id, batch_name").in("id", batchIds).eq("academy_id", scope.academyId);
   if (scope.scopeType === "center") batchQuery = batchQuery.eq("center_id", scope.scopeId);
   const { data: batches, error } = await batchQuery;
   if (error) throw new Error("Attendance batch labels could not be loaded.");
-  const names = new Map((batches ?? []).map((batch: any) => [String(batch.id), String(batch.name || "Unnamed batch")]));
+  const names = new Map((batches ?? []).map((batch: any) => [String(batch.id), String(batch.batch_name || "Unnamed batch")]));
   const grouped = new Map<string, { batchId: string; batchName: string; present: number; absent: number }>();
   for (const row of rows) {
     const id = String(row.batch_id || "");
