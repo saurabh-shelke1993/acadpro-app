@@ -1,7 +1,7 @@
 # Kheltriva Analytics R1.6 — Metric Helpers
 
 ## Status
-The pure metric helper module and deterministic test suite are committed for review. The Edge Function entrypoint is not yet integrated or deployed. No database writes or snapshot publication are performed by these helpers.
+The pure metric helper module, deterministic tests and preview-only Edge Function entrypoint are committed for review. The function performs read-only calculations and does not publish snapshots. No database writes or snapshot publication are performed by these helpers.
 
 ## Files
 - `metricUtils.ts`: Asia/Kolkata calendar-month bounds, half-open date/time filtering, numeric aggregation, payment/adjustment flow splitting, current due-ledger reconciliation and cohort collection.
@@ -17,7 +17,7 @@ The pure metric helper module and deterministic test suite are committed for rev
 ## Validation performed
 The helper tests were run in the current development environment using Node.js 22's experimental TypeScript type stripping and a small Deno.test-compatible test harness because Deno is not installed in the environment. Result: 17/17 tests passed. A TypeScript no-emit check of `metricUtils.ts` also passed.
 
-This is not a native Deno run, Edge Function integration test, RLS/scope-isolation test, browser test or production validation.
+This is not a native Deno run, a deployed Edge Function integration test, an RLS test, a browser test or production validation. The current test file contains seven Deno test cases; prior helper-level test counts should not be interpreted as seven or more current Deno cases.
 
 ## Next work
 1. Integrate the reviewed helper module into the trusted Edge Function entrypoint.
