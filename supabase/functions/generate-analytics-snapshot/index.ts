@@ -86,6 +86,36 @@ async function fetchAttendanceMarks(scope: Scope, range: DateRange) {
   return calculateAttendanceMarks(rows);
 }
 
+async function fetchAttendanceByBatch(scope: Scope, range: DateRange) {
+  const rows = await fetchAll<AttendanceRecord>(
+    "attendance",
+    "id, attendance_date, status, is_deleted, batch_id, center_id, academy_id, batch_schedule_id",
+    query => applyAttendanceScope(
+      query.gte("attendance_date", range.startDate).lte("attendance_date", range.endDate).eq("is_deleted", false),
+      scope,
+    ),
+  );
+  const batchIds = [...new Set(rows.map(row => String(row.batch_id || "")).filter(Boolean))];
+  if (!batchIds.length) return [];
+  let batchQuery = adminSupabase.from("batches").select("id, name").in("id", batchIds).eq("academy_id", scope.academyId);
+  if (scope.scopeType === "center") batchQuery = batchQuery.eq("center_id", scope.scopeId);
+  const { data: batches, error } = await batchQuery;
+  if (error) throw new Error("Attendance batch labels could not be loaded.");
+  const names = new Map((batches ?? []).map((batch: any) => [String(batch.id), String(batch.name || "Unnamed batch")]));
+  const grouped = new Map<string, { batchId: string; batchName: string; present: number; absent: number }>();
+  for (const row of rows) {
+    const id = String(row.batch_id || "");
+    if (!id || !names.has(id)) continue;
+    const status = String(row.status || "").trim().toLowerCase();
+    if (status !== "present" && status !== "absent") continue;
+    if (!grouped.has(id)) grouped.set(id, { batchId: id, batchName: names.get(id)!, present: 0, absent: 0 });
+    const item = grouped.get(id)!;
+    if (status === "present") item.present += 1;
+    else item.absent += 1;
+  }
+  return [...grouped.values()].sort((a, b) => a.batchName.localeCompare(b.batchName));
+}
+
 async function calculate(scope: Scope, snapshotMonth: string, attendanceRange: DateRange | null, attendanceComparisonRange: DateRange | null) {
   const bounds = monthBounds(snapshotMonth);
   await validateScope(scope);
@@ -98,6 +128,7 @@ async function calculate(scope: Scope, snapshotMonth: string, attendanceRange: D
   })() };
 
   const attendance = await fetchAttendanceMarks(scope, selectedAttendanceRange);
+  const attendanceByBatch = await fetchAttendanceByBatch(scope, selectedAttendanceRange);
   const attendanceComparison = attendanceComparisonRange
     ? await fetchAttendanceMarks(scope, attendanceComparisonRange)
     : null;
@@ -169,6 +200,7 @@ async function calculate(scope: Scope, snapshotMonth: string, attendanceRange: D
         attendance.diagnosticQuality, "Unknown or unsupported statuses are excluded from present/absent totals and the rate."),
       missingScheduleIdCount: metric(attendance.missingScheduleIdCount,
         attendance.diagnosticQuality, "Missing schedule IDs are reported; expected-session coverage is not calculated."),
+      batchBreakdown: metric(attendanceByBatch, attendance.markQuality, "Counts are stored present/absent marks grouped by batch for the selected date range."),
       unsupportedStatusBreakdown: metric(attendance.unsupportedStatusBreakdown,
         attendance.diagnosticQuality, "Counts by stored status outside the supported present/absent values; these rows are excluded from attendance totals and rate."),
       comparison: attendanceComparison ? {
