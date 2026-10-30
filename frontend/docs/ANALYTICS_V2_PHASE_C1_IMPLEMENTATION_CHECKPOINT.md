@@ -64,3 +64,15 @@ The preview calculator now includes:
 4. Proceed to Academy Owner Analytics UI integration once metric and authorization acceptance criteria are documented.
 
 Phase C remains **In progress** pending the new CI result and final contract review. Phase D remains **Not started**. Phase E integration remains **Not started**.
+
+
+## Phase D pre-integration authorization review
+
+A source review of `supabase/functions/generate-analytics-snapshot/index.ts` confirms:
+- The function creates its Supabase client with `SUPABASE_SERVICE_ROLE_KEY` held in Edge Function environment variables.
+- The request handler accepts only an exact `Authorization: Bearer <service-role-key>` match.
+- It does not authenticate an end-user JWT, resolve an authenticated user, or independently verify the caller's application role.
+- This is a trusted-server-only preview endpoint in its current form. It must not be called directly from React, and the service-role key must never be placed in frontend environment variables or browser requests.
+- No deployment has occurred.
+
+**Integration blocker:** before Phase E, design and review a secure server-to-server invocation model or an authenticated-user model that verifies the caller's role and tenant scope. Confirm the Supabase Edge Function gateway JWT configuration as part of that review. Do not weaken the current gate or expose the service-role key as a shortcut.
