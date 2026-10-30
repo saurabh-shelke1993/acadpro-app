@@ -28,6 +28,12 @@ The preview calculator now includes:
 
 - Attendance quality returns null/unavailable for empty sources and sources with no supported marks; recorded counts/rates remain partial until expected-session coverage can be measured. Unsupported statuses and missing schedule IDs are surfaced separately.
 
+## Attendance denominator feasibility
+- Read-only schema review confirms `batch_schedules` has no effective dates/version history; the existing batch editor updates schedule rows in place and deactivates removed rows.
+- `player_batch_schedules` includes `enrolled_from`/`enrolled_until`, but all 16 current rows are active and none has an `enrolled_until` value. Legacy `player_batches` has `assigned_date` only.
+- Current live aggregates: 29 batch schedule rows (26 active), 16 player-schedule enrollment rows, 48 legacy player-batch assignments, 129 non-deleted attendance rows; 109 of those attendance rows have no `batch_schedule_id`.
+- Therefore expected-session attendance coverage is not safely computable. Keep the recorded-mark rate partial; do not infer historic schedule or enrollment state. A future denominator also needs actual session occurrence/cancellation semantics.
+
 ## Validation evidence and limitations
 - The current Deno test source contains **21 test cases**: 12 metric/attendance cases, 4 request/query-scope cases and 5 ownership-validation cases.
 - Native Deno is unavailable in the current development environment. The newly added tests have **not** been executed here; no native Deno result is claimed.
@@ -36,9 +42,9 @@ The preview calculator now includes:
 - Production Supabase has not been modified. No migrations, writes, repairs or deployments were performed.
 
 ## Next checkpoint
-1. Execute all 11 tests with native Deno and run Deno type checking.
+1. Execute all 21 tests with native Deno and run Deno type checking.
 2. Execute the SQL fixture and Edge Function integration checks in a disposable Supabase database when one is available.
-3. Review the new attendance zero-state and source-quality behavior, then continue Phase D historical-integrity and snapshot-publisher review.
-4. Continue Phase D historical-integrity and snapshot-publisher review.
+3. Keep expected-session attendance coverage unavailable: current schedules are mutable and not effective-dated; current player-schedule enrollments have no populated end dates; 109 of 129 non-deleted attendance rows lack a schedule reference.
+4. Define a separately reviewed historical model for schedule versions, player-session eligibility and actual session occurrence/cancellation before attempting an expected-session denominator.
 
 Phase C remains **In progress**. Phase D remains **Not started**. Phase E integration remains **Not started**.
