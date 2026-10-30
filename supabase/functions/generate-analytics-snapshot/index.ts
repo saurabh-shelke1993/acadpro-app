@@ -5,6 +5,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import {
   calculateCohortCollection, monthBounds, reconcileDueLedger, splitPaymentFlows, sum,
 } from "./metricUtils.ts";
+import { applyAttendanceScope, applyPlayerScope, parsePreviewRequest, type Scope } from "./requestUtils.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
@@ -16,9 +17,7 @@ const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
 
 const SCHEMA_VERSION = 1;
 const REPORTING_TIME_ZONE = "Asia/Kolkata";
-type ScopeType = "academy" | "center" | "batch";
 type Quality = "verified" | "partial" | "unavailable";
-type Scope = { academyId: string; scopeType: ScopeType; scopeId: string };
 type Metric<T> = { value: T | null; quality: Quality; notes: string[] };
 const metric = <T>(value: T | null, quality: Quality, ...notes: string[]): Metric<T> => ({ value, quality, notes });
 const unavailable = <T>(reason: string): Metric<T> => metric<T>(null, "unavailable", reason);
