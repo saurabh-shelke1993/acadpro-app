@@ -31,7 +31,7 @@ The V2 preview endpoint intentionally denies Super Admin, Coach and Parent roles
 ## Automated tests
 
 - Existing Analytics helper suite: 21 tests.
-- New authorization guard suite: 6 tests covering valid Academy Owner access, missing profile, identity mismatch, unsupported roles, missing academy assignment and cross-academy request.
+- New authorization suite: 8 tests covering Academy Owner role/scope checks and bearer-token parsing.
 - GitHub Actions also runs the disposable PostgreSQL 17 scope-isolation fixture. This fixture validates the ownership SQL contract, not production RLS or full Supabase compatibility.
 
 ## Remaining verification limits
