@@ -31,7 +31,7 @@ function parseDateRange(start: unknown, end: unknown, label: string): DateRange 
   }
   if (start > end) throw new Error(`${label} start date must be on or before its end date.`);
   const rangeDays = (Date.parse(`${end}T00:00:00.000Z`) - Date.parse(`${start}T00:00:00.000Z`)) / 86400000;
-  if (rangeDays > 5 * 366) throw new Error(`${label} cannot exceed five years.`);
+  if (rangeDays > 1827) throw new Error(`${label} cannot exceed five years.`);
   return { startDate: start, endDate: end };
 }
 
