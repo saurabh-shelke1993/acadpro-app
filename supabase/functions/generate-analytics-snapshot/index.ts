@@ -6,6 +6,7 @@ import {
   calculateCohortCollection, monthBounds, reconcileDueLedger, splitPaymentFlows, sum,
 } from "./metricUtils.ts";
 import { applyAttendanceScope, applyPlayerScope, parsePreviewRequest, type Scope } from "./requestUtils.ts";
+import { validateScopeOwnership } from "./scopeValidation.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
@@ -73,151 +74,25 @@ async function fetchAll<T extends Record<string, unknown>>(
 }
 
 async function validateScope(scope: Scope) {
-  const { data: academy, error: academyError } = await supabase.from("academies")
-    .select("id").eq("id", scope.academyId).maybeSingle();
-  if (academyError) throw new Error("Academy scope validation failed.");
-  if (!academy) throw new Error("Academy does not exist.");
-
-  if (scope.scopeType === "academy") {
-    if (scope.scopeId !== scope.academyId) throw new Error("Academy scope ID must match academy ID.");
-    return;
-  }
-
-  if (scope.scopeType === "center") {
-    const { data, error } = await supabase.from("centers")
-      .select("id, academy_id").eq("id", scope.scopeId).maybeSingle();
-    if (error) throw new Error("Center scope validation failed.");
-    if (!data || data.academy_id !== scope.academyId) throw new Error("Center is not owned by the requested academy.");
-    return;
-  }
-
-  const { data: batch, error } = await supabase.from("batches")
-    .select("id, academy_id, center_id").eq("id", scope.scopeId).maybeSingle();
-  if (error) throw new Error("Batch scope validation failed.");
-  if (!batch || batch.academy_id !== scope.academyId) throw new Error("Batch is not owned by the requested academy.");
-  if (batch.center_id) {
-    const { data: center, error: centerError } = await supabase.from("centers")
-      .select("id, academy_id").eq("id", batch.center_id).maybeSingle();
-    if (centerError) throw new Error("Batch center validation failed.");
-    if (!center || center.academy_id !== scope.academyId) throw new Error("Batch center does not belong to the requested academy.");
-  }
+  await validateScopeOwnership(scope, {
+    async academyExists(academyId) {
+      const { data, error } = await supabase.from("academies").select("id").eq("id", academyId).maybeSingle();
+      if (error) throw new Error("Academy scope validation failed.");
+      return Boolean(data);
+    },
+    async findCenter(centerId) {
+      const { data, error } = await supabase.from("centers").select("id, academy_id").eq("id", centerId).maybeSingle();
+      if (error) throw new Error("Center scope validation failed.");
+      return data;
+    },
+    async findBatch(batchId) {
+      const { data, error } = await supabase.from("batches").select("id, academy_id, center_id").eq("id", batchId).maybeSingle();
+      if (error) throw new Error("Batch scope validation failed.");
+      return data;
+    },
+  });
 }
 
- Kheltriva Analytics R1.6 — trusted preview calculator.
-// No snapshot publication or database writes. Do not deploy before isolated validation.
-
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import {
-  calculateCohortCollection, monthBounds, reconcileDueLedger, splitPaymentFlows, sum,
-} from "./metricUtils.ts";
-
-const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
-const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-if (!SUPABASE_URL || !SERVICE_ROLE_KEY) throw new Error("Missing required server configuration.");
-
-const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
-  auth: { persistSession: false, autoRefreshToken: false },
-});
-
-const SCHEMA_VERSION = 1;
-const REPORTING_TIME_ZONE = "Asia/Kolkata";
-type ScopeType = "academy" | "center" | "batch";
-type Quality = "verified" | "partial" | "unavailable";
-type Scope = { academyId: string; scopeType: ScopeType; scopeId: string };
-type Metric<T> = { value: T | null; quality: Quality; notes: string[] };
-const metric = <T>(value: T | null, quality: Quality, ...notes: string[]): Metric<T> => ({ value, quality, notes });
-const unavailable = <T>(reason: string): Metric<T> => metric<T>(null, "unavailable", reason);
-
- Kheltriva Analytics R1.6 — trusted preview calculator.
-// No snapshot publication or database writes. Do not deploy before isolated validation.
-
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import {
-  calculateCohortCollection, monthBounds, reconcileDueLedger, splitPaymentFlows, sum,
-} from "./metricUtils.ts";
-
-const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
-const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-if (!SUPABASE_URL || !SERVICE_ROLE_KEY) throw new Error("Missing required server configuration.");
-
-const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
-  auth: { persistSession: false, autoRefreshToken: false },
-});
-
-const SCHEMA_VERSION = 1;
-const REPORTING_TIME_ZONE = "Asia/Kolkata";
-type ScopeType = "academy" | "center" | "batch";
-type Quality = "verified" | "partial" | "unavailable";
-type Scope = { academyId: string; scopeType: ScopeType; scopeId: string };
-type Metric<T> = { value: T | null; quality: Quality; notes: string[] };
-const metric = <T>(value: T | null, quality: Quality, ...notes: string[]): Metric<T> => ({ value, quality, notes });
-const unavailable = <T>(reason: string): Metric<T> => metric<T>(null, "unavailable", reason);
-
-function isUuid(value: unknown): value is string {
-  return typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
-}
-
-async function fetchAll<T extends Record<string, unknown>>(
-  table: string, select: string, configure: (query: any) => any,
-): Promise<T[]> {
-  const pageSize = 1000;
-  const rows: T[] = [];
-  for (let from = 0; ; from += pageSize) {
-    let query = supabase.from(table).select(select).range(from, from + pageSize - 1);
-    query = configure(query);
-    const { data, error } = await query;
-    if (error) {
-      // Log server-side only. Never return database internals to the caller.
-      console.error("Analytics source query failed", { table, code: error.code });
-      throw new Error("Analytics source data could not be loaded.");
-    }
-    const page = (data ?? []) as T[];
-    rows.push(...page);
-    if (page.length < pageSize) break;
-  }
-  return rows;
-}
-
-async function validateScope(scope: Scope) {
-  const { data: academy, error: academyError } = await supabase.from("academies")
-    .select("id").eq("id", scope.academyId).maybeSingle();
-  if (academyError) throw new Error("Academy scope validation failed.");
-  if (!academy) throw new Error("Academy does not exist.");
-
-  if (scope.scopeType === "academy") {
-    if (scope.scopeId !== scope.academyId) throw new Error("Academy scope ID must match academy ID.");
-    return;
-  }
-
-  if (scope.scopeType === "center") {
-    const { data, error } = await supabase.from("centers")
-      .select("id, academy_id").eq("id", scope.scopeId).maybeSingle();
-    if (error) throw new Error("Center scope validation failed.");
-    if (!data || data.academy_id !== scope.academyId) throw new Error("Center is not owned by the requested academy.");
-    return;
-  }
-
-  const { data: batch, error } = await supabase.from("batches")
-    .select("id, academy_id, center_id").eq("id", scope.scopeId).maybeSingle();
-  if (error) throw new Error("Batch scope validation failed.");
-  if (!batch || batch.academy_id !== scope.academyId) throw new Error("Batch is not owned by the requested academy.");
-  if (batch.center_id) {
-    const { data: center, error: centerError } = await supabase.from("centers")
-      .select("id, academy_id").eq("id", batch.center_id).maybeSingle();
-    if (centerError) throw new Error("Batch center validation failed.");
-    if (!center || center.academy_id !== scope.academyId) throw new Error("Batch center does not belong to the requested academy.");
-  }
-}
-
-function attendanceQuery(query: any, scope: Scope) {
-  let q = query;
-  // Always constrain academy, then apply the narrower dimension. This prevents
-  // accidental cross-tenant matches even if a legacy child row is inconsistent.
-  q = q.eq("academy_id", scope.academyId);
-  if (scope.scopeType === "center") q = q.eq("center_id", scope.scopeId);
-  if (scope.scopeType === "batch") q = q.eq("batch_id", scope.scopeId);
-  return q;
-}
 
 async function calculate(scope: Scope, snapshotMonth: string) {
   const bounds = monthBounds(snapshotMonth);
