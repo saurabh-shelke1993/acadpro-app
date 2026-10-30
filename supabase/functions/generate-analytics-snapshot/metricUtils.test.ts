@@ -117,3 +117,62 @@ Deno.test("player finance scope always constrains academy and optionally center"
   applyPlayerScope(builder, { academyId, scopeType: "center", scopeId: centerId });
   if (calls.map(call => call[0]).join(",") !== "academy_id,center_id") throw new Error("Center player scope is incomplete.");
 });
+
+import { validateScopeOwnership } from "./scopeValidation.ts";
+const academyA = "123e4567-e89b-42d3-a456-426614174000";
+const academyB = "423e4567-e89b-42d3-a456-426614174000";
+const centerA = "223e4567-e89b-42d3-a456-426614174000";
+const centerB = "523e4567-e89b-42d3-a456-426614174000";
+const batchA = "323e4567-e89b-42d3-a456-426614174000";
+const batchB = "623e4567-e89b-42d3-a456-426614174000";
+const mismatchedBatch = "723e4567-e89b-42d3-a456-426614174000";
+function fakeOwnershipLookup() {
+  const centers = new Map([
+    [centerA, { id: centerA, academy_id: academyA }],
+    [centerB, { id: centerB, academy_id: academyB }],
+  ]);
+  const batches = new Map([
+    [batchA, { id: batchA, academy_id: academyA, center_id: centerA }],
+    [batchB, { id: batchB, academy_id: academyB, center_id: centerB }],
+    [mismatchedBatch, { id: mismatchedBatch, academy_id: academyA, center_id: centerB }],
+  ]);
+  return {
+    async academyExists(id: string) { return id === academyA || id === academyB; },
+    async findCenter(id: string) { return centers.get(id) ?? null; },
+    async findBatch(id: string) { return batches.get(id) ?? null; },
+  };
+}
+Deno.test("ownership validator accepts academy and same-academy center/batch scopes", async () => {
+  const lookup = fakeOwnershipLookup();
+  await validateScopeOwnership({ academyId: academyA, scopeType: "academy", scopeId: academyA }, lookup);
+  await validateScopeOwnership({ academyId: academyA, scopeType: "center", scopeId: centerA }, lookup);
+  await validateScopeOwnership({ academyId: academyA, scopeType: "batch", scopeId: batchA }, lookup);
+});
+Deno.test("ownership validator rejects a center owned by another academy", async () => {
+  let rejected = false;
+  try { await validateScopeOwnership({ academyId: academyA, scopeType: "center", scopeId: centerB }, fakeOwnershipLookup()); }
+  catch (error) { rejected = error instanceof Error && error.message.includes("Center is not owned"); }
+  if (!rejected) throw new Error("Cross-academy center was accepted.");
+});
+Deno.test("ownership validator rejects a batch owned by another academy", async () => {
+  let rejected = false;
+  try { await validateScopeOwnership({ academyId: academyA, scopeType: "batch", scopeId: batchB }, fakeOwnershipLookup()); }
+  catch (error) { rejected = error instanceof Error && error.message.includes("Batch is not owned"); }
+  if (!rejected) throw new Error("Cross-academy batch was accepted.");
+});
+Deno.test("ownership validator rejects a batch linked to another academy's center", async () => {
+  let rejected = false;
+  try { await validateScopeOwnership({ academyId: academyA, scopeType: "batch", scopeId: mismatchedBatch }, fakeOwnershipLookup()); }
+  catch (error) { rejected = error instanceof Error && error.message.includes("Batch center does not belong"); }
+  if (!rejected) throw new Error("Batch with cross-academy center was accepted.");
+});
+Deno.test("ownership validator rejects missing academies and academy scope mismatch", async () => {
+  const lookup = fakeOwnershipLookup();
+  let missingRejected = false;
+  try { await validateScopeOwnership({ academyId: "823e4567-e89b-42d3-a456-426614174000", scopeType: "academy", scopeId: "823e4567-e89b-42d3-a456-426614174000" }, lookup); }
+  catch (error) { missingRejected = error instanceof Error && error.message.includes("Academy does not exist"); }
+  let mismatchRejected = false;
+  try { await validateScopeOwnership({ academyId: academyA, scopeType: "academy", scopeId: academyB }, lookup); }
+  catch (error) { mismatchRejected = error instanceof Error && error.message.includes("must match"); }
+  if (!missingRejected || !mismatchRejected) throw new Error("Missing/mismatched academy scope was accepted.");
+});
