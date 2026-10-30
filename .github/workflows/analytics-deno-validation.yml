@@ -26,7 +26,7 @@ jobs:
         run: deno --version
 
       - name: Run analytics unit tests
-        run: deno test --fail-fast supabase/functions/generate-analytics-snapshot/metricUtils.test.ts
+        run: deno test --fail-fast supabase/functions/generate-analytics-snapshot/metricUtils.test.ts supabase/functions/generate-analytics-snapshot/authorizationUtils.test.ts
 
       - name: Type-check analytics Edge Function
         run: deno check supabase/functions/generate-analytics-snapshot/index.ts
