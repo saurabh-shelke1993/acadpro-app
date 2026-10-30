@@ -127,8 +127,8 @@ export function calculateAttendanceMarks(rows: AttendanceSourceRow[]) {
     attendanceRatePercent: hasUsableMarks
       ? Math.round((presentCount / valid.length) * 10000) / 100
       : null,
-    ignoredStatusCount,
-    missingScheduleIdCount,
+    ignoredStatusCount: rows.length > 0 ? ignoredStatusCount : null,
+    missingScheduleIdCount: rows.length > 0 ? missingScheduleIdCount : null,
     markQuality,
     diagnosticQuality,
     notes,
