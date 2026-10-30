@@ -31,6 +31,12 @@ The pure metric helpers, request/scope helpers, deterministic unit tests and pre
 - Unit tests cover valid scopes, cross-academy center and batch rejection, cross-academy batch-center mismatch, and missing/mismatched academy scope.
 - `scope_isolation.integration.test.sql` is a disposable-database-only transaction fixture. It creates two test academies, centers and batches, checks the ownership predicates against Postgres rows, then rolls back. It has not been run and must never be executed against production.
 
+## Historical attendance denominator limitation
+- `batch_schedules` has no effective dates/version history, and the batch editor updates schedule rows in place or deactivates removed rows.
+- `player_batch_schedules` has enrollment date columns, but current live rows have no populated `enrolled_until` values; legacy `player_batches` has no end date.
+- A live read-only audit found 109 of 129 non-deleted attendance rows without `batch_schedule_id`.
+- Expected-session coverage is therefore not computable from current data. The reported rate is only among recorded supported marks and remains partial. A real denominator also requires actual session occurrence/cancellation semantics.
+
 ## Validation status
 - The current Deno test source contains **21 test cases** (12 metric/attendance cases, 4 request/query-scope cases and 5 ownership-validation cases).
 - Native Deno is not installed in the current development environment. No native `deno test` run is claimed for this checkpoint.
@@ -39,9 +45,9 @@ The pure metric helpers, request/scope helpers, deterministic unit tests and pre
 - Production Supabase has not been modified.
 
 ## Next work
-1. Run all 16 Deno tests and TypeScript checks in a Deno-enabled environment.
+1. Run all 21 Deno tests and TypeScript checks in a Deno-enabled environment.
 2. Execute the SQL fixture and Edge Function integration checks only in a disposable Supabase database.
-3. Resolve metric quality propagation for attendance zero-state and incomplete source coverage.
+3. Keep expected-session attendance coverage unavailable until historical schedule versions, player-session eligibility periods and actual session occurrence/cancellation are represented.
 4. Review snapshot historical-integrity and publisher design before any deployment.
 
 Do not deploy or publish snapshots until Phase C and Phase D acceptance criteria are met and explicitly approved.
