@@ -26,7 +26,7 @@ The preview calculator now includes:
 - The SQL fixture seeds two academies, two centers and three batches inside a transaction and rolls back. It is designed for a disposable database only.
 - The SQL fixture has **not** been run because no isolated Supabase branch/database is available. The live production database was not used for fixtures.
 
-## Validation evidence and limitations
+- Attendance quality returns null/unavailable for empty sources and sources with no supported marks; recorded counts/rates remain partial until expected-session coverage can be measured. Unsupported statuses and missing schedule IDs are surfaced separately.\n\n## Validation evidence and limitations
 - The current Deno test source contains **21 test cases**: 12 metric/attendance cases, 4 request/query-scope cases and 5 ownership-validation cases.
 - Native Deno is unavailable in the current development environment. The newly added tests have **not** been executed here; no native Deno result is claimed.
 - Earlier Node.js 22-compatible helper validation (17/17) predates the new request/scope tests and does not cover them.
