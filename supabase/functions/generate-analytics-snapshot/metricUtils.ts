@@ -108,6 +108,15 @@ export function calculateAttendanceMarks(rows: AttendanceSourceRow[]) {
   const presentCount = valid.filter(row => row.status === "present").length;
   const absentCount = valid.filter(row => row.status === "absent").length;
   const ignoredStatusCount = rows.length - valid.length;
+  const unsupportedStatusBreakdown = rows
+    .filter(row => row.status !== "present" && row.status !== "absent")
+    .reduce((counts, row) => {
+      const status = typeof row.status === "string" && row.status.trim()
+        ? row.status.trim().toLowerCase()
+        : "(missing status)";
+      counts[status] = (counts[status] ?? 0) + 1;
+      return counts;
+    }, {} as Record<string, number>);
   const missingScheduleIdCount = rows.filter(row => !row.batch_schedule_id).length;
   const hasUsableMarks = valid.length > 0;
   const markQuality: AttendanceMarkQuality = hasUsableMarks ? "partial" : "unavailable";
@@ -128,6 +137,7 @@ export function calculateAttendanceMarks(rows: AttendanceSourceRow[]) {
       ? Math.round((presentCount / valid.length) * 10000) / 100
       : null,
     ignoredStatusCount: rows.length > 0 ? ignoredStatusCount : null,
+    unsupportedStatusBreakdown: rows.length > 0 ? unsupportedStatusBreakdown : null,
     missingScheduleIdCount: rows.length > 0 ? missingScheduleIdCount : null,
     markQuality,
     diagnosticQuality,
