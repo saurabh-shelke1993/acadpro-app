@@ -19,6 +19,7 @@ const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
 const SCHEMA_VERSION = 1;
 const REPORTING_TIME_ZONE = "Asia/Kolkata";
 type Quality = "verified" | "partial" | "unavailable";
+type AttendanceRecord = Record<string, unknown> & { status: string | null; batch_schedule_id: string | null };
 type Metric<T> = { value: T | null; quality: Quality; notes: string[] };
 const metric = <T>(value: T | null, quality: Quality, ...notes: string[]): Metric<T> => ({ value, quality, notes });
 const unavailable = <T>(reason: string): Metric<T> => metric<T>(null, "unavailable", reason);
@@ -41,7 +42,7 @@ async function fetchAll<T extends Record<string, unknown>>(
       console.error("Analytics source query failed", { table, code: error.code });
       throw new Error("Analytics source data could not be loaded.");
     }
-    const page = (data ?? []) as T[];
+    const page = (data ?? []) as unknown as T[];
     rows.push(...page);
     if (page.length < pageSize) break;
   }
@@ -75,7 +76,7 @@ async function calculate(scope: Scope, snapshotMonth: string) {
   const periodStartDate = bounds.month;
   const periodEndDate = bounds.nextMonthStart;
 
-  const attendanceRows = await fetchAll(
+  const attendanceRows = await fetchAll<AttendanceRecord>(
     "attendance",
     "id, attendance_date, status, is_deleted, batch_id, center_id, academy_id, batch_schedule_id",
     query => applyAttendanceScope(
