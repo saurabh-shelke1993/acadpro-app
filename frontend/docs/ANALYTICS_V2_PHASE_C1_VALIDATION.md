@@ -146,4 +146,33 @@ A second job was added to `.github/workflows/analytics-deno-validation.yml`:
 - Runs `supabase/tests/analytics/scope_isolation.integration.test.sql` with `psql -v ON_ERROR_STOP=1`.
 - The fixture transaction rolls back its inserted records.
 
-This avoids a paid Supabase development branch and does not connect to the production project. It validates fixture SQL execution and ownership predicates against PostgreSQL, but it is not a substitute for testing the complete Supabase schema, RLS policies, Edge Function runtime or deployment authorization. The new CI job's result is pending verification at the time of this documentation update.
+This avoids a paid Supabase development branch and does not connect to the production project. It validates fixture SQL execution and ownership predicates against PostgreSQL, but it is not a substitute for testing the complete Supabase schema, RLS policies, Edge Function runtime or deployment authorization. The PostgreSQL job subsequently passed in workflow run #18; see the Phase D1 checkpoint below.
+
+
+## Phase D1 — Authenticated Academy Owner authorization (30 October 2026)
+
+Read-only inspection of the live Supabase schema and RLS policies confirmed that application role and academy identity are stored in `public.users`, and the private helper functions derive those values from `auth.uid()`. The Analytics preview uses a service-role client for its multi-table reads, which bypasses RLS; the endpoint therefore must perform its own identity, role and tenant checks before calculating any metrics.
+
+Implemented on `analytics-v2-phase-c-validation`:
+- Explicit `verify_jwt = true` for `generate-analytics-snapshot` in `supabase/config.toml`.
+- Authenticated user resolution using Supabase Auth `getUser(accessToken)`.
+- Server-side lookup of the caller's `public.users` profile; no authorization based on editable user metadata.
+- A pure authorization guard requiring matching user identity, the `academy_owner` role, a non-null academy assignment and exact match between requested academy scope and profile academy.
+- Existing database-backed center/batch ownership validation retained after authorization.
+- Existing academy-first source query predicates retained; finance data remains derived from players inside the authenticated academy.
+- Browser CORS preflight handling.
+- Six new deterministic authorization tests.
+
+The V2 preview endpoint currently denies Super Admin, Coach and Parent roles. Existing Analytics routes and other modules are unchanged. The browser must invoke the endpoint with the signed-in user's JWT; the service-role key remains server-side only.
+
+### CI result
+
+- Workflow run #18: [Analytics Deno Validation](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/40987954084)
+- Analytics helper and authorization tests: **passed**.
+- Edge Function static type-check: **passed**.
+- Disposable PostgreSQL 17 scope-isolation job: **passed**.
+- Workflow conclusion: **success**.
+
+### Remaining gate
+
+The function has not been deployed and no live JWT invocation has been performed. No Supabase schema/data writes or deployments occurred. Phase E should now integrate the Academy Owner Analytics UI using the user's session through `supabase.functions.invoke`. Deployment and live integration testing remain separate explicit approval gates.
