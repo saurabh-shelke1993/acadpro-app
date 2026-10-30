@@ -37,11 +37,16 @@ The pure metric helpers, request/scope helpers, deterministic unit tests and pre
 - A live read-only audit found 109 of 129 non-deleted attendance rows without `batch_schedule_id`.
 - Expected-session coverage is therefore not computable from current data. The reported rate is only among recorded supported marks and remains partial. A real denominator also requires actual session occurrence/cancellation semantics.
 
+## Native validation result
+- Branch-scoped workflow: `.github/workflows/analytics-deno-validation.yml`.
+- Deno test result: **21 passed, 0 failed**; `deno check` for `index.ts`: **passed**.
+- Run details: https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/40984835967.
+
 ## Validation status
 - The current Deno test source contains **21 test cases** (12 metric/attendance cases, 4 request/query-scope cases and 5 ownership-validation cases).
-- Native Deno is not installed in the current development environment. No native `deno test` run is claimed for this checkpoint.
+- Native Deno validation via GitHub Actions (Deno 2.9.8): **21 passed, 0 failed**. The preview Edge Function also passes `deno check`.
 - The previously recorded 17/17 Node-compatible helper run applies to the earlier metric-helper validation set; it does not include the new request/scope tests.
-- No claim is made for Edge Function integration, cross-academy database ownership, RLS, browser, deployment or production validation.
+- Static Edge Function type-check passed. No claim is made for live Edge Function integration, cross-academy database ownership, RLS, browser, deployment or production validation.
 - Production Supabase has not been modified.
 
 ## Next work
