@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Layout from "../components/Layout";
 import { getAcademyOwnerAnalyticsV2 } from "../services/analyticsV2Service";
 import "./AcademyOwnerAnalyticsV2.css";
@@ -123,7 +123,10 @@ function AcademyOwnerAnalyticsV2({ user }) {
   const [attendanceRange, setAttendanceRange] = useState(() => getMonthDateRange(getCurrentMonth()));
   const [comparisonRange, setComparisonRange] = useState(() => getPreviousMonthRange(getCurrentMonth()));
   const [comparisonManuallySet, setComparisonManuallySet] = useState(false);
-  const effectiveComparisonRange = comparisonManuallySet ? comparisonRange : getPreviousPeriodRange(attendanceRange);
+  const effectiveComparisonRange = useMemo(
+    () => comparisonManuallySet ? comparisonRange : getPreviousPeriodRange(attendanceRange),
+    [comparisonManuallySet, comparisonRange, attendanceRange]
+  );
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
