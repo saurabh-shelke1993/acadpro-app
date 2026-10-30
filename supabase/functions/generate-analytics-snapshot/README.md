@@ -6,7 +6,8 @@ The pure metric helpers, request/scope helpers, deterministic unit tests and pre
 ## Files
 - `metricUtils.ts`: Asia/Kolkata calendar-month bounds, half-open filtering, numeric aggregation, payment/adjustment flow splitting, due-ledger reconciliation and cohort collection.
 - `requestUtils.ts`: pure parsed-request validation plus reusable academy-first attendance and player query-scope predicates.
-- `metricUtils.test.ts`: Deno tests covering metric calculations, request validation and query predicate ordering.
+- `metricUtils.test.ts`: 21 Deno tests covering metric calculations, request validation and query predicate ordering.
+- `authorizationUtils.ts` / `authorizationUtils.test.ts`: pure Academy Owner identity, role and tenant-scope guard plus 6 deterministic tests.
 
 ## Scope and security boundaries
 - Parsed JSON is validated for object shape, UUIDs, allowed scope type and a real first-of-month calendar date.
@@ -43,8 +44,8 @@ The pure metric helpers, request/scope helpers, deterministic unit tests and pre
 - Run details: https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/40984835967.
 
 ## Validation status
-- The current Deno test source contains **21 test cases** (12 metric/attendance cases, 4 request/query-scope cases and 5 ownership-validation cases).
-- Native Deno validation via GitHub Actions (Deno 2.9.8): **21 passed, 0 failed**. The preview Edge Function also passes `deno check`.
+- The Deno suite contains **27 test cases**: 21 metric/request/ownership cases plus 6 authorization guard cases.
+- Native Deno validation via GitHub Actions (Deno 2.9.8): **27 passed, 0 failed**. The preview Edge Function also passes `deno check`.
 - The previously recorded 17/17 Node-compatible helper run applies to the earlier metric-helper validation set; it does not include the new request/scope tests.
 - Static Edge Function type-check passed. No claim is made for live Edge Function integration, cross-academy database ownership, RLS, browser, deployment or production validation.
 - Production Supabase has not been modified.
@@ -73,3 +74,13 @@ The preview endpoint now accepts a signed-in user's Supabase access token:
 The pure authorization guard is covered by `authorizationUtils.test.ts`. These tests verify role, identity and academy-scope decisions; they do not replace live Auth/JWT, RLS or deployed Edge Function integration tests.
 
 The function has **not** been deployed. Phase E may integrate the Academy Owner UI only after CI passes and the user explicitly approves any deployment.
+
+
+## Phase D1 CI result
+
+Workflow run #18 completed successfully:
+- 27 Deno tests passed.
+- Edge Function `deno check` passed.
+- Disposable PostgreSQL 17 scope-isolation fixture passed.
+
+See [Phase D1 authorization review](../../frontend/docs/ANALYTICS_V2_PHASE_D1_AUTHORIZATION.md) for the authenticated Academy Owner boundary and remaining deployment/integration gates.
