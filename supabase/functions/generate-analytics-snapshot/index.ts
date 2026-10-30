@@ -5,7 +5,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import {
   calculateAttendanceMarks, calculateCohortCollection, monthBounds, reconcileDueLedger, splitPaymentFlows, sum,
 } from "./metricUtils.ts";
-import { applyAttendanceScope, applyPlayerScope, parsePreviewRequest, type Scope } from "./requestUtils.ts";
+import { applyAttendanceScope, applyPlayerScope, parsePreviewRequest, type DateRange, type Scope } from "./requestUtils.ts";
 import { validateScopeOwnership } from "./scopeValidation.ts";
 import { authorizeAnalyticsProfile, extractBearerToken } from "./authorizationUtils.ts";
 
@@ -74,22 +74,33 @@ async function validateScope(scope: Scope) {
 }
 
 
-async function calculate(scope: Scope, snapshotMonth: string) {
+async function fetchAttendanceMarks(scope: Scope, range: DateRange) {
+  const rows = await fetchAll<AttendanceRecord>(
+    "attendance",
+    "id, attendance_date, status, is_deleted, batch_id, center_id, academy_id, batch_schedule_id",
+    query => applyAttendanceScope(
+      query.gte("attendance_date", range.startDate).lte("attendance_date", range.endDate).eq("is_deleted", false),
+      scope,
+    ),
+  );
+  return calculateAttendanceMarks(rows);
+}
+
+async function calculate(scope: Scope, snapshotMonth: string, attendanceRange: DateRange | null, attendanceComparisonRange: DateRange | null) {
   const bounds = monthBounds(snapshotMonth);
   await validateScope(scope);
   const periodStartDate = bounds.month;
   const periodEndDate = bounds.nextMonthStart;
+  const selectedAttendanceRange = attendanceRange ?? { startDate: periodStartDate, endDate: (() => {
+    const d = new Date(`${periodEndDate}T00:00:00Z`);
+    d.setUTCDate(d.getUTCDate() - 1);
+    return d.toISOString().slice(0, 10);
+  })() };
 
-  const attendanceRows = await fetchAll<AttendanceRecord>(
-    "attendance",
-    "id, attendance_date, status, is_deleted, batch_id, center_id, academy_id, batch_schedule_id",
-    query => applyAttendanceScope(
-      query.gte("attendance_date", periodStartDate).lt("attendance_date", periodEndDate).eq("is_deleted", false),
-      scope,
-    ),
-  );
-
-  const attendance = calculateAttendanceMarks(attendanceRows);
+  const attendance = await fetchAttendanceMarks(scope, selectedAttendanceRange);
+  const attendanceComparison = attendanceComparisonRange
+    ? await fetchAttendanceMarks(scope, attendanceComparisonRange)
+    : null;
 
   let paymentRows: Record<string, unknown>[] = [];
   let expenseRows: Record<string, unknown>[] = [];
@@ -140,6 +151,7 @@ async function calculate(scope: Scope, snapshotMonth: string) {
     schemaVersion: SCHEMA_VERSION,
     reportingTimeZone: REPORTING_TIME_ZONE,
     period: { start: periodStartDate, endExclusive: periodEndDate },
+    attendancePeriod: selectedAttendanceRange,
     scope,
     players: {
       openingActive: unavailable<number>("No player lifecycle history for month-start state."),
@@ -157,6 +169,19 @@ async function calculate(scope: Scope, snapshotMonth: string) {
         attendance.diagnosticQuality, "Unknown or unsupported statuses are excluded from present/absent totals and the rate."),
       missingScheduleIdCount: metric(attendance.missingScheduleIdCount,
         attendance.diagnosticQuality, "Missing schedule IDs are reported; expected-session coverage is not calculated."),
+      unsupportedStatusBreakdown: metric(attendance.unsupportedStatusBreakdown,
+        attendance.diagnosticQuality, "Counts by stored status outside the supported present/absent values; these rows are excluded from attendance totals and rate."),
+      comparison: attendanceComparison ? {
+        period: attendanceComparisonRange,
+        presentMarks: metric(attendanceComparison.presentCount, attendanceComparison.markQuality, ...attendanceComparison.notes),
+        absentMarks: metric(attendanceComparison.absentCount, attendanceComparison.markQuality, ...attendanceComparison.notes),
+        attendanceRatePercent: metric(attendanceComparison.attendanceRatePercent, attendanceComparison.markQuality,
+          "Present / (present + absent) among supported recorded marks only; not expected-session coverage.",
+          ...attendanceComparison.notes),
+        ignoredStatusCount: metric(attendanceComparison.ignoredStatusCount, attendanceComparison.diagnosticQuality),
+        unsupportedStatusBreakdown: metric(attendanceComparison.unsupportedStatusBreakdown, attendanceComparison.diagnosticQuality),
+        missingScheduleIdCount: metric(attendanceComparison.missingScheduleIdCount, attendanceComparison.diagnosticQuality),
+      } : null,
       sessionCount: unavailable<number>("A reliable session identity/eligibility model has not been verified."),
     },
     coaches: {
@@ -263,7 +288,12 @@ Deno.serve(async req => {
   }
 
   try {
-    const result = await calculate(parsed.value.scope, parsed.value.snapshotMonth);
+    const result = await calculate(
+      parsed.value.scope,
+      parsed.value.snapshotMonth,
+      parsed.value.attendanceRange,
+      parsed.value.attendanceComparisonRange,
+    );
     return jsonResponse({ previewOnly: true, result }, 200);
   } catch (error) {
     console.error("Analytics preview calculation failed", error);
