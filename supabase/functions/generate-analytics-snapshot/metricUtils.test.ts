@@ -182,7 +182,10 @@ Deno.test("attendance marks are unavailable when no rows exist, not verified zer
   if (result.presentCount !== null || result.absentCount !== null || result.attendanceRatePercent !== null) {
     throw new Error("Empty source was represented as numeric zero.");
   }
-  if (result.ignoredStatusCount !== null || result.missingScheduleIdCount !== null) {\n    throw new Error("Empty source diagnostics must be null, not numeric zero.");\n  }\n  if (result.markQuality !== "unavailable" || result.diagnosticQuality !== "unavailable") {
+  if (result.ignoredStatusCount !== null || result.missingScheduleIdCount !== null) {
+    throw new Error("Empty source diagnostics must be null, not numeric zero.");
+  }
+  if (result.markQuality !== "unavailable" || result.diagnosticQuality !== "unavailable") {
     throw new Error("Empty source quality must be unavailable.");
   }
 });
