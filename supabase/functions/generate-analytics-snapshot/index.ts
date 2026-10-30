@@ -7,7 +7,7 @@ import {
 } from "./metricUtils.ts";
 import { applyAttendanceScope, applyPlayerScope, parsePreviewRequest, type Scope } from "./requestUtils.ts";
 import { validateScopeOwnership } from "./scopeValidation.ts";
-import { authorizeAnalyticsProfile } from "./authorizationUtils.ts";
+import { authorizeAnalyticsProfile, extractBearerToken } from "./authorizationUtils.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
@@ -225,16 +225,16 @@ Deno.serve(async req => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return jsonResponse({ error: "Method not allowed." }, 405);
 
-  const authorization = req.headers.get("authorization") ?? "";
-  const bearerMatch = authorization.match(/^Bearer\s+(.+)$/i);
-  if (!bearerMatch) return jsonResponse({ error: "Unauthorized." }, 401);
+  const authorization = req.headers.get("authorization");
+  const accessToken = extractBearerToken(authorization);
+  if (!authorization || !accessToken) return jsonResponse({ error: "Unauthorized." }, 401);
 
   // Verify the access token with Supabase Auth. Never trust user_metadata for authorization.
   const authClient = createClient(SUPABASE_URL!, ANON_KEY!, {
     global: { headers: { Authorization: authorization } },
     auth: { persistSession: false, autoRefreshToken: false },
   });
-  const { data: authData, error: authError } = await authClient.auth.getUser(bearerMatch[1]);
+  const { data: authData, error: authError } = await authClient.auth.getUser(accessToken);
   if (authError || !authData.user) return jsonResponse({ error: "Unauthorized." }, 401);
 
   // Resolve role and tenant from the application profile, not from request data or JWT user metadata.
