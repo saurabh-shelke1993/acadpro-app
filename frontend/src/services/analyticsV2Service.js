@@ -24,7 +24,13 @@ export async function getAcademyOwnerAnalyticsV2(user, snapshotMonth) {
 
   if (error) {
     console.error("Analytics V2 request failed:", error);
-    throw new Error("Unable to load monthly analytics. Please try again.");
+    const status = error.context?.status;
+    if (status === 404) {
+      throw new Error(
+        "The Analytics preview service has not been deployed to Supabase yet. The page is ready, but monthly data will load after the matching Edge Function is deployed."
+      );
+    }
+    throw new Error("We couldn't retrieve your monthly analytics. Please check your connection and try again.");
   }
 
   if (!data?.previewOnly || !data?.result) {
