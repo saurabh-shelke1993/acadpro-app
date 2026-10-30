@@ -159,7 +159,7 @@ function AcademyOwnerAnalyticsV2({ user }) {
           <span className="owner-analytics-preview-label">PREVIEW · NOT PUBLISHED</span>
         </section>
 
-        <nav className="owner-analytics-tabs" role="tablist" aria-label="Analytics sections">
+        <nav className="owner-analytics-tabs" role="group" aria-label="Analytics sections">
           {[
             { id: "overview", label: "Overview" },
             { id: "attendance", label: "Attendance" },
@@ -167,11 +167,8 @@ function AcademyOwnerAnalyticsV2({ user }) {
           ].map((tab) => (
             <button
               key={tab.id}
-              id={`owner-analytics-tab-${tab.id}`}
               type="button"
-              role="tab"
-              aria-selected={activeTab === tab.id}
-              aria-controls={`owner-analytics-panel-${tab.id}`}
+              aria-pressed={activeTab === tab.id}
               className={activeTab === tab.id ? "active" : ""}
               onClick={() => setActiveTab(tab.id)}
             >
@@ -210,12 +207,7 @@ function AcademyOwnerAnalyticsV2({ user }) {
         )}
 
         {(activeTab === "overview" || activeTab === "attendance") && (
-        <section
-          className="owner-analytics-section"
-          role="tabpanel"
-          id={`owner-analytics-panel-${activeTab === "attendance" ? "attendance" : "overview"}`}
-          aria-labelledby={`owner-analytics-tab-${activeTab === "attendance" ? "attendance" : "overview"}`}
-        >
+        <section className="owner-analytics-section">
           <div className="owner-analytics-section-heading">
             <div>
               <span>TRAINING ACTIVITY</span>
@@ -273,17 +265,10 @@ function AcademyOwnerAnalyticsV2({ user }) {
             </div>
           </div>
         </section>
-
-        </section>
         )}
 
         {(activeTab === "overview" || activeTab === "finance") && (
-        <section
-          className="owner-analytics-section"
-          role="tabpanel"
-          id={`owner-analytics-panel-${activeTab === "finance" ? "finance" : "overview"}`}
-          aria-labelledby={`owner-analytics-tab-${activeTab === "finance" ? "finance" : "overview"}`}
-        >
+        <section className="owner-analytics-section">
           <div className="owner-analytics-section-heading">
             <div>
               <span>ACADEMY FINANCIALS</span>
@@ -359,8 +344,6 @@ function AcademyOwnerAnalyticsV2({ user }) {
             <MetricNotes metric={finance.currentDueLedgerReconciliation} />
             <MetricNotes metric={finance.cohortCollectionRatePercent} />
           </div>
-        </section>
-
         </section>
         )}
 
