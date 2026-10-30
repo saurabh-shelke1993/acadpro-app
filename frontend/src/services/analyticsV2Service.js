@@ -5,7 +5,7 @@ import { supabase } from "../supabaseClient";
  * The Edge Function verifies the JWT and derives the Academy Owner scope
  * from public.users; the browser never receives a service-role credential.
  */
-export async function getAcademyOwnerAnalyticsV2(user, snapshotMonth) {
+export async function getAcademyOwnerAnalyticsV2(user, snapshotMonth, attendanceRange = null, comparisonRange = null) {
   if (!user?.id || !user?.academy_id) {
     throw new Error("Your account is not linked to an academy.");
   }
@@ -17,7 +17,15 @@ export async function getAcademyOwnerAnalyticsV2(user, snapshotMonth) {
         academyId: user.academy_id,
         scopeType: "academy",
         scopeId: user.academy_id,
-        snapshotMonth
+        snapshotMonth,
+        ...(attendanceRange ? {
+          attendanceStartDate: attendanceRange.startDate,
+          attendanceEndDate: attendanceRange.endDate
+        } : {}),
+        ...(comparisonRange ? {
+          comparisonStartDate: comparisonRange.startDate,
+          comparisonEndDate: comparisonRange.endDate
+        } : {})
       }
     }
   );
