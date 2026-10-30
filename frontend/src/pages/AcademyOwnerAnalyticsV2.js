@@ -186,23 +186,6 @@ function AcademyOwnerAnalyticsV2({ user }) {
   return (
     <Layout>
       <main className="owner-analytics-page">
-        <header className="owner-analytics-header">
-          <div>
-            <span className="owner-analytics-kicker">ACADEMY PERFORMANCE</span>
-            <h1>Analytics</h1>
-            <p>Attendance date-range comparison and monthly academy financials.</p>
-          </div>
-          <label className="owner-analytics-month-picker">
-            <span>Reporting month</span>
-            <input
-              type="month"
-              value={month}
-              max={getCurrentMonth()}
-              onChange={(event) => setMonth(event.target.value)}
-            />
-          </label>
-        </header>
-
         <nav className="owner-analytics-tabs" role="group" aria-label="Analytics sections">
           {[
             { id: "attendance", label: "Attendance" },
@@ -359,42 +342,6 @@ function AcademyOwnerAnalyticsV2({ user }) {
             <strong>How to read this</strong>
             <p>This is the percentage among supported attendance marks recorded in the system. It is not attendance coverage against all expected training sessions.</p>
           </div>
-          {attendance.comparison && (
-            <section className="owner-analytics-comparison">
-              <div className="owner-analytics-section-heading">
-                <div><span>HISTORICAL COMPARISON</span><h3>Selected range vs comparison range</h3></div>
-                <p>Ranges are compared as selected; lengths may differ.</p>
-              </div>
-              <div className="owner-analytics-grid owner-analytics-grid-three">
-                <MetricCard label="Present marks · comparison" value={formatNumber(attendance.comparison.presentMarks?.value)} quality={attendance.comparison.presentMarks?.quality} />
-                <MetricCard label="Absent marks · comparison" value={formatNumber(attendance.comparison.absentMarks?.value)} quality={attendance.comparison.absentMarks?.quality} />
-                <MetricCard label="Recorded-mark rate · comparison" value={formatPercent(attendance.comparison.attendanceRatePercent?.value)} quality={attendance.comparison.attendanceRatePercent?.quality} />
-              </div>
-              <div className="owner-analytics-range-caption">
-                Unsupported statuses: {formatNumber(attendance.comparison.ignoredStatusCount?.value)} · Missing schedule references: {formatNumber(attendance.comparison.missingScheduleIdCount?.value)}
-              </div>
-            </section>
-          )}
-          <div className="owner-analytics-diagnostics">
-            <div>
-              <span>Unsupported status records</span>
-              <strong>{formatNumber(attendance.ignoredStatusCount?.value)}</strong>
-              <small>{attendance.ignoredStatusCount?.quality || "unavailable"}</small>
-            </div>
-            <div>
-              <span>Missing schedule references</span>
-              <strong>{formatNumber(attendance.missingScheduleIdCount?.value)}</strong>
-              <small>{attendance.missingScheduleIdCount?.quality || "unavailable"}</small>
-            </div>
-          </div>
-          {attendance.unsupportedStatusBreakdown?.value && (
-            <div className="owner-analytics-detail">
-              <h3>Unsupported status breakdown</h3>
-              {Object.entries(attendance.unsupportedStatusBreakdown.value).map(([status, count]) => (
-                <div key={status}><span>{status}</span><strong>{formatNumber(count)}</strong></div>
-              ))}
-            </div>
-          )}
         </section>
         )}
 
@@ -478,16 +425,6 @@ function AcademyOwnerAnalyticsV2({ user }) {
         </section>
         )}
 
-        <footer className="owner-analytics-footer">
-          <span>Preview calculation · No snapshots have been published.</span>
-          <button
-            type="button"
-            onClick={() => setRefreshKey((value) => value + 1)}
-            disabled={loading}
-          >
-            {loading ? "Refreshing…" : "Refresh data"}
-          </button>
-        </footer>
       </main>
     </Layout>
   );
