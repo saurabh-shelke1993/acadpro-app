@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import Layout from "../components/Layout";
 import { getAcademyOwnerAnalyticsV2 } from "../services/analyticsV2Service";
 import "./AcademyOwnerAnalyticsV2.css";
@@ -18,6 +19,22 @@ const getMonthDateRange = (month) => {
   const [year, monthNumber] = month.split("-").map(Number);
   const lastDay = new Date(Date.UTC(year, monthNumber, 0)).getUTCDate();
   return { startDate: `${month}-01`, endDate: `${month}-${String(lastDay).padStart(2, "0")}` };
+};
+
+const toIsoDate = (date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+const getPresetRange = (months) => {
+  const end = new Date();
+  end.setHours(0, 0, 0, 0);
+  const start = new Date(end);
+  if (months === 0) start.setDate(start.getDate() - 6);
+  else start.setMonth(start.getMonth() - months);
+  return { startDate: toIsoDate(start), endDate: toIsoDate(end) };
 };
 
 const getPreviousPeriodRange = (range) => {
@@ -120,7 +137,8 @@ function MetricNotes({ metric }) {
 
 function AcademyOwnerAnalyticsV2({ user }) {
   const [month, setMonth] = useState(getCurrentMonth);
-  const [attendanceRange, setAttendanceRange] = useState(() => getMonthDateRange(getCurrentMonth()));
+  const [attendancePreset, setAttendancePreset] = useState("1m");
+  const [attendanceRange, setAttendanceRange] = useState(() => getPresetRange(1));
   const [comparisonRange, setComparisonRange] = useState(() => getPreviousMonthRange(getCurrentMonth()));
   const [comparisonManuallySet, setComparisonManuallySet] = useState(false);
   const effectiveComparisonRange = useMemo(
@@ -185,14 +203,6 @@ function AcademyOwnerAnalyticsV2({ user }) {
           </label>
         </header>
 
-        <section className="owner-analytics-period">
-          <div>
-            <strong>{monthLabel}</strong>
-            <span>{period?.start || `${month}-01`} · Asia/Kolkata reporting period</span>
-          </div>
-          <span className="owner-analytics-preview-label">PREVIEW · NOT PUBLISHED</span>
-        </section>
-
         <nav className="owner-analytics-tabs" role="group" aria-label="Analytics sections">
           {[
             { id: "attendance", label: "Attendance" },
@@ -248,14 +258,33 @@ function AcademyOwnerAnalyticsV2({ user }) {
             </div>
             <p>Actual stored attendance marks within your selected date range</p>
           </div>
+          <div className="owner-analytics-presets" role="group" aria-label="Attendance date range">
+            {[
+              { id: "1w", label: "Last 1 week", months: 0 },
+              { id: "1m", label: "Last 1 month", months: 1 },
+              { id: "3m", label: "Last 3 months", months: 3 },
+              { id: "5m", label: "Last 5 months", months: 5 },
+            ].map((preset) => (
+              <button key={preset.id} type="button" className={attendancePreset === preset.id ? "active" : ""}
+                aria-pressed={attendancePreset === preset.id}
+                onClick={() => {
+                  const nextRange = getPresetRange(preset.months);
+                  setAttendancePreset(preset.id);
+                  setAttendanceRange(nextRange);
+                  setComparisonManuallySet(false);
+                }}>
+                {preset.label}
+              </button>
+            ))}
+          </div>
           <div className="owner-analytics-date-range-controls">
             <label>
               <span>Primary range · From</span>
-              <input type="date" required value={attendanceRange.startDate} max={attendanceRange.endDate} onChange={(event) => setAttendanceRange((range) => ({ ...range, startDate: event.target.value }))} />
+              <input type="date" required value={attendanceRange.startDate} max={attendanceRange.endDate} onChange={(event) => { setAttendancePreset("custom"); setAttendanceRange((range) => ({ ...range, startDate: event.target.value })); }} />
             </label>
             <label>
               <span>To</span>
-              <input type="date" required value={attendanceRange.endDate} min={attendanceRange.startDate} max={new Date().toISOString().slice(0, 10)} onChange={(event) => setAttendanceRange((range) => ({ ...range, endDate: event.target.value }))} />
+              <input type="date" required value={attendanceRange.endDate} min={attendanceRange.startDate} max={new Date().toISOString().slice(0, 10)} onChange={(event) => { setAttendancePreset("custom"); setAttendanceRange((range) => ({ ...range, endDate: event.target.value })); }} />
             </label>
             <label>
               <span>Compare · From</span>
@@ -294,6 +323,28 @@ function AcademyOwnerAnalyticsV2({ user }) {
               tone="primary"
             />
           </div>
+          <section className="owner-analytics-batch-chart">
+            <div className="owner-analytics-batch-chart-heading">
+              <div><strong>Batch-wise attendance</strong><p>Recorded present and absent marks for the selected period</p></div>
+            </div>
+            {attendance.batchBreakdown?.value?.length ? (
+              <div className="owner-analytics-batch-chart-canvas">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={attendance.batchBreakdown.value} margin={{ top: 12, right: 12, left: 0, bottom: 8 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis dataKey="batchName" tick={{ fill: "#64748b", fontSize: 12 }} />
+                    <YAxis allowDecimals={false} tick={{ fill: "#64748b", fontSize: 12 }} />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="present" name="Present" fill="#16a34a" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="absent" name="Absent" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            ) : (
+              <p className="owner-analytics-chart-empty">No supported attendance marks found for batches in this date range.</p>
+            )}
+          </section>
           <MetricBreakdown
             title="Attendance mix"
             description="Share of supported marks recorded in the primary date range"
