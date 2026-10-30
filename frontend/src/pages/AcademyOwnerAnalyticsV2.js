@@ -257,15 +257,17 @@ function AcademyOwnerAnalyticsV2({ user }) {
             </label>
             <label>
               <span>Compare · From</span>
-              <input type="date" required value={effectiveComparisonRange.startDate} max={effectiveComparisonRange.endDate} onChange={(event) => { setComparisonManuallySet(true); setComparisonRange((range) => ({ ...range, startDate: event.target.value })); }} />
+              <input type="date" required value={effectiveComparisonRange.startDate} max={effectiveComparisonRange.endDate} onChange={(event) => { setComparisonManuallySet(true); setComparisonRange({ ...effectiveComparisonRange, startDate: event.target.value }); }} />
             </label>
             <label>
               <span>To</span>
-              <input type="date" required value={effectiveComparisonRange.endDate} min={effectiveComparisonRange.startDate} max={new Date().toISOString().slice(0, 10)} onChange={(event) => { setComparisonManuallySet(true); setComparisonRange((range) => ({ ...range, endDate: event.target.value })); }} />
+              <input type="date" required value={effectiveComparisonRange.endDate} min={effectiveComparisonRange.startDate} max={new Date().toISOString().slice(0, 10)} onChange={(event) => { setComparisonManuallySet(true); setComparisonRange({ ...effectiveComparisonRange, endDate: event.target.value }); }} />
             </label>
           </div>
           <div className="owner-analytics-range-caption">
             Primary: {attendanceRange.startDate} to {attendanceRange.endDate} · Comparison: {effectiveComparisonRange.startDate} to {effectiveComparisonRange.endDate}
+            {comparisonManuallySet ? " · Custom comparison" : " · Automatically matched previous period"}
+            {comparisonManuallySet && <button type="button" className="owner-analytics-reset-comparison" onClick={() => setComparisonManuallySet(false)}>Use previous period</button>}
           </div>
           <div className="owner-analytics-grid owner-analytics-grid-three">
             <MetricCard
