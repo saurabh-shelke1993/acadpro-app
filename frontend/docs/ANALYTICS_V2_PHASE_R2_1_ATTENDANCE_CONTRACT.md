@@ -14,7 +14,7 @@
 4. Missing `batch_schedule_id` is a separate diagnostic. A valid present/absent mark is still counted even when its schedule reference is missing.
 5. No rows or no supported marks produce unavailable values, not verified numeric zero.
 6. Recorded-mark rate is `present / (present + absent)`. It is not expected-session attendance coverage.
-7. Primary and comparison date ranges are independently selected, inclusive calendar-date ranges. Each range must be valid and cannot exceed five years.
+7. Primary date range is manually selected. Comparison defaults automatically to the immediately preceding period with the same number of calendar days; the user can override it with a manually selected inclusive date range and reset to automatic previous-period comparison. Each range must be valid and cannot exceed five years.
 8. The attendance query always constrains `academy_id` first, then applies the requested center/batch scope. Date filters cannot widen tenant scope.
 9. Finance continues to use the existing monthly `snapshotMonth` and is not affected by attendance range filters.
 10. Different range lengths are accepted and explicitly shown; rates are not normalized by range length.
@@ -26,6 +26,8 @@ Optional request fields:
 - `attendanceEndDate`
 - `comparisonStartDate`
 - `comparisonEndDate`
+
+When comparison fields are omitted, the frontend sends an automatically derived preceding period of equal duration. Users can replace that period manually.
 
 If the primary attendance range is omitted, the existing monthly attendance period is used. A comparison result is returned only when both comparison dates are supplied. Supplying only one date in either pair is rejected.
 
