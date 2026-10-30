@@ -240,3 +240,53 @@ Deno.test("attendance marks report all-absent activity as a valid recorded-mark 
   }
   if (result.markQuality !== "partial") throw new Error("All-absent recorded marks are not expected-session coverage.");
 });
+
+
+Deno.test("attendance request accepts two independently selected date ranges", () => {
+  const base = {
+    academyId,
+    scopeId: academyId,
+    scopeType: "academy",
+    snapshotMonth: "2026-10-01",
+    attendanceStartDate: "2026-08-01",
+    attendanceEndDate: "2026-08-31",
+    comparisonStartDate: "2026-05-01",
+    comparisonEndDate: "2026-05-15",
+  };
+  const parsed = parsePreviewRequest(base);
+  if (!parsed.ok) throw new Error("Valid manual attendance ranges were rejected.");
+  if (parsed.value.attendanceRange?.startDate !== "2026-08-01" ||
+      parsed.value.attendanceComparisonRange?.endDate !== "2026-05-15") {
+    throw new Error("Manual attendance ranges were not preserved.");
+  }
+});
+
+Deno.test("attendance request rejects partial, invalid and reversed date ranges", () => {
+  const base = { academyId, scopeId: academyId, scopeType: "academy", snapshotMonth: "2026-10-01" };
+  const invalid = [
+    { ...base, attendanceStartDate: "2026-08-01" },
+    { ...base, attendanceStartDate: "2026-02-30", attendanceEndDate: "2026-03-01" },
+    { ...base, attendanceStartDate: "2026-09-01", attendanceEndDate: "2026-08-31" },
+    { ...base, comparisonStartDate: "2026-07-01" },
+  ];
+  for (const request of invalid) {
+    if (parsePreviewRequest(request).ok) throw new Error("Invalid manual date range was accepted.");
+  }
+});
+
+Deno.test("unsupported attendance statuses are counted by their stored normalized status", () => {
+  const result = calculateAttendanceMarks([
+    { status: "present", batch_schedule_id: "s1" },
+    { status: "absent", batch_schedule_id: "s1" },
+    { status: "late", batch_schedule_id: "s1" },
+    { status: "EXCUSED", batch_schedule_id: null },
+    { status: null, batch_schedule_id: null },
+  ]);
+  if (result.presentCount !== 1 || result.absentCount !== 1 || result.ignoredStatusCount !== 3) {
+    throw new Error("Unsupported records changed supported attendance totals.");
+  }
+  const breakdown = result.unsupportedStatusBreakdown;
+  if (!breakdown || breakdown.late !== 1 || breakdown.excused !== 1 || breakdown["(missing status)"] !== 1) {
+    throw new Error("Unsupported stored statuses were not broken down correctly.");
+  }
+});
