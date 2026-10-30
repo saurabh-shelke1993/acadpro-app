@@ -121,3 +121,18 @@ It also needs a definition of whether an expected recurring session counts when 
 ### Safe next design step
 
 Keep Phase C attendance coverage explicitly unavailable. Treat any schema redesign for schedule history, enrollment history and actual session occurrence as a separately reviewed data-model change; do not retrofit a denominator by guessing historical values. No migration is proposed or applied in this checkpoint.
+
+
+## Native Deno validation — 30 October 2026
+
+A branch-scoped GitHub Actions workflow was added at `.github/workflows/analytics-deno-validation.yml`. It installs Deno 2.x, runs the metric/request/ownership test file, and type-checks the preview Edge Function. It does not deploy or invoke the function.
+
+- Workflow run: [Analytics Deno Validation](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/40984835967)
+- Deno runtime: 2.9.8
+- Native test result: **21 passed, 0 failed**
+- Edge Function check: **`deno check supabase/functions/generate-analytics-snapshot/index.ts` passed**
+- Final workflow conclusion: **success**
+
+The first native run caught a malformed literal newline in the attendance test source. After correcting it, all 21 tests passed. Type checking then exposed a duplicated legacy block in `index.ts`, an undefined attendance query helper, and two type mismatches. The duplicate block was removed, query scoping was wired through the tested academy-first helpers, and the generic query result/attendance row types were corrected. The final workflow run validates the corrected commit.
+
+This validation proves the pure test suite and Edge Function static type-check only. It does not prove live Edge Function behavior, database ownership/RLS integration, deployment configuration, or snapshot publishing.
