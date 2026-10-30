@@ -25,7 +25,7 @@ const formatNumber = (value) =>
 const formatPercent = (value) =>
   value === null || value === undefined ? "—" : `${Number(value).toFixed(1).replace(/\.0$/, "")}%`;
 
-function MetricCard({ label, value, note, quality = "partial", tone = "default" }) {
+function MetricCard({ label, value, note, quality = "unavailable", tone = "default" }) {
   return (
     <article className={`owner-analytics-metric owner-analytics-metric-${tone}`}>
       <div className="owner-analytics-metric-top">
@@ -84,33 +84,6 @@ function AcademyOwnerAnalyticsV2({ user }) {
     timeZone: "Asia/Kolkata"
   });
 
-  if (loading) {
-    return (
-      <Layout>
-        <div className="owner-analytics-state">
-          <div className="dashboard-state-spinner" />
-          <h2>Preparing your monthly analytics</h2>
-          <p>Calculating attendance and financial metrics for your academy...</p>
-        </div>
-      </Layout>
-    );
-  }
-
-  if (error) {
-    return (
-      <Layout>
-        <div className="owner-analytics-state owner-analytics-state-error">
-          <span className="owner-analytics-error-icon">!</span>
-          <h1>Academy Analytics</h1>
-          <p role="alert">{error}</p>
-          <button type="button" onClick={() => setRefreshKey((value) => value + 1)}>
-            Try again
-          </button>
-        </div>
-      </Layout>
-    );
-  }
-
   const attendance = result?.attendance || {};
   const finance = result?.finance || {};
   const period = result?.period;
@@ -142,6 +115,35 @@ function AcademyOwnerAnalyticsV2({ user }) {
           </div>
           <span className="owner-analytics-preview-label">PREVIEW · NOT PUBLISHED</span>
         </section>
+
+        {(loading || error) && (
+          <section
+            className={`owner-analytics-service-status ${error ? "owner-analytics-service-status-error" : "owner-analytics-service-status-loading"}`}
+            aria-live="polite"
+          >
+            <div className="owner-analytics-service-status-icon" aria-hidden="true">
+              {loading ? <span className="owner-analytics-inline-spinner" /> : "!"}
+            </div>
+            <div className="owner-analytics-service-status-copy">
+              <strong>
+                {loading ? "Loading monthly analytics" : "Analytics data is not available yet"}
+              </strong>
+              <p>
+                {loading
+                  ? "Your attendance and financial metrics are being prepared."
+                  : error}
+              </p>
+            </div>
+            {error && (
+              <button
+                type="button"
+                onClick={() => setRefreshKey((value) => value + 1)}
+              >
+                Try again
+              </button>
+            )}
+          </section>
+        )}
 
         <section className="owner-analytics-section">
           <div className="owner-analytics-section-heading">
@@ -261,8 +263,12 @@ function AcademyOwnerAnalyticsV2({ user }) {
 
         <footer className="owner-analytics-footer">
           <span>Preview calculation · No snapshots have been published.</span>
-          <button type="button" onClick={() => setRefreshKey((value) => value + 1)}>
-            Refresh data
+          <button
+            type="button"
+            onClick={() => setRefreshKey((value) => value + 1)}
+            disabled={loading}
+          >
+            {loading ? "Refreshing…" : "Refresh data"}
           </button>
         </footer>
       </main>
