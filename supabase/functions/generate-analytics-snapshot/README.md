@@ -22,16 +22,21 @@ The pure metric helpers, request/scope helpers, deterministic unit tests and pre
 - Gross payments and signed adjustments remain separate; net is their sum.
 - Reporting periods are half-open: start inclusive, end exclusive, using Asia/Kolkata (+05:30).
 
+## Scope ownership validation
+- `scopeValidation.ts` isolates academy/center/batch ownership decisions behind a lookup adapter. The Edge Function supplies real Supabase lookups; deterministic unit tests use fixture records.
+- Unit tests cover valid scopes, cross-academy center and batch rejection, cross-academy batch-center mismatch, and missing/mismatched academy scope.
+- `scope_isolation.integration.test.sql` is a disposable-database-only transaction fixture. It creates two test academies, centers and batches, checks the ownership predicates against Postgres rows, then rolls back. It has not been run and must never be executed against production.
+
 ## Validation status
-- The current Deno test source contains **11 test cases** (7 metric cases and 4 request/scope cases).
+- The current Deno test source contains **16 test cases** (7 metric cases, 4 request/query-scope cases and 5 ownership-validation cases).
 - Native Deno is not installed in the current development environment. No native `deno test` run is claimed for this checkpoint.
 - The previously recorded 17/17 Node-compatible helper run applies to the earlier metric-helper validation set; it does not include the new request/scope tests.
 - No claim is made for Edge Function integration, cross-academy database ownership, RLS, browser, deployment or production validation.
 - Production Supabase has not been modified.
 
 ## Next work
-1. Run native Deno tests and TypeScript checks in a Deno-enabled environment.
-2. Add isolated Supabase integration tests for center/batch ownership rejection and academy/center/batch query isolation.
+1. Run all 16 Deno tests and TypeScript checks in a Deno-enabled environment.
+2. Execute the SQL fixture and Edge Function integration checks only in a disposable Supabase database.
 3. Resolve metric quality propagation for attendance zero-state and incomplete source coverage.
 4. Review snapshot historical-integrity and publisher design before any deployment.
 
