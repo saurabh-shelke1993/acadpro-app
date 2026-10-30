@@ -268,6 +268,7 @@ Deno.test("attendance request rejects partial, invalid and reversed date ranges"
     { ...base, attendanceStartDate: "2026-02-30", attendanceEndDate: "2026-03-01" },
     { ...base, attendanceStartDate: "2026-09-01", attendanceEndDate: "2026-08-31" },
     { ...base, comparisonStartDate: "2026-07-01" },
+    { ...base, attendanceStartDate: "2019-01-01", attendanceEndDate: "2026-01-01" },
   ];
   for (const request of invalid) {
     if (parsePreviewRequest(request).ok) throw new Error("Invalid manual date range was accepted.");
