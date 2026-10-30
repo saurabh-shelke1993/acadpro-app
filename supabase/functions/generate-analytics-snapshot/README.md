@@ -7,7 +7,7 @@ The pure metric helpers, request/scope helpers, deterministic unit tests and pre
 - `metricUtils.ts`: Asia/Kolkata calendar-month bounds, half-open filtering, numeric aggregation, payment/adjustment flow splitting, due-ledger reconciliation and cohort collection.
 - `requestUtils.ts`: pure parsed-request validation plus reusable academy-first attendance and player query-scope predicates.
 - `metricUtils.test.ts`: 21 Deno tests covering metric calculations, request validation and query predicate ordering.
-- `authorizationUtils.ts` / `authorizationUtils.test.ts`: pure Academy Owner identity, role and tenant-scope guard plus 6 deterministic tests.
+- `authorizationUtils.ts` / `authorizationUtils.test.ts`: pure Academy Owner identity, role and tenant-scope guard plus 8 deterministic tests.
 
 ## Scope and security boundaries
 - Parsed JSON is validated for object shape, UUIDs, allowed scope type and a real first-of-month calendar date.
@@ -44,8 +44,8 @@ The pure metric helpers, request/scope helpers, deterministic unit tests and pre
 - Run details: https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/40984835967.
 
 ## Validation status
-- The Deno suite contains **27 test cases**: 21 metric/request/ownership cases plus 6 authorization guard cases.
-- Native Deno validation via GitHub Actions (Deno 2.9.8): **27 passed, 0 failed**. The preview Edge Function also passes `deno check`.
+- The Deno suite contains **29 test cases**: 21 metric/request/ownership cases plus 6 authorization guard cases.
+- Native Deno validation via GitHub Actions (Deno 2.9.8): **29 passed, 0 failed**. The preview Edge Function also passes `deno check`.
 - The previously recorded 17/17 Node-compatible helper run applies to the earlier metric-helper validation set; it does not include the new request/scope tests.
 - Static Edge Function type-check passed. No claim is made for live Edge Function integration, cross-academy database ownership, RLS, browser, deployment or production validation.
 - Production Supabase has not been modified.
@@ -79,7 +79,7 @@ The function has **not** been deployed. Phase E may integrate the Academy Owner 
 ## Phase D1 CI result
 
 Workflow run #18 completed successfully:
-- 27 Deno tests passed.
+- 29 Deno tests passed.
 - Edge Function `deno check` passed.
 - Disposable PostgreSQL 17 scope-isolation fixture passed.
 
