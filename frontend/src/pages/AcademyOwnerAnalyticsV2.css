@@ -609,3 +609,62 @@
     grid-template-columns: 1fr;
   }
 }
+
+
+/* Academy Owner Analytics section navigation, aligned with the existing Analytics tabs. */
+.owner-analytics-tabs {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  width: fit-content;
+  max-width: 100%;
+  padding: 0.45rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  background: #fff;
+  box-shadow: 0 3px 12px rgba(16, 42, 67, 0.035);
+  overflow-x: auto;
+}
+
+.owner-analytics-tabs button {
+  flex: 0 0 auto;
+  min-height: 42px;
+  padding: 0.65rem 1.1rem;
+  border: 0;
+  border-radius: 0.7rem;
+  background: transparent;
+  color: #64748b;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 750;
+  cursor: pointer;
+  transition: background 140ms ease, color 140ms ease;
+}
+
+.owner-analytics-tabs button:hover {
+  background: #f1f5f9;
+  color: #102a43;
+}
+
+.owner-analytics-tabs button.active,
+.owner-analytics-tabs button[aria-selected="true"] {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.owner-analytics-tabs button:focus-visible {
+  outline: 3px solid rgba(29, 78, 216, 0.25);
+  outline-offset: 2px;
+}
+
+@media (max-width: 640px) {
+  .owner-analytics-tabs {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .owner-analytics-tabs button {
+    flex: 1 0 auto;
+    padding-inline: 0.85rem;
+  }
+}
