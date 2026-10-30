@@ -1,4 +1,4 @@
-import { calculateCohortCollection, dateInRange, instantInRange, monthBounds, reconcileDueLedger, splitPaymentFlows, sum } from "./metricUtils.ts";
+import { calculateAttendanceMarks, calculateCohortCollection, dateInRange, instantInRange, monthBounds, reconcileDueLedger, splitPaymentFlows, sum } from "./metricUtils.ts";
 
 Deno.test("monthBounds validates calendar month and IST rollover", () => {
   const b = monthBounds("2026-10-01");
@@ -175,4 +175,65 @@ Deno.test("ownership validator rejects missing academies and academy scope misma
   try { await validateScopeOwnership({ academyId: academyA, scopeType: "academy", scopeId: academyB }, lookup); }
   catch (error) { mismatchRejected = error instanceof Error && error.message.includes("must match"); }
   if (!missingRejected || !mismatchRejected) throw new Error("Missing/mismatched academy scope was accepted.");
+});
+
+Deno.test("attendance marks are unavailable when no rows exist, not verified zero", () => {
+  const result = calculateAttendanceMarks([]);
+  if (result.presentCount !== null || result.absentCount !== null || result.attendanceRatePercent !== null) {
+    throw new Error("Empty source was represented as numeric zero.");
+  }
+  if (result.markQuality !== "unavailable" || result.diagnosticQuality !== "unavailable") {
+    throw new Error("Empty source quality must be unavailable.");
+  }
+});
+
+Deno.test("attendance marks are unavailable when rows contain no supported statuses", () => {
+  const result = calculateAttendanceMarks([
+    { status: "late", batch_schedule_id: "schedule-1" },
+    { status: null, batch_schedule_id: null },
+  ]);
+  if (result.presentCount !== null || result.absentCount !== null || result.attendanceRatePercent !== null) {
+    throw new Error("Unsupported statuses were converted into zero present/absent marks.");
+  }
+  if (result.ignoredStatusCount !== 2 || result.missingScheduleIdCount !== 1) {
+    throw new Error("Attendance quality diagnostics are incorrect.");
+  }
+});
+
+Deno.test("attendance marks calculate supported counts but remain partial without session coverage", () => {
+  const result = calculateAttendanceMarks([
+    { status: "present", batch_schedule_id: "schedule-1" },
+    { status: "absent", batch_schedule_id: "schedule-1" },
+    { status: "present", batch_schedule_id: null },
+  ]);
+  if (result.presentCount !== 2 || result.absentCount !== 1 || result.attendanceRatePercent !== 66.67) {
+    throw new Error("Recorded attendance marks were calculated incorrectly.");
+  }
+  if (result.markQuality !== "partial" || result.missingScheduleIdCount !== 1) {
+    throw new Error("Recorded marks must remain partial where schedule coverage is incomplete.");
+  }
+});
+
+Deno.test("attendance marks exclude unsupported statuses from rate and preserve partial quality", () => {
+  const result = calculateAttendanceMarks([
+    { status: "present", batch_schedule_id: "schedule-1" },
+    { status: "excused", batch_schedule_id: "schedule-1" },
+  ]);
+  if (result.presentCount !== 1 || result.absentCount !== 0 || result.attendanceRatePercent !== 100) {
+    throw new Error("Unsupported status affected the attendance rate.");
+  }
+  if (result.ignoredStatusCount !== 1 || result.markQuality !== "partial") {
+    throw new Error("Unsupported status was not surfaced as a quality limitation.");
+  }
+});
+
+Deno.test("attendance marks report all-absent activity as a valid recorded-mark rate", () => {
+  const result = calculateAttendanceMarks([
+    { status: "absent", batch_schedule_id: "schedule-1" },
+    { status: "absent", batch_schedule_id: "schedule-2" },
+  ]);
+  if (result.presentCount !== 0 || result.absentCount !== 2 || result.attendanceRatePercent !== 0) {
+    throw new Error("All-absent recorded marks should yield a 0% recorded-mark rate.");
+  }
+  if (result.markQuality !== "partial") throw new Error("All-absent recorded marks are not expected-session coverage.");
 });
