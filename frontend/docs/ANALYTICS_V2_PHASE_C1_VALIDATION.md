@@ -101,7 +101,7 @@ This was a read-only review of the live schema, current aggregate records, batch
 | Non-deleted attendance linked to inactive schedule | 0 |
 | Non-deleted attendance with orphaned schedule reference | 0 |
 
-The 109 missing schedule references mean that attendance records cannot be safely attributed to a particular recurring session. The 20 rows that do have schedule IDs are not enough to establish complete expected-session coverage.
+The earlier audit counted all 138 attendance rows (including deleted rows) and found 118 without a schedule reference. This checkpoint separately counts the 129 non-deleted rows and finds 109 without a schedule reference. These are different populations, not contradictory totals. The 109 missing schedule references mean that attendance records cannot be safely attributed to a particular recurring session. The 20 rows that do have schedule IDs are not enough to establish complete expected-session coverage.
 
 ### Decision
 
