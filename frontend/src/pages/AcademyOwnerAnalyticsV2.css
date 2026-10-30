@@ -383,3 +383,111 @@
     flex-direction: column;
   }
 }
+
+
+/* Keep the Analytics workspace visible while its preview service loads or is unavailable. */
+.owner-analytics-service-status {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid #dbe5f0;
+  border-radius: 0.9rem;
+  background: #fff;
+}
+
+.owner-analytics-service-status-error {
+  border-color: #fed7aa;
+  background: #fffaf5;
+}
+
+.owner-analytics-service-status-loading {
+  border-color: #bfdbfe;
+  background: #f8fbff;
+}
+
+.owner-analytics-service-status-icon {
+  display: grid;
+  flex: 0 0 2rem;
+  width: 2rem;
+  height: 2rem;
+  place-items: center;
+  border-radius: 50%;
+  background: #ffedd5;
+  color: #c2410c;
+  font-weight: 900;
+}
+
+.owner-analytics-service-status-loading .owner-analytics-service-status-icon {
+  background: #dbeafe;
+}
+
+.owner-analytics-service-status-copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.owner-analytics-service-status-copy strong {
+  color: #102a43;
+  font-size: 0.84rem;
+}
+
+.owner-analytics-service-status-copy p {
+  margin: 0.2rem 0 0;
+  color: #64748b;
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.owner-analytics-service-status button {
+  flex: 0 0 auto;
+  padding: 0.55rem 0.8rem;
+  border: 0;
+  border-radius: 0.65rem;
+  background: #1d4ed8;
+  color: #fff;
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.owner-analytics-service-status button:focus-visible,
+.owner-analytics-footer button:focus-visible,
+.owner-analytics-month-picker input:focus-visible {
+  outline: 3px solid rgba(29, 78, 216, 0.25);
+  outline-offset: 2px;
+}
+
+.owner-analytics-footer button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.owner-analytics-inline-spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid #bfdbfe;
+  border-top-color: #1d4ed8;
+  border-radius: 50%;
+  animation: owner-analytics-spin 0.8s linear infinite;
+}
+
+@keyframes owner-analytics-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 640px) {
+  .owner-analytics-service-status {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .owner-analytics-service-status-copy {
+    flex-basis: calc(100% - 3rem);
+  }
+
+  .owner-analytics-service-status button {
+    margin-left: 2.85rem;
+  }
+}
