@@ -668,3 +668,65 @@
     padding-inline: 0.85rem;
   }
 }
+
+
+.owner-analytics-date-range-controls {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid #dbe5f0;
+  border-radius: 1rem;
+  background: #fff;
+}
+
+.owner-analytics-date-range-controls label {
+  display: grid;
+  gap: 0.4rem;
+  color: #475569;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.owner-analytics-date-range-controls input {
+  width: 100%;
+  min-width: 0;
+  min-height: 40px;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid #dbe3ee;
+  border-radius: 0.65rem;
+  background: #fff;
+  color: #102a43;
+  font: inherit;
+}
+
+.owner-analytics-range-caption {
+  color: #64748b;
+  font-size: 0.72rem;
+  line-height: 1.5;
+}
+
+.owner-analytics-comparison {
+  display: grid;
+  gap: 0.85rem;
+  padding-top: 0.5rem;
+}
+
+.owner-analytics-comparison h3 {
+  margin: 0.25rem 0 0;
+  color: #102a43;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+@media (max-width: 760px) {
+  .owner-analytics-date-range-controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 420px) {
+  .owner-analytics-date-range-controls {
+    grid-template-columns: 1fr;
+  }
+}
