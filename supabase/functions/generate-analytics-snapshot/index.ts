@@ -3,7 +3,7 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import {
-  calculateCohortCollection, monthBounds, reconcileDueLedger, splitPaymentFlows, sum,
+  calculateAttendanceMarks, calculateCohortCollection, monthBounds, reconcileDueLedger, splitPaymentFlows, sum,
 } from "./metricUtils.ts";
 import { applyAttendanceScope, applyPlayerScope, parsePreviewRequest, type Scope } from "./requestUtils.ts";
 import { validateScopeOwnership } from "./scopeValidation.ts";
@@ -109,17 +109,7 @@ async function calculate(scope: Scope, snapshotMonth: string) {
     ),
   );
 
-  const validAttendance = attendanceRows.filter(row => row.status === "present" || row.status === "absent");
-  const present = validAttendance.filter(row => row.status === "present").length;
-  const absent = validAttendance.filter(row => row.status === "absent").length;
-  const unknownStatusCount = attendanceRows.length - validAttendance.length;
-  const missingScheduleIdCount = attendanceRows.filter(row => !row.batch_schedule_id).length;
-  // A zero denominator is not evidence of a verified zero without source coverage.
-  const attendanceQuality: Quality = attendanceRows.length === 0 ? "unavailable" : "partial";
-  const attendanceRate = present + absent > 0 ? Math.round((present / (present + absent)) * 10000) / 100 : null;
-  const attendanceCoverageNote = attendanceRows.length === 0
-    ? "No attendance rows were found; source completeness is not established, so zero is not asserted."
-    : "Counts recorded, non-deleted marks only; this is not expected-session coverage.";
+  const attendance = calculateAttendanceMarks(attendanceRows);
 
   let paymentRows: Record<string, unknown>[] = [];
   let expenseRows: Record<string, unknown>[] = [];
@@ -182,12 +172,15 @@ async function calculate(scope: Scope, snapshotMonth: string) {
       closingActive: unavailable<number>("Current is_active cannot reconstruct month-end state."),
     },
     attendance: {
-      presentMarks: metric(present, attendanceQuality, attendanceCoverageNote),
-      absentMarks: metric(absent, attendanceQuality, attendanceCoverageNote),
-      attendanceRatePercent: metric(attendanceRate, attendanceQuality,
-        present + absent === 0 ? "No valid present/absent marks; rate is unavailable." : "Present / (present + absent); excludes other statuses."),
-      ignoredStatusCount: metric(unknownStatusCount, "partial", "Unknown or unsupported statuses are excluded from the rate."),
-      missingScheduleIdCount: metric(missingScheduleIdCount, "partial", "Missing schedule IDs are reported; expected-session coverage is not calculated."),
+      presentMarks: metric(attendance.presentCount, attendance.markQuality, ...attendance.notes),
+      absentMarks: metric(attendance.absentCount, attendance.markQuality, ...attendance.notes),
+      attendanceRatePercent: metric(attendance.attendanceRatePercent, attendance.markQuality,
+        "Present / (present + absent) among supported recorded marks only; this is not session attendance coverage.",
+        ...attendance.notes),
+      ignoredStatusCount: metric(attendance.ignoredStatusCount,
+        attendance.diagnosticQuality, "Unknown or unsupported statuses are excluded from present/absent totals and the rate."),
+      missingScheduleIdCount: metric(attendance.missingScheduleIdCount,
+        attendance.diagnosticQuality, "Missing schedule IDs are reported; expected-session coverage is not calculated."),
       sessionCount: unavailable<number>("A reliable session identity/eligibility model has not been verified."),
     },
     coaches: {
@@ -232,7 +225,7 @@ async function calculate(scope: Scope, snapshotMonth: string) {
       overall: "partial" as Quality,
       notes: [
         "Preview only; no snapshot is published.",
-        "No attendance rows do not prove verified zero activity.",
+        "No attendance rows or no supported marks do not prove verified zero activity.",
         "Batch finance is unavailable without effective player-to-batch history.",
         "Historical outstanding requires month-end snapshots.",
         "Cohort billed amount is partial because original due amounts are not versioned.",
