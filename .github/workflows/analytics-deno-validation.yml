@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - analytics-v2-phase-c-validation
+      - payment-module-finalization
   workflow_dispatch:
 
 permissions:
