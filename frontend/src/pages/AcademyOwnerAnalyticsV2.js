@@ -153,7 +153,7 @@ function AcademyOwnerAnalyticsV2({ user }) {
           <div>
             <span className="owner-analytics-kicker">ACADEMY PERFORMANCE</span>
             <h1>Analytics</h1>
-            <p>Monthly overview of attendance and academy finances.</p>
+            <p>Attendance date-range comparison and monthly academy financials.</p>
           </div>
           <label className="owner-analytics-month-picker">
             <span>Reporting month</span>
@@ -233,19 +233,19 @@ function AcademyOwnerAnalyticsV2({ user }) {
           <div className="owner-analytics-date-range-controls">
             <label>
               <span>Primary range · From</span>
-              <input type="date" value={attendanceRange.startDate} max={attendanceRange.endDate} onChange={(event) => setAttendanceRange((range) => ({ ...range, startDate: event.target.value }))} />
+              <input type="date" required value={attendanceRange.startDate} max={attendanceRange.endDate} onChange={(event) => setAttendanceRange((range) => ({ ...range, startDate: event.target.value }))} />
             </label>
             <label>
               <span>To</span>
-              <input type="date" value={attendanceRange.endDate} min={attendanceRange.startDate} max={new Date().toISOString().slice(0, 10)} onChange={(event) => setAttendanceRange((range) => ({ ...range, endDate: event.target.value }))} />
+              <input type="date" required value={attendanceRange.endDate} min={attendanceRange.startDate} max={new Date().toISOString().slice(0, 10)} onChange={(event) => setAttendanceRange((range) => ({ ...range, endDate: event.target.value }))} />
             </label>
             <label>
               <span>Compare · From</span>
-              <input type="date" value={comparisonRange.startDate} max={comparisonRange.endDate} onChange={(event) => setComparisonRange((range) => ({ ...range, startDate: event.target.value }))} />
+              <input type="date" required value={comparisonRange.startDate} max={comparisonRange.endDate} onChange={(event) => setComparisonRange((range) => ({ ...range, startDate: event.target.value }))} />
             </label>
             <label>
               <span>To</span>
-              <input type="date" value={comparisonRange.endDate} min={comparisonRange.startDate} max={new Date().toISOString().slice(0, 10)} onChange={(event) => setComparisonRange((range) => ({ ...range, endDate: event.target.value }))} />
+              <input type="date" required value={comparisonRange.endDate} min={comparisonRange.startDate} max={new Date().toISOString().slice(0, 10)} onChange={(event) => setComparisonRange((range) => ({ ...range, endDate: event.target.value }))} />
             </label>
           </div>
           <div className="owner-analytics-range-caption">
