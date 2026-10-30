@@ -131,7 +131,7 @@ function AcademyOwnerAnalyticsV2({ user }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState("attendance");
 
   useEffect(() => {
     let active = true;
@@ -195,7 +195,6 @@ function AcademyOwnerAnalyticsV2({ user }) {
 
         <nav className="owner-analytics-tabs" role="group" aria-label="Analytics sections">
           {[
-            { id: "overview", label: "Overview" },
             { id: "attendance", label: "Attendance" },
             { id: "finance", label: "Finance" }
           ].map((tab) => (
@@ -240,7 +239,7 @@ function AcademyOwnerAnalyticsV2({ user }) {
           </section>
         )}
 
-        {(activeTab === "overview" || activeTab === "attendance") && (
+        {activeTab === "attendance" && (
         <section className="owner-analytics-section">
           <div className="owner-analytics-section-heading">
             <div>
@@ -348,7 +347,7 @@ function AcademyOwnerAnalyticsV2({ user }) {
         </section>
         )}
 
-        {(activeTab === "overview" || activeTab === "finance") && (
+        {activeTab === "finance" && (
         <section className="owner-analytics-section">
           <div className="owner-analytics-section-heading">
             <div>
