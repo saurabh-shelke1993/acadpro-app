@@ -18,7 +18,7 @@ The pure metric helpers, request/scope helpers, deterministic unit tests and pre
 ## Data-quality behavior
 - Malformed or whitespace-only numeric values are rejected by `sum`.
 - A cohort containing malformed amounts or unclassified linked payment-entry types returns null monetary metrics with `quality: "unavailable"`.
-- Due-ledger reconciliation excludes unclassified rows from recognized ledger totals and marks affected dues incomplete. It is a current-state diagnostic, not historical month-end reconciliation.
+- Attendance counts and rates are unavailable (null) when no rows exist or no supported present/absent marks exist; empty source data is never presented as numeric zero.\n- When supported marks exist, counts and the recorded-mark rate are partial because expected-session coverage is not established. Unsupported statuses and missing schedule IDs are surfaced separately and excluded from the rate.\n- An all-absent set of supported marks correctly yields a 0% recorded-mark rate; this is not a claim of expected-session coverage.\n- Due-ledger reconciliation excludes unclassified rows from recognized ledger totals and marks affected dues incomplete. It is a current-state diagnostic, not historical month-end reconciliation.
 - Gross payments and signed adjustments remain separate; net is their sum.
 - Reporting periods are half-open: start inclusive, end exclusive, using Asia/Kolkata (+05:30).
 
@@ -28,7 +28,7 @@ The pure metric helpers, request/scope helpers, deterministic unit tests and pre
 - `scope_isolation.integration.test.sql` is a disposable-database-only transaction fixture. It creates two test academies, centers and batches, checks the ownership predicates against Postgres rows, then rolls back. It has not been run and must never be executed against production.
 
 ## Validation status
-- The current Deno test source contains **16 test cases** (7 metric cases, 4 request/query-scope cases and 5 ownership-validation cases).
+- The current Deno test source contains **21 test cases** (12 metric/attendance cases, 4 request/query-scope cases and 5 ownership-validation cases).
 - Native Deno is not installed in the current development environment. No native `deno test` run is claimed for this checkpoint.
 - The previously recorded 17/17 Node-compatible helper run applies to the earlier metric-helper validation set; it does not include the new request/scope tests.
 - No claim is made for Edge Function integration, cross-academy database ownership, RLS, browser, deployment or production validation.
