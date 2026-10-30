@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import Layout from "../components/Layout";
 import { getAcademyOwnerAnalyticsV2 } from "../services/analyticsV2Service";
@@ -37,26 +37,9 @@ const getPresetRange = (months) => {
   return { startDate: toIsoDate(start), endDate: toIsoDate(end) };
 };
 
-const getPreviousPeriodRange = (range) => {
-  const start = new Date(`${range.startDate}T00:00:00.000Z`);
-  const end = new Date(`${range.endDate}T00:00:00.000Z`);
-  const days = Math.round((end - start) / 86400000) + 1;
-  const previousEnd = new Date(start);
-  previousEnd.setUTCDate(previousEnd.getUTCDate() - 1);
-  const previousStart = new Date(previousEnd);
-  previousStart.setUTCDate(previousStart.getUTCDate() - days + 1);
-  return {
-    startDate: previousStart.toISOString().slice(0, 10),
-    endDate: previousEnd.toISOString().slice(0, 10)
-  };
-};
 
-const getPreviousMonthRange = (month) => {
-  const [year, monthNumber] = month.split("-").map(Number);
-  const previous = new Date(Date.UTC(year, monthNumber - 2, 1));
-  const previousMonth = `${previous.getUTCFullYear()}-${String(previous.getUTCMonth() + 1).padStart(2, "0")}`;
-  return getMonthDateRange(previousMonth);
-};
+
+
 
 const formatCurrency = (value) =>
   value === null || value === undefined
@@ -170,7 +153,6 @@ function AcademyOwnerAnalyticsV2({ user }) {
 
   const attendance = result?.attendance || {};
   const finance = result?.finance || {};
-  const period = result?.period;
 
   return (
     <Layout>
@@ -252,7 +234,6 @@ function AcademyOwnerAnalyticsV2({ user }) {
                   const nextRange = getPresetRange(preset.months);
                   setAttendancePreset(preset.id);
                   setAttendanceRange(nextRange);
-                  setComparisonManuallySet(false);
                 }}>
                 {preset.label}
               </button>
