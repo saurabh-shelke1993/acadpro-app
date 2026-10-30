@@ -72,3 +72,48 @@ Deno.test("reconcileDueLedger detects mismatches and refuses unknown linked type
   if (result.checkedDueCount !== 1 || result.unclassifiedPaymentEntryCount !== 1 || result.unclassifiedDueCount !== 1) throw new Error("Reconciliation quality classification failed.");
   if (result.details[1].ledgerNet !== null || result.details[1].issue !== "unclassified_payment_entry_type") throw new Error("Unknown type incorrectly included.");
 });
+
+import { applyAttendanceScope, applyPlayerScope, parsePreviewRequest } from "./requestUtils.ts";
+
+const academyId = "123e4567-e89b-42d3-a456-426614174000";
+const centerId = "223e4567-e89b-42d3-a456-426614174000";
+const batchId = "323e4567-e89b-42d3-a456-426614174000";
+
+Deno.test("preview request parser rejects malformed bodies and identifiers", () => {
+  for (const body of [null, [], "text", 42]) {
+    if (parsePreviewRequest(body).ok) throw new Error("Non-object request accepted.");
+  }
+  const badIds = parsePreviewRequest({ academyId: "bad", scopeType: "academy", scopeId: academyId, snapshotMonth: "2026-10-01" });
+  if (badIds.ok || !badIds.error.includes("UUID")) throw new Error("Malformed UUID accepted.");
+});
+
+Deno.test("preview request parser validates scope type and calendar month", () => {
+  const base = { academyId, scopeId: academyId, scopeType: "academy", snapshotMonth: "2026-10-01" };
+  if (!parsePreviewRequest(base).ok) throw new Error("Valid academy request rejected.");
+  if (parsePreviewRequest({ ...base, scopeType: "player" }).ok) throw new Error("Unsupported scope type accepted.");
+  if (parsePreviewRequest({ ...base, snapshotMonth: "2026-02-30" }).ok) throw new Error("Invalid calendar month accepted.");
+  if (parsePreviewRequest({ ...base, snapshotMonth: "2026-10-02" }).ok) throw new Error("Non-first day accepted.");
+  const mismatch = parsePreviewRequest({ ...base, scopeId: centerId });
+  if (mismatch.ok || !mismatch.error.includes("match")) throw new Error("Mismatched academy scope accepted.");
+});
+
+Deno.test("attendance scope always applies academy predicate before narrower scope", () => {
+  const calls: Array<[string, string, string]> = [];
+  const builder = { eq(column: string, value: string) { calls.push(["eq", column, value]); return this; } };
+  applyAttendanceScope(builder, { academyId, scopeType: "center", scopeId: centerId });
+  const actual = calls.map(call => call[1] + "=" + call[2]).join(",");
+  if (actual !== `academy_id=${academyId},center_id=${centerId}`) throw new Error("Center attendance predicates are incomplete or misordered.");
+  calls.length = 0;
+  applyAttendanceScope(builder, { academyId, scopeType: "batch", scopeId: batchId });
+  if (calls.map(call => call[1]).join(",") !== "academy_id,batch_id") throw new Error("Batch attendance is not academy-first.");
+});
+
+Deno.test("player finance scope always constrains academy and optionally center", () => {
+  const calls: Array<[string, string]> = [];
+  const builder = { eq(column: string, value: string) { calls.push([column, value]); return this; } };
+  applyPlayerScope(builder, { academyId, scopeType: "academy", scopeId: academyId });
+  if (calls.length !== 1 || calls[0][0] !== "academy_id" || calls[0][1] !== academyId) throw new Error("Academy player scope is incorrect.");
+  calls.length = 0;
+  applyPlayerScope(builder, { academyId, scopeType: "center", scopeId: centerId });
+  if (calls.map(call => call[0]).join(",") !== "academy_id,center_id") throw new Error("Center player scope is incomplete.");
+});
