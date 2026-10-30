@@ -136,15 +136,10 @@ function MetricNotes({ metric }) {
 }
 
 function AcademyOwnerAnalyticsV2({ user }) {
-  const [month, setMonth] = useState(getCurrentMonth);
+  const [month] = useState(getCurrentMonth);
   const [attendancePreset, setAttendancePreset] = useState("1m");
   const [attendanceRange, setAttendanceRange] = useState(() => getPresetRange(1));
-  const [comparisonRange, setComparisonRange] = useState(() => getPreviousMonthRange(getCurrentMonth()));
-  const [comparisonManuallySet, setComparisonManuallySet] = useState(false);
-  const effectiveComparisonRange = useMemo(
-    () => comparisonManuallySet ? comparisonRange : getPreviousPeriodRange(attendanceRange),
-    [comparisonManuallySet, comparisonRange, attendanceRange]
-  );
+
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -157,7 +152,7 @@ function AcademyOwnerAnalyticsV2({ user }) {
       setLoading(true);
       setError("");
       try {
-        const preview = await getAcademyOwnerAnalyticsV2(user, `${month}-01`, attendanceRange, effectiveComparisonRange);
+        const preview = await getAcademyOwnerAnalyticsV2(user, `${month}-01`, attendanceRange, null);
         if (active) setResult(preview);
       } catch (loadError) {
         if (active) {
@@ -171,13 +166,7 @@ function AcademyOwnerAnalyticsV2({ user }) {
     };
     load();
     return () => { active = false; };
-  }, [user, month, attendanceRange, effectiveComparisonRange, refreshKey]);
-
-  const monthLabel = new Date(`${month}-01T00:00:00+05:30`).toLocaleDateString("en-IN", {
-    month: "long",
-    year: "numeric",
-    timeZone: "Asia/Kolkata"
-  });
+  }, [user, month, attendanceRange, refreshKey]);
 
   const attendance = result?.attendance || {};
   const finance = result?.finance || {};
@@ -234,14 +223,23 @@ function AcademyOwnerAnalyticsV2({ user }) {
 
         {activeTab === "attendance" && (
         <section className="owner-analytics-section">
-          <div className="owner-analytics-section-heading">
-            <div>
-              <span>TRAINING ACTIVITY</span>
-              <h2>Attendance</h2>
-            </div>
-            <p>Actual stored attendance marks within your selected date range</p>
+          <div className="owner-analytics-attendance-toolbar">
+            <label className="owner-analytics-attendance-filter">
+              <span>Attendance</span>
+              <select value={attendancePreset} onChange={(event) => {
+                const preset = event.target.value;
+                const months = preset === "1w" ? 0 : preset === "1m" ? 1 : preset === "3m" ? 3 : 5;
+                setAttendancePreset(preset);
+                setAttendanceRange(getPresetRange(months));
+              }}>
+                <option value="1w">Last 1 week</option>
+                <option value="1m">Last 1 month</option>
+                <option value="3m">Last 3 months</option>
+                <option value="5m">Last 5 months</option>
+              </select>
+            </label>
           </div>
-          <div className="owner-analytics-presets" role="group" aria-label="Attendance date range">
+          <div className="owner-analytics-presets" role="group" aria-label="Attendance date range" hidden>
             {[
               { id: "1w", label: "Last 1 week", months: 0 },
               { id: "1m", label: "Last 1 month", months: 1 },
@@ -259,29 +257,6 @@ function AcademyOwnerAnalyticsV2({ user }) {
                 {preset.label}
               </button>
             ))}
-          </div>
-          <div className="owner-analytics-date-range-controls">
-            <label>
-              <span>Primary range · From</span>
-              <input type="date" required value={attendanceRange.startDate} max={attendanceRange.endDate} onChange={(event) => { setAttendancePreset("custom"); setAttendanceRange((range) => ({ ...range, startDate: event.target.value })); }} />
-            </label>
-            <label>
-              <span>To</span>
-              <input type="date" required value={attendanceRange.endDate} min={attendanceRange.startDate} max={new Date().toISOString().slice(0, 10)} onChange={(event) => { setAttendancePreset("custom"); setAttendanceRange((range) => ({ ...range, endDate: event.target.value })); }} />
-            </label>
-            <label>
-              <span>Compare · From</span>
-              <input type="date" required value={effectiveComparisonRange.startDate} max={effectiveComparisonRange.endDate} onChange={(event) => { setComparisonManuallySet(true); setComparisonRange({ ...effectiveComparisonRange, startDate: event.target.value }); }} />
-            </label>
-            <label>
-              <span>To</span>
-              <input type="date" required value={effectiveComparisonRange.endDate} min={effectiveComparisonRange.startDate} max={new Date().toISOString().slice(0, 10)} onChange={(event) => { setComparisonManuallySet(true); setComparisonRange({ ...effectiveComparisonRange, endDate: event.target.value }); }} />
-            </label>
-          </div>
-          <div className="owner-analytics-range-caption">
-            Primary: {attendanceRange.startDate} to {attendanceRange.endDate} · Comparison: {effectiveComparisonRange.startDate} to {effectiveComparisonRange.endDate}
-            {comparisonManuallySet ? " · Custom comparison" : " · Automatically matched previous period"}
-            {comparisonManuallySet && <button type="button" className="owner-analytics-reset-comparison" onClick={() => setComparisonManuallySet(false)}>Use previous period</button>}
           </div>
           <div className="owner-analytics-grid owner-analytics-grid-three">
             <MetricCard
@@ -328,20 +303,6 @@ function AcademyOwnerAnalyticsV2({ user }) {
               <p className="owner-analytics-chart-empty">No supported attendance marks found for batches in this date range.</p>
             )}
           </section>
-          <MetricBreakdown
-            title="Attendance mix"
-            description="Share of supported marks recorded in the primary date range"
-            firstLabel="Present"
-            firstValue={attendance.presentMarks?.value}
-            secondLabel="Absent"
-            secondValue={attendance.absentMarks?.value}
-            firstTone="green"
-            secondTone="orange"
-          />
-          <div className="owner-analytics-quality-note">
-            <strong>How to read this</strong>
-            <p>This is the percentage among supported attendance marks recorded in the system. It is not attendance coverage against all expected training sessions.</p>
-          </div>
         </section>
         )}
 
