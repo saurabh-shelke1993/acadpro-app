@@ -1,0 +1,32 @@
+name: Analytics Deno Validation
+
+on:
+  push:
+    branches:
+      - analytics-v2-phase-c-validation
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  analytics-deno:
+    name: Analytics helper tests and Edge Function type check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+
+      - name: Set up Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Show Deno version
+        run: deno --version
+
+      - name: Run analytics unit tests
+        run: deno test --fail-fast supabase/functions/generate-analytics-snapshot/metricUtils.test.ts
+
+      - name: Type-check analytics Edge Function
+        run: deno check supabase/functions/generate-analytics-snapshot/index.ts
