@@ -1,5 +1,5 @@
 import { assertEquals } from "https://deno.land/std@0.224.0/assert/mod.ts";
-import { authorizeAnalyticsProfile } from "./authorizationUtils.ts";
+import { authorizeAnalyticsProfile, extractBearerToken } from "./authorizationUtils.ts";
 
 const userId = "11111111-1111-4111-8111-111111111111";
 const academyId = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
@@ -47,4 +47,17 @@ Deno.test("rejects cross-academy request scope", () => {
     authorizeAnalyticsProfile({ id: userId, role: "academy_owner", academy_id: academyId }, userId, otherAcademyId),
     { authorized: false, reason: "The requested academy is outside your account scope." },
   );
+});
+
+Deno.test("extracts a bearer access token with case-insensitive scheme", () => {
+  assertEquals(extractBearerToken("Bearer eyJhbGciOi...token"), "eyJhbGciOi...token");
+  assertEquals(extractBearerToken("bearer access-token"), "access-token");
+});
+
+Deno.test("rejects missing, malformed and multi-part authorization headers", () => {
+  assertEquals(extractBearerToken(null), null);
+  assertEquals(extractBearerToken(""), null);
+  assertEquals(extractBearerToken("Basic abc"), null);
+  assertEquals(extractBearerToken("Bearer "), null);
+  assertEquals(extractBearerToken("Bearer token extra"), null);
 });
