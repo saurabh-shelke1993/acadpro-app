@@ -36,14 +36,21 @@ The preview calculator now includes:
 
 ## Validation evidence and limitations
 - The current Deno test source contains **21 test cases**: 12 metric/attendance cases, 4 request/query-scope cases and 5 ownership-validation cases.
-- Native Deno is unavailable in the current development environment. The newly added tests have **not** been executed here; no native Deno result is claimed.
+- Native Deno validation now runs through branch-scoped GitHub Actions (Deno 2.9.8): **21 passed, 0 failed**. The preview Edge Function also passes `deno check`.
 - Earlier Node.js 22-compatible helper validation (17/17) predates the new request/scope tests and does not cover them.
-- No isolated Supabase ownership tests, Edge Function integration tests, RLS tests, browser tests or deployment checks have been completed.
+- No isolated Supabase ownership tests, live Edge Function integration tests, RLS tests, browser tests or deployment checks have been completed. Static Edge Function type-check passed.
 - Production Supabase has not been modified. No migrations, writes, repairs or deployments were performed.
 
+## Native validation result
+- GitHub Actions workflow: `.github/workflows/analytics-deno-validation.yml`.
+- Deno 2.9.8 test run: **21 passed, 0 failed**.
+- `deno check supabase/functions/generate-analytics-snapshot/index.ts`: **passed**.
+- Workflow run: https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/40984835967.
+- The run uncovered and corrected a malformed newline in the test file, duplicate legacy Edge Function source, an undefined attendance query helper and two TypeScript typing issues.
+
 ## Next checkpoint
-1. Execute all 21 tests with native Deno and run Deno type checking.
-2. Execute the SQL fixture and Edge Function integration checks in a disposable Supabase database when one is available.
+1. Continue with isolated database-backed ownership validation when a disposable Supabase environment is available.
+2. Execute the SQL fixture and live Edge Function integration checks in a disposable Supabase database when one is available.
 3. Keep expected-session attendance coverage unavailable: current schedules are mutable and not effective-dated; current player-schedule enrollments have no populated end dates; 109 of 129 non-deleted attendance rows lack a schedule reference.
 4. Define a separately reviewed historical model for schedule versions, player-session eligibility and actual session occurrence/cancellation before attempting an expected-session denominator.
 
