@@ -265,6 +265,7 @@ Deno.serve(async req => {
     console.error("Analytics preview calculation failed", error);
     const message = error instanceof Error && /month|scope|academy|center|batch|exist|owned/i.test(error.message)
       ? error.message : "Analytics preview could not be calculated. Check server logs.";
-    return Response.json({ error: message }, { status: 400 });
+    const status = message === "Analytics preview could not be calculated. Check server logs." ? 500 : 400;
+    return Response.json({ error: message }, { status });
   }
 });
