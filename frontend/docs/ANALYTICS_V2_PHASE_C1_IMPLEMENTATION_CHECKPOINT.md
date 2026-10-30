@@ -24,7 +24,7 @@ The preview calculator now includes:
 ## Scope-isolation coverage
 - Pure ownership tests cover valid academy/center/batch scopes, cross-academy center, cross-academy batch, cross-academy batch-center mismatch, and missing/mismatched academy.
 - The SQL fixture seeds two academies, two centers and three batches inside a transaction and rolls back. It is designed for a disposable database only.
-- The SQL fixture has **not** been run because no isolated Supabase branch/database is available. The live production database was not used for fixtures.
+- The SQL fixture is now wired to a disposable PostgreSQL 17 service in GitHub Actions. It runs against a fresh CI-only database with a minimal schema contract, not the live Supabase schema; this validates SQL execution and the ownership predicates but does not prove Supabase RLS or production-schema compatibility. Production is never used.
 
 - Attendance quality returns null/unavailable for empty sources and sources with no supported marks; recorded counts/rates remain partial until expected-session coverage can be measured. Unsupported statuses and missing schedule IDs are surfaced separately.
 
@@ -48,10 +48,19 @@ The preview calculator now includes:
 - Workflow run: https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/40984835967.
 - The run uncovered and corrected a malformed newline in the test file, duplicate legacy Edge Function source, an undefined attendance query helper and two TypeScript typing issues.
 
-## Next checkpoint
-1. Continue with isolated database-backed ownership validation when a disposable Supabase environment is available.
-2. Execute the SQL fixture and live Edge Function integration checks in a disposable Supabase database when one is available.
-3. Keep expected-session attendance coverage unavailable: current schedules are mutable and not effective-dated; current player-schedule enrollments have no populated end dates; 109 of 129 non-deleted attendance rows lack a schedule reference.
-4. Define a separately reviewed historical model for schedule versions, player-session eligibility and actual session occurrence/cancellation before attempting an expected-session denominator.
+## Zero-cost database fixture validation
 
-Phase C remains **In progress**. Phase D remains **Not started**. Phase E integration remains **Not started**.
+- The branch workflow now includes a separate GitHub Actions job backed by an ephemeral PostgreSQL 17 service container.
+- Each workflow run creates a fresh CI-only database and the minimum academy/center/batch table contract needed by the rollback-only SQL fixture.
+- The fixture is executed with `psql -v ON_ERROR_STOP=1`; the transaction rolls back its inserted rows.
+- This is a zero-additional-hosted-Supabase-cost test. It validates SQL syntax, fixture inserts and ownership predicate assertions against PostgreSQL rows.
+- It does **not** prove compatibility with the full live Supabase schema, Supabase RLS behavior, Edge Function deployment/authentication, or production data.
+- No Supabase development branch or production database is used.
+
+## Next checkpoint
+1. Confirm the new PostgreSQL CI job passes alongside the existing 21 Deno tests and Edge Function type-check.
+2. Review the Edge Function authorization boundary and define a safe server-side caller before React integration; never expose the service-role key in the browser.
+3. Keep expected-session attendance coverage unavailable: current schedules are mutable and not effective-dated; current player-schedule enrollments have no populated end dates; 109 of 129 non-deleted attendance rows lack a schedule reference.
+4. Proceed to Academy Owner Analytics UI integration once metric and authorization acceptance criteria are documented.
+
+Phase C remains **In progress** pending the new CI result and final contract review. Phase D remains **Not started**. Phase E integration remains **Not started**.
