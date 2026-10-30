@@ -51,19 +51,25 @@ The pure metric helpers, request/scope helpers, deterministic unit tests and pre
 
 ## Next work
 1. Verify the new ephemeral PostgreSQL CI job passes alongside Deno tests and Edge Function type-check.
-2. Review and document the Edge Function authorization boundary and safe server-side invocation before React integration. Never expose the service-role key in the browser.
+2. Implement and validate authenticated Academy Owner authorization before React integration. Never expose the service-role key in the browser.
 3. Keep expected-session attendance coverage unavailable until historical schedule versions, player-session eligibility periods and actual session occurrence/cancellation are represented.
 4. Review snapshot historical-integrity and publisher design before any deployment.
 
 Do not deploy or publish snapshots until Phase C and Phase D acceptance criteria are met and explicitly approved.
 
 
-## Frontend integration security gate
+## Authenticated frontend integration boundary
 
-The current preview handler authorizes requests by exact-match comparison with the server-side `SUPABASE_SERVICE_ROLE_KEY`. It does not authenticate an end-user JWT or resolve application roles. Therefore it is trusted-server-only in its current form:
-- Never invoke it directly from React/browser code.
-- Never expose the service-role key in frontend environment variables, client bundles or browser requests.
-- Before frontend integration, approve a server-to-server invocation design or redesign the handler to authenticate the user and enforce application role plus tenant scope.
-- Verify the Edge Function gateway JWT configuration before any deployment.
+The preview endpoint now accepts a signed-in user's Supabase access token:
+- The Edge Function gateway JWT check is explicitly enabled in `supabase/config.toml` (`verify_jwt = true`).
+- The handler independently calls Supabase Auth `getUser(accessToken)` to verify the caller identity.
+- It resolves `id`, `role` and `academy_id` from the trusted `public.users` profile using the server-side service-role client. It does not use editable `user_metadata` or client-supplied role/academy claims.
+- Current V2 preview authorization is intentionally restricted to `academy_owner`. Super Admin, Coach and Parent requests are denied by this endpoint; existing Analytics routes remain unchanged.
+- The requested academy scope must exactly match the academy assigned to the authenticated profile. Center and batch scopes are then checked against live academy ownership by `validateScopeOwnership`.
+- All source queries continue to use the server-side service-role client, so tenant isolation is enforced explicitly by the authenticated profile check, the academy equality check, ownership validation and academy-first query predicates. Do not add a source query without an academy-constrained path.
+- The service-role key remains server-side only. The browser sends its user session JWT through `supabase.functions.invoke`; it must never send the service-role key.
+- CORS preflight is handled for browser invocation.
 
-The function has not been deployed. This gate must be resolved before Phase E connects the React Analytics page.
+The pure authorization guard is covered by `authorizationUtils.test.ts`. These tests verify role, identity and academy-scope decisions; they do not replace live Auth/JWT, RLS or deployed Edge Function integration tests.
+
+The function has **not** been deployed. Phase E may integrate the Academy Owner UI only after CI passes and the user explicitly approves any deployment.
