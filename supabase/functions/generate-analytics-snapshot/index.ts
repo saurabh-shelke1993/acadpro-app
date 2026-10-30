@@ -23,31 +23,6 @@ type Metric<T> = { value: T | null; quality: Quality; notes: string[] };
 const metric = <T>(value: T | null, quality: Quality, ...notes: string[]): Metric<T> => ({ value, quality, notes });
 const unavailable = <T>(reason: string): Metric<T> => metric<T>(null, "unavailable", reason);
 
- Kheltriva Analytics R1.6 — trusted preview calculator.
-// No snapshot publication or database writes. Do not deploy before isolated validation.
-
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import {
-  calculateCohortCollection, monthBounds, reconcileDueLedger, splitPaymentFlows, sum,
-} from "./metricUtils.ts";
-
-const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
-const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-if (!SUPABASE_URL || !SERVICE_ROLE_KEY) throw new Error("Missing required server configuration.");
-
-const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
-  auth: { persistSession: false, autoRefreshToken: false },
-});
-
-const SCHEMA_VERSION = 1;
-const REPORTING_TIME_ZONE = "Asia/Kolkata";
-type ScopeType = "academy" | "center" | "batch";
-type Quality = "verified" | "partial" | "unavailable";
-type Scope = { academyId: string; scopeType: ScopeType; scopeId: string };
-type Metric<T> = { value: T | null; quality: Quality; notes: string[] };
-const metric = <T>(value: T | null, quality: Quality, ...notes: string[]): Metric<T> => ({ value, quality, notes });
-const unavailable = <T>(reason: string): Metric<T> => metric<T>(null, "unavailable", reason);
-
 function isUuid(value: unknown): value is string {
   return typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 }
@@ -103,7 +78,7 @@ async function calculate(scope: Scope, snapshotMonth: string) {
   const attendanceRows = await fetchAll(
     "attendance",
     "id, attendance_date, status, is_deleted, batch_id, center_id, academy_id, batch_schedule_id",
-    query => attendanceQuery(
+    query => applyAttendanceScope(
       query.gte("attendance_date", periodStartDate).lt("attendance_date", periodEndDate).eq("is_deleted", false),
       scope,
     ),
@@ -118,11 +93,7 @@ async function calculate(scope: Scope, snapshotMonth: string) {
   if (scope.scopeType !== "batch") {
     const playerRows = await fetchAll(
       "players", "id, academy_id, center_id",
-      query => {
-        let q = query.eq("academy_id", scope.academyId);
-        if (scope.scopeType === "center") q = q.eq("center_id", scope.scopeId);
-        return q;
-      },
+      query => applyPlayerScope(query, scope),
     );
     const playerIds = playerRows.map(row => String(row.id)).filter(Boolean);
     if (playerIds.length) {
