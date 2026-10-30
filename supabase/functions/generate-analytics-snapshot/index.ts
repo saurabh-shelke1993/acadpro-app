@@ -226,7 +226,7 @@ Deno.serve(async req => {
   if (req.method !== "POST") return jsonResponse({ error: "Method not allowed." }, 405);
 
   const authorization = req.headers.get("authorization") ?? "";
-  const bearerMatch = authorization.match(/^Bearer\\s+(.+)$/i);
+  const bearerMatch = authorization.match(/^Bearer\s+(.+)$/i);
   if (!bearerMatch) return jsonResponse({ error: "Unauthorized." }, 401);
 
   // Verify the access token with Supabase Auth. Never trust user_metadata for authorization.
