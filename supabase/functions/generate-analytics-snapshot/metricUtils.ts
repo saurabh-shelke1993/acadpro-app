@@ -92,3 +92,45 @@ export function calculateCohortCollection(
   const adjustments = transactions.filter(row => row.payment_entry_type === "adjustment").reduce((n, row) => n + Number(row.amount_paid), 0);
   return { billedAmount, netAllocatedAmount: paid + adjustments, collectionRatePercent: billedAmount > 0 ? Math.round(((paid + adjustments) / billedAmount) * 10000) / 100 : null, cohortDueIds: [...dueIds], quality: "partial" as const, invalidAmountCount: 0, unclassifiedPaymentEntryCount: 0 };
 }
+
+export type AttendanceSourceRow = {
+  status: string | null;
+  batch_schedule_id: string | null;
+};
+export type AttendanceMarkQuality = "partial" | "unavailable";
+
+/**
+ * Calculates recorded attendance marks without implying expected-session coverage.
+ * Empty or wholly unclassifiable sources never become numeric zero attendance.
+ */
+export function calculateAttendanceMarks(rows: AttendanceSourceRow[]) {
+  const valid = rows.filter(row => row.status === "present" || row.status === "absent");
+  const presentCount = valid.filter(row => row.status === "present").length;
+  const absentCount = valid.filter(row => row.status === "absent").length;
+  const ignoredStatusCount = rows.length - valid.length;
+  const missingScheduleIdCount = rows.filter(row => !row.batch_schedule_id).length;
+  const hasUsableMarks = valid.length > 0;
+  const markQuality: AttendanceMarkQuality = hasUsableMarks ? "partial" : "unavailable";
+  const diagnosticQuality: AttendanceMarkQuality = rows.length > 0 ? "partial" : "unavailable";
+  const notes = rows.length === 0
+    ? ["No attendance rows were found; source completeness is not established, so zero activity is not asserted."]
+    : !hasUsableMarks
+      ? ["Rows exist, but none has a supported present/absent status; attendance totals and rate are unavailable."]
+      : [
+        "Counts represent recorded, non-deleted present/absent marks only; expected-session coverage is not established.",
+        ...(ignoredStatusCount > 0 ? ["Unsupported statuses were excluded from present/absent totals and the rate."] : []),
+        ...(missingScheduleIdCount > 0 ? ["Some attendance rows lack a batch schedule ID; session coverage cannot be verified."] : []),
+      ];
+  return {
+    presentCount: hasUsableMarks ? presentCount : null,
+    absentCount: hasUsableMarks ? absentCount : null,
+    attendanceRatePercent: hasUsableMarks
+      ? Math.round((presentCount / valid.length) * 10000) / 100
+      : null,
+    ignoredStatusCount,
+    missingScheduleIdCount,
+    markQuality,
+    diagnosticQuality,
+    notes,
+  };
+}
