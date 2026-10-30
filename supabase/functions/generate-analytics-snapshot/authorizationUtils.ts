@@ -32,3 +32,10 @@ export function authorizeAnalyticsProfile(
   }
   return { authorized: true };
 }
+
+/** Extract a bearer access token without accepting API keys or malformed headers. */
+export function extractBearerToken(authorizationHeader: string | null): string | null {
+  if (!authorizationHeader) return null;
+  const match = authorizationHeader.match(/^Bearer\s+([^\s]+)$/i);
+  return match?.[1] ?? null;
+}
