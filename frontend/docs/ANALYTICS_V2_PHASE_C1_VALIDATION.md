@@ -161,7 +161,7 @@ Implemented on `analytics-v2-phase-c-validation`:
 - Existing database-backed center/batch ownership validation retained after authorization.
 - Existing academy-first source query predicates retained; finance data remains derived from players inside the authenticated academy.
 - Browser CORS preflight handling.
-- Six new deterministic authorization tests.
+- Eight new deterministic authorization and bearer-token parsing tests.
 
 The V2 preview endpoint currently denies Super Admin, Coach and Parent roles. Existing Analytics routes and other modules are unchanged. The browser must invoke the endpoint with the signed-in user's JWT; the service-role key remains server-side only.
 
