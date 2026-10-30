@@ -29,7 +29,7 @@ The pure metric helpers, request/scope helpers, deterministic unit tests and pre
 ## Scope ownership validation
 - `scopeValidation.ts` isolates academy/center/batch ownership decisions behind a lookup adapter. The Edge Function supplies real Supabase lookups; deterministic unit tests use fixture records.
 - Unit tests cover valid scopes, cross-academy center and batch rejection, cross-academy batch-center mismatch, and missing/mismatched academy scope.
-- `scope_isolation.integration.test.sql` is a disposable-database-only transaction fixture. It creates two test academies, centers and batches, checks the ownership predicates against Postgres rows, then rolls back. It has not been run and must never be executed against production.
+- `scope_isolation.integration.test.sql` is a disposable-database-only transaction fixture. It creates two test academies, centers and batches, checks the ownership predicates against Postgres rows, then rolls back. GitHub Actions now runs it against an ephemeral PostgreSQL 17 service with a minimal table contract. This does not validate Supabase RLS or full production-schema compatibility; it must never be executed against production.
 
 ## Historical attendance denominator limitation
 - `batch_schedules` has no effective dates/version history, and the batch editor updates schedule rows in place or deactivates removed rows.
@@ -50,8 +50,8 @@ The pure metric helpers, request/scope helpers, deterministic unit tests and pre
 - Production Supabase has not been modified.
 
 ## Next work
-1. Run all 21 Deno tests and TypeScript checks in a Deno-enabled environment.
-2. Execute the SQL fixture and Edge Function integration checks only in a disposable Supabase database.
+1. Verify the new ephemeral PostgreSQL CI job passes alongside Deno tests and Edge Function type-check.
+2. Review and document the Edge Function authorization boundary and safe server-side invocation before React integration. Never expose the service-role key in the browser.
 3. Keep expected-session attendance coverage unavailable until historical schedule versions, player-session eligibility periods and actual session occurrence/cancellation are represented.
 4. Review snapshot historical-integrity and publisher design before any deployment.
 
