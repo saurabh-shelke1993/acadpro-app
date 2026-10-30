@@ -7,12 +7,16 @@ import {
 } from "./metricUtils.ts";
 import { applyAttendanceScope, applyPlayerScope, parsePreviewRequest, type Scope } from "./requestUtils.ts";
 import { validateScopeOwnership } from "./scopeValidation.ts";
+import { authorizeAnalyticsProfile } from "./authorizationUtils.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-if (!SUPABASE_URL || !SERVICE_ROLE_KEY) throw new Error("Missing required server configuration.");
+const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY");
+if (!SUPABASE_URL || !SERVICE_ROLE_KEY || !ANON_KEY) throw new Error("Missing required server configuration.");
 
-const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
+// Privileged reads are allowed only after authenticating the caller and deriving their
+// academy scope from public.users. This key must remain server-side.
+const adminSupabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
 
@@ -34,7 +38,7 @@ async function fetchAll<T extends Record<string, unknown>>(
   const pageSize = 1000;
   const rows: T[] = [];
   for (let from = 0; ; from += pageSize) {
-    let query = supabase.from(table).select(select).range(from, from + pageSize - 1);
+    let query = adminSupabase.from(table).select(select).range(from, from + pageSize - 1);
     query = configure(query);
     const { data, error } = await query;
     if (error) {
@@ -52,17 +56,17 @@ async function fetchAll<T extends Record<string, unknown>>(
 async function validateScope(scope: Scope) {
   await validateScopeOwnership(scope, {
     async academyExists(academyId) {
-      const { data, error } = await supabase.from("academies").select("id").eq("id", academyId).maybeSingle();
+      const { data, error } = await adminSupabase.from("academies").select("id").eq("id", academyId).maybeSingle();
       if (error) throw new Error("Academy scope validation failed.");
       return Boolean(data);
     },
     async findCenter(centerId) {
-      const { data, error } = await supabase.from("centers").select("id, academy_id").eq("id", centerId).maybeSingle();
+      const { data, error } = await adminSupabase.from("centers").select("id, academy_id").eq("id", centerId).maybeSingle();
       if (error) throw new Error("Center scope validation failed.");
       return data;
     },
     async findBatch(batchId) {
-      const { data, error } = await supabase.from("batches").select("id, academy_id, center_id").eq("id", batchId).maybeSingle();
+      const { data, error } = await adminSupabase.from("batches").select("id, academy_id, center_id").eq("id", batchId).maybeSingle();
       if (error) throw new Error("Batch scope validation failed.");
       return data;
     },
@@ -207,25 +211,65 @@ async function calculate(scope: Scope, snapshotMonth: string) {
   };
 }
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
+
+function jsonResponse(body: unknown, status: number) {
+  return Response.json(body, { status, headers: corsHeaders });
+}
+
 Deno.serve(async req => {
-  if (req.method !== "POST") return Response.json({ error: "Method not allowed." }, { status: 405 });
-  if (req.headers.get("authorization") !== `Bearer ${SERVICE_ROLE_KEY}`) {
-    return Response.json({ error: "Unauthorized." }, { status: 401 });
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  if (req.method !== "POST") return jsonResponse({ error: "Method not allowed." }, 405);
+
+  const authorization = req.headers.get("authorization") ?? "";
+  const bearerMatch = authorization.match(/^Bearer\\s+(.+)$/i);
+  if (!bearerMatch) return jsonResponse({ error: "Unauthorized." }, 401);
+
+  // Verify the access token with Supabase Auth. Never trust user_metadata for authorization.
+  const authClient = createClient(SUPABASE_URL!, ANON_KEY!, {
+    global: { headers: { Authorization: authorization } },
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  const { data: authData, error: authError } = await authClient.auth.getUser(bearerMatch[1]);
+  if (authError || !authData.user) return jsonResponse({ error: "Unauthorized." }, 401);
+
+  // Resolve role and tenant from the application profile, not from request data or JWT user metadata.
+  const { data: profile, error: profileError } = await adminSupabase
+    .from("users")
+    .select("id, role, academy_id")
+    .eq("id", authData.user.id)
+    .maybeSingle();
+  if (profileError) {
+    console.error("Analytics profile lookup failed", { code: profileError.code });
+    return jsonResponse({ error: "Unable to verify Analytics access." }, 500);
   }
 
   let body: unknown;
-  try { body = await req.json(); } catch { return Response.json({ error: "Request body must be valid JSON." }, { status: 400 }); }
+  try { body = await req.json(); } catch { return jsonResponse({ error: "Request body must be valid JSON." }, 400); }
   const parsed = parsePreviewRequest(body);
-  if (!parsed.ok) return Response.json({ error: parsed.error }, { status: 400 });
-  const { scope, snapshotMonth } = parsed.value;
+  if (!parsed.ok) return jsonResponse({ error: parsed.error }, 400);
+
+  const authorizationDecision = authorizeAnalyticsProfile(
+    profile,
+    authData.user.id,
+    parsed.value.scope.academyId,
+  );
+  if (!authorizationDecision.authorized) {
+    return jsonResponse({ error: authorizationDecision.reason }, 403);
+  }
+
   try {
-    const result = await calculate(scope, snapshotMonth);
-    return Response.json({ previewOnly: true, result }, { status: 200 });
+    const result = await calculate(parsed.value.scope, parsed.value.snapshotMonth);
+    return jsonResponse({ previewOnly: true, result }, 200);
   } catch (error) {
     console.error("Analytics preview calculation failed", error);
     const message = error instanceof Error && /month|scope|academy|center|batch|exist|owned/i.test(error.message)
       ? error.message : "Analytics preview could not be calculated. Check server logs.";
     const status = message === "Analytics preview could not be calculated. Check server logs." ? 500 : 400;
-    return Response.json({ error: message }, { status });
+    return jsonResponse({ error: message }, status);
   }
 });
