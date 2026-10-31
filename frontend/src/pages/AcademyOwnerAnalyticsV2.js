@@ -247,50 +247,58 @@ function AcademyOwnerAnalyticsV2({ user }) {
             <div className="owner-analytics-batch-chart-heading">
               <div><strong>Center &amp; batch attendance</strong><p>All academy centers and batches are shown, including those with no recorded marks in this period</p></div>
             </div>
-            {attendanceCatalog.length ? (
-              <div className="owner-analytics-center-groups">
-                {attendanceCatalog.map((center) => {
-                  const recordedByBatch = new Map(
-                    (attendance.batchBreakdown?.value || []).map(item => [
-                      String(item.batchId ?? item.batch_id ?? item.id), item
-                    ])
-                  );
-                  const chartRows = center.batches.map(batch => {
-                    const recorded = recordedByBatch.get(String(batch.batchId));
-                    return {
-                      ...batch,
-                      present: Number(recorded?.present ?? recorded?.presentMarks ?? 0),
-                      absent: Number(recorded?.absent ?? recorded?.absentMarks ?? 0)
-                    };
-                  });
-                  return (
-                    <section className="owner-analytics-center-group" key={center.centerId}>
-                      <h3>{center.centerName}</h3>
-                      {chartRows.length ? (
-                        <>
-                        <div className="owner-analytics-batch-names" aria-label={`Batches at ${center.centerName}`}>
-                          {chartRows.map(batch => <span key={batch.batchId}>{batch.batchName}</span>)}
-                        </div>
-                        <div className="owner-analytics-center-chart">
-                          <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={chartRows} margin={{ top: 8, right: 8, left: 0, bottom: 8 }} barGap={3}>
-                              <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                              <XAxis dataKey="batchName" tick={{ fill: "#64748b", fontSize: 10, fontWeight: 600 }} interval={0} />
-                              <YAxis allowDecimals={false} tick={{ fill: "#64748b", fontSize: 10 }} />
-                              <Tooltip />
-                              <Legend />
-                              <Bar dataKey="present" name="Present" fill="#16a34a" radius={[3, 3, 0, 0]} maxBarSize={22} />
-                              <Bar dataKey="absent" name="Absent" fill="#f59e0b" radius={[3, 3, 0, 0]} maxBarSize={22} />
-                            </BarChart>
-                          </ResponsiveContainer>
-                        </div>
-                        </>
-                      ) : <p className="owner-analytics-chart-empty">No batches returned for this center. Check the academy batch catalogue query and its access policies.</p>}
-                    </section>
-                  );
-                })}
-              </div>
-            ) : (
+            {attendanceCatalog.length ? (() => {
+              const recordedByBatch = new Map(
+                (attendance.batchBreakdown?.value || []).map(item => [
+                  String(item.batchId ?? item.batch_id ?? item.id), item
+                ])
+              );
+              const chartRows = attendanceCatalog.flatMap(center =>
+                (center.batches || []).map(batch => {
+                  const recorded = recordedByBatch.get(String(batch.batchId));
+                  return {
+                    ...batch,
+                    centerName: center.centerName,
+                    present: Number(recorded?.present ?? recorded?.presentMarks ?? 0),
+                    absent: Number(recorded?.absent ?? recorded?.absentMarks ?? 0)
+                  };
+                })
+              );
+              const centerGroups = attendanceCatalog.map(center => ({
+                centerId: center.centerId,
+                centerName: center.centerName,
+                count: (center.batches || []).length
+              }));
+              return chartRows.length ? (
+                <div className="owner-analytics-unified-chart">
+                  <div className="owner-analytics-unified-scroll">
+                    <div className="owner-analytics-unified-inner" style={{ minWidth: `${Math.max(680, chartRows.length * 110)}px` }}>
+                      <div className="owner-analytics-center-band" aria-label="Center groups">
+                        {centerGroups.filter(group => group.count > 0).map(group => (
+                          <div key={group.centerId} className="owner-analytics-center-band-item" style={{ flex: group.count }}>
+                            {group.centerName} <span>({group.count} batches)</span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="owner-analytics-unified-canvas">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart data={chartRows} margin={{ top: 14, right: 12, left: 0, bottom: 12 }} barGap={3} barCategoryGap="22%">
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                            <XAxis dataKey="batchName" interval={0} tick={{ fill: "#475569", fontSize: 11, fontWeight: 600 }} tickLine={false} axisLine={{ stroke: "#cbd5e1" }} />
+                            <YAxis allowDecimals={false} tick={{ fill: "#64748b", fontSize: 11 }} />
+                            <Tooltip formatter={(value, name) => [value, name]} labelFormatter={(_, payload) => payload?.[0]?.payload ? `${payload[0].payload.centerName} · ${payload[0].payload.batchName}` : ""} />
+                            <Legend verticalAlign="bottom" />
+                            <Bar dataKey="present" name="Present" fill="#16a34a" radius={[3, 3, 0, 0]} maxBarSize={28} />
+                            <Bar dataKey="absent" name="Absent" fill="#f59e0b" radius={[3, 3, 0, 0]} maxBarSize={28} />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+                  </div>
+                  <p className="owner-analytics-unified-caption">{attendanceCatalog.length} centers · {chartRows.length} batches · Present and absent marks for the selected period. Batches without marks remain at zero.</p>
+                </div>
+              ) : <p className="owner-analytics-chart-empty">Centers are available, but no batches were returned. Check batch catalogue access.</p>;
+            })() : (
               <p className="owner-analytics-chart-empty">No centers or batches are available for this academy.</p>
             )}
           </section>
