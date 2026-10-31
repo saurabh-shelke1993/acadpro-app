@@ -607,17 +607,6 @@ function AcademyOwnerAnalyticsV2({ user }) {
                       </ResponsiveContainer>
                     </div>
                     <p className="owner-analytics-finance-note">Signed adjustments are included in net movement, but not gross collections. The first and latest periods may be incomplete. Growth percentages use gross collections and are unavailable when the previous period has no positive baseline.</p>
-                    <div className="owner-analytics-finance-trend-table-wrap">
-                      <table className="owner-analytics-finance-trend-table">
-                        <thead><tr><th>Period start</th><th>Collections</th><th>Expenses</th><th>Net movement</th><th>Growth</th></tr></thead>
-                        <tbody>{financeTrend.map(row => <tr key={row.period}>
-                          <th scope="row">{row.period}{!row.complete ? " *" : ""}</th>
-                          <td>{formatCurrency(row.collections)}</td><td>{formatCurrency(row.expenses)}</td><td>{formatCurrency(row.netCashMovement)}</td>
-                          <td>{row.growthPercent === null ? "N/A" : formatPercent(row.growthPercent)}</td>
-                        </tr>)}</tbody>
-                      </table>
-                    </div>
-                    <p className="owner-analytics-finance-note">* Partial reporting range; period growth should not be interpreted as a like-for-like full-period comparison.</p>
                   </section>}
                   {financeCenters && financeCenterBaseline && <section className="owner-analytics-finance-trends" aria-label="Center-wise financial contribution">
                     <div className="owner-analytics-batch-chart-heading">
