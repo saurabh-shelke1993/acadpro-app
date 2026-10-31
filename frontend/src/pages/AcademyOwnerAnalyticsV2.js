@@ -226,24 +226,41 @@ function AcademyOwnerAnalyticsV2({ user }) {
         <section className="owner-analytics-section">
           <section className="owner-analytics-batch-chart">
             <div className="owner-analytics-batch-chart-heading">
-              <div><strong>Batch-wise attendance</strong><p>Recorded present and absent marks for the selected period</p></div>
+              <div><strong>Center &amp; batch attendance</strong><p>All academy centers and batches are shown, including those with no recorded marks in this period</p></div>
             </div>
             {attendance.batchBreakdown?.value?.length ? (
-              <div className="owner-analytics-batch-chart-canvas">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={attendance.batchBreakdown.value} margin={{ top: 12, right: 12, left: 0, bottom: 8 }} barGap={4}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                    <XAxis dataKey="batchName" tick={{ fill: "#64748b", fontSize: 11, fontWeight: 600 }} interval={0} />
-                    <YAxis allowDecimals={false} tick={{ fill: "#64748b", fontSize: 11 }} />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="present" name="Present" fill="#16a34a" radius={[3, 3, 0, 0]} maxBarSize={24} />
-                    <Bar dataKey="absent" name="Absent" fill="#f59e0b" radius={[3, 3, 0, 0]} maxBarSize={24} />
-                  </BarChart>
-                </ResponsiveContainer>
+              <div className="owner-analytics-center-groups">
+                {attendance.batchBreakdown.value.reduce((groups, item) => {
+                  const key = item.centerId || item.centerName || "unassigned-center";
+                  if (!groups[key]) groups[key] = { centerId: key, centerName: item.centerName || "Center", batches: [] };
+                  groups[key].batches.push(item);
+                  return groups;
+                }, {}) && Object.values(attendance.batchBreakdown.value.reduce((groups, item) => {
+                  const key = item.centerId || item.centerName || "unassigned-center";
+                  if (!groups[key]) groups[key] = { centerId: key, centerName: item.centerName || "Center", batches: [] };
+                  groups[key].batches.push(item);
+                  return groups;
+                }, {})).map((center) => (
+                  <section className="owner-analytics-center-group" key={center.centerId}>
+                    <h3>{center.centerName}</h3>
+                    <div className="owner-analytics-center-chart">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={center.batches} margin={{ top: 8, right: 8, left: 0, bottom: 8 }} barGap={3}>
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                          <XAxis dataKey="batchName" tick={{ fill: "#64748b", fontSize: 10, fontWeight: 600 }} interval={0} />
+                          <YAxis allowDecimals={false} tick={{ fill: "#64748b", fontSize: 10 }} />
+                          <Tooltip />
+                          <Legend />
+                          <Bar dataKey="present" name="Present" fill="#16a34a" radius={[3, 3, 0, 0]} maxBarSize={22} />
+                          <Bar dataKey="absent" name="Absent" fill="#f59e0b" radius={[3, 3, 0, 0]} maxBarSize={22} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </section>
+                ))}
               </div>
             ) : (
-              <p className="owner-analytics-chart-empty">No supported attendance marks found for batches in this date range.</p>
+              <p className="owner-analytics-chart-empty">No centers or batches are available for this academy.</p>
             )}
           </section>
         </section>
