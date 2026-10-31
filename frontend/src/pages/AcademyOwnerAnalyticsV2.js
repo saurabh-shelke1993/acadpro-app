@@ -6,7 +6,6 @@ import { getCoachAnalytics, getCoachMonthStats } from "../services/coachAnalytic
 import { getAcademyEnquiriesAnalytics } from "../services/enquiriesAnalyticsService";
 import { aggregateFinancePeriod, buildFinanceTrend, financeGrowth, getFinanceComparison, getFinanceHistory, getFinancePeriod } from "../services/financeHistoryService";
 import { getCenterCollections } from "../services/financeCenterService";
-import { getFinanceQuality } from "../services/financeQualityService";
 import "./AcademyOwnerAnalyticsV2.css";
 
 const getCurrentMonth = () => {
@@ -96,7 +95,6 @@ function AcademyOwnerAnalyticsV2({ user }) {
   const [financeTrend, setFinanceTrend] = useState(null);
   const [financeCenters, setFinanceCenters] = useState(null);
   const [financeCenterBaseline, setFinanceCenterBaseline] = useState(null);
-  const [financeQuality, setFinanceQuality] = useState(null);
 
 
   useEffect(() => {
@@ -190,7 +188,6 @@ function AcademyOwnerAnalyticsV2({ user }) {
       setFinanceTrend(null);
       setFinanceCenters(null);
       setFinanceCenterBaseline(null);
-      setFinanceQuality(null);
       try {
         const current = getFinancePeriod(financeMonth, financeFrequency);
         const comparison = getFinanceComparison(current, financeComparison,
@@ -205,13 +202,12 @@ function AcademyOwnerAnalyticsV2({ user }) {
         const [year, month] = current.startMonth.split("-").map(Number);
         const firstIndex = year * 12 + month - 1 - (lookback - current.months);
         const trendStart = `${Math.floor(firstIndex / 12)}-${String(firstIndex % 12 + 1).padStart(2, "0")}`;
-        const [currentRows, baselineRows, trendRows, currentCenters, previousCenters, quality] = await Promise.all([
+        const [currentRows, baselineRows, trendRows, currentCenters, previousCenters] = await Promise.all([
           getFinanceHistory(user, current.startMonth, current.endExclusiveMonth),
           getFinanceHistory(user, comparison.startMonth, comparison.endExclusiveMonth),
           getFinanceHistory(user, trendStart, current.endExclusiveMonth),
           getCenterCollections(user, current.startMonth, current.endExclusiveMonth),
-          getCenterCollections(user, comparison.startMonth, comparison.endExclusiveMonth),
-          getFinanceQuality(user)
+          getCenterCollections(user, comparison.startMonth, comparison.endExclusiveMonth)
         ]);
         if (active) {
           setFinanceHistory({ period: current, rows: currentRows });
@@ -219,7 +215,6 @@ function AcademyOwnerAnalyticsV2({ user }) {
           setFinanceTrend(buildFinanceTrend(trendRows, financeFrequency));
           setFinanceCenters(currentCenters);
           setFinanceCenterBaseline(previousCenters);
-          setFinanceQuality(quality);
         }
       } catch (err) {
         if (active) setFinanceHistoryError(err.message || "Unable to load financial history.");
@@ -641,20 +636,8 @@ function AcademyOwnerAnalyticsV2({ user }) {
                     {financeCenters.unattributedEntries > 0 && <p className="owner-analytics-finance-note">Unattributed gross: {formatCurrency(financeCenters.unattributedGross)} across {financeCenters.unattributedEntries} ledger entries; included in academy totals, not assigned to a center.</p>}
                     <p className="owner-analytics-finance-note">Center attribution uses each player's current center, including for older payments. Transfers can change historical center breakdowns. Academy totals are based on recorded transactions; center comparisons are indicative, not historical center snapshots. Expenses are academy-level and are not allocated to centers.</p>
                   </section>}
-                  <p className="owner-analytics-finance-note">A zero in a period means no matching records in Kheltriva, not proof of no off-platform transactions. Current incomplete periods are not normalized to full-period equivalents.</p>
                 </>;
               })() : null}
-            {financeQuality && <div className="owner-analytics-quality-note" role="status">
-              <strong>F7 · Financial data quality — {financeQuality.quality === "reconciled" ? "Ledger reconciled" : "Partial / needs review"}</strong>
-              <p>{financeQuality.mismatchCount} of {financeQuality.dueCount} dues differ from their linked payment and adjustment ledger. Net difference: {formatCurrency(financeQuality.difference)}. Dues with recorded paid amounts but no linked transactions: {financeQuality.paidWithoutEntries}.</p>
-              <p>This is an academy-wide current-ledger check, not restricted to the selected reporting period. Differences can reflect imported or legacy records and do not by themselves establish missing money.</p>
-              <p>Historical outstanding: unavailable without verifiable closing balances. Collection efficiency: withheld pending a validated cohort and payment linkage contract.</p>
-            </div>}
-            <div className="owner-analytics-quality-note">
-              <strong>Current ledger diagnostics</strong>
-              <p>Current outstanding: {formatCurrency(finance.currentLedgerOutstanding?.value)} ({finance.currentLedgerOutstanding?.quality || "unavailable"}). This is today's balance, not a historical month-end balance. Due-ledger reconciliation discrepancies are under investigation.</p>
-              <MetricNotes metric={finance.currentDueLedgerReconciliation} />
-            </div>
           </section>
         )}
 
