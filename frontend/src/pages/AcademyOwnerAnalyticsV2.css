@@ -852,3 +852,41 @@
   .owner-analytics-attendance-toolbar { justify-content: stretch; }
   .owner-analytics-attendance-filter { width: 100%; }
 }
+
+
+/* Keep section tabs and the active section filter on one compact toolbar row. */
+.owner-analytics-page > .owner-analytics-tabs {
+  grid-column: 1 / -1;
+}
+.owner-analytics-page {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+.owner-analytics-tabs {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: center;
+}
+.owner-analytics-attendance-filter-inline {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: center;
+  width: 220px;
+  margin: 0;
+}
+.owner-analytics-attendance-filter-inline span {
+  display: none;
+}
+@media (max-width: 640px) {
+  .owner-analytics-page {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .owner-analytics-tabs {
+    grid-column: 1;
+    grid-row: auto;
+  }
+  .owner-analytics-attendance-filter-inline {
+    grid-column: 1;
+    grid-row: auto;
+    width: 100%;
+  }
+}
