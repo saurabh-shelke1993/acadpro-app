@@ -123,7 +123,8 @@ function AcademyOwnerAnalyticsV2({ user }) {
   const [attendancePreset, setAttendancePreset] = useState("1m");
   const [attendanceRange, setAttendanceRange] = useState(() => getPresetRange(1));
 
-  const [result, setResult] = useState(null);\n  const [attendanceCatalog, setAttendanceCatalog] = useState([]);
+  const [result, setResult] = useState(null);
+  const [attendanceCatalog, setAttendanceCatalog] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
@@ -141,7 +142,8 @@ function AcademyOwnerAnalyticsV2({ user }) {
         if (active) {
           console.error("Academy Owner Analytics V2 load failed:", loadError);
           setError(loadError.message || "Unable to load monthly analytics.");
-          setResult(null);\n          setAttendanceCatalog([]);
+          setResult(null);
+          setAttendanceCatalog([]);
         }
       } finally {
         if (active) setLoading(false);
