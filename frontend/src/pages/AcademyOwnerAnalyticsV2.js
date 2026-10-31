@@ -131,6 +131,7 @@ function AcademyOwnerAnalyticsV2({ user }) {
   const [error, setError] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
   const [activeTab, setActiveTab] = useState("attendance");
+  const [playerPage, setPlayerPage] = useState(1);
 
   useEffect(() => {
     let active = true;
@@ -198,7 +199,9 @@ function AcademyOwnerAnalyticsV2({ user }) {
     .filter(row => row.present + row.absent >= 3 && playerNames.has(row.id))
     .map(row => ({ ...row, name: playerNames.get(row.id), total: row.present + row.absent, rate: Math.round(100 * row.present / (row.present + row.absent)) }))
     .sort((a, b) => a.rate - b.rate || b.total - a.total || a.name.localeCompare(b.name))
-    .slice(0, 10);
+    ;
+  const playerPageCount = Math.max(1, Math.ceil(leastAttendance.length / 5));
+  const visiblePlayers = leastAttendance.slice((playerPage - 1) * 5, playerPage * 5);
   const dailyTotals = new Map();
   supportedRecords.forEach(record => {
     const date = record.attendance_date;
@@ -347,18 +350,19 @@ function AcademyOwnerAnalyticsV2({ user }) {
           <section className="owner-analytics-insights-stack">
             <section className="owner-analytics-batch-chart">
               <div className="owner-analytics-batch-chart-heading">
-                <div><strong>Player Insights · Lowest recorded attendance</strong><p>Up to 10 players with the lowest present rate; at least 3 recorded marks in the selected period</p></div>
+                <div><strong>Player Insights · Lowest recorded attendance</strong><p>Players ranked by lowest present rate; 5 per page, at least 3 recorded marks in the selected period</p></div>
               </div>
               {insightsError ? <p role="alert">{insightsError}</p> : leastAttendance.length ? (
                 <div className="owner-analytics-player-table">
                   <div className="owner-analytics-player-row owner-analytics-player-header"><span>Player</span><span>Attendance</span><span>Records</span></div>
-                  {leastAttendance.map(player => (
+                  {visiblePlayers.map(player => (
                     <div className="owner-analytics-player-row" key={player.id}>
                       <div><strong>{player.name}</strong><small>{player.present} present · {player.absent} absent</small></div>
                       <div className="owner-analytics-player-rate"><div className="owner-analytics-player-track"><span style={{ width: `${player.rate}%` }} /></div><strong>{player.rate}%</strong></div>
                       <strong>{player.total}</strong>
                     </div>
                   ))}
+                  <div className="owner-analytics-player-pagination"><span>Page {playerPage} of {playerPageCount} · {leastAttendance.length} players</span><div><button type="button" disabled={playerPage <= 1} onClick={() => setPlayerPage(page => Math.max(1, page - 1))}>Previous</button><button type="button" disabled={playerPage >= playerPageCount} onClick={() => setPlayerPage(page => Math.min(playerPageCount, page + 1))}>Next</button></div></div>
                 </div>
               ) : <p className="owner-analytics-chart-empty">No players with at least 3 supported attendance records in this period.</p>}
             </section>
