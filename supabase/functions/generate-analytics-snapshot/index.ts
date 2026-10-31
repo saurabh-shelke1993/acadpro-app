@@ -87,33 +87,56 @@ async function fetchAttendanceMarks(scope: Scope, range: DateRange) {
 }
 
 async function fetchAttendanceByBatch(scope: Scope, range: DateRange) {
-  const rows = await fetchAll<AttendanceRecord>(
-    "attendance",
-    "id, attendance_date, status, is_deleted, batch_id, center_id, academy_id, batch_schedule_id",
-    query => applyAttendanceScope(
-      query.gte("attendance_date", range.startDate).lte("attendance_date", range.endDate).eq("is_deleted", false),
-      scope,
+  const [rows, centersResult, batchesResult] = await Promise.all([
+    fetchAll<AttendanceRecord>(
+      "attendance",
+      "id, attendance_date, status, is_deleted, batch_id, center_id, academy_id, batch_schedule_id",
+      query => applyAttendanceScope(
+        query.gte("attendance_date", range.startDate).lte("attendance_date", range.endDate).eq("is_deleted", false),
+        scope,
+      ),
     ),
+    adminSupabase.from("centers").select("id, center_name, academy_id").eq("academy_id", scope.academyId),
+    adminSupabase.from("batches").select("id, batch_name, center_id, academy_id").eq("academy_id", scope.academyId),
+  ]);
+  if (centersResult.error) throw new Error("Attendance center labels could not be loaded.");
+  if (batchesResult.error) throw new Error("Attendance batch labels could not be loaded.");
+
+  const centers = (centersResult.data ?? []).filter((center: any) =>
+    scope.scopeType !== "center" || String(center.id) === String(scope.scopeId)
   );
-  const batchIds = [...new Set(rows.map(row => String(row.batch_id || "")).filter(Boolean))];
-  if (!batchIds.length) return [];
-  let batchQuery = adminSupabase.from("batches").select("id, batch_name").in("id", batchIds).eq("academy_id", scope.academyId);
-  if (scope.scopeType === "center") batchQuery = batchQuery.eq("center_id", scope.scopeId);
-  const { data: batches, error } = await batchQuery;
-  if (error) throw new Error("Attendance batch labels could not be loaded.");
-  const names = new Map((batches ?? []).map((batch: any) => [String(batch.id), String(batch.batch_name || "Unnamed batch")]));
-  const grouped = new Map<string, { batchId: string; batchName: string; present: number; absent: number }>();
+  const batches = (batchesResult.data ?? []).filter((batch: any) =>
+    scope.scopeType !== "batch" || String(batch.id) === String(scope.scopeId)
+  );
+  const centerNames = new Map(centers.map((center: any) => [String(center.id), String(center.center_name || "Unnamed center")]));
+  const grouped = new Map<string, { batchId: string; batchName: string; centerId: string; centerName: string; present: number; absent: number }>();
+
+  // Seed every academy batch first so batches with no attendance in this period remain visible.
+  for (const batch of batches) {
+    const centerId = String(batch.center_id || "");
+    if (!centerId || !centerNames.has(centerId)) continue;
+    grouped.set(String(batch.id), {
+      batchId: String(batch.id),
+      batchName: String(batch.batch_name || "Unnamed batch"),
+      centerId,
+      centerName: centerNames.get(centerId)!,
+      present: 0,
+      absent: 0,
+    });
+  }
+
   for (const row of rows) {
     const id = String(row.batch_id || "");
-    if (!id || !names.has(id)) continue;
+    const item = grouped.get(id);
+    if (!item) continue;
     const status = String(row.status || "").trim().toLowerCase();
-    if (status !== "present" && status !== "absent") continue;
-    if (!grouped.has(id)) grouped.set(id, { batchId: id, batchName: names.get(id)!, present: 0, absent: 0 });
-    const item = grouped.get(id)!;
     if (status === "present") item.present += 1;
-    else item.absent += 1;
+    else if (status === "absent") item.absent += 1;
   }
-  return [...grouped.values()].sort((a, b) => a.batchName.localeCompare(b.batchName));
+
+  return [...grouped.values()].sort((a, b) =>
+    a.centerName.localeCompare(b.centerName) || a.batchName.localeCompare(b.batchName)
+  );
 }
 
 async function calculate(scope: Scope, snapshotMonth: string, attendanceRange: DateRange | null, attendanceComparisonRange: DateRange | null) {
