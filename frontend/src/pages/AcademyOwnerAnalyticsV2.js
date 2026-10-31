@@ -3,6 +3,7 @@ import { Bar, BarChart, CartesianGrid, Legend, Line, ComposedChart, ResponsiveCo
 import Layout from "../components/Layout";
 import { getAcademyAttendanceInsights, getAcademyCenterBatchCatalog, getAcademyOwnerAnalyticsV2 } from "../services/analyticsV2Service";
 import { getCoachAnalytics, getCoachMonthStats } from "../services/coachAnalyticsService";
+import { getAcademyEnquiriesAnalytics } from "../services/enquiriesAnalyticsService";
 import "./AcademyOwnerAnalyticsV2.css";
 
 const getCurrentMonth = () => {
@@ -137,6 +138,12 @@ function AcademyOwnerAnalyticsV2({ user }) {
   const [coachError, setCoachError] = useState("");
   const [coachMonth, setCoachMonth] = useState(getCurrentMonth);
   const [expandedCoach, setExpandedCoach] = useState(null);
+  const [enquiryMonth, setEnquiryMonth] = useState(getCurrentMonth);
+  const [enquiryWindow, setEnquiryWindow] = useState("6");
+  const [enquiryCenter, setEnquiryCenter] = useState("all");
+  const [enquiryData, setEnquiryData] = useState(null);
+  const [enquiryLoading, setEnquiryLoading] = useState(false);
+  const [enquiryError, setEnquiryError] = useState("");
 
   useEffect(() => {
     let active = true;
@@ -201,6 +208,22 @@ function AcademyOwnerAnalyticsV2({ user }) {
     });
     return () => { active = false; };
   }, [activeTab, user?.academy_id, refreshKey]);
+
+  useEffect(() => {
+    if (activeTab !== "enquiries" || !user?.academy_id) return undefined;
+    let active = true;
+    const [year, monthNumber] = enquiryMonth.split("-").map(Number);
+    if (!year || !monthNumber) return undefined;
+    const startDate = new Date(Date.UTC(year, monthNumber - Number(enquiryWindow), 1));
+    const startMonth = startDate.toISOString().slice(0, 7);
+    setEnquiryLoading(true);
+    setEnquiryError("");
+    getAcademyEnquiriesAnalytics(user, { startMonth, endMonth: enquiryMonth })
+      .then(data => { if (active) setEnquiryData(data); })
+      .catch(err => { if (active) { setEnquiryData(null); setEnquiryError(err.message || "Unable to load enquiries."); } })
+      .finally(() => { if (active) setEnquiryLoading(false); });
+    return () => { active = false; };
+  }, [activeTab, user, enquiryMonth, enquiryWindow, refreshKey]);
 
   const supportedRecords = insights.records.filter(record => record.status === "present" || record.status === "absent");
   const playerTotals = new Map();
@@ -452,15 +475,61 @@ function AcademyOwnerAnalyticsV2({ user }) {
         )}
 
         {activeTab === "enquiries" && (
-          <section className="owner-analytics-section">
+          <section className="owner-analytics-section owner-analytics-enquiries">
             <div className="owner-analytics-section-heading">
-              <div><span>ACADEMY GROWTH</span><h2>Enquiries</h2></div>
-              <p>Enquiry analytics will be added in a follow-up step.</p>
+              <div><span>ACADEMY GROWTH</span><h2>Enquiries & conversion</h2></div>
+              <div className="owner-analytics-enquiry-filters">
+                <label>Through month <input type="month" value={enquiryMonth} onChange={event => setEnquiryMonth(event.target.value)} /></label>
+                <label>Period <select value={enquiryWindow} onChange={event => setEnquiryWindow(event.target.value)}><option value="3">Last 3 months</option><option value="6">Last 6 months</option><option value="12">Last 12 months</option><option value="24">Last 24 months</option><option value="60">Last 60 months</option></select></label>
+                <label>Center <select value={enquiryCenter} onChange={event => setEnquiryCenter(event.target.value)}><option value="all">All centers</option>{(enquiryData?.months?.[0]?.centers || []).map(center => <option key={center.centerId} value={center.centerId}>{center.centerName}</option>)}<option value="unassigned">Unassigned</option><option value="unknown">Unknown center</option></select></label>
+              </div>
             </div>
-            <div className="owner-analytics-quality-note">
-              <strong>Enquiry analytics not available yet</strong>
-              <p>We have not connected an approved enquiry data source and conversion definition to this section yet.</p>
-            </div>
+            <p className="owner-analytics-enquiry-note">Conversion is attributed to the month the enquiry was created, even when the player converted later. Conversion counts reflect the current recorded state.</p>
+            {enquiryLoading ? <p role="status">Loading enquiry analytics…</p> : enquiryError ? <div role="alert" className="owner-analytics-quality-note"><strong>Unable to load enquiry analytics</strong><p>{enquiryError}</p><button type="button" onClick={() => setRefreshKey(value => value + 1)}>Retry</button></div> : enquiryData ? (() => {
+              const rows = enquiryData.months.map(monthRow => {
+                const selected = enquiryCenter === "all" ? monthRow
+                  : enquiryCenter === "unassigned" ? monthRow.unassigned
+                  : enquiryCenter === "unknown" ? monthRow.unknownCenter
+                  : monthRow.centers.find(center => center.centerId === enquiryCenter);
+                return { month: monthRow.month, received: selected?.received || 0, converted: selected?.converted || 0, rate: selected?.conversionRate ?? null };
+              });
+              const received = rows.reduce((sum, row) => sum + row.received, 0);
+              const converted = rows.reduce((sum, row) => sum + row.converted, 0);
+              const rate = received ? 100 * converted / received : null;
+              const centerTotals = (enquiryData.months[0]?.centers || []).map(center => {
+                const centerRows = enquiryData.months.map(monthRow => monthRow.centers.find(item => item.centerId === center.centerId));
+                const count = centerRows.reduce((sum, item) => sum + (item?.received || 0), 0);
+                const wins = centerRows.reduce((sum, item) => sum + (item?.converted || 0), 0);
+                return { ...center, received: count, converted: wins, conversionRate: count ? 100 * wins / count : null };
+              });
+              return <>
+                <div className="owner-analytics-enquiry-kpis">
+                  <article><span>Enquiries received</span><strong>{formatNumber(received)}</strong></article>
+                  <article><span>Converted to players</span><strong>{formatNumber(converted)}</strong></article>
+                  <article><span>Cohort conversion rate</span><strong>{formatPercent(rate)}</strong></article>
+                </div>
+                <section className="owner-analytics-batch-chart">
+                  <div className="owner-analytics-batch-chart-heading"><strong>Monthly enquiry trend</strong><p>Enquiries received versus converted from each creation-month cohort</p></div>
+                  <div className="owner-analytics-enquiry-chart">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={rows} margin={{ top: 12, right: 14, left: 0, bottom: 8 }}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                        <XAxis dataKey="month" tick={{ fontSize: 11 }} minTickGap={16} />
+                        <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+                        <Tooltip /><Legend />
+                        <Bar dataKey="received" name="Received" fill="#1d4ed8" maxBarSize={24} radius={[3,3,0,0]} />
+                        <Bar dataKey="converted" name="Converted" fill="#16a34a" maxBarSize={24} radius={[3,3,0,0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </section>
+                <section className="owner-analytics-batch-chart">
+                  <div className="owner-analytics-batch-chart-heading"><strong>Center-wise conversion</strong><p>All centers are included, even with zero enquiries. Center assignment reflects the current enquiry record.</p></div>
+                  <div className="owner-analytics-enquiry-table-wrap"><table className="owner-analytics-enquiry-table"><thead><tr><th>Center</th><th>Received</th><th>Converted</th><th>Rate</th></tr></thead><tbody>{centerTotals.map(center => <tr key={center.centerId}><th scope="row">{center.centerName}</th><td>{center.received}</td><td>{center.converted}</td><td>{formatPercent(center.conversionRate)}</td></tr>)}</tbody></table></div>
+                </section>
+                <p className="owner-analytics-enquiry-note">A dash means the cohort has no enquiries; it is not a 0% conversion rate. Data is read-only and scoped to this academy.</p>
+              </>;
+            })() : <p className="owner-analytics-chart-empty">No enquiry analytics loaded.</p>}
           </section>
         )}
 
