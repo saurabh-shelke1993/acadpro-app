@@ -230,12 +230,7 @@ function AcademyOwnerAnalyticsV2({ user }) {
             </div>
             {attendance.batchBreakdown?.value?.length ? (
               <div className="owner-analytics-center-groups">
-                {attendance.batchBreakdown.value.reduce((groups, item) => {
-                  const key = item.centerId || item.centerName || "unassigned-center";
-                  if (!groups[key]) groups[key] = { centerId: key, centerName: item.centerName || "Center", batches: [] };
-                  groups[key].batches.push(item);
-                  return groups;
-                }, {}) && Object.values(attendance.batchBreakdown.value.reduce((groups, item) => {
+                {Object.values(attendance.batchBreakdown.value.reduce((groups, item) => {
                   const key = item.centerId || item.centerName || "unassigned-center";
                   if (!groups[key]) groups[key] = { centerId: key, centerName: item.centerName || "Center", batches: [] };
                   groups[key].batches.push(item);
