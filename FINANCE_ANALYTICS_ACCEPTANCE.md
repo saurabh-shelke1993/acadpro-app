@@ -44,5 +44,18 @@ Updated: 2026-10-31. Branch: `payment-module-finalization`.
 - [ ] Compare selected period ledger totals with read-only SQL independently.
 - [ ] Resolve or formally accept 11 ledger exceptions before asserting full source reliability.
 
+
+## Original-evidence follow-up (read-only, 2026-10-31)
+- Queried `parent_payment_submissions` and `payment_corrections` by the 11 exceptional due IDs: **0 matching rows in either table**.
+- No exception due has nonblank `remarks`. Four exceptional dues have `updated_at` more than one minute after `created_at`; this is **not proof** of payment or manual intervention.
+- Two payments exist for players involved in exceptions but reference other dues; they must not be reassigned without original evidence.
+- Original bank/UPI statements, cash receipts and academy operator attestations are **not available** in the database audit. The exception root causes remain unverified.
+- Evidence needed before any correction: transaction reference, receipt or bank/UPI confirmation, collection date, amount, payer/player and due mapping; for cash, signed receipt or contemporaneous cashbook entry.
+- Do not synthesize missing `payments` rows, adjust `payment_dues`, or claim the ledger is fully reconciled until evidence is reviewed and a correction is separately authorized.
+
+## CI verification
+- Latest `c0ee13a` GitHub Actions: **passed** (verified 2026-10-31).
+- No authenticated browser session or local development browser is available to this audit. **All F8 browser/visual/role checkboxes remain open**, despite green CI.
+
 ## Release gate
 Do not call Finance Analytics fully production-ready until latest branch CI is green and the manual acceptance checklist is signed off. No DB migration, live data correction or production deployment is authorized by this register.
