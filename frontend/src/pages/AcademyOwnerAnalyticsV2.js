@@ -214,7 +214,7 @@ function AcademyOwnerAnalyticsV2({ user }) {
     let active = true;
     const [year, monthNumber] = enquiryMonth.split("-").map(Number);
     if (!year || !monthNumber) return undefined;
-    const startDate = new Date(Date.UTC(year, monthNumber - Number(enquiryWindow), 1));
+    const startDate = new Date(Date.UTC(year, monthNumber - Number(enquiryWindow) + 1, 1));
     const startMonth = startDate.toISOString().slice(0, 7);
     setEnquiryLoading(true);
     setEnquiryError("");
