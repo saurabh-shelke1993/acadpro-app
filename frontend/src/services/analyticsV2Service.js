@@ -57,21 +57,26 @@ export async function getAcademyOwnerAnalyticsV2(user, snapshotMonth, attendance
 export async function getAcademyCenterBatchCatalog(user) {
   if (!user?.academy_id) throw new Error("Your account is not linked to an academy.");
 
-  const [centersResult, batchesResult] = await Promise.all([
-    supabase.from("centers")
-      .select("id, center_name, academy_id")
-      .eq("academy_id", user.academy_id)
-      .order("center_name"),
-    supabase.from("batches")
-      .select("id, batch_name, center_id, academy_id")
-      .eq("academy_id", user.academy_id)
-      .order("batch_name")
-  ]);
+  // Resolve tenant-owned centers first, then fetch batches through their center
+  // relationship. Existing batch rows may not carry academy_id consistently;
+  // filtering by that column can silently omit valid academy batches.
+  const centersResult = await supabase.from("centers")
+    .select("id, center_name, academy_id")
+    .eq("academy_id", user.academy_id)
+    .order("center_name");
 
   if (centersResult.error) throw centersResult.error;
+  const centers = centersResult.data || [];
+  const centerIds = centers.map(center => String(center.id));
+  if (!centerIds.length) return { centers: [] };
+
+  const batchesResult = await supabase.from("batches")
+    .select("id, batch_name, center_id")
+    .in("center_id", centerIds)
+    .order("batch_name");
+
   if (batchesResult.error) throw batchesResult.error;
 
-  const centers = centersResult.data || [];
   const centerById = new Map(centers.map(center => [String(center.id), center]));
   const batches = (batchesResult.data || [])
     .filter(batch => batch.center_id && centerById.has(String(batch.center_id)))
