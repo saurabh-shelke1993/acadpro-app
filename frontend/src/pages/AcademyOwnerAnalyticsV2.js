@@ -174,6 +174,23 @@ function AcademyOwnerAnalyticsV2({ user }) {
           ))}
         </nav>
 
+        {activeTab === "attendance" && (
+          <label className="owner-analytics-attendance-filter owner-analytics-attendance-filter-inline">
+            <span>Attendance</span>
+            <select value={attendancePreset} onChange={(event) => {
+              const preset = event.target.value;
+              const months = preset === "1w" ? 0 : preset === "1m" ? 1 : preset === "3m" ? 3 : 5;
+              setAttendancePreset(preset);
+              setAttendanceRange(getPresetRange(months));
+            }}>
+              <option value="1w">Last 1 week</option>
+              <option value="1m">Last 1 month</option>
+              <option value="3m">Last 3 months</option>
+              <option value="5m">Last 5 months</option>
+            </select>
+          </label>
+        )}
+
         {(loading || error) && (
           <section
             className={`owner-analytics-service-status ${error ? "owner-analytics-service-status-error" : "owner-analytics-service-status-loading"}`}
@@ -205,40 +222,6 @@ function AcademyOwnerAnalyticsV2({ user }) {
 
         {activeTab === "attendance" && (
         <section className="owner-analytics-section">
-          <div className="owner-analytics-attendance-toolbar">
-            <label className="owner-analytics-attendance-filter">
-              <span>Attendance</span>
-              <select value={attendancePreset} onChange={(event) => {
-                const preset = event.target.value;
-                const months = preset === "1w" ? 0 : preset === "1m" ? 1 : preset === "3m" ? 3 : 5;
-                setAttendancePreset(preset);
-                setAttendanceRange(getPresetRange(months));
-              }}>
-                <option value="1w">Last 1 week</option>
-                <option value="1m">Last 1 month</option>
-                <option value="3m">Last 3 months</option>
-                <option value="5m">Last 5 months</option>
-              </select>
-            </label>
-          </div>
-          <div className="owner-analytics-presets" role="group" aria-label="Attendance date range" hidden>
-            {[
-              { id: "1w", label: "Last 1 week", months: 0 },
-              { id: "1m", label: "Last 1 month", months: 1 },
-              { id: "3m", label: "Last 3 months", months: 3 },
-              { id: "5m", label: "Last 5 months", months: 5 },
-            ].map((preset) => (
-              <button key={preset.id} type="button" className={attendancePreset === preset.id ? "active" : ""}
-                aria-pressed={attendancePreset === preset.id}
-                onClick={() => {
-                  const nextRange = getPresetRange(preset.months);
-                  setAttendancePreset(preset.id);
-                  setAttendanceRange(nextRange);
-                }}>
-                {preset.label}
-              </button>
-            ))}
-          </div>
           <div className="owner-analytics-grid owner-analytics-grid-three">
             <MetricCard
               label="Present marks"
