@@ -132,6 +132,21 @@ function AcademyOwnerAnalyticsV2({ user }) {
 
   useEffect(() => {
     let active = true;
+    const loadCatalog = async () => {
+      try {
+        const catalog = await getAcademyCenterBatchCatalog(user);
+        if (active) setAttendanceCatalog(catalog.centers || []);
+      } catch (catalogError) {
+        console.error("Academy Owner Analytics attendance catalogue load failed:", catalogError);
+        if (active) setAttendanceCatalog([]);
+      }
+    };
+    loadCatalog();
+    return () => { active = false; };
+  }, [user, refreshKey]);
+
+  useEffect(() => {
+    let active = true;
     const load = async () => {
       setLoading(true);
       setError("");
