@@ -890,3 +890,40 @@
     width: 100%;
   }
 }
+
+/* Attendance chart: ResponsiveContainer requires a measurable parent height. */
+.owner-analytics-center-groups {
+  display: grid;
+  gap: 1.25rem;
+  min-width: 0;
+}
+.owner-analytics-center-group {
+  min-width: 0;
+}
+.owner-analytics-center-group h3 {
+  margin: 0 0 0.6rem;
+  color: #102a43;
+  font-size: 0.9rem;
+}
+.owner-analytics-center-chart {
+  width: 100%;
+  min-width: 0;
+  height: 280px;
+}
+.owner-analytics-batch-names {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0 0 0.5rem;
+}
+.owner-analytics-batch-names span {
+  padding: 0.3rem 0.55rem;
+  border-radius: 0.45rem;
+  background: #eff6ff;
+  color: #1e40af;
+  font-size: 0.72rem;
+  font-weight: 650;
+}
+@media (max-width: 640px) {
+  .owner-analytics-center-chart { height: 240px; }
+}
