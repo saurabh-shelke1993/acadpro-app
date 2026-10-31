@@ -1021,3 +1021,22 @@
 .owner-analytics-coach-details>div {display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #e2e8f0;font-size:12px}
 .owner-analytics-coach-details span {color:#64748b}
 @media(max-width:680px){.owner-analytics-coach-summary{grid-template-columns:1fr}.owner-analytics-coach-toggle{grid-template-columns:1fr 1fr;}.owner-analytics-coach-details>div{flex-direction:column}}
+
+/* E4: Enquiry analytics */
+.owner-analytics-enquiries { grid-column: 1 / -1; min-width: 0; }
+.owner-analytics-enquiry-filters { display:flex; flex-wrap:wrap; gap:10px; align-items:end; }
+.owner-analytics-enquiry-filters label { display:grid; gap:5px; font-size:11px; color:#64748b; font-weight:700; }
+.owner-analytics-enquiry-filters input, .owner-analytics-enquiry-filters select { min-height:40px; max-width:220px; padding:8px 10px; border:1px solid #dbe4ef; border-radius:9px; background:#fff; color:#102a43; font:inherit; }
+.owner-analytics-enquiry-note { margin:5px 0 14px; font-size:12px; color:#64748b; line-height:1.5; }
+.owner-analytics-enquiry-kpis { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin:8px 0 16px; }
+.owner-analytics-enquiry-kpis article { display:grid; gap:10px; padding:18px; border:1px solid #e2e8f0; border-top:3px solid #1d4ed8; border-radius:12px; background:white; }
+.owner-analytics-enquiry-kpis article:nth-child(2) { border-top-color:#16a34a; }
+.owner-analytics-enquiry-kpis span { font-size:12px; color:#64748b; font-weight:650; }
+.owner-analytics-enquiry-kpis strong { font-size:26px; color:#102a43; }
+.owner-analytics-enquiry-chart { height:310px; min-width:0; }
+.owner-analytics-enquiry-table-wrap { overflow-x:auto; }
+.owner-analytics-enquiry-table { width:100%; border-collapse:collapse; font-size:13px; }
+.owner-analytics-enquiry-table th,.owner-analytics-enquiry-table td { padding:13px 12px; border-bottom:1px solid #e2e8f0; text-align:left; }
+.owner-analytics-enquiry-table thead th { color:#64748b; background:#f8fafc; font-size:11px; text-transform:uppercase; }
+.owner-analytics-enquiry-table tbody th { color:#102a43; }
+@media(max-width:680px) { .owner-analytics-enquiry-kpis {grid-template-columns:1fr;} .owner-analytics-enquiry-filters {width:100%;} .owner-analytics-enquiry-filters label {flex:1 1 140px;} .owner-analytics-enquiry-chart {height:260px;} }
