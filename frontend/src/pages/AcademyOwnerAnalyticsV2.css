@@ -927,3 +927,43 @@
 @media (max-width: 640px) {
   .owner-analytics-center-chart { height: 240px; }
 }
+
+/* Single academy-wide attendance chart, grouped by center. */
+.owner-analytics-unified-chart { min-width: 0; }
+.owner-analytics-unified-scroll { overflow-x: auto; width: 100%; }
+.owner-analytics-unified-inner { width: 100%; }
+.owner-analytics-center-band {
+  display: flex;
+  margin: 0 12px 0 60px;
+  border: 1px solid #dbeafe;
+  border-radius: 0.6rem;
+  overflow: hidden;
+  background: #f8fbff;
+}
+.owner-analytics-center-band-item {
+  min-width: 0;
+  padding: 0.7rem 0.3rem;
+  text-align: center;
+  color: #1d4ed8;
+  font-size: 0.8rem;
+  font-weight: 800;
+  border-right: 2px solid #93c5fd;
+}
+.owner-analytics-center-band-item:last-child { border-right: 0; }
+.owner-analytics-center-band-item span {
+  display: block;
+  margin-top: 0.2rem;
+  color: #64748b;
+  font-size: 0.67rem;
+  font-weight: 600;
+}
+.owner-analytics-unified-canvas { height: 350px; width: 100%; }
+.owner-analytics-unified-caption {
+  margin: 0.65rem 0 0;
+  font-size: 0.73rem;
+  color: #64748b;
+}
+@media (max-width: 640px) {
+  .owner-analytics-unified-canvas { height: 300px; }
+  .owner-analytics-center-band-item { font-size: 0.72rem; }
+}
