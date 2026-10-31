@@ -76,7 +76,6 @@ export async function getAcademyCenterBatchCatalog(user) {
   // The center IDs were fetched using the authenticated owner's academy scope.
   const batchesResult = await supabase.from("batches")
     .select("id, batch_name, center_id, academy_id")
-    .eq("is_active", true)
     .in("center_id", centerIds)
     .order("batch_name");
 
