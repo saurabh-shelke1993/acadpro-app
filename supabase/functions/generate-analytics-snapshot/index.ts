@@ -104,8 +104,14 @@ async function fetchAttendanceByBatch(scope: Scope, range: DateRange) {
     scope.scopeType !== "center" || String(center.id) === String(scope.scopeId)
   );
   const centerIds = centers.map((center: any) => String(center.id));
+  // Match the canonical active Academy Owner batch scope used by the
+  // frontend Batches page, while restricting results to the owned centers.
   const batchesResult = centerIds.length
-    ? await adminSupabase.from("batches").select("id, batch_name, center_id").in("center_id", centerIds)
+    ? await adminSupabase.from("batches")
+      .select("id, batch_name, center_id, academy_id")
+      .eq("academy_id", scope.academyId)
+      .eq("is_active", true)
+      .in("center_id", centerIds)
     : { data: [], error: null };
   if (batchesResult.error) throw new Error("Attendance batch labels could not be loaded.");
 
