@@ -4,6 +4,7 @@ import Layout from "../components/Layout";
 import { getAcademyAttendanceInsights, getAcademyCenterBatchCatalog, getAcademyOwnerAnalyticsV2 } from "../services/analyticsV2Service";
 import { getCoachAnalytics, getCoachMonthStats } from "../services/coachAnalyticsService";
 import { getAcademyEnquiriesAnalytics } from "../services/enquiriesAnalyticsService";
+import { aggregateFinancePeriod, financeGrowth, getFinanceComparison, getFinanceHistory, getFinancePeriod } from "../services/financeHistoryService";
 import "./AcademyOwnerAnalyticsV2.css";
 
 const getCurrentMonth = () => {
@@ -138,6 +139,16 @@ function AcademyOwnerAnalyticsV2({ user }) {
   const [enquiryData, setEnquiryData] = useState(null);
   const [enquiryLoading, setEnquiryLoading] = useState(false);
   const [enquiryError, setEnquiryError] = useState("");
+  const [financeMonth, setFinanceMonth] = useState(getCurrentMonth);
+  const [financeFrequency, setFinanceFrequency] = useState("monthly");
+  const [financeComparison, setFinanceComparison] = useState("previous");
+  const [financeCustomStart, setFinanceCustomStart] = useState("2025-04");
+  const [financeCustomEnd, setFinanceCustomEnd] = useState("2025-04");
+  const [financeHistory, setFinanceHistory] = useState(null);
+  const [financeBaseline, setFinanceBaseline] = useState(null);
+  const [financeHistoryLoading, setFinanceHistoryLoading] = useState(false);
+  const [financeHistoryError, setFinanceHistoryError] = useState("");
+
 
   useEffect(() => {
     let active = true;
@@ -218,6 +229,42 @@ function AcademyOwnerAnalyticsV2({ user }) {
       .finally(() => { if (active) setEnquiryLoading(false); });
     return () => { active = false; };
   }, [activeTab, user, enquiryMonth, enquiryWindow, refreshKey]);
+
+  useEffect(() => {
+    if (activeTab !== "finance" || !user?.academy_id) return undefined;
+    let active = true;
+    const loadFinance = async () => {
+      setFinanceHistoryLoading(true);
+      setFinanceHistoryError("");
+      setFinanceHistory(null);
+      setFinanceBaseline(null);
+      try {
+        const current = getFinancePeriod(financeMonth, financeFrequency);
+        const comparison = getFinanceComparison(current, financeComparison,
+          financeComparison === "custom" ? {
+            startMonth: financeCustomStart, endExclusiveMonth: (() => {
+              const [year, month] = financeCustomEnd.split("-").map(Number);
+              return `${year + (month === 12 ? 1 : 0)}-${String(month === 12 ? 1 : month + 1).padStart(2, "0")}`;
+            })()
+          } : null);
+        if (comparison.months !== current.months) throw new Error("Custom comparison must have the same duration as the selected reporting period.");
+        const [currentRows, baselineRows] = await Promise.all([
+          getFinanceHistory(user, current.startMonth, current.endExclusiveMonth),
+          getFinanceHistory(user, comparison.startMonth, comparison.endExclusiveMonth)
+        ]);
+        if (active) {
+          setFinanceHistory({ period: current, rows: currentRows });
+          setFinanceBaseline({ period: comparison, rows: baselineRows });
+        }
+      } catch (err) {
+        if (active) setFinanceHistoryError(err.message || "Unable to load financial history.");
+      } finally {
+        if (active) setFinanceHistoryLoading(false);
+      }
+    };
+    loadFinance();
+    return () => { active = false; };
+  }, [activeTab, user, financeMonth, financeFrequency, financeComparison, financeCustomStart, financeCustomEnd, refreshKey]);
 
   const supportedRecords = insights.records.filter(record => record.status === "present" || record.status === "absent");
   const playerTotals = new Map();
@@ -528,83 +575,60 @@ function AcademyOwnerAnalyticsV2({ user }) {
         )}
 
         {activeTab === "finance" && (
-        <section className="owner-analytics-section">
-          <div className="owner-analytics-section-heading">
-            <div>
-              <span>ACADEMY FINANCIALS</span>
-              <h2>Finance</h2>
+          <section className="owner-analytics-section owner-analytics-finance-history">
+            <div className="owner-analytics-section-heading">
+              <div><span>ACADEMY FINANCIALS</span><h2>Financial performance</h2></div>
+              <div className="owner-analytics-finance-filters">
+                <label>Reporting month <input type="month" value={financeMonth} onChange={e => setFinanceMonth(e.target.value)} /></label>
+                <label>Period <select value={financeFrequency} onChange={e => setFinanceFrequency(e.target.value)}>
+                  <option value="monthly">Monthly</option><option value="quarterly">Quarterly</option>
+                  <option value="halfYearly">Half-yearly</option><option value="yearly">Financial year (Apr–Mar)</option>
+                </select></label>
+                <label>Compare with <select value={financeComparison} onChange={e => setFinanceComparison(e.target.value)}>
+                  <option value="previous">Previous period</option><option value="lastYear">Same period last year</option>
+                  <option value="custom">Custom period</option>
+                </select></label>
+                {financeComparison === "custom" && <>
+                  <label>Custom from <input type="month" value={financeCustomStart} onChange={e => setFinanceCustomStart(e.target.value)} /></label>
+                  <label>Custom through <input type="month" value={financeCustomEnd} onChange={e => setFinanceCustomEnd(e.target.value)} /></label>
+                </>}
+              </div>
             </div>
-            <p>Recorded collections and current ledger diagnostics</p>
-          </div>
-          <div className="owner-analytics-grid owner-analytics-grid-two">
-            <MetricCard
-              label="Recorded collections"
-              value={formatCurrency(finance.grossRecordedCollections?.value)}
-              note="Payment entries by payment date"
-              quality={finance.grossRecordedCollections?.quality}
-              tone="positive"
-            />
-            <MetricCard
-              label="Signed adjustments"
-              value={formatCurrency(finance.signedAdjustments?.value)}
-              note="Adjustments recorded in the month"
-              quality={finance.signedAdjustments?.quality}
-            />
-            <MetricCard
-              label="Recorded expenses"
-              value={formatCurrency(finance.recordedExpenses?.value)}
-              note="Academy expenses by expense date"
-              quality={finance.recordedExpenses?.quality}
-              tone="warning"
-            />
-            <MetricCard
-              label="Net recorded movement"
-              value={formatCurrency(finance.netRecordedCashMovement?.value)}
-              note="Collections less recorded expenses; not profit"
-              quality={finance.netRecordedCashMovement?.quality}
-              tone="primary"
-            />
-          </div>
-          <MetricBreakdown
-            title="Collections vs expenses"
-            description="Recorded gross collections and expenses for the selected month"
-            firstLabel="Collections"
-            firstValue={finance.grossRecordedCollections?.value}
-            secondLabel="Expenses"
-            secondValue={finance.recordedExpenses?.value}
-            firstTone="blue"
-            secondTone="orange"
-            formatter={formatCurrency}
-          />
-          <div className="owner-analytics-grid owner-analytics-grid-two owner-analytics-grid-secondary">
-            <MetricCard
-              label="Current outstanding"
-              value={formatCurrency(finance.currentLedgerOutstanding?.value)}
-              note="Current due ledger balance, not month-end historical balance"
-              quality={finance.currentLedgerOutstanding?.quality}
-            />
-            <MetricCard
-              label="Historical outstanding"
-              value={formatCurrency(finance.historicalOutstanding?.value)}
-              note="Requires month-end snapshots"
-              quality={finance.historicalOutstanding?.quality}
-            />
-          </div>
-          <div className="owner-analytics-quality-note">
-            <strong>Finance data limitations</strong>
-            <p>Historical outstanding is not available yet. Current outstanding reflects today's due ledger and must not be interpreted as the selected month's closing balance.</p>
-          </div>
-          <div className="owner-analytics-detail">
-            <h3>Data quality details</h3>
-            <div>
-              <span>Collection cohort rate</span>
-              <strong>{formatPercent(finance.cohortCollectionRatePercent?.value)}</strong>
-              <small>{finance.cohortCollectionRatePercent?.quality || "unavailable"}</small>
+            <p className="owner-analytics-finance-note">Indian financial year: April–March. Collections follow payment date (IST), expenses follow expense date. Figures reflect recorded ledger entries only, not bank-verified receipts or accounting profit. Historical outstanding remains unavailable without verifiable snapshots.</p>
+            {financeHistoryLoading ? <p role="status">Loading financial history…</p> :
+              financeHistoryError ? <div className="owner-analytics-quality-note" role="alert"><strong>Financial history unavailable</strong><p>{financeHistoryError}</p><button type="button" onClick={() => setRefreshKey(value => value + 1)}>Retry</button></div> :
+              financeHistory && financeBaseline ? (() => {
+                const current = aggregateFinancePeriod(financeHistory.rows);
+                const previous = aggregateFinancePeriod(financeBaseline.rows);
+                const growth = financeGrowth(current.collections, previous.collections);
+                const label = range => `${range.startMonth} to ${range.endExclusiveMonth} (exclusive)`;
+                const kpis = [
+                  { name: "Gross collections", value: current.collections, compare: previous.collections, tone: "positive" },
+                  { name: "Signed adjustments", value: current.adjustments, compare: previous.adjustments },
+                  { name: "Recorded expenses", value: current.expenses, compare: previous.expenses, tone: "warning" },
+                  { name: "Net cash movement", value: current.netCashMovement, compare: previous.netCashMovement, tone: "primary" }
+                ];
+                return <>
+                  <div className="owner-analytics-finance-period-caption">Selected: {label(financeHistory.period)} · Comparison: {label(financeBaseline.period)}</div>
+                  <div className="owner-analytics-finance-kpis">
+                    {kpis.map(kpi => <article key={kpi.name}>
+                      <span>{kpi.name}</span><strong>{formatCurrency(kpi.value)}</strong>
+                      <small>Comparison: {formatCurrency(kpi.compare)}</small>
+                    </article>)}
+                    <article className="owner-analytics-finance-growth">
+                      <span>Collections growth</span><strong>{growth === null ? "N/A" : `${growth > 0 ? "+" : ""}${formatPercent(growth)}`}</strong>
+                      <small>{growth === null ? "No positive comparison baseline" : "Versus selected comparison period"}</small>
+                    </article>
+                  </div>
+                  <p className="owner-analytics-finance-note">A zero in a period means no matching records in Kheltriva, not proof of no off-platform transactions. Current incomplete periods are not normalized to full-period equivalents.</p>
+                </>;
+              })() : null}
+            <div className="owner-analytics-quality-note">
+              <strong>Current ledger diagnostics</strong>
+              <p>Current outstanding: {formatCurrency(finance.currentLedgerOutstanding?.value)} ({finance.currentLedgerOutstanding?.quality || "unavailable"}). This is today's balance, not a historical month-end balance. Due-ledger reconciliation discrepancies are under investigation.</p>
+              <MetricNotes metric={finance.currentDueLedgerReconciliation} />
             </div>
-            <MetricNotes metric={finance.currentDueLedgerReconciliation} />
-            <MetricNotes metric={finance.cohortCollectionRatePercent} />
-          </div>
-        </section>
+          </section>
         )}
 
       </main>
