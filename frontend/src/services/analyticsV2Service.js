@@ -70,8 +70,13 @@ export async function getAcademyCenterBatchCatalog(user) {
   const centerIds = centers.map(center => String(center.id));
   if (!centerIds.length) return { centers: [] };
 
+  // Match the exact Academy Owner batch scope used by Batches.js /
+  // getAccessibleBatches: academy_id + active batches. Keep center IDs as
+  // an additional structural constraint. RLS policies may require academy_id.
   const batchesResult = await supabase.from("batches")
-    .select("id, batch_name, center_id")
+    .select("id, batch_name, center_id, academy_id")
+    .eq("academy_id", user.academy_id)
+    .eq("is_active", true)
     .in("center_id", centerIds)
     .order("batch_name");
 
