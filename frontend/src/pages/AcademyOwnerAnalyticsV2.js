@@ -280,6 +280,23 @@ function AcademyOwnerAnalyticsV2({ user }) {
               {tab.label}
             </button>
           ))}
+          {activeTab === "finance" && (
+              <div className="owner-analytics-finance-filters owner-analytics-finance-filters-top">
+                <label>Reporting month <input type="month" value={financeMonth} onChange={e => setFinanceMonth(e.target.value)} /></label>
+                <label>Period <select value={financeFrequency} onChange={e => setFinanceFrequency(e.target.value)}>
+                  <option value="monthly">Monthly</option><option value="quarterly">Quarterly</option>
+                  <option value="halfYearly">Half-yearly</option><option value="yearly">Financial year (Apr–Mar)</option>
+                </select></label>
+                <label>Compare with <select value={financeComparison} onChange={e => setFinanceComparison(e.target.value)}>
+                  <option value="previous">Previous period</option><option value="lastYear">Same period last year</option>
+                  <option value="custom">Custom period</option>
+                </select></label>
+                {financeComparison === "custom" && <>
+                  <label>Custom from <input type="month" value={financeCustomStart} onChange={e => setFinanceCustomStart(e.target.value)} /></label>
+                  <label>Custom through <input type="month" value={financeCustomEnd} onChange={e => setFinanceCustomEnd(e.target.value)} /></label>
+                </>}
+              </div>
+          )}
         </nav>
 
         {activeTab === "attendance" && (
@@ -543,30 +560,14 @@ function AcademyOwnerAnalyticsV2({ user }) {
           <section className="owner-analytics-section owner-analytics-finance-history">
             <div className="owner-analytics-section-heading">
               <div><span>ACADEMY FINANCIALS</span><h2>Financial performance</h2></div>
-              <div className="owner-analytics-finance-filters">
-                <label>Reporting month <input type="month" value={financeMonth} onChange={e => setFinanceMonth(e.target.value)} /></label>
-                <label>Period <select value={financeFrequency} onChange={e => setFinanceFrequency(e.target.value)}>
-                  <option value="monthly">Monthly</option><option value="quarterly">Quarterly</option>
-                  <option value="halfYearly">Half-yearly</option><option value="yearly">Financial year (Apr–Mar)</option>
-                </select></label>
-                <label>Compare with <select value={financeComparison} onChange={e => setFinanceComparison(e.target.value)}>
-                  <option value="previous">Previous period</option><option value="lastYear">Same period last year</option>
-                  <option value="custom">Custom period</option>
-                </select></label>
-                {financeComparison === "custom" && <>
-                  <label>Custom from <input type="month" value={financeCustomStart} onChange={e => setFinanceCustomStart(e.target.value)} /></label>
-                  <label>Custom through <input type="month" value={financeCustomEnd} onChange={e => setFinanceCustomEnd(e.target.value)} /></label>
-                </>}
-              </div>
+
             </div>
-            <p className="owner-analytics-finance-note">Indian financial year: April–March. Collections follow payment date (IST), expenses follow expense date. Figures reflect recorded ledger entries only, not bank-verified receipts or accounting profit. Historical outstanding remains unavailable without verifiable snapshots.</p>
             {financeHistoryLoading ? <p role="status">Loading financial history…</p> :
               financeHistoryError ? <div className="owner-analytics-quality-note" role="alert"><strong>Financial history unavailable</strong><p>{financeHistoryError}</p><button type="button" onClick={() => setRefreshKey(value => value + 1)}>Retry</button></div> :
               financeHistory && financeBaseline ? (() => {
                 const current = aggregateFinancePeriod(financeHistory.rows);
                 const previous = aggregateFinancePeriod(financeBaseline.rows);
                 const growth = financeGrowth(current.collections, previous.collections);
-                const label = range => `${range.startMonth} to ${range.endExclusiveMonth} (exclusive)`;
                 const kpis = [
                   { name: "Gross collections", value: current.collections, compare: previous.collections, tone: "positive" },
                   { name: "Signed adjustments", value: current.adjustments, compare: previous.adjustments },
@@ -574,7 +575,6 @@ function AcademyOwnerAnalyticsV2({ user }) {
                   { name: "Net cash movement", value: current.netCashMovement, compare: previous.netCashMovement, tone: "primary" }
                 ];
                 return <>
-                  <div className="owner-analytics-finance-period-caption">Selected: {label(financeHistory.period)} · Comparison: {label(financeBaseline.period)}</div>
                   <div className="owner-analytics-finance-kpis">
                     {kpis.map(kpi => <article key={kpi.name}>
                       <span>{kpi.name}</span><strong>{formatCurrency(kpi.value)}</strong>
