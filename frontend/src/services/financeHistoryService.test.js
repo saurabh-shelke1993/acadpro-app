@@ -1,3 +1,4 @@
+jest.mock("../supabaseClient", () => ({ supabase: { from: jest.fn() } }));
 import { aggregateFinancePeriod, financeGrowth, getFinanceComparison, getFinancePeriod } from "./financeHistoryService";
 
 describe("F3 Indian financial-year periods", () => {
