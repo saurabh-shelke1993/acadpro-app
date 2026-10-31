@@ -416,7 +416,7 @@ return (
   <tr>
     {!isAcademyOwner(user) && <th scope="col">Academy</th>}
     <th scope="col">Center Name</th>
-    <th scope="col">Assigned Coaches</th>
+    {(isSuperAdmin(user) || isAcademyOwner(user)) && <th scope="col">Assigned Coaches</th>}
     {(isSuperAdmin(user) || isAcademyOwner(user)) && (
       <th scope="col" className="centers-actions-heading">Actions</th>
     )}
@@ -426,7 +426,7 @@ return (
 <tbody>
   {filteredCenters.length === 0 ? (
     <tr>
-      <td className="centers-empty-state" colSpan={isAcademyOwner(user) ? 3 : 4}>
+      <td className="centers-empty-state" colSpan={isAcademyOwner(user) ? 3 : isSuperAdmin(user) ? 4 : 2}>
         <strong>No active centers</strong>
         <span>{isSuperAdmin(user) && selectedAcademy ? "No centers match the selected academy." : "No active centers are available in your current scope."}</span>
       </td>
@@ -465,14 +465,14 @@ return (
             </Link>
           </td>
 
-          <td className="centers-coaches-cell">
+          {(isSuperAdmin(user) || isAcademyOwner(user)) && <td className="centers-coaches-cell">
             {(coachesByCenter[center.id] || []).length ? (
               <div className="centers-coaches-list">
                 <strong>{coachesByCenter[center.id].length} coach{coachesByCenter[center.id].length === 1 ? "" : "es"}</strong>
                 <span>{coachesByCenter[center.id].map(coach => coach.name).join(", ")}</span>
               </div>
             ) : <span className="centers-unassigned">Not assigned</span>}
-          </td>
+          </td>}
           {(isSuperAdmin(user) || isAcademyOwner(user)) && (
             <td className="centers-actions-cell">
               <div className="centers-row-actions">
