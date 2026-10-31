@@ -1058,3 +1058,14 @@
 .owner-analytics-finance-kpis small { font-size:11px;color:#64748b; }
 @media(max-width:680px) { .owner-analytics-finance-filters { width:100%; } .owner-analytics-finance-filters label { flex:1 1 135px; } .owner-analytics-finance-filters input,.owner-analytics-finance-filters select { width:100%;max-width:none; } .owner-analytics-finance-kpis { grid-template-columns:repeat(2,minmax(0,1fr));gap:9px; } .owner-analytics-finance-kpis article { padding:12px; } }
 @media(max-width:370px) { .owner-analytics-finance-kpis { grid-template-columns:1fr; } }
+
+/* F5: Financial growth charts and accessible period table */
+.owner-analytics-finance-trends { min-width:0;display:grid;gap:10px;margin:12px 0 4px;padding:16px;border:1px solid #e2e8f0;border-radius:12px;background:#fff; }
+.owner-analytics-finance-chart { height:330px;min-width:0;width:100%; }
+.owner-analytics-finance-trend-table-wrap { width:100%;overflow-x:auto; }
+.owner-analytics-finance-trend-table { width:100%;border-collapse:collapse;font-size:12px; }
+.owner-analytics-finance-trend-table th,.owner-analytics-finance-trend-table td { text-align:right;padding:11px 12px;border-bottom:1px solid #e2e8f0;white-space:nowrap; }
+.owner-analytics-finance-trend-table th:first-child,.owner-analytics-finance-trend-table td:first-child { text-align:left; }
+.owner-analytics-finance-trend-table thead { background:#f8fafc;color:#64748b; }
+.owner-analytics-finance-trend-table tbody th { color:#102a43; }
+@media(max-width:680px){ .owner-analytics-finance-trends{padding:10px;} .owner-analytics-finance-chart{height:270px;} }
