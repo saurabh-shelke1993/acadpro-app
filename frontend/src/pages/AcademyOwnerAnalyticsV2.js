@@ -17,12 +17,6 @@ const getCurrentMonth = () => {
   return year && month ? `${year}-${month}` : new Date().toISOString().slice(0, 7);
 };
 
-const getMonthDateRange = (month) => {
-  const [year, monthNumber] = month.split("-").map(Number);
-  const lastDay = new Date(Date.UTC(year, monthNumber, 0)).getUTCDate();
-  return { startDate: `${month}-01`, endDate: `${month}-${String(lastDay).padStart(2, "0")}` };
-};
-
 const toIsoDate = (date) => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
