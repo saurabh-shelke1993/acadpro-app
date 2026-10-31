@@ -38,3 +38,28 @@ describe("F5 trend grouping", () => {
     expect(buildFinanceTrend(rows, "halfYearly").map(item => item.period)).toEqual(["2025-10", "2026-04", "2026-10"]);
   });
 });
+
+describe("F8 Finance reporting regression cases", () => {
+  test("April starts the new Indian financial year and March ends the prior year", () => {
+    expect(getFinancePeriod("2026-04", "yearly")).toEqual({ startMonth: "2026-04", endExclusiveMonth: "2027-04", months: 12 });
+    expect(getFinancePeriod("2026-03", "yearly")).toEqual({ startMonth: "2025-04", endExclusiveMonth: "2026-04", months: 12 });
+  });
+  test("previous and last-year comparisons cross calendar years correctly", () => {
+    const jan = getFinancePeriod("2027-01", "monthly");
+    expect(getFinanceComparison(jan, "previous").startMonth).toBe("2026-12");
+    expect(getFinanceComparison(jan, "lastYear").startMonth).toBe("2026-01");
+    const fy = getFinancePeriod("2027-02", "yearly");
+    expect(getFinanceComparison(fy, "previous").startMonth).toBe("2025-04");
+  });
+  test("empty periods remain zero without fabricated growth", () => {
+    expect(aggregateFinancePeriod([])).toEqual({ collections: 0, adjustments: 0, expenses: 0, netCashMovement: 0 });
+    expect(financeGrowth(0, 0)).toBeNull();
+    expect(financeGrowth(0, 100)).toBe(-100);
+    expect(financeGrowth(100, -50)).toBeNull();
+  });
+  test("invalid dates, unsupported frequencies and oversized custom comparisons fail", () => {
+    expect(() => getFinancePeriod("2026-13", "monthly")).toThrow();
+    expect(() => getFinancePeriod("2026-04", "weekly")).toThrow();
+    expect(() => getFinanceComparison(getFinancePeriod("2026-04"), "custom", { startMonth: "2020-01", endExclusiveMonth: "2026-01" })).toThrow();
+  });
+});
