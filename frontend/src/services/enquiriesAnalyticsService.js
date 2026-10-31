@@ -1,4 +1,4 @@
-import { supabase } from "../supabaseClient";
+import { supabase } from "./supabase";
 
 // Read-only Enquiries Analytics. Cohorts use the enquiry creation month in
 // Asia/Kolkata; conversion is counted to date, not in the conversion month.
