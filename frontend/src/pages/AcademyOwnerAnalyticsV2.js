@@ -267,6 +267,10 @@ function AcademyOwnerAnalyticsV2({ user }) {
                     <section className="owner-analytics-center-group" key={center.centerId}>
                       <h3>{center.centerName}</h3>
                       {chartRows.length ? (
+                        <>
+                        <div className="owner-analytics-batch-names" aria-label={`Batches at ${center.centerName}`}>
+                          {chartRows.map(batch => <span key={batch.batchId}>{batch.batchName}</span>)}
+                        </div>
                         <div className="owner-analytics-center-chart">
                           <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={chartRows} margin={{ top: 8, right: 8, left: 0, bottom: 8 }} barGap={3}>
@@ -280,7 +284,8 @@ function AcademyOwnerAnalyticsV2({ user }) {
                             </BarChart>
                           </ResponsiveContainer>
                         </div>
-                      ) : <p className="owner-analytics-chart-empty">No batches configured for this center.</p>}
+                        </>
+                      ) : <p className="owner-analytics-chart-empty">No batches returned for this center. Check the academy batch catalogue query and its access policies.</p>}
                     </section>
                   );
                 })}
