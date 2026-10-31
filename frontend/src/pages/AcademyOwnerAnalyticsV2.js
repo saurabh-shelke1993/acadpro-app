@@ -160,7 +160,9 @@ function AcademyOwnerAnalyticsV2({ user }) {
         <nav className="owner-analytics-tabs" role="group" aria-label="Analytics sections">
           {[
             { id: "attendance", label: "Attendance" },
-            { id: "finance", label: "Finance" }
+            { id: "finance", label: "Finance" },
+            { id: "coaches", label: "Coaches" },
+            { id: "enquiries", label: "Enquiries" }
           ].map((tab) => (
             <button
               key={tab.id}
@@ -222,29 +224,6 @@ function AcademyOwnerAnalyticsV2({ user }) {
 
         {activeTab === "attendance" && (
         <section className="owner-analytics-section">
-          <div className="owner-analytics-grid owner-analytics-grid-three">
-            <MetricCard
-              label="Present marks"
-              value={formatNumber(attendance.presentMarks?.value)}
-              note="Supported present records"
-              quality={attendance.presentMarks?.quality}
-              tone="positive"
-            />
-            <MetricCard
-              label="Absent marks"
-              value={formatNumber(attendance.absentMarks?.value)}
-              note="Supported absent records"
-              quality={attendance.absentMarks?.quality}
-              tone="warning"
-            />
-            <MetricCard
-              label="Recorded-mark rate"
-              value={formatPercent(attendance.attendanceRatePercent?.value)}
-              note="Present ÷ (present + absent)"
-              quality={attendance.attendanceRatePercent?.quality}
-              tone="primary"
-            />
-          </div>
           <section className="owner-analytics-batch-chart">
             <div className="owner-analytics-batch-chart-heading">
               <div><strong>Batch-wise attendance</strong><p>Recorded present and absent marks for the selected period</p></div>
@@ -268,6 +247,32 @@ function AcademyOwnerAnalyticsV2({ user }) {
             )}
           </section>
         </section>
+        )}
+
+        {activeTab === "coaches" && (
+          <section className="owner-analytics-section">
+            <div className="owner-analytics-section-heading">
+              <div><span>ACADEMY OPERATIONS</span><h2>Coaches</h2></div>
+              <p>Coach analytics will be added in a follow-up step.</p>
+            </div>
+            <div className="owner-analytics-quality-note">
+              <strong>Coach analytics not available yet</strong>
+              <p>We have not connected verified coach assignment and performance metrics to this section yet.</p>
+            </div>
+          </section>
+        )}
+
+        {activeTab === "enquiries" && (
+          <section className="owner-analytics-section">
+            <div className="owner-analytics-section-heading">
+              <div><span>ACADEMY GROWTH</span><h2>Enquiries</h2></div>
+              <p>Enquiry analytics will be added in a follow-up step.</p>
+            </div>
+            <div className="owner-analytics-quality-note">
+              <strong>Enquiry analytics not available yet</strong>
+              <p>We have not connected an approved enquiry data source and conversion definition to this section yet.</p>
+            </div>
+          </section>
         )}
 
         {activeTab === "finance" && (
