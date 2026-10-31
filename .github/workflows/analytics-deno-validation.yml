@@ -106,6 +106,10 @@ jobs:
         working-directory: frontend
         run: npm ci
 
+      - name: Run Finance F3 unit tests
+        working-directory: frontend
+        run: CI=true npm test -- --watch=false --runInBand --runTestsByPath src/services/financeHistoryService.test.js
+
       - name: Build frontend
         working-directory: frontend
         run: npm run build
