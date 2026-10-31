@@ -5,6 +5,7 @@ import { getAcademyAttendanceInsights, getAcademyCenterBatchCatalog, getAcademyO
 import { getCoachAnalytics, getCoachMonthStats } from "../services/coachAnalyticsService";
 import { getAcademyEnquiriesAnalytics } from "../services/enquiriesAnalyticsService";
 import { aggregateFinancePeriod, buildFinanceTrend, financeGrowth, getFinanceComparison, getFinanceHistory, getFinancePeriod } from "../services/financeHistoryService";
+import { getCenterCollections } from "../services/financeCenterService";
 import "./AcademyOwnerAnalyticsV2.css";
 
 const getCurrentMonth = () => {
@@ -92,6 +93,8 @@ function AcademyOwnerAnalyticsV2({ user }) {
   const [financeHistoryLoading, setFinanceHistoryLoading] = useState(false);
   const [financeHistoryError, setFinanceHistoryError] = useState("");
   const [financeTrend, setFinanceTrend] = useState(null);
+  const [financeCenters, setFinanceCenters] = useState(null);
+  const [financeCenterBaseline, setFinanceCenterBaseline] = useState(null);
 
 
   useEffect(() => {
@@ -183,6 +186,8 @@ function AcademyOwnerAnalyticsV2({ user }) {
       setFinanceHistory(null);
       setFinanceBaseline(null);
       setFinanceTrend(null);
+      setFinanceCenters(null);
+      setFinanceCenterBaseline(null);
       try {
         const current = getFinancePeriod(financeMonth, financeFrequency);
         const comparison = getFinanceComparison(current, financeComparison,
@@ -197,15 +202,19 @@ function AcademyOwnerAnalyticsV2({ user }) {
         const [year, month] = current.startMonth.split("-").map(Number);
         const firstIndex = year * 12 + month - 1 - (lookback - current.months);
         const trendStart = `${Math.floor(firstIndex / 12)}-${String(firstIndex % 12 + 1).padStart(2, "0")}`;
-        const [currentRows, baselineRows, trendRows] = await Promise.all([
+        const [currentRows, baselineRows, trendRows, currentCenters, previousCenters] = await Promise.all([
           getFinanceHistory(user, current.startMonth, current.endExclusiveMonth),
           getFinanceHistory(user, comparison.startMonth, comparison.endExclusiveMonth),
-          getFinanceHistory(user, trendStart, current.endExclusiveMonth)
+          getFinanceHistory(user, trendStart, current.endExclusiveMonth),
+          getCenterCollections(user, current.startMonth, current.endExclusiveMonth),
+          getCenterCollections(user, comparison.startMonth, comparison.endExclusiveMonth)
         ]);
         if (active) {
           setFinanceHistory({ period: current, rows: currentRows });
           setFinanceBaseline({ period: comparison, rows: baselineRows });
           setFinanceTrend(buildFinanceTrend(trendRows, financeFrequency));
+          setFinanceCenters(currentCenters);
+          setFinanceCenterBaseline(previousCenters);
         }
       } catch (err) {
         if (active) setFinanceHistoryError(err.message || "Unable to load financial history.");
@@ -604,6 +613,39 @@ function AcademyOwnerAnalyticsV2({ user }) {
                       </table>
                     </div>
                     <p className="owner-analytics-finance-note">* Partial reporting range; period growth should not be interpreted as a like-for-like full-period comparison.</p>
+                  </section>}
+                  {financeCenters && financeCenterBaseline && <section className="owner-analytics-finance-trends" aria-label="Center-wise financial contribution">
+                    <div className="owner-analytics-batch-chart-heading">
+                      <div><strong>Center-wise collections</strong><p>Contribution to academy gross collections · selected reporting period</p></div>
+                    </div>
+                    <div className="owner-analytics-finance-center-chart">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={financeCenters.centers} layout="vertical" margin={{ top: 5, right: 20, bottom: 5, left: 12 }}>
+                          <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                          <XAxis type="number" tickFormatter={value => `₹${Number(value).toLocaleString("en-IN", { notation: "compact" })}`} tick={{ fontSize: 11 }} />
+                          <YAxis type="category" dataKey="centerName" width={125} tick={{ fontSize: 11 }} />
+                          <Tooltip formatter={value => formatCurrency(value)} />
+                          <Bar dataKey="collections" name="Gross collections" fill="#1d4ed8" radius={[0, 5, 5, 0]} maxBarSize={26} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                    <div className="owner-analytics-finance-trend-table-wrap">
+                      <table className="owner-analytics-finance-trend-table">
+                        <thead><tr><th>Center (current assignment)</th><th>Collections</th><th>Contribution</th><th>Previous / comparison</th><th>Growth</th></tr></thead>
+                        <tbody>{financeCenters.centers.map(center => {
+                          const previousCenter = financeCenterBaseline.centers.find(row => row.centerId === center.centerId);
+                          const growth = financeGrowth(center.collections, previousCenter?.collections ?? 0);
+                          return <tr key={center.centerId}>
+                            <th scope="row">{center.centerName}</th><td>{formatCurrency(center.collections)}</td>
+                            <td>{center.contributionPercent === null ? "N/A" : formatPercent(center.contributionPercent)}</td>
+                            <td>{formatCurrency(previousCenter?.collections ?? 0)}</td>
+                            <td>{growth === null ? "N/A" : formatPercent(growth)}</td>
+                          </tr>;
+                        })}</tbody>
+                      </table>
+                    </div>
+                    {financeCenters.unattributedEntries > 0 && <p className="owner-analytics-finance-note">Unattributed gross: {formatCurrency(financeCenters.unattributedGross)} across {financeCenters.unattributedEntries} ledger entries; included in academy totals, not assigned to a center.</p>}
+                    <p className="owner-analytics-finance-note">Center attribution uses each player's current center, including for older payments. Transfers can change historical center breakdowns. Academy totals are based on recorded transactions; center comparisons are indicative, not historical center snapshots. Expenses are academy-level and are not allocated to centers.</p>
                   </section>}
                   <p className="owner-analytics-finance-note">A zero in a period means no matching records in Kheltriva, not proof of no off-platform transactions. Current incomplete periods are not normalized to full-period equivalents.</p>
                 </>;
