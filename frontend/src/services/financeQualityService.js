@@ -20,17 +20,20 @@ export function reconcileFinanceDues(dues, payments) {
     if (!["payment", "adjustment"].includes(payment.payment_entry_type)) throw new Error("Unknown payment entry type.");
     ledger.set(payment.due_id, (ledger.get(payment.due_id) || 0) + toCents(payment.amount_paid));
   }
-  let mismatchCount = 0, differenceCents = 0, paidWithoutEntries = 0;
+  let mismatchCount = 0, differenceCents = 0, paidWithoutEntries = 0, overlinkedCount = 0, underlinkedCount = 0, noLinkedTransactionAmountCents = 0;
   for (const due of dues) {
     const recorded = toCents(due.paid_amount);
     const linked = ledger.get(due.id) || 0;
     if (recorded !== linked) {
       mismatchCount++;
       differenceCents += recorded - linked;
-      if (!ledger.has(due.id) && recorded > 0) paidWithoutEntries++;
+      if (recorded < linked) overlinkedCount++;
+      if (recorded > linked) underlinkedCount++;
+      if (!ledger.has(due.id) && recorded > 0) { paidWithoutEntries++; noLinkedTransactionAmountCents += recorded; }
     }
   }
   return { dueCount: dues.length, mismatchCount, difference: differenceCents / 100, paidWithoutEntries,
+    overlinkedCount, underlinkedCount, noLinkedTransactionAmount: noLinkedTransactionAmountCents / 100,
     quality: mismatchCount ? "partial" : "reconciled",
     historicalOutstandingAvailable: false, collectionEfficiencyAvailable: false };
 }
