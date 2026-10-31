@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Bar, BarChart, CartesianGrid, Legend, Line, ComposedChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import Layout from "../components/Layout";
 import { getAcademyAttendanceInsights, getAcademyCenterBatchCatalog, getAcademyOwnerAnalyticsV2 } from "../services/analyticsV2Service";
+import { getCoachAnalytics, getCoachMonthStats } from "../services/coachAnalyticsService";
 import "./AcademyOwnerAnalyticsV2.css";
 
 const getCurrentMonth = () => {
@@ -132,6 +133,10 @@ function AcademyOwnerAnalyticsV2({ user }) {
   const [refreshKey, setRefreshKey] = useState(0);
   const [activeTab, setActiveTab] = useState("attendance");
   const [playerPage, setPlayerPage] = useState(1);
+  const [coachData, setCoachData] = useState(null);
+  const [coachError, setCoachError] = useState("");
+  const [coachMonth, setCoachMonth] = useState(getCurrentMonth);
+  const [expandedCoach, setExpandedCoach] = useState(null);
 
   useEffect(() => {
     let active = true;
@@ -184,6 +189,18 @@ function AcademyOwnerAnalyticsV2({ user }) {
       .catch(err => { if (active) { setInsightsError(err.message || "Attendance insights unavailable."); setInsights({ records: [], players: [] }); } });
     return () => { active = false; };
   }, [user, attendanceCatalog, attendanceRange, refreshKey]);
+
+  useEffect(() => {
+    if (activeTab !== "coaches" || !user?.academy_id) return undefined;
+    let active = true;
+    setCoachError("");
+    getCoachAnalytics(user.academy_id).then(data => {
+      if (active) setCoachData(data);
+    }).catch(err => {
+      if (active) { setCoachData(null); setCoachError(err.message || "Unable to load coach assignments."); }
+    });
+    return () => { active = false; };
+  }, [activeTab, user?.academy_id, refreshKey]);
 
   const supportedRecords = insights.records.filter(record => record.status === "present" || record.status === "absent");
   const playerTotals = new Map();
@@ -395,13 +412,42 @@ function AcademyOwnerAnalyticsV2({ user }) {
         {activeTab === "coaches" && (
           <section className="owner-analytics-section">
             <div className="owner-analytics-section-heading">
-              <div><span>ACADEMY OPERATIONS</span><h2>Coaches</h2></div>
-              <p>Coach analytics will be added in a follow-up step.</p>
+              <div><span>ACADEMY OPERATIONS</span><h2>Coach assignments & sessions</h2></div>
+              <label>Reporting month <input type="month" value={coachMonth} onChange={event => setCoachMonth(event.target.value)} /></label>
             </div>
-            <div className="owner-analytics-quality-note">
-              <strong>Coach analytics not available yet</strong>
-              <p>We have not connected verified coach assignment and performance metrics to this section yet.</p>
-            </div>
+            <p className="owner-analytics-coach-disclaimer">Scheduled sessions are calculated from active batch schedules and effective-dated coach assignments. Completed sessions cannot be verified from the current records.</p>
+            {coachError ? <p role="alert">{coachError}</p> : !coachData ? <p>Loading coach assignments…</p> : (
+              <>
+                <div className="owner-analytics-coach-summary">
+                  <div><strong>{coachData.length}</strong><span>Active coaches</span></div>
+                  <div><strong>{coachData.filter(c => c.assignments.length).length}</strong><span>With session assignments</span></div>
+                  <div><strong>{coachData.filter(c => !c.assignments.length).length}</strong><span>Without session assignments</span></div>
+                </div>
+                <div className="owner-analytics-coach-list">
+                  {coachData.map(coach => {
+                    const stats = getCoachMonthStats(coach.assignments, coachMonth);
+                    const open = expandedCoach === coach.id;
+                    const centers = new Set(coach.assignments.map(a => a.centerId)).size;
+                    const batches = new Set(coach.assignments.map(a => a.batchId)).size;
+                    return <article key={coach.id} className="owner-analytics-coach-row">
+                      <button type="button" className="owner-analytics-coach-toggle" onClick={() => setExpandedCoach(open ? null : coach.id)} aria-expanded={open}>
+                        <span><strong>{coach.name}</strong><small>{coach.assignments.length ? `${centers} centers · ${batches} batches` : "No active session assignments"}</small></span>
+                        <span><strong>{stats.weekly}</strong><small>Sessions / week</small></span>
+                        <span><strong>{stats.monthly}</strong><small>Scheduled in month</small></span>
+                        <span><strong>—</strong><small>Completed · unverified</small></span>
+                        <span aria-hidden="true">{open ? "−" : "+"}</span>
+                      </button>
+                      {open && <div className="owner-analytics-coach-details">
+                        {coach.assignments.length ? coach.assignments.map(a => <div key={a.id}>
+                          <strong>{a.centerName} · {a.batchName}</strong>
+                          <span>{a.dayName} · {a.startTime?.slice(0,5) || "Time not set"}–{a.endTime?.slice(0,5) || "Time not set"} · {getCoachMonthStats([a], coachMonth).monthly} scheduled this month</span>
+                        </div>) : <p>No active session assignments. Review Coach Batch Mapping; legacy batch-only mappings are not counted as verified session allocations.</p>}
+                      </div>}
+                    </article>;
+                  })}
+                </div>
+              </>
+            )}
           </section>
         )}
 
