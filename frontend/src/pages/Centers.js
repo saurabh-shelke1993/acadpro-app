@@ -37,6 +37,8 @@ const [filteredCenters, setFilteredCenters] =
   const [selectedAcademy, setSelectedAcademy] = useState(academyContextId);
 
   const [centerName, setCenterName] = useState("");
+  const [centerCode, setCenterCode] = useState("");
+  const [centerCodeEdited, setCenterCodeEdited] = useState(false);
 
   const [editingCenterId, setEditingCenterId] =
     useState(null);
@@ -186,10 +188,17 @@ const handleAcademyChange = (academyId) => {
     return;
   }
 
-    if (!centerName) {
+    if (!centerName.trim()) {
 
       alert("Enter center name");
 
+      return;
+    }
+
+    const normalizedName = centerName.trim();
+    const normalizedCode = centerCode.trim().toUpperCase() || suggestCenterCode(normalizedName);
+    if (!/^[A-Z0-9]{2,8}$/.test(normalizedCode)) {
+      alert("Center code must be 2–8 uppercase letters or numbers.");
       return;
     }
 
@@ -202,14 +211,27 @@ if (!isSuperAdmin(user)) {
       academyId = user?.academy_id;
     }
 
-const { data: existingCenter } =
+if (!academyId) { alert("Select an academy first."); return; }
+
+const { data: existingCenter, error: existingCenterError } =
   await supabase
     .from("centers")
     .select("id")
     .eq("academy_id", academyId)
-    .eq("center_name", centerName)
+    .eq("center_name", normalizedName)
     .eq("is_active", true)
     .maybeSingle();
+
+if (existingCenterError) { alert(existingCenterError.message); return; }
+
+const { data: duplicateCode, error: duplicateCodeError } = await supabase
+  .from("centers").select("id").eq("academy_id", academyId)
+  .eq("center_code", normalizedCode).maybeSingle();
+if (duplicateCodeError) { alert(duplicateCodeError.message); return; }
+if (duplicateCode && duplicateCode.id !== editingCenterId) {
+  alert("This center code is already used in the selected academy.");
+  return;
+}
 
 if (
   existingCenter &&
@@ -232,9 +254,11 @@ if (
       const { error } = await supabase
         .from("centers")
         .update({
-          center_name: centerName
+          center_name: normalizedName,
+          center_code: normalizedCode
         })
-        .eq("id", editingCenterId);
+        .eq("id", editingCenterId)
+        .eq("academy_id", academyId);
 
       if (error) {
 
@@ -260,7 +284,8 @@ if (
         .insert([
           {
             academy_id: academyId,
-            center_name: centerName,
+            center_name: normalizedName,
+            center_code: normalizedCode,
             is_active: true
           }
         ]);
@@ -276,6 +301,8 @@ if (
     }
 
     setCenterName("");
+    setCenterCode("");
+    setCenterCodeEdited(false);
     setCurrentPage(1);
     fetchCenters();
   };
@@ -290,6 +317,8 @@ if (
     setSelectedCenterId(center.id);
 
     setCenterName(center.center_name);
+    setCenterCode(center.center_code || suggestCenterCode(center.center_name));
+    setCenterCodeEdited(Boolean(center.center_code));
 
     setSelectedAcademy(center.academy_id);
   };
@@ -331,6 +360,8 @@ if (
     if (editingCenterId === id) {
       setEditingCenterId(null);
       setCenterName("");
+      setCenterCode("");
+      setCenterCodeEdited(false);
     }
 
     fetchCenters();
@@ -394,8 +425,27 @@ return (
               type="text"
               placeholder="Enter Center Name"
               value={centerName}
-              onChange={(e) => setCenterName(e.target.value)}
+              onChange={(e) => {
+                const name = e.target.value;
+                setCenterName(name);
+                if (!centerCodeEdited) setCenterCode(suggestCenterCode(name));
+              }}
             />
+
+            <label className="centers-code-field">
+              <span>Center Code</span>
+              <input
+                type="text"
+                aria-label="Center Code"
+                placeholder="LA"
+                maxLength={8}
+                value={centerCode}
+                onChange={(event) => {
+                  setCenterCode(event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""));
+                  setCenterCodeEdited(true);
+                }}
+              />
+            </label>
 
             <button className="centers-primary-button" onClick={handleSaveCenter}>
               {editingCenterId ? "Update Center" : "Create Center"}
