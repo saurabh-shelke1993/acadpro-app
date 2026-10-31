@@ -999,3 +999,9 @@
   .owner-analytics-player-rate { gap: 0.3rem; }
   .owner-analytics-trend-chart { height: 270px; }
 }
+
+.owner-analytics-player-pagination { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:12px 16px; font-size:12px; color:#64748b; }
+.owner-analytics-player-pagination > div { display:flex; gap:8px; }
+.owner-analytics-player-pagination button { border:1px solid #dbe4ef; background:white; border-radius:7px; padding:7px 12px; color:#1d4ed8; font-weight:700; cursor:pointer; }
+.owner-analytics-player-pagination button:disabled { opacity:.45; cursor:not-allowed; }
+@media(max-width:520px){ .owner-analytics-player-pagination { flex-wrap:wrap; } }
