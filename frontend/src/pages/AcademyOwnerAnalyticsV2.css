@@ -1069,3 +1069,7 @@
 .owner-analytics-finance-trend-table thead { background:#f8fafc;color:#64748b; }
 .owner-analytics-finance-trend-table tbody th { color:#102a43; }
 @media(max-width:680px){ .owner-analytics-finance-trends{padding:10px;} .owner-analytics-finance-chart{height:270px;} }
+
+/* F6: center contribution chart */
+.owner-analytics-finance-center-chart { width:100%;height:280px;min-width:0; }
+@media(max-width:680px) { .owner-analytics-finance-center-chart { height:250px; } }
