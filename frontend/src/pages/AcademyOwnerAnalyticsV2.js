@@ -231,14 +231,14 @@ function AcademyOwnerAnalyticsV2({ user }) {
             {attendance.batchBreakdown?.value?.length ? (
               <div className="owner-analytics-batch-chart-canvas">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={attendance.batchBreakdown.value} margin={{ top: 12, right: 12, left: 0, bottom: 8 }}>
+                  <BarChart data={attendance.batchBreakdown.value} margin={{ top: 12, right: 12, left: 0, bottom: 8 }} barGap={4}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                    <XAxis dataKey="batchName" tick={{ fill: "#64748b", fontSize: 12 }} />
-                    <YAxis allowDecimals={false} tick={{ fill: "#64748b", fontSize: 12 }} />
+                    <XAxis dataKey="batchName" tick={{ fill: "#64748b", fontSize: 11, fontWeight: 600 }} interval={0} />
+                    <YAxis allowDecimals={false} tick={{ fill: "#64748b", fontSize: 11 }} />
                     <Tooltip />
                     <Legend />
-                    <Bar dataKey="present" name="Present" fill="#16a34a" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="absent" name="Absent" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="present" name="Present" fill="#16a34a" radius={[3, 3, 0, 0]} maxBarSize={24} />
+                    <Bar dataKey="absent" name="Absent" fill="#f59e0b" radius={[3, 3, 0, 0]} maxBarSize={24} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
