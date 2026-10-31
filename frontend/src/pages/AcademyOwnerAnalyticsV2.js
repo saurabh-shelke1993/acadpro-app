@@ -193,7 +193,7 @@ function AcademyOwnerAnalyticsV2({ user }) {
     row[record.status] += 1;
     playerTotals.set(id, row);
   });
-  const playerNames = new Map(insights.players.map(player => [String(player.id), [player.first_name, player.last_name].filter(Boolean).join(" ") || "Unnamed player"]));
+  const playerNames = new Map(insights.players.map(player => [String(player.id), player.full_name || "Unnamed player"]));
   const leastAttendance = [...playerTotals.values()]
     .filter(row => row.present + row.absent >= 3 && playerNames.has(row.id))
     .map(row => ({ ...row, name: playerNames.get(row.id), total: row.present + row.absent, rate: Math.round(100 * row.present / (row.present + row.absent)) }))
