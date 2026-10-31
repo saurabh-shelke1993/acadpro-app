@@ -47,3 +47,48 @@ export async function getAcademyOwnerAnalyticsV2(user, snapshotMonth, attendance
 
   return data.result;
 }
+
+
+/**
+ * Load the academy's structural catalogue separately from period attendance.
+ * The catalogue is the source of truth for which centers/batches exist; attendance
+ * is a period metric and must never decide whether a batch is rendered.
+ */
+export async function getAcademyCenterBatchCatalog(user) {
+  if (!user?.academy_id) throw new Error("Your account is not linked to an academy.");
+
+  const [centersResult, batchesResult] = await Promise.all([
+    supabase.from("centers")
+      .select("id, center_name, academy_id")
+      .eq("academy_id", user.academy_id)
+      .order("center_name"),
+    supabase.from("batches")
+      .select("id, batch_name, center_id, academy_id")
+      .eq("academy_id", user.academy_id)
+      .order("batch_name")
+  ]);
+
+  if (centersResult.error) throw centersResult.error;
+  if (batchesResult.error) throw batchesResult.error;
+
+  const centers = centersResult.data || [];
+  const centerById = new Map(centers.map(center => [String(center.id), center]));
+  const batches = (batchesResult.data || [])
+    .filter(batch => batch.center_id && centerById.has(String(batch.center_id)))
+    .map(batch => ({
+      batchId: String(batch.id),
+      batchName: batch.batch_name || "Unnamed batch",
+      centerId: String(batch.center_id),
+      centerName: centerById.get(String(batch.center_id)).center_name || "Unnamed center",
+      present: 0,
+      absent: 0
+    }));
+
+  return {
+    centers: centers.map(center => ({
+      centerId: String(center.id),
+      centerName: center.center_name || "Unnamed center",
+      batches: batches.filter(batch => batch.centerId === String(center.id))
+    }))
+  };
+}
