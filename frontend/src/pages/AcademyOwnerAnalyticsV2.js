@@ -158,7 +158,9 @@ function AcademyOwnerAnalyticsV2({ user }) {
           console.error("Academy Owner Analytics V2 load failed:", loadError);
           setError(loadError.message || "Unable to load monthly analytics.");
           setResult(null);
-          setAttendanceCatalog([]);
+          // Keep the independently loaded structural catalogue visible even if
+          // the period analytics endpoint fails. The chart can still render
+          // every center and batch with zero recorded marks.
         }
       } finally {
         if (active) setLoading(false);
@@ -249,11 +251,17 @@ function AcademyOwnerAnalyticsV2({ user }) {
               <div className="owner-analytics-center-groups">
                 {attendanceCatalog.map((center) => {
                   const recordedByBatch = new Map(
-                    (attendance.batchBreakdown?.value || []).map(item => [String(item.batchId), item])
+                    (attendance.batchBreakdown?.value || []).map(item => [
+                      String(item.batchId ?? item.batch_id ?? item.id), item
+                    ])
                   );
                   const chartRows = center.batches.map(batch => {
-                    const recorded = recordedByBatch.get(batch.batchId);
-                    return { ...batch, present: Number(recorded?.present || 0), absent: Number(recorded?.absent || 0) };
+                    const recorded = recordedByBatch.get(String(batch.batchId));
+                    return {
+                      ...batch,
+                      present: Number(recorded?.present ?? recorded?.presentMarks ?? 0),
+                      absent: Number(recorded?.absent ?? recorded?.absentMarks ?? 0)
+                    };
                   });
                   return (
                     <section className="owner-analytics-center-group" key={center.centerId}>
