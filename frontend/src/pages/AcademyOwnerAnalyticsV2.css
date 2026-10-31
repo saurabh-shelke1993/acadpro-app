@@ -1073,3 +1073,9 @@
 /* F6: center contribution chart */
 .owner-analytics-finance-center-chart { width:100%;height:280px;min-width:0; }
 @media(max-width:680px) { .owner-analytics-finance-center-chart { height:250px; } }
+
+.owner-analytics-page > .owner-analytics-tabs { display:flex; align-items:center; flex-wrap:wrap; gap:10px; }
+.owner-analytics-finance-filters-top { margin-left:auto; justify-content:flex-end; gap:8px; }
+.owner-analytics-finance-filters-top label { font-size:10px; }
+.owner-analytics-finance-filters-top input, .owner-analytics-finance-filters-top select { min-height:36px; }
+@media(max-width:900px) { .owner-analytics-finance-filters-top { margin-left:0; justify-content:flex-start; flex:1 1 100%; } }
