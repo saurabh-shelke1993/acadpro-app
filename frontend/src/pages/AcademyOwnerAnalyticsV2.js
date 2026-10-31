@@ -50,15 +50,6 @@ const formatNumber = (value) =>
 const formatPercent = (value) =>
   value === null || value === undefined ? "—" : `${Number(value).toFixed(1).replace(/\.0$/, "")}%`;
 
-function MetricNotes({ metric }) {
-  if (!metric?.notes?.length) return null;
-  return (
-    <ul className="owner-analytics-notes">
-      {metric.notes.map((note, index) => <li key={index}>{note}</li>)}
-    </ul>
-  );
-}
-
 function AcademyOwnerAnalyticsV2({ user }) {
   const [month] = useState(getCurrentMonth);
   const [attendancePreset, setAttendancePreset] = useState("1m");
@@ -253,7 +244,6 @@ function AcademyOwnerAnalyticsV2({ user }) {
   const trendRows = [...dailyTotals.values()].sort((a, b) => a.date.localeCompare(b.date))
     .map(row => ({ ...row, rate: Math.round(100 * row.present / (row.present + row.absent)) }));
   const attendance = result?.attendance || {};
-  const finance = result?.finance || {};
 
   return (
     <Layout>
