@@ -17,6 +17,8 @@ import {
   getAccessibleCenters,
   getAccessibleAcademies
 } from "../utils/dataScope";
+import { getCoachScheduleAssignments } from "../services/coachScheduleAssignmentService";
+import { groupCoachesByCenter, suggestCenterCode } from "../services/centerPresentation";
 import "./Centers.css";
 
 const Centers = () => {
@@ -26,6 +28,7 @@ const academyContextId = searchParams.get("academyId") || "";
 const [user, setUser] = useState(null);
 
 const [centers, setCenters] = useState([]);
+const [coachesByCenter, setCoachesByCenter] = useState({});
 
 const [filteredCenters, setFilteredCenters] =
   useState([]);
@@ -74,6 +77,26 @@ const loadUser = async () => {
       console.error("Failed to load academies:", error);
       setAcademies([]);
     }
+  }, [user]);
+
+  useEffect(() => {
+    if (!user || (!isAcademyOwner(user) && !isSuperAdmin(user))) return undefined;
+    let active = true;
+    const load = async () => {
+      try {
+        // SA can see multiple academies; assignment rows remain scoped by the visible centers.
+        const assignments = await getCoachScheduleAssignments(
+          isSuperAdmin(user) ? {} : { academyId: user.academy_id }
+        );
+        const grouped = groupCoachesByCenter(assignments, isSuperAdmin(user) ? "" : user.academy_id);
+        if (active) setCoachesByCenter(grouped);
+      } catch (error) {
+        console.error("Unable to load center coaches", error);
+        if (active) setCoachesByCenter({});
+      }
+    };
+    load();
+    return () => { active = false; };
   }, [user]);
 
   // =========================
@@ -393,6 +416,7 @@ return (
   <tr>
     {!isAcademyOwner(user) && <th scope="col">Academy</th>}
     <th scope="col">Center Name</th>
+    <th scope="col">Assigned Coaches</th>
     {(isSuperAdmin(user) || isAcademyOwner(user)) && (
       <th scope="col" className="centers-actions-heading">Actions</th>
     )}
@@ -402,7 +426,7 @@ return (
 <tbody>
   {filteredCenters.length === 0 ? (
     <tr>
-      <td className="centers-empty-state" colSpan={isAcademyOwner(user) ? 2 : 3}>
+      <td className="centers-empty-state" colSpan={isAcademyOwner(user) ? 3 : 4}>
         <strong>No active centers</strong>
         <span>{isSuperAdmin(user) && selectedAcademy ? "No centers match the selected academy." : "No active centers are available in your current scope."}</span>
       </td>
@@ -436,10 +460,19 @@ return (
               onClick={(event) => event.stopPropagation()}
               aria-label={`Open batches for ${center.center_name}`}
             >
-              {center.center_name}
+              <span className="centers-code-badge">{center.center_code || suggestCenterCode(center.center_name)}</span>
+              <span>{center.center_name}</span>
             </Link>
           </td>
 
+          <td className="centers-coaches-cell">
+            {(coachesByCenter[center.id] || []).length ? (
+              <div className="centers-coaches-list">
+                <strong>{coachesByCenter[center.id].length} coach{coachesByCenter[center.id].length === 1 ? "" : "es"}</strong>
+                <span>{coachesByCenter[center.id].map(coach => coach.name).join(", ")}</span>
+              </div>
+            ) : <span className="centers-unassigned">Not assigned</span>}
+          </td>
           {(isSuperAdmin(user) || isAcademyOwner(user)) && (
             <td className="centers-actions-cell">
               <div className="centers-row-actions">
