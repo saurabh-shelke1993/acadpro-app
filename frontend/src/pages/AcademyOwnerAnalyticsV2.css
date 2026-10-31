@@ -967,3 +967,35 @@
   .owner-analytics-unified-canvas { height: 300px; }
   .owner-analytics-center-band-item { font-size: 0.72rem; }
 }
+
+/* Analytics sections span both toolbar columns: eliminate unused right gutter. */
+.owner-analytics-page > .owner-analytics-section,
+.owner-analytics-page > .owner-analytics-insights-stack,
+.owner-analytics-page > .owner-analytics-service-status {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+.owner-analytics-insights-stack { display: grid; gap: 1rem; min-width: 0; }
+.owner-analytics-player-table { border: 1px solid #e2e8f0; border-radius: 0.75rem; overflow: hidden; }
+.owner-analytics-player-row {
+  display: grid;
+  grid-template-columns: minmax(160px, 1fr) minmax(180px, 1fr) 72px;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 0.78rem;
+}
+.owner-analytics-player-row:last-child { border-bottom: 0; }
+.owner-analytics-player-row small { display: block; margin-top: 0.3rem; color: #64748b; }
+.owner-analytics-player-header { background: #f8fafc; color: #64748b; font-weight: 800; font-size: 0.7rem; text-transform: uppercase; }
+.owner-analytics-player-rate { display: flex; align-items: center; gap: 0.8rem; }
+.owner-analytics-player-rate > strong { width: 3.2rem; text-align: right; }
+.owner-analytics-player-track { flex: 1; height: 9px; border-radius: 999px; background: #e2e8f0; overflow: hidden; }
+.owner-analytics-player-track span { display: block; height: 100%; background: #f59e0b; border-radius: inherit; }
+.owner-analytics-trend-chart { height: 320px; min-width: 0; }
+@media (max-width: 640px) {
+  .owner-analytics-player-row { grid-template-columns: minmax(100px, 1fr) minmax(110px, 1fr) 45px; gap: 0.4rem; padding: 0.65rem 0.5rem; }
+  .owner-analytics-player-rate { gap: 0.3rem; }
+  .owner-analytics-trend-chart { height: 270px; }
+}
