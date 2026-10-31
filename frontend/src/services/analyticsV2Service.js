@@ -101,3 +101,41 @@ export async function getAcademyCenterBatchCatalog(user) {
     }))
   };
 }
+
+/**
+ * Read-only Academy Owner attendance detail for player ranking and daily trend.
+ * Scope through center IDs belonging to the signed-in academy. No cross-tenant
+ * player lookup or unbounded historical fetch.
+ */
+export async function getAcademyAttendanceInsights(user, centers, range) {
+  if (!user?.academy_id) throw new Error("Your account is not linked to an academy.");
+  const batchIds = centers.flatMap(center => (center.batches || []).map(batch => batch.batchId));
+  if (!batchIds.length) return { records: [], players: [] };
+  const records = [];
+  const pageSize = 500;
+  for (let from = 0; ; from += pageSize) {
+    const { data, error } = await supabase.from("attendance")
+      .select("player_id, batch_id, attendance_date, status")
+      .eq("academy_id", user.academy_id)
+      .in("batch_id", batchIds)
+      .eq("is_deleted", false)
+      .gte("attendance_date", range.startDate)
+      .lte("attendance_date", range.endDate)
+      .order("attendance_date", { ascending: true })
+      .range(from, from + pageSize - 1);
+    if (error) throw error;
+    records.push(...(data || []));
+    if (!data || data.length < pageSize) break;
+  }
+  const playerIds = [...new Set(records.map(record => record.player_id).filter(Boolean))];
+  const players = [];
+  for (let index = 0; index < playerIds.length; index += 200) {
+    const { data, error } = await supabase.from("players")
+      .select("id, first_name, last_name")
+      .eq("academy_id", user.academy_id)
+      .in("id", playerIds.slice(index, index + 200));
+    if (error) throw error;
+    players.push(...(data || []));
+  }
+  return { records, players };
+}
