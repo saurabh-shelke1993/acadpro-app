@@ -131,7 +131,7 @@ export async function getAcademyAttendanceInsights(user, centers, range) {
   const players = [];
   for (let index = 0; index < playerIds.length; index += 200) {
     const { data, error } = await supabase.from("players")
-      .select("id, first_name, last_name")
+      .select("id, full_name")
       .eq("academy_id", user.academy_id)
       .in("id", playerIds.slice(index, index + 200));
     if (error) throw error;
