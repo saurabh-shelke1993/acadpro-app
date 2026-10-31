@@ -87,7 +87,7 @@ async function fetchAttendanceMarks(scope: Scope, range: DateRange) {
 }
 
 async function fetchAttendanceByBatch(scope: Scope, range: DateRange) {
-  const [rows, centersResult, batchesResult] = await Promise.all([
+  const [rows, centersResult] = await Promise.all([
     fetchAll<AttendanceRecord>(
       "attendance",
       "id, attendance_date, status, is_deleted, batch_id, center_id, academy_id, batch_schedule_id",
@@ -97,14 +97,18 @@ async function fetchAttendanceByBatch(scope: Scope, range: DateRange) {
       ),
     ),
     adminSupabase.from("centers").select("id, center_name, academy_id").eq("academy_id", scope.academyId),
-    adminSupabase.from("batches").select("id, batch_name, center_id, academy_id").eq("academy_id", scope.academyId),
   ]);
   if (centersResult.error) throw new Error("Attendance center labels could not be loaded.");
-  if (batchesResult.error) throw new Error("Attendance batch labels could not be loaded.");
 
   const centers = (centersResult.data ?? []).filter((center: any) =>
     scope.scopeType !== "center" || String(center.id) === String(scope.scopeId)
   );
+  const centerIds = centers.map((center: any) => String(center.id));
+  const batchesResult = centerIds.length
+    ? await adminSupabase.from("batches").select("id, batch_name, center_id").in("center_id", centerIds)
+    : { data: [], error: null };
+  if (batchesResult.error) throw new Error("Attendance batch labels could not be loaded.");
+
   const batches = (batchesResult.data ?? []).filter((batch: any) =>
     scope.scopeType !== "batch" || String(batch.id) === String(scope.scopeId)
   );
