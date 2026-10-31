@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, Legend, Line, ComposedChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import Layout from "../components/Layout";
-import { getAcademyCenterBatchCatalog, getAcademyOwnerAnalyticsV2 } from "../services/analyticsV2Service";
+import { getAcademyAttendanceInsights, getAcademyCenterBatchCatalog, getAcademyOwnerAnalyticsV2 } from "../services/analyticsV2Service";
 import "./AcademyOwnerAnalyticsV2.css";
 
 const getCurrentMonth = () => {
@@ -125,6 +125,8 @@ function AcademyOwnerAnalyticsV2({ user }) {
 
   const [result, setResult] = useState(null);
   const [attendanceCatalog, setAttendanceCatalog] = useState([]);
+  const [insights, setInsights] = useState({ records: [], players: [] });
+  const [insightsError, setInsightsError] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
@@ -170,6 +172,42 @@ function AcademyOwnerAnalyticsV2({ user }) {
     return () => { active = false; };
   }, [user, month, attendanceRange, refreshKey]);
 
+  useEffect(() => {
+    let active = true;
+    if (!attendanceCatalog.length) {
+      setInsights({ records: [], players: [] });
+      return () => { active = false; };
+    }
+    getAcademyAttendanceInsights(user, attendanceCatalog, attendanceRange)
+      .then(data => { if (active) { setInsights(data); setInsightsError(""); } })
+      .catch(err => { if (active) { setInsightsError(err.message || "Attendance insights unavailable."); setInsights({ records: [], players: [] }); } });
+    return () => { active = false; };
+  }, [user, attendanceCatalog, attendanceRange, refreshKey]);
+
+  const supportedRecords = insights.records.filter(record => record.status === "present" || record.status === "absent");
+  const playerTotals = new Map();
+  supportedRecords.forEach(record => {
+    if (!record.player_id) return;
+    const id = String(record.player_id);
+    const row = playerTotals.get(id) || { id, present: 0, absent: 0 };
+    row[record.status] += 1;
+    playerTotals.set(id, row);
+  });
+  const playerNames = new Map(insights.players.map(player => [String(player.id), [player.first_name, player.last_name].filter(Boolean).join(" ") || "Unnamed player"]));
+  const leastAttendance = [...playerTotals.values()]
+    .filter(row => row.present + row.absent >= 3 && playerNames.has(row.id))
+    .map(row => ({ ...row, name: playerNames.get(row.id), total: row.present + row.absent, rate: Math.round(100 * row.present / (row.present + row.absent)) }))
+    .sort((a, b) => a.rate - b.rate || b.total - a.total || a.name.localeCompare(b.name))
+    .slice(0, 10);
+  const dailyTotals = new Map();
+  supportedRecords.forEach(record => {
+    const date = record.attendance_date;
+    const row = dailyTotals.get(date) || { date, present: 0, absent: 0 };
+    row[record.status] += 1;
+    dailyTotals.set(date, row);
+  });
+  const trendRows = [...dailyTotals.values()].sort((a, b) => a.date.localeCompare(b.date))
+    .map(row => ({ ...row, rate: Math.round(100 * row.present / (row.present + row.absent)) }));
   const attendance = result?.attendance || {};
   const finance = result?.finance || {};
 
@@ -303,6 +341,51 @@ function AcademyOwnerAnalyticsV2({ user }) {
             )}
           </section>
         </section>
+        )}
+
+        {activeTab === "attendance" && (
+          <section className="owner-analytics-insights-stack">
+            <section className="owner-analytics-batch-chart">
+              <div className="owner-analytics-batch-chart-heading">
+                <div><strong>Player Insights · Lowest recorded attendance</strong><p>Up to 10 players with the lowest present rate; at least 3 recorded marks in the selected period</p></div>
+              </div>
+              {insightsError ? <p role="alert">{insightsError}</p> : leastAttendance.length ? (
+                <div className="owner-analytics-player-table">
+                  <div className="owner-analytics-player-row owner-analytics-player-header"><span>Player</span><span>Attendance</span><span>Records</span></div>
+                  {leastAttendance.map(player => (
+                    <div className="owner-analytics-player-row" key={player.id}>
+                      <div><strong>{player.name}</strong><small>{player.present} present · {player.absent} absent</small></div>
+                      <div className="owner-analytics-player-rate"><div className="owner-analytics-player-track"><span style={{ width: `${player.rate}%` }} /></div><strong>{player.rate}%</strong></div>
+                      <strong>{player.total}</strong>
+                    </div>
+                  ))}
+                </div>
+              ) : <p className="owner-analytics-chart-empty">No players with at least 3 supported attendance records in this period.</p>}
+            </section>
+            <section className="owner-analytics-batch-chart">
+              <div className="owner-analytics-batch-chart-heading">
+                <div><strong>Attendance Trend</strong><p>Daily present and absent marks, with recorded-mark percentage on days with attendance</p></div>
+              </div>
+              {insightsError ? <p role="alert">{insightsError}</p> : trendRows.length ? (
+                <div className="owner-analytics-trend-chart">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <ComposedChart data={trendRows} margin={{ top: 12, right: 15, left: 0, bottom: 8 }}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                      <XAxis dataKey="date" tickFormatter={date => date.slice(5)} tick={{ fontSize: 11 }} minTickGap={22} />
+                      <YAxis yAxisId="marks" allowDecimals={false} tick={{ fontSize: 11 }} />
+                      <YAxis yAxisId="rate" orientation="right" domain={[0, 100]} tickFormatter={value => `${value}%`} tick={{ fontSize: 11 }} />
+                      <Tooltip />
+                      <Legend />
+                      <Bar yAxisId="marks" dataKey="present" name="Present" fill="#16a34a" maxBarSize={18} />
+                      <Bar yAxisId="marks" dataKey="absent" name="Absent" fill="#f59e0b" maxBarSize={18} />
+                      <Line yAxisId="rate" type="monotone" dataKey="rate" name="Present %" stroke="#7c3aed" strokeWidth={2} dot={{ r: 2 }} connectNulls={false} />
+                    </ComposedChart>
+                  </ResponsiveContainer>
+                </div>
+              ) : <p className="owner-analytics-chart-empty">No supported attendance marks in this period.</p>}
+              <p className="owner-analytics-unified-caption">Only dates with recorded present/absent marks are plotted. This is not expected-session coverage.</p>
+            </section>
+          </section>
         )}
 
         {activeTab === "coaches" && (
