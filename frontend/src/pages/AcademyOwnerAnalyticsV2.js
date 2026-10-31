@@ -4,7 +4,7 @@ import Layout from "../components/Layout";
 import { getAcademyAttendanceInsights, getAcademyCenterBatchCatalog, getAcademyOwnerAnalyticsV2 } from "../services/analyticsV2Service";
 import { getCoachAnalytics, getCoachMonthStats } from "../services/coachAnalyticsService";
 import { getAcademyEnquiriesAnalytics } from "../services/enquiriesAnalyticsService";
-import { aggregateFinancePeriod, financeGrowth, getFinanceComparison, getFinanceHistory, getFinancePeriod } from "../services/financeHistoryService";
+import { aggregateFinancePeriod, buildFinanceTrend, financeGrowth, getFinanceComparison, getFinanceHistory, getFinancePeriod } from "../services/financeHistoryService";
 import "./AcademyOwnerAnalyticsV2.css";
 
 const getCurrentMonth = () => {
@@ -91,6 +91,7 @@ function AcademyOwnerAnalyticsV2({ user }) {
   const [financeBaseline, setFinanceBaseline] = useState(null);
   const [financeHistoryLoading, setFinanceHistoryLoading] = useState(false);
   const [financeHistoryError, setFinanceHistoryError] = useState("");
+  const [financeTrend, setFinanceTrend] = useState(null);
 
 
   useEffect(() => {
@@ -181,6 +182,7 @@ function AcademyOwnerAnalyticsV2({ user }) {
       setFinanceHistoryError("");
       setFinanceHistory(null);
       setFinanceBaseline(null);
+      setFinanceTrend(null);
       try {
         const current = getFinancePeriod(financeMonth, financeFrequency);
         const comparison = getFinanceComparison(current, financeComparison,
@@ -191,13 +193,19 @@ function AcademyOwnerAnalyticsV2({ user }) {
             })()
           } : null);
         if (comparison.months !== current.months) throw new Error("Custom comparison must have the same duration as the selected reporting period.");
-        const [currentRows, baselineRows] = await Promise.all([
+        const lookback = { monthly: 12, quarterly: 24, halfYearly: 36, yearly: 60 }[financeFrequency];
+        const [year, month] = current.startMonth.split("-").map(Number);
+        const firstIndex = year * 12 + month - 1 - (lookback - current.months);
+        const trendStart = `${Math.floor(firstIndex / 12)}-${String(firstIndex % 12 + 1).padStart(2, "0")}`;
+        const [currentRows, baselineRows, trendRows] = await Promise.all([
           getFinanceHistory(user, current.startMonth, current.endExclusiveMonth),
-          getFinanceHistory(user, comparison.startMonth, comparison.endExclusiveMonth)
+          getFinanceHistory(user, comparison.startMonth, comparison.endExclusiveMonth),
+          getFinanceHistory(user, trendStart, current.endExclusiveMonth)
         ]);
         if (active) {
           setFinanceHistory({ period: current, rows: currentRows });
           setFinanceBaseline({ period: comparison, rows: baselineRows });
+          setFinanceTrend(buildFinanceTrend(trendRows, financeFrequency));
         }
       } catch (err) {
         if (active) setFinanceHistoryError(err.message || "Unable to load financial history.");
@@ -563,6 +571,40 @@ function AcademyOwnerAnalyticsV2({ user }) {
                       <small>{growth === null ? "No positive comparison baseline" : "Versus selected comparison period"}</small>
                     </article>
                   </div>
+                  {financeTrend && <section className="owner-analytics-finance-trends" aria-label="Financial performance trend">
+                    <div className="owner-analytics-batch-chart-heading">
+                      <div><strong>Financial performance trend</strong><p>{financeFrequency === "yearly" ? "Financial years (April–March)" : financeFrequency === "halfYearly" ? "Financial half-years" : financeFrequency === "quarterly" ? "Financial quarters" : "Monthly periods"} · gross collections, expenses and net cash movement</p></div>
+                    </div>
+                    <div className="owner-analytics-finance-chart">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <ComposedChart data={financeTrend} margin={{ top: 15, right: 15, bottom: 12, left: 5 }}>
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                          <XAxis dataKey="period" tick={{ fontSize: 11 }} minTickGap={15} />
+                          <YAxis tick={{ fontSize: 11 }} tickFormatter={value => `₹${Number(value).toLocaleString("en-IN", { notation: "compact" })}`} width={65} />
+                          <Tooltip formatter={(value, name) => [formatCurrency(value), name]} labelFormatter={(label, items) => {
+                            const row = items?.[0]?.payload;
+                            return row ? `${label} to ${row.endExclusiveMonth} (exclusive)${row.complete ? "" : " · partial range"}` : label;
+                          }} />
+                          <Legend />
+                          <Bar dataKey="collections" name="Gross collections" fill="#1d4ed8" maxBarSize={30} radius={[4, 4, 0, 0]} />
+                          <Bar dataKey="expenses" name="Expenses" fill="#f59e0b" maxBarSize={30} radius={[4, 4, 0, 0]} />
+                          <Line type="monotone" dataKey="netCashMovement" name="Net cash movement" stroke="#16a34a" strokeWidth={2.5} dot={{ r: 3 }} />
+                        </ComposedChart>
+                      </ResponsiveContainer>
+                    </div>
+                    <p className="owner-analytics-finance-note">Signed adjustments are included in net movement, but not gross collections. The first and latest periods may be incomplete. Growth percentages use gross collections and are unavailable when the previous period has no positive baseline.</p>
+                    <div className="owner-analytics-finance-trend-table-wrap">
+                      <table className="owner-analytics-finance-trend-table">
+                        <thead><tr><th>Period start</th><th>Collections</th><th>Expenses</th><th>Net movement</th><th>Growth</th></tr></thead>
+                        <tbody>{financeTrend.map(row => <tr key={row.period}>
+                          <th scope="row">{row.period}{!row.complete ? " *" : ""}</th>
+                          <td>{formatCurrency(row.collections)}</td><td>{formatCurrency(row.expenses)}</td><td>{formatCurrency(row.netCashMovement)}</td>
+                          <td>{row.growthPercent === null ? "N/A" : formatPercent(row.growthPercent)}</td>
+                        </tr>)}</tbody>
+                      </table>
+                    </div>
+                    <p className="owner-analytics-finance-note">* Partial reporting range; period growth should not be interpreted as a like-for-like full-period comparison.</p>
+                  </section>}
                   <p className="owner-analytics-finance-note">A zero in a period means no matching records in Kheltriva, not proof of no off-platform transactions. Current incomplete periods are not normalized to full-period equivalents.</p>
                 </>;
               })() : null}
