@@ -1,5 +1,5 @@
 jest.mock("../supabaseClient", () => ({ supabase: { from: jest.fn() } }));
-import { aggregateFinancePeriod, financeGrowth, getFinanceComparison, getFinancePeriod } from "./financeHistoryService";
+import { aggregateFinancePeriod, buildFinanceTrend, financeGrowth, getFinanceComparison, getFinancePeriod } from "./financeHistoryService";
 
 describe("F3 Indian financial-year periods", () => {
   test("quarter and year boundaries", () => {
@@ -19,5 +19,22 @@ describe("F3 Indian financial-year periods", () => {
       .toEqual({ collections: 300, adjustments: -20, expenses: 60, netCashMovement: 220 });
     expect(financeGrowth(150, 100)).toBe(50);
     expect(financeGrowth(150, 0)).toBeNull();
+  });
+});
+
+describe("F5 trend grouping", () => {
+  const row = (month, collections, expenses = 0) => ({ month, collections, adjustments: 0, expenses, netCashMovement: collections - expenses });
+  test("quarterly buckets align to Indian FY and preserve zero months", () => {
+    const trend = buildFinanceTrend([row("2026-03", 100), row("2026-04", 200), row("2026-05", 0), row("2026-06", 100)], "quarterly");
+    expect(trend.map(item => item.period)).toEqual(["2026-01", "2026-04"]);
+    expect(trend[1].collections).toBe(300);
+    expect(trend[1].growthPercent).toBe(200);
+    expect(trend[0].complete).toBe(false);
+    expect(trend[1].complete).toBe(true);
+  });
+  test("yearly and half-yearly aggregation follows April boundaries", () => {
+    const rows = [row("2026-03", 10), row("2026-04", 20), row("2026-10", 30)];
+    expect(buildFinanceTrend(rows, "yearly").map(item => item.period)).toEqual(["2025-04", "2026-04"]);
+    expect(buildFinanceTrend(rows, "halfYearly").map(item => item.period)).toEqual(["2025-10", "2026-04", "2026-10"]);
   });
 });
