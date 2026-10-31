@@ -100,3 +100,28 @@ export function financeGrowth(current, previous) {
   return previous > 0 && Number.isFinite(current) && Number.isFinite(previous)
     ? Math.round(((current - previous) / previous) * 10000) / 100 : null;
 }
+
+export function buildFinanceTrend(rows, frequency = "monthly") {
+  if (!["monthly", "quarterly", "halfYearly", "yearly"].includes(frequency)) throw new Error("Invalid trend frequency.");
+  const groups = new Map();
+  for (const row of rows) {
+    const period = getFinancePeriod(row.month, frequency);
+    if (!groups.has(period.startMonth)) groups.set(period.startMonth, {
+      period: period.startMonth, endExclusiveMonth: period.endExclusiveMonth,
+      collections: 0, adjustments: 0, expenses: 0, netCashMovement: 0, months: 0
+    });
+    const group = groups.get(period.startMonth);
+    group.collections += row.collections;
+    group.adjustments += row.adjustments;
+    group.expenses += row.expenses;
+    group.netCashMovement += row.netCashMovement;
+    group.months++;
+  }
+  const sorted = Array.from(groups.values()).sort((a, b) => a.period.localeCompare(b.period));
+  return sorted.map((group, index) => ({
+    ...group,
+    growthPercent: index > 0 ? financeGrowth(group.collections, sorted[index - 1].collections) : null,
+    // A period is complete only when all expected monthly buckets were loaded.
+    complete: group.months === getFinancePeriod(group.period, frequency).months
+  }));
+}
