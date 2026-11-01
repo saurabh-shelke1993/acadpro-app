@@ -1510,29 +1510,6 @@ useEffect(() => {
       )}
 
       <section className="players-results-section">
-        <div className="players-list-header">
-          <div>
-            <span className="players-section-eyebrow">Active players</span>
-            <h2>Players List</h2>
-            <p>
-              {filteredPlayers.length}{" "}
-              {filteredPlayers.length === 1 ? "player" : "players"} shown
-            </p>
-          </div>
-          <div className="players-list-filter-summary">
-            {activeFilterCount > 0 && (
-              <>
-                <span>
-                  {activeFilterCount} active filter
-                  {activeFilterCount === 1 ? "" : "s"}
-                </span>
-
-              </>
-            )}
-            <span>Page {currentPage} of {totalPages}</span>
-          </div>
-        </div>
-
         <div className="players-list-search-toolbar" role="search" aria-label="Player list filters">
           <label className="players-search-input-label">
             <span className="sr-only">Search player name</span>
