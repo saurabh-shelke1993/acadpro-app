@@ -1586,3 +1586,63 @@
     grid-column:1 / -1;
   }
 }
+
+/* BL1–BL4: compact four-column Batch List */
+.batches-table-wrap .batches-table {
+  min-width:0;
+  table-layout:fixed;
+}
+.batches-table-wrap .batches-table th,
+.batches-table-wrap .batches-table td {
+  padding:8px 11px;
+  line-height:1.3;
+}
+.batches-table-wrap .batches-center-cell { width:28%; }
+.batches-table-wrap .batches-name-cell { width:23%; }
+.batches-table-wrap .batches-schedule-cell { width:auto;min-width:0;white-space:normal; }
+.batches-table-wrap .batches-actions-heading,
+.batches-table-wrap .batches-actions-cell { width:116px; }
+.batches-center-identity { display:inline-flex;align-items:center;gap:9px;min-width:0; }
+.batches-center-code {
+  flex:0 0 30px;display:inline-flex;align-items:center;justify-content:center;
+  width:30px;height:30px;border-radius:50%;background:#e8efff;
+  color:#1d4ed8;font-size:10px;font-weight:800;letter-spacing:.015em;
+}
+.batches-age-subline { display:block;margin-top:2px;color:#64748b;font-size:11px;font-weight:500; }
+.batches-schedule-days { display:block;color:#102a43;font-weight:700;font-size:12px; }
+.batches-schedule-time { display:block;margin-top:3px;color:#64748b;font-size:11px;font-weight:550;overflow-wrap:anywhere; }
+.batches-merged-filter-heading { display:flex;align-items:center;flex-wrap:wrap;gap:10px; }
+.batches-merged-filter-heading .batches-column-filter { min-width:0; }
+.batches-table-wrap .batches-row-actions {
+  opacity:1;pointer-events:auto;transform:none;gap:5px;
+}
+.batches-table-wrap .batches-row-actions button {
+  display:inline-flex;justify-content:center;align-items:center;min-width:36px;min-height:36px;
+  padding:5px 8px;
+}
+.batches-table-wrap .batches-row-actions .batches-action-icon { display:inline; }
+.batches-table-wrap .batches-row-actions .batches-action-label { display:none; }
+@media (max-width:900px) {
+  /* Restore center column: legacy mobile rule hid the first column. */
+  .batches-page-owner .batches-table th:first-child,
+  .batches-page-owner .batches-table td:first-child { display:table-cell; }
+  .batches-page-owner .batches-center-cell { width:30%; }
+  .batches-page-owner .batches-name-cell { width:27%; }
+  .batches-page-owner .batches-schedule-cell { width:auto; }
+  .batches-page-owner .batches-actions-cell { width:92px; }
+  .batches-page-owner .batches-row-actions { display:inline-flex; }
+}
+@media (max-width:640px) {
+  .batches-table-wrap .batches-table { table-layout:auto; }
+  .batches-page-owner .batches-table th:first-child,
+  .batches-page-owner .batches-table td:first-child { display:table-cell; }
+  /* BL5 will provide the dedicated mobile expansion; keep existing actions for now. */
+  .batches-page-owner .batches-actions-cell,
+  .batches-page-owner .batches-actions-heading,
+  .batches-page-owner .batches-row-actions { display:none; }
+  .batches-table-wrap .batches-table th,
+  .batches-table-wrap .batches-table td { padding:8px 6px; }
+  .batches-center-identity { gap:5px; }
+  .batches-center-code { flex-basis:25px;width:25px;height:25px; }
+  .batches-merged-filter-heading { gap:4px; }
+}
