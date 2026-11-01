@@ -27,6 +27,7 @@ import {
   deactivateBatchSchedule,
   getDayName
 } from "../services/batchScheduleService";
+import { suggestCenterCode } from "../services/centerPresentation";
 import "./Batches.css";
 
 const DAYS = [
@@ -163,7 +164,7 @@ const Batches = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [saving, setSaving] = useState(false);
 
-  const PAGE_SIZE = 6;
+  const PAGE_SIZE = 10;
 
   const filteredBatches = useMemo(() => batches.filter((batch) => {
     const matchesContext =
@@ -931,7 +932,7 @@ const Batches = () => {
       sessions.map((session) => Number(session.dayOfWeek))
     )]
       .sort((a, b) => a - b)
-      .map((day) => DAYS.find((item) => item.value === day)?.short || getDayName(day))
+      .map((day) => DAYS.find((item) => item.value === day)?.label.slice(0, 3) || getDayName(day))
       .join(", ") || "—";
   };
 
@@ -952,6 +953,15 @@ const Batches = () => {
         return formatSessionTime({ startTime, endTime });
       })
       .join(" · ");
+  };
+
+  const getBatchScheduleDetail = (batchId) => {
+    const sessions = getBatchSessions(batchId);
+    return sessions.length
+      ? formatScheduleRows(sessions).map((session) =>
+          `${getDayName(session.dayOfWeek)}: ${formatSessionTime(session)}`
+        ).join(" · ")
+      : "Schedule not configured";
   };
 
   const selectedDays = new Set(
@@ -1368,22 +1378,14 @@ const Batches = () => {
                     )}
                   </th>
                   <th scope="col">
-                    {renderBatchColumnFilter(
-                      "batch",
-                      "Batch",
-                      [],
-                      "text"
-                    )}
+                    <div className="batches-merged-filter-heading">
+                      {renderBatchColumnFilter("batch", "Batch", [], "text")}
+                      {renderBatchColumnFilter("ageGroup", "Age", batchFilterOptions.ageGroup)}
+                    </div>
                   </th>
                   <th scope="col">
-                    {renderBatchColumnFilter(
-                      "ageGroup",
-                      "Age Group",
-                      batchFilterOptions.ageGroup
-                    )}
+                    <span>Training Schedule</span>
                   </th>
-                  <th scope="col">Days</th>
-                  <th scope="col">Schedule</th>
                   {(isSuperAdmin(user) || isAcademyOwner(user)) && (
                     <th
                       scope="col"
@@ -1402,10 +1404,10 @@ const Batches = () => {
                       className="batches-empty-state"
                       colSpan={
                         isSuperAdmin(user)
-                          ? 7
+                          ? 5
                           : isAcademyOwner(user)
-                            ? 6
-                            : 5
+                            ? 4
+                            : 3
                       }
                     >
                       <strong>No active batches</strong>
@@ -1433,6 +1435,10 @@ const Batches = () => {
                       )?.center_name ||
                       "—";
 
+                    const center = batch.centers || centers.find(
+                      (item) => item.id === batch.center_id
+                    );
+                    const centerCode = center?.center_code || suggestCenterCode(centerName);
                     const isSelected =
                       selectedBatchId === batch.id;
 
@@ -1465,7 +1471,10 @@ const Batches = () => {
                           )}
 
                           <td className="batches-center-cell">
-                            {centerName}
+                            <span className="batches-center-identity">
+                              <span className="batches-center-code" aria-hidden="true">{centerCode}</span>
+                              <span>{centerName}</span>
+                            </span>
                           </td>
 
                           <td className="batches-name-cell">
@@ -1489,18 +1498,12 @@ const Batches = () => {
                             >
                               {batch.batch_name || "—"}
                             </Link>
+                            <span className="batches-age-subline">{batch.age_group || "—"}</span>
                           </td>
 
-                          <td>
-                            {batch.age_group || "—"}
-                          </td>
-
-                          <td className="batches-days-cell">
-                            {getBatchDays(batch.id)}
-                          </td>
-
-                          <td className="batches-schedule-cell">
-                            {getBatchScheduleSummary(batch.id)}
+                          <td className="batches-schedule-cell" title={getBatchScheduleDetail(batch.id)}>
+                            <span className="batches-schedule-days">{getBatchDays(batch.id)}</span>
+                            <span className="batches-schedule-time">{getBatchScheduleSummary(batch.id)}</span>
                           </td>
 
                           {(isSuperAdmin(user) ||
@@ -1563,7 +1566,7 @@ const Batches = () => {
                             <tr className="batches-mobile-actions-row">
                               <td
                                 colSpan={
-                                  isSuperAdmin(user) ? 7 : 6
+                                  isSuperAdmin(user) ? 5 : 4
                                 }
                                 className="batches-mobile-actions-cell"
                               >
