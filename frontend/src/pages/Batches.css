@@ -1712,7 +1712,7 @@
 /* Keep the create/edit action directly below the left-hand fields.
    The schedule column no longer reserves a separate full-width actions row. */
 .batches-create-details .batches-form-actions {
-  justify-content: flex-start;
+  justify-content: flex-end;
   margin-top: 0.75rem;
   padding-top: 0;
 }
