@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Layout from "../components/Layout";
+import CoachWorkspaceTabs from "../components/CoachWorkspaceTabs";
 import "./CoachBatchMapping.css";
 import { supabase } from "../supabaseClient";
 import { getCurrentUser, isSuperAdmin } from "../utils/auth";
@@ -539,6 +540,7 @@ function CoachBatchMapping() {
   return (
     <Layout>
       <div className={`coach-mapping-page${isAcademyOwner(user) ? " coach-mapping-page-owner" : ""}`}>
+        <CoachWorkspaceTabs />
         <section className="coach-mapping-toolbar">
           <div>
             <span className="coach-mapping-eyebrow">Academy management</span>
