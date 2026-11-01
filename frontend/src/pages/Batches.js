@@ -73,9 +73,10 @@ const formatBatchTime = (time) => {
   const date = new Date();
   date.setHours(hour, minute, 0, 0);
 
-  return date.toLocaleTimeString([], {
+  return date.toLocaleTimeString("en-IN", {
     hour: "numeric",
-    minute: "2-digit"
+    minute: "2-digit",
+    hour12: true
   });
 };
 
@@ -93,7 +94,7 @@ const formatScheduleRows = (rows) =>
 
 // Accessible, locale-independent 12-hour UI; database values remain HH:mm.
 const toTwelveHour = (value) => {
-  const match = /^(\\d{2}):(\\d{2})$/.exec(value || "");
+  const match = /^(\d{2}):(\d{2})$/.exec(value || "");
   if (!match) return { hour: "", minute: "00", period: "PM" };
   const hours = Number(match[1]);
   return { hour: String(hours % 12 || 12), minute: match[2], period: hours >= 12 ? "PM" : "AM" };
