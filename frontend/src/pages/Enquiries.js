@@ -858,15 +858,15 @@ function Enquiries() {
               <table className="enquiries-table">
                 <thead>
                   <tr>
-                    {isAdmin && <th scope="col">Academy</th>}
+                    {isAdmin && <th scope="col" className="enquiries-extra-column">Academy</th>}
                     <th scope="col">Player</th>
-                    <th scope="col">Parent contact</th>
-                    <th scope="col">Date of birth</th>
-                    <th scope="col">Source</th>
-                    <th scope="col">Center</th>
+                    <th scope="col" className="enquiries-extra-column">Parent contact</th>
+                    <th scope="col" className="enquiries-extra-column">Date of birth</th>
+                    <th scope="col" className="enquiries-extra-column">Source</th>
+                    <th scope="col" className="enquiries-extra-column">Center</th>
                     <th scope="col">Status</th>
-                    <th scope="col">Trial date</th>
-                    <th scope="col">Created</th>
+                    <th scope="col" className="enquiries-extra-column">Trial date</th>
+                    <th scope="col" className="enquiries-extra-column">Created</th>
                     {!isAdmin && <th scope="col">Actions</th>}
                   </tr>
                 </thead>
@@ -874,7 +874,7 @@ function Enquiries() {
                   {paginatedEnquiries.map((enquiry) => (
                     <Fragment key={enquiry.id}>
                     <tr>
-                      {isAdmin && <td>{academyNames.get(enquiry.academy_id) || "—"}</td>}
+                      {isAdmin && <td className="enquiries-extra-column">{academyNames.get(enquiry.academy_id) || "—"}</td>}
                       <td className="enquiries-player-cell"><strong>{enquiry.player_name}</strong>
                         <button type="button" className="enquiries-mobile-expand" aria-expanded={expandedEnquiryId === enquiry.id}
                           aria-label={`${expandedEnquiryId === enquiry.id ? "Collapse" : "Expand"} details for ${enquiry.player_name}`}
