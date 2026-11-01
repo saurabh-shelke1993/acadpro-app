@@ -1191,19 +1191,6 @@ useEffect(() => {
       {!isCoach(loggedInUser) && formOpen && (
         <div id="players-registration-workspace" className="players-create-import-workspace players-create-import-workspace-expanded">
           <section className="players-form-card players-form-card-create">
-          <div className="players-section-heading">
-            <div>
-              <span className="players-section-eyebrow">{isEditing ? "Edit player" : "Create player"}</span>
-              <h2>{isEditing ? "Edit Player" : "New Player"}</h2>
-              {!isSuperAdmin(loggedInUser) && (
-                <span className="players-registration-academy-context">
-                  {loggedInUser?.academy_name ||
-                    academies.find((academy) => academy.id === selectedAcademy)?.academy_name ||
-                    "Your academy"}
-                </span>
-              )}
-            </div>
-          </div>
           <div className="players-registration-grid">
             <div className="players-registration-main">
 
@@ -1350,6 +1337,70 @@ useEffect(() => {
 
             </div>
             <div className="players-registration-side">
+          <div className="players-form-section players-parent-section">
+            <h3>Parent / Guardian</h3>
+            <div className="players-form-grid">
+              <div className="players-field">
+                <label htmlFor="player-parent-name">Parent name</label>
+                <input
+                  id="player-parent-name"
+                  type="text"
+                  placeholder="Parent Name"
+                  value={parentName}
+                  onChange={(e) => setParentName(e.target.value)}
+                />
+              </div>
+
+              <div className="players-field">
+                <label htmlFor="player-parent-phone">Parent phone</label>
+                <input
+                  id="player-parent-phone"
+                  type="text"
+                  placeholder="Parent Phone"
+                  value={parentPhone}
+                  onChange={(e) => setParentPhone(e.target.value)}
+                />
+              </div>
+
+              <div className="players-field">
+                <label htmlFor="player-parent-email">Parent email</label>
+                <input
+                  id="player-parent-email"
+                  type="email"
+                  placeholder="Parent Email"
+                  value={parentEmail}
+                  onChange={(e) => setParentEmail(e.target.value)}
+                />
+              </div>
+
+              <div className="players-field players-field-wide players-address-expander">
+                <button
+                  type="button"
+                  className="players-address-toggle"
+                  aria-expanded={addressOpen}
+                  aria-controls="player-parent-address-container"
+                  onClick={() => setAddressOpen((open) => !open)}
+                >
+                  {addressOpen ? "▾" : "▸"} Additional details (address)
+                </button>
+                {addressOpen && (
+                  <div id="player-parent-address-container">
+                    <label htmlFor="player-parent-address">Parent address</label>
+                    <textarea
+                      id="player-parent-address"
+                      placeholder="Parent Address"
+                      value={parentAddress}
+                      onChange={(e) => setParentAddress(e.target.value)}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+            </div>
+          </div>
+          <div className="players-registration-sessions">
           <div className="players-form-section players-session-enrollment-section">
             <div className="players-session-enrollment-heading">
               <h3>Weekly training sessions</h3>
@@ -1420,68 +1471,6 @@ useEffect(() => {
             )}
           </div>
 
-          <div className="players-form-section players-parent-section">
-            <h3>Parent / Guardian</h3>
-            <div className="players-form-grid">
-              <div className="players-field">
-                <label htmlFor="player-parent-name">Parent name</label>
-                <input
-                  id="player-parent-name"
-                  type="text"
-                  placeholder="Parent Name"
-                  value={parentName}
-                  onChange={(e) => setParentName(e.target.value)}
-                />
-              </div>
-
-              <div className="players-field">
-                <label htmlFor="player-parent-phone">Parent phone</label>
-                <input
-                  id="player-parent-phone"
-                  type="text"
-                  placeholder="Parent Phone"
-                  value={parentPhone}
-                  onChange={(e) => setParentPhone(e.target.value)}
-                />
-              </div>
-
-              <div className="players-field">
-                <label htmlFor="player-parent-email">Parent email</label>
-                <input
-                  id="player-parent-email"
-                  type="email"
-                  placeholder="Parent Email"
-                  value={parentEmail}
-                  onChange={(e) => setParentEmail(e.target.value)}
-                />
-              </div>
-
-              <div className="players-field players-field-wide players-address-expander">
-                <button
-                  type="button"
-                  className="players-address-toggle"
-                  aria-expanded={addressOpen}
-                  aria-controls="player-parent-address-container"
-                  onClick={() => setAddressOpen((open) => !open)}
-                >
-                  {addressOpen ? "▾" : "▸"} Additional details (address)
-                </button>
-                {addressOpen && (
-                  <div id="player-parent-address-container">
-                    <label htmlFor="player-parent-address">Parent address</label>
-                    <textarea
-                      id="player-parent-address"
-                      placeholder="Parent Address"
-                      value={parentAddress}
-                      onChange={(e) => setParentAddress(e.target.value)}
-                    />
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-            </div>
           </div>
           <div className="players-form-actions">
             <button
@@ -1537,19 +1526,35 @@ useEffect(() => {
                   {activeFilterCount} active filter
                   {activeFilterCount === 1 ? "" : "s"}
                 </span>
-                <button
-                  type="button"
-                  className="player-secondary-button"
-                  onClick={clearAllColumnFilters}
-                >
-                  Clear all
-                </button>
+
               </>
             )}
             <span>Page {currentPage} of {totalPages}</span>
           </div>
         </div>
 
+        <div className="players-list-search-toolbar" role="search" aria-label="Player list filters">
+          <label className="players-search-input-label">
+            <span className="sr-only">Search player name</span>
+            <input
+              type="search"
+              aria-label="Search player name"
+              placeholder="Search players..."
+              value={searchTerm}
+              onChange={(event) => { setSearchTerm(event.target.value); setCurrentPage(1); }}
+            />
+          </label>
+          {isSuperAdmin(loggedInUser) && renderColumnFilter("academy", "Academy", filterOptions.academy)}
+          {renderColumnFilter("center", "Center", filterOptions.center)}
+          {renderColumnFilter("batch", "Batch", filterOptions.batch)}
+          {!isCoach(loggedInUser) && <>
+            {renderColumnFilter("gender", "Gender", filterOptions.gender)}
+            {renderColumnFilter("status", "Status", filterOptions.status)}
+          </>}
+          {activeFilterCount > 0 && (
+            <button type="button" className="player-secondary-button players-clear-filters" onClick={clearAllColumnFilters}>Clear filters</button>
+          )}
+        </div>
         <div className="players-table-wrap">
           <table className="players-table">
             <caption className="sr-only">
@@ -1557,17 +1562,12 @@ useEffect(() => {
             </caption>
             <thead>
               <tr>
-                <th scope="col">{renderColumnFilter("player", "Player", [], "text")}</th>
-                {isSuperAdmin(loggedInUser) && <th scope="col">{renderColumnFilter("academy", "Academy", filterOptions.academy)}</th>}
-                <th scope="col">{renderColumnFilter("center", "Center", filterOptions.center)}</th>
-                <th scope="col">
-                  <div className="players-merged-filter-heading">
-                    {renderColumnFilter("batch", "Batch", filterOptions.batch)}
-                    {!isCoach(loggedInUser) && renderColumnFilter("gender", "Gender", filterOptions.gender)}
-                  </div>
-                </th>
+                <th scope="col">Player</th>
+                {isSuperAdmin(loggedInUser) && <th scope="col">Academy</th>}
+                <th scope="col">Center</th>
+                <th scope="col">Batch / Age</th>
                 {!isCoach(loggedInUser) && <>
-                  <th scope="col">{renderColumnFilter("status", "Status", filterOptions.status)}</th>
+                  <th scope="col">Status</th>
                   {isAcademyOwner(loggedInUser) && <th scope="col" className="players-actions-heading">Actions</th>}
                 </>}
               </tr>
