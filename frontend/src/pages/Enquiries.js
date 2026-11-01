@@ -913,52 +913,40 @@ function Enquiries() {
                       <td>{formatDate(enquiry.trial_date)}</td>
                       <td>{formatDate(enquiry.created_at)}</td>
                       {!isAdmin && (
-                        enquiry.status === "converted"
-                          ? <td className="enquiries-actions-empty"><span className="sr-only">No actions available for converted enquiry</span></td>
-                          : (
-                        <td>
-                          <div className="enquiries-row-actions">
-                            <button
-                              type="button"
-                              className="enquiries-secondary-button"
-                              onClick={() => startStatusEdit(enquiry)}
-                              disabled={Boolean(statusSavingId) || Boolean(deletingEnquiryId)}
-                            >
-                              Update status
-                            </button>
-                            {isOwner && (
-                              <button
-                                type="button"
-                                className="enquiries-secondary-button"
-                                onClick={() => openEditEnquiry(enquiry)}
+                        <td className="enquiries-actions-cell">
+                          {enquiry.status !== "converted" && (
+                            isOwner ? (
+                              <select
+                                className="enquiries-action-select"
+                                aria-label={`Actions for ${enquiry.player_name}`}
+                                value=""
+                                onChange={(event) => {
+                                  const action = event.target.value;
+                                  if (action === "status") startStatusEdit(enquiry);
+                                  if (action === "edit") openEditEnquiry(enquiry);
+                                  if (action === "convert") openConversionForm(enquiry);
+                                  if (action === "delete") handleDeleteEnquiry(enquiry);
+                                }}
                                 disabled={Boolean(statusSavingId) || Boolean(deletingEnquiryId) || conversionSaving}
                               >
-                                Edit enquiry
-                              </button>
-                            )}
-                            {isOwner && enquiry.status !== "lost" && (
+                                <option value="" disabled>⋯ Actions</option>
+                                <option value="status">Update status</option>
+                                <option value="edit">Edit enquiry</option>
+                                {enquiry.status !== "lost" && <option value="convert">Convert to Player</option>}
+                                <option value="delete">Delete</option>
+                              </select>
+                            ) : (
                               <button
                                 type="button"
-                                className="enquiries-primary-button"
-                                onClick={() => openConversionForm(enquiry)}
-                                disabled={Boolean(statusSavingId) || conversionSaving || Boolean(deletingEnquiryId)}
+                                className="enquiries-secondary-button enquiries-coach-status-button"
+                                onClick={() => startStatusEdit(enquiry)}
+                                disabled={Boolean(statusSavingId) || Boolean(deletingEnquiryId)}
                               >
-                                Convert to Player
+                                Update status
                               </button>
-                            )}
-                            {isOwner && (
-                              <button
-                                type="button"
-                                className="enquiries-secondary-button enquiries-delete-button"
-                                onClick={() => handleDeleteEnquiry(enquiry)}
-                                disabled={Boolean(statusSavingId) || conversionSaving || Boolean(deletingEnquiryId) || enquiry.status === "converted"}
-                              >
-                                {deletingEnquiryId === enquiry.id ? "Deleting…" : "Delete"}
-                              </button>
-                            )}
-                          </div>
+                            )
+                          )}
                         </td>
-                        )
                       )}
                     </tr>
                   ))}
