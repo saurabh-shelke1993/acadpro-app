@@ -788,7 +788,7 @@ function CoachBatchMapping() {
                     <tr><td className="coach-mapping-empty-state" colSpan={canManageMappings ? 6 : 5}>
                       <div className="coach-mapping-empty-icon">↔</div>
                       <strong>{activeFilterCount > 0 ? "No mappings match your filters" : "No coach-batch mappings"}</strong>
-                      <span>{activeFilterCount > 0 ? "Try changing or clearing your filters." : "Create an assignment using the form above."}</span>
+                      <span>{activeFilterCount > 0 ? "Try changing or clearing your filters." : "Use Assign Coach to create an assignment."}</span>
                       {activeFilterCount > 0 && <button type="button" className="coach-mapping-secondary-button" onClick={clearAllFilters}>Clear all filters</button>}
                     </td></tr>
                   )}
