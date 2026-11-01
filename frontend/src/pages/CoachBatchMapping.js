@@ -34,6 +34,7 @@ function CoachBatchMapping() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedMappingId, setSelectedMappingId] = useState(null);
   const [editingMappingId, setEditingMappingId] = useState(null);
+  const [isAssignmentFormOpen, setIsAssignmentFormOpen] = useState(false);
   const [mappingNotice, setMappingNotice] = useState(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -145,6 +146,7 @@ function CoachBatchMapping() {
 
 
   const resetAssignmentForm = () => {
+    setIsAssignmentFormOpen(false);
     setSelectedCoach("");
     setSelectedCenter("");
     setSelectedBatch("");
@@ -152,7 +154,13 @@ function CoachBatchMapping() {
     setEditingMappingId(null);
   };
 
+  const openNewAssignmentForm = () => {
+    resetAssignmentForm();
+    setIsAssignmentFormOpen(true);
+  };
+
   const startEditMapping = (mapping) => {
+    setIsAssignmentFormOpen(true);
     const centerId = mapping.batches?.center_id || mapping.batches?.centers?.id || "";
     setEditingMappingId(mapping.id);
     setSelectedMappingId(mapping.id);
@@ -541,12 +549,7 @@ function CoachBatchMapping() {
     <Layout>
       <div className={`coach-mapping-page${isAcademyOwner(user) ? " coach-mapping-page-owner" : ""}`}>
         <CoachWorkspaceTabs />
-        <section className="coach-mapping-toolbar">
-          <div>
-            <span className="coach-mapping-eyebrow">Academy management</span>
-            <h1>Coach Batch Mapping</h1>
-            <p>Manage coach assignments across academy batches.</p>
-          </div>
+        <section className="coach-mapping-toolbar" aria-label="Batch assignment controls">
           <div className="coach-mapping-toolbar-controls">
             {isSuperAdmin(user) ? (
               <label className="coach-mapping-toolbar-field">
@@ -554,6 +557,7 @@ function CoachBatchMapping() {
                 <select value={selectedAcademy} onChange={(event) => {
                   setSelectedAcademy(event.target.value);
                   setMappingNotice(null);
+                  resetAssignmentForm();
                   clearAllFilters();
                 }}>
                   <option value="">Select Academy</option>
@@ -566,8 +570,25 @@ function CoachBatchMapping() {
                 <strong>{academies.find((academy) => academy.id === selectedAcademy)?.academy_name || "Your academy"}</strong>
               </div>
             )}
-            <div className="coach-mapping-summary-card"><strong>{activeMappings}</strong><span>active mappings</span></div>
+            <div className="coach-mapping-summary-card">
+              <strong>{activeMappings}</strong>
+              <span>active mapping{activeMappings === 1 ? "" : "s"}</span>
+            </div>
           </div>
+          {canManageMappings && selectedAcademy && (
+            <button
+              type="button"
+              className={isAssignmentFormOpen && !editingMappingId ? "coach-mapping-secondary-button" : "coach-mapping-primary-button"}
+              aria-expanded={isAssignmentFormOpen}
+              aria-controls="coach-mapping-assignment-card"
+              onClick={() => {
+                if (isAssignmentFormOpen && !editingMappingId) resetAssignmentForm();
+                else openNewAssignmentForm();
+              }}
+            >
+              {isAssignmentFormOpen && !editingMappingId ? "Close" : "+ Assign Coach"}
+            </button>
+          )}
         </section>
 
         {mappingNotice && (
@@ -576,11 +597,10 @@ function CoachBatchMapping() {
           </div>
         )}
 
-        {canManageMappings && selectedAcademy && (
+        {canManageMappings && selectedAcademy && isAssignmentFormOpen && (
           <section id="coach-mapping-assignment-card" className={"coach-mapping-assignment-card" + (editingMappingId ? " coach-mapping-assignment-card-editing" : "")}>
             <div className="coach-mapping-assignment-heading">
-              <div><span className="coach-mapping-section-eyebrow">{editingMappingId ? "Edit mapping" : "Create mapping"}</span><h2>{editingMappingId ? "Edit Coach Mapping" : "Assign Coach"}</h2></div>
-              <p>Coach → Center → Batch</p>
+              <h2>{editingMappingId ? "Edit Assignment" : "Assign Coach"}</h2>
             </div>
             <div className="coach-mapping-form-grid">
               <label className="coach-mapping-field"><span>Coach *</span>
@@ -631,11 +651,9 @@ function CoachBatchMapping() {
               )}
               <div className="coach-mapping-form-action">
                 <div className="coach-mapping-form-actions">
-                  {editingMappingId && (
-                    <button className="coach-mapping-secondary-button" type="button" onClick={resetAssignmentForm} disabled={saving}>
-                      Cancel
-                    </button>
-                  )}
+                  <button className="coach-mapping-secondary-button" type="button" onClick={resetAssignmentForm} disabled={saving}>
+                    Cancel
+                  </button>
                   <button className="coach-mapping-primary-button" type="button" onClick={editingMappingId ? updateMapping : assignCoach} disabled={saving || !selectedCoach || !selectedCenter || !selectedBatch}>
                     {saving ? "Saving..." : editingMappingId ? "Save Changes" : "Assign"}
                   </button>
@@ -652,21 +670,15 @@ function CoachBatchMapping() {
           </section>
         ) : (
           <section className="coach-mapping-list-section">
+            <h2 className="sr-only">Batch assignments</h2>
             <div className="coach-mapping-list-header">
-              <div>
-                <span className="coach-mapping-section-eyebrow">Mapping directory</span>
-                <h2>Current Mappings</h2>
-                <p>{filteredAssignments.length} mapping{filteredAssignments.length === 1 ? "" : "s"} shown</p>
-              </div>
-              <div className="coach-mapping-list-summary">
-                {activeFilterCount > 0 && (
-                  <>
-                    <span className="coach-mapping-active-filter-count">{activeFilterCount} active filter{activeFilterCount === 1 ? "" : "s"}</span>
-                    <button type="button" className="coach-mapping-secondary-button" onClick={clearAllFilters}>Clear all</button>
-                  </>
-                )}
-                <span>Page {currentPage} of {totalPages}</span>
-              </div>
+              <span className="coach-mapping-results-count">{filteredAssignments.length} mapping{filteredAssignments.length === 1 ? "" : "s"} shown</span>
+              {activeFilterCount > 0 && (
+                <div className="coach-mapping-list-summary">
+                  <span className="coach-mapping-active-filter-count">{activeFilterCount} active filter{activeFilterCount === 1 ? "" : "s"}</span>
+                  <button type="button" className="coach-mapping-secondary-button" onClick={clearAllFilters}>Clear filters</button>
+                </div>
+              )}
             </div>
 
             {loadError && (
