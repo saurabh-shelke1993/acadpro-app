@@ -399,12 +399,7 @@ return (
 
       {(isSuperAdmin(user) || isAcademyOwner(user)) && (
         <section className="centers-form-card">
-          <div className="centers-section-heading">
-            <h2>{editingCenterId ? "Edit Center" : "Center workspace"}</h2>
-            <p>{isSuperAdmin(user) ? "Select an academy, then create or edit a center." : "Create or edit centers within your academy."}</p>
-          </div>
-
-          <div className="centers-form-grid">
+          <div className="centers-form-grid centers-form-grid-compact">
             {isSuperAdmin(user) && (
               <select
                 value={selectedAcademy}
@@ -422,6 +417,8 @@ return (
             )}
 
             <input
+              className="centers-name-input"
+              aria-label="Center name"
               type="text"
               placeholder="Enter Center Name"
               value={centerName}
@@ -433,7 +430,7 @@ return (
             />
 
             <label className="centers-code-field">
-              <span>Center Code</span>
+              <span className="sr-only">Center Code</span>
               <input
                 type="text"
                 aria-label="Center Code"
