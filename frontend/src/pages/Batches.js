@@ -1133,10 +1133,6 @@ const Batches = () => {
                     Choose your days and enter one common time. Customize individual days only when needed.
                   </p>
                 </div>
-                <span className="batches-session-count">
-                  {scheduleRows.length}{" "}
-                  {scheduleRows.length === 1 ? "session" : "sessions"}
-                </span>
               </div>
 
               <div className="batches-schedule-compact-grid">
@@ -1198,7 +1194,6 @@ const Batches = () => {
                   <div className="batches-common-time">
                     <div className="batches-common-time-heading">
                       <strong>Common training time</strong>
-                      <span>{scheduleRows.length} session{scheduleRows.length === 1 ? "" : "s"} selected</span>
                     </div>
                     {!customTimes && (
                       <div className="batches-common-time-fields">
