@@ -1519,3 +1519,41 @@
   .batches-create-schedule .batches-schedule-row { grid-template-columns:1fr; }
   .batches-time-12 select { min-width:0; }
 }
+
+/* BAT4 compact schedule builder — days on left, shared time on right */
+.batches-schedule-compact-grid {
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.12fr);gap:14px;
+  align-items:start;margin-top:6px;
+}
+.batches-days-panel { min-width:0; }
+.batches-create-schedule .batches-day-picker { gap:5px;margin-top:2px; }
+.batches-create-schedule .batches-day-option {
+  width:40px;flex-basis:40px;min-height:40px;
+}
+.batches-create-schedule .batches-day-check { width:36px;height:36px;flex-basis:36px;font-size:12px; }
+.batches-schedule-presets {gap:5px;margin:6px 0 0;}
+.batches-schedule-presets button {min-height:29px;padding:4px 9px;font-size:11px;}
+.batches-days-panel .batches-add-session-button {margin-top:6px;min-height:30px !important;padding:4px 9px !important;font-size:11px;}
+.batches-common-time {margin-top:0;padding:10px 11px;}
+.batches-common-time-heading {margin-bottom:6px;}
+.batches-common-time-fields {gap:8px;}
+.batches-common-time .batches-field label {font-size:11px;margin-bottom:3px;}
+.batches-time-12 {gap:3px;}
+.batches-time-12 select {min-height:34px;padding:4px 3px;font-size:12px;flex:1 1 30px;}
+.batches-time-12 select:last-child {flex:0 0 51px;}
+.batches-custom-times-toggle {margin-top:7px;font-size:11px;}
+.batches-time-placeholder {display:grid;gap:6px;padding:16px;border:1px dashed #cbd5e1;border-radius:10px;color:#64748b;font-size:12px;}
+.batches-time-placeholder strong {color:#365396;font-size:12px;}
+.batches-create-schedule .batches-schedule-builder {padding:10px 12px;}
+.batches-create-schedule .batches-schedule-builder-header {margin-bottom:5px;}
+.batches-create-schedule .batches-schedule-builder-header p {font-size:11px;margin-top:2px;}
+.batches-create-schedule .batches-schedule-rows {margin-top:8px;}
+@media(max-width:1250px) {
+  .batches-schedule-compact-grid {grid-template-columns:1fr;}
+  .batches-common-time-fields {grid-template-columns:repeat(2,minmax(0,1fr));}
+}
+@media(max-width:760px) {
+  .batches-schedule-compact-grid {gap:9px;}
+  .batches-create-schedule .batches-day-picker {gap:7px;}
+  .batches-common-time-fields {grid-template-columns:1fr;}
+}
