@@ -653,3 +653,45 @@
     justify-self: stretch;
   }
 }
+
+/* E2: compact, role-aware row action controls. */
+.enquiries-actions-cell {
+  width: 150px;
+  white-space: nowrap;
+}
+
+.enquiries-action-select {
+  width: 135px;
+  max-width: 100%;
+  min-height: 34px;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid var(--ap-border);
+  border-radius: var(--ap-radius-md);
+  background: var(--ap-surface);
+  color: var(--ap-slate-800);
+  font: inherit;
+  font-size: var(--ap-font-size-sm);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.enquiries-action-select:focus-visible {
+  outline: 2px solid var(--ap-primary-600);
+  outline-offset: 2px;
+}
+
+.enquiries-action-select:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.enquiries-coach-status-button {
+  min-height: 34px;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .enquiries-actions-cell {
+    width: auto;
+  }
+}
