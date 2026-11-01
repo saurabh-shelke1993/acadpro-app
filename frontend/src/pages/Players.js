@@ -68,6 +68,8 @@ function Players() {
   const [parentAddress, setParentAddress] = useState("");
 
   const [isEditing, setIsEditing] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
+  const [addressOpen, setAddressOpen] = useState(false);
   const [editingPlayerId, setEditingPlayerId] = useState(null);
   const [editingParentId, setEditingParentId] = useState(null);
 
@@ -736,6 +738,9 @@ if (!joiningDate) {
     setAvailableSchedules([]);
     setScheduleLoadError("");
     setIsEditing(true);
+    setFormOpen(true);
+    setAddressOpen(Boolean(player.parents?.address));
+    window.scrollTo({ top: 0, behavior: "smooth" });
 
     setEditingPlayerId(player.id);
     setEditingParentId(player.parent_id);
@@ -906,6 +911,8 @@ const resetForm = () => {
   setParentAddress("");
 
   setIsEditing(false);
+  setFormOpen(false);
+  setAddressOpen(false);
   setEditingPlayerId(null);
   setEditingParentId(null);
   setSelectedCenter("");
@@ -1154,34 +1161,42 @@ useEffect(() => {
   return (
   <Layout>
     <div className={`players-page${isCoach(loggedInUser) ? " players-page-coach" : ""}${isAcademyOwner(loggedInUser) ? " players-page-owner" : ""}`}>
-      <div className="players-page-header">
-        <div>
-          <span className="players-page-eyebrow">Academy management</span>
+      <div className="players-compact-toolbar">
+        <div className="players-compact-title">
           <h1>Players</h1>
-          <p>Manage player profiles, batches, and parent information.</p>
+          <span>{filteredPlayers.length} players shown</span>
         </div>
-        <div className="players-page-count">
-          <strong>{filteredPlayers.length}</strong>
-          <span>visible players</span>
-        </div>
+        {!isCoach(loggedInUser) && (
+          <button
+            type="button"
+            className="player-primary-button players-toggle-form-button"
+            aria-expanded={formOpen}
+            aria-controls="players-registration-workspace"
+            onClick={() => {
+              if (formOpen) {
+                resetForm();
+              } else {
+                resetForm();
+                setFormOpen(true);
+              }
+            }}
+          >
+            {formOpen ? "Close Form" : "+ Add Player"}
+          </button>
+        )}
       </div>
 
-      {!isCoach(loggedInUser) && (
-        <div className="players-create-import-workspace">
+      {!isCoach(loggedInUser) && formOpen && (
+        <div id="players-registration-workspace" className="players-create-import-workspace players-create-import-workspace-expanded">
           <section className="players-form-card players-form-card-create">
           <div className="players-section-heading">
             <div>
-              <span className="players-section-eyebrow">
-                {isEditing ? "Edit player" : "Create player"}
-              </span>
+              <span className="players-section-eyebrow">{isEditing ? "Edit player" : "Create player"}</span>
               <h2>{isEditing ? "Edit Player" : "New Player"}</h2>
             </div>
-            <p>
-              {isEditing
-                ? "Update the selected player's profile and parent information."
-                : "Add a player to the selected academy, center, and batch."}
-            </p>
           </div>
+          <div className="players-registration-grid">
+            <div className="players-registration-main">
 
           {isEditing && isAcademyOwner(loggedInUser) && (
             <div className="players-form-section players-edit-photo-section">
@@ -1340,6 +1355,8 @@ useEffect(() => {
             </div>
           </div>
 
+            </div>
+            <div className="players-registration-side">
           <div className="players-form-section players-session-enrollment-section">
             <div className="players-session-enrollment-heading">
               <h3>Weekly training sessions</h3>
@@ -1412,8 +1429,8 @@ useEffect(() => {
             )}
           </div>
 
-          <div className="players-form-section">
-            <h3>Parent information</h3>
+          <div className="players-form-section players-parent-section">
+            <h3>Parent / Guardian</h3>
             <div className="players-form-grid">
               <div className="players-field">
                 <label htmlFor="player-parent-name">Parent name</label>
@@ -1448,18 +1465,33 @@ useEffect(() => {
                 />
               </div>
 
-              <div className="players-field players-field-wide">
-                <label htmlFor="player-parent-address">Parent address</label>
-                <textarea
-                  id="player-parent-address"
-                  placeholder="Parent Address"
-                  value={parentAddress}
-                  onChange={(e) => setParentAddress(e.target.value)}
-                />
+              <div className="players-field players-field-wide players-address-expander">
+                <button
+                  type="button"
+                  className="players-address-toggle"
+                  aria-expanded={addressOpen}
+                  aria-controls="player-parent-address-container"
+                  onClick={() => setAddressOpen((open) => !open)}
+                >
+                  {addressOpen ? "▾" : "▸"} Additional details (address)
+                </button>
+                {addressOpen && (
+                  <div id="player-parent-address-container">
+                    <label htmlFor="player-parent-address">Parent address</label>
+                    <textarea
+                      id="player-parent-address"
+                      placeholder="Parent Address"
+                      value={parentAddress}
+                      onChange={(e) => setParentAddress(e.target.value)}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </div>
 
+            </div>
+          </div>
           <div className="players-form-actions">
             <button
               className="player-primary-button"
@@ -1473,7 +1505,7 @@ useEffect(() => {
               type="button"
               onClick={resetForm}
             >
-              Clear
+              {isEditing ? "Cancel" : "Clear & Close"}
             </button>
           </div>
           </section>
