@@ -248,6 +248,7 @@ function AcademyOwnerAnalyticsV2({ user }) {
   return (
     <Layout>
       <main className="owner-analytics-page">
+        <div className="owner-analytics-toolbar">
         <nav className="owner-analytics-tabs" role="group" aria-label="Analytics sections">
           {[
             { id: "attendance", label: "Attendance" },
@@ -265,6 +266,25 @@ function AcademyOwnerAnalyticsV2({ user }) {
               {tab.label}
             </button>
           ))}
+        </nav>
+          <div className="owner-analytics-toolbar-filters">
+        {activeTab === "attendance" && (
+          <label className="owner-analytics-attendance-filter owner-analytics-attendance-filter-inline">
+            <span>Attendance</span>
+            <select value={attendancePreset} onChange={(event) => {
+              const preset = event.target.value;
+              const months = preset === "1w" ? 0 : preset === "1m" ? 1 : preset === "3m" ? 3 : 5;
+              setAttendancePreset(preset);
+              setAttendanceRange(getPresetRange(months));
+            }}>
+              <option value="1w">Last 1 week</option>
+              <option value="1m">Last 1 month</option>
+              <option value="3m">Last 3 months</option>
+              <option value="5m">Last 5 months</option>
+            </select>
+          </label>
+        )}
+
           {activeTab === "finance" && (
               <div className="owner-analytics-finance-filters owner-analytics-finance-filters-top">
                 <label>Reporting month <input type="month" value={financeMonth} onChange={e => setFinanceMonth(e.target.value)} /></label>
@@ -282,24 +302,21 @@ function AcademyOwnerAnalyticsV2({ user }) {
                 </>}
               </div>
           )}
-        </nav>
 
-        {activeTab === "attendance" && (
-          <label className="owner-analytics-attendance-filter owner-analytics-attendance-filter-inline">
-            <span>Attendance</span>
-            <select value={attendancePreset} onChange={(event) => {
-              const preset = event.target.value;
-              const months = preset === "1w" ? 0 : preset === "1m" ? 1 : preset === "3m" ? 3 : 5;
-              setAttendancePreset(preset);
-              setAttendanceRange(getPresetRange(months));
-            }}>
-              <option value="1w">Last 1 week</option>
-              <option value="1m">Last 1 month</option>
-              <option value="3m">Last 3 months</option>
-              <option value="5m">Last 5 months</option>
-            </select>
-          </label>
-        )}
+            {activeTab === "coaches" && (
+              <div className="owner-analytics-coach-filters-top">
+                <label>Reporting month <input type="month" value={coachMonth} onChange={event => setCoachMonth(event.target.value)} /></label>
+              </div>
+            )}
+            {activeTab === "enquiries" && (
+              <div className="owner-analytics-enquiry-filters">
+                <label>Through month <input type="month" value={enquiryMonth} onChange={event => setEnquiryMonth(event.target.value)} /></label>
+                <label>Period <select value={enquiryWindow} onChange={event => setEnquiryWindow(event.target.value)}><option value="3">Last 3 months</option><option value="6">Last 6 months</option><option value="12">Last 12 months</option><option value="24">Last 24 months</option><option value="60">Last 60 months</option></select></label>
+                <label>Center <select value={enquiryCenter} onChange={event => setEnquiryCenter(event.target.value)}><option value="all">All centers</option>{(enquiryData?.months?.[0]?.centers || []).map(center => <option key={center.centerId} value={center.centerId}>{center.centerName}</option>)}<option value="unassigned">Unassigned</option><option value="unknown">Unknown center</option></select></label>
+              </div>
+            )}
+          </div>
+        </div>
 
         {(loading || error) && (
           <section
@@ -444,7 +461,7 @@ function AcademyOwnerAnalyticsV2({ user }) {
           <section className="owner-analytics-section">
             <div className="owner-analytics-section-heading">
               <div><span>ACADEMY OPERATIONS</span><h2>Coach assignments & sessions</h2></div>
-              <label>Reporting month <input type="month" value={coachMonth} onChange={event => setCoachMonth(event.target.value)} /></label>
+              
             </div>
             <p className="owner-analytics-coach-disclaimer">Scheduled sessions are calculated from active batch schedules and effective-dated coach assignments. Completed sessions cannot be verified from the current records.</p>
             {coachError ? <p role="alert">{coachError}</p> : !coachData ? <p>Loading coach assignments…</p> : (
@@ -486,11 +503,7 @@ function AcademyOwnerAnalyticsV2({ user }) {
           <section className="owner-analytics-section owner-analytics-enquiries">
             <div className="owner-analytics-section-heading">
               <div><span>ACADEMY GROWTH</span><h2>Enquiries & conversion</h2></div>
-              <div className="owner-analytics-enquiry-filters">
-                <label>Through month <input type="month" value={enquiryMonth} onChange={event => setEnquiryMonth(event.target.value)} /></label>
-                <label>Period <select value={enquiryWindow} onChange={event => setEnquiryWindow(event.target.value)}><option value="3">Last 3 months</option><option value="6">Last 6 months</option><option value="12">Last 12 months</option><option value="24">Last 24 months</option><option value="60">Last 60 months</option></select></label>
-                <label>Center <select value={enquiryCenter} onChange={event => setEnquiryCenter(event.target.value)}><option value="all">All centers</option>{(enquiryData?.months?.[0]?.centers || []).map(center => <option key={center.centerId} value={center.centerId}>{center.centerName}</option>)}<option value="unassigned">Unassigned</option><option value="unknown">Unknown center</option></select></label>
-              </div>
+
             </div>
             <p className="owner-analytics-enquiry-note">Conversion is attributed to the month the enquiry was created, even when the player converted later. Conversion counts reflect the current recorded state.</p>
             {enquiryLoading ? <p role="status">Loading enquiry analytics…</p> : enquiryError ? <div role="alert" className="owner-analytics-quality-note"><strong>Unable to load enquiry analytics</strong><p>{enquiryError}</p><button type="button" onClick={() => setRefreshKey(value => value + 1)}>Retry</button></div> : enquiryData ? (() => {
