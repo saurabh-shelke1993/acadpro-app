@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import Layout from "../components/Layout";
 import { useSearchParams } from "react-router-dom";
 import { getLoggedInUser, isSuperAdmin } from "../utils/auth";
@@ -24,6 +24,8 @@ const today = () => {
   const date = new Date();
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 };
+
+const ENQUIRIES_PAGE_SIZE = 10;
 
 const EMPTY_FORM = {
   playerName: "",
@@ -56,6 +58,8 @@ function Enquiries() {
   const [statusFilter, setStatusFilter] = useState("");
   const [sourceFilter, setSourceFilter] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [expandedEnquiryId, setExpandedEnquiryId] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -186,6 +190,15 @@ function Enquiries() {
       return name.includes(term) || phone.includes(term);
     });
   }, [enquiries, academyFilter, centerFilter, statusFilter, sourceFilter, searchTerm]);
+
+  const totalPages = Math.max(1, Math.ceil(visibleEnquiries.length / ENQUIRIES_PAGE_SIZE));
+  const safePage = Math.min(currentPage, totalPages);
+  const paginatedEnquiries = visibleEnquiries.slice((safePage - 1) * ENQUIRIES_PAGE_SIZE, safePage * ENQUIRIES_PAGE_SIZE);
+
+  useEffect(() => {
+    setCurrentPage(1);
+    setExpandedEnquiryId(null);
+  }, [academyFilter, centerFilter, statusFilter, sourceFilter, searchTerm]);
 
   const updateForm = (field, value) => {
     setForm((current) => ({ ...current, [field]: value }));
@@ -498,6 +511,8 @@ function Enquiries() {
     setStatusFilter("");
     setSourceFilter("");
     setAcademyFilter(isAdmin ? "" : user?.academy_id || "");
+    setCurrentPage(1);
+    setExpandedEnquiryId(null);
   };
 
   const showAcademyFilter = isAdmin;
@@ -545,7 +560,7 @@ function Enquiries() {
             <div className="enquiries-section-heading">
               <div>
                 <h2 id="enquiry-form-title">Quick capture</h2>
-                <p>Only player name, parent contact and date of birth are required.</p>
+                
               </div>
             </div>
 
@@ -667,7 +682,7 @@ function Enquiries() {
                 <div>
                   <span className="enquiries-eyebrow">Enrollment</span>
                   <h2 id="enquiry-conversion-title">Convert enquiry to Player</h2>
-                  <p>Complete the enrollment details missing from this enquiry. Player creation and enquiry conversion happen in one database transaction.</p>
+                  
                 </div>
                 <button type="button" className="enquiries-secondary-button" onClick={closeConversionForm} disabled={conversionSaving}>Close</button>
               </header>
@@ -856,14 +871,21 @@ function Enquiries() {
                   </tr>
                 </thead>
                 <tbody>
-                  {visibleEnquiries.map((enquiry) => (
-                    <tr key={enquiry.id}>
+                  {paginatedEnquiries.map((enquiry) => (
+                    <Fragment key={enquiry.id}>
+                    <tr>
                       {isAdmin && <td>{academyNames.get(enquiry.academy_id) || "—"}</td>}
-                      <td><strong>{enquiry.player_name}</strong></td>
-                      <td>{enquiry.phone}</td>
-                      <td>{formatDate(enquiry.dob)}</td>
-                      <td>{enquiry.inquiry_source || "Not specified"}</td>
-                      <td>{centerNames.get(enquiry.assigned_center_id) || "Unassigned"}</td>
+                      <td className="enquiries-player-cell"><strong>{enquiry.player_name}</strong>
+                        <button type="button" className="enquiries-mobile-expand" aria-expanded={expandedEnquiryId === enquiry.id}
+                          aria-label={`${expandedEnquiryId === enquiry.id ? "Collapse" : "Expand"} details for ${enquiry.player_name}`}
+                          onClick={() => setExpandedEnquiryId((id) => id === enquiry.id ? null : enquiry.id)}>
+                          {expandedEnquiryId === enquiry.id ? "Less" : "Details"}
+                        </button>
+                      </td>
+                      <td className="enquiries-extra-column">{enquiry.phone}</td>
+                      <td className="enquiries-extra-column">{formatDate(enquiry.dob)}</td>
+                      <td className="enquiries-extra-column">{enquiry.inquiry_source || "Not specified"}</td>
+                      <td className="enquiries-extra-column">{centerNames.get(enquiry.assigned_center_id) || "Unassigned"}</td>
                       <td>
                         {editingEnquiryId === enquiry.id ? (
                           <div className="enquiries-status-editor">
@@ -910,8 +932,8 @@ function Enquiries() {
                           <span className={`enquiries-status enquiries-status-${enquiry.status || "new"}`}>{statusLabel(enquiry.status)}</span>
                         )}
                       </td>
-                      <td>{formatDate(enquiry.trial_date)}</td>
-                      <td>{formatDate(enquiry.created_at)}</td>
+                      <td className="enquiries-extra-column">{formatDate(enquiry.trial_date)}</td>
+                      <td className="enquiries-extra-column">{formatDate(enquiry.created_at)}</td>
                       {!isAdmin && (
                         <td className="enquiries-actions-cell">
                           {enquiry.status !== "converted" && (
@@ -949,10 +971,33 @@ function Enquiries() {
                         </td>
                       )}
                     </tr>
+                    {expandedEnquiryId === enquiry.id && (
+                      <tr className="enquiries-mobile-detail-row"><td colSpan={9}>
+                        <dl className="enquiries-mobile-details">
+                          {isAdmin && <><dt>Academy</dt><dd>{academyNames.get(enquiry.academy_id) || "—"}</dd></>}
+                          <dt>Parent contact</dt><dd>{enquiry.phone}</dd>
+                          <dt>Date of birth</dt><dd>{formatDate(enquiry.dob)}</dd>
+                          <dt>Source</dt><dd>{enquiry.inquiry_source || "Not specified"}</dd>
+                          <dt>Center</dt><dd>{centerNames.get(enquiry.assigned_center_id) || "Unassigned"}</dd>
+                          <dt>Trial date</dt><dd>{formatDate(enquiry.trial_date)}</dd>
+                          <dt>Created</dt><dd>{formatDate(enquiry.created_at)}</dd>
+                        </dl>
+                      </td></tr>
+                    )}
+                    </Fragment>
                   ))}
                 </tbody>
               </table>
             </div>
+          )}
+          {!loading && visibleEnquiries.length > ENQUIRIES_PAGE_SIZE && (
+            <nav className="enquiries-pagination" aria-label="Enquiry pagination">
+              <span>Page {safePage} of {totalPages} · {visibleEnquiries.length} matching enquiries</span>
+              <div>
+                <button type="button" className="enquiries-secondary-button" onClick={() => { setCurrentPage((p) => Math.max(1, p - 1)); setExpandedEnquiryId(null); }} disabled={safePage === 1}>Previous</button>
+                <button type="button" className="enquiries-secondary-button" onClick={() => { setCurrentPage((p) => Math.min(totalPages, p + 1)); setExpandedEnquiryId(null); }} disabled={safePage === totalPages}>Next</button>
+              </div>
+            </nav>
           )}
         </section>
       </section>
