@@ -28,6 +28,7 @@ import {
   getDayName
 } from "../services/batchScheduleService";
 import { suggestCenterCode } from "../services/centerPresentation";
+import { compareBatchListRows } from "../services/batchListSort";
 import "./Batches.css";
 
 const DAYS = [
@@ -189,34 +190,7 @@ const Batches = () => {
       matchesColumn("center", batch.centers?.center_name || "—") &&
       matchesColumn("ageGroup", batch.age_group || "—")
     );
-  }).sort((left, right) => {
-    // Group by center, then earliest scheduled weekday and start time.
-    // Unscheduled batches appear after scheduled batches in their center.
-    const leftCenter = left.centers?.center_name ||
-      centers.find((center) => center.id === left.center_id)?.center_name || "";
-    const rightCenter = right.centers?.center_name ||
-      centers.find((center) => center.id === right.center_id)?.center_name || "";
-    const byAcademy = String(left.academies?.academy_name || "").localeCompare(
-      String(right.academies?.academy_name || ""), undefined, { sensitivity: "base" }
-    );
-    if (byAcademy) return byAcademy;
-    const byCenter = leftCenter.localeCompare(rightCenter, undefined, { sensitivity: "base" });
-    if (byCenter) return byCenter;
-    const earliest = (batch) => {
-      const records = batchSchedules[batch.id] || [];
-      if (!records.length) return [8, "99:99"];
-      const sorted = [...records].sort((a, b) =>
-        Number(a.dayOfWeek) - Number(b.dayOfWeek) ||
-        String(a.startTime || "").localeCompare(String(b.startTime || ""))
-      );
-      return [Number(sorted[0].dayOfWeek), String(sorted[0].startTime || "99:99")];
-    };
-    const [leftDay, leftTime] = earliest(left);
-    const [rightDay, rightTime] = earliest(right);
-    return leftDay - rightDay || leftTime.localeCompare(rightTime) ||
-      String(left.batch_name || "").localeCompare(String(right.batch_name || ""), undefined, { sensitivity: "base" }) ||
-      String(left.id).localeCompare(String(right.id));
-  }), [
+  }).sort((left, right) => compareBatchListRows(left, right, batchSchedules, centers)), [
     batches,
     centers,
     batchSchedules,
