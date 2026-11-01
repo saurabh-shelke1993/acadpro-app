@@ -91,6 +91,44 @@ const formatScheduleRows = (rows) =>
       String(a.startTime).localeCompare(String(b.startTime))
   );
 
+// Accessible, locale-independent 12-hour UI; database values remain HH:mm.
+const toTwelveHour = (value) => {
+  const match = /^(\\d{2}):(\\d{2})$/.exec(value || "");
+  if (!match) return { hour: "", minute: "00", period: "PM" };
+  const hours = Number(match[1]);
+  return { hour: String(hours % 12 || 12), minute: match[2], period: hours >= 12 ? "PM" : "AM" };
+};
+const fromTwelveHour = (hour, minute, period) => {
+  if (!hour) return "";
+  const hours = (Number(hour) % 12) + (period === "PM" ? 12 : 0);
+  return `${String(hours).padStart(2, "0")}:${minute}`;
+};
+function Time12Select({ value, onChange, label }) {
+  const parts = toTwelveHour(value);
+  return (
+    <div className="batches-time-12" role="group" aria-label={label}>
+      <select aria-label={`${label} hour`} value={parts.hour} onChange={(event) =>
+        onChange(fromTwelveHour(event.target.value, parts.minute, parts.period))}>
+        <option value="">HH</option>
+        {Array.from({ length: 12 }, (_, index) => (
+          <option key={index + 1} value={String(index + 1)}>{index + 1}</option>
+        ))}
+      </select>
+      <span aria-hidden="true">:</span>
+      <select aria-label={`${label} minute`} value={parts.minute} onChange={(event) =>
+        onChange(fromTwelveHour(parts.hour, event.target.value, parts.period))}>
+        {Array.from({ length: 60 }, (_, index) => (
+          <option key={index} value={String(index).padStart(2, "0")}>{String(index).padStart(2, "0")}</option>
+        ))}
+      </select>
+      <select aria-label={`${label} AM or PM`} value={parts.period} onChange={(event) =>
+        onChange(fromTwelveHour(parts.hour, parts.minute, event.target.value))}>
+        <option value="AM">AM</option><option value="PM">PM</option>
+      </select>
+    </div>
+  );
+}
+
 const Batches = () => {
   const [searchParams] = useSearchParams();
   const academyContextId = searchParams.get("academyId") || "";
@@ -109,6 +147,7 @@ const Batches = () => {
   const [batchName, setBatchName] = useState("");
   const [ageGroup, setAgeGroup] = useState("");
   const [scheduleRows, setScheduleRows] = useState([]);
+  const [customTimes, setCustomTimes] = useState(false);
 
   const [batchSearchTerm, setBatchSearchTerm] = useState("");
   const [batchColumnFilters, setBatchColumnFilters] = useState({
@@ -355,6 +394,7 @@ const Batches = () => {
     setBatchName("");
     setAgeGroup("");
     setScheduleRows([]);
+    setCustomTimes(false);
     setSelectedCenter("");
 
     if (isSuperAdmin(user)) {
@@ -381,6 +421,22 @@ const Batches = () => {
         (row) => Number(row.dayOfWeek) === Number(dayOfWeek)
       );
       return [...current, createEmptySession(dayOfWeek, sameDay || monday || {})];
+    });
+  };
+
+  const applyCommonTime = (field, value) => {
+    setScheduleRows((current) => current.map((row) => ({ ...row, [field]: value })));
+  };
+
+  const choosePattern = (days) => {
+    setScheduleRows((current) => {
+      const common = current[0] || {};
+      return days.flatMap((day) => {
+        const existing = current.filter((row) => Number(row.dayOfWeek) === day);
+        return existing.length ? [existing[0]] : [createEmptySession(day, common)];
+      }).map((row) => customTimes ? row : ({
+        ...row, startTime: common.startTime || "", endTime: common.endTime || ""
+      }));
     });
   };
 
@@ -630,6 +686,12 @@ const Batches = () => {
     setSelectedCenter(batch.center_id || "");
 
     const schedules = batchSchedules[batch.id] || [];
+    const uniqueTimes = new Set(schedules.map((schedule) =>
+      `${normalizeTime(schedule.startTime)}|${normalizeTime(schedule.endTime)}`));
+    const hasExtraSessions = schedules.some((schedule) =>
+      schedules.filter((item) => Number(item.dayOfWeek) === Number(schedule.dayOfWeek)).length > 1);
+    setCustomTimes(uniqueTimes.size > 1 || hasExtraSessions);
+
 
     if (schedules.length > 0) {
       setScheduleRows(
@@ -1067,8 +1129,7 @@ const Batches = () => {
                   </span>
                   <h3>When does this batch run?</h3>
                   <p>
-                    Select the training days, then set the time for each
-                    session. A day can have more than one session.
+                    Choose your days and enter one common time. Customize individual days only when needed.
                   </p>
                 </div>
                 <span className="batches-session-count">
@@ -1114,114 +1175,96 @@ const Batches = () => {
                 })}
               </div>
 
+              <div className="batches-schedule-presets" aria-label="Common training patterns">
+                <button type="button" onClick={() => choosePattern([1, 3, 5])}>Mon · Wed · Fri</button>
+                <button type="button" onClick={() => choosePattern([2, 4])}>Tue · Thu</button>
+                <button type="button" onClick={() => choosePattern([6, 7])}>Weekend</button>
+              </div>
+
               {scheduleRows.length > 0 && (
-                <div className="batches-schedule-rows">
-                  {formatScheduleRows(scheduleRows).map((row, sortedIndex) => {
-                    const originalIndex = scheduleRows.findIndex(
-                      (candidate) =>
-                        candidate === row
-                    );
-
-                    return (
-                      <div
-                        className="batches-schedule-row"
-                        key={
-                          row.id ||
-                          `${row.dayOfWeek}-${row.startTime}-${sortedIndex}`
-                        }
-                      >
-                        <div className="batches-field batches-schedule-day-field">
-                          <label htmlFor={`schedule-day-${sortedIndex}`}>Day</label>
-                          <select
-                            id={`schedule-day-${sortedIndex}`}
-                            value={Number(row.dayOfWeek)}
-                            onChange={(event) =>
-                              updateScheduleRow(
-                                originalIndex,
-                                "dayOfWeek",
-                                Number(event.target.value)
-                              )
-                            }
-                          >
-                            {DAYS.map((day) => (
-                              <option key={day.value} value={day.value}>
-                                {day.label}
-                              </option>
-                            ))}
-                          </select>
-                          {dayCounts[row.dayOfWeek] > 1 && (
-                            <span className="batches-session-row-hint">
-                              {dayCounts[row.dayOfWeek]} sessions this day
-                            </span>
-                          )}
-                        </div>
-
+                <>
+                  <div className="batches-common-time">
+                    <div className="batches-common-time-heading">
+                      <strong>Common training time</strong>
+                      <span>{scheduleRows.length} session{scheduleRows.length === 1 ? "" : "s"} selected</span>
+                    </div>
+                    {!customTimes && (
+                      <div className="batches-common-time-fields">
                         <div className="batches-field">
-                          <label htmlFor={`schedule-start-${sortedIndex}`}>
-                            Start time
-                          </label>
-                          <input
-                            id={`schedule-start-${sortedIndex}`}
-                            type="time"
-                            value={row.startTime}
-                            onChange={(event) =>
-                              updateScheduleRow(
-                                originalIndex,
-                                "startTime",
-                                event.target.value
-                              )
-                            }
-                          />
+                          <label>Start time</label>
+                          <Time12Select label="Common start time"
+                            value={scheduleRows[0]?.startTime || ""}
+                            onChange={(value) => applyCommonTime("startTime", value)} />
                         </div>
-
                         <div className="batches-field">
-                          <label htmlFor={`schedule-end-${sortedIndex}`}>
-                            End time
-                          </label>
-                          <input
-                            id={`schedule-end-${sortedIndex}`}
-                            type="time"
-                            value={row.endTime}
-                            onChange={(event) =>
-                              updateScheduleRow(
-                                originalIndex,
-                                "endTime",
-                                event.target.value
-                              )
-                            }
-                          />
+                          <label>End time</label>
+                          <Time12Select label="Common end time"
+                            value={scheduleRows[0]?.endTime || ""}
+                            onChange={(value) => applyCommonTime("endTime", value)} />
                         </div>
-
-                        <button
-                          type="button"
-                          className="batches-remove-session-button"
-                          onClick={() =>
-                            removeScheduleRow(originalIndex)
-                          }
-                          aria-label={
-                            "Remove " + getDayName(row.dayOfWeek) + " session"
-                          }
-                          title="Remove session"
-                        >
-                          ×
-                        </button>
                       </div>
-                    );
-                  })}
-                </div>
+                    )}
+                    <label className="batches-custom-times-toggle">
+                      <input type="checkbox" checked={customTimes}
+                        onChange={(event) => {
+                          const enabled = event.target.checked;
+                          if (!enabled) {
+                            const base = scheduleRows[0] || {};
+                            setScheduleRows((current) => current.map((row) => ({
+                              ...row, startTime: base.startTime || "", endTime: base.endTime || ""
+                            })));
+                          }
+                          setCustomTimes(enabled);
+                        }} />
+                      Customize timing for individual days
+                    </label>
+                  </div>
+                  {customTimes && (
+                    <div className="batches-schedule-rows">
+                      {formatScheduleRows(scheduleRows).map((row, sortedIndex) => {
+                        const originalIndex = scheduleRows.indexOf(row);
+                        return (
+                          <div className="batches-schedule-row" key={row.id || `${row.dayOfWeek}-${sortedIndex}`}>
+                            <div className="batches-field batches-schedule-day-field">
+                              <label htmlFor={`schedule-day-${sortedIndex}`}>Day</label>
+                              <select id={`schedule-day-${sortedIndex}`}
+                                value={Number(row.dayOfWeek)}
+                                onChange={(event) => updateScheduleRow(originalIndex, "dayOfWeek", Number(event.target.value))}>
+                                {DAYS.map((day) => <option key={day.value} value={day.value}>{day.label}</option>)}
+                              </select>
+                            </div>
+                            <div className="batches-field">
+                              <label>Start time</label>
+                              <Time12Select label={`${getDayName(row.dayOfWeek)} start time`}
+                                value={row.startTime}
+                                onChange={(value) => updateScheduleRow(originalIndex, "startTime", value)} />
+                            </div>
+                            <div className="batches-field">
+                              <label>End time</label>
+                              <Time12Select label={`${getDayName(row.dayOfWeek)} end time`}
+                                value={row.endTime}
+                                onChange={(value) => updateScheduleRow(originalIndex, "endTime", value)} />
+                            </div>
+                            <button type="button" className="batches-remove-session-button"
+                              onClick={() => removeScheduleRow(originalIndex)}
+                              aria-label={`Remove ${getDayName(row.dayOfWeek)} session`}>×</button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                  <button type="button" className="batches-add-session-button"
+                    onClick={() => {
+                      setCustomTimes(true);
+                      addScheduleRow(Number(scheduleRows[scheduleRows.length - 1]?.dayOfWeek || 1));
+                    }}>
+                    + Add another session
+                  </button>
+                  {!customTimes && <p className="batches-shared-time-hint">
+                    Times apply to every selected day. Stored schedules remain individual sessions.
+                  </p>}
+                </>
               )}
-
-              <button
-                type="button"
-                className="batches-add-session-button"
-                onClick={() => {
-                  const existingDay =
-                    scheduleRows[scheduleRows.length - 1]?.dayOfWeek || 1;
-                  addScheduleRow(Number(existingDay));
-                }}
-              >
-                + Add another session
-              </button>
 
               {scheduleRows.length === 0 && (
                 <p className="batches-schedule-empty">
