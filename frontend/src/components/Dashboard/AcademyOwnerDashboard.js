@@ -205,26 +205,22 @@ function BatchAttendanceChart({ batches }) {
   </div>;
 }
 
-function AcademyOwnerDashboard({ data, onRefresh }) {
+function AcademyOwnerDashboard({ data }) {
   const centers = data?.centers || [];
   const financial = data?.financial || {};
   const sessions = data?.todaySessions || [];
   const attendanceBatches = data?.attendanceByBatch || [];
 
   return <div className="ao-dashboard ao-dashboard-refined">
-    <div className="ao-dashboard-summary-bar">
-      <nav className="ao-summary-links" aria-label="Academy totals">
-        <Link to="/players"><span>Players</span><strong>{formatNumber(data?.totals?.players || 0)}</strong></Link>
-        <Link to="/centers"><span>Centers</span><strong>{formatNumber(data?.totals?.centers || 0)}</strong></Link>
-        <Link to="/batches"><span>Batches</span><strong>{formatNumber(data?.totals?.batches || 0)}</strong></Link>
-      </nav>
-      <button type="button" className="ao-refresh-button" onClick={onRefresh}>Refresh</button>
-    </div>
     <div className="ao-dashboard-top-grid">
       <section className="ao-section ao-player-overview">
         <div className="ao-section-heading ao-player-overview-heading">
           <div><span className="ao-kicker">Player overview</span><h2>Players by center</h2></div>
-
+          <nav className="ao-summary-links" aria-label="Academy totals">
+            <Link to="/players"><span>Players</span><strong>{formatNumber(data?.totals?.players || 0)}</strong></Link>
+            <Link to="/centers"><span>Centers</span><strong>{formatNumber(data?.totals?.centers || 0)}</strong></Link>
+            <Link to="/batches"><span>Batches</span><strong>{formatNumber(data?.totals?.batches || 0)}</strong></Link>
+          </nav>
         </div>
         <PlayerDistribution centers={centers} academyPlayerTotal={data?.totals?.players || 0} />
       </section>
