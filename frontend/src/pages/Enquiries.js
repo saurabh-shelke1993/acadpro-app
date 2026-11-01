@@ -507,9 +507,7 @@ function Enquiries() {
       <section className="enquiries-page" aria-labelledby="enquiries-title">
         <header className="enquiries-page-header">
           <div>
-            <span className="enquiries-eyebrow">Admissions</span>
             <h1 id="enquiries-title">Enquiries</h1>
-            <p>Track prospective players before they are registered in AcadPro.</p>
           </div>
           <div className="enquiries-header-actions">
             <span className="enquiries-count" aria-live="polite">
@@ -777,14 +775,7 @@ function Enquiries() {
         )}
 
         <section className="enquiries-list-section" aria-labelledby="enquiries-list-title">
-          <div className="enquiries-list-heading">
-            <div>
-              <h2 id="enquiries-list-title">Enquiry list</h2>
-              <p>Search by player name or parent contact, then narrow the list with filters.</p>
-            </div>
-            <button type="button" className="enquiries-secondary-button" onClick={clearFilters}>Clear filters</button>
-          </div>
-
+          <h2 id="enquiries-list-title" className="sr-only">Enquiry list</h2>
           <div className="enquiries-filters">
             <label className="enquiries-filter enquiries-search">
               <span>Search</span>
@@ -828,6 +819,7 @@ function Enquiries() {
                 {ENQUIRY_SOURCES.map((source) => <option key={source} value={source}>{source}</option>)}
               </select>
             </label>
+            <button type="button" className="enquiries-secondary-button enquiries-clear-filters" onClick={clearFilters}>Clear filters</button>
           </div>
 
           <div className="enquiries-table-meta">
@@ -920,7 +912,10 @@ function Enquiries() {
                       </td>
                       <td>{formatDate(enquiry.trial_date)}</td>
                       <td>{formatDate(enquiry.created_at)}</td>
-                      {!isAdmin && enquiry.status !== "converted" && (
+                      {!isAdmin && (
+                        enquiry.status === "converted"
+                          ? <td className="enquiries-actions-empty"><span className="sr-only">No actions available for converted enquiry</span></td>
+                          : (
                         <td>
                           <div className="enquiries-row-actions">
                             <button
@@ -963,6 +958,7 @@ function Enquiries() {
                             )}
                           </div>
                         </td>
+                        )
                       )}
                     </tr>
                   ))}
