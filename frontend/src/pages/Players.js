@@ -33,6 +33,8 @@ import Layout from "../components/Layout";
 import PlayerImport from "../components/PlayerImport";
 import { getPlayerProfileSnapshot } from "../services/playerProfileService";
 import { getPlayerPhotoUrl, uploadPlayerPhoto } from "../services/playerPhotoService";
+import { selectPlayerSessionIds } from "../services/playerSessionDefaults";
+import { suggestCenterCode } from "../services/centerPresentation";
 import "./Players.css";
 
 function Players() {
@@ -91,7 +93,7 @@ function Players() {
     status: [],
   });
 
-  const PAGE_SIZE = 8;
+  const PAGE_SIZE = 10;
   const canViewPlayerFees = isSuperAdmin(loggedInUser) || isAcademyOwner(loggedInUser);
 
   useEffect(() => {
@@ -228,13 +230,12 @@ async () => {
         const activeEnrollments = (enrollments || []).filter(
           (enrollment) => enrollment.is_active
         );
-        setSelectedScheduleIds(
-          activeEnrollments
-            .filter((enrollment) =>
-              enrollment.batch_schedules?.batch_id === selectedBatch
-            )
-            .map((enrollment) => enrollment.batch_schedule_id)
-        );
+        setSelectedScheduleIds(selectPlayerSessionIds({
+          schedules: schedules || [],
+          enrollments: activeEnrollments,
+          editing: isEditing && Boolean(editingPlayerId),
+          batchId: selectedBatch
+        }));
       } catch (error) {
         if (cancelled) return;
         console.error("Failed to load batch sessions:", error);
@@ -1351,9 +1352,7 @@ useEffect(() => {
           <div className="players-form-section players-session-enrollment-section">
             <div className="players-session-enrollment-heading">
               <h3>Weekly training sessions</h3>
-              <span>
-                {selectedScheduleIds.length} selected
-              </span>
+              {selectedBatch && <span>{selectedScheduleIds.length} selected</span>}
             </div>
             {!selectedBatch ? (
               <p className="players-session-enrollment-hint">
