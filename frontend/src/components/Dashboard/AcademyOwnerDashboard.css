@@ -1505,3 +1505,22 @@
   .ao-dashboard-refined .ao-financial-monthly {grid-template-columns:repeat(2,minmax(0,1fr));}
   .ao-dashboard-refined .ao-financial-status-compact > div {flex-basis:45%;}
 }
+
+/* DB heading refinement: overview links occupy the available space beside title. */
+.ao-dashboard-refined .ao-player-overview-heading {
+  display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+}
+.ao-dashboard-refined .ao-player-overview-heading .ao-summary-links {
+  justify-content:flex-end;gap:6px;margin-left:auto;
+}
+.ao-dashboard-refined .ao-player-overview-heading .ao-summary-links > a {
+  padding:6px 10px;min-height:32px;
+}
+.ao-dashboard-refined .ao-player-overview-heading .ao-summary-links > a strong {
+  font-size:15px;
+}
+@media(max-width:650px) {
+  .ao-dashboard-refined .ao-player-overview-heading .ao-summary-links {
+    margin-left:0;width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  }
+}
