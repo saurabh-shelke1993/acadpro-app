@@ -25,3 +25,17 @@
 
 ## Changes in this checkpoint
 Read-only review plus documentation only. No SQL writes, enquiries, players, function migrations or production data changed.
+
+## E5.1 owner-only deletion security hardening — 2026-11-01
+
+**Implemented and applied** on active Supabase project `ulyealhkmlorsbdiknrh`.
+- Applied migration version: `20261101082001_enquiries_e5_1_owner_only_delete`.
+- Repository migration: `supabase/migrations/20261101082001_enquiries_e5_1_owner_only_delete.sql`.
+- `public.delete_inquiry(uuid)` now requires the application role `academy_owner` before reading/locking the enquiry.
+- Own-academy equality and converted-enquiry deletion prohibition remain in place.
+- Removed the obsolete Coach deletion allowance and coach-center check (the new role gate rejects Coaches).
+- Revoked DELETE RPC EXECUTE from `anon` and `PUBLIC`; preserved `authenticated` EXECUTE so owners can use the existing UI.
+- Read-only post-migration introspection confirmed the deployed function body and `anon_execute=false`, `authenticated_execute=true`, `public_execute=false`.
+- No live enquiries were deleted and no synthetic enquiry/player fixtures were inserted.
+
+**Validation still pending:** authenticated Owner success/Coach rejection/Parent/Super Admin/cross-tenant/converted-row negative-path execution with controlled fixtures; exact-HEAD React tests/build, browser checks, isolated conversion tests and full E5 regression. E5 is not release-ready.
