@@ -1469,3 +1469,53 @@
     grid-template-columns: 1fr 1fr 34px;
   }
 }
+
+/* BAT2-BAT4: compact circular checklist and shared 12-hour session time */
+.batches-create-schedule .batches-day-picker { display:flex;flex-wrap:wrap;gap:8px;margin-top:12px; }
+.batches-create-schedule .batches-day-option {
+  flex:0 0 48px;width:48px;min-height:48px;padding:3px;border:0;
+  border-radius:50%;background:transparent;box-shadow:none;
+}
+.batches-create-schedule .batches-day-check {
+  width:42px;height:42px;flex-basis:42px;border-radius:50%;border:1px solid #cbd5e1;
+  background:#fff;color:#102a43;font-size:14px;
+}
+.batches-create-schedule .batches-day-option-selected .batches-day-check {
+  background:#1d4ed8;color:white;border-color:#1d4ed8;box-shadow:0 0 0 3px #dbeafe;
+}
+.batches-day-option:focus-within .batches-day-check { outline:2px solid #1d4ed8;outline-offset:3px; }
+.batches-create-schedule .batches-day-count { position:absolute;top:-5px;right:-15px;font-size:9px; }
+.batches-schedule-presets { display:flex;flex-wrap:wrap;gap:7px;margin:10px 0 4px; }
+.batches-schedule-presets button {
+  min-height:34px;padding:6px 12px;border:1px solid #dbe4ef;border-radius:20px;
+  background:white;color:#1d4ed8;font-size:12px;font-weight:700;
+}
+.batches-schedule-presets button:hover { background:#eff6ff;border-color:#93c5fd; }
+.batches-common-time {
+  margin-top:12px;padding:13px;border:1px solid #dbe4ef;border-radius:12px;background:#fff;
+}
+.batches-common-time-heading { display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px; }
+.batches-common-time-heading strong { color:#102a43;font-size:13px; }
+.batches-common-time-heading span { color:#64748b;font-size:11px; }
+.batches-common-time-fields { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px; }
+.batches-time-12 { display:flex;align-items:center;gap:5px;min-width:0; }
+.batches-time-12 select {
+  width:auto;min-width:0;flex:1 1 50px;min-height:40px;padding:6px;border:1px solid #dbe4ef;
+  border-radius:8px;background:#fff;color:#102a43;font-size:13px;
+}
+.batches-time-12 select:last-child { flex:0 0 64px; }
+.batches-time-12 span { color:#64748b;font-weight:700; }
+.batches-custom-times-toggle { display:flex;align-items:center;gap:8px;margin-top:12px;font-size:12px;font-weight:600;color:#365396;cursor:pointer; }
+.batches-custom-times-toggle input { width:16px;height:16px;accent-color:#1d4ed8; }
+.batches-shared-time-hint { margin:9px 0 0;font-size:11px;color:#64748b; }
+.batches-create-schedule .batches-schedule-row { grid-template-columns:minmax(90px,1fr) minmax(160px,1.4fr) minmax(160px,1.4fr) 34px; }
+@media(max-width:900px) {
+  .batches-common-time-fields { grid-template-columns:1fr; }
+  .batches-create-schedule .batches-schedule-row { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media(max-width:520px) {
+  .batches-create-schedule .batches-day-option { flex-basis:43px;width:43px;min-height:43px; }
+  .batches-create-schedule .batches-day-check { width:37px;height:37px;flex-basis:37px; }
+  .batches-create-schedule .batches-schedule-row { grid-template-columns:1fr; }
+  .batches-time-12 select { min-width:0; }
+}
