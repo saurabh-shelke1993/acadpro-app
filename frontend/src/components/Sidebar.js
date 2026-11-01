@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { logoutUser } from "../utils/auth";
 import { isCoach, isParent, isSuperAdmin } from "../utils/roles";
 import { supabase } from "../supabaseClient";
 
 function Sidebar({ isOpen = false, onClose = () => {}, closeButtonRef }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const user = JSON.parse(localStorage.getItem("acadpro_user"));
   const [academy, setAcademy] = useState(null);
 
@@ -39,8 +40,14 @@ function Sidebar({ isOpen = false, onClose = () => {}, closeButtonRef }) {
   const linkClass = ({ isActive }) =>
     `app-nav-link${isActive ? " app-nav-link-active" : ""}`;
 
-  const renderLink = (to, label, icon) => (
-    <NavLink to={to} className={linkClass} onClick={onClose}>
+  const renderLink = (to, label, icon, activeFor = []) => (
+    <NavLink
+      to={to}
+      className={({ isActive }) => linkClass({
+        isActive: isActive || activeFor.includes(location.pathname),
+      })}
+      onClick={onClose}
+    >
       <span className="app-nav-icon" aria-hidden="true">{icon}</span>
       <span>{label}</span>
     </NavLink>
@@ -118,8 +125,7 @@ function Sidebar({ isOpen = false, onClose = () => {}, closeButtonRef }) {
               {renderLink("/batches", "Batches", "◆")}
               {renderLink("/players", "Players", "●")}
               {renderLink("/enquiries", "Enquiries", "◎")}
-              {renderLink("/coaches", "Coaches", "♟")}
-              {renderLink("/coach-batch-mapping", "Coach Batch Mapping", "↔")}
+              {renderLink("/coaches", "Coaches", "♟", ["/coach-batch-mapping"])}
 
               <div className="app-nav-group-title">Performance</div>
               {renderLink("/player-performance-report", "Performance Report", "▥")}
