@@ -24,6 +24,7 @@ function Coaches() {
   // Create / edit form state is intentionally independent from table filters.
   const [selectedAcademy, setSelectedAcademy] = useState("");
   const [editingCoachId, setEditingCoachId] = useState(null);
+  const [isCoachFormOpen, setIsCoachFormOpen] = useState(false);
   const [selectedCoachId, setSelectedCoachId] = useState(null);
 
   const [fullName, setFullName] = useState("");
@@ -121,6 +122,7 @@ function Coaches() {
 
   const resetForm = () => {
     setEditingCoachId(null);
+    setIsCoachFormOpen(false);
     setFullName("");
     setEmail("");
     setPhone("");
@@ -135,6 +137,11 @@ function Coaches() {
     } else {
       setSelectedAcademy("");
     }
+  };
+
+  const openNewCoachForm = () => {
+    resetForm();
+    setIsCoachFormOpen(true);
   };
 
   const addOrUpdateCoach = async () => {
@@ -199,6 +206,7 @@ function Coaches() {
 
   const handleEditCoach = (coach) => {
     setEditingCoachId(coach.id);
+    setIsCoachFormOpen(true);
     setSelectedCoachId(coach.id);
     setSelectedAcademy(coach.academy_id || "");
     setFullName(coach.full_name || "");
@@ -506,44 +514,47 @@ function Coaches() {
     <Layout>
       <div className={`coaches-page${isAcademyOwner(user) ? " coaches-page-owner" : ""}`}>
         <CoachWorkspaceTabs />
-        <div className="coaches-page-header">
-          <div>
-            <span className="coaches-page-eyebrow">
-              Academy management
-            </span>
-            <h1>Coaches</h1>
-            <p>
-              Manage coach profiles and specializations
-              for your academy.
-            </p>
+        <div className="coaches-directory-toolbar">
+          <div className="coaches-directory-summary">
+            <span>{filteredCoaches.length} {filteredCoaches.length === 1 ? "coach" : "coaches"} shown</span>
+            {activeFilterCount > 0 && (
+              <span>{activeFilterCount} active filter{activeFilterCount === 1 ? "" : "s"}</span>
+            )}
           </div>
-          <div className="coaches-page-count">
-            <strong>{filteredCoaches.length}</strong>
-            <span>visible coaches</span>
+          <div className="coaches-directory-actions">
+            {activeFilterCount > 0 && (
+              <button type="button" className="coaches-secondary-button" onClick={clearAllFilters}>
+                Clear filters
+              </button>
+            )}
+            {canManageCoaches && (
+              <button
+                type="button"
+                className={isCoachFormOpen && !editingCoachId ? "coaches-secondary-button" : "coaches-primary-button"}
+                aria-expanded={isCoachFormOpen}
+                aria-controls="coach-create-edit-form"
+                onClick={() => {
+                  if (isCoachFormOpen && !editingCoachId) resetForm();
+                  else openNewCoachForm();
+                }}
+              >
+                {isCoachFormOpen && !editingCoachId ? "Close" : "+ Add Coach"}
+              </button>
+            )}
           </div>
         </div>
 
-        {canManageCoaches && (
-          <section className="coaches-form-card">
+        {canManageCoaches && isCoachFormOpen && (
+          <section id="coach-create-edit-form" className="coaches-form-card" aria-label={editingCoachId ? "Edit coach" : "Create coach"}>
             <div className="coaches-section-heading">
               <div>
-                <span className="coaches-section-eyebrow">
-                  {editingCoachId
-                    ? "Coach management"
-                    : "Create coach"}
-                </span>
                 <h2>
                   {editingCoachId
                     ? "Edit Coach"
                     : "New Coach"}
                 </h2>
               </div>
-              <p>
-                {editingCoachId
-                  ? "Update the selected coach profile."
-                  : "Create a coach profile for the selected academy."}
-              </p>
-            </div>
+             </div>
 
             <div className="coaches-form-grid">
               {isSuperAdmin(user) && (
@@ -663,15 +674,13 @@ function Coaches() {
             </div>
 
             <div className="coaches-form-actions">
-              {editingCoachId && (
-                <button
-                  className="coaches-secondary-button"
-                  type="button"
-                  onClick={resetForm}
-                >
-                  Cancel
-                </button>
-              )}
+              <button
+                className="coaches-secondary-button"
+                type="button"
+                onClick={resetForm}
+              >
+                Cancel
+              </button>
               <button
                 className="coaches-primary-button"
                 type="button"
@@ -685,41 +694,7 @@ function Coaches() {
           </section>
         )}
 
-        <div className="coaches-list-header">
-          <div>
-            <span className="coaches-section-eyebrow">
-              {canManageCoaches
-                ? "Coach directory"
-                : "My coach profile"}
-            </span>
-            <h2>Coaches List</h2>
-          </div>
-
-          <div className="coaches-list-filter-summary">
-            {activeFilterCount > 0 && (
-              <>
-                <span>
-                  {activeFilterCount} active filter
-                  {activeFilterCount === 1 ? "" : "s"}
-                </span>
-                <button
-                  type="button"
-                  className="coaches-secondary-button"
-                  onClick={clearAllFilters}
-                >
-                  Clear all
-                </button>
-              </>
-            )}
-            <span>
-              {filteredCoaches.length}{" "}
-              {filteredCoaches.length === 1
-                ? "coach"
-                : "coaches"}{" "}
-              shown
-            </span>
-          </div>
-        </div>
+        <h2 className="sr-only">Coach Directory</h2>
 
         <div className="coaches-table-wrap">
           <table className="coaches-table">
