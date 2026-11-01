@@ -1139,7 +1139,9 @@ const Batches = () => {
                 </span>
               </div>
 
-              <div
+              <div className="batches-schedule-compact-grid">
+                <div className="batches-days-panel">
+                  <div
                 className="batches-day-picker"
                 aria-label="Training days"
               >
@@ -1182,8 +1184,17 @@ const Batches = () => {
                 <button type="button" onClick={() => choosePattern([6, 7])}>Weekend</button>
               </div>
 
-              {scheduleRows.length > 0 && (
-                <>
+                {scheduleRows.length > 0 && (
+                  <button type="button" className="batches-add-session-button"
+                    onClick={() => {
+                      setCustomTimes(true);
+                      addScheduleRow(Number(scheduleRows[scheduleRows.length - 1]?.dayOfWeek || 1));
+                    }}>
+                    + Another session
+                  </button>
+                )}
+                </div>
+                {scheduleRows.length > 0 ? (
                   <div className="batches-common-time">
                     <div className="batches-common-time-heading">
                       <strong>Common training time</strong>
@@ -1224,6 +1235,16 @@ const Batches = () => {
                       Customize timing for individual days
                     </label>
                   </div>
+                ) : (
+                  <div className="batches-time-placeholder">
+                    <strong>Training time</strong>
+                    <span>Select training days to set a shared time.</span>
+                  </div>
+                )}
+              </div>
+
+              {scheduleRows.length > 0 && (
+                <>
                   {customTimes && (
                     <div className="batches-schedule-rows">
                       {formatScheduleRows(scheduleRows).map((row, sortedIndex) => {
@@ -1258,24 +1279,9 @@ const Batches = () => {
                       })}
                     </div>
                   )}
-                  <button type="button" className="batches-add-session-button"
-                    onClick={() => {
-                      setCustomTimes(true);
-                      addScheduleRow(Number(scheduleRows[scheduleRows.length - 1]?.dayOfWeek || 1));
-                    }}>
-                    + Add another session
-                  </button>
-                  {!customTimes && <p className="batches-shared-time-hint">
-                    Times apply to every selected day. Stored schedules remain individual sessions.
-                  </p>}
                 </>
               )}
 
-              {scheduleRows.length === 0 && (
-                <p className="batches-schedule-empty">
-                  Select at least one training day to add the batch schedule.
-                </p>
-              )}
             </div>
               </div>
             </div>
