@@ -557,3 +557,60 @@
 .centers-code-field { display:flex;flex-direction:column;gap:3px;color:#64748b;font-size:11px;font-weight:700; }
 .centers-page .centers-code-field input { width:105px;min-height:40px; }
 @media(max-width:700px) { .centers-page .centers-code-field,.centers-page .centers-code-field input { width:100%; } }
+
+/* CEN4: One compact, baseline-aligned create/edit row; no redundant headers. */
+.centers-page .centers-form-card {
+  margin-top:8px;
+  padding:10px 12px;
+}
+.centers-page .centers-form-grid-compact {
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:flex-start;
+  gap:8px;
+  min-width:0;
+}
+.centers-page .centers-form-grid-compact > .centers-name-input {
+  flex:1 1 260px;
+  width:auto;
+  min-width:180px;
+  max-width:420px;
+  height:40px;
+  box-sizing:border-box;
+}
+.centers-page .centers-form-grid-compact > .centers-code-field {
+  flex:0 0 96px;
+  width:96px;
+  margin:0;
+  align-self:center;
+  display:block;
+}
+.centers-page .centers-form-grid-compact .centers-code-field input {
+  width:100%;
+  height:40px;
+  box-sizing:border-box;
+}
+.centers-page .centers-form-grid-compact > .centers-primary-button {
+  flex:0 0 auto;
+  min-height:40px;
+  white-space:nowrap;
+}
+.centers-page .centers-form-grid-compact > select {
+  flex:0 1 200px;
+  max-width:240px;
+  min-width:150px;
+  height:40px;
+}
+@media(max-width:640px) {
+  .centers-page .centers-form-grid-compact {gap:7px;}
+  .centers-page .centers-form-grid-compact > .centers-name-input {
+    flex:1 1 100%;max-width:none;min-width:0;
+  }
+  .centers-page .centers-form-grid-compact > .centers-code-field {
+    flex:0 0 88px;width:88px;
+  }
+  .centers-page .centers-form-grid-compact > select {
+    flex:1 1 100%;max-width:none;
+  }
+}
