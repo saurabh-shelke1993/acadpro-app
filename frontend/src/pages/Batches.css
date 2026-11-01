@@ -1708,3 +1708,18 @@
 @media(max-width:640px) {
   .batches-mobile-action-hint { display:block;margin-top:4px;color:#1d4ed8;font-size:10px;font-weight:650; }
 }
+
+/* Keep the create/edit action directly below the left-hand fields.
+   The schedule column no longer reserves a separate full-width actions row. */
+.batches-create-details .batches-form-actions {
+  justify-content: flex-start;
+  margin-top: 0.75rem;
+  padding-top: 0;
+}
+
+@media (min-width: 701px) {
+  .batches-create-details .batches-form-actions {
+    flex-direction: row;
+    align-items: center;
+  }
+}
