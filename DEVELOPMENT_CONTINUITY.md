@@ -65,7 +65,7 @@ Additional focused reference: `frontend/docs/ENQUIRIES_E5_VALIDATION_CHECKPOINT_
 | Enquiries — E5.1 | Deleted-enquiry RPC security: `delete_inquiry(uuid)` now requires Academy Owner and denies anon EXECUTE. | **Applied to active database** and verified via metadata; authenticated role-by-role negative path tests pending. |
 | Enquiries — E5.2 | Code + migration review and test command preparation. | Source audit recorded, **current-HEAD Jest/build NOT executed**. |
 | Enquiries — E5.3/E5.4 | Full role, conversion, cross-tenant, UI regression and release sign-off. | **Deferred** during active development; release gate still open. |
-| Coaches / Coach Batch Mapping | Core capabilities exist; next proposed UI audit area. | **NEXT SUGGESTED DEVELOPMENT TASK:** inspect current Coaches page implementation and screenshot; plan small UX improvements before editing. |
+| Coaches / Coach Batch Mapping | **CMA1 implemented:** one sidebar Coaches entry plus shared `Coach Directory` / `Batch Assignments` route tabs on both existing pages; profile/mapping components remain independent. | Implemented on branch; build and manual acceptance pending. Next **CMA2 — compact Coach Directory** after confirming CMA1. |
 | Attendance / Attendance History | Existing operational functionality, session-aware attendance and coach edit rules. | Further UX polish and final regression pending. |
 | Parent Portal, payments, dues, UPI | Multiple implemented workflows including Parent Portal, UPI QR/manual verification and financial modules. | Preserve business/RBAC invariants. Pending acceptance must be checked in focused docs; Razorpay remains future work. |
 | Notifications | Prior exploration/preflight/design work exists. | No new notification migration should be assumed applied without verifying live migration ledger. |
@@ -94,8 +94,12 @@ The current Enquiries component is `frontend/src/pages/Enquiries.js`, service `f
 ## 6. Current owner decision and next task
 
 - The owner chose to **continue development** instead of completing full Enquiries E5.2–E5.4 immediately.
-- The latest proposed next area is **Academy Owner Coaches page optimization** (then Coach Batch Mapping, Attendance and Attendance History). This is a **proposal**, not yet approved as an implementation scope, and no Coaches UI changes are claimed completed here.
-- Start the next chat by showing a brief checkpoint summary. For any Coaches task, **inspect current component/CSS, related data scope and role permissions first**; use the user's latest screenshot if supplied. Propose focused phases and proceed incrementally.
+- The owner approved **Coaches & Assignments** as one user-facing workspace, implemented incrementally with shared navigation while preserving the two existing underlying components and routes.
+- **CMA1 IMPLEMENTED — acceptance pending:** added `frontend/src/components/CoachWorkspaceTabs.js` and `.css`; both `Coaches.js` and `CoachBatchMapping.js` render these route-based tabs. Sidebar now shows one `Coaches` entry, active on either `/coaches` or `/coach-batch-mapping`. Both routes remain protected for Super Admin and Academy Owner; Coach Profile routes unchanged. **No DB or RPC changes.**
+- CMA1 implementation commits: `4eb22a468b80725f8c16da487df7c9db87e78275`, `23caf4e119866b584e361736225a04b7cebc9cc0`, `2ae3a3016313b452b3bf86e940f3e3a61cb583e1`, `1c514ac24e68be34d17ca2d3f1c9b3111fd4eedd`, `6c80375bbc791058afb57d93e95a809e9728608d`.
+- CMA1 acceptance: Academy Owner and Super Admin navigate tabs in both directions; sidebar Coaches stays highlighted; direct mapping URL and existing profile links work; mobile tabs don't overflow; Create/Edit Coach and batch-session assignments behave as before. Full build/Jest and browser tests **not run** by GitHub-file connector.
+- **NEXT proposed phase: CMA2** — compact Coach Directory and collapse the Create Coach form by default, after user checks CMA1. Keep CMA3 (Batch Assignments compacting) and CMA4/5 later.
+- During source review, two independent mapping logic follow-ups were identified: reactivating a mapping may incorrectly reject a different active coach on the same batch (despite multiple-coach support), and coach profile deactivation vs session assignments needs an invariant review. Do not fix these as part of the navigation merge.
 - If the owner chooses a different task, update only the changed priority; do not assume the previously proposed page is mandatory.
 
 ## 7. Local validation and Git practice
