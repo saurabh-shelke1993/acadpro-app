@@ -1033,22 +1033,6 @@ const Batches = () => {
 
         {(isSuperAdmin(user) || isAcademyOwner(user)) && (
           <section className="batches-form-card batches-create-card">
-            <div className="batches-section-heading">
-              <div>
-                <span className="batches-section-kicker">
-                  {editingBatchId ? "Batch management" : "Create batch"}
-                </span>
-                <h2>
-                  {editingBatchId ? "Edit Batch" : "New Batch"}
-                </h2>
-              </div>
-              <p>
-                {editingBatchId
-                  ? "Update the batch details and its weekly training sessions."
-                  : "Set up the batch and its weekly training sessions together."}
-              </p>
-            </div>
-
             <div className="batches-create-layout">
               <div className="batches-create-details">
                 <div className="batches-form-grid batches-basic-form-grid">
@@ -1292,7 +1276,6 @@ const Batches = () => {
 
             </div>
               </div>
-            </div>
 
             <div className="batches-form-actions">
               {editingBatchId && (
@@ -1318,6 +1301,7 @@ const Batches = () => {
                     ? "Save Batch"
                     : "Create Batch"}
               </button>
+            </div>
             </div>
           </section>
         )}
