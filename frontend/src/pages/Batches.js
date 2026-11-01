@@ -1502,6 +1502,11 @@ const Batches = () => {
                               {batch.batch_name || "—"}
                             </Link>
                             <span className="batches-age-subline">{batch.age_group || "—"}</span>
+                            {(isSuperAdmin(user) || isAcademyOwner(user)) && (
+                              <span className="batches-mobile-action-hint" aria-hidden="true">
+                                {isSelected ? "Actions ▲" : "Actions ▾"}
+                              </span>
+                            )}
                           </td>
 
                           <td className="batches-schedule-cell" title={getBatchScheduleDetail(batch.id)}>
