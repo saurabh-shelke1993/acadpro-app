@@ -695,3 +695,144 @@
     width: auto;
   }
 }
+
+/* E3: filtered pagination and compact, expandable enquiry records on mobile. */
+.enquiries-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  padding: 0.75rem 0.2rem 0.2rem;
+  color: var(--ap-slate-600);
+  font-size: var(--ap-font-size-sm);
+}
+
+.enquiries-pagination > div {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.enquiries-mobile-expand,
+.enquiries-mobile-detail-row {
+  display: none;
+}
+
+/* E4: keep entry/edit/conversion forms compact without changing validation. */
+.enquiries-form-card,
+.enquiries-conversion-modal {
+  padding: 0.85rem 1rem;
+}
+
+.enquiries-form-card .enquiries-section-heading,
+.enquiries-conversion-modal .enquiries-section-heading {
+  margin-bottom: 0.6rem;
+}
+
+.enquiries-form-card .enquiries-section-heading h2,
+.enquiries-conversion-modal .enquiries-section-heading h2 {
+  font-size: 1.1rem;
+}
+
+.enquiries-form-card .enquiries-form-grid,
+.enquiries-conversion-modal .enquiries-form-grid {
+  gap: 0.65rem;
+}
+
+.enquiries-conversion-summary {
+  margin: 0.65rem 0;
+  padding: 0.65rem;
+}
+
+@media (max-width: 700px) {
+  .enquiries-table {
+    min-width: 0;
+  }
+
+  .enquiries-table .enquiries-extra-column {
+    display: none;
+  }
+
+  .enquiries-table th,
+  .enquiries-table td {
+    padding: 0.55rem 0.45rem;
+  }
+
+  .enquiries-table .enquiries-player-cell {
+    max-width: 150px;
+    overflow-wrap: anywhere;
+  }
+
+  .enquiries-mobile-expand {
+    display: block;
+    margin-top: 0.4rem;
+    padding: 0.15rem 0;
+    border: 0;
+    background: transparent;
+    color: var(--ap-primary-600);
+    font: inherit;
+    font-size: var(--ap-font-size-xs);
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .enquiries-mobile-expand:focus-visible {
+    outline: 2px solid var(--ap-primary-600);
+    outline-offset: 2px;
+  }
+
+  .enquiries-table .enquiries-mobile-detail-row {
+    display: table-row;
+  }
+
+  .enquiries-table .enquiries-mobile-detail-row > td {
+    padding: 0.65rem;
+    background: var(--ap-slate-50);
+  }
+
+  .enquiries-mobile-details {
+    display: grid;
+    grid-template-columns: minmax(95px, 1fr) minmax(0, 2fr);
+    gap: 0.35rem 0.6rem;
+    margin: 0;
+    font-size: var(--ap-font-size-xs);
+    overflow-wrap: anywhere;
+  }
+
+  .enquiries-mobile-details dt {
+    color: var(--ap-slate-600);
+  }
+
+  .enquiries-mobile-details dd {
+    margin: 0;
+    color: var(--ap-slate-900);
+  }
+
+  .enquiries-actions-cell {
+    width: 110px;
+  }
+
+  .enquiries-action-select {
+    width: 105px;
+    font-size: var(--ap-font-size-xs);
+  }
+
+  .enquiries-coach-status-button {
+    padding: 0.3rem;
+    font-size: var(--ap-font-size-xs);
+    white-space: normal;
+  }
+
+  .enquiries-pagination {
+    align-items: stretch;
+  }
+
+  .enquiries-pagination > div {
+    margin-left: auto;
+  }
+
+  .enquiries-conversion-modal,
+  .enquiries-form-card {
+    padding: 0.75rem;
+  }
+}
