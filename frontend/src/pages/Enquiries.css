@@ -581,3 +581,75 @@
     margin-bottom: 0.45rem;
   }
 }
+
+/* E1: compact enquiry workspace, with filtering actions in the same toolbar. */
+.enquiries-page-header {
+  align-items: center;
+  gap: 0.75rem;
+  padding-bottom: 0.65rem;
+}
+
+.enquiries-page-header h1 {
+  font-size: 1.3rem;
+}
+
+.enquiries-count {
+  min-width: 0;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 0.35rem;
+  padding: 0.4rem 0.65rem;
+}
+
+.enquiries-count strong {
+  font-size: 1rem;
+}
+
+.enquiries-count span {
+  margin-top: 0;
+}
+
+.enquiries-list-section {
+  margin-top: 0.65rem;
+}
+
+.enquiries-filters {
+  grid-template-columns: minmax(190px, 1.5fr) repeat(3, minmax(130px, 1fr)) auto;
+  align-items: end;
+  gap: 0.55rem;
+  padding: 0.65rem;
+}
+
+.enquiries-clear-filters {
+  white-space: nowrap;
+}
+
+.enquiries-table-meta {
+  margin-top: 0.45rem;
+}
+
+@media (max-width: 1000px) {
+  .enquiries-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .enquiries-clear-filters {
+    justify-self: end;
+  }
+}
+
+@media (max-width: 640px) {
+  .enquiries-page-header {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .enquiries-header-actions {
+    margin-left: auto;
+  }
+  .enquiries-filters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .enquiries-clear-filters {
+    justify-self: stretch;
+  }
+}
