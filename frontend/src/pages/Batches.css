@@ -1557,3 +1557,32 @@
   .batches-create-schedule .batches-day-picker {gap:7px;}
   .batches-common-time-fields {grid-template-columns:1fr;}
 }
+
+/* BAT4 follow-up: use formerly empty top-right space for shared timing. */
+@media (min-width:1251px) {
+  .batches-create-schedule .batches-schedule-builder {
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(0,1.12fr);
+    column-gap:14px;
+    align-items:start;
+  }
+  .batches-create-schedule .batches-schedule-builder-header {
+    grid-column:1;
+    grid-row:1;
+    margin-bottom:6px;
+  }
+  .batches-create-schedule .batches-schedule-compact-grid { display:contents; }
+  .batches-create-schedule .batches-days-panel {
+    grid-column:1;
+    grid-row:2;
+  }
+  .batches-create-schedule .batches-common-time,
+  .batches-create-schedule .batches-time-placeholder {
+    grid-column:2;
+    grid-row:1 / span 2;
+  }
+  .batches-create-schedule .batches-schedule-rows,
+  .batches-create-schedule .batches-schedule-empty {
+    grid-column:1 / -1;
+  }
+}
