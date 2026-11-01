@@ -1942,3 +1942,77 @@
   .players-page .players-table tbody tr.players-mobile-expanded .players-actions-cell .player-row-actions {display:inline-flex;margin-left:10px;}
   .players-page .players-table tbody tr .players-empty-state {grid-column:1 / -1;}
 }
+
+/* PD1-PD4: compact player registration, session strip and non-overlapping filters */
+.players-create-import-workspace-expanded .players-form-card-create {
+  padding:12px !important;
+}
+.players-create-import-workspace-expanded .players-registration-grid {
+  grid-template-columns:minmax(0,1fr) minmax(0,.92fr);align-items:stretch;gap:10px;
+}
+.players-create-import-workspace-expanded .players-registration-main,
+.players-create-import-workspace-expanded .players-registration-side {display:block;min-width:0;}
+.players-create-import-workspace-expanded .players-registration-grid .players-form-section {
+  padding:11px 12px;margin:0;border:1px solid #e2e8f0;border-radius:10px;
+}
+.players-create-import-workspace-expanded .players-registration-grid .players-form-grid {
+  gap:7px 10px;
+}
+.players-create-import-workspace-expanded .players-registration-grid .players-field input,
+.players-create-import-workspace-expanded .players-registration-grid .players-field select {
+  min-height:36px;padding:6px 9px;
+}
+.players-create-import-workspace-expanded .players-registration-side .players-parent-section {
+  height:100%;box-sizing:border-box;
+}
+.players-create-import-workspace-expanded .players-registration-sessions {
+  margin-top:8px;
+}
+.players-create-import-workspace-expanded .players-registration-sessions .players-session-enrollment-section {
+  margin:0;padding:9px 11px;border:1px solid #e2e8f0;border-radius:10px;background:#fff;
+}
+.players-registration-sessions .players-session-enrollment-heading {margin-bottom:7px;}
+.players-registration-sessions .players-session-enrollment-list {
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;
+  max-height:148px;overflow-y:auto;align-content:start;
+}
+.players-registration-sessions .players-session-enrollment-option {
+  min-width:0;min-height:0;padding:7px 9px;gap:7px;display:flex;align-items:center;
+  border-radius:8px;
+}
+.players-registration-sessions .players-session-enrollment-copy {
+  min-width:0;display:flex;flex-direction:row;align-items:baseline;flex-wrap:wrap;gap:2px 7px;
+}
+.players-registration-sessions .players-session-enrollment-copy strong {font-size:12px;white-space:nowrap;}
+.players-registration-sessions .players-session-enrollment-copy span {font-size:11px;white-space:nowrap;}
+.players-registration-sessions .players-session-enrollment-copy small {display:none;}
+.players-registration-sessions .players-session-enrollment-check {flex:0 0 18px;}
+.players-create-import-workspace-expanded .players-form-actions {
+  margin-top:7px;padding-top:0;
+}
+.players-list-search-toolbar {
+  display:flex;align-items:center;flex-wrap:wrap;gap:7px;
+  padding:9px 11px;margin-bottom:8px;background:#fff;border:1px solid #dfe7f1;border-radius:10px;
+  position:relative;z-index:5;
+}
+.players-list-search-toolbar .players-search-input-label {display:block;flex:1 1 220px;margin:0;min-width:170px;}
+.players-list-search-toolbar .players-search-input-label input {
+  width:100%;max-width:none;min-height:36px;margin:0;
+}
+.players-list-search-toolbar .players-column-filter {position:relative;flex:0 0 auto;}
+.players-list-search-toolbar .players-filter-trigger {min-height:34px;}
+.players-list-search-toolbar .players-filter-popover {
+  position:absolute;top:calc(100% + 5px);z-index:30;
+}
+.players-list-search-toolbar .players-clear-filters {min-height:34px;}
+.players-page .players-table-wrap {position:relative;z-index:0;}
+@media(max-width:980px) {
+  .players-create-import-workspace-expanded .players-registration-grid {grid-template-columns:1fr;}
+  .players-create-import-workspace-expanded .players-registration-side .players-parent-section {height:auto;}
+  .players-registration-sessions .players-session-enrollment-list {grid-template-columns:repeat(2,minmax(0,1fr));}
+}
+@media(max-width:620px) {
+  .players-registration-sessions .players-session-enrollment-list {grid-template-columns:1fr;max-height:180px;}
+  .players-list-search-toolbar {padding:7px;}
+  .players-list-search-toolbar .players-search-input-label {flex:1 1 100%;}
+}
