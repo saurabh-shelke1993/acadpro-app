@@ -1646,3 +1646,59 @@
   .batches-center-code { flex-basis:25px;width:25px;height:25px; }
   .batches-merged-filter-heading { gap:4px; }
 }
+
+/* BL5: standardize Batch actions with Centers edit/delete buttons. */
+.batches-table-wrap .batches-actions-heading,
+.batches-table-wrap .batches-actions-cell { width:90px;text-align:right; }
+.batches-table-wrap .batches-row-actions { display:inline-flex;gap:6px;justify-content:flex-end; }
+.batches-table-wrap .batches-row-actions button {
+  width:34px;min-width:34px;min-height:34px;height:34px;
+  padding:0 !important;border-radius:8px;font-size:14px !important;
+}
+.batches-table-wrap .batches-row-actions .batches-edit-button {
+  border:1px solid #e2e8f0;background:#fff;color:#1d4ed8;
+}
+.batches-table-wrap .batches-row-actions .batches-delete-button {
+  border:1px solid #e3b9bf !important;background:#fff5f5 !important;color:#9f1239 !important;
+}
+
+/* BL5: mobile two-column summary with detail and expandable actions.
+   Keep data visible and prevent horizontal table scrolling. */
+@media(max-width:640px) {
+  .batches-table-wrap { overflow-x:hidden; }
+  .batches-table-wrap .batches-table,
+  .batches-table-wrap .batches-table tbody { display:block;width:100%;min-width:0; }
+  .batches-table-wrap .batches-table thead { display:none; }
+  .batches-table-wrap .batches-table tbody tr:not(.batches-mobile-actions-row) {
+    display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    gap:5px 10px;padding:10px;border-bottom:1px solid #e2e8f0;
+  }
+  .batches-table-wrap .batches-table tbody tr:not(.batches-mobile-actions-row) > td {
+    display:block;min-width:0;width:auto !important;padding:0;border:0;
+    font-size:12px;overflow-wrap:anywhere;
+  }
+  .batches-table-wrap .batches-table tbody tr:not(.batches-mobile-actions-row) > .batches-center-cell {grid-column:1;}
+  .batches-table-wrap .batches-table tbody tr:not(.batches-mobile-actions-row) > .batches-name-cell {grid-column:2;}
+  .batches-table-wrap .batches-table tbody tr:not(.batches-mobile-actions-row) > .batches-schedule-cell {
+    grid-column:1 / -1;margin-top:3px;padding-top:7px;border-top:1px solid #edf2f7;
+  }
+  .batches-table-wrap .batches-table tbody tr:not(.batches-mobile-actions-row) > .batches-actions-cell,
+  .batches-table-wrap .batches-table tbody tr:not(.batches-mobile-actions-row) > .batches-actions-heading {display:none;}
+  .batches-table-wrap .batches-table tbody tr:not(.batches-mobile-actions-row) > .batches-academy-cell {
+    grid-column:1 / -1;font-size:10px;color:#64748b;
+  }
+  .batches-table-wrap .batches-center-identity { align-items:flex-start; }
+  .batches-table-wrap .batches-center-code { flex:0 0 26px;width:26px;height:26px; }
+  .batches-table-wrap .batches-age-subline { margin-top:3px; }
+  .batches-table-wrap .batches-schedule-days,
+  .batches-table-wrap .batches-schedule-time { display:inline;font-size:11px; }
+  .batches-table-wrap .batches-schedule-time::before {content:" · ";white-space:pre;}
+  .batches-page-owner .batches-mobile-actions-row,
+  .batches-table-wrap .batches-mobile-actions-row { display:table !important;width:100%; }
+  .batches-table-wrap .batches-mobile-actions-row > td {
+    display:table-cell !important;width:100%;padding:7px 10px !important;
+  }
+  .batches-mobile-row-actions button {
+    width:36px;min-width:36px;height:36px;min-height:36px;border-radius:8px;
+  }
+}
