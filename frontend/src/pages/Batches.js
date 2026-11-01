@@ -420,7 +420,7 @@ const Batches = () => {
       const sameDay = [...current].reverse().find(
         (row) => Number(row.dayOfWeek) === Number(dayOfWeek)
       );
-      return [...current, createEmptySession(dayOfWeek, sameDay || monday || {})];
+      return [...current, createEmptySession(dayOfWeek, sameDay || monday || current[0] || {})];
     });
   };
 
@@ -450,7 +450,7 @@ const Batches = () => {
       );
 
       // Monday is the default time template; preserve customized times.
-      if (Number(editedRow.dayOfWeek) === 1 &&
+      if (!customTimes && Number(editedRow.dayOfWeek) === 1 &&
           (field === "startTime" || field === "endTime")) {
         return nextRows.map((row, rowIndex) => {
           if (rowIndex === index) return row;
@@ -1209,6 +1209,10 @@ const Batches = () => {
                         onChange={(event) => {
                           const enabled = event.target.checked;
                           if (!enabled) {
+                            if (new Set(scheduleRows.map((row) => Number(row.dayOfWeek))).size !== scheduleRows.length) {
+                              window.alert("Remove extra same-day sessions before using a single common time.");
+                              return;
+                            }
                             const base = scheduleRows[0] || {};
                             setScheduleRows((current) => current.map((row) => ({
                               ...row, startTime: base.startTime || "", endTime: base.endTime || ""
