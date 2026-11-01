@@ -459,11 +459,6 @@ function AcademyOwnerAnalyticsV2({ user }) {
 
         {activeTab === "coaches" && (
           <section className="owner-analytics-section">
-            <div className="owner-analytics-section-heading">
-              <div><span>ACADEMY OPERATIONS</span><h2>Coach assignments & sessions</h2></div>
-              
-            </div>
-            <p className="owner-analytics-coach-disclaimer">Scheduled sessions are calculated from active batch schedules and effective-dated coach assignments. Completed sessions cannot be verified from the current records.</p>
             {coachError ? <p role="alert">{coachError}</p> : !coachData ? <p>Loading coach assignments…</p> : (
               <>
                 <div className="owner-analytics-coach-summary">
@@ -501,11 +496,6 @@ function AcademyOwnerAnalyticsV2({ user }) {
 
         {activeTab === "enquiries" && (
           <section className="owner-analytics-section owner-analytics-enquiries">
-            <div className="owner-analytics-section-heading">
-              <div><span>ACADEMY GROWTH</span><h2>Enquiries & conversion</h2></div>
-
-            </div>
-            <p className="owner-analytics-enquiry-note">Conversion is attributed to the month the enquiry was created, even when the player converted later. Conversion counts reflect the current recorded state.</p>
             {enquiryLoading ? <p role="status">Loading enquiry analytics…</p> : enquiryError ? <div role="alert" className="owner-analytics-quality-note"><strong>Unable to load enquiry analytics</strong><p>{enquiryError}</p><button type="button" onClick={() => setRefreshKey(value => value + 1)}>Retry</button></div> : enquiryData ? (() => {
               const rows = enquiryData.months.map(monthRow => {
                 const selected = enquiryCenter === "all" ? monthRow
@@ -556,10 +546,6 @@ function AcademyOwnerAnalyticsV2({ user }) {
 
         {activeTab === "finance" && (
           <section className="owner-analytics-section owner-analytics-finance-history">
-            <div className="owner-analytics-section-heading">
-              <div><span>ACADEMY FINANCIALS</span><h2>Financial performance</h2></div>
-
-            </div>
             {financeHistoryLoading ? <p role="status">Loading financial history…</p> :
               financeHistoryError ? <div className="owner-analytics-quality-note" role="alert"><strong>Financial history unavailable</strong><p>{financeHistoryError}</p><button type="button" onClick={() => setRefreshKey(value => value + 1)}>Retry</button></div> :
               financeHistory && financeBaseline ? (() => {
