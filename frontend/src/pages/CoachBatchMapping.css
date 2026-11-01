@@ -339,3 +339,107 @@
   .coach-mapping-page-owner .coach-mapping-table th:nth-child(6),
   .coach-mapping-page-owner .coach-mapping-table td:nth-child(6) { width: 10%; }
 }
+
+/* CMA3: keep the mappings list prominent, with assignment controls on demand. */
+.coach-mapping-toolbar {
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.2rem 0 0.55rem;
+}
+
+.coach-mapping-toolbar-controls {
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.coach-mapping-academy-context {
+  min-width: 0;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 0.4rem;
+  padding: 0.38rem 0.6rem;
+}
+
+.coach-mapping-summary-card {
+  min-width: 0;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 0.35rem;
+  padding: 0.4rem 0.6rem;
+  box-shadow: none;
+}
+
+.coach-mapping-summary-card span {
+  margin-top: 0;
+}
+
+.coach-mapping-list-section {
+  margin-top: 0.55rem;
+}
+
+.coach-mapping-list-header {
+  align-items: center;
+  margin-bottom: 0.45rem;
+}
+
+.coach-mapping-results-count {
+  color: var(--ap-slate-600);
+  font-size: var(--ap-font-size-xs);
+}
+
+.coach-mapping-assignment-card {
+  margin-top: 0.55rem;
+  padding: 0.75rem 0.9rem;
+}
+
+.coach-mapping-assignment-heading {
+  margin-bottom: 0.55rem;
+}
+
+.coach-mapping-assignment-heading h2 {
+  font-size: 1.05rem;
+}
+
+.coach-mapping-form-grid {
+  gap: 0.55rem;
+}
+
+@media (max-width: 800px) {
+  .coach-mapping-toolbar {
+    align-items: stretch;
+  }
+
+  .coach-mapping-toolbar > button {
+    align-self: flex-end;
+  }
+
+  .coach-mapping-list-header {
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 640px) {
+  .coach-mapping-toolbar > button {
+    width: 100%;
+  }
+
+  .coach-mapping-toolbar-controls {
+    align-items: stretch;
+  }
+
+  .coach-mapping-academy-context {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .coach-mapping-summary-card {
+    width: auto;
+    align-self: flex-start;
+    box-sizing: border-box;
+  }
+
+  .coach-mapping-assignment-card {
+    padding: 0.7rem;
+  }
+}
