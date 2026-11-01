@@ -45,7 +45,7 @@ function PlayerDistribution({ centers, academyPlayerTotal }) {
         <text x="100" y="119" textAnchor="middle" className="ao-donut-center-count">{formatNumber(selectedCenter?.players || totalPlayers)}</text>
         <text x="100" y="136" textAnchor="middle" className="ao-donut-center-caption">active players</text>
       </svg>
-      <p className="ao-donut-hint">Select a segment to view a center</p>
+
     </div>
     <div className="ao-age-breakdown">
       <div className="ao-age-heading"><div><span className="ao-kicker">Batch profile</span><h3>{selectedCenter?.name}</h3></div><span className="ao-age-total">{formatNumber(selectedCenter?.players)} players</span></div>
@@ -134,6 +134,7 @@ function BatchAttendanceChart({ batches }) {
   const presentTotal = chartBatches.reduce((sum, batch) => sum + (batch.presentRecords || 0), 0);
   const markedTotal = chartBatches.reduce((sum, batch) => sum + (batch.totalRecords || 0), 0);
   const academyRate = markedTotal ? Math.round((presentTotal / markedTotal) * 100) : null;
+  if (!markedTotal) return <div className="ao-attendance-empty-compact"><div><strong>No attendance recorded in the last 7 days</strong><span>The chart will appear after coaches record attendance.</span></div><Link to="/attendance" className="ao-empty-attendance-link">Go to attendance →</Link></div>;
 
   // Keep a stable, wide viewBox and let the SVG fit the available desktop width.
   // This prevents 15–20 batches from forcing a horizontal scrollbar.
@@ -200,8 +201,7 @@ function BatchAttendanceChart({ batches }) {
         }))}
       </svg>
     </div>
-    {academyRate === null && <p className="ao-weekly-note">No attendance has been recorded in the last 7 days. Columns will appear when coaches mark players present or absent.</p>}
-    <p className="ao-weekly-note">Weekly rate = present marks ÷ (present + absent marks). Only recorded marks from the last 7 days are included. A dash indicates no data.</p>
+
   </div>;
 }
 
@@ -211,26 +211,30 @@ function AcademyOwnerDashboard({ data, onRefresh }) {
   const sessions = data?.todaySessions || [];
   const attendanceBatches = data?.attendanceByBatch || [];
 
-  return <div className="ao-dashboard">
+  return <div className="ao-dashboard ao-dashboard-refined">
+    <div className="ao-dashboard-summary-bar">
+      <nav className="ao-summary-links" aria-label="Academy totals">
+        <Link to="/players"><span>Players</span><strong>{formatNumber(data?.totals?.players || 0)}</strong></Link>
+        <Link to="/centers"><span>Centers</span><strong>{formatNumber(data?.totals?.centers || 0)}</strong></Link>
+        <Link to="/batches"><span>Batches</span><strong>{formatNumber(data?.totals?.batches || 0)}</strong></Link>
+      </nav>
+      <button type="button" className="ao-refresh-button" onClick={onRefresh}>Refresh</button>
+    </div>
     <div className="ao-dashboard-top-grid">
       <section className="ao-section ao-player-overview">
         <div className="ao-section-heading ao-player-overview-heading">
           <div><span className="ao-kicker">Player overview</span><h2>Players by center</h2></div>
-          <div className="ao-academy-totals" aria-label="Academy totals">
-            <Link className="ao-academy-total ao-academy-total-link" to="/players" aria-label={`View ${data?.totals?.players || 0} players`}><span>Players</span><strong>{formatNumber(data?.totals?.players || 0)}</strong></Link>
-            <Link className="ao-academy-total ao-academy-total-link" to="/centers" aria-label={`View ${data?.totals?.centers || 0} centers`}><span>Centers</span><strong>{formatNumber(data?.totals?.centers || 0)}</strong></Link>
-            <Link className="ao-academy-total ao-academy-total-link" to="/batches" aria-label={`View ${data?.totals?.batches || 0} batches`}><span>Batches</span><strong>{formatNumber(data?.totals?.batches || 0)}</strong></Link>
-          </div>
+
         </div>
         <PlayerDistribution centers={centers} academyPlayerTotal={data?.totals?.players || 0} />
       </section>
       <section className="ao-section ao-today-operations">
-        <div className="ao-section-heading"><div><span className="ao-kicker">Today's operations</span><h2>Today's sessions</h2></div><button type="button" className="ao-refresh-button ao-inline-refresh" onClick={onRefresh}>Refresh</button></div>
+        <div className="ao-section-heading"><div><span className="ao-kicker">Today's operations</span><h2>Today's sessions</h2></div></div>
         <TodaySessions sessions={sessions} />
       </section>
     </div>
     <section className="ao-section">
-      <div className="ao-section-heading"><div><span className="ao-kicker">Attendance</span><h2>Weekly attendance by batch</h2></div><span className="ao-helper">Present marks ÷ all recorded marks · Last 7 days</span></div>
+      <div className="ao-section-heading"><div><span className="ao-kicker">Attendance</span><h2>Weekly attendance by batch</h2></div><span className="ao-helper">Last 7 days · ⓘ</span></div>
       <div className="ao-operations-card"><BatchAttendanceChart batches={attendanceBatches} /></div>
     </section>
     <section className="ao-section ao-bottom-workspace">
@@ -239,9 +243,9 @@ function AcademyOwnerDashboard({ data, onRefresh }) {
         <div className="ao-financial-workspace">
           <div className="ao-financial-primary ao-financial-monthly">
             <KpiCard label="Billed this month" value={formatCurrency(financial.totalBilledThisMonth)} detail="Dues scheduled this month" to="/payment-dues" />
-            <KpiCard label="Collected this month" value={formatCurrency(financial.collectionsThisMonth)} detail={`${financial.collectionRate || 0}% of this month's billed dues`} to="/payment-collections" tone="green" />
+            <KpiCard label="Collected this month" value={formatCurrency(financial.collectionsThisMonth)} detail="Recorded collections" to="/payment-collections" tone="green" />
             <KpiCard label="Expenses this month" value={formatCurrency(financial.expensesThisMonth)} detail="Recorded actual expenses" to="/expenses" tone="orange" />
-            <KpiCard label="Outstanding dues" value={formatCurrency(financial.outstandingAmount)} detail={`${formatNumber((financial.pendingDues || 0) + (financial.partialDues || 0))} pending or partial dues`} to="/payment-dues" tone="orange" />
+            <KpiCard label="Current outstanding" value={formatCurrency(financial.outstandingAmount)} detail={`${formatNumber((financial.pendingDues || 0) + (financial.partialDues || 0))} pending or partial dues`} to="/payment-dues" tone="orange" />
           </div>
           <div className="ao-financial-status ao-financial-status-compact">
             <div><span>Pending</span><strong>{formatNumber(financial.pendingDues)}</strong></div>
@@ -272,7 +276,7 @@ function AcademyOwnerDashboard({ data, onRefresh }) {
                   </Link>
                 </div>
               </div>
-            )) : <div className="ao-enquiry-empty"><strong>No enquiries this month</strong><span>New enquiries will appear here, grouped by center.</span></div>}
+            )) : null}
         </div>
       </aside>
     </section>
