@@ -1116,31 +1116,7 @@ const Batches = () => {
                 </select>
               </div>
                 </div>
-            <div className="batches-form-actions">
-              {editingBatchId && (
-                <button
-                  type="button"
-                  className="batches-secondary-button"
-                  onClick={resetForm}
-                  disabled={saving}
-                >
-                  Cancel
-                </button>
-              )}
 
-              <button
-                type="button"
-                className="batches-primary-button"
-                onClick={handleSaveBatch}
-                disabled={saving}
-              >
-                {saving
-                  ? "Saving..."
-                  : editingBatchId
-                    ? "Save Batch"
-                    : "Create Batch"}
-              </button>
-            </div>
               </div>
 
               <div className="batches-create-schedule">
@@ -1302,6 +1278,31 @@ const Batches = () => {
             </div>
               </div>
 
+            </div>
+            <div className="batches-form-actions">
+              {editingBatchId && (
+                <button
+                  type="button"
+                  className="batches-secondary-button"
+                  onClick={resetForm}
+                  disabled={saving}
+                >
+                  Cancel
+                </button>
+              )}
+
+              <button
+                type="button"
+                className="batches-primary-button"
+                onClick={handleSaveBatch}
+                disabled={saving}
+              >
+                {saving
+                  ? "Saving..."
+                  : editingBatchId
+                    ? "Save Batch"
+                    : "Create Batch"}
+              </button>
             </div>
           </section>
         )}
