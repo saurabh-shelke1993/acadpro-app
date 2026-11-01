@@ -1895,3 +1895,50 @@
 .players-registration-side { display:flex;flex-direction:column; }
 .players-registration-side .players-parent-section { order:1; }
 .players-registration-side .players-session-enrollment-section { order:2; }
+
+/* PL5: five-column Academy Owner listing, consistent with Centers and Batches. */
+.players-page .players-table-wrap {overflow-x:auto;}
+.players-page .players-table {min-width:0;table-layout:fixed;}
+.players-page .players-table th,
+.players-page .players-table td {padding:9px 11px;line-height:1.35;}
+.players-page .players-merged-filter-heading {display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.players-page .players-center-identity {display:inline-flex;align-items:center;gap:8px;min-width:0;}
+.players-page .players-center-code {
+  width:30px;height:30px;flex:0 0 30px;display:inline-flex;align-items:center;justify-content:center;
+  border-radius:50%;background:#e8efff;color:#1d4ed8;font-size:10px;font-weight:800;
+}
+.players-page .players-batch-cell strong {display:block;color:#102a43;font-size:12px;}
+.players-page .players-batch-age {display:block;margin-top:3px;color:#64748b;font-size:11px;}
+.players-page .players-actions-heading,
+.players-page .players-actions-cell {width:96px;text-align:right;}
+.players-page .player-row-actions {opacity:1;transform:none;pointer-events:auto;display:inline-flex;gap:6px;justify-content:flex-end;}
+.players-page .player-row-actions .player-action-button {
+  display:inline-flex;align-items:center;justify-content:center;
+  width:34px;height:34px;min-width:34px;min-height:34px;
+  padding:0;border-radius:8px;font-size:14px;
+}
+.players-page .player-row-actions .player-action-edit {border:1px solid #e2e8f0;background:#fff;color:#1d4ed8;}
+.players-page .player-row-actions .player-action-danger {border:1px solid #e3b9bf;background:#fff5f5;color:#9f1239;}
+.players-page .players-mobile-actions-toggle {display:none;}
+@media(max-width:800px) {
+  .players-page .players-table-wrap {overflow-x:hidden;}
+  .players-page .players-table,
+  .players-page .players-table tbody {display:block;width:100%;min-width:0;}
+  .players-page .players-table thead {display:none;}
+  .players-page .players-table tbody tr {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px;padding:11px;border-bottom:1px solid #e2e8f0;}
+  .players-page .players-table tbody tr td {display:block;min-width:0;width:auto !important;padding:0;border:0;overflow-wrap:anywhere;}
+  .players-page .players-table tbody tr .player-name-cell {grid-column:1 / -1;}
+  .players-page .players-table tbody tr .players-academy-cell {grid-column:1 / -1;color:#64748b;font-size:11px;}
+  .players-page .players-table tbody tr .players-center-cell {grid-column:1;}
+  .players-page .players-table tbody tr .players-batch-cell {grid-column:2;}
+  .players-page .players-table tbody tr .players-status-cell {grid-column:1;}
+  .players-page .players-table tbody tr .players-actions-cell {grid-column:2;text-align:right;}
+  .players-page .players-table tbody tr .players-actions-cell .player-row-actions {display:none;}
+  .players-page .players-mobile-actions-toggle {
+    display:inline-flex;min-height:32px;padding:6px 10px;border:1px solid #dbe4ef;
+    border-radius:8px;color:#1d4ed8;background:#fff;font-size:11px;font-weight:650;
+  }
+  .players-page .players-table tbody tr.players-mobile-expanded .players-actions-cell {grid-column:1 / -1;text-align:right;}
+  .players-page .players-table tbody tr.players-mobile-expanded .players-actions-cell .player-row-actions {display:inline-flex;margin-left:10px;}
+  .players-page .players-table tbody tr .players-empty-state {grid-column:1 / -1;}
+}
