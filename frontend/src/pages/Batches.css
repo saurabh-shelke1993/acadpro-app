@@ -1702,3 +1702,9 @@
     width:36px;min-width:36px;height:36px;min-height:36px;border-radius:8px;
   }
 }
+
+/* BL5: hint that mobile rows expand to reveal familiar actions. */
+.batches-mobile-action-hint { display:none; }
+@media(max-width:640px) {
+  .batches-mobile-action-hint { display:block;margin-top:4px;color:#1d4ed8;font-size:10px;font-weight:650; }
+}
