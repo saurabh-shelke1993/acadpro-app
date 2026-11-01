@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
+import CoachWorkspaceTabs from "../components/CoachWorkspaceTabs";
 import "./Coaches.css";
 import { supabase } from "../supabaseClient";
 
@@ -504,6 +505,7 @@ function Coaches() {
   return (
     <Layout>
       <div className={`coaches-page${isAcademyOwner(user) ? " coaches-page-owner" : ""}`}>
+        <CoachWorkspaceTabs />
         <div className="coaches-page-header">
           <div>
             <span className="coaches-page-eyebrow">
