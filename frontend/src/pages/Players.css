@@ -1831,3 +1831,59 @@
 .players-edit-photo-section .player-photo-controls {
   align-items: flex-start;
 }
+
+
+/* PL2-PL3: list-first layout and compact two-column registration */
+.players-compact-toolbar {
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:10px 14px;margin:0 0 10px;
+  background:#fff;border:1px solid #dfe7f1;border-radius:12px;
+}
+.players-compact-title { display:flex;align-items:center;gap:12px;min-width:0; }
+.players-compact-title h1 {margin:0;font-size:18px;line-height:1.25;color:#102a43;}
+.players-compact-title span {color:#64748b;font-size:12px;}
+.players-toggle-form-button {flex-shrink:0;min-height:36px;padding:7px 14px;}
+.players-create-import-workspace-expanded {width:100%;display:block;margin:0 0 12px;}
+.players-create-import-workspace-expanded .players-form-card-create {width:100%;max-width:none;box-sizing:border-box;}
+.players-registration-grid {
+  display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);
+  gap:12px;align-items:start;
+}
+.players-registration-main,.players-registration-side {min-width:0;}
+.players-registration-grid .players-form-section {
+  border:1px solid #e2e8f0;border-radius:10px;
+  padding:12px;margin:0 0 10px;background:#fff;
+}
+.players-registration-grid .players-form-grid {
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px 12px;
+}
+.players-registration-grid .players-form-grid .players-field-wide {grid-column:1 / -1;}
+.players-registration-grid .players-field,
+.players-registration-grid .players-field input,
+.players-registration-grid .players-field select {width:100%;min-width:0;max-width:none;}
+.players-registration-grid .players-field label {font-size:11px;margin-bottom:4px;}
+.players-registration-grid .players-form-section h3 {margin-bottom:10px;font-size:13px;}
+.players-registration-grid .players-session-enrollment-section {margin-bottom:10px;}
+.players-registration-grid .players-session-enrollment-heading {margin-bottom:6px;}
+.players-registration-grid .players-session-enrollment-hint {font-size:11px;}
+.players-address-toggle {
+  display:inline-flex;align-items:center;gap:6px;
+  border:0;background:transparent;color:#1d4ed8;cursor:pointer;
+  padding:4px 0;font-size:12px;font-weight:650;text-align:left;
+}
+.players-address-expander textarea {margin-top:5px;min-height:58px;max-width:none;width:100%;}
+.players-create-import-workspace-expanded .players-form-actions {
+  display:flex;justify-content:flex-end;gap:8px;margin-top:4px;padding-top:6px;
+}
+.players-create-import-workspace-expanded .players-section-heading {margin-bottom:10px;}
+@media (max-width:980px) {
+  .players-registration-grid {grid-template-columns:1fr;}
+}
+@media (max-width:620px) {
+  .players-compact-toolbar {padding:9px 10px;flex-wrap:wrap;}
+  .players-compact-title {gap:6px;flex-direction:column;align-items:flex-start;}
+  .players-registration-grid .players-form-grid {grid-template-columns:1fr;}
+  .players-registration-grid .players-form-grid .players-field-wide {grid-column:auto;}
+  .players-registration-grid .players-form-section {padding:10px;}
+  .players-create-import-workspace-expanded .players-form-actions {flex-wrap:wrap;}
+}
