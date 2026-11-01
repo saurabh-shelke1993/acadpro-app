@@ -79,6 +79,7 @@ function Players() {
   const [currentPage, setCurrentPage] = useState(1);
   const [openFilter, setOpenFilter] = useState(null);
   const [selectedCoachPlayer, setSelectedCoachPlayer] = useState(null);
+  const [expandedMobilePlayerId, setExpandedMobilePlayerId] = useState(null);
   const [profileSnapshot, setProfileSnapshot] = useState(null);
   const [profileSnapshotLoading, setProfileSnapshotLoading] = useState(false);
   const [profileSnapshotError, setProfileSnapshotError] = useState("");
@@ -1557,19 +1558,18 @@ useEffect(() => {
             <thead>
               <tr>
                 <th scope="col">{renderColumnFilter("player", "Player", [], "text")}</th>
-                {!isCoach(loggedInUser) && <th scope="col">{renderColumnFilter("academy", "Academy", filterOptions.academy)}</th>}
+                {isSuperAdmin(loggedInUser) && <th scope="col">{renderColumnFilter("academy", "Academy", filterOptions.academy)}</th>}
                 <th scope="col">{renderColumnFilter("center", "Center", filterOptions.center)}</th>
-                <th scope="col">{renderColumnFilter("batch", "Batch", filterOptions.batch)}</th>
-                {!isCoach(loggedInUser) && (
-                  <>
-                    <th scope="col">DOB</th>
-                    <th scope="col">{renderColumnFilter("gender", "Gender", filterOptions.gender)}</th>
-                    <th scope="col">Joining Date</th>
-                    <th scope="col">{renderColumnFilter("status", "Status", filterOptions.status)}</th>
-                    <th scope="col">Parent Phone</th>
-                    {isAcademyOwner(loggedInUser) && <th scope="col">Actions</th>}
-                  </>
-                )}
+                <th scope="col">
+                  <div className="players-merged-filter-heading">
+                    {renderColumnFilter("batch", "Batch", filterOptions.batch)}
+                    {!isCoach(loggedInUser) && renderColumnFilter("gender", "Gender", filterOptions.gender)}
+                  </div>
+                </th>
+                {!isCoach(loggedInUser) && <>
+                  <th scope="col">{renderColumnFilter("status", "Status", filterOptions.status)}</th>
+                  {isAcademyOwner(loggedInUser) && <th scope="col" className="players-actions-heading">Actions</th>}
+                </>}
               </tr>
             </thead>
 
@@ -1578,7 +1578,7 @@ useEffect(() => {
                 <tr>
                   <td
                     className="players-empty-state"
-                    colSpan={isCoach(loggedInUser) ? 3 : isAcademyOwner(loggedInUser) ? 10 : 9}
+                    colSpan={isCoach(loggedInUser) ? 3 : 5}
                   >
                     <strong>No players found</strong>
                     <span>
@@ -1592,7 +1592,7 @@ useEffect(() => {
                 paginatedPlayers.map((player) => (
                   <tr
                     key={player.id}
-                    className={isCoach(loggedInUser) ? "players-coach-row" : ""}
+                    className={(isCoach(loggedInUser) ? "players-coach-row " : "") + (expandedMobilePlayerId === player.id ? "players-mobile-expanded" : "")}
                     onClick={() => setSelectedCoachPlayer(player)}
                     onKeyDown={(event) => {
                       if (event.key === "Enter" || event.key === " ") {
@@ -1628,36 +1628,52 @@ useEffect(() => {
                         <span className="player-identity-name">{player.full_name}</span>
                       </div>
                     </td>
-                    {!isCoach(loggedInUser) && <td>{player.academies?.academy_name || "—"}</td>}
-                    <td>{player.centers?.center_name || "—"}</td>
-                    <td>{player.batches?.batch_name || "—"}</td>
+                    {isSuperAdmin(loggedInUser) && <td className="players-academy-cell">{player.academies?.academy_name || "—"}</td>}
+                    <td className="players-center-cell">
+                      <span className="players-center-identity">
+                        <span className="players-center-code" aria-hidden="true">
+                          {centers.find((center) => center.id === player.center_id)?.center_code ||
+                            player.centers?.center_code ||
+                            suggestCenterCode(player.centers?.center_name || "")}
+                        </span>
+                        <span>{player.centers?.center_name || "—"}</span>
+                      </span>
+                    </td>
+                    <td className="players-batch-cell">
+                      <strong>{player.batches?.batch_name || "—"}</strong>
+                      <span className="players-batch-age">{player.dob ? `Age ${calculateAge(player.dob)}` : "Age —"}</span>
+                    </td>
                     {!isCoach(loggedInUser) && (
                       <>
-                        <td>{calculateAge(player.dob) || "—"}</td>
-                        <td>{player.gender || "—"}</td>
-                        <td>{player.joining_date || "—"}</td>
-                        <td>
+                        <td className="players-status-cell">
                           <span className="player-status-badge">{player.player_status || "Active"}</span>
                         </td>
-                        <td>{player.parents?.phone || "—"}</td>
-                        {isAcademyOwner(loggedInUser) && <td>
+                        {isAcademyOwner(loggedInUser) && <td className="players-actions-cell">
+                          <button
+                            type="button"
+                            className="players-mobile-actions-toggle"
+                            aria-expanded={expandedMobilePlayerId === player.id}
+                            aria-label={`Toggle actions for ${player.full_name}`}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              setExpandedMobilePlayerId((id) => id === player.id ? null : player.id);
+                            }}
+                          >{expandedMobilePlayerId === player.id ? "Actions ▴" : "Actions ▾"}</button>
                           <div className="player-row-actions">
                             <button
                               className="player-action-button player-action-edit"
                               type="button"
+                              title="Edit player"
                               onClick={(event) => { event.stopPropagation(); handleEditPlayer(player); }}
                               aria-label={`Edit ${player.full_name}`}
-                            >
-                              Edit
-                            </button>
+                            >✏️</button>
                             <button
                               className="player-action-button player-action-danger"
                               type="button"
+                              title="Deactivate player"
                               onClick={(event) => { event.stopPropagation(); handleDeletePlayer(player.id); }}
                               aria-label={`Deactivate ${player.full_name}`}
-                            >
-                              Deactivate
-                            </button>
+                            >🗑️</button>
                           </div>
                         </td>}
                       </>
