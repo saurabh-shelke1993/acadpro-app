@@ -39,3 +39,29 @@ Read-only review plus documentation only. No SQL writes, enquiries, players, fun
 - No live enquiries were deleted and no synthetic enquiry/player fixtures were inserted.
 
 **Validation still pending:** authenticated Owner success/Coach rejection/Parent/Super Admin/cross-tenant/converted-row negative-path execution with controlled fixtures; exact-HEAD React tests/build, browser checks, isolated conversion tests and full E5 regression. E5 is not release-ready.
+
+## E5.2 automated regression review — 2026-11-01
+
+**Status: PARTIAL; NO CURRENT-HEAD AUTOMATED PASS CLAIMED.**
+- Reviewed current branch Enquiries component and service code. Confirmed implementation presence of filtered 10-record pagination, mobile detail expansion, role-aware action dropdown, and external status edit dialog. Status change continues through `updateEnquiryStatus`; delete through `delete_inquiry`.
+- Confirmed E5.1 migration SQL exists in GitHub and includes Academy Owner-only role check, converted-record protection, and EXECUTE revocation for PUBLIC/anon.
+- E5.1 active database function and grants were verified after migration in the preceding checkpoint; no data mutation tests performed.
+- The latest documentation commit `e84250dbcc4e67fc9e99958bb3afdcb0158c184d` returned Vercel status `pending` at review time; a commit-associated GitHub workflow query returned no pull-request-triggered runs. This does not prove CI failure or CI success.
+- No full repository checkout was possible from this execution environment (GitHub network DNS unavailable). Therefore `npm test -- --watchAll=false`, `npm run build`, Jest coverage, and exact-revision lint were **not executed**. Old October 13 passing results do not validate current changes.
+- No security/role runtime mutation checks executed; these require a controlled isolated environment.
+
+### Commands for exact-current-HEAD validation
+
+From the repository checkout on `payment-module-finalization`:
+```bash
+git status --short
+git branch --show-current
+git rev-parse HEAD
+cd frontend
+CI=true npm test -- --watchAll=false
+npm run build
+```
+
+Record the SHA, test counts, warnings, build result, and latest CI/deployment statuses. If a test or build fails, record the exact log and stop before treating E5.2 as PASS.
+
+**E5.2 remains pending automated execution; E5 overall remains NOT RELEASE READY.**
