@@ -8,7 +8,7 @@ import "./CoachWorkspaceTabs.css";
 function CoachWorkspaceTabs() {
   return (
     <nav className="coach-workspace-tabs" aria-label="Coaches and assignments views">
-      <div className="coach-workspace-tabs-title">Coaches &amp; Assignments</div>
+      <h1 className="coach-workspace-tabs-title">Coaches &amp; Assignments</h1>
       <div className="coach-workspace-tabs-links">
         <NavLink
           to="/coaches"
