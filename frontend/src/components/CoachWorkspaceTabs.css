@@ -1,0 +1,75 @@
+/* CMA1: Shared route-based coach management tabs. */
+.coach-workspace-tabs {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.65rem 1rem;
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid var(--ap-border);
+}
+
+.coach-workspace-tabs-title {
+  color: var(--ap-slate-950);
+  font-size: 1rem;
+  font-weight: 750;
+  letter-spacing: -0.01em;
+}
+
+.coach-workspace-tabs-links {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.coach-workspace-tab {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem 0.8rem;
+  border: 1px solid transparent;
+  border-radius: var(--ap-radius-md);
+  color: var(--ap-slate-600);
+  font-size: var(--ap-font-size-sm);
+  font-weight: 650;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.coach-workspace-tab:hover {
+  background: var(--ap-slate-50);
+  color: var(--ap-primary-700);
+}
+
+.coach-workspace-tab-active,
+.coach-workspace-tab-active:hover {
+  border-color: var(--ap-primary-200);
+  background: var(--ap-primary-50);
+  color: var(--ap-primary-700);
+}
+
+.coach-workspace-tab:focus-visible {
+  outline: 2px solid var(--ap-primary-600);
+  outline-offset: 2px;
+}
+
+@media (max-width: 640px) {
+  .coach-workspace-tabs {
+    align-items: stretch;
+  }
+
+  .coach-workspace-tabs-links {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .coach-workspace-tab {
+    padding: 0.5rem 0.4rem;
+    white-space: normal;
+    text-align: center;
+  }
+}
