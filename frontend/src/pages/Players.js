@@ -1193,6 +1193,13 @@ useEffect(() => {
             <div>
               <span className="players-section-eyebrow">{isEditing ? "Edit player" : "Create player"}</span>
               <h2>{isEditing ? "Edit Player" : "New Player"}</h2>
+              {!isSuperAdmin(loggedInUser) && (
+                <span className="players-registration-academy-context">
+                  {loggedInUser?.academy_name ||
+                    academies.find((academy) => academy.id === selectedAcademy)?.academy_name ||
+                    "Your academy"}
+                </span>
+              )}
             </div>
           </div>
           <div className="players-registration-grid">
@@ -1298,23 +1305,7 @@ useEffect(() => {
                     ))}
                   </select>
                 </div>
-              ) : (
-                <div className="players-field">
-                  <label htmlFor="player-academy">Academy</label>
-                  <input
-                    id="player-academy"
-                    type="text"
-                    value={
-                      academies.find(
-                        (academy) => academy.id === selectedAcademy
-                      )?.academy_name ||
-                      loggedInUser?.academy_name ||
-                      ""
-                    }
-                    disabled
-                  />
-                </div>
-              )}
+              ) : null}
 
               <div className="players-field">
                 <label htmlFor="player-center">Center *</label>
