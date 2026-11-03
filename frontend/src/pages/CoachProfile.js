@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import Layout from "../components/Layout";
 import { getCurrentUser } from "../utils/auth";
@@ -78,6 +78,7 @@ const CoachProfile = () => {
   const [certificationForm, setCertificationForm] = useState(EMPTY_CERTIFICATION);
   const [editingCertificationId, setEditingCertificationId] = useState(null);
   const [isCertificationFormOpen, setIsCertificationFormOpen] = useState(false);
+  const certificationToggleRef = useRef(null);
 
   const isSelf = isCoach(user);
   const isParent = user?.role === "parent";
@@ -292,6 +293,7 @@ const CoachProfile = () => {
     setCertificationForm(EMPTY_CERTIFICATION);
     setEditingCertificationId(null);
     setIsCertificationFormOpen(false);
+    certificationToggleRef.current?.focus();
   };
 
   const openNewCertificationForm = () => {
@@ -448,7 +450,7 @@ const CoachProfile = () => {
         </section>
 
         {editing && canEditProfile ? (
-          <form className="coach-profile-card" onSubmit={handleSaveProfile}>
+          <form className="coach-profile-card" onSubmit={handleSaveProfile} aria-label="Edit coach profile">
             <div className="coach-profile-card-heading">
               <div>
                 <span className="coach-profile-section-kicker">
@@ -459,7 +461,7 @@ const CoachProfile = () => {
             </div>
 
             <div className="coach-profile-form-grid">
-              <ProfileField label="Full name" name="full_name" value={form.full_name} onChange={handleChange} required />
+              <ProfileField label="Full name" name="full_name" value={form.full_name} onChange={handleChange} autoFocus required />
               <ProfileField label="Email" name="email" type="email" value={form.email} onChange={handleChange} />
               <ProfileField label="Phone" name="phone" value={form.phone} onChange={handleChange} />
               <label htmlFor="coach-profile-photo" className="coach-profile-field coach-profile-photo-field">
@@ -537,11 +539,11 @@ const CoachProfile = () => {
 
           {!isParent ? (
             <div className="coach-profile-sidebar">
-              <section className="coach-profile-card">
+              <section className="coach-profile-card" aria-labelledby="coach-profile-training-heading">
                 <div className="coach-profile-card-heading">
                   <div>
                     <span className="coach-profile-section-kicker">Training scope</span>
-                    <h2>Centers & batches</h2>
+                    <h2 id="coach-profile-training-heading">Centers & batches</h2>
                   </div>
                 <span className="coach-profile-count">{profile?.assignments?.length || 0} active batches</span>
               </div>
@@ -585,11 +587,11 @@ const CoachProfile = () => {
               </div>
               </section>
 
-              <section className="coach-profile-card">
+              <section className="coach-profile-card" aria-labelledby="coach-profile-certs-heading">
                 <div className="coach-profile-card-heading">
                   <div>
                     <span className="coach-profile-section-kicker">Credentials</span>
-                    <h2>Certifications</h2>
+                    <h2 id="coach-profile-certs-heading">Certifications</h2>
                   </div>
                   <div className="coach-profile-cert-header-actions">
                     <span className="coach-profile-count">{certifications.length}</span>
@@ -597,9 +599,11 @@ const CoachProfile = () => {
                       <button
                         type="button"
                         className="coach-profile-secondary-button"
+                        ref={certificationToggleRef}
                         onClick={isCertificationFormOpen ? resetCertificationForm : openNewCertificationForm}
                         disabled={certSaving}
                         aria-expanded={isCertificationFormOpen}
+                        aria-controls={isCertificationFormOpen ? "coach-profile-cert-form" : undefined}
                       >
                         {isCertificationFormOpen ? "Close" : "+ Add Certification"}
                       </button>
@@ -608,8 +612,8 @@ const CoachProfile = () => {
                 </div>
 
                 {canManageCertifications && isCertificationFormOpen ? (
-                  <form id="coach-profile-cert-form" className="coach-profile-cert-form" onSubmit={handleCertificationSubmit}>
-                    <ProfileField label="Certificate name" value={certificationForm.certificate_name} onChange={(e) => setCertificationForm((c) => ({ ...c, certificate_name: e.target.value }))} required />
+                  <form id="coach-profile-cert-form" className="coach-profile-cert-form" onSubmit={handleCertificationSubmit} aria-label={editingCertificationId ? "Edit certification" : "Add certification"}>
+                    <ProfileField label="Certificate name" value={certificationForm.certificate_name} onChange={(e) => setCertificationForm((c) => ({ ...c, certificate_name: e.target.value }))} autoFocus required />
                     <ProfileField label="Issuing organization" value={certificationForm.issuing_organization} onChange={(e) => setCertificationForm((c) => ({ ...c, issuing_organization: e.target.value }))} />
                     <ProfileField label="Certificate number" value={certificationForm.certificate_number} onChange={(e) => setCertificationForm((c) => ({ ...c, certificate_number: e.target.value }))} />
                     <ProfileField label="Issue date" type="date" value={certificationForm.issue_date} onChange={(e) => setCertificationForm((c) => ({ ...c, issue_date: e.target.value }))} />
