@@ -626,3 +626,104 @@
     margin-left: 40px;
   }
 }
+
+/* PM4: narrow-screen accessibility and overflow protection. */
+.performance-page .assessment-scope-card,
+.performance-page .assessment-form-card,
+.performance-page .assessment-history-card,
+.assessment-player-row,
+.assessment-scope-heading,
+.assessment-history-details {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.assessment-scope-card .assessment-scope-filters,
+.assessment-form-card .score-matrix-group-grid,
+.assessment-form-card .score-matrix-secondary {
+  min-width: 0;
+}
+
+.assessment-scope-heading {
+  flex-wrap: wrap;
+}
+
+.assessment-scope-selected,
+.assessment-saved-summary .saved-summary-copy,
+.assessment-history-summary,
+.assessment-history-details,
+.assessment-history-summary small {
+  overflow-wrap: anywhere;
+}
+
+.assessment-scope-card select:focus-visible,
+.assessment-player-row .player-picker-trigger:focus-visible,
+.assessment-player-row .player-picker-menu > input:focus-visible,
+.assessment-form-card textarea:focus-visible {
+  outline: 2px solid var(--ap-primary-600);
+  outline-offset: 2px;
+}
+
+.assessment-player-row .player-picker-menu {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.assessment-player-row .player-picker-trigger,
+.assessment-player-row .player-picker-more,
+.assessment-history-card .assessment-history-summary {
+  min-height: 44px;
+}
+
+.assessment-player-row .player-picker-option:focus-visible {
+  background: var(--ap-primary-50);
+  outline-offset: -2px;
+}
+
+.assessment-history-card .history-actions {
+  flex-wrap: wrap;
+}
+
+.assessment-history-card .edit-button,
+.assessment-history-card .delete-button {
+  min-height: 40px;
+  font-size: 0.75rem;
+}
+
+@media (max-width: 600px) {
+  .performance-page .assessment-scope-card,
+  .performance-page > .assessment-form-card,
+  .performance-page .assessment-history-card {
+    padding: 0.75rem !important;
+  }
+
+  .assessment-player-row {
+    max-width: none;
+  }
+
+  .assessment-player-row .player-picker-menu {
+    left: 0;
+    right: 0;
+    min-width: 0;
+  }
+
+  .assessment-player-row .player-picker-status {
+    max-width: calc(100% - 40px);
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .assessment-history-summary {
+    gap: 0.4rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .assessment-scope-card *,
+  .assessment-form-card *,
+  .assessment-history-card * {
+    scroll-behavior: auto;
+    transition-duration: 0.01ms !important;
+  }
+}
