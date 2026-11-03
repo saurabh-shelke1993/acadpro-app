@@ -465,3 +465,24 @@ button:disabled { cursor: not-allowed; opacity: .55; }
     justify-content: flex-start;
   }
 }
+
+/* CP1–CP3: compact header states and certification heading at narrow widths. */
+.coach-profile-status-inactive {
+  background: var(--ap-slate-100);
+  color: var(--ap-slate-600);
+}
+
+.coach-profile-sidebar .coach-profile-card-heading {
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.coach-profile-sidebar .coach-profile-cert-header-actions {
+  margin-left: auto;
+}
+
+@media (max-width: 700px) {
+  .coach-profile-sidebar .coach-profile-cert-header-actions {
+    margin-left: 0;
+  }
+}
