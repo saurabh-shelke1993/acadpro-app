@@ -719,7 +719,26 @@ function CoachBatchMapping() {
                       <tr className={isSelected ? "coach-mapping-row-selected" : ""} tabIndex={0} aria-selected={isSelected}
                         onClick={() => setSelectedMappingId(isSelected ? null : item.id)}
                         onKeyDown={(event) => handleRowKeyDown(event, item.id)}>
-                        <td className="coach-mapping-name-cell"><div className="coach-mapping-identity"><span className="coach-mapping-avatar" aria-hidden="true">{initials}</span><span>{item.coaches?.full_name || "—"}</span></div></td>
+                        <td className="coach-mapping-name-cell">
+                          <div className="coach-mapping-identity">
+                            <span className="coach-mapping-avatar" aria-hidden="true">{initials}</span>
+                            <span>{item.coaches?.full_name || "—"}</span>
+                          </div>
+                          {canManageMappings && (
+                            <button
+                              type="button"
+                              className="coach-mapping-mobile-expand"
+                              aria-expanded={isSelected}
+                              aria-label={(isSelected ? "Hide actions for " : "Show actions for ") + (item.coaches?.full_name || "mapping")}
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                setSelectedMappingId(isSelected ? null : item.id);
+                              }}
+                            >
+                              {isSelected ? "Hide actions" : "Actions"}
+                            </button>
+                          )}
+                        </td>
                         <td>{batch?.centers?.center_name || "—"}</td>
                         <td><strong>{batch?.batch_name || "—"}</strong>{batch?.age_group && <span className="coach-mapping-secondary-line">{batch.age_group}</span>}</td>
                         <td>{formatSchedule(item)}</td>
