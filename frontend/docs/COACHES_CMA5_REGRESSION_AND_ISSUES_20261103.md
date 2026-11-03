@@ -10,7 +10,7 @@
 - CMA1: Coaches sidebar entry; shared `Coach Directory` and `Batch Assignments` route tabs; the original `/coaches` and `/coach-batch-mapping` routes and Super Admin / Academy Owner route guards are retained.
 - CMA2: collapsed Coach Directory form, existing create/edit/view/status flows and pagination retained.
 - CMA3: collapsed Batch Assignments form, existing coach→center→batch/session selection, create/edit/activate/deactivate/delete handlers retained.
-- CMA4: compact inline session chips with checkboxes, tighter form spacing, action row aligned at the right, form-local Close control, keyboard focus styling, improved empty-state calls to action, and authorized mobile mapping actions for Super Admin as well as Academy Owner. Coach status toggle uses pause/play rather than misleading trash icon; it still activates/deactivates and does not delete a coach.
+- CMA4: compact inline session chips with checkboxes, tighter form spacing, action row aligned at the right, form-local Close control, keyboard focus styling, improved empty-state calls to action, and explicit mobile Actions/Hide actions toggles for Super Admin and Academy Owner. Coach status toggle uses pause/play rather than misleading trash icon; it still activates/deactivates and does not delete a coach.
 - CMA5: a focused Jest test was authored at `frontend/src/components/CoachWorkspaceTabs.test.js` for active tabs, route links, and the shared accessible heading. **The test was not executed here.**
 - GitHub source and commit diff review only. **Current-HEAD `npm run build`, Jest and browser/role testing have not been run or signed off.** No database migrations, RPC updates, production data writes, or assignment business-rule fixes were made.
 
@@ -28,7 +28,7 @@
 | CMA5-08 | Academy Owner / desktop | Cancel or Close assignment form | No mutation, compact directory restored |
 | CMA5-09 | Academy Owner / desktop | Edit existing mapping and its sessions | Existing coach/batch/session selections load; save retains the intended assignments |
 | CMA5-10 | Academy Owner / desktop | Duplicate assignment attempt | Existing duplicate policy remains enforced |
-| CMA5-11 | Super Admin & Academy Owner / phone widths 320–640px | Select a mapping row | Authorized mobile row actions visible and operable; no horizontal clipping |
+| CMA5-11 | Super Admin & Academy Owner / phone widths 320–640px | Select the mapping row's Actions / Hide actions control | Authorized mobile row actions expand/collapse and remain operable; no horizontal clipping |
 | CMA5-12 | Desktop & phone | No coaches, no mappings, and filtered-empty cases | Contextual empty state, Add Coach / Assign Coach / Clear Filters or Directory action as appropriate |
 | CMA5-13 | Keyboard-only | Tab through actions, chips, close, navigation and row | Focus visible; Enter/Space on row does not override button action |
 | CMA5-14 | Roles + scoped fixtures | Cross-academy mutation and RLS negative paths | Denied by database, regardless of UI |
