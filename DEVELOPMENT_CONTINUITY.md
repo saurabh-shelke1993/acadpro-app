@@ -1,10 +1,10 @@
 # Kheltriva — Development Continuity
 
-**Updated:** 2026-11-01 (Asia/Kolkata)  
+**Updated:** 2026-11-03 (Asia/Kolkata)  
 **Project:** Kheltriva (formerly AcadPro) — multi-tenant football academy SaaS  
 **Repository:** https://github.com/saurabh-shelke1993/acadpro-app  
 **Working branch:** `payment-module-finalization`  
-**Verified branch HEAD *before creation of this file*:** `0bfc71099ed14cdada08022320a72c378e9da5f7` (GitHub compare found the branch identical to this SHA).  
+**Original branch baseline (before this file was created):** `0bfc71099ed14cdada08022320a72c378e9da5f7`. Subsequent CMA commits exist; recheck current branch HEAD before development.  
 **Purpose:** Stable, handoff-friendly checkpoint between ChatGPT conversations. This document is NOT a substitute for inspecting live code, the current database, or current tests.
 
 ## 1. How to resume in the next chat
@@ -65,7 +65,7 @@ Additional focused reference: `frontend/docs/ENQUIRIES_E5_VALIDATION_CHECKPOINT_
 | Enquiries — E5.1 | Deleted-enquiry RPC security: `delete_inquiry(uuid)` now requires Academy Owner and denies anon EXECUTE. | **Applied to active database** and verified via metadata; authenticated role-by-role negative path tests pending. |
 | Enquiries — E5.2 | Code + migration review and test command preparation. | Source audit recorded, **current-HEAD Jest/build NOT executed**. |
 | Enquiries — E5.3/E5.4 | Full role, conversion, cross-tenant, UI regression and release sign-off. | **Deferred** during active development; release gate still open. |
-| Coaches / Coach Batch Mapping | **CMA1–CMA3 implemented:** one-sidebar/tab workspace plus compact Coach Directory and Batch Assignments toolbars; both create forms start collapsed and edit actions reopen existing forms. Profile/mapping components remain independent. | GitHub committed; automated build and manual acceptance pending. Next **CMA4 responsive polish**, after visual verification. |
+| Coaches / Coach Batch Mapping | **CMA1–CMA4 implemented**: shared tabs, collapsed forms, compact session chips, right-aligned actions, keyboard focus, mobile actions for Owner/Admin, improved empty states. **CMA5 source/diff review and test authoring documented**. | Runtime build/Jest and role/browser acceptance **pending**. Two assignment business-rule issues tracked separately in `frontend/docs/COACHES_CMA5_REGRESSION_AND_ISSUES_20261103.md`. |
 | Attendance / Attendance History | Existing operational functionality, session-aware attendance and coach edit rules. | Further UX polish and final regression pending. |
 | Parent Portal, payments, dues, UPI | Multiple implemented workflows including Parent Portal, UPI QR/manual verification and financial modules. | Preserve business/RBAC invariants. Pending acceptance must be checked in focused docs; Razorpay remains future work. |
 | Notifications | Prior exploration/preflight/design work exists. | No new notification migration should be assumed applied without verifying live migration ledger. |
@@ -102,8 +102,11 @@ The current Enquiries component is `frontend/src/pages/Enquiries.js`, service `f
 - **CMA3 IMPLEMENTED — acceptance pending:** Batch Assignments shows a compact academy/count toolbar and `+ Assign Coach`; the mapping form opens on demand and edit reopens it. Existing batch/session selection, save/update/deactivate/delete routines retained. Removed duplicate headings and page-count repetition, with mobile-responsive toolbar styling.
 - CMA2/CMA3 files: `frontend/src/pages/Coaches.js`, `Coaches.css`, `CoachBatchMapping.js`, `CoachBatchMapping.css`; shared `frontend/src/components/CoachWorkspaceTabs.js` and `.css` updated to provide a semantic page heading. **No database/RPC/migration or route changes.**
 - CMA2/CMA3 commits: `16485a320e1d2855a8d41da4b131fab9b7902761`, `ecc2529f56f6cdd715a829ec819b454673e46155`, `b6c78626409de037a32de9c929584ee75fed6c67`, `e0307ddac1ec567783b074461fbe0e66074c66f3`, `cf5eeeedcc08adefcf800b0aa80bceb4fd2db198`, `c91c9461ae66cf106e532eea1a19c20a17c086c9`, `d4f98e4e69dd9049c957a3afb4b5a094c8270cb4`.
-- **CURRENT NEXT:** pull branch; run `npm run build` and focused Coach Directory / Batch Assignments browser checks for Academy Owner, Super Admin, small screens, form open/cancel/edit/save. After review proceed with CMA4 responsive/a11y polish and CMA5 targeted regression. GitHub diff review completed but React build/Jest and browser validation are **not** claimed passed.
-- During source review, two independent mapping logic follow-ups were identified: reactivating a mapping may incorrectly reject a different active coach on the same batch (despite multiple-coach support), and coach profile deactivation vs session assignments needs an invariant review. Do not fix these as part of the navigation merge.
+- **CMA4 IMPLEMENTED — acceptance pending:** session cards restyled as compact chips, assignment footer right-aligned; form-local Close replaces top Close while editing; required-session legend reflects whether sessions exist. Mapping empty state offers correct next action; mobile mapping row actions now available to Super Admin and Owner. Coach status toggle icon accurately indicates activate/deactivate and no longer resembles delete. Keyboard row event handling avoids intercepting child control keys. No business mutation rules, RLS, database or route changes.
+- CMA4 commits: `c4a46e1571854b74318ba82a53ffe92c32169209`, `51f57a9e7513b5834eea6a2027c78da5fcc8911b`, `f1e721fb222d5b3bfd9251f4403cdcdf94df999a`, `e41d314cc8db7a809e12aa0ad1a296c3638488da`.
+- **CMA5 DOCUMENTED + TEST AUTHORED — runtime validation pending:** new focused tab-route test `frontend/src/components/CoachWorkspaceTabs.test.js` (commit `2216a660d9f0c2c82a56e9e3374d82fed6400c9d`), and detailed role/viewport regression matrix plus issue register `frontend/docs/COACHES_CMA5_REGRESSION_AND_ISSUES_20261103.md` (commit `1d62a58d19a939c80b196a28933a16809ae11e4f`). **No current-HEAD build/Jest or browser test results have been observed; do not call the feature fully tested.**
+- **CURRENT NEXT:** pull branch and run `CI=true npm test -- --watchAll=false` and `npm run build`, then check desktop and phone layouts and owner/admin/coach/parent route restrictions. User requested verification later; defer full acceptance without marking PASS. After that, choose the next module or separately scope the two business-logic issues.
+- **Open business-rule issues remain separate:** ISSUE-COACH-01: reactivation rejects another active coach on the same batch despite multi-coach support; ISSUE-COACH-02: coach profile deactivation does not itself update mapping/session status. Current access impact still needs database and role tests. The focused CMA5 document includes source evidence, decisions required, and controlled test scenarios. An additional non-atomic mapping/session mutation risk is noted for later analysis.
 - If the owner chooses a different task, update only the changed priority; do not assume the previously proposed page is mandatory.
 
 ## 7. Local validation and Git practice
