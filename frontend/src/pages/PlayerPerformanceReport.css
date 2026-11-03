@@ -878,3 +878,106 @@
     padding: 0.7rem;
   }
 }
+
+/* PM4: responsive report panels and screen-reader chart equivalents. */
+.performance-sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+.performance-page,
+.performance-scope-top-grid,
+.performance-scope-panel,
+.performance-top-panel,
+.performance-report-layout,
+.performance-report-main,
+.performance-report-sidebar,
+.performance-chart-card,
+.performance-top-player-main,
+.performance-player-identity-main,
+.performance-history-card {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.performance-page .performance-filter-grid label,
+.performance-filter-card select,
+.performance-page .performance-scope-chip {
+  min-width: 0;
+}
+
+.performance-filter-card select,
+.performance-top-panel .performance-top-player {
+  min-height: 44px;
+}
+
+.performance-top-player-main strong,
+.performance-top-player-main small,
+.performance-player-identity p,
+.performance-history-card .history-summary-metrics,
+.performance-snapshot-list li {
+  overflow-wrap: anywhere;
+}
+
+.performance-top-player:focus-visible,
+.performance-filter-reset:focus-visible,
+.performance-history-card .history-summary:focus-visible,
+.performance-filter-card select:focus-visible {
+  outline: 2px solid var(--ap-primary-600);
+  outline-offset: 2px;
+}
+
+@media (max-width: 620px) {
+  .performance-scope-top-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.75rem;
+  }
+
+  .performance-scope-panel .performance-filter-card,
+  .performance-top-panel .performance-top-section {
+    height: auto;
+  }
+
+  .performance-filter-summary {
+    flex-wrap: wrap;
+  }
+
+  .performance-player-identity,
+  .performance-report-sidebar,
+  .performance-chart-grid,
+  .performance-chart-card {
+    min-width: 0;
+  }
+
+  .performance-top-panel .performance-top-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 375px) {
+  .performance-chart-card,
+  .performance-history-card,
+  .performance-top-panel .performance-top-section,
+  .performance-filter-card {
+    padding: 0.7rem !important;
+  }
+
+  .performance-chart-card .skill-values {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .performance-page * {
+    scroll-behavior: auto;
+    transition-duration: 0.01ms !important;
+  }
+}
