@@ -509,7 +509,7 @@ const CoachProfile = () => {
           </form>
         ) : null}
 
-        <div className="coach-profile-content-grid">
+        <div className={`coach-profile-content-grid${isParent ? " coach-profile-content-grid-single" : ""}`}>
           <section className="coach-profile-card">
             <div className="coach-profile-card-heading">
               <div>
@@ -536,113 +536,124 @@ const CoachProfile = () => {
           </section>
 
           {!isParent ? (
-            <section className="coach-profile-card">
-              <div className="coach-profile-card-heading">
-                <div>
-                  <span className="coach-profile-section-kicker">Training scope</span>
-                <h2>Centers & batches</h2>
+            <div className="coach-profile-sidebar">
+              <section className="coach-profile-card">
+                <div className="coach-profile-card-heading">
+                  <div>
+                    <span className="coach-profile-section-kicker">Training scope</span>
+                  <h2>Centers & batches</h2>
+                </div>
+                <span className="coach-profile-count">{profile?.assignments?.length || 0} active batches</span>
               </div>
-              <span className="coach-profile-count">{profile?.assignments?.length || 0} active batches</span>
-            </div>
 
-            {centers.length > 0 ? (
-              <div className="coach-profile-center-list">
-                {centers.map((center) => <span key={center.center_name}>{center.center_name}</span>)}
-              </div>
-            ) : (
-              <p className="coach-profile-muted">No center assignment available.</p>
-            )}
-
-            <div className="coach-profile-assignment-list">
-              {(profile?.assignments || []).length > 0 ? (
-                profile.assignments.map((assignment) => (
-                  <article key={assignment.id} className="coach-profile-assignment">
-                    <div>
-                      {assignment.batch?.id ? (
-                        <Link
-                          className="coach-profile-assignment-link"
-                          to={`/batches?academyId=${profile?.academy_id || ""}&centerId=${assignment.batch?.center_id || ""}&batchId=${assignment.batch.id}`}
-                        >
-                          {assignment.batch?.batch_name || "Batch"}
-                        </Link>
-                      ) : (
-                        <strong>{assignment.batch?.batch_name || "Batch"}</strong>
-                      )}
-                      <span>{assignment.center?.center_name || "Center not available"}</span>
-                    </div>
-                    <div className="coach-profile-assignment-meta">
-                      <span>{assignment.batch?.age_group || "Age group not available"}</span>
-                      <span>
-                        {formatTime(assignment.batch?.start_time)} – {formatTime(assignment.batch?.end_time)}
-                      </span>
-                    </div>
-                  </article>
-                ))
+              {centers.length > 0 ? (
+                <div className="coach-profile-center-list">
+                  {centers.map((center) => <span key={center.center_name}>{center.center_name}</span>)}
+                </div>
               ) : (
-                <p className="coach-profile-muted">No active batch assignments.</p>
+                <p className="coach-profile-muted">No center assignment available.</p>
               )}
+
+              <div className="coach-profile-assignment-list">
+                {(profile?.assignments || []).length > 0 ? (
+                  profile.assignments.map((assignment) => (
+                    <article key={assignment.id} className="coach-profile-assignment">
+                      <div>
+                        {assignment.batch?.id ? (
+                          <Link
+                            className="coach-profile-assignment-link"
+                            to={`/batches?academyId=${profile?.academy_id || ""}&centerId=${assignment.batch?.center_id || ""}&batchId=${assignment.batch.id}`}
+                          >
+                            {assignment.batch?.batch_name || "Batch"}
+                          </Link>
+                        ) : (
+                          <strong>{assignment.batch?.batch_name || "Batch"}</strong>
+                        )}
+                        <span>{assignment.center?.center_name || "Center not available"}</span>
+                      </div>
+                      <div className="coach-profile-assignment-meta">
+                        <span>{assignment.batch?.age_group || "Age group not available"}</span>
+                        <span>
+                          {formatTime(assignment.batch?.start_time)} – {formatTime(assignment.batch?.end_time)}
+                        </span>
+                      </div>
+                    </article>
+                  ))
+                ) : (
+                  <p className="coach-profile-muted">No active batch assignments.</p>
+                )}
+              </div>
+              </section>
+
+              <section className="coach-profile-card">
+                <div className="coach-profile-card-heading">
+                  <div>
+                    <span className="coach-profile-section-kicker">Credentials</span>
+                    <h2>Certifications</h2>
+                  </div>
+                  <div className="coach-profile-cert-header-actions">
+                    <span className="coach-profile-count">{certifications.length}</span>
+                    {canManageCertifications && (
+                      <button
+                        type="button"
+                        className="coach-profile-secondary-button"
+                        onClick={isCertificationFormOpen ? resetCertificationForm : openNewCertificationForm}
+                        disabled={certSaving}
+                        aria-expanded={isCertificationFormOpen}
+                      >
+                        {isCertificationFormOpen ? "Close" : "+ Add Certification"}
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {canManageCertifications && isCertificationFormOpen ? (
+                  <form id="coach-profile-cert-form" className="coach-profile-cert-form" onSubmit={handleCertificationSubmit}>
+                    <ProfileField label="Certificate name" value={certificationForm.certificate_name} onChange={(e) => setCertificationForm((c) => ({ ...c, certificate_name: e.target.value }))} required />
+                    <ProfileField label="Issuing organization" value={certificationForm.issuing_organization} onChange={(e) => setCertificationForm((c) => ({ ...c, issuing_organization: e.target.value }))} />
+                    <ProfileField label="Certificate number" value={certificationForm.certificate_number} onChange={(e) => setCertificationForm((c) => ({ ...c, certificate_number: e.target.value }))} />
+                    <ProfileField label="Issue date" type="date" value={certificationForm.issue_date} onChange={(e) => setCertificationForm((c) => ({ ...c, issue_date: e.target.value }))} />
+                    <ProfileField label="Expiry date" type="date" value={certificationForm.expiry_date} onChange={(e) => setCertificationForm((c) => ({ ...c, expiry_date: e.target.value }))} />
+                    <div className="coach-profile-cert-actions">
+                      <button type="button" className="coach-profile-secondary-button" onClick={resetCertificationForm} disabled={certSaving}>
+                        Cancel
+                      </button>
+                      <button type="submit" className="coach-profile-primary-button" disabled={certSaving}>
+                        {certSaving ? "Saving…" : editingCertificationId ? "Update certification" : "Add certification"}
+                      </button>
+                    </div>
+                  </form>
+                ) : null}
+
+                {certifications.length > 0 ? (
+                  <div className="coach-profile-cert-list">
+                    {certifications.map((certification) => (
+                      <article key={certification.id} className="coach-profile-cert-item">
+                        <div>
+                          <strong>{certification.certificate_name}</strong>
+                          <span>{certification.issuing_organization || "Issuing organization not available"}</span>
+                          {certification.certificate_number ? <small>#{certification.certificate_number}</small> : null}
+                        </div>
+                        <div className="coach-profile-cert-meta">
+                          <span>Issued: {formatDate(certification.issue_date)}</span>
+                          <span>Expiry: {formatDate(certification.expiry_date)}</span>
+                          {canManageCertifications ? (
+                            <div className="coach-profile-inline-actions">
+                              <button type="button" className="coach-profile-secondary-button" onClick={() => startCertificationEdit(certification)}>Edit</button>
+                              <button type="button" className="coach-profile-danger-button" onClick={() => handleCertificationDelete(certification)}>Delete</button>
+                            </div>
+                          ) : null}
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="coach-profile-muted">No certifications have been added yet.</p>
+                )}
+              </section>
             </div>
-            </section>
           ) : null}
         </div>
-
-        {!isParent ? (
-          <section className="coach-profile-card">
-            <div className="coach-profile-card-heading">
-              <div>
-                <span className="coach-profile-section-kicker">Credentials</span>
-                <h2>Certifications</h2>
-              </div>
-              <span className="coach-profile-count">{certifications.length}</span>
-            </div>
-
-            {canManageCertifications ? (
-              <form className="coach-profile-cert-form" onSubmit={handleCertificationSubmit}>
-                <ProfileField label="Certificate name" value={certificationForm.certificate_name} onChange={(e) => setCertificationForm((c) => ({ ...c, certificate_name: e.target.value }))} required />
-                <ProfileField label="Issuing organization" value={certificationForm.issuing_organization} onChange={(e) => setCertificationForm((c) => ({ ...c, issuing_organization: e.target.value }))} />
-                <ProfileField label="Certificate number" value={certificationForm.certificate_number} onChange={(e) => setCertificationForm((c) => ({ ...c, certificate_number: e.target.value }))} />
-                <ProfileField label="Issue date" type="date" value={certificationForm.issue_date} onChange={(e) => setCertificationForm((c) => ({ ...c, issue_date: e.target.value }))} />
-                <ProfileField label="Expiry date" type="date" value={certificationForm.expiry_date} onChange={(e) => setCertificationForm((c) => ({ ...c, expiry_date: e.target.value }))} />
-                <div className="coach-profile-cert-actions">
-                  <button type="submit" className="coach-profile-primary-button" disabled={certSaving}>
-                    {certSaving ? "Saving…" : editingCertificationId ? "Update certification" : "Add certification"}
-                  </button>
-                  {editingCertificationId ? (
-                    <button type="button" className="coach-profile-secondary-button" onClick={resetCertificationForm} disabled={certSaving}>
-                      Cancel
-                    </button>
-                  ) : null}
-                </div>
-              </form>
-            ) : null}
-
-            {certifications.length > 0 ? (
-              <div className="coach-profile-cert-list">
-                {certifications.map((certification) => (
-                  <article key={certification.id} className="coach-profile-cert-item">
-                    <div>
-                      <strong>{certification.certificate_name}</strong>
-                      <span>{certification.issuing_organization || "Issuing organization not available"}</span>
-                      {certification.certificate_number ? <small>#{certification.certificate_number}</small> : null}
-                    </div>
-                    <div className="coach-profile-cert-meta">
-                      <span>Issued: {formatDate(certification.issue_date)}</span>
-                      <span>Expiry: {formatDate(certification.expiry_date)}</span>
-                      {canManageCertifications ? (
-                        <div className="coach-profile-inline-actions">
-                          <button type="button" className="coach-profile-secondary-button" onClick={() => startCertificationEdit(certification)}>Edit</button>
-                          <button type="button" className="coach-profile-danger-button" onClick={() => handleCertificationDelete(certification)}>Delete</button>
-                        </div>
-                      ) : null}
-                    </div>
-                  </article>
-                ))}
-              </div>
-            ) : (
-              <p className="coach-profile-muted">No certifications have been added yet.</p>
-            )}
-          </section>
-        ) : null}
       </main>
     </Layout>
   );
