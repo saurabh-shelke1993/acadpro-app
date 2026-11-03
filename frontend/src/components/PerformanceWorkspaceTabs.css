@@ -123,3 +123,42 @@
     padding: calc(0.7rem - 1px) calc(0.8rem - 1px);
   }
 }
+
+/* PM4: keep both navigation cards accessible on small screens and at large text sizes. */
+.performance-workspace-tabs,
+.performance-workspace-tabs-links,
+.performance-workspace-tab {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.performance-workspace-tab {
+  flex-wrap: wrap;
+}
+
+.performance-workspace-card-context,
+.performance-workspace-card-name {
+  white-space: normal;
+}
+
+.performance-workspace-tab:focus-visible {
+  outline-offset: 2px;
+}
+
+@media (max-width: 480px) {
+  .performance-workspace-tab {
+    min-height: 70px;
+    gap: 0.65rem;
+  }
+
+  .performance-workspace-selected-badge {
+    margin-left: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .performance-workspace-tab {
+    transition: none;
+  }
+}
