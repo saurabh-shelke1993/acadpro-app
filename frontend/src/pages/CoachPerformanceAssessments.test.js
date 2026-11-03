@@ -164,7 +164,7 @@ test("PM3 saves through the existing owner-scoped create flow and closes the edi
   render(<CoachPerformanceAssessments />);
   await selectPlayer();
 
-  fireEvent.click(screen.getByRole("button", { name: "+ Record first assessment" }));
+  fireEvent.click(await screen.findByRole("button", { name: "+ Record first assessment" }));
   fireEvent.change(screen.getByLabelText("Assessment coach"), { target: { value: "coach-1" } });
   fireEvent.change(screen.getByLabelText("Speed"), { target: { value: "8.5" } });
   fireEvent.click(screen.getByRole("button", { name: "Save assessment" }));
