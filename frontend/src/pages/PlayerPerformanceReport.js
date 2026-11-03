@@ -321,6 +321,7 @@ function PlayerPerformanceReport() {
 
       if (!playerIds.length) {
         setLatestAssessments([]);
+        setPerformanceLoading(false);
         return;
       }
 
@@ -396,6 +397,7 @@ function PlayerPerformanceReport() {
     const loadSelectedPlayerAssessments = async () => {
       if (!selectedPlayerId || !players.some((player) => player.id === selectedPlayerId)) {
         setAssessments([]);
+        setAssessmentLoading(false);
         return;
       }
 
