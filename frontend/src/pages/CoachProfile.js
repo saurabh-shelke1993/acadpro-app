@@ -410,7 +410,7 @@ const CoachProfile = () => {
             <div className="coach-profile-identity">
               <div className="coach-profile-name-row">
                 <h1>{profile?.full_name || "Coach"}</h1>
-                <span className="coach-profile-status">
+                <span className={`coach-profile-status${profile?.is_active === false ? " coach-profile-status-inactive" : ""}`}>
                   {profile?.is_active === false ? "Inactive" : "Active"}
                 </span>
               </div>
@@ -541,8 +541,8 @@ const CoachProfile = () => {
                 <div className="coach-profile-card-heading">
                   <div>
                     <span className="coach-profile-section-kicker">Training scope</span>
-                  <h2>Centers & batches</h2>
-                </div>
+                    <h2>Centers & batches</h2>
+                  </div>
                 <span className="coach-profile-count">{profile?.assignments?.length || 0} active batches</span>
               </div>
 
