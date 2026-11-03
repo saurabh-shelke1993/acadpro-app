@@ -837,3 +837,25 @@
     padding: 0.7rem;
   }
 }
+
+/* CMA4: concise empty state and keyboard-visible coach actions. */
+.coaches-page .coaches-empty-state {
+  padding: 1.25rem 0.75rem !important;
+}
+
+.coaches-empty-add {
+  margin-top: 0.65rem;
+}
+
+.coaches-page .coaches-action-button:focus-visible,
+.coaches-page .coaches-directory-actions button:focus-visible,
+.coaches-page .coaches-empty-state button:focus-visible {
+  outline: 2px solid var(--ap-primary-600);
+  outline-offset: 2px;
+}
+
+@media (max-width: 640px) {
+  .coaches-page .coaches-empty-state {
+    padding: 1rem 0.5rem !important;
+  }
+}
