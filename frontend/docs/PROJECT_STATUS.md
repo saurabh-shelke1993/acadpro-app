@@ -1,8 +1,16 @@
 # AcadPro Project Status
 
-**Last Updated:** 12 October 2026  
-**Current Version:** V1.0 Beta  
+**Last Updated:** 3 November 2026 (recent module checkpoint; older sections retain historical dates)  
+**Current Version:** V1.0 Beta (development; not release sign-off)  
 **Current Git Branch:** `payment-module-finalization`
+
+## Latest development checkpoint — Kheltriva (3 November 2026)
+
+**Coaches & Assignments:** CMA1–CMA4 and CMA6 UI changes are implemented, including one Coaches sidebar entry, selection cards, compact forms, session chips and mobile actions. CMA5 source/test authoring is recorded; runtime regression and manual acceptance remain pending. See `COACHES_CMA5_REGRESSION_AND_ISSUES_20261103.md` and the repository-root `DEVELOPMENT_CONTINUITY.md`.
+
+**Coach Profile:** CP1–CP3 compacted the header, removed stretched Training Scope whitespace, placed Certifications beneath training and collapsed the certificate editor. CP4 added keyboard focus/accessibility and viewport-specific layout refinements. CP5 updated/expanded the existing `CoachProfile.test.js` suite to 12 authored tests, alongside a role/viewport regression checklist. **Neither current-head Jest/build nor role/browser acceptance has been verified here.** See `COACH_PROFILE_CP1_CP3_20261103.md` and `COACH_PROFILE_CP4_CP5_20261103.md`.
+
+**Unresolved/deferred:** Full Enquiries E5 validation, Coach/assignment CMA5 regression, Coach Profile CP5 execution and the two coach assignment lifecycle issues remain open while feature/UI development continues. Prior historical "COMPLETE" entries below do not automatically establish test coverage on the current Git HEAD. Preserve multi-tenant RBAC/RLS and follow the current implementation before future changes.
 
 ## 1. Project Overview
 
