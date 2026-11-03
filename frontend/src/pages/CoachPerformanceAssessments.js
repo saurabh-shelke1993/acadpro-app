@@ -605,10 +605,10 @@ function CoachPerformanceAssessments() {
             </div>
             <div className="scope-field">
               <label htmlFor="assessment-coverage">Assessment status</label>
-              <select id="assessment-coverage" value={assessmentStatusFilter} onChange={handleStatusChange} disabled={!coverageReady}>
+              <select id="assessment-coverage" value={assessmentStatusFilter} onChange={handleStatusChange} disabled={coverageLoading}>
                 <option value="all">All players</option>
-                <option value="assessed">{isCoach(currentUser) ? "Assessed by me" : "Assessed"}</option>
-                <option value="unassessed">{isCoach(currentUser) ? "Not assessed by me" : "Not assessed"}</option>
+                <option value="assessed" disabled={!coverageReady}>{isCoach(currentUser) ? "Assessed by me" : "Assessed"}</option>
+                <option value="unassessed" disabled={!coverageReady}>{isCoach(currentUser) ? "Not assessed by me" : "Not assessed"}</option>
               </select>
             </div>
           </div>
