@@ -323,3 +323,145 @@ button:disabled { cursor: not-allowed; opacity: .55; }
   .coach-profile-assignment-meta,
   .coach-profile-cert-meta { justify-content: flex-start; text-align: left; }
 }
+
+/* CP1–CP3: condensed coach summary and independent-height profile sections. */
+.coach-profile-hero {
+  flex-wrap: wrap;
+  gap: 0.7rem 1rem;
+  margin-top: 0.4rem;
+  padding: 0.7rem 0.9rem;
+}
+
+.coach-profile-hero-main {
+  display: flex;
+  flex: 1 1 270px;
+  min-width: 0;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.coach-profile-hero .coach-profile-avatar {
+  width: 56px;
+  height: 56px;
+  flex: 0 0 56px;
+}
+
+.coach-profile-name-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.65rem;
+}
+
+.coach-profile-identity h1 {
+  margin: 0;
+  color: var(--ap-slate-950);
+  font-size: 1.3rem;
+  font-weight: 750;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.coach-profile-identity p {
+  margin-top: 0.25rem;
+  font-size: var(--ap-font-size-sm);
+}
+
+.coach-profile-hero-stats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.coach-profile-hero-stats span {
+  padding: 0.3rem 0.55rem;
+  border: 1px solid var(--ap-border);
+  border-radius: var(--ap-radius-full);
+  background: var(--ap-slate-50);
+  color: var(--ap-slate-700);
+  font-size: var(--ap-font-size-xs);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.coach-profile-hero-actions {
+  margin-left: auto;
+}
+
+.coach-profile-content-grid {
+  align-items: start;
+}
+
+.coach-profile-content-grid-single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.coach-profile-content-grid > .coach-profile-card,
+.coach-profile-sidebar > .coach-profile-card {
+  margin-top: 0;
+}
+
+.coach-profile-sidebar {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.coach-profile-cert-header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.coach-profile-sidebar .coach-profile-cert-form {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--ap-border);
+}
+
+.coach-profile-sidebar .coach-profile-cert-form > .coach-profile-field:first-child {
+  grid-column: 1 / -1;
+}
+
+.coach-profile-sidebar .coach-profile-cert-actions {
+  grid-column: 1 / -1;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 700px) {
+  .coach-profile-hero {
+    gap: 0.6rem;
+    padding: 0.75rem;
+  }
+
+  .coach-profile-hero-main {
+    width: 100%;
+    flex: 0 1 auto;
+  }
+
+  .coach-profile-hero-stats {
+    width: 100%;
+  }
+
+  .coach-profile-hero-actions {
+    margin-left: 0;
+  }
+
+  .coach-profile-sidebar .coach-profile-cert-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .coach-profile-sidebar .coach-profile-cert-form > .coach-profile-field:first-child {
+    grid-column: auto;
+  }
+
+  .coach-profile-cert-header-actions {
+    justify-content: flex-start;
+  }
+}
