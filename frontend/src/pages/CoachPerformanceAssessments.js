@@ -191,7 +191,10 @@ function CoachPerformanceAssessments() {
     if (!playerPickerOpen) return undefined;
 
     const handlePickerKeyDown = (event) => {
-      if (event.key === "Escape") setPlayerPickerOpen(false);
+      if (event.key === "Escape") {
+        setPlayerPickerOpen(false);
+        playerPickerTriggerRef.current?.focus();
+      }
     };
 
     document.addEventListener("keydown", handlePickerKeyDown);
@@ -570,7 +573,7 @@ function CoachPerformanceAssessments() {
             </div>
             {selectedPlayer ? <span className="assessment-scope-selected">{selectedPlayer.full_name}</span> : null}
           </div>
-          <div className="assessment-scope-grid">
+          <div className="assessment-scope-grid assessment-scope-filters">
             {!isCoach(currentUser) ? (
               <div className="scope-field">
                 <label htmlFor="assessment-academy">Academy</label>
@@ -582,16 +585,60 @@ function CoachPerformanceAssessments() {
                 </select>
               </div>
             ) : null}
-            <div className={isCoach(currentUser) ? "scope-field scope-field-wide" : "scope-field"}>
+            <div className="scope-field">
+              <label htmlFor="assessment-center">Center</label>
+              <select id="assessment-center" value={selectedCenterId} onChange={handleCenterChange} disabled={!centerOptions.length}>
+                <option value="">All centers</option>
+                {centerOptions.map((center) => <option key={center.id} value={center.id}>{center.name}</option>)}
+              </select>
+            </div>
+            <div className="scope-field">
+              <label htmlFor="assessment-batch">Batch</label>
+              <select id="assessment-batch" value={selectedBatchId} onChange={handleBatchChange} disabled={!batchOptions.length}>
+                <option value="">All batches</option>
+                {batchOptions.map((batch) => (
+                  <option key={batch.id} value={batch.id}>
+                    {batch.name}{!selectedCenterId && batch.center ? ` · ${batch.center}` : ""}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="scope-field">
+              <label htmlFor="assessment-coverage">Assessment status</label>
+              <select id="assessment-coverage" value={assessmentStatusFilter} onChange={handleStatusChange} disabled={!coverageReady}>
+                <option value="all">All players</option>
+                <option value="assessed">{isCoach(currentUser) ? "Assessed by me" : "Assessed"}</option>
+                <option value="unassessed">{isCoach(currentUser) ? "Not assessed by me" : "Not assessed"}</option>
+              </select>
+            </div>
+          </div>
+          <div className="assessment-coverage-summary" aria-live="polite">
+            <span>{filterScopePlayers.length} players in selected center/batch</span>
+            {coverageReady ? (
+              <span>{assessedCount} {isCoach(currentUser) ? "assessed by me" : "assessed"} · {filterScopePlayers.length - assessedCount} {isCoach(currentUser) ? "not assessed by me" : "not assessed"}</span>
+            ) : coverageError ? (
+              <span role="alert">
+                Assessment status unavailable.
+                <button type="button" onClick={() => setCoverageRefresh((version) => version + 1)}>Retry</button>
+              </span>
+            ) : coverageLoading ? (
+              <span>Checking assessment availability…</span>
+            ) : null}
+          </div>
+          <div className="assessment-player-row">
+            <div className="scope-field">
               <label htmlFor="assessment-player-search">Player</label>
               <div className="player-picker">
                 <button
+                  ref={playerPickerTriggerRef}
                   type="button"
                   id="assessment-player-search"
                   className="player-picker-trigger"
+                  disabled={!filterScopePlayers.length}
                   onClick={() => setPlayerPickerOpen((open) => !open)}
                   aria-expanded={playerPickerOpen}
                   aria-haspopup="listbox"
+                  aria-controls={playerPickerOpen ? "assessment-player-results" : undefined}
                 >
                   <span>{selectedPlayer ? `${selectedPlayer.full_name} — ${selectedPlayer.batches?.batch_name || "No batch"}` : "Search or select a player"}</span>
                   <span aria-hidden="true">⌄</span>
@@ -602,12 +649,20 @@ function CoachPerformanceAssessments() {
                       autoFocus
                       type="search"
                       value={playerSearch}
-                      onChange={(event) => setPlayerSearch(event.target.value)}
+                      onChange={(event) => {
+                        setPlayerSearch(event.target.value);
+                        setVisiblePlayerCount(PICKER_PAGE_SIZE);
+                      }}
                       placeholder="Search player, batch or center..."
                       aria-label="Search players"
                     />
-                    <div className="player-picker-results" role="listbox" aria-label="Players">
-                      {filteredPlayers.length ? filteredPlayers.slice(0, 40).map((player) => (
+                    <div className="player-picker-count" aria-live="polite">
+                      {coverageError ? "Status unavailable · Search players by name or batch" :
+                        coverageLoading ? "Checking assessment availability…" :
+                        `Showing ${visiblePlayers.length} of ${filteredPlayers.length} matching players`}
+                    </div>
+                    <div id="assessment-player-results" className="player-picker-results" role="listbox" aria-label="Players">
+                      {visiblePlayers.length ? visiblePlayers.map((player) => (
                         <button
                           key={player.id}
                           type="button"
@@ -616,13 +671,36 @@ function CoachPerformanceAssessments() {
                           className={player.id === selectedPlayerId ? "player-picker-option player-picker-option-selected" : "player-picker-option"}
                           onClick={() => handlePlayerChange({ target: { value: player.id } })}
                         >
-                          <strong>{player.full_name}</strong>
-                          <span>{player.batches?.batch_name || "No batch"}{player.centers?.center_name ? ` · ${player.centers.center_name}` : ""}</span>
+                          <span className="player-picker-avatar" aria-hidden="true">{player.full_name?.trim()?.charAt(0)?.toUpperCase() || "P"}</span>
+                          <span className="player-picker-details">
+                            <strong>{player.full_name}</strong>
+                            <small>{player.batches?.batch_name || "No batch"}{player.centers?.center_name ? ` · ${player.centers.center_name}` : ""}</small>
+                          </span>
+                          {coverageReady ? (
+                            <span className={coverage.ids.has(player.id) ? "player-picker-status player-picker-status-assessed" : "player-picker-status"}>
+                              {coverage.ids.has(player.id) ? (isCoach(currentUser) ? "Assessed by me" : "Assessed") : (isCoach(currentUser) ? "Not assessed by me" : "Not assessed")}
+                            </span>
+                          ) : null}
                         </button>
                       )) : (
-                        <p className="player-picker-empty">No players match your search.</p>
+                        <p className="player-picker-empty">
+                          {coverageError && assessmentStatusFilter !== "all"
+                            ? "Assessment status unavailable. Retry or choose All players."
+                            : coverageLoading && assessmentStatusFilter !== "all"
+                              ? "Checking assessment availability…"
+                              : "No players match these filters. Try another center, batch, status or search."}
+                        </p>
                       )}
                     </div>
+                    {filteredPlayers.length > visiblePlayers.length ? (
+                      <button
+                        type="button"
+                        className="player-picker-more"
+                        onClick={() => setVisiblePlayerCount((count) => count + PICKER_PAGE_SIZE)}
+                      >
+                        Load more ({filteredPlayers.length - visiblePlayers.length} remaining)
+                      </button>
+                    ) : null}
                   </div>
                 ) : null}
               </div>
