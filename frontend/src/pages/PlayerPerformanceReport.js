@@ -13,7 +13,7 @@ import {
 } from "recharts";
 import Layout from "../components/Layout";
 import PerformanceWorkspaceTabs from "../components/PerformanceWorkspaceTabs";
-import { getPreferredPerformancePlayerId } from "../utils/performanceReportSelection";
+import { getInitialPerformanceSelection, getPreferredPerformancePlayerId } from "../utils/performanceReportSelection";
 import "./PlayerPerformanceReport.css";
 import { supabase } from "../supabaseClient";
 import { getCurrentUser } from "../utils/auth";
@@ -212,18 +212,15 @@ function PlayerPerformanceReport() {
         setCurrentUser(user);
         setPlayers(accessiblePlayers);
 
-        if (isSuperAdmin(user)) {
-          setSelectedAcademyId("");
-        } else if (isAcademyOwner(user)) {
-          setSelectedAcademyId(user.academy_id || "");
-        } else {
-          setSelectedAcademyId(accessiblePlayers[0]?.academy_id || "");
-        }
-
-        const requestedPlayerId = searchParams.get("player");
-        if (requestedPlayerId && accessiblePlayers.some((player) => player.id === requestedPlayerId)) {
-          setSelectedPlayerId(requestedPlayerId);
-        }
+        const initialSelection = getInitialPerformanceSelection(
+          user,
+          accessiblePlayers,
+          searchParams.get("player")
+        );
+        setSelectedAcademyId(initialSelection.academyId);
+        setSelectedCenterId("");
+        setSelectedBatchId("");
+        setSelectedPlayerId(initialSelection.playerId);
       } catch (loadError) {
         if (!isMounted) return;
         console.error("Player performance report load error:", loadError);
