@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Layout from "../components/Layout";
 import PerformanceWorkspaceTabs from "../components/PerformanceWorkspaceTabs";
 import "./CoachPerformanceAssessments.css";
 import { supabase } from "../supabaseClient";
 import { getCurrentUser } from "../utils/auth";
 import { getCoachAssignedBatchIds } from "../utils/dataScope";
+import { PICKER_PAGE_SIZE, fetchAssessedPlayerIds, getBatchOptions, getCenterOptions, selectAssessmentPlayerOptions } from "../utils/assessmentPlayerFinder";
 import { isAcademyOwner, isCoach, isSuperAdmin } from "../utils/roles";
 
 const scoreFields = [
@@ -55,6 +56,13 @@ function CoachPerformanceAssessments() {
   const [players, setPlayers] = useState([]);
   const [selectedPlayerId, setSelectedPlayerId] = useState("");
   const [playerSearch, setPlayerSearch] = useState("");
+  const [selectedCenterId, setSelectedCenterId] = useState("");
+  const [selectedBatchId, setSelectedBatchId] = useState("");
+  const [assessmentStatusFilter, setAssessmentStatusFilter] = useState("all");
+  const [visiblePlayerCount, setVisiblePlayerCount] = useState(PICKER_PAGE_SIZE);
+  const [coverage, setCoverage] = useState({ key: "", status: "loading", ids: new Set() });
+  const [coverageRefresh, setCoverageRefresh] = useState(0);
+  const playerPickerTriggerRef = useRef(null);
   const [playerPickerOpen, setPlayerPickerOpen] = useState(false);
   const [expandedHistoryId, setExpandedHistoryId] = useState(null);
   const [assessments, setAssessments] = useState([]);
@@ -106,7 +114,7 @@ function CoachPerformanceAssessments() {
           if (batchIds.length > 0) {
             const { data: playerData, error: playersError } = await supabase
               .from("players")
-              .select("id, full_name, academy_id, batch_id, batches!inner(batch_name, is_active)")
+              .select("id, full_name, academy_id, center_id, batch_id, centers(center_name), batches!inner(batch_name, is_active)")
               .in("batch_id", batchIds)
               .eq("is_active", true)
               .eq("batches.is_active", true)
@@ -118,7 +126,7 @@ function CoachPerformanceAssessments() {
         } else {
           let playerQuery = supabase
             .from("players")
-            .select("id, full_name, academy_id, batch_id, academies(academy_name), batches!inner(batch_name, is_active)")
+            .select("id, full_name, academy_id, center_id, batch_id, centers(center_name), academies(academy_name), batches!inner(batch_name, is_active)")
             .eq("is_active", true)
             .eq("batches.is_active", true)
             .order("full_name", { ascending: true });
@@ -235,16 +243,50 @@ function CoachPerformanceAssessments() {
   const selectedPlayer = players.find((player) => player.id === selectedPlayerId);
   const accessibleCoaches = isSuperAdmin(currentUser) && selectedAcademyId ? coaches.filter((item) => item.academy_id === selectedAcademyId) : coaches;
   const selectedCoach = coaches.find((item) => item.id === form.coach_id);
-  const scopedPlayers = players.filter((player) => isCoach(currentUser) || !selectedAcademyId || player.academy_id === selectedAcademyId);
-  const filteredPlayers = scopedPlayers.filter((player) => {
-    const query = playerSearch.trim().toLowerCase();
-    if (!query) return true;
-    return [
-      player.full_name,
-      player.batches?.batch_name,
-      player.centers?.center_name,
-    ].filter(Boolean).some((value) => value.toLowerCase().includes(query));
-  });
+  const scopedPlayers = useMemo(
+    () => players.filter((player) => isCoach(currentUser) || !selectedAcademyId || player.academy_id === selectedAcademyId),
+    [players, currentUser, selectedAcademyId]
+  );
+  const coverageKey = useMemo(
+    () => [currentUser?.role || "", coach?.id || "", ...scopedPlayers.map((player) => player.id)].join("|"),
+    [currentUser?.role, coach?.id, scopedPlayers]
+  );
+
+  useEffect(() => {
+    if (!currentUser || (isCoach(currentUser) && !coach?.id)) return undefined;
+    let active = true;
+    const playerIds = scopedPlayers.map((player) => player.id);
+    setCoverage({ key: coverageKey, status: "loading", ids: new Set() });
+    const loadCoverage = async () => {
+      try {
+        const ids = await fetchAssessedPlayerIds(
+          supabase,
+          playerIds,
+          isCoach(currentUser) ? coach.id : ""
+        );
+        if (active) setCoverage({ key: coverageKey, status: "ready", ids });
+      } catch (coverageError) {
+        console.error("Unable to load assessment coverage:", coverageError);
+        if (active) setCoverage({ key: coverageKey, status: "error", ids: new Set() });
+      }
+    };
+    loadCoverage();
+    return () => { active = false; };
+  }, [coverageKey, coverageRefresh, currentUser, coach?.id, scopedPlayers]);
+
+  const coverageReady = coverage.key === coverageKey && coverage.status === "ready";
+  const coverageLoading = !coverageReady && !(coverage.key === coverageKey && coverage.status === "error");
+  const coverageError = coverage.key === coverageKey && coverage.status === "error";
+  const centerOptions = getCenterOptions(scopedPlayers);
+  const centerScopedPlayers = scopedPlayers.filter((player) => !selectedCenterId || player.center_id === selectedCenterId);
+  const batchOptions = getBatchOptions(centerScopedPlayers);
+  const filterScopePlayers = centerScopedPlayers.filter((player) => !selectedBatchId || player.batch_id === selectedBatchId);
+  const assessedCount = coverageReady ? filterScopePlayers.filter((player) => coverage.ids.has(player.id)).length : null;
+  const filteredPlayers = selectAssessmentPlayerOptions(
+    scopedPlayers, "", selectedCenterId, selectedBatchId,
+    playerSearch, assessmentStatusFilter, coverage.ids, coverageReady
+  );
+  const visiblePlayers = filteredPlayers.slice(0, visiblePlayerCount);
 
   const resetForm = () => {
     setForm({ ...createEmptyForm(), coach_id: isCoach(currentUser) ? coach?.id || "" : "" });
@@ -266,6 +308,10 @@ function CoachPerformanceAssessments() {
     setSelectedAcademyId(academyId);
     setSelectedPlayerId("");
     setPlayerSearch("");
+    setSelectedCenterId("");
+    setSelectedBatchId("");
+    setAssessmentStatusFilter("all");
+    setVisiblePlayerCount(PICKER_PAGE_SIZE);
     setPlayerPickerOpen(false);
     setAssessments([]);
     resetForm();
@@ -273,10 +319,39 @@ function CoachPerformanceAssessments() {
     setSavedSummary(null);
   };
 
+  const clearPlayerSelection = () => {
+    setSelectedPlayerId("");
+    setPlayerPickerOpen(false);
+    setPlayerSearch("");
+    setVisiblePlayerCount(PICKER_PAGE_SIZE);
+    setAssessments([]);
+    resetForm();
+    setSuccess("");
+    setSavedSummary(null);
+  };
+
+  const handleCenterChange = (event) => {
+    setSelectedCenterId(event.target.value);
+    setSelectedBatchId("");
+    clearPlayerSelection();
+  };
+
+  const handleBatchChange = (event) => {
+    setSelectedBatchId(event.target.value);
+    clearPlayerSelection();
+  };
+
+  const handleStatusChange = (event) => {
+    setAssessmentStatusFilter(event.target.value);
+    clearPlayerSelection();
+  };
+
   const handlePlayerChange = (event) => {
     setSelectedPlayerId(event.target.value);
     setPlayerSearch("");
+    setVisiblePlayerCount(PICKER_PAGE_SIZE);
     setPlayerPickerOpen(false);
+    playerPickerTriggerRef.current?.focus();
     resetForm();
     setSuccess("");
     setSavedSummary(null);
@@ -413,6 +488,7 @@ function CoachPerformanceAssessments() {
       });
       resetForm();
       await loadAssessmentHistory();
+      setCoverageRefresh((version) => version + 1);
     } catch (saveError) {
       console.error("Performance assessment save error:", saveError);
       setError("Unable to save the assessment. Please try again.");
@@ -445,6 +521,7 @@ function CoachPerformanceAssessments() {
 
       setSuccess("Assessment deleted successfully.");
       await loadAssessmentHistory();
+      setCoverageRefresh((version) => version + 1);
     } catch (deleteError) {
       console.error("Performance assessment delete error:", deleteError);
       setError("Unable to delete the assessment. Please try again.");
