@@ -565,7 +565,7 @@ function CoachPerformanceAssessments() {
               </section>
             ) : null}
 
-            <section className="performance-card assessment-form-card" aria-labelledby="assessment-form-heading">
+            <section className={`performance-card assessment-form-card${isAssessmentFormOpen ? "" : " assessment-form-card-collapsed"}`} aria-labelledby="assessment-form-heading">
               <div className="assessment-form-heading">
                 <div>
                   {isAssessmentFormOpen ? (
@@ -580,7 +580,7 @@ function CoachPerformanceAssessments() {
                   {isAssessmentFormOpen ? (
                     <button type="button" onClick={resetForm} disabled={saving} className="secondary-button">Close</button>
                   ) : (
-                    <button type="button" onClick={openNewAssessment} className="primary-button" aria-expanded="false" aria-controls="assessment-entry-form">
+                    <button type="button" onClick={openNewAssessment} className="primary-button" aria-expanded="false">
                       + Record assessment
                     </button>
                   )}
@@ -771,7 +771,13 @@ function CoachPerformanceAssessments() {
                     );
                   })}
                 </div>
-              ) : <p className="performance-message">No performance assessments are available for this player yet.</p>}
+              ) : (
+                <div className="assessment-history-empty">
+                  <strong>No assessments recorded yet</strong>
+                  <p>Record an assessment to start tracking this player's development.</p>
+                  <button type="button" className="secondary-button" onClick={openNewAssessment}>+ Record first assessment</button>
+                </div>
+              )}
             </section>
           </>
         ) : null}
