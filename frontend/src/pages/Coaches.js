@@ -499,6 +499,7 @@ function Coaches() {
       .join("");
 
   const handleRowKeyDown = (event, coachId) => {
+    if (event.target !== event.currentTarget) return;
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
       setSelectedCoachId(
@@ -849,7 +850,7 @@ function Coaches() {
                                 coach.full_name
                               }
                             >
-                              🗑️
+                              {coach.is_active ? "⏸" : "▶"}
                               </button>
                           </div>
                         </td>
@@ -862,7 +863,7 @@ function Coaches() {
                   <td
                     className="coaches-empty-state"
                     colSpan={
-                      (isAcademyOwner(user) ? 1 : (isSuperAdmin(user) ? 6 : 5)) +
+                      (isSuperAdmin(user) ? 6 : 5) +
                       (canManageCoaches ? 1 : 0)
                     }
                   >
@@ -881,13 +882,21 @@ function Coaches() {
                           ? "Add the first coach to this academy."
                           : "No coach profile is currently available."}
                     </span>
-                    {activeFilterCount > 0 && (
+                    {activeFilterCount > 0 ? (
                       <button
                         type="button"
                         className="coaches-secondary-button"
                         onClick={clearAllFilters}
                       >
                         Clear all filters
+                      </button>
+                    ) : canManageCoaches && (
+                      <button
+                        type="button"
+                        className="coaches-primary-button coaches-empty-add"
+                        onClick={openNewCoachForm}
+                      >
+                        + Add Coach
                       </button>
                     )}
                   </td>
