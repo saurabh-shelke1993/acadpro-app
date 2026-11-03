@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { supabase } from "../services/supabase";
 import {
   createPlayerTransactional,
@@ -260,7 +260,7 @@ async () => {
     return date.toLocaleDateString("en-GB", {
       day: "2-digit",
       month: "short",
-      year: "2-digit",
+      year: "numeric",
     });
   };
 
@@ -1671,43 +1671,8 @@ useEffect(() => {
               aria-labelledby="coach-player-detail-title"
               onClick={(event) => event.stopPropagation()}
             >
-              <div className="coach-player-modal-header">
-                <div>
-                  <span className="players-page-eyebrow">Player details</span>
-                  <h2 id="coach-player-detail-title">{selectedCoachPlayer.full_name}</h2>
-                </div>
-                <button type="button" className="coach-player-modal-close" onClick={() => setSelectedCoachPlayer(null)} aria-label="Close player details">×</button>
-              </div>
-              {isAcademyOwner(loggedInUser) && (
-                <div className="coach-player-modal-actions">
-                  <button
-                    type="button"
-                    className="player-modal-action-button player-modal-edit-button"
-                    onClick={() => {
-                      handleEditPlayer(selectedCoachPlayer);
-                      setSelectedCoachPlayer(null);
-                    }}
-                    aria-label={"Edit " + selectedCoachPlayer.full_name}
-                    title="Edit player"
-                  >
-                    ✏️
-                  </button>
-                  <button
-                    type="button"
-                    className="player-modal-action-button player-modal-delete-button"
-                    onClick={() => {
-                      handleDeletePlayer(selectedCoachPlayer.id);
-                      setSelectedCoachPlayer(null);
-                    }}
-                    aria-label={"Deactivate " + selectedCoachPlayer.full_name}
-                    title="Delete player"
-                  >
-                    🗑️
-                  </button>
-                </div>
-              )}
               <div className="player-profile-identity">
-                <div className="player-profile-avatar" aria-label={`Photo placeholder for ${selectedCoachPlayer.full_name || "player"}`}>
+                <div className="player-profile-avatar" aria-label={`Profile photo for ${selectedCoachPlayer.full_name || "player"}`}>
                   {playerPhotoUrls[selectedCoachPlayer.id] ? (
                     <img src={playerPhotoUrls[selectedCoachPlayer.id]} alt={selectedCoachPlayer.full_name || "Player"} />
                   ) : (
@@ -1719,10 +1684,16 @@ useEffect(() => {
                       .join("")
                   )}
                 </div>
-                <div>
+                <div className="player-profile-hero-copy">
                   <span className="player-profile-kicker">Player profile</span>
-                  <h3>{selectedCoachPlayer.full_name}</h3>
+                  <div className="player-profile-name-status">
+                    <h2 id="coach-player-detail-title">{selectedCoachPlayer.full_name}</h2>
+                    <span className={`player-profile-status${selectedCoachPlayer.is_active === false ? " player-profile-status-inactive" : ""}`}>
+                      {selectedCoachPlayer.is_active === false ? "Inactive" : "Active"}
+                    </span>
+                  </div>
                   <p>{selectedCoachPlayer.batches?.batch_name || "Batch not assigned"} · {selectedCoachPlayer.centers?.center_name || "Center not assigned"}</p>
+                  <p className="player-profile-hero-subline">Born {formatCoachDob(selectedCoachPlayer.dob)}{selectedCoachPlayer.gender ? ` · ${selectedCoachPlayer.gender}` : ""}</p>
                   {isAcademyOwner(loggedInUser) && (
                     <div className="player-photo-controls">
                       <label className="player-photo-upload-button">
@@ -1734,20 +1705,39 @@ useEffect(() => {
                   )}
                   {playerPhotoError && <p className="player-profile-error" role="alert">{playerPhotoError}</p>}
                 </div>
-              </div>
-              <div className="player-profile-section">
-                <h3>Player information</h3>
-                <div className="coach-player-detail-grid">
-                <div><span>Center</span><strong>{selectedCoachPlayer.centers?.center_name || "—"}</strong></div>
-                <div><span>Batch</span><strong>{selectedCoachPlayer.batches?.batch_name || "—"}</strong></div>
-                <div><span>Date of birth</span><strong>{formatCoachDob(selectedCoachPlayer.dob)}</strong></div>
-                <div><span>Gender</span><strong>{selectedCoachPlayer.gender === "Male" ? "Male" : selectedCoachPlayer.gender === "Female" ? "Female" : "—"}</strong></div>
-                <div><span>Joining date</span><strong>{selectedCoachPlayer.joining_date || "—"}</strong></div>
-                <div><span>Parent</span><strong>{selectedCoachPlayer.parents?.parent_name || "—"}</strong></div>
-                <div><span>Parent phone</span><strong>{selectedCoachPlayer.parents?.phone || "—"}</strong></div>
-                <div><span>Parent email</span><strong>{selectedCoachPlayer.parents?.email || "—"}</strong></div>
-                <div className="coach-player-detail-wide"><span>Address</span><strong>{selectedCoachPlayer.parents?.address || "—"}</strong></div>
+                <div className="player-profile-hero-actions">
+                  {isAcademyOwner(loggedInUser) && (
+                    <>
+                      <button type="button" className="player-modal-action-button player-modal-edit-button"
+                        onClick={() => { handleEditPlayer(selectedCoachPlayer); setSelectedCoachPlayer(null); }}
+                        aria-label={`Edit ${selectedCoachPlayer.full_name}`} title="Edit player">✏️</button>
+                      <button type="button" className="player-modal-action-button player-modal-delete-button"
+                        onClick={() => { handleDeletePlayer(selectedCoachPlayer.id); setSelectedCoachPlayer(null); }}
+                        aria-label={`Deactivate ${selectedCoachPlayer.full_name}`} title="Deactivate player">🗑️</button>
+                    </>
+                  )}
+                  <button type="button" className="coach-player-modal-close"
+                    onClick={() => setSelectedCoachPlayer(null)} aria-label="Close player details">×</button>
                 </div>
+              </div>
+              <div className="player-profile-detail-panels">
+                <section className="player-profile-section player-profile-personal">
+                  <h3>Player information</h3>
+                  <dl className="player-profile-facts">
+                    <div><dt>Date of birth</dt><dd>{formatCoachDob(selectedCoachPlayer.dob)}</dd></div>
+                    <div><dt>Gender</dt><dd>{selectedCoachPlayer.gender || "—"}</dd></div>
+                    <div><dt>Joining date</dt><dd>{formatCoachDob(selectedCoachPlayer.joining_date)}</dd></div>
+                  </dl>
+                </section>
+                <section className="player-profile-section player-profile-parent">
+                  <h3>Parent & contact</h3>
+                  <dl className="player-profile-facts">
+                    <div><dt>Parent</dt><dd>{selectedCoachPlayer.parents?.parent_name || "—"}</dd></div>
+                    <div><dt>Phone</dt><dd>{selectedCoachPlayer.parents?.phone || "—"}</dd></div>
+                    <div><dt>Email</dt><dd>{selectedCoachPlayer.parents?.email || "—"}</dd></div>
+                    <div className="player-profile-fact-wide"><dt>Address</dt><dd>{selectedCoachPlayer.parents?.address || "—"}</dd></div>
+                  </dl>
+                </section>
               </div>
               <div className="player-profile-snapshot-grid">
                 <section className="player-profile-section">
