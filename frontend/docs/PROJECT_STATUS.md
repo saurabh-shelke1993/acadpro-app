@@ -10,6 +10,8 @@
 
 **Coach Profile:** CP1–CP3 compacted the header, removed stretched Training Scope whitespace, placed Certifications beneath training and collapsed the certificate editor. CP4 added keyboard focus/accessibility and viewport-specific layout refinements. CP5 updated/expanded the existing `CoachProfile.test.js` suite to 12 authored tests, alongside a role/viewport regression checklist. **Neither current-head Jest/build nor role/browser acceptance has been verified here.** See `COACH_PROFILE_CP1_CP3_20261103.md` and `COACH_PROFILE_CP4_CP5_20261103.md`.
 
+**Player Performance (PM1):** Super Admin, Academy Owner and Coach now use one `Player Performance` sidebar entry, with two Parent Portal-style selection cards linking to the existing Report and Assessments routes. Parent remains report-only (no assessment navigation or route access). Both large performance components, role-scoped data reads and assessment mutations are preserved. Focused navigation unit tests are **authored but not executed**; current-head build and browser acceptance pending. See `PERFORMANCE_PM1_WORKSPACE_20261103.md`. PM2 Report improvements are **planned**, not implemented.
+
 **Unresolved/deferred:** Full Enquiries E5 validation, Coach/assignment CMA5 regression, Coach Profile CP5 execution and the two coach assignment lifecycle issues remain open while feature/UI development continues. Prior historical "COMPLETE" entries below do not automatically establish test coverage on the current Git HEAD. Preserve multi-tenant RBAC/RLS and follow the current implementation before future changes.
 
 ## 1. Project Overview
