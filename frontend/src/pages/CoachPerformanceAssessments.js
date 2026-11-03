@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Layout from "../components/Layout";
 import PerformanceWorkspaceTabs from "../components/PerformanceWorkspaceTabs";
 import "./CoachPerformanceAssessments.css";
@@ -60,6 +60,8 @@ function CoachPerformanceAssessments() {
   const [assessments, setAssessments] = useState([]);
   const [form, setForm] = useState(createEmptyForm);
   const [editingAssessmentId, setEditingAssessmentId] = useState(null);
+  const [isAssessmentFormOpen, setIsAssessmentFormOpen] = useState(false);
+  const assessmentDateRef = useRef(null);
   const [loading, setLoading] = useState(true);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -67,6 +69,10 @@ function CoachPerformanceAssessments() {
   const [validationErrors, setValidationErrors] = useState({});
   const [success, setSuccess] = useState("");
   const [savedSummary, setSavedSummary] = useState(null);
+
+  useEffect(() => {
+    if (isAssessmentFormOpen) assessmentDateRef.current?.focus();
+  }, [isAssessmentFormOpen, editingAssessmentId]);
 
   useEffect(() => {
     let isMounted = true;
@@ -190,6 +196,7 @@ function CoachPerformanceAssessments() {
     const loadAssessmentHistory = async () => {
       if (!selectedPlayerId || !currentUser) {
         setAssessments([]);
+        setHistoryLoading(false);
         return;
       }
 
@@ -243,6 +250,15 @@ function CoachPerformanceAssessments() {
     setForm({ ...createEmptyForm(), coach_id: isCoach(currentUser) ? coach?.id || "" : "" });
     setEditingAssessmentId(null);
     setValidationErrors({});
+    setIsAssessmentFormOpen(false);
+  };
+
+  const openNewAssessment = () => {
+    resetForm();
+    setIsAssessmentFormOpen(true);
+    setError("");
+    setSuccess("");
+    setSavedSummary(null);
   };
 
   const handleAcademyChange = (event) => {
@@ -451,8 +467,11 @@ function CoachPerformanceAssessments() {
 
     setForm({ ...nextForm, coach_id: assessment.coach_id || "" });
     setEditingAssessmentId(assessment.id);
+    setIsAssessmentFormOpen(true);
     setValidationErrors({});
+    setError("");
     setSuccess("");
+    setSavedSummary(null);
   };
 
   if (loading) {
@@ -463,16 +482,6 @@ function CoachPerformanceAssessments() {
     <Layout>
       <main className="performance-page" style={styles.page}>
         <PerformanceWorkspaceTabs role={currentUser?.role} />
-        <header className="performance-compact-header">
-          <div>
-            <span className="performance-eyebrow">Performance assessments</span>
-            <h2>Player Performance Assessments</h2>
-          </div>
-          <span className="performance-header-badge">
-            {assessments.length ? `${assessments.length} assessment${assessments.length === 1 ? "" : "s"}` : "Assessment workspace"}
-          </span>
-        </header>
-
         {error ? <p role="alert" style={styles.error}>{error}</p> : null}
         {success ? <p role="status" style={styles.success}>{success}</p> : null}
 
@@ -559,16 +568,27 @@ function CoachPerformanceAssessments() {
             <section className="performance-card assessment-form-card" aria-labelledby="assessment-form-heading">
               <div className="assessment-form-heading">
                 <div>
-                  <span className="performance-eyebrow">{editingAssessmentId ? "Edit assessment" : "New assessment"}</span>
-                  <h2 id="assessment-form-heading">{editingAssessmentId ? "Update performance assessment" : "Record performance assessment"}</h2>
+                  {isAssessmentFormOpen ? (
+                    <span className="performance-eyebrow">{editingAssessmentId ? "Edit assessment" : "New assessment"}</span>
+                  ) : null}
+                  <h2 id="assessment-form-heading">{editingAssessmentId ? "Update assessment" : "Assessment entry"}</h2>
+                  {!isAssessmentFormOpen ? (
+                    <p className="assessment-form-summary">Record skill scores and coaching notes for {selectedPlayer.full_name}.</p>
+                  ) : null}
                 </div>
-                <div className="assessment-player-context">
-                  <strong>{selectedPlayer.full_name}</strong>
-                  <span>{selectedPlayer.batches?.batch_name || "No batch"}{selectedPlayer.centers?.center_name ? " · " + selectedPlayer.centers.center_name : ""}</span>
+                <div className="assessment-form-heading-actions">
+                  {isAssessmentFormOpen ? (
+                    <button type="button" onClick={resetForm} disabled={saving} className="secondary-button">Close</button>
+                  ) : (
+                    <button type="button" onClick={openNewAssessment} className="primary-button" aria-expanded="false" aria-controls="assessment-entry-form">
+                      + Record assessment
+                    </button>
+                  )}
                 </div>
               </div>
 
-              <form onSubmit={handleSubmit} className="assessment-form" noValidate>
+              {isAssessmentFormOpen ? (
+              <form id="assessment-entry-form" onSubmit={handleSubmit} className="assessment-form" aria-label={editingAssessmentId ? "Edit player assessment" : "Record player assessment"} noValidate>
                 <div className="assessment-meta-grid">
                   <div className="assessment-meta-field">
                     <label htmlFor="assessment-coach">Assessment coach</label>
@@ -588,7 +608,7 @@ function CoachPerformanceAssessments() {
                   </div>
                   <div className="assessment-meta-field">
                     <label htmlFor="assessment-date">Assessment date</label>
-                    <input id="assessment-date" name="assessment_date" type="date" value={form.assessment_date} onChange={handleFormChange} aria-invalid={Boolean(validationErrors.assessment_date)} />
+                    <input ref={assessmentDateRef} id="assessment-date" name="assessment_date" type="date" value={form.assessment_date} onChange={handleFormChange} aria-invalid={Boolean(validationErrors.assessment_date)} />
                     {validationErrors.assessment_date ? <span className="field-error">{validationErrors.assessment_date}</span> : null}
                   </div>
                 </div>
@@ -696,10 +716,11 @@ function CoachPerformanceAssessments() {
                   <button type="submit" disabled={saving} className="primary-button">
                     {saving ? "Saving..." : editingAssessmentId ? "Update assessment" : "Save assessment"}
                   </button>
-                  {editingAssessmentId ? <button type="button" onClick={resetForm} disabled={saving} className="secondary-button">Cancel edit</button> : null}
+                  <button type="button" onClick={resetForm} disabled={saving} className="secondary-button">Cancel</button>
                   </div>
                 </div>
               </form>
+              ) : null}
             </section>
 
             <section className="performance-card assessment-history-card" aria-labelledby="history-heading">
@@ -716,7 +737,7 @@ function CoachPerformanceAssessments() {
                     const expanded = expandedHistoryId === assessment.id;
                     return (
                       <article key={assessment.id} className={expanded ? "assessment-history-item expanded" : "assessment-history-item"}>
-                        <button type="button" className="assessment-history-summary" onClick={() => setExpandedHistoryId(expanded ? null : assessment.id)} aria-expanded={expanded}>
+                        <button type="button" className="assessment-history-summary" onClick={() => setExpandedHistoryId(expanded ? null : assessment.id)} aria-expanded={expanded} aria-controls={expanded ? `assessment-history-details-${assessment.id}` : undefined}>
                           <span><strong>{formatDate(assessment.assessment_date)}</strong><small>{assessment.coaches?.full_name || "Coach not recorded"}</small></span>
                           <span className="history-overall">{(() => {
                             const scores = scoreFields.map(([name]) => assessment[name]).filter((value) => value !== null && value !== undefined && value !== "");
@@ -727,14 +748,14 @@ function CoachPerformanceAssessments() {
                           <span className="history-chevron" aria-hidden="true">{expanded ? "⌃" : "⌄"}</span>
                         </button>
                         {expanded ? (
-                          <div className="assessment-history-details">
+                          <div id={`assessment-history-details-${assessment.id}`} className="assessment-history-details">
                             <div className="history-score-grid">
                               {scoreFields.map(([name,label]) => <span key={name}><strong>{label}</strong>{assessment[name] ?? "—"}</span>)}
                             </div>
                             {assessment.coach_remarks ? <p className="history-remarks">{assessment.coach_remarks}</p> : null}
                             <div className="history-actions">
-                              <button type="button" onClick={() => handleEdit(assessment)} disabled={saving} className="edit-button">Edit</button>
-                              <button type="button" onClick={() => handleDelete(assessment)} disabled={saving} className="delete-button">Delete</button>
+                              <button type="button" onClick={() => handleEdit(assessment)} disabled={saving} className="edit-button" aria-label={`Edit assessment dated ${formatDate(assessment.assessment_date)}`}>Edit</button>
+                              <button type="button" onClick={() => handleDelete(assessment)} disabled={saving} className="delete-button" aria-label={`Delete assessment dated ${formatDate(assessment.assessment_date)}`}>Delete</button>
                             </div>
                           </div>
                         ) : null}
