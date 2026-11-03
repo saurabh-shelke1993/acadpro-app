@@ -774,3 +774,107 @@
     grid-template-columns:1fr;
   }
 }
+/* PM2: show useful next steps instead of an empty canvas before player selection. */
+.performance-selection-guidance {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 0.9rem;
+  margin: 0 0 1rem;
+  padding: 1rem 1.15rem;
+  border: 1px dashed var(--ap-primary-200);
+  border-radius: var(--ap-radius-lg);
+  background: var(--ap-surface);
+}
+
+.performance-selection-guidance-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--ap-primary-50);
+  color: var(--ap-primary-700);
+  font-size: 1.3rem;
+  font-weight: 750;
+}
+
+.performance-selection-guidance > div {
+  min-width: 0;
+}
+
+.performance-selection-guidance h2 {
+  margin: 0 0 0.2rem;
+  color: var(--ap-slate-950);
+  font-size: 1rem;
+  font-weight: 750;
+}
+
+.performance-selection-guidance p {
+  margin: 0;
+  color: var(--ap-slate-600);
+  font-size: var(--ap-font-size-sm);
+  line-height: 1.5;
+}
+
+.performance-top-player[aria-pressed="true"] {
+  border-color: var(--ap-primary-600);
+  background: var(--ap-primary-50);
+}
+
+.performance-chart-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  min-height: 130px;
+  gap: 0.35rem;
+  padding: 0.8rem;
+  border: 1px dashed var(--ap-border);
+  border-radius: 8px;
+  background: var(--ap-slate-50);
+  text-align: center;
+}
+
+.performance-chart-empty strong {
+  color: var(--ap-slate-800);
+  font-size: var(--ap-font-size-sm);
+}
+
+.performance-chart-empty span {
+  color: var(--ap-slate-600);
+  font-size: var(--ap-font-size-xs);
+  line-height: 1.5;
+}
+
+.performance-single-trend p {
+  max-width: 260px;
+  margin: 0.5rem 0 0;
+  color: var(--ap-slate-600);
+  font-size: var(--ap-font-size-xs);
+  line-height: 1.5;
+  text-align: center;
+}
+
+@media (max-width: 620px) {
+  .performance-selection-guidance {
+    align-items: flex-start;
+    padding: 0.85rem;
+  }
+
+  .performance-selection-guidance-icon {
+    width: 36px;
+    height: 36px;
+    flex-basis: 36px;
+  }
+
+  .performance-selection-guidance h2 {
+    font-size: 0.95rem;
+  }
+
+  .performance-single-trend {
+    padding: 0.7rem;
+  }
+}
