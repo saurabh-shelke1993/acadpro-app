@@ -53,7 +53,7 @@ const mutations = {
   delete: jest.fn(),
 };
 
-const mockQueries = (history = []) => {
+const mockQueries = (history = [], availablePlayers = [player]) => {
   supabase.from.mockImplementation((table) => {
     const filters = {};
     const query = {
@@ -78,7 +78,7 @@ const mockQueries = (history = []) => {
       then: (resolve, reject) => {
         let data;
         if (table === "players") {
-          data = [player];
+          data = availablePlayers;
         } else if (table === "coaches") {
           data = [coachRecord];
         } else if (table === "player_performance_assessments") {
@@ -198,4 +198,60 @@ test("PM3 does not expose the management form to an unauthorized Parent", async 
     .toHaveTextContent("Your account is not authorized to manage performance assessments.");
   expect(screen.queryByRole("button", { name: "+ Record assessment" })).not.toBeInTheDocument();
   expect(mutations.insert).not.toHaveBeenCalled();
+});
+
+const secondPlayer = {
+  ...player, id: "player-2", full_name: "Second Junior",
+  center_id: "center-2", batch_id: "batch-2",
+  centers: { center_name: "Hiranandani Estate" },
+  batches: { batch_name: "U8 Toddlers", is_active: true },
+};
+
+test("PM3.1 center selection narrows dependent batches and player options", async () => {
+  mockQueries([priorAssessment], [player, secondPlayer]);
+  render(<CoachPerformanceAssessments />);
+
+  const center = await screen.findByLabelText("Center");
+  fireEvent.change(center, { target: { value: "center-2" } });
+
+  const batch = screen.getByLabelText("Batch");
+  expect(batch).toHaveValue("");
+  expect(screen.getByRole("option", { name: "U8 Toddlers" })).toBeInTheDocument();
+  expect(screen.queryByRole("option", { name: "Juniors" })).not.toBeInTheDocument();
+
+  fireEvent.click(screen.getByRole("button", { name: /Search or select a player/ }));
+  expect(screen.getByRole("option", { name: /Second Junior/ })).toBeInTheDocument();
+  expect(screen.queryByRole("option", { name: /Test Junior/ })).not.toBeInTheDocument();
+});
+
+test("PM3.1 assessment status filters visibly assessed versus unassessed players", async () => {
+  mockQueries([priorAssessment], [player, secondPlayer]);
+  render(<CoachPerformanceAssessments />);
+
+  const status = await screen.findByLabelText("Assessment status");
+  await waitFor(() => expect(status).not.toBeDisabled());
+
+  fireEvent.change(status, { target: { value: "assessed" } });
+  fireEvent.click(screen.getByRole("button", { name: /Search or select a player/ }));
+  expect(screen.getByRole("option", { name: /Test Junior/ })).toBeInTheDocument();
+  expect(screen.queryByRole("option", { name: /Second Junior/ })).not.toBeInTheDocument();
+
+  fireEvent.change(status, { target: { value: "unassessed" } });
+  fireEvent.click(screen.getByRole("button", { name: /Search or select a player/ }));
+  expect(screen.getByRole("option", { name: /Second Junior/ })).toBeInTheDocument();
+  expect(screen.queryByRole("option", { name: /Test Junior/ })).not.toBeInTheDocument();
+});
+
+test("PM3.1 shows 25 matching players initially and loads more without losing matches", async () => {
+  const manyPlayers = Array.from({ length: 31 }, (_, index) => ({
+    ...player, id: `player-${index}`, full_name: `Junior ${String(index).padStart(2, "0")}`,
+  }));
+  mockQueries([], manyPlayers);
+  render(<CoachPerformanceAssessments />);
+
+  fireEvent.click(await screen.findByRole("button", { name: /Search or select a player/ }));
+  expect(screen.getAllByRole("option", { name: /Junior \d\d/ })).toHaveLength(25);
+  fireEvent.click(screen.getByRole("button", { name: /Load more/ }));
+  expect(screen.getAllByRole("option", { name: /Junior \d\d/ })).toHaveLength(31);
+  expect(screen.getByText("Showing 31 of 31 matching players")).toBeInTheDocument();
 });
