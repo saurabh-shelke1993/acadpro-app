@@ -443,3 +443,158 @@
     padding: 0.7rem;
   }
 }
+
+/* CMA4: compact assignment panel and accessible session chips. */
+.coach-mapping-assignment-card {
+  padding: 0.65rem 0.85rem;
+}
+
+.coach-mapping-assignment-heading {
+  align-items: center;
+  flex-direction: row;
+  gap: 0.5rem;
+  margin-bottom: 0.45rem;
+}
+
+.coach-mapping-form-close {
+  min-height: 34px;
+  margin-left: auto;
+}
+
+.coach-mapping-assignment-card .coach-mapping-form-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+  align-items: end;
+}
+
+.coach-mapping-sessions-fieldset {
+  margin: 0;
+  padding: 0.4rem 0.55rem 0.55rem;
+}
+
+.coach-mapping-session-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.coach-mapping-session-option {
+  display: inline-flex;
+  flex: 0 1 auto;
+  min-height: 38px;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: var(--ap-radius-md);
+}
+
+.coach-mapping-session-option > span {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: baseline;
+  flex-wrap: wrap;
+  column-gap: 0.4rem;
+  row-gap: 0.1rem;
+}
+
+.coach-mapping-session-option small {
+  color: var(--ap-slate-600);
+  font-size: 0.7rem;
+}
+
+.coach-mapping-session-option:focus-within {
+  outline: 2px solid var(--ap-primary-600);
+  outline-offset: 2px;
+}
+
+.coach-mapping-session-option input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+
+.coach-mapping-assignment-card .coach-mapping-form-action {
+  grid-column: 1 / -1;
+  width: 100%;
+  justify-content: flex-end;
+  margin-top: 0.1rem;
+}
+
+.coach-mapping-assignment-card .coach-mapping-form-actions {
+  width: auto;
+  margin-left: auto;
+}
+
+.coach-mapping-empty-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.65rem;
+  text-decoration: none;
+}
+
+.coach-mapping-page .coach-mapping-empty-state {
+  padding: 1.3rem 0.75rem !important;
+}
+
+@media (max-width: 800px) {
+  .coach-mapping-assignment-card .coach-mapping-form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .coach-mapping-assignment-card {
+    padding: 0.65rem;
+  }
+
+  .coach-mapping-assignment-heading {
+    align-items: center;
+    flex-direction: row;
+  }
+
+  .coach-mapping-assignment-card .coach-mapping-form-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .coach-mapping-session-option {
+    flex: 1 1 100%;
+  }
+
+  .coach-mapping-assignment-card .coach-mapping-form-actions {
+    width: 100%;
+  }
+
+  /* Expose the same row actions for Academy Owner and Super Admin. */
+  .coach-mapping-page .coach-mapping-table {
+    min-width: 0;
+    table-layout: fixed;
+  }
+
+  .coach-mapping-page .coach-mapping-table th:nth-child(6),
+  .coach-mapping-page .coach-mapping-table td:nth-child(6) {
+    display: none;
+  }
+
+  .coach-mapping-page .coach-mapping-table th:nth-child(1),
+  .coach-mapping-page .coach-mapping-table td:nth-child(1) { width: 38%; }
+  .coach-mapping-page .coach-mapping-table th:nth-child(2),
+  .coach-mapping-page .coach-mapping-table td:nth-child(2) { width: 31%; }
+  .coach-mapping-page .coach-mapping-table th:nth-child(3),
+  .coach-mapping-page .coach-mapping-table td:nth-child(3) { width: 31%; }
+
+  .coach-mapping-page .coach-mapping-row-actions { display: none; }
+  .coach-mapping-page .coach-mapping-mobile-actions-row { display: table-row; }
+
+  .coach-mapping-page .coach-mapping-mobile-actions-row td {
+    padding: 0.45rem 0.6rem;
+    background: var(--ap-slate-50);
+  }
+
+  .coach-mapping-page .coach-mapping-mobile-row-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.4rem;
+  }
+}
