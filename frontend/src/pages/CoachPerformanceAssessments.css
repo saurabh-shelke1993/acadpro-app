@@ -414,3 +414,214 @@
     justify-content: flex-end;
   }
 }
+
+/* PM3.1 A–D: scalable, role-aware assessment player finder. */
+.assessment-scope-card .assessment-scope-filters {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: end;
+  gap: 0.6rem;
+}
+
+.assessment-scope-filters .scope-field {
+  min-width: 0;
+}
+
+.assessment-scope-filters select {
+  width: 100%;
+  min-width: 0;
+  min-height: 38px;
+}
+
+.assessment-coverage-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.85rem;
+  margin-top: 0.55rem;
+  color: var(--ap-slate-600);
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.assessment-coverage-summary span + span {
+  padding-left: 0.75rem;
+  border-left: 1px solid var(--ap-border);
+}
+
+.assessment-coverage-summary button {
+  margin-left: 0.55rem;
+  border: 0;
+  background: transparent;
+  color: var(--ap-primary-700);
+  font: inherit;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.assessment-player-row {
+  width: 100%;
+  max-width: 820px;
+  margin-top: 0.7rem;
+}
+
+.assessment-player-row .scope-field,
+.assessment-player-row .player-picker {
+  min-width: 0;
+  width: 100%;
+}
+
+.assessment-player-row .player-picker-menu {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding: 0.65rem;
+  border-radius: var(--ap-radius-lg);
+}
+
+.assessment-player-row .player-picker-menu > input {
+  position: relative;
+  width: 100%;
+  height: 40px;
+  margin-bottom: 0.3rem;
+  font-size: 0.875rem;
+}
+
+.player-picker-count {
+  padding: 0.25rem 0.35rem 0.5rem;
+  color: var(--ap-slate-600);
+  font-size: 0.75rem;
+}
+
+.assessment-player-row .player-picker-results {
+  max-height: 310px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.assessment-player-row .player-picker-option {
+  display: flex;
+  align-items: center;
+  min-height: 54px;
+  gap: 0.65rem;
+  padding: 0.55rem;
+  border-radius: 8px;
+  text-align: left;
+  white-space: normal;
+}
+
+.assessment-player-row .player-picker-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--ap-primary-50);
+  color: var(--ap-primary-700);
+  font-size: 0.85rem;
+  font-weight: 750;
+}
+
+.assessment-player-row .player-picker-details {
+  display: block;
+  min-width: 0;
+  flex: 1;
+}
+
+.assessment-player-row .player-picker-details strong {
+  display: block;
+  color: var(--ap-slate-900);
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.assessment-player-row .player-picker-details small {
+  display: block;
+  margin-top: 0.15rem;
+  color: var(--ap-slate-600);
+  font-size: 0.75rem;
+  line-height: 1.4;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.assessment-player-row .player-picker-status {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 100px;
+  background: var(--ap-slate-100);
+  color: var(--ap-slate-700);
+  font-size: 0.72rem;
+  font-weight: 750;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.assessment-player-row .player-picker-status-assessed {
+  background: var(--ap-green-50, #ecfdf3);
+  color: var(--ap-green-700, #047857);
+}
+
+.player-picker-more {
+  display: block;
+  width: 100%;
+  margin-top: 0.45rem;
+  padding: 0.55rem;
+  border: 1px solid var(--ap-border);
+  border-radius: 8px;
+  background: var(--ap-slate-50);
+  color: var(--ap-primary-700);
+  font-size: 0.8rem;
+  font-weight: 750;
+  text-align: center;
+  cursor: pointer;
+}
+
+.assessment-player-row .player-picker-option:focus-visible,
+.assessment-player-row .player-picker-more:focus-visible,
+.assessment-coverage-summary button:focus-visible,
+.assessment-scope-filters select:focus-visible {
+  outline: 2px solid var(--ap-primary-600);
+  outline-offset: 2px;
+}
+
+@media (max-width: 950px) {
+  .assessment-scope-card .assessment-scope-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 550px) {
+  .assessment-scope-card .assessment-scope-filters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .assessment-coverage-summary {
+    gap: 0.3rem;
+  }
+
+  .assessment-coverage-summary span + span {
+    width: 100%;
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .assessment-player-row .player-picker-menu {
+    padding: 0.45rem;
+  }
+
+  .assessment-player-row .player-picker-option {
+    flex-wrap: wrap;
+    gap: 0.35rem 0.55rem;
+  }
+
+  .assessment-player-row .player-picker-status {
+    margin-left: 40px;
+  }
+}
