@@ -12,6 +12,7 @@ import {
   YAxis,
 } from "recharts";
 import Layout from "../components/Layout";
+import PerformanceWorkspaceTabs from "../components/PerformanceWorkspaceTabs";
 import "./PlayerPerformanceReport.css";
 import { supabase } from "../supabaseClient";
 import { getCurrentUser } from "../utils/auth";
@@ -469,6 +470,7 @@ function PlayerPerformanceReport() {
   return (
     <Layout>
       <main className="performance-page">
+        <PerformanceWorkspaceTabs role={currentUser?.role} />
         {error ? <p role="alert" className="performance-error">{error}</p> : null}
 
         <section className="performance-scope-top-grid" aria-label="Performance scope and top results">
