@@ -35,6 +35,7 @@ import { getPlayerProfileSnapshot } from "../services/playerProfileService";
 import { getPlayerPhotoUrl, uploadPlayerPhoto } from "../services/playerPhotoService";
 import { selectPlayerSessionIds } from "../services/playerSessionDefaults";
 import { suggestCenterCode } from "../services/centerPresentation";
+import { formatPlayerProfileDate, shouldShowProfileSessionContext } from "../utils/playerProfilePresentation";
 import "./Players.css";
 
 function Players() {
@@ -253,17 +254,6 @@ async () => {
     loadBatchSessions();
     return () => { cancelled = true; };
   }, [selectedBatch, selectedCenter, batches, editingPlayerId, isEditing]);
- const formatCoachDob = (dob) => {
-    if (!dob) return "—";
-    const date = new Date(dob);
-    if (Number.isNaN(date.getTime())) return "—";
-    return date.toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    });
-  };
-
   const calculateAge = (dob) => {
     if (!dob) return "";
 
@@ -1693,7 +1683,7 @@ useEffect(() => {
                     </span>
                   </div>
                   <p>{selectedCoachPlayer.batches?.batch_name || "Batch not assigned"} · {selectedCoachPlayer.centers?.center_name || "Center not assigned"}</p>
-                  <p className="player-profile-hero-subline">Born {formatCoachDob(selectedCoachPlayer.dob)}{selectedCoachPlayer.gender ? ` · ${selectedCoachPlayer.gender}` : ""}</p>
+                  <p className="player-profile-hero-subline">Born {formatPlayerProfileDate(selectedCoachPlayer.dob)}{selectedCoachPlayer.gender ? ` · ${selectedCoachPlayer.gender}` : ""}</p>
                   {isAcademyOwner(loggedInUser) && (
                     <div className="player-photo-controls">
                       <label className="player-photo-upload-button">
@@ -1724,9 +1714,9 @@ useEffect(() => {
                 <section className="player-profile-section player-profile-personal">
                   <h3>Player information</h3>
                   <dl className="player-profile-facts">
-                    <div><dt>Date of birth</dt><dd>{formatCoachDob(selectedCoachPlayer.dob)}</dd></div>
+                    <div><dt>Date of birth</dt><dd>{formatPlayerProfileDate(selectedCoachPlayer.dob)}</dd></div>
                     <div><dt>Gender</dt><dd>{selectedCoachPlayer.gender || "—"}</dd></div>
-                    <div><dt>Joining date</dt><dd>{formatCoachDob(selectedCoachPlayer.joining_date)}</dd></div>
+                    <div><dt>Joining date</dt><dd>{formatPlayerProfileDate(selectedCoachPlayer.joining_date)}</dd></div>
                   </dl>
                 </section>
                 <section className="player-profile-section player-profile-parent">
@@ -1758,8 +1748,7 @@ useEffect(() => {
                           <strong>{session.day.slice(0, 3)}</strong>
                           <div>
                             <span>{session.timeLabel || "Time not set"}</span>
-                            {(session.centerName !== (selectedCoachPlayer.centers?.center_name || "—")
-                              || session.batchName !== (selectedCoachPlayer.batches?.batch_name || "—")) ? (
+                            {shouldShowProfileSessionContext(session, selectedCoachPlayer) ? (
                               <small>{session.centerName} · {session.batchName}</small>
                             ) : null}
                           </div>
