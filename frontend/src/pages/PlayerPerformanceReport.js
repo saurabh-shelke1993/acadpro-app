@@ -13,6 +13,7 @@ import {
 } from "recharts";
 import Layout from "../components/Layout";
 import PerformanceWorkspaceTabs from "../components/PerformanceWorkspaceTabs";
+import { getPreferredPerformancePlayerId } from "../utils/performanceReportSelection";
 import "./PlayerPerformanceReport.css";
 import { supabase } from "../supabaseClient";
 import { getCurrentUser } from "../utils/auth";
@@ -363,7 +364,14 @@ function PlayerPerformanceReport() {
           })
           .slice(0, 5);
 
-        if (isMounted) setLatestAssessments(ranked);
+        if (isMounted) {
+          setLatestAssessments(ranked);
+          // Open the first assessed player by default, but never replace a
+          // selected player (including an authorized ?player= deep link).
+          if (ranked.length) {
+            setSelectedPlayerId((currentId) => getPreferredPerformancePlayerId(currentId, ranked));
+          }
+        }
       } catch (loadError) {
         if (!isMounted) return;
         console.error("Top performance load error:", loadError);
@@ -594,7 +602,7 @@ function PlayerPerformanceReport() {
             <div>
               <span className="performance-section-eyebrow">Latest assessment</span>
               <h2 id="top-performance-heading">Top 5 Performance</h2>
-              <p>Ranked by the latest available overall skill average in the selected scope.</p>
+              <p>Latest assessed overall skill average. Select a player to open their full report.</p>
             </div>
             <span className="performance-result-count">{latestAssessments.length} result{latestAssessments.length === 1 ? "" : "s"}</span>
           </div>
@@ -608,6 +616,8 @@ function PlayerPerformanceReport() {
                   type="button"
                   key={item.player.id}
                   className={"performance-top-player " + (selectedPlayerId === item.player.id ? "performance-top-player-selected" : "")}
+                  aria-pressed={selectedPlayerId === item.player.id}
+                  aria-label={`View performance report for ${item.player.full_name}, rank ${index + 1}, score ${formatScore(item.average)} out of 10`}
                   onClick={() => selectTopPlayer(item.player.id)}
                 >
                   <span className="performance-rank">{index + 1}</span>
@@ -644,6 +654,32 @@ function PlayerPerformanceReport() {
 
           </div>
         </section>
+        {!selectedPlayer && !performanceLoading && !error ? (
+          <section className="performance-selection-guidance" aria-labelledby="performance-selection-guidance-heading">
+            <span className="performance-selection-guidance-icon" aria-hidden="true">▥</span>
+            <div>
+              <span className="performance-section-eyebrow">Player report</span>
+              <h2 id="performance-selection-guidance-heading">
+                {isSuperAdmin(currentUser) && !selectedAcademyId
+                  ? "Choose an academy to begin"
+                  : !scopedPlayers.length
+                    ? "No players in this scope"
+                    : latestAssessments.length
+                      ? "Select a player to view their report"
+                      : "No scored performance assessments yet"}
+              </h2>
+              <p>
+                {isSuperAdmin(currentUser) && !selectedAcademyId
+                  ? "Use the academy filter above to view authorized players and their latest performance."
+                  : !scopedPlayers.length
+                    ? "Adjust the center or batch filters to find players."
+                    : latestAssessments.length
+                      ? "Choose a Top 5 result or use the player filter to open skill scores, progress and assessment history."
+                      : "Choose a player above to check their assessment history. Reports will show scores when an assessment is recorded."}
+              </p>
+            </div>
+          </section>
+        ) : null}
         {selectedPlayer ? (
           <>
             <section className="performance-player-identity" aria-labelledby="player-identity-heading">
