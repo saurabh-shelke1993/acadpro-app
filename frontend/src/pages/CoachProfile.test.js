@@ -116,6 +116,11 @@ describe("CoachProfile role and behavior regression", () => {
     expect(screen.getByRole("heading", { level: 1, name: "Faisal Khan" })).toBeInTheDocument();
     expect(screen.getByText("1 center")).toBeInTheDocument();
     expect(screen.getByText("1 active batch")).toBeInTheDocument();
+    const sidebar = document.querySelector(".coach-profile-sidebar");
+    expect(sidebar).not.toBeNull();
+    expect(sidebar.querySelectorAll("section")).toHaveLength(2);
+    expect(sidebar.querySelector('[aria-labelledby="coach-profile-training-heading"]')).not.toBeNull();
+    expect(sidebar.querySelector('[aria-labelledby="coach-profile-certs-heading"]')).not.toBeNull();
     expect(screen.getByText("Thane City FC")).toBeInTheDocument();
     expect(screen.getByText("Juniors")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Edit Profile" })).toBeInTheDocument();
@@ -254,6 +259,8 @@ describe("CoachProfile role and behavior regression", () => {
     expect(screen.queryByText("Training scope")).not.toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Centers & batches" })).not.toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Certifications" })).not.toBeInTheDocument();
+    expect(screen.queryByText("1 center")).not.toBeInTheDocument();
+    expect(document.querySelector(".coach-profile-content-grid-single")).not.toBeNull();
     expect(screen.queryByRole("button", { name: "Edit Profile" })).not.toBeInTheDocument();
     expect(getCoachProfile).not.toHaveBeenCalled();
     expect(getCoachCertifications).not.toHaveBeenCalled();
