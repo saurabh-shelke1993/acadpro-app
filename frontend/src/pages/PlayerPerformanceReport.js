@@ -751,7 +751,10 @@ function PlayerPerformanceReport() {
                           </div>
                         </>
                       ) : (
-                        <p className="performance-message">No skill scores are available in the latest assessment.</p>
+                        <div className="performance-chart-empty">
+                          <strong>No scores in the latest assessment</strong>
+                          <span>Skill-wise charts appear once individual skill scores are recorded.</span>
+                        </div>
                       )}
                     </article>
 
@@ -776,8 +779,10 @@ function PlayerPerformanceReport() {
                         </div>
                       ) : trendData.length === 1 ? (
                         <div className="performance-single-trend">
+                          <span className="performance-section-eyebrow">First assessment recorded</span>
                           <strong>{formatScore(trendData[0].average)} / 10</strong>
-                          <span>Overall average on {trendData[0].label}</span>
+                          <span>Overall average · {trendData[0].label}</span>
+                          <p>Add another assessment to see the player's progress over time.</p>
                         </div>
                       ) : (
                         <p className="performance-message">No assessments with skill scores are available for a performance trend.</p>
