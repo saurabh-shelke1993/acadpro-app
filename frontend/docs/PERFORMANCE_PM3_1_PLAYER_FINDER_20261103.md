@@ -2,7 +2,7 @@
 
 **Date:** 2026-11-03  
 **Branch:** `payment-module-finalization`  
-**Status:** Source implemented and GitHub committed; current-head Jest/build and manual Owner/Coach/Super Admin acceptance **pending**.
+**Status:** PM3.1A–E **implemented and development-task closed**. Product owner accepted the updated visual design on 2026-11-03. Automated Jest/build, Vercel deployment and focused multi-role browser/security acceptance **remain pending** and are not represented as passed.
 
 ## Goal and scope
 
@@ -44,7 +44,7 @@ Improve the Performance Assessments player picker for academies with approximate
 - `frontend/src/pages/CoachPerformanceAssessments.css`
 - `frontend/src/utils/assessmentPlayerFinder.js` (new pure utilities + batched status retrieval)
 - `frontend/src/utils/assessmentPlayerFinder.test.js` (new, 6 authored tests)
-- `frontend/src/pages/CoachPerformanceAssessments.test.js` (existing PM3 suite extended from 5 to 8 tests)
+- `frontend/src/pages/CoachPerformanceAssessments.test.js` (existing PM3 suite extended from 5 to **12 authored tests** after PM3.1E)
 
 **No database schema/migration, RLS, Supabase RPC, scoring formula, profile scope, or assessment mutation payload changes.**
 
@@ -58,11 +58,25 @@ New utility tests cover:
 5. Coach-owned versus other-coach assessment visibility
 6. Query failure propagation, avoiding false Not assessed classification
 
-Component tests cover Center→Batch narrowing, assessed/unassessed picker results and 25→31 Load more. Existing PM3 tests were adapted to mock the additional `range` query.
+Component tests cover Center→Batch narrowing, assessed/unassessed picker results, 25→31 Load more, Owner academy isolation and dependent-filter resets, Coach's own-assessment visibility, Super Admin academy switching, and failure recovery. Existing PM3 mocks were updated for scoped academy/batch filters and batched `range` queries.
 
-**The tests have not been executed.** No current-head Jest/build/browser PASS is claimed; live database was inspected only for relevant column definitions, not modified.
+**The tests have not been executed.** No current-head Jest/build or cross-role browser PASS is claimed. Product owner reported the current changes look good; this is recorded as visual approval, **not** comprehensive role/RBAC regression. The GitHub status inspected before final documentation showed Vercel pending. Live database was not modified.
 
-## Acceptance checklist — pending user review
+## PM3.1E — focused regression and task closure (2026-11-03)
+
+**Implemented:** Extended the existing component regression suite with four additional cases:
+1. Academy Owner dependent Center→Batch filter resets and player-selection cleanup, without exposing another academy's players.
+2. Coach's `Assessed by me` result scope (a different coach's record must not count).
+3. Super Admin academy switching resets Center, Batch, status and previously selected player.
+4. Assessment-coverage query failure still permits choosing `All players`; `Assessed` / `Not assessed` options remain disabled until coverage is verified.
+
+**Recovery fix:** The status dropdown previously became fully disabled after coverage failure, which could trap users on a status filter. It now disables the entire dropdown only while loading, and disables the coverage-dependent options when coverage is unavailable. Users can still recover with `All players` and `Retry`.
+
+**Evidence:** Previous source/diff checks confirmed nine score inputs, retained create/edit/delete handlers, existing coach batch scope, role guard, batched coverage queries and balanced JSX. Additional implementation/test source was reviewed. No Jest, production build, complete role/browser or database mutation test was run in this chat.
+
+**Product decision:** PM3.1A–E is **closed as a development feature** based on implementation plus the owner's visual approval; automated, deployment, role-specific and security checks are tracked as **release-QA pending**, not marked complete.
+
+## Acceptance checklist — visual approval recorded; focused role/runtime verification pending
 
 | ID | Scenario | Expected |
 | --- | --- | --- |
@@ -103,4 +117,4 @@ npm run build
 npm start
 ```
 
-Report tested SHA and exact results, then update this checkpoint to `browser-accepted` only after manual verification.
+Record the exact tested SHA and Jest/build results when run. Keep development-task closure separate from full cross-role/browser release sign-off.
