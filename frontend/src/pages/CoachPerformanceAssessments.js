@@ -349,6 +349,21 @@ function CoachPerformanceAssessments() {
     clearPlayerSelection();
   };
 
+  const handlePickerKeyDown = (event) => {
+    if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) return;
+    // Preserve caret movement when editing the search input except for arrow navigation.
+    if ((event.key === "Home" || event.key === "End") && event.target.tagName === "INPUT") return;
+    const options = Array.from(event.currentTarget.querySelectorAll('[role="option"]'));
+    if (!options.length) return;
+    const focusedIndex = options.indexOf(document.activeElement);
+    const nextIndex = event.key === "Home" ? 0 :
+      event.key === "End" ? options.length - 1 :
+        event.key === "ArrowDown" ? (focusedIndex + 1) % options.length :
+          (focusedIndex <= 0 ? options.length - 1 : focusedIndex - 1);
+    event.preventDefault();
+    options[nextIndex].focus();
+  };
+
   const handlePlayerChange = (event) => {
     setSelectedPlayerId(event.target.value);
     setPlayerSearch("");
@@ -644,7 +659,7 @@ function CoachPerformanceAssessments() {
                   <span aria-hidden="true">⌄</span>
                 </button>
                 {playerPickerOpen ? (
-                  <div className="player-picker-menu">
+                  <div className="player-picker-menu" onKeyDown={handlePickerKeyDown}>
                     <input
                       autoFocus
                       type="search"
