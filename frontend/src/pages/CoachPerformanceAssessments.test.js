@@ -359,3 +359,45 @@ test("PM3.1E a failed coverage query keeps All players usable and does not inven
   expect(await screen.findByText("Assessment status unavailable.")).toBeInTheDocument();
   expect(status).toHaveValue("all");
 });
+
+test("PM4 keyboard navigation moves through player choices and Escape restores trigger focus", async () => {
+  mockQueries([], [player, secondPlayer]);
+  render(<CoachPerformanceAssessments />);
+
+  const trigger = await screen.findByRole("button", { name: /Search or select a player/ });
+  fireEvent.click(trigger);
+  const search = screen.getByRole("searchbox", { name: "Search players" });
+  const first = screen.getByRole("option", { name: /Test Junior/ });
+  const last = screen.getByRole("option", { name: /Second Junior/ });
+
+  expect(search).toHaveFocus();
+  fireEvent.keyDown(search, { key: "ArrowDown" });
+  expect(first).toHaveFocus();
+  fireEvent.keyDown(first, { key: "End" });
+  expect(last).toHaveFocus();
+  fireEvent.keyDown(last, { key: "Home" });
+  expect(first).toHaveFocus();
+  fireEvent.keyDown(first, { key: "ArrowUp" });
+  expect(last).toHaveFocus();
+  fireEvent.keyDown(document, { key: "Escape" });
+  expect(trigger).toHaveFocus();
+  expect(screen.queryByRole("listbox", { name: "Players" })).not.toBeInTheDocument();
+});
+
+test("PM5 picker keyboard selection preserves existing player history and role scoping", async () => {
+  mockQueries([priorAssessment], [player, secondPlayer]);
+  render(<CoachPerformanceAssessments />);
+
+  const trigger = await screen.findByRole("button", { name: /Search or select a player/ });
+  fireEvent.click(trigger);
+  const search = screen.getByRole("searchbox", { name: "Search players" });
+  fireEvent.keyDown(search, { key: "ArrowDown" });
+  const firstOption = screen.getByRole("option", { name: /Test Junior/ });
+  expect(firstOption).toHaveFocus();
+  fireEvent.click(firstOption);
+
+  expect(trigger).toHaveFocus();
+  expect(screen.queryByRole("listbox", { name: "Players" })).not.toBeInTheDocument();
+  expect(await screen.findByRole("heading", { name: "Assessment history" })).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "+ Record assessment" })).toHaveAttribute("aria-expanded", "false");
+});
