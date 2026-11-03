@@ -1743,57 +1743,87 @@ useEffect(() => {
                 <section className="player-profile-section">
                   <div className="player-profile-section-heading">
                     <h3>Training schedule</h3>
-                    <span>{profileSnapshot?.schedule?.length || 0} sessions</span>
+                    {!profileSnapshotLoading && !profileSnapshotError && profileSnapshot?.schedule?.length ? (
+                      <span>{profileSnapshot.schedule.length} weekly sessions</span>
+                    ) : null}
                   </div>
                   {profileSnapshotLoading ? (
-                    <p className="player-profile-muted">Loading schedule…</p>
+                    <p className="player-profile-muted" role="status">Loading training schedule…</p>
+                  ) : profileSnapshotError ? (
+                    <p className="player-profile-muted">Training schedule currently unavailable.</p>
                   ) : profileSnapshot?.schedule?.length ? (
                     <div className="player-profile-schedule-list">
                       {profileSnapshot.schedule.map((session) => (
                         <div className="player-profile-schedule-row" key={session.id}>
                           <strong>{session.day.slice(0, 3)}</strong>
-                          <div><span>{session.timeLabel || "Time not set"}</span><small>{session.centerName} · {session.batchName}</small></div>
+                          <div>
+                            <span>{session.timeLabel || "Time not set"}</span>
+                            {(session.centerName !== (selectedCoachPlayer.centers?.center_name || "—")
+                              || session.batchName !== (selectedCoachPlayer.batches?.batch_name || "—")) ? (
+                              <small>{session.centerName} · {session.batchName}</small>
+                            ) : null}
+                          </div>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <p className="player-profile-muted">No active sessions assigned.</p>
+                    <p className="player-profile-muted">No active weekly sessions assigned.</p>
                   )}
                 </section>
-                <section className="player-profile-section">
-                  <h3>Attendance snapshot</h3>
+                <section className="player-profile-section player-profile-attendance">
+                  <h3>Overall attendance</h3>
                   {profileSnapshotLoading ? (
-                    <p className="player-profile-muted">Loading attendance…</p>
+                    <p className="player-profile-muted" role="status">Loading attendance…</p>
+                  ) : profileSnapshotError ? (
+                    <p className="player-profile-muted">Attendance currently unavailable.</p>
                   ) : profileSnapshot?.attendance?.recordedSessions ? (
                     <>
                       <div className="player-profile-attendance-rate">{profileSnapshot.attendance.rate}%</div>
-                      <p className="player-profile-muted">Attendance rate across recorded sessions</p>
+                      <p className="player-profile-muted">
+                        {profileSnapshot.attendance.present} of {profileSnapshot.attendance.recordedSessions} recorded sessions attended
+                      </p>
                       <div className="player-profile-attendance-stats">
                         <div><strong>{profileSnapshot.attendance.present}</strong><span>Present</span></div>
                         <div><strong>{profileSnapshot.attendance.absent}</strong><span>Absent</span></div>
                       </div>
                     </>
                   ) : (
-                    <p className="player-profile-muted">No attendance recorded.</p>
+                    <p className="player-profile-muted">No recorded present/absent sessions yet.</p>
+                  )}
+                  {(isSuperAdmin(loggedInUser) || isAcademyOwner(loggedInUser) || isCoach(loggedInUser)) && (
+                    <div className="player-profile-performance-link-wrap">
+                      <span className="player-profile-kicker">Player development</span>
+                      <Link
+                        to={`/player-performance-report?player=${encodeURIComponent(selectedCoachPlayer.id)}`}
+                        className="player-profile-performance-link"
+                      >
+                        View performance report <span aria-hidden="true">→</span>
+                      </Link>
+                      <small>Skill scores, progress and assessment history</small>
+                    </div>
                   )}
                 </section>
               </div>
               {canViewPlayerFees && (
                 <section className="player-profile-section player-profile-fees-section">
                   <div className="player-profile-section-heading">
-                    <div><h3>Fees paid</h3><p>Recorded payments for the last three calendar months</p></div>
+                    <div><h3>Fees paid</h3><p>Net recorded payments for the last three calendar months</p></div>
                   </div>
                   {profileSnapshotLoading ? (
-                    <p className="player-profile-muted">Loading payment totals…</p>
-                  ) : (
+                    <p className="player-profile-muted" role="status">Loading payment totals…</p>
+                  ) : profileSnapshotError ? (
+                    <p className="player-profile-muted">Payment totals currently unavailable.</p>
+                  ) : profileSnapshot?.monthlyPayments?.length ? (
                     <div className="player-profile-fees-grid">
-                      {(profileSnapshot?.monthlyPayments || []).map((month) => (
+                      {profileSnapshot.monthlyPayments.map((month) => (
                         <div key={month.key}>
                           <span>{month.label}</span>
                           <strong>{month.formattedAmount}</strong>
                         </div>
                       ))}
                     </div>
+                  ) : (
+                    <p className="player-profile-muted">No payment summary available for this period.</p>
                   )}
                 </section>
               )}
