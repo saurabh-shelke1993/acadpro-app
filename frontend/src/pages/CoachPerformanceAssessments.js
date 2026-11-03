@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
+import PerformanceWorkspaceTabs from "../components/PerformanceWorkspaceTabs";
 import "./CoachPerformanceAssessments.css";
 import { supabase } from "../supabaseClient";
 import { getCurrentUser } from "../utils/auth";
@@ -461,10 +462,11 @@ function CoachPerformanceAssessments() {
   return (
     <Layout>
       <main className="performance-page" style={styles.page}>
+        <PerformanceWorkspaceTabs role={currentUser?.role} />
         <header className="performance-compact-header">
           <div>
             <span className="performance-eyebrow">Performance assessments</span>
-            <h1>Player Performance Assessments</h1>
+            <h2>Player Performance Assessments</h2>
           </div>
           <span className="performance-header-badge">
             {assessments.length ? `${assessments.length} assessment${assessments.length === 1 ? "" : "s"}` : "Assessment workspace"}
