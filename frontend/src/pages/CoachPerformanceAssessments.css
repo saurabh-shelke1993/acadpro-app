@@ -528,6 +528,7 @@
   display: block;
   min-width: 0;
   flex: 1;
+  white-space: normal;
 }
 
 .assessment-player-row .player-picker-details strong {
