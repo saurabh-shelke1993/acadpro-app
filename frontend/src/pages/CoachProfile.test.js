@@ -111,7 +111,11 @@ describe("CoachProfile role and behavior regression", () => {
     renderProfile({ id: "owner-1", role: "academy_owner" });
 
     expect(await screen.findByRole("heading", { name: "Faisal Khan" })).toBeInTheDocument();
-    expect(screen.getAllByText("AFC A")).toHaveLength(2);
+    expect(screen.getByText("AFC A")).toBeInTheDocument();
+    expect(screen.getByText("AFC A · Thane City FC")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: "Faisal Khan" })).toBeInTheDocument();
+    expect(screen.getByText("1 center")).toBeInTheDocument();
+    expect(screen.getByText("1 active batch")).toBeInTheDocument();
     expect(screen.getByText("Thane City FC")).toBeInTheDocument();
     expect(screen.getByText("Juniors")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Edit Profile" })).toBeInTheDocument();
@@ -334,6 +338,12 @@ describe("CoachProfile role and behavior regression", () => {
     renderProfile({ id: "owner-1", role: "academy_owner" });
 
     await screen.findByRole("heading", { name: "Faisal Khan" });
+    expect(screen.queryByLabelText("Certificate name")).not.toBeInTheDocument();
+    const addButton = screen.getByRole("button", { name: "+ Add Certification" });
+    expect(addButton).toHaveAttribute("aria-expanded", "false");
+    fireEvent.click(addButton);
+    expect(screen.getByLabelText("Certificate name")).toHaveFocus();
+    expect(screen.getByRole("button", { name: "Close" })).toHaveAttribute("aria-expanded", "true");
 
     fireEvent.change(screen.getByLabelText("Certificate name"), {
       target: { value: "AFC C License" },
@@ -354,8 +364,14 @@ describe("CoachProfile role and behavior regression", () => {
     });
 
     expect(await screen.findByText("AFC C License")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByLabelText("Certificate name")).not.toBeInTheDocument();
+    });
+    expect(screen.getByRole("button", { name: "+ Add Certification" })).toHaveFocus();
 
     fireEvent.click(screen.getByRole("button", { name: "Edit" }));
+    expect(screen.getByLabelText("Certificate name")).toHaveValue("AFC C License");
+    expect(screen.getByLabelText("Certificate name")).toHaveFocus();
     fireEvent.change(screen.getByLabelText("Certificate name"), {
       target: { value: "AFC C License Updated" },
     });
@@ -376,5 +392,73 @@ describe("CoachProfile role and behavior regression", () => {
     await waitFor(() => {
       expect(deleteCoachCertification).toHaveBeenCalledWith("cert-1");
     });
+  });
+
+  test("academy owner can cancel a new certification without writing data", async () => {
+    getCoachProfile.mockResolvedValue(baseProfile);
+
+    renderProfile({ id: "owner-1", role: "academy_owner" });
+    await screen.findByRole("heading", { name: "Faisal Khan" });
+
+    fireEvent.click(screen.getByRole("button", { name: "+ Add Certification" }));
+    fireEvent.change(screen.getByLabelText("Certificate name"), {
+      target: { value: "Unsaved License" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+
+    expect(screen.queryByLabelText("Certificate name")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "+ Add Certification" })).toHaveFocus();
+    expect(createCoachCertification).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: "+ Add Certification" }));
+    expect(screen.getByLabelText("Certificate name")).toHaveValue("");
+  });
+
+  test("failed certification submission keeps the editor open and shows an error", async () => {
+    getCoachProfile.mockResolvedValue(baseProfile);
+    createCoachCertification.mockRejectedValue(new Error("Unable to save certification"));
+
+    renderProfile({ id: "owner-1", role: "academy_owner" });
+    await screen.findByRole("heading", { name: "Faisal Khan" });
+
+    fireEvent.click(screen.getByRole("button", { name: "+ Add Certification" }));
+    fireEvent.change(screen.getByLabelText("Certificate name"), {
+      target: { value: "AFC A License" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Add certification" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("Unable to save certification");
+    expect(screen.getByLabelText("Certificate name")).toHaveValue("AFC A License");
+    expect(screen.getByRole("button", { name: "Close" })).toHaveAttribute("aria-expanded", "true");
+  });
+
+  test("coach sees training and read-only credentials but cannot add certificates", async () => {
+    getMyCoachProfile.mockResolvedValue(baseProfile);
+    getCoachCertifications.mockResolvedValue([{
+      id: "cert-2", certificate_name: "AFC A License",
+      issuing_organization: "AFC", issue_date: null, expiry_date: null,
+    }]);
+
+    renderProfile({ id: "coach-user-1", role: "coach" }, "/coach-profile");
+    expect(await screen.findByRole("heading", { name: "Faisal Khan" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Centers & batches" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Certifications" })).toBeInTheDocument();
+    expect(await screen.findByText("AFC A License")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "+ Add Certification" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Delete" })).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Certificate name")).not.toBeInTheDocument();
+  });
+
+  test("super admin retains certification form access", async () => {
+    getCoachProfile.mockResolvedValue(baseProfile);
+
+    renderProfile({ id: "admin-1", role: "super_admin" });
+    await screen.findByRole("heading", { name: "Faisal Khan" });
+
+    const addButton = screen.getByRole("button", { name: "+ Add Certification" });
+    fireEvent.click(addButton);
+
+    expect(screen.getByLabelText("Certificate name")).toHaveFocus();
+    expect(screen.getByRole("form", { name: "Add certification" })).toBeInTheDocument();
   });
 });
