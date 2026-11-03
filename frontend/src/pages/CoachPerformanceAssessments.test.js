@@ -53,7 +53,7 @@ const mutations = {
   delete: jest.fn(),
 };
 
-const mockQueries = (history = [], availablePlayers = [player]) => {
+const mockQueries = (history = [], availablePlayers = [player], options = {}) => {
   supabase.from.mockImplementation((table) => {
     const filters = {};
     const query = {
@@ -78,10 +78,19 @@ const mockQueries = (history = [], availablePlayers = [player]) => {
       then: (resolve, reject) => {
         let data;
         if (table === "players") {
-          data = availablePlayers;
+          data = availablePlayers.filter((item) =>
+            (!filters.academy_id || item.academy_id === filters.academy_id) &&
+            (!filters.batch_id || filters.batch_id.includes(item.batch_id))
+          );
+        } else if (table === "academies") {
+          data = Array.from(new Set(availablePlayers.map((item) => item.academy_id)))
+            .map((id) => ({ id, academy_name: id }));
         } else if (table === "coaches") {
           data = [coachRecord];
         } else if (table === "player_performance_assessments") {
+          if (options.failCoverage && Array.isArray(filters.player_id)) {
+            return Promise.resolve({ data: null, error: new Error("Coverage unavailable") }).then(resolve, reject);
+          }
           data = history.filter((entry) => (
             (!filters.player_id ||
               (Array.isArray(filters.player_id)
