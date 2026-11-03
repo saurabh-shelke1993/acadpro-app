@@ -264,3 +264,98 @@ test("PM3.1 shows 25 matching players initially and loads more without losing ma
   expect(screen.getAllByRole("option", { name: /Junior \d\d/ })).toHaveLength(31);
   expect(screen.getByText("Showing 31 of 31 matching players")).toBeInTheDocument();
 });
+
+test("PM3.1E Owner center change clears batch and selected player without crossing academies", async () => {
+  const otherAcademy = {
+    ...secondPlayer, id: "other-academy-player", academy_id: "academy-other",
+    full_name: "Other Academy Player",
+  };
+  mockQueries([], [player, secondPlayer, otherAcademy]);
+  render(<CoachPerformanceAssessments />);
+
+  const center = await screen.findByLabelText("Center");
+  expect(screen.queryByRole("option", { name: "Other Academy Player" })).not.toBeInTheDocument();
+  fireEvent.change(center, { target: { value: "center-2" } });
+  fireEvent.change(screen.getByLabelText("Batch"), { target: { value: "batch-2" } });
+  fireEvent.click(screen.getByRole("button", { name: /Search or select a player/ }));
+  fireEvent.click(screen.getByRole("option", { name: /Second Junior/ }));
+  expect(screen.getByRole("heading", { name: "Assessment entry" })).toBeInTheDocument();
+
+  fireEvent.change(center, { target: { value: "center-1" } });
+  expect(screen.getByLabelText("Batch")).toHaveValue("");
+  expect(screen.getByRole("button", { name: /Search or select a player/ })).toBeInTheDocument();
+  expect(screen.queryByRole("heading", { name: "Assessment entry" })).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: /Search or select a player/ }));
+  expect(screen.getByRole("option", { name: /Test Junior/ })).toBeInTheDocument();
+  expect(screen.queryByRole("option", { name: /Second Junior/ })).not.toBeInTheDocument();
+});
+
+test("PM3.1E Coach assessment status only counts this coach's records", async () => {
+  getCurrentUser.mockResolvedValue({
+    id: "coach-user-1", role: "coach", academy_id: "academy-1",
+  });
+  getCoachAssignedBatchIds.mockResolvedValue(["batch-1", "batch-2"]);
+  mockQueries([
+    { ...priorAssessment, id: "other-coach-assessment", coach_id: "coach-other" },
+    { ...priorAssessment, id: "own-assessment", player_id: "player-2", coach_id: "coach-1" },
+  ], [player, secondPlayer]);
+  render(<CoachPerformanceAssessments />);
+
+  const status = await screen.findByLabelText("Assessment status");
+  await waitFor(() => expect(status).not.toBeDisabled());
+  expect(screen.getByRole("option", { name: "Assessed by me" })).toBeInTheDocument();
+  expect(screen.queryByLabelText("Academy")).not.toBeInTheDocument();
+
+  fireEvent.change(status, { target: { value: "assessed" } });
+  fireEvent.click(screen.getByRole("button", { name: /Search or select a player/ }));
+  expect(screen.getByRole("option", { name: /Second Junior/ })).toBeInTheDocument();
+  expect(screen.queryByRole("option", { name: /Test Junior/ })).not.toBeInTheDocument();
+});
+
+test("PM3.1E Super Admin academy switch resets dependent filters and player selection", async () => {
+  getCurrentUser.mockResolvedValue({ id: "super-admin-1", role: "super_admin" });
+  const otherAcademy = {
+    ...secondPlayer, id: "other-academy-player", academy_id: "academy-2",
+    full_name: "Other Academy Player",
+  };
+  mockQueries([priorAssessment], [player, otherAcademy]);
+  render(<CoachPerformanceAssessments />);
+
+  const academy = await screen.findByLabelText("Academy");
+  fireEvent.change(academy, { target: { value: "academy-1" } });
+  fireEvent.change(screen.getByLabelText("Center"), { target: { value: "center-1" } });
+  fireEvent.change(screen.getByLabelText("Batch"), { target: { value: "batch-1" } });
+  fireEvent.click(screen.getByRole("button", { name: /Search or select a player/ }));
+  fireEvent.click(screen.getByRole("option", { name: /Test Junior/ }));
+  expect(screen.getByRole("heading", { name: "Assessment entry" })).toBeInTheDocument();
+
+  fireEvent.change(academy, { target: { value: "academy-2" } });
+  expect(screen.getByLabelText("Center")).toHaveValue("");
+  expect(screen.getByLabelText("Batch")).toHaveValue("");
+  expect(screen.getByLabelText("Assessment status")).toHaveValue("all");
+  expect(screen.queryByRole("heading", { name: "Assessment entry" })).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: /Search or select a player/ }));
+  expect(screen.getByRole("option", { name: /Other Academy Player/ })).toBeInTheDocument();
+  expect(screen.queryByRole("option", { name: /Test Junior/ })).not.toBeInTheDocument();
+});
+
+test("PM3.1E a failed coverage query keeps All players usable and does not invent a status", async () => {
+  mockQueries([priorAssessment], [player, secondPlayer], { failCoverage: true });
+  render(<CoachPerformanceAssessments />);
+
+  expect(await screen.findByText("Assessment status unavailable.")).toBeInTheDocument();
+  const status = screen.getByLabelText("Assessment status");
+  expect(status).not.toBeDisabled();
+  expect(status).toHaveValue("all");
+  expect(screen.getByRole("option", { name: "Assessed" })).toBeDisabled();
+  expect(screen.getByRole("option", { name: "Not assessed" })).toBeDisabled();
+
+  fireEvent.click(screen.getByRole("button", { name: /Search or select a player/ }));
+  expect(screen.getByRole("option", { name: /Test Junior/ })).toBeInTheDocument();
+  expect(screen.getByRole("option", { name: /Second Junior/ })).toBeInTheDocument();
+  expect(screen.queryByText("Not assessed", { selector: ".player-picker-status" })).not.toBeInTheDocument();
+
+  fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+  expect(await screen.findByText("Assessment status unavailable.")).toBeInTheDocument();
+  expect(status).toHaveValue("all");
+});
