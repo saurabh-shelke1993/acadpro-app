@@ -62,6 +62,7 @@ const mockTables = (availableAssessments) => {
       eq: (key, value) => { filters[key] = value; return query; },
       in: (key, value) => { filters[key] = value; return query; },
       order: () => query,
+      maybeSingle: () => Promise.resolve({ data: { id: "parent-record-1" }, error: null }),
       then: (resolve, reject) => {
         let data = table === "players" ? players : availableAssessments;
         if (table === "player_performance_assessments" && filters.player_id) {
@@ -123,4 +124,42 @@ test("PM2 shows helpful guidance without fabricating scores when there are no as
   expect(await screen.findByRole("heading", { name: "No scored performance assessments yet" }))
     .toBeInTheDocument();
   expect(screen.queryByRole("heading", { name: "Skill-wise scores" })).not.toBeInTheDocument();
+});
+
+test("PM4 provides a named chart plus exact screen-readable skill scores", async () => {
+  mockTables([assessment("player-top", 9)]);
+  renderReport();
+  expect(await screen.findByRole("heading", { name: "Skill-wise scores" })).toBeInTheDocument();
+  expect(screen.getByRole("img", { name: /Horizontal bar chart of latest assessment skill scores/ }))
+    .toBeInTheDocument();
+  expect(document.querySelector(".skill-values")).toHaveTextContent("Ball control: 9.0");
+});
+
+test("PM4 exposes numeric trend values without relying on chart visuals alone", async () => {
+  const previous = {
+    ...assessment("player-top", 7),
+    id: "previous-top",
+    assessment_date: "2026-09-30",
+    created_at: "2026-09-30T12:00:00Z",
+  };
+  mockTables([assessment("player-top", 9), previous]);
+  renderReport();
+  expect(await screen.findByRole("heading", { name: "Performance trend" })).toBeInTheDocument();
+  expect(await screen.findByRole("img", { name: /Line chart of overall average scores by assessment date/ }))
+    .toBeInTheDocument();
+  const points = screen.getByRole("list", { name: "Overall assessment trend values" });
+  expect(points).toHaveTextContent("7.0 out of 10");
+  expect(points).toHaveTextContent("9.0 out of 10");
+});
+
+test("PM5 Parent report has an accessible title without management navigation", async () => {
+  getCurrentUser.mockResolvedValue({
+    id: "parent-user-1", role: "parent",
+  });
+  mockTables([assessment("player-top", 8)]);
+  renderReport();
+  expect(await screen.findByRole("heading", { level: 1, name: "Performance Report" }))
+    .toBeInTheDocument();
+  expect(screen.queryByRole("link", { name: "Performance Assessments" })).not.toBeInTheDocument();
+  expect(screen.queryByRole("navigation", { name: "Player performance views" })).not.toBeInTheDocument();
 });
