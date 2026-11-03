@@ -77,6 +77,7 @@ const CoachProfile = () => {
   const [profileImagePreview, setProfileImagePreview] = useState("");
   const [certificationForm, setCertificationForm] = useState(EMPTY_CERTIFICATION);
   const [editingCertificationId, setEditingCertificationId] = useState(null);
+  const [isCertificationFormOpen, setIsCertificationFormOpen] = useState(false);
 
   const isSelf = isCoach(user);
   const isParent = user?.role === "parent";
@@ -290,6 +291,13 @@ const CoachProfile = () => {
   const resetCertificationForm = () => {
     setCertificationForm(EMPTY_CERTIFICATION);
     setEditingCertificationId(null);
+    setIsCertificationFormOpen(false);
+  };
+
+  const openNewCertificationForm = () => {
+    setCertificationForm(EMPTY_CERTIFICATION);
+    setEditingCertificationId(null);
+    setIsCertificationFormOpen(true);
   };
 
   const handleCertificationSubmit = async (event) => {
@@ -323,6 +331,7 @@ const CoachProfile = () => {
 
   const startCertificationEdit = (certification) => {
     setEditingCertificationId(certification.id);
+    setIsCertificationFormOpen(true);
     setCertificationForm({
       certificate_name: certification.certificate_name || "",
       issuing_organization: certification.issuing_organization || "",
@@ -389,21 +398,31 @@ const CoachProfile = () => {
         {error ? <div className="coach-profile-alert coach-profile-alert-error" role="alert">{error}</div> : null}
         {message ? <div className="coach-profile-alert coach-profile-alert-success" role="status" aria-live="polite">{message}</div> : null}
 
-        <section className="coach-profile-hero">
-          <div className="coach-profile-avatar">
-            {profile?.profile_image ? (
-              <img src={profile.profile_image} alt={`${profile?.full_name || "Coach"} profile`} />
-            ) : (
-              <span aria-hidden="true">{getInitials(profile?.full_name)}</span>
-            )}
+        <section className="coach-profile-hero" aria-label="Coach summary">
+          <div className="coach-profile-hero-main">
+            <div className="coach-profile-avatar">
+              {profile?.profile_image ? (
+                <img src={profile.profile_image} alt={`${profile?.full_name || "Coach"} profile`} />
+              ) : (
+                <span aria-hidden="true">{getInitials(profile?.full_name)}</span>
+              )}
+            </div>
+            <div className="coach-profile-identity">
+              <div className="coach-profile-name-row">
+                <h1>{profile?.full_name || "Coach"}</h1>
+                <span className="coach-profile-status">
+                  {profile?.is_active === false ? "Inactive" : "Active"}
+                </span>
+              </div>
+              <p>{profile?.specialization || "Football Coach"}{profile?.academy?.academy_name ? ` · ${profile.academy.academy_name}` : ""}</p>
+            </div>
           </div>
-          <div className="coach-profile-identity">
-            <span className="coach-profile-status">
-              {profile?.is_active === false ? "Inactive" : "Active"}
-            </span>
-            <h2>{profile?.full_name || "Coach"}</h2>
-            <p>{profile?.specialization || "Football Coach"}</p>
-          </div>
+          {!isParent && (
+            <div className="coach-profile-hero-stats" aria-label="Training summary">
+              <span>{centers.length} {centers.length === 1 ? "center" : "centers"}</span>
+              <span>{profile?.assignments?.length || 0} active {profile?.assignments?.length === 1 ? "batch" : "batches"}</span>
+            </div>
+          )}
           <div className="coach-profile-hero-actions">
             <button
               type="button"
