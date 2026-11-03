@@ -478,6 +478,7 @@ function PlayerPerformanceReport() {
     <Layout>
       <main className="performance-page">
         <PerformanceWorkspaceTabs role={currentUser?.role} />
+        {isParent(currentUser) ? <h1 className="performance-sr-only">Performance Report</h1> : null}
         {error ? <p role="alert" className="performance-error">{error}</p> : null}
 
         <section className="performance-scope-top-grid" aria-label="Performance scope and top results">
@@ -732,7 +733,7 @@ function PlayerPerformanceReport() {
                       </div>
                       {latestSkillData.length ? (
                         <>
-                          <div className="performance-chart performance-skill-chart" aria-label="Horizontal bar chart of latest assessment skill scores on a zero to ten scale">
+                          <div className="performance-chart performance-skill-chart" role="img" aria-label="Horizontal bar chart of latest assessment skill scores on a zero to ten scale; exact values listed underneath">
                             <ResponsiveContainer width="100%" height={285}>
                               <BarChart data={latestSkillData} layout="vertical" margin={{ top: 4, right: 18, left: 12, bottom: 4 }}>
                                 <CartesianGrid strokeDasharray="3 3" />
@@ -765,7 +766,7 @@ function PlayerPerformanceReport() {
                         </div>
                       </div>
                       {trendData.length > 1 ? (
-                        <div className="performance-chart performance-trend-chart" aria-label="Line chart of overall average scores by assessment date on a zero to ten scale">
+                        <div className="performance-chart performance-trend-chart" role="img" aria-label="Line chart of overall average scores by assessment date on a zero to ten scale; exact values listed underneath">
                           <ResponsiveContainer width="100%" height={285}>
                             <LineChart data={trendData} margin={{ top: 10, right: 12, left: 0, bottom: 22 }}>
                               <CartesianGrid strokeDasharray="3 3" />
@@ -776,6 +777,13 @@ function PlayerPerformanceReport() {
                             </LineChart>
                           </ResponsiveContainer>
                         </div>
+                        <ol className="performance-sr-only" aria-label="Overall assessment trend values">
+                          {trendData.map((point, index) => (
+                            <li key={`${point.label}-${index}`}>
+                              {point.label}: overall average {formatScore(point.average)} out of 10
+                            </li>
+                          ))}
+                        </ol>
                       ) : trendData.length === 1 ? (
                         <div className="performance-single-trend">
                           <span className="performance-section-eyebrow">First assessment recorded</span>
