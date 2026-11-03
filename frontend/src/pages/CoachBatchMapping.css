@@ -598,3 +598,29 @@
     gap: 0.4rem;
   }
 }
+
+/* CMA4: explicit mobile action disclosure, rather than an undiscoverable row tap. */
+.coach-mapping-mobile-expand {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .coach-mapping-mobile-expand {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 0.25rem;
+    padding: 0.2rem 0;
+    border: 0;
+    background: transparent;
+    color: var(--ap-primary-700);
+    font: inherit;
+    font-size: var(--ap-font-size-xs);
+    font-weight: 750;
+    cursor: pointer;
+  }
+
+  .coach-mapping-mobile-expand:focus-visible {
+    outline: 2px solid var(--ap-primary-600);
+    outline-offset: 2px;
+  }
+}
