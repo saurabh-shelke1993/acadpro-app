@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import Layout from "../components/Layout";
 import CoachWorkspaceTabs from "../components/CoachWorkspaceTabs";
 import "./CoachBatchMapping.css";
@@ -537,6 +538,7 @@ function CoachBatchMapping() {
   };
 
   const handleRowKeyDown = (event, mappingId) => {
+    if (event.target !== event.currentTarget) return;
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
       setSelectedMappingId(selectedMappingId === mappingId ? null : mappingId);
@@ -575,18 +577,15 @@ function CoachBatchMapping() {
               <span>active mapping{activeMappings === 1 ? "" : "s"}</span>
             </div>
           </div>
-          {canManageMappings && selectedAcademy && (
+          {canManageMappings && selectedAcademy && !isAssignmentFormOpen && (
             <button
               type="button"
-              className={isAssignmentFormOpen && !editingMappingId ? "coach-mapping-secondary-button" : "coach-mapping-primary-button"}
-              aria-expanded={isAssignmentFormOpen}
+              className="coach-mapping-primary-button"
+              aria-expanded="false"
               aria-controls="coach-mapping-assignment-card"
-              onClick={() => {
-                if (isAssignmentFormOpen && !editingMappingId) resetAssignmentForm();
-                else openNewAssignmentForm();
-              }}
+              onClick={openNewAssignmentForm}
             >
-              {isAssignmentFormOpen && !editingMappingId ? "Close" : "+ Assign Coach"}
+              + Assign Coach
             </button>
           )}
         </section>
@@ -601,6 +600,15 @@ function CoachBatchMapping() {
           <section id="coach-mapping-assignment-card" className={"coach-mapping-assignment-card" + (editingMappingId ? " coach-mapping-assignment-card-editing" : "")}>
             <div className="coach-mapping-assignment-heading">
               <h2>{editingMappingId ? "Edit Assignment" : "Assign Coach"}</h2>
+              <button
+                type="button"
+                className="coach-mapping-secondary-button coach-mapping-form-close"
+                onClick={resetAssignmentForm}
+                disabled={saving}
+                aria-label="Close assignment form"
+              >
+                Close
+              </button>
             </div>
             <div className="coach-mapping-form-grid">
               <label className="coach-mapping-field"><span>Coach *</span>
@@ -623,7 +631,7 @@ function CoachBatchMapping() {
               </label>
               {selectedBatch && (
                 <fieldset className="coach-mapping-sessions-fieldset">
-                  <legend>Assign sessions *</legend>
+                  <legend>{schedules.some((item) => item.batch_id === selectedBatch) ? "Assign sessions *" : "Training sessions"}</legend>
                   {schedules.filter((item) => item.batch_id === selectedBatch).length === 0 ? (
                     <p>No sessions are configured for this batch. The coach will have a batch-level mapping only.</p>
                   ) : (
@@ -707,8 +715,8 @@ function CoachBatchMapping() {
                     const batch = item.batches;
                     const initials = String(item.coaches?.full_name || "C").trim().split(/\s+/).slice(0, 2).map((part) => part.charAt(0).toUpperCase()).join("");
                     return (
-                      <>
-                      <tr key={item.id} className={isSelected ? "coach-mapping-row-selected" : ""} tabIndex={0} aria-selected={isSelected}
+                      <Fragment key={item.id}>
+                      <tr className={isSelected ? "coach-mapping-row-selected" : ""} tabIndex={0} aria-selected={isSelected}
                         onClick={() => setSelectedMappingId(isSelected ? null : item.id)}
                         onKeyDown={(event) => handleRowKeyDown(event, item.id)}>
                         <td className="coach-mapping-name-cell"><div className="coach-mapping-identity"><span className="coach-mapping-avatar" aria-hidden="true">{initials}</span><span>{item.coaches?.full_name || "—"}</span></div></td>
@@ -735,7 +743,7 @@ function CoachBatchMapping() {
                           </button>
                         </div></td>}
                       </tr>
-                      {isAcademyOwner(user) && isSelected && (
+                      {canManageMappings && isSelected && (
                         <tr className="coach-mapping-mobile-actions-row">
                           <td colSpan={3}>
                             <div className="coach-mapping-mobile-row-actions">
@@ -782,14 +790,24 @@ function CoachBatchMapping() {
                           </td>
                         </tr>
                       )}
-                      </>
+                      </Fragment>
                     );
                   }) : (
                     <tr><td className="coach-mapping-empty-state" colSpan={canManageMappings ? 6 : 5}>
                       <div className="coach-mapping-empty-icon">↔</div>
                       <strong>{activeFilterCount > 0 ? "No mappings match your filters" : "No coach-batch mappings"}</strong>
-                      <span>{activeFilterCount > 0 ? "Try changing or clearing your filters." : "Use Assign Coach to create an assignment."}</span>
-                      {activeFilterCount > 0 && <button type="button" className="coach-mapping-secondary-button" onClick={clearAllFilters}>Clear all filters</button>}
+                       <span>{activeFilterCount > 0
+                         ? "Try changing or clearing your filters."
+                         : coaches.length === 0
+                           ? "Add an active coach to the academy before making assignments."
+                           : "Assign an existing coach to a center, batch and training sessions."}</span>
+                       {activeFilterCount > 0 ? (
+                         <button type="button" className="coach-mapping-secondary-button" onClick={clearAllFilters}>Clear all filters</button>
+                       ) : canManageMappings && coaches.length === 0 ? (
+                         <Link className="coach-mapping-secondary-button coach-mapping-empty-link" to="/coaches">Go to Coach Directory</Link>
+                       ) : canManageMappings && selectedAcademy ? (
+                         <button type="button" className="coach-mapping-primary-button" onClick={openNewAssignmentForm}>+ Assign Coach</button>
+                       ) : null}
                     </td></tr>
                   )}
                 </tbody>
