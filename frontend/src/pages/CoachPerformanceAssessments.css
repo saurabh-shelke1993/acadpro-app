@@ -188,3 +188,229 @@
   .assessment-form-actions{align-items:stretch!important;flex-direction:column}
   .assessment-action-buttons{justify-content:flex-end}
 }
+
+/* PM3: compact, on-demand assessment entry and naturally sized score groups. */
+.performance-page > .assessment-form-card {
+  margin-top: 0.65rem !important;
+  padding: 0.8rem 0.95rem !important;
+}
+
+.performance-page > .assessment-form-card-collapsed {
+  padding: 0.65rem 0.85rem !important;
+}
+
+.assessment-form-card-collapsed .assessment-form-heading {
+  margin: 0;
+  padding: 0;
+  border-bottom: 0;
+}
+
+.assessment-form-heading {
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  padding-bottom: 0.65rem;
+}
+
+.assessment-form-heading > div:first-child {
+  min-width: 0;
+}
+
+.assessment-form-heading h2 {
+  font-size: 1rem;
+}
+
+.assessment-form-summary {
+  margin: 0.2rem 0 0;
+  color: var(--ap-slate-600);
+  font-size: var(--ap-font-size-xs);
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.assessment-form-heading-actions {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  flex: 0 0 auto;
+}
+
+.assessment-form-heading-actions button {
+  min-height: 38px;
+}
+
+.assessment-form-card .assessment-form {
+  margin-top: 0.6rem !important;
+}
+
+.assessment-form-card .assessment-meta-grid {
+  padding: 0.6rem;
+  gap: 0.55rem;
+}
+
+.assessment-form-card .score-entry-header {
+  margin: 0.75rem 0 0.45rem;
+}
+
+.assessment-form-card .score-matrix {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.score-matrix-group {
+  min-width: 0;
+}
+
+.score-matrix-group-heading {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.score-matrix-group-heading h4 {
+  margin: 0;
+  color: var(--ap-slate-800);
+  font-size: var(--ap-font-size-sm);
+  font-weight: 800;
+}
+
+.score-matrix-group-heading span {
+  color: var(--ap-slate-500);
+  font-size: var(--ap-font-size-xs);
+}
+
+.score-matrix-group-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.score-matrix-group-grid.score-matrix-technical {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.score-matrix-secondary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+
+.assessment-form-card .score-card {
+  padding: 0.5rem 0.6rem;
+}
+
+.assessment-form-card .score-card label {
+  margin-bottom: 0.25rem;
+  font-size: var(--ap-font-size-xs);
+}
+
+.assessment-form-card .score-input-wrap input {
+  min-height: 36px;
+  height: 36px;
+  font-size: var(--ap-font-size-sm);
+}
+
+.assessment-form-card .remarks-field {
+  margin-top: 0.7rem !important;
+  padding: 0.65rem !important;
+}
+
+.assessment-form-card .assessment-form-actions {
+  justify-content: space-between !important;
+  gap: 0.7rem;
+  margin-top: 0.65rem !important;
+  padding-top: 0.65rem !important;
+}
+
+.assessment-form-card button:focus-visible,
+.assessment-history-card button:focus-visible,
+.assessment-scope-card .player-picker-trigger:focus-visible,
+.assessment-scope-card .player-picker-option:focus-visible,
+.assessment-form-card input:focus-visible,
+.assessment-form-card select:focus-visible,
+.assessment-form-card textarea:focus-visible {
+  outline: 2px solid var(--ap-primary-600);
+  outline-offset: 2px;
+}
+
+.assessment-history-empty {
+  padding: 0.9rem 0.6rem;
+  border: 1px dashed var(--ap-border);
+  border-radius: 9px;
+  background: var(--ap-slate-50);
+  text-align: center;
+}
+
+.assessment-history-empty strong {
+  display: block;
+  color: var(--ap-slate-800);
+  font-size: var(--ap-font-size-sm);
+}
+
+.assessment-history-empty p {
+  margin: 0.3rem 0 0.65rem;
+  color: var(--ap-slate-600);
+  font-size: var(--ap-font-size-xs);
+}
+
+.assessment-history-card {
+  margin-top: 0.65rem !important;
+}
+
+@media (max-width: 1050px) {
+  .score-matrix-group-grid.score-matrix-technical {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .score-matrix-secondary {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .score-matrix-group-grid.score-matrix-technical {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .assessment-form-heading {
+    align-items: center;
+    flex-direction: row;
+  }
+
+  .assessment-form-heading-actions {
+    margin-left: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .performance-page > .assessment-form-card {
+    padding: 0.65rem !important;
+  }
+
+  .assessment-form-heading {
+    align-items: flex-start;
+  }
+
+  .assessment-form-heading h2 {
+    font-size: 0.95rem;
+  }
+
+  .score-matrix-group-grid {
+    gap: 0.35rem;
+  }
+
+  .assessment-form-card .score-card {
+    padding: 0.4rem;
+  }
+
+  .assessment-form-card .assessment-form-actions {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+
+  .assessment-form-card .assessment-action-buttons {
+    justify-content: flex-end;
+  }
+}
