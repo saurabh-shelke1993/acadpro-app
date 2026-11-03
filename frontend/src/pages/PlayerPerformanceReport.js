@@ -766,6 +766,7 @@ function PlayerPerformanceReport() {
                         </div>
                       </div>
                       {trendData.length > 1 ? (
+                        <>
                         <div className="performance-chart performance-trend-chart" role="img" aria-label="Line chart of overall average scores by assessment date on a zero to ten scale; exact values listed underneath">
                           <ResponsiveContainer width="100%" height={285}>
                             <LineChart data={trendData} margin={{ top: 10, right: 12, left: 0, bottom: 22 }}>
@@ -784,6 +785,7 @@ function PlayerPerformanceReport() {
                             </li>
                           ))}
                         </ol>
+                        </>
                       ) : trendData.length === 1 ? (
                         <div className="performance-single-trend">
                           <span className="performance-section-eyebrow">First assessment recorded</span>
