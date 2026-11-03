@@ -16,6 +16,8 @@ const player = {
   full_name: "Test Junior",
   academy_id: "academy-1",
   batch_id: "batch-1",
+  center_id: "center-1",
+  centers: { center_name: "Lodha Amara" },
   batches: { batch_name: "Juniors", is_active: true },
 };
 
@@ -59,6 +61,7 @@ const mockQueries = (history = []) => {
       eq: (field, value) => { filters[field] = value; return query; },
       in: (field, values) => { filters[field] = values; return query; },
       order: () => query,
+      range: () => query,
       maybeSingle: () => Promise.resolve({ data: coachRecord, error: null }),
       insert: (payload) => {
         mutations.insert(payload);
@@ -80,7 +83,11 @@ const mockQueries = (history = []) => {
           data = [coachRecord];
         } else if (table === "player_performance_assessments") {
           data = history.filter((entry) => (
-            !filters.player_id || filters.player_id === entry.player_id
+            (!filters.player_id ||
+              (Array.isArray(filters.player_id)
+                ? filters.player_id.includes(entry.player_id)
+                : filters.player_id === entry.player_id)) &&
+            (!filters.coach_id || filters.coach_id === entry.coach_id)
           ));
         } else {
           data = [];
