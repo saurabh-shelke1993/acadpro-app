@@ -486,3 +486,99 @@ button:disabled { cursor: not-allowed; opacity: .55; }
     margin-left: 0;
   }
 }
+
+/* CP4: keyboard focus, readable content, and adaptive phone/tablet widths. */
+.coach-profile-page,
+.coach-profile-content-grid,
+.coach-profile-content-grid > .coach-profile-card,
+.coach-profile-sidebar,
+.coach-profile-sidebar > .coach-profile-card,
+.coach-profile-hero-main,
+.coach-profile-identity,
+.coach-profile-assignment > div,
+.coach-profile-cert-item > div {
+  min-width: 0;
+}
+
+.coach-profile-primary-button:focus-visible,
+.coach-profile-secondary-button:focus-visible,
+.coach-profile-danger-button:focus-visible,
+.coach-profile-assignment-link:focus-visible,
+.coach-profile-field input:focus-visible,
+.coach-profile-field textarea:focus-visible {
+  outline: 2px solid var(--ap-primary-600);
+  outline-offset: 2px;
+}
+
+.coach-profile-field input:focus-visible,
+.coach-profile-field textarea:focus-visible {
+  border-color: var(--ap-primary-600);
+}
+
+.coach-profile-assignment-link,
+.coach-profile-cert-item,
+.coach-profile-bio,
+.coach-profile-identity p,
+.coach-profile-photo-preview {
+  overflow-wrap: anywhere;
+}
+
+.coach-profile-photo-preview {
+  flex-wrap: wrap;
+}
+
+.coach-profile-cert-header-actions > .coach-profile-secondary-button {
+  min-height: 38px;
+}
+
+@media (min-width: 481px) and (max-width: 700px) {
+  /* Keep personal information compact on tablets and larger phones. */
+  .coach-profile-details-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .coach-profile-page .coach-profile-card {
+    padding: 0.75rem;
+  }
+
+  .coach-profile-hero-main {
+    flex-basis: auto;
+    gap: 0.6rem;
+  }
+
+  .coach-profile-identity h1 {
+    font-size: 1.15rem;
+  }
+
+  .coach-profile-hero-stats span {
+    white-space: normal;
+  }
+
+  .coach-profile-cert-header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .coach-profile-cert-header-actions > .coach-profile-secondary-button {
+    flex: 0 1 auto;
+  }
+
+  .coach-profile-cert-actions,
+  .coach-profile-form-actions {
+    flex-wrap: wrap;
+  }
+
+  .coach-profile-cert-actions button,
+  .coach-profile-form-actions button {
+    min-width: 0;
+    min-height: 40px;
+  }
+
+  .coach-profile-assignment-meta,
+  .coach-profile-cert-meta,
+  .coach-profile-inline-actions {
+    flex-wrap: wrap;
+  }
+}
