@@ -35,6 +35,7 @@ The previous Report screen displayed a narrow Filter Performance + Top 5 row wit
 - `frontend/src/pages/PlayerPerformanceReport.css`
 - `frontend/src/utils/performanceReportSelection.js` (small pure selection helpers)
 - `frontend/src/utils/performanceReportSelection.test.js` (seven authored unit tests)
+- `frontend/src/pages/PlayerPerformanceReport.test.js` (three authored React integration tests with mocked authorized data)
 
 **Not changed:** `CoachPerformanceAssessments.js`, assessment creation/update/delete, score averaging/thresholds, database tables, RLS, RPCs, routes, role access, payment or parent portal data. The PM1 shared navigation and Parent report-only access are preserved.
 
@@ -60,7 +61,7 @@ The previous Report screen displayed a narrow Filter Performance + Top 5 row wit
 
 ## Authored tests / execution boundary
 
-`performanceReportSelection.test.js` tests selection preference, manual/deep-link precedence, no ranked results, valid/invalid academy selection for Super Admin/Owner/Coach/Parent. These are unit tests **authored only**, not executed by this GitHub file connector.
+`performanceReportSelection.test.js` tests selection preference, manual/deep-link precedence, no ranked results, valid/invalid academy selection for Super Admin/Owner/Coach/Parent. `PlayerPerformanceReport.test.js` additionally checks that an Owner's assessed player auto-opens a full report, a lower-ranked authorized deep link is preserved, and no-assessment scope produces guidance without false scores. **All 10 tests are authored only; none has been executed by this GitHub file connector.**
 
 The old business code still computes averages from available non-null scores, ranks by latest assessed score and shows the same role-visible detail charts. No scoring, historical or financial data model changes were made.
 
