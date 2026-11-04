@@ -63,6 +63,16 @@ These are **25 authored Jest cases** in the three directly relevant files, **not
 
 Use authorized, synthetic **test players** for replacement and delete scenarios. Never delete the three existing business photo objects just to validate PH5.
 
+## PH5 final implementation review — 4 November 2026
+
+**Development/test preparation:** COMPLETE. **Automated release verification:** NOT CONFIRMED. **Manual Owner/Coach/Parent and replacement/deletion acceptance:** PENDING.
+
+- Reviewed the current player photo upload service, cleanup helper and optimizer plus 25 focused authored tests covering compression, new upload, path authorization, concurrent updates, shared references, rollback, delete failure and signed preview.
+- Reviewed the active Supabase player's row security and private player-photo Storage policies (read-only). No schema, bucket, policy or production photo changes were made.
+- Vercel deployment/build for commit `90f1365361cecdcc169ff2b03d029ff56a030924` reported **success**. Do not extrapolate that result to subsequent commits without checking them.
+- Added a targeted GitHub Actions workflow at `.github/workflows/player-photo-validation.yml` which runs locked npm install, three focused Jest test files and production build on photo-related changes. Corrected regex quoting in commit `16e35646b529a89b49566eb809a41aba0aa51b22`. The connected GitHub API only lists PR-triggered workflow runs, so **the push-run test outcome could not be confirmed here**. See <https://github.com/saurabh-shelke1993/acadpro-app/actions/workflows/player-photo-validation.yml>.
+- The development phase is ready to hand off, but the project must **not** call PH5 tested or release-accepted until the focused CI results and controlled role/browser replacement verification are recorded.
+
 ## Exact current-branch validation commands (pending execution)
 
 ```bash
@@ -78,7 +88,11 @@ npm start
 
 Optional scoped suite:
 ```bash
-CI=true npm test -- --watchAll=false --runInBand --testPathPattern='(playerPhotoOptimization|playerPhotoCleanup|playerPhotoService)\\.test\\.js$'
+CI=true npm test -- --watchAll=false --runInBand --testPathPattern='(playerPhotoOptimization|playerPhotoCleanup|playerPhotoService)\.test\.js
+```
+
+Record the actual Jest counts/results, build result, test environment, exact SHA, Vercel deployment status and Academy Owner/Coach/Parent browser evidence before marking PH5 **tested** or **release-accepted**. No production schema, Storage bucket config, or RLS policy change is required for the implemented replacement cleanup.
+
 ```
 
 Record the actual Jest counts/results, build result, test environment, exact SHA, Vercel deployment status and Academy Owner/Coach/Parent browser evidence before marking PH5 **tested** or **release-accepted**. No production schema, Storage bucket config, or RLS policy change is required for the implemented replacement cleanup.
