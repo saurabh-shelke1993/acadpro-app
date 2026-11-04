@@ -87,6 +87,7 @@ function Players() {
   const [playerPhotoUrls, setPlayerPhotoUrls] = useState({});
   const [playerPhotoUploading, setPlayerPhotoUploading] = useState(false);
   const [playerPhotoError, setPlayerPhotoError] = useState("");
+  const [playerPhotoNotice, setPlayerPhotoNotice] = useState("");
   const [columnFilters, setColumnFilters] = useState({
     academy: [],
     center: [],
@@ -124,8 +125,10 @@ function Players() {
 
     setPlayerPhotoUploading(true);
     setPlayerPhotoError("");
+    setPlayerPhotoNotice("");
     try {
       const result = await uploadPlayerPhoto({ player: editingPlayer, file });
+      setPlayerPhotoNotice(result.cleanupWarning || "");
       setPlayerPhotoUrls((current) => ({ ...current, [editingPlayer.id]: result.url }));
       setPlayers((current) => current.map((player) =>
         player.id === editingPlayer.id ? { ...player, profile_image: result.path } : player
@@ -147,8 +150,10 @@ function Players() {
     if (!file || !selectedCoachPlayer) return;
     setPlayerPhotoUploading(true);
     setPlayerPhotoError("");
+    setPlayerPhotoNotice("");
     try {
       const result = await uploadPlayerPhoto({ player: selectedCoachPlayer, file });
+      setPlayerPhotoNotice(result.cleanupWarning || "");
       setPlayerPhotoUrls((current) => ({ ...current, [selectedCoachPlayer.id]: result.url }));
       setSelectedCoachPlayer((current) => current ? { ...current, profile_image: result.path } : current);
       setPlayers((current) => current.map((player) => player.id === selectedCoachPlayer.id ? { ...player, profile_image: result.path } : player));
@@ -1212,6 +1217,7 @@ useEffect(() => {
                   </label>
                   <span>JPG, PNG or WebP · original up to 10 MB · optimized WebP max 150 KB</span>
                   {playerPhotoError && <p className="player-profile-error" role="alert">{playerPhotoError}</p>}
+                  {playerPhotoNotice && <p className="player-profile-notice" role="status">{playerPhotoNotice}</p>}
                 </div>
               </div>
             </div>
@@ -1694,6 +1700,7 @@ useEffect(() => {
                     </div>
                   )}
                   {playerPhotoError && <p className="player-profile-error" role="alert">{playerPhotoError}</p>}
+                  {playerPhotoNotice && <p className="player-profile-notice" role="status">{playerPhotoNotice}</p>}
                 </div>
                 <div className="player-profile-hero-actions">
                   {isAcademyOwner(loggedInUser) && (
