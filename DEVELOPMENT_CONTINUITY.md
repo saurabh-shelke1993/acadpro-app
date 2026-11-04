@@ -155,3 +155,5 @@ Only pull when local work is safe to integrate; **do not discard uncommitted cha
 ## UI-C2.6 preview checkpoint — 4 November 2026
 
 Isolated Academy Owner dashboard refinement is implemented on `ui-c2-5-owner-dashboard-validation`: smaller header; improved center membership and zero-player batch presentation; all sessions visible with `attendanceRecorded` status; unified seven-day recorded-mark attendance; smaller financial cards, distinct pending/partial/paid counts and N/A collection rate when billed-this-month = 0. `/dashboard`, Supabase services, RBAC/RLS and production routing remain unchanged. CI checks and authenticated browser acceptance must be recorded separately. Reference `frontend/docs/UI_C2_6_OWNER_REFINEMENT.md`.
+
+**UI-C2.6 verification:** Actions run 41792531854: focused 22/22 PASS, CRA build PASS; full Jest suite 4 failed/24 passed (unchanged coach/performance suites). Vercel code-commit status SUCCESS. Authenticated browser, multi-role negative tests and Owner sign-off PENDING. Code commit a9ee7f3; documentation follow-up may have a newer HEAD.
