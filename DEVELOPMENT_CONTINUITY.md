@@ -151,3 +151,7 @@ Only pull when local work is safe to integrate; **do not discard uncommitted cha
 6. Before opening a new ChatGPT conversation, review this file against latest branch and active Supabase state.
 
 **Handoff principle:** GitHub code + live authorized database metadata are the implementation truth. This continuity document is an index of decisions and evidence, not a claim that all prior work was tested or released.
+
+## UI-C2.6 preview checkpoint — 4 November 2026
+
+Isolated Academy Owner dashboard refinement is implemented on `ui-c2-5-owner-dashboard-validation`: smaller header; improved center membership and zero-player batch presentation; all sessions visible with `attendanceRecorded` status; unified seven-day recorded-mark attendance; smaller financial cards, distinct pending/partial/paid counts and N/A collection rate when billed-this-month = 0. `/dashboard`, Supabase services, RBAC/RLS and production routing remain unchanged. CI checks and authenticated browser acceptance must be recorded separately. Reference `frontend/docs/UI_C2_6_OWNER_REFINEMENT.md`.

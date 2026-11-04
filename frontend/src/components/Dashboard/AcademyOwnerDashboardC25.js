@@ -44,7 +44,7 @@ function Overview({ data }) {
         <div className="c25-distribution">
           <div className="c25-donut" style={{background: colors.length ? "conic-gradient(" + colors.join(",") + ")" : "#dbe4ef"}}
             role="img" aria-label={"Center-player memberships: " + formatCount(memberships)}>
-            <div className="c25-donut-inner"><span>Assigned to centers</span><strong>{formatCount(memberships)}</strong><small>center memberships</small></div>
+            <div className="c25-donut-inner"><span>Center assignments</span><strong>{formatCount(memberships)}</strong><small>memberships · not unique players</small></div>
           </div>
           <div className="c25-centers" role="group" aria-label="Choose training center">
             {centers.map(c => <button key={c.id} type="button" aria-pressed={current?.id === c.id}
@@ -56,7 +56,7 @@ function Overview({ data }) {
         <div className="c25-batch-panel">
           <div className="c25-batch-title"><div><span className="c25-eyebrow">Batch breakdown</span><h3>{current?.name}</h3></div><strong>{formatCount(current?.players)} players</strong></div>
           {current?.batches.length ?
-            <div className="c25-batch-list">{current.batches.map(b => <div key={b.id} className="c25-batch-item"><span>{b.name}</span><b>{formatCount(b.players)}</b></div>)}</div> :
+            <div className="c25-batch-list">{current.batches.map(b => <div key={b.id} className={"c25-batch-item" + (b.players === 0 ? " is-empty" : "")}><span>{b.name}</span><b>{formatCount(b.players)} <small>players</small></b></div>)}</div> :
             <Empty title="No active batches" detail="This center has no configured age-group batches." />}
           <Link className="c25-action-link" to={centerPlayersPath(current)}>View center players <span aria-hidden="true">↗</span></Link>
         </div>
@@ -64,66 +64,91 @@ function Overview({ data }) {
   </section>;
 }
 function Sessions({ data }) {
-  const [expanded, setExpanded] = useState(false);
   const sessions = data.sessions;
-  const visible = sessions?.slice(0, expanded ? undefined : 4);
-  const groups = groupByCenter(visible, s=>s.centerId || s.centerName || "unassigned", s=>s.centerName || "Unassigned center");
-  return <section className="c25-panel c25-sessions" aria-label="Today's training sessions">
-    <SectionHead eyebrow="Training day" title="Today's sessions" right={<span className="c25-pill">{sessions?.length ?? "—"} scheduled</span>} />
-    {sessions === null ? <Empty title="Today's schedule unavailable" detail="Training information was not returned." /> :
-      !sessions.length ? <Empty title="No training today" detail="Check batch schedules if sessions were expected." /> :
-      <>
-        <div className="c25-session-list">{groups.map(g => <div className="c25-session-center" key={g.key}>
-          <h3>{g.name}</h3>
-          {g.rows.map(s => <div className="c25-session-row" key={s.id}>
-            <div><strong>{s.batchName || "Unnamed batch"}</strong><span>{formatTime(s.startTime)}{s.endTime ? " – " + formatTime(s.endTime) : ""}</span></div>
-            <Link to={attendancePath(s)} aria-label={"Open attendance for " + s.batchName + " at " + g.name}>Attendance <span aria-hidden="true">↗</span></Link>
+  const groups = groupByCenter(sessions, s => s.centerId || s.centerName || "unassigned", s => s.centerName || "Unassigned center");
+  const noMarks = sessions ? sessions.filter(s => !s.attendanceRecorded).length : 0;
+  return <section className="c25-panel c25-sessions" aria-label="Today's training sessions" id="today-training">
+    <SectionHead eyebrow="Training day" title="Today's sessions" right={<span className="c25-pill">{sessions?.length ?? "—"} scheduled</span>}/>
+    {sessions === null ? <Empty title="Sessions unavailable" detail="Today's training schedule could not be loaded." /> :
+      !sessions.length ? <Empty title="No sessions today" detail="Check batch schedules if training was expected." /> : <>
+        <div className="c25-session-overview">
+          <strong>{formatCount(noMarks)}</strong> <span>{noMarks === 1 ? "batch without marks" : "batches without marks"} today</span>
+        </div>
+        <div className="c25-session-list">{groups.map(group => <section className="c25-session-center" key={group.key}>
+          <h3>{group.name}</h3>
+          {group.rows.map(s => <div className="c25-session-row" key={s.id}>
+            <div className="c25-session-detail">
+              <strong>{s.batchName || "Unnamed batch"}</strong>
+              <span>{formatTime(s.startTime)}{s.endTime ? " – " + formatTime(s.endTime) : ""}</span>
+              <span className={"c25-session-status " + (s.attendanceRecorded ? "is-marked" : "is-unmarked")}>{s.attendanceRecorded ? "Marks recorded" : "No marks yet"}</span>
+            </div>
+            <Link to={attendancePath(s)} aria-label={"Open attendance for " + (s.batchName || "batch") + " at " + group.name}>Attendance <span aria-hidden="true">↗</span></Link>
           </div>)}
-        </div>)}</div>
-        {sessions.length > 4 && <button className="c25-expand" type="button" aria-expanded={expanded} onClick={() => setExpanded(!expanded)}>
-          {expanded ? "Show fewer sessions" : "Show all " + sessions.length + " sessions"} <span aria-hidden="true">{expanded ? "↑" : "↓"}</span>
-        </button>}
+        </section>)}</div>
+        <p className="c25-footnote">Status means at least one attendance mark exists for the batch today; it does not confirm every player is marked.</p>
       </>}
   </section>;
 }
 function Attendance({ data }) {
   const batches = data.attendanceBatches;
   const summary = recordedMarkSummary(batches);
-  const groups = groupByCenter(batches, b=>b.centerName || "Unassigned center", b=>b.centerName || "Unassigned center");
+  const groups = groupByCenter(batches, b => b.centerName || "Unassigned center", b => b.centerName || "Unassigned center");
   return <section className="c25-panel c25-attendance" aria-label="Weekly attendance by batch">
     <SectionHead eyebrow="Training consistency" title="Weekly attendance by batch" right={<span className="c25-pill">Last 7 days</span>}/>
-    <p className="c25-note">Present marks ÷ recorded present/absent marks. This is not expected-session coverage.</p>
-    {batches === null ? <Empty title="Attendance unavailable" detail="No attendance source records were returned." /> :
-      summary.rate === null ? <Empty title="No attendance marks" detail="The chart will appear when a coach records attendance." /> :
-      <>
-        <div className="c25-attendance-summary"><div><strong>{summary.rate}%</strong><span>Recorded-mark attendance</span></div><div><strong>{summary.recordedBatches}/{summary.totalBatches}</strong><span>Batches with marks</span></div><Link className="c25-action-link" to="/attendance">Open attendance ↗</Link></div>
-        <div className="c25-attendance-groups">{groups.map(g=><section className="c25-attendance-group" key={g.key}><h3>{g.name}</h3>
-          {g.rows.map(b=>{
-            const rate = Number(b.totalRecords) > 0 ? Math.round(Number(b.presentRecords || 0) / Number(b.totalRecords) * 100) : null;
-            return <div className="c25-attendance-row" key={b.id || b.batchId || b.batchName}>
-              <span>{b.batchName}</span><div className="c25-bar" role="img" aria-label={b.batchName + ": " + (rate === null ? "no recorded marks" : rate + "% attendance")}><i style={{width:(rate ?? 0) + "%"}}/></div>
-              <b>{rate === null ? "—" : rate + "%"}</b></div>;
-          })}
-        </section>)}</div>
+    {batches === null ? <Empty title="Attendance unavailable" detail="Attendance source information could not be loaded." /> :
+      summary.rate === null ? <Empty title="No attendance marks" detail="Attendance appears after coaches record present and absent marks." /> : <>
+        <div className="c25-attendance-summary">
+          <div className="c25-attendance-primary"><strong>{summary.rate}%</strong><span>Present among recorded marks</span></div>
+          <div><strong>{summary.recordedBatches} of {summary.totalBatches}</strong><span>Batches with marks</span></div>
+          <Link className="c25-action-link" to="/attendance">Open attendance ↗</Link>
+        </div>
+        <p className="c25-note">Recorded-mark rate = present ÷ recorded present/absent marks. It is not training-session coverage.</p>
+        <div className="c25-attendance-groups">{groups.map(g => {
+          const hasMarks = g.rows.filter(r => Number(r.totalRecords) > 0).length;
+          return <section className="c25-attendance-group" key={g.key}>
+            <div className="c25-attendance-group-head"><h3>{g.name}</h3><span>{hasMarks} of {g.rows.length} batches with marks</span></div>
+            {g.rows.map(b => {
+              const hasData = Number(b.totalRecords) > 0;
+              const rate = hasData ? Math.round(Number(b.presentRecords || 0) / Number(b.totalRecords) * 100) : null;
+              return <div className={"c25-attendance-row" + (hasData ? "" : " is-no-data")} key={b.id || b.batchId || b.batchName}>
+                <span>{b.batchName || "Unnamed batch"}</span>
+                <div className="c25-bar" role="img" aria-label={(b.batchName || "Batch") + ": " + (rate === null ? "no recorded marks" : rate + "% of recorded marks present")}>
+                  <i style={{ width: (rate ?? 0) + "%" }}/>
+                </div>
+                <b>{rate === null ? "No marks" : rate + "%"}</b>
+              </div>;
+            })}
+          </section>;
+        })}</div>
       </>}
   </section>;
 }
 function Finances({ data }) {
   const f = data.financial;
-  const items=[
-    ["Billed this month",f?.totalBilledThisMonth,"Dues scheduled this month","/payment-dues"],
-    ["Collected this month",f?.collectionsThisMonth,"Recorded collections","/payment-collections"],
-    ["Expenses this month",f?.expensesThisMonth,"Recorded expenses","/expenses"],
-    ["Current outstanding",f?.outstandingAmount,"Current unpaid balance","/payment-dues"]
+  const items = [
+    ["Billed this month", f?.totalBilledThisMonth, "Dues scheduled this month", "/payment-dues"],
+    ["Collected this month", f?.collectionsThisMonth, "Recorded collections", "/payment-collections"],
+    ["Expenses this month", f?.expensesThisMonth, "Recorded expenses", "/expenses"],
+    ["Current outstanding", f?.outstandingAmount, "Current unpaid balance, including earlier periods", "/payment-dues"]
   ];
+  const hasBillingDenominator = f !== null && f.totalBilledThisMonth != null && Number(f.totalBilledThisMonth) > 0;
+  const collectionRateLabel = hasBillingDenominator && Number.isFinite(Number(f.collectionRate)) ? formatCount(f.collectionRate) + "%" : "N/A";
   return <section className="c25-panel c25-finances" aria-label="Monthly finances">
-    <SectionHead eyebrow="Financial snapshot" title="Monthly finances" right={<span className="c25-pill">{new Date().toLocaleDateString("en-IN",{month:"long",year:"numeric"})}</span>}/>
-    {f === null ? <Empty title="Financial data unavailable" detail="Unavailable amounts are not shown as zero." /> : <>
-      <div className="c25-finance-grid">{items.map(([label,value,detail,to])=><Link key={label} className="c25-finance-tile" to={to}><span>{label}</span><strong>{formatMoney(value)}</strong><small>{detail}</small><b aria-hidden="true">↗</b></Link>)}</div>
-      <div className="c25-finance-status" aria-label="Payment due statuses">
-        <div><span>Pending</span><b>{formatCount(f.pendingDues)}</b></div><div><span>Partial</span><b>{formatCount(f.partialDues)}</b></div>
-        <div><span>Paid</span><b>{formatCount(f.paidDues)}</b></div><div><span>Collection rate</span><b>{f.collectionRate == null ? "—" : String(f.collectionRate) + "%"}</b></div>
+    <SectionHead eyebrow="Financial snapshot" title="Monthly finances" right={<span className="c25-pill">{new Date().toLocaleDateString("en-IN", {month:"long",year:"numeric"})}</span>}/>
+    {f === null ? <Empty title="Financial information unavailable" detail="Unavailable amounts are not displayed as zero." /> : <>
+      <div className="c25-finance-grid">{items.map(([label, value, detail, to]) => <Link key={label}
+        className={"c25-finance-tile" + (label === "Current outstanding" && Number(value) > 0 ? " is-outstanding" : "")} to={to}>
+        <span>{label}</span><strong>{formatMoney(value)}</strong><small>{detail}</small><b aria-hidden="true">↗</b>
+      </Link>)}</div>
+      <div className="c25-finance-status" aria-label="Payment due status counts and collection rate">
+        <div><span>Pending</span><b>{formatCount(f.pendingDues)}</b></div>
+        <div><span>Partial</span><b>{formatCount(f.partialDues)}</b></div>
+        <div><span>Paid</span><b>{formatCount(f.paidDues)}</b></div>
+        <div><span>Monthly collection rate</span><b>{collectionRateLabel}</b></div>
       </div>
+      <p className="c25-finance-note">{hasBillingDenominator
+        ? "Monthly rate = collections this month ÷ dues billed this month."
+        : "Collection rate N/A: no dues were billed this month. Outstanding may include earlier periods."}</p>
     </>}
   </section>;
 }
@@ -140,11 +165,20 @@ function Enquiries({ data }) {
   </section>;
 }
 export default function AcademyOwnerDashboardC25({ data }) {
-  const adapted=useMemo(()=>adaptOwnerData(data),[data]);
+  const adapted = useMemo(() => adaptOwnerData(data), [data]);
   if (!adapted) return <div className="c25-dashboard"><Empty title="Dashboard unavailable" detail="Academy dashboard data was not returned." /></div>;
-  return <div className="c25-dashboard">
-    <div className="c25-preview-bar"><span>UI-C2.5 · Academy Owner preview only</span><Link to="/dashboard">Return to current dashboard ↗</Link></div>
-    <header className="c25-pagehead"><div><span className="c25-eyebrow">Kheltriva · Football operations</span><h1>Academy overview</h1><p>{adapted.academyName} · Your training day at a glance</p></div><span className="c25-tag">FOOTBALL FIRST</span></header>
+  return <div className="c25-dashboard c26-refined">
+    <header className="c25-pagehead">
+      <div className="c25-page-identity">
+        <span className="c25-eyebrow">Kheltriva · Football operations</span>
+        <h1>Academy overview</h1>
+        <p>{adapted.academyName} · Your training day at a glance</p>
+      </div>
+      <div className="c25-preview-actions">
+        <span className="c25-preview-badge">UI-C2.6 preview</span>
+        <Link to="/dashboard" className="c25-preview-return">← Current dashboard</Link>
+      </div>
+    </header>
     <div className="c25-top"><Overview data={adapted}/><Sessions data={adapted}/></div>
     <Attendance data={adapted}/>
     <div className="c25-bottom"><Finances data={adapted}/><Enquiries data={adapted}/></div>

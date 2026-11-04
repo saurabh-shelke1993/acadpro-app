@@ -1,3 +1,8 @@
+
+## UI-C2.6 — Academy Owner preview visual refinement (4 November 2026)
+
+UI-C2.6A–C implemented on the isolated `ui-c2-5-owner-dashboard-validation` branch only: compact preview header, refined player center/batch hierarchy, all training sessions visible with recorded/no-marks states, consolidated grouped weekly attendance, compact financial tiles and N/A collection rate when there is no monthly billing denominator. UI-C2.6D automated tests and production build are subject to the exact-head CI results; authenticated Owner/mobile and cross-role browser acceptance remain pending. Existing `/dashboard` is not replaced. See `frontend/docs/UI_C2_6_OWNER_REFINEMENT.md`.
+
 # AcadPro Project Status
 
 **Last Updated:** 3 November 2026 (recent module checkpoint; older sections retain historical dates)  

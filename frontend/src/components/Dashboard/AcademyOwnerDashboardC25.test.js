@@ -67,11 +67,34 @@ test("center selection updates batch breakdown, including empty age groups",()=>
   expect(screen.getAllByText("Under 12").length).toBeGreaterThan(0);
   expect(screen.queryByText("Seniors (U16)")).not.toBeInTheDocument();
 });
-test("session expansion reveals every scheduled batch",()=>{
+test("all scheduled sessions are visible without expansion",()=>{
   mount();
-  expect(screen.queryByText("Under 8")).not.toBeInTheDocument();
-  fireEvent.click(screen.getByRole("button",{name:/Show all 5 sessions/}));
   expect(screen.getByText("Under 8")).toBeInTheDocument();
+  expect(screen.getAllByRole("link",{name:/Open attendance for/})).toHaveLength(5);
+  expect(screen.queryByRole("button",{name:/Show all/})).not.toBeInTheDocument();
+});
+test("marks-exist state is distinct from no marks without claiming complete coverage",()=>{
+  mount({...fixture,todaySessions:fixture.todaySessions.map((s,i)=>({...s,attendanceRecorded:i===0}))});
+  expect(screen.getByText("Marks recorded")).toBeInTheDocument();
+  expect(screen.getAllByText("No marks yet")).toHaveLength(4);
+  expect(screen.getByText(/does not confirm every player/)).toBeInTheDocument();
+});
+test("unbilled month displays N/A collection rate, without rewriting outstanding",()=>{
+  mount({...fixture,financial:{...fixture.financial,totalBilledThisMonth:0,collectionsThisMonth:0,collectionRate:0,outstandingAmount:1400}});
+  expect(screen.getByText("N/A")).toBeInTheDocument();
+  expect(screen.getByText("₹1,400")).toBeInTheDocument();
+  expect(screen.getByText(/no dues were billed this month/i)).toBeInTheDocument();
+});
+test("attendance summary distinguishes recorded-mark rate from batch coverage",()=>{
+  mount();
+  expect(screen.getByText("75%")).toBeInTheDocument();
+  expect(screen.getByText("2 of 3")).toBeInTheDocument();
+  expect(screen.getByText(/not training-session coverage/i)).toBeInTheDocument();
+});
+test("preview remains isolated from production dashboard and links back",()=>{
+  mount();
+  expect(screen.getByRole("link",{name:/Current dashboard/i})).toHaveAttribute("href","/dashboard");
+  expect(screen.getByText("UI-C2.6 preview")).toBeInTheDocument();
 });
 test("zero attendance is shown as unavailable rather than zero percent",()=>{
   mount({...fixture,attendanceByBatch:[]});
