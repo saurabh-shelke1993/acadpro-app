@@ -1,0 +1,43 @@
+name: Player photo validation
+
+on:
+  push:
+    branches: [payment-module-finalization]
+    paths:
+      - 'frontend/src/services/playerPhotoService.js'
+      - 'frontend/src/services/playerPhotoService.test.js'
+      - 'frontend/src/utils/playerPhotoOptimization.js'
+      - 'frontend/src/utils/playerPhotoOptimization.test.js'
+      - 'frontend/src/utils/playerPhotoCleanup.js'
+      - 'frontend/src/utils/playerPhotoCleanup.test.js'
+      - '.github/workflows/player-photo-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  photo-regression:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install locked frontend dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Run player photo tests
+        env:
+          CI: 'true'
+        run: npm test -- --watchAll=false --runInBand --testPathPattern='(playerPhotoOptimization|playerPhotoCleanup|playerPhotoService)\\.test\\.js$'
+      - name: Build React frontend
+        env:
+          CI: 'true'
+        run: npm run build
