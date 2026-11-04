@@ -108,6 +108,16 @@ function AppRoutes() {
           }
         />
 
+        {/* UI-C2.9: five distinct brand palettes in an owner-only design lab. */}
+        <Route
+          path="/ui-c2-9-palettes"
+          element={
+            <ProtectedRoute allowedRoles={["academy_owner"]}>
+              <Dashboard ownerPaletteLab />
+            </ProtectedRoute>
+          }
+        />
+
         <Route
           path="/analytics"
           element={

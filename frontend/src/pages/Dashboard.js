@@ -30,7 +30,7 @@ const initialSummary = {
 const formatCurrency = (amount) =>
   `₹${Number(amount || 0).toLocaleString("en-IN")}`;
 
-function Dashboard({ ownerPreview = false, ownerPreviewV27 = false }) {
+function Dashboard({ ownerPreview = false, ownerPreviewV27 = false, ownerPaletteLab = false }) {
   const [user, setUser] = useState(null);
   const [summary, setSummary] = useState(initialSummary);
   const [loading, setLoading] = useState(true);
@@ -131,7 +131,9 @@ function Dashboard({ ownerPreview = false, ownerPreviewV27 = false }) {
   if (isAcademyOwner(user)) {
     return (
       <Layout>
-        {ownerPreviewV27 ? (
+        {ownerPaletteLab ? (
+          <AcademyOwnerDashboardC27 data={summary.academyOwner} paletteLab />
+        ) : ownerPreviewV27 ? (
           <AcademyOwnerDashboardC27 data={summary.academyOwner} />
         ) : ownerPreview ? (
           <AcademyOwnerDashboardC25 data={summary.academyOwner} />

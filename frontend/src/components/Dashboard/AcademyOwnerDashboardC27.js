@@ -5,6 +5,7 @@ import {
   formatCount, formatMoney, formatTime, groupByCenter, recordedMarkSummary
 } from "./academyOwnerC25Adapter";
 import "./AcademyOwnerDashboardC27.css";
+import "./AcademyOwnerDashboardC29.css";
 
 /**
  * UI-C2.7 visual candidate. Academy Owner only through the existing ProtectedRoute.
@@ -15,6 +16,25 @@ const DASHBOARD_PALETTES = [
   {id:"pitchside",label:"Pitchside Emerald",color:"#087c6e"},
   {id:"floodlight",label:"Floodlight Indigo",color:"#4f46cf"}
 ];
+const PALETTE_LAB_THEMES = [
+{id:"scarlet",name:"Stadium Scarlet",description:"Bold football-club energy",deep:"#1F252C",primary:"#B32137",accent:"#F8A18C",canvas:"#FAF5F5",chartColors:["#B32137","#F28A75","#68717B","#D4A296"]},
+{id:"maroon",name:"Heritage Maroon",description:"Prestigious club heritage",deep:"#361D2A",primary:"#7B2849",accent:"#EBC58E",canvas:"#FCF7F7",chartColors:["#7B2849","#B65D7B","#DCAF75","#8D7082"]},
+{id:"terracotta",name:"Terracotta & Sand",description:"Warm, distinctive character",deep:"#3C2C26",primary:"#A4472B",accent:"#F3C796",canvas:"#FCF7EF",chartColors:["#A4472B","#D88960","#E4B478","#86786D"]},
+{id:"amethyst",name:"Amethyst & Blush",description:"Expressive modern academy",deep:"#2B1D3E",primary:"#6F3D91",accent:"#E7B6D9",canvas:"#FAF6FC",chartColors:["#6F3D91","#AE74BC","#E4A4C5","#8680A1"]},
+{id:"onyx",name:"Onyx & Gold",description:"Understated premium luxury",deep:"#242321",primary:"#705007",accent:"#EAC15E",canvas:"#FBF9F1",chartColors:["#866212","#D2AC53","#777169","#BDAA88"]}
+];
+function ThemeGallery({value,onChange}) {
+ return <section className="c29-gallery" aria-label="Five new dashboard color palettes">
+  <div className="c29-gallery-heading"><strong>Five new directions</strong><span>Compare complete dashboard treatments with the same academy data</span></div>
+  <div className="c29-theme-grid" role="group" aria-label="Select a dashboard design theme">
+   {PALETTE_LAB_THEMES.map(t => <button key={t.id} type="button" className={"c29-theme-card" + (value === t.id ? " is-selected" : "")}
+    onClick={() => onChange(t.id)} aria-label={"Preview "+t.name} aria-pressed={value === t.id}>
+     <span className="c29-theme-swatches" aria-hidden="true"><i style={{background:t.deep}}/><i style={{background:t.primary}}/><i style={{background:t.accent}}/><i style={{background:t.canvas}}/></span>
+     <strong>{t.name}</strong><small>{t.description}</small>
+   </button>)}
+  </div>
+ </section>;
+}
 function PalettePicker({value,onChange}) {
   return <div className="c28-palette-picker" role="group" aria-label="Preview dashboard color palette">
     <span>Try palette</span>
@@ -66,16 +86,18 @@ function Stat({ label, value, path, icon }) {
     <span className="c27-stat-arrow"><Glyph name="arrow" size={13}/></span>
   </Link>;
 }
-function Overview({ data }) {
+function Overview({ data, paletteLab = false, palette = "classic" }) {
   const [selectedCenterId, setSelectedCenterId] = useState(null);
   const centers = data.centers;
   const selected = centers?.find(center => center.id === selectedCenterId) || centers?.[0];
   const memberships = (centers || []).reduce((sum, center) => sum + center.players, 0);
+  const chosenColors = paletteLab ? PALETTE_LAB_THEMES.find(t => t.id === palette)?.chartColors : null;
+  const displayCenters = (centers || []).map((center,i) => ({...center,displayColor:chosenColors?.[i%chosenColors.length] || center.color}));
   let offset = 0;
-  const segments = (centers || []).filter(center => center.players > 0).map(center => {
+  const segments = displayCenters.filter(center => center.players > 0).map(center => {
     const start = offset;
     offset += memberships ? (center.players / memberships) * 100 : 0;
-    return center.color + " " + start + "% " + offset + "%";
+    return center.displayColor + " " + start + "% " + offset + "%";
   });
   const ring = segments.length ? "conic-gradient(" + segments.join(",") + ")" : "#dbe4ee";
   return <section className="c27-panel c27-overview" aria-label="Players by center">
@@ -96,10 +118,10 @@ function Overview({ data }) {
             </div>
           </div>
           <div className="c27-center-legend" role="group" aria-label="Select center to see batch breakdown">
-            {centers.map(center => <button type="button" key={center.id}
+            {displayCenters.map(center => <button type="button" key={center.id}
               className={"c27-center-option" + (selected?.id === center.id ? " is-current" : "")}
               aria-pressed={selected?.id === center.id} onClick={() => setSelectedCenterId(center.id)}>
-              <span className="c27-center-dot" style={{background:center.color}}/>
+              <span className="c27-center-dot" style={{background:center.displayColor}}/>
               <span className="c27-center-name" title={center.name}>{center.name}</span>
               <strong>{formatCount(center.players)}</strong>
               <Glyph name="chevron" size={14}/>
@@ -292,16 +314,20 @@ function Enquiries({ data }) {
       </>}
   </section>;
 }
-export default function AcademyOwnerDashboardC27({ data }) {
+export default function AcademyOwnerDashboardC27({ data, paletteLab = false }) {
   const adapted = useMemo(() => adaptOwnerData(data), [data]);
-  const [palette, setPalette] = useState("classic");
+  const [palette, setPalette] = useState(paletteLab ? "scarlet" : "classic");
   if (!adapted) return <div className="c27-dashboard"><Empty title="Dashboard unavailable" detail="The Academy Owner dashboard data was not returned." /></div>;
-  return <div className="c27-dashboard c28-polished" data-palette={palette}>
+  return <div className={"c27-dashboard c28-polished" + (paletteLab ? " c29-lab" : "")} data-palette={palette}>
     <div className="c27-preview-line">
-      <span className="c27-preview-mark"><i/>UI-C2.8 · FOOTBALL UI LAB</span>
-      <PalettePicker value={palette} onChange={setPalette}/>
-      <div className="c28-preview-links"><Link to="/ui-c2-5-preview">Previous preview</Link><Link to="/dashboard">Current dashboard <Glyph name="arrow" size={13}/></Link></div>
+      <span className="c27-preview-mark"><i/>{paletteLab ? "UI-C2.9 · BRAND EXPLORATION" : "UI-C2.8 · FOOTBALL UI LAB"}</span>
+      {!paletteLab && <PalettePicker value={palette} onChange={setPalette}/>}
+      <div className="c28-preview-links">
+        {paletteLab ? <Link to="/ui-c2-7-preview">Existing palettes</Link> : <Link to="/ui-c2-5-preview">Previous preview</Link>}
+        <Link to="/dashboard">Current dashboard <Glyph name="arrow" size={13}/></Link>
+      </div>
     </div>
+    {paletteLab && <ThemeGallery value={palette} onChange={setPalette}/>}
     <header className="c27-header">
       <div className="c27-header-title">
         <div className="c27-label"><Glyph name="field" size={15}/> FOOTBALL OPERATIONS</div>
@@ -314,7 +340,7 @@ export default function AcademyOwnerDashboardC27({ data }) {
         <Stat label="Batches" value={adapted.totals.batches} path="/batches" icon="batches"/>
       </nav>
     </header>
-    <div className="c27-primary-grid"><Overview data={adapted}/><Training data={adapted}/></div>
+    <div className="c27-primary-grid"><Overview data={adapted} paletteLab={paletteLab} palette={palette}/><Training data={adapted}/></div>
     <Attendance data={adapted}/>
     <div className="c27-bottom-grid"><Financial data={adapted}/><Enquiries data={adapted}/></div>
   </div>;

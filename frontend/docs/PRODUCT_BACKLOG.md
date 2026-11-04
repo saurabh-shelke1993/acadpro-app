@@ -5,6 +5,16 @@
 
 Security and data isolation are prerequisites for production.
 
+## UI-C2.9 — Five-theme Academy Owner palette laboratory
+
+- [x] Five alternative identity systems authored: Stadium Scarlet, Heritage Maroon, Terracotta & Sand, Amethyst & Blush, Onyx & Gold
+- [x] Distinct heading surfaces, card/surface hierarchy, button states and color-matched player distribution
+- [x] Isolated Owner-only route and palette chooser using existing data/service/security boundaries
+- [x] Regression assertions and CI workflow updated
+- [ ] Exact-head focused tests, full regression inspection, CRA build, Preview deployment verification
+- [ ] Product Owner desktop/mobile and role/tenant acceptance
+- [ ] Choose final palette and separately plan approved global design-system changes
+
 ## UI-C2.8 — Premium football dashboard visual experiment
 
 - [x] Scoped typography improvements without additional packages

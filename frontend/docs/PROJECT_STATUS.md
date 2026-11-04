@@ -4,6 +4,10 @@
 **Current Version:** V1.0 Beta (development; not release sign-off)  
 **Current Git Branch:** `payment-module-finalization`
 
+## UI-C2.9 — Five-theme premium brand exploration (4 November 2026)
+
+An isolated Academy Owner-only `/ui-c2-9-palettes` route offers five genuinely different visual systems (Scarlet, Maroon, Terracotta, Amethyst, Onyx/Gold). It reuses C2.7 data, financial/attendance calculations, center/player counts and role protections; theme selection is preview-local and does not alter the sidebar, production dashboard or Supabase. Source and tests authored; exact-head CI, Preview render and Product Owner acceptance must be checked separately. See `frontend/docs/UI_C2_9_FIVE_PALETTE_LAB.md`.
+
 ## UI-C2.8 — Academy Owner font, training pulse and theme experiment (4 November 2026)
 
 Isolated `/ui-c2-7-preview` enhanced with more readable type, segmented recorded-mark attendance (with actual numerator/denominator), a link to the training attendance workspace, and three **preview-only** selectable palettes (Classic Blue, Pitchside Emerald, Floodlight Indigo). Code `0411509` passed 41 focused tests and CRA build (Actions run `41798844256`), Vercel Preview success. The full suite still has 16 failed tests in four unchanged coach/performance suites. Authenticated browser/RBAC, accessibility and Product Owner palette approval pending. The shared sidebar, original `/dashboard`, global styles and Supabase were not changed. See `frontend/docs/UI_C2_8_DASHBOARD_VISUAL_EXPERIMENT.md`.
