@@ -1202,7 +1202,7 @@ useEffect(() => {
                 </div>
                 <div className="player-photo-controls">
                   <label className="player-photo-upload-button">
-                    {playerPhotoUploading ? "Uploading photo…" : playerPhotoUrls[editingPlayerId] ? "Change photo" : "Upload photo"}
+                    {playerPhotoUploading ? "Optimizing & uploading…" : playerPhotoUrls[editingPlayerId] ? "Change photo" : "Upload photo"}
                     <input
                       type="file"
                       accept="image/png,image/jpeg,image/webp"
@@ -1210,7 +1210,7 @@ useEffect(() => {
                       onChange={handleEditingPlayerPhotoChange}
                     />
                   </label>
-                  <span>JPG, PNG or WebP · max 2 MB</span>
+                  <span>JPG, PNG or WebP · original up to 10 MB · optimized WebP max 150 KB</span>
                   {playerPhotoError && <p className="player-profile-error" role="alert">{playerPhotoError}</p>}
                 </div>
               </div>
@@ -1687,10 +1687,10 @@ useEffect(() => {
                   {isAcademyOwner(loggedInUser) && (
                     <div className="player-photo-controls">
                       <label className="player-photo-upload-button">
-                        {playerPhotoUploading ? "Uploading photo…" : playerPhotoUrls[selectedCoachPlayer.id] ? "Change photo" : "Upload photo"}
+                        {playerPhotoUploading ? "Optimizing & uploading…" : playerPhotoUrls[selectedCoachPlayer.id] ? "Change photo" : "Upload photo"}
                         <input type="file" accept="image/png,image/jpeg,image/webp" disabled={playerPhotoUploading} onChange={handlePlayerPhotoChange} />
                       </label>
-                      <span>JPG, PNG or WebP · max 2 MB</span>
+                      <span>JPG, PNG or WebP · original up to 10 MB · optimized WebP max 150 KB</span>
                     </div>
                   )}
                   {playerPhotoError && <p className="player-profile-error" role="alert">{playerPhotoError}</p>}
