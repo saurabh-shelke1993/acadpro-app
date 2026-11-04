@@ -30,8 +30,8 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - name: Install locked dependencies
         run: npm ci
-      - name: Run focused UI-C2.9, UI-C2.7, UI-C2.5 and protected-route tests
-        run: npm test -- --watchAll=false --runInBand --runTestsByPath src/components/Dashboard/AcademyOwnerDashboardC29.test.js src/components/Dashboard/AcademyOwnerDashboardC27.test.js src/components/Dashboard/AcademyOwnerDashboardC25.test.js src/components/ProtectedRoute.accessibility.test.js
+      - name: Run focused UI-C2.10, UI-C2.9, UI-C2.7, UI-C2.5 and protected-route tests
+        run: npm test -- --watchAll=false --runInBand --runTestsByPath src/components/Dashboard/AcademyOwnerDashboardC30.test.js src/components/Dashboard/AcademyOwnerDashboardC29.test.js src/components/Dashboard/AcademyOwnerDashboardC27.test.js src/components/Dashboard/AcademyOwnerDashboardC25.test.js src/components/ProtectedRoute.accessibility.test.js
       - name: Run complete frontend Jest suite
         run: npm test -- --watchAll=false --runInBand
       - name: Build actual Create React App frontend

@@ -173,3 +173,7 @@ On `ui-c2-5-owner-dashboard-validation`, code commit `0411509` refines `/ui-c2-7
 New Academy Owner-only `/ui-c2-9-palettes` authored on `ui-c2-5-owner-dashboard-validation`, with five radically different colors and surface treatments; C2.7 source reused through a `paletteLab` prop. Existing `/dashboard`, `/ui-c2-5-preview`, `/ui-c2-7-preview` preserved. No global sidebar or branding changes and no new Supabase operations. Pending exact-head CI/build and authenticated desktop/mobile/RBAC acceptance. See `frontend/docs/UI_C2_9_FIVE_PALETTE_LAB.md`.
 
 **C2.9 CI verification:** Code `cd1837d` / Actions `41801325127`: 48 focused tests passed; CRA build passed; full suite 4 failed / 26 passed (16 failed / 200 passed tests, same known coach/performance suites). Vercel Preview success. Owner authenticated/browser/RBAC and 5-palette visual acceptance pending. Document: `frontend/docs/UI_C2_9_FIVE_PALETTE_LAB.md`.
+
+## UI-C2.10 — Selected Pitchside Emerald candidate (4 November 2026)
+
+Product Owner chose Pitchside Emerald over alternatives. Dedicated AO-only `/ui-c2-10-pitchside` uses a locked emerald theme on existing C27 dashboard with `AcademyOwnerDashboardC30.css` scoped styling and distinct chart colors. Original `/dashboard`, C2.7/C2.9 previews, shared sidebar and all roles are unchanged. CI and authenticated browser testing tracked separately. No migrations, auth/RLS or package changes. See `frontend/docs/UI_C2_10_PITCHSIDE_EMERALD.md`.

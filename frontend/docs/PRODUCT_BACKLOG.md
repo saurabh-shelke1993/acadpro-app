@@ -5,6 +5,17 @@
 
 Security and data isolation are prerequisites for production.
 
+## UI-C2.10 — Pitchside Emerald selected-theme validation
+
+- [x] Select Pitchside Emerald for Academy Owner dashboard direction
+- [x] Implement dedicated isolated protected route and scoped forest/emerald/lime theme
+- [x] Recolor player-center donut and interaction states without changing real data
+- [x] Add focused component regression tests and CI workflow coverage
+- [ ] Exact-head CI and CRA build
+- [ ] Authenticated Academy Owner browser and mobile review
+- [ ] Role-denial, tenant isolation, accessibility and metric parity
+- [ ] Decide on later adoption across shared sidebar and all other roles/pages; not authorized yet
+
 ## UI-C2.9 — Five-theme Academy Owner palette laboratory
 
 - [x] Five alternative identity systems authored: Stadium Scarlet, Heritage Maroon, Terracotta & Sand, Amethyst & Blush, Onyx & Gold

@@ -4,6 +4,10 @@
 **Current Version:** V1.0 Beta (development; not release sign-off)  
 **Current Git Branch:** `payment-module-finalization`
 
+## UI-C2.10 — Selected Pitchside Emerald Academy Owner dashboard (4 November 2026)
+
+Product Owner selected Pitchside Emerald as preferred visual identity. An isolated `/ui-c2-10-pitchside` Academy Owner-only route uses scoped forest/emerald/lime styling and keeps previous previews and `/dashboard` unchanged. No database, RLS, payment, auth, global styling or package changes. Implementation tests/build and authenticated acceptance are tracked separately. See `frontend/docs/UI_C2_10_PITCHSIDE_EMERALD.md`.
+
 ## UI-C2.9 — Five-theme premium brand exploration (4 November 2026)
 
 An isolated Academy Owner-only `/ui-c2-9-palettes` route offers five genuinely different visual systems (Scarlet, Maroon, Terracotta, Amethyst, Onyx/Gold). It reuses C2.7 data, financial/attendance calculations, center/player counts and role protections; theme selection is preview-local and does not alter the sidebar, production dashboard or Supabase. Code commit `cd1837d` passed 48/48 focused tests and the CRA production build (Actions run `41801325127`); Vercel Preview deployed successfully. Full suite still has 16 failures across four unchanged coach/performance suites. Authenticated route rendering and Product Owner acceptance remain pending. See `frontend/docs/UI_C2_9_FIVE_PALETTE_LAB.md`.

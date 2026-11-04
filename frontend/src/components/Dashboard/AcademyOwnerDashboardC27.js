@@ -6,6 +6,7 @@ import {
 } from "./academyOwnerC25Adapter";
 import "./AcademyOwnerDashboardC27.css";
 import "./AcademyOwnerDashboardC29.css";
+import "./AcademyOwnerDashboardC30.css";
 
 /**
  * UI-C2.7 visual candidate. Academy Owner only through the existing ProtectedRoute.
@@ -16,6 +17,7 @@ const DASHBOARD_PALETTES = [
   {id:"pitchside",label:"Pitchside Emerald",color:"#087c6e"},
   {id:"floodlight",label:"Floodlight Indigo",color:"#4f46cf"}
 ];
+const PITCHSIDE_CENTER_COLORS = ["#087C6E","#A6C96A","#CE9B55","#4F8C86","#947BA6"];
 const PALETTE_LAB_THEMES = [
 {id:"scarlet",name:"Stadium Scarlet",description:"Bold football-club energy",deep:"#1F252C",primary:"#B32137",accent:"#F8A18C",canvas:"#FAF5F5",chartColors:["#B32137","#F28A75","#68717B","#D4A296"]},
 {id:"maroon",name:"Heritage Maroon",description:"Prestigious club heritage",deep:"#361D2A",primary:"#7B2849",accent:"#EBC58E",canvas:"#FCF7F7",chartColors:["#7B2849","#B65D7B","#DCAF75","#8D7082"]},
@@ -86,12 +88,12 @@ function Stat({ label, value, path, icon }) {
     <span className="c27-stat-arrow"><Glyph name="arrow" size={13}/></span>
   </Link>;
 }
-function Overview({ data, paletteLab = false, palette = "classic" }) {
+function Overview({ data, paletteLab = false, palette = "classic", pitchsideSelected = false }) {
   const [selectedCenterId, setSelectedCenterId] = useState(null);
   const centers = data.centers;
   const selected = centers?.find(center => center.id === selectedCenterId) || centers?.[0];
   const memberships = (centers || []).reduce((sum, center) => sum + center.players, 0);
-  const chosenColors = paletteLab ? PALETTE_LAB_THEMES.find(t => t.id === palette)?.chartColors : null;
+  const chosenColors = pitchsideSelected ? PITCHSIDE_CENTER_COLORS : paletteLab ? PALETTE_LAB_THEMES.find(t => t.id === palette)?.chartColors : null;
   const displayCenters = (centers || []).map((center,i) => ({...center,displayColor:chosenColors?.[i%chosenColors.length] || center.color}));
   let offset = 0;
   const segments = displayCenters.filter(center => center.players > 0).map(center => {
@@ -314,16 +316,16 @@ function Enquiries({ data }) {
       </>}
   </section>;
 }
-export default function AcademyOwnerDashboardC27({ data, paletteLab = false }) {
+export default function AcademyOwnerDashboardC27({ data, paletteLab = false, pitchsideSelected = false }) {
   const adapted = useMemo(() => adaptOwnerData(data), [data]);
-  const [palette, setPalette] = useState(paletteLab ? "scarlet" : "classic");
+  const [palette, setPalette] = useState(pitchsideSelected ? "pitchside" : paletteLab ? "scarlet" : "classic");
   if (!adapted) return <div className="c27-dashboard"><Empty title="Dashboard unavailable" detail="The Academy Owner dashboard data was not returned." /></div>;
-  return <div className={"c27-dashboard c28-polished" + (paletteLab ? " c29-lab" : "")} data-palette={palette}>
+  return <div className={"c27-dashboard c28-polished" + (paletteLab ? " c29-lab" : "") + (pitchsideSelected ? " c30-pitchside" : "")} data-palette={palette}>
     <div className="c27-preview-line">
-      <span className="c27-preview-mark"><i/>{paletteLab ? "UI-C2.9 · BRAND EXPLORATION" : "UI-C2.8 · FOOTBALL UI LAB"}</span>
-      {!paletteLab && <PalettePicker value={palette} onChange={setPalette}/>}
+      <span className="c27-preview-mark"><i/>{pitchsideSelected ? "UI-C2.10 · PITCHSIDE EMERALD · SELECTED THEME" : paletteLab ? "UI-C2.9 · BRAND EXPLORATION" : "UI-C2.8 · FOOTBALL UI LAB"}</span>
+      {!paletteLab && !pitchsideSelected && <PalettePicker value={palette} onChange={setPalette}/>}
       <div className="c28-preview-links">
-        {paletteLab ? <Link to="/ui-c2-7-preview">Existing palettes</Link> : <Link to="/ui-c2-5-preview">Previous preview</Link>}
+        {pitchsideSelected ? <Link to="/ui-c2-7-preview">Compare earlier themes</Link> : paletteLab ? <Link to="/ui-c2-7-preview">Existing palettes</Link> : <Link to="/ui-c2-5-preview">Previous preview</Link>}
         <Link to="/dashboard">Current dashboard <Glyph name="arrow" size={13}/></Link>
       </div>
     </div>
@@ -340,7 +342,7 @@ export default function AcademyOwnerDashboardC27({ data, paletteLab = false }) {
         <Stat label="Batches" value={adapted.totals.batches} path="/batches" icon="batches"/>
       </nav>
     </header>
-    <div className="c27-primary-grid"><Overview data={adapted} paletteLab={paletteLab} palette={palette}/><Training data={adapted}/></div>
+    <div className="c27-primary-grid"><Overview data={adapted} paletteLab={paletteLab} palette={palette} pitchsideSelected={pitchsideSelected}/><Training data={adapted}/></div>
     <Attendance data={adapted}/>
     <div className="c27-bottom-grid"><Financial data={adapted}/><Enquiries data={adapted}/></div>
   </div>;

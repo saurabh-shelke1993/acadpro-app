@@ -118,6 +118,16 @@ function AppRoutes() {
           }
         />
 
+        {/* UI-C2.10: selected Pitchside Emerald candidate, Academy Owner only. */}
+        <Route
+          path="/ui-c2-10-pitchside"
+          element={
+            <ProtectedRoute allowedRoles={["academy_owner"]}>
+              <Dashboard ownerPitchside />
+            </ProtectedRoute>
+          }
+        />
+
         <Route
           path="/analytics"
           element={
