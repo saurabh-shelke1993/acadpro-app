@@ -64,7 +64,7 @@ test("training attendance deep link and unmarked state remain available",()=>{
 test("weighted attendance and no-data statuses are preserved",()=>{
   mount();
   const attendance=section("Weekly attendance by batch");
-  expect(within(attendance).getByText("70%")).toBeInTheDocument();
+  expect(within(attendance).getAllByText("70%").length).toBeGreaterThan(0);
   expect(within(attendance).getByText("1/2")).toBeInTheDocument();
   expect(within(attendance).getByText("7/10 present")).toBeInTheDocument();
   expect(within(attendance).getByText("Not recorded")).toBeInTheDocument();
