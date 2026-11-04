@@ -88,6 +88,16 @@ function AppRoutes() {
           }
         />
 
+        {/* UI-C2.5: isolated role-protected design preview; /dashboard is unchanged. */}
+        <Route
+          path="/ui-c2-5-preview"
+          element={
+            <ProtectedRoute allowedRoles={["academy_owner"]}>
+              <Dashboard ownerPreview />
+            </ProtectedRoute>
+          }
+        />
+
         <Route
           path="/analytics"
           element={
