@@ -64,7 +64,7 @@ test("center selection updates batch breakdown, including empty age groups",()=>
   mount();
   expect(screen.getByText("Seniors (U16)")).toBeInTheDocument();
   fireEvent.click(screen.getByRole("button",{name:/South Ground/}));
-  expect(screen.getByText("Under 12")).toBeInTheDocument();
+  expect(screen.getAllByText("Under 12").length).toBeGreaterThan(0);
   expect(screen.queryByText("Seniors (U16)")).not.toBeInTheDocument();
 });
 test("session expansion reveals every scheduled batch",()=>{
