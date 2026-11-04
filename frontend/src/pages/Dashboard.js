@@ -5,6 +5,7 @@ import DashboardCharts from "../components/DashboardCharts";
 import SuperAdminDashboard from "../components/Dashboard/SuperAdminDashboard";
 import AcademyOwnerDashboard from "../components/Dashboard/AcademyOwnerDashboard";
 import AcademyOwnerDashboardC25 from "../components/Dashboard/AcademyOwnerDashboardC25";
+import AcademyOwnerDashboardC27 from "../components/Dashboard/AcademyOwnerDashboardC27";
 import Layout from "../components/Layout";
 import { getAcademyOwnerDashboardData, getDashboardSummary, getSuperAdminDashboardData } from "../services/dashboardService";
 import "../styles/dashboard.css";
@@ -29,7 +30,7 @@ const initialSummary = {
 const formatCurrency = (amount) =>
   `₹${Number(amount || 0).toLocaleString("en-IN")}`;
 
-function Dashboard({ ownerPreview = false }) {
+function Dashboard({ ownerPreview = false, ownerPreviewV27 = false }) {
   const [user, setUser] = useState(null);
   const [summary, setSummary] = useState(initialSummary);
   const [loading, setLoading] = useState(true);
@@ -130,10 +131,10 @@ function Dashboard({ ownerPreview = false }) {
   if (isAcademyOwner(user)) {
     return (
       <Layout>
-        {ownerPreview ? (
-          <AcademyOwnerDashboardC25
-            data={summary.academyOwner}
-          />
+        {ownerPreviewV27 ? (
+          <AcademyOwnerDashboardC27 data={summary.academyOwner} />
+        ) : ownerPreview ? (
+          <AcademyOwnerDashboardC25 data={summary.academyOwner} />
         ) : (
           <AcademyOwnerDashboard
             user={user}

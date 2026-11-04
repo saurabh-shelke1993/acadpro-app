@@ -4,6 +4,10 @@
 **Current Version:** V1.0 Beta (development; not release sign-off)  
 **Current Git Branch:** `payment-module-finalization`
 
+## UI-C2.7 — Premium Academy Owner Dashboard preview (4 November 2026)
+
+**Implementation (validation branch only):** New `/ui-c2-7-preview` Academy Owner-only route with compact premium football identity, selectable center breakdown, fully visible daily sessions, compact filterable attendance matrix, clearer financial hierarchy, and scoped enquiry navigation. Existing `/dashboard` and `/ui-c2-5-preview` preserved. Source, tests and workflow updated; real build, browser acceptance, negative RBAC checks and release sign-off tracked separately. See `frontend/docs/UI_C2_7_OWNER_DASHBOARD.md`.
+
 ## UI-C2.6 — Academy Owner preview visual refinement (4 November 2026)
 
 Automated verification: **22 focused tests passed, CRA build passed** on code commit `a9ee7f3` (Actions run `41792531854`); full suite still has 16 failures across four unchanged coach/performance suites. Vercel Preview status successful. Owner/browser acceptance pending.
