@@ -41,7 +41,7 @@ const loadPhoto = async (file) => {
     }
   }
 
-  if (typeof Image === "undefined" || typeof URL?.createObjectURL !== "function") {
+  if (typeof Image === "undefined" || typeof URL === "undefined" || typeof URL.createObjectURL !== "function") {
     throw new Error("This browser cannot process the selected photo.");
   }
 
@@ -103,10 +103,17 @@ export const optimizePlayerPhoto = async (file) => {
     }
 
     let underLimit = null;
+    let lastDimensions = "";
     for (const limit of DIMENSION_STEPS) {
       const ratio = Math.min(1, limit / Math.max(width, height));
-      canvas.width = Math.max(1, Math.round(width * ratio));
-      canvas.height = Math.max(1, Math.round(height * ratio));
+      const targetWidth = Math.max(1, Math.round(width * ratio));
+      const targetHeight = Math.max(1, Math.round(height * ratio));
+      // Small photos should not be encoded repeatedly at identical dimensions.
+      const dimensions = `${targetWidth}x${targetHeight}`;
+      if (dimensions === lastDimensions) continue;
+      lastDimensions = dimensions;
+      canvas.width = targetWidth;
+      canvas.height = targetHeight;
       context.clearRect(0, 0, canvas.width, canvas.height);
       context.drawImage(photo.source, 0, 0, canvas.width, canvas.height);
 
