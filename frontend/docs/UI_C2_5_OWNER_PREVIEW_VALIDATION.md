@@ -37,7 +37,10 @@ GitHub Actions workflow: `.github/workflows/ui-c2-5-owner-dashboard-validation.y
 
 **Initial focused run:** PASS — 2 suites / 18 tests, GitHub run `41773608686`.
 **Initial full-suite run:** FAILED in unchanged Coach Performance, Coach Profile, Player Performance Report and Performance Workspace test files; exact baseline equivalence has not been proven. Do not edit those tests as part of UI-C2.5.
-**Production build on current branch HEAD:** PENDING the latest CI run.
+**CRA production build:** PASS in GitHub run [41773900822](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/41773900822), tested at commit `ff2de8af0b80fbab3bb934aa37647945f1d458c5` (the last code-bearing commit was `84a58f79`).
+**Focused UI-C2.5 and ProtectedRoute tests:** PASS, 2 suites / 18 tests in the same run.
+**Overall workflow status:** FAILURE because the complete existing Jest suite has failures in unchanged modules; do not represent the overall run as green.
+**Vercel commit status:** SUCCESS at tested commit, but the deployment environment and a real owner login have not been browser-verified.
 **Authenticated browser acceptance:** NOT RUN. CI placeholders are not real login credentials.
 **Owner approval:** PENDING.
 
