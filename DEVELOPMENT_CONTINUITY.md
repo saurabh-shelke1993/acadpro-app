@@ -161,3 +161,5 @@ Isolated Academy Owner dashboard refinement is implemented on `ui-c2-5-owner-das
 ## UI-C2.7 — Premium football dashboard (validation checkpoint, 4 November 2026)
 
 New Academy Owner-only `/ui-c2-7-preview` built on the existing `ui-c2-5-owner-dashboard-validation` branch, retaining `/dashboard` and `/ui-c2-5-preview` for comparison. Scoped `AcademyOwnerDashboardC27.js/.css` and dedicated tests reuse C25 data adapter with existing service, RBAC and scope. Desktop 70/30 top/bottom composition, mobile training first; no package, database, role or global sidebar changes. Pending exact-head CI and Owner authenticated browser acceptance. See `frontend/docs/UI_C2_7_OWNER_DASHBOARD.md`.
+
+**UI-C2.7 code-commit verification:** `410c805` passed 37 focused tests across C27, C25 and ProtectedRoute and compiled successfully under CRA. Vercel Preview success: https://vercel.com/saurabh-shelke-s-projects/acadpro-app/3ZZxL5GBfn8y2x1zuFyvbUorN672 . CI run 41794949339 full Jest suite: 4 failed suites / 25 passed; 16 failed tests / 189 passed, matching pre-existing coach/performance suite failures. UI-C2.7 authenticated browser and Product Owner acceptance remain pending.

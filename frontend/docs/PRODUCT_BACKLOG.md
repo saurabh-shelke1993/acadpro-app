@@ -11,7 +11,7 @@ Security and data isolation are prerequisites for production.
 - [x] UI-C2.7B: player center selection, zero-player batch visibility, all sessions with attendance deep links
 - [x] UI-C2.7C: compact attendance matrix/filter and financial/enquiry presentation, existing source metrics preserved
 - [x] UI-C2.7D: isolated role-protected preview route, focused Jest tests and CI workflow updated
-- [ ] Verify focused CI and CRA build on exact UI-C2.7 code commit
+- [x] Focused CI (37/37 tests) and CRA build passed on code commit `410c805` / Actions run `41794949339`
 - [ ] Academy Owner responsive browser acceptance (320–1440px), financial/attendance parity and functional links
 - [ ] Negative Super Admin/Coach/Parent route checks, second Owner tenant isolation
 - [ ] Investigate already-known full-suite Jest failures in their own workstream

@@ -3,7 +3,7 @@
 **Project:** Kheltriva, football-only academy management SaaS  
 **Branch:** `ui-c2-5-owner-dashboard-validation`  
 **Route:** `/ui-c2-7-preview` (Academy Owner only)  
-**Status:** Implemented in source; runtime build/CI and Product Owner browser acceptance are separately gated.  
+**Status:** Implemented; focused Jest and CRA build verified on code commit; browser and Product Owner acceptance pending.  
 **Direction:** Premium football identity, exceptionally simple everyday workflows.
 
 ## Scope and implementation
@@ -38,6 +38,18 @@
 - Reuses `getAcademyOwnerDashboardData` and `academyOwnerC25Adapter`; no new Supabase client calls, RPC, migrations or RLS changes.
 - Added dedicated `AcademyOwnerDashboardC27.test.js` covering role-relevant rendering, totals, center selection, empty batches, session status and deep links, attendance calculations/filtering, financial special states, enquiries and error states.
 - Validation CI executes C27, C25, ProtectedRoute tests, full Jest suite and real CRA build. Existing unrelated full-suite failures must be reported, not hidden.
+
+## Exact code-commit validation
+
+**Commit:** `410c8053b2ce4a3b1c85c775f79bf8960899c0e4`  
+**GitHub Actions:** https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/41794949339  
+**Vercel Preview status:** SUCCESS — https://vercel.com/saurabh-shelke-s-projects/acadpro-app/3ZZxL5GBfn8y2x1zuFyvbUorN672
+
+- Dependency installation: **PASS** (`npm ci`)
+- Focused C27, C25 and ProtectedRoute tests: **3 suites / 37 tests PASS**
+- Production React build: **PASS** (`Compiled successfully.`)
+- Complete Jest suite: **FAIL**, 4 suites failed / 25 passed, 16 tests failed / 189 passed (205 total). Failing suites: `CoachPerformanceAssessments.test.js`, `CoachProfile.test.js`, `PlayerPerformanceReport.test.js` and `PerformanceWorkspaceTabs.test.js`. These suites were previously failing on UI-C2.6; not caused or modified by the C27 patch, but remain release blockers.
+- Authenticated browser, cross-role/tenant regression and Product Owner visual sign-off: **PENDING**.
 
 ## Review checklist (Product Owner)
 

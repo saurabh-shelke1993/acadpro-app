@@ -6,7 +6,7 @@
 
 ## UI-C2.7 — Premium Academy Owner Dashboard preview (4 November 2026)
 
-**Implementation (validation branch only):** New `/ui-c2-7-preview` Academy Owner-only route with compact premium football identity, selectable center breakdown, fully visible daily sessions, compact filterable attendance matrix, clearer financial hierarchy, and scoped enquiry navigation. Existing `/dashboard` and `/ui-c2-5-preview` preserved. Source, tests and workflow updated; real build, browser acceptance, negative RBAC checks and release sign-off tracked separately. See `frontend/docs/UI_C2_7_OWNER_DASHBOARD.md`.
+**Implementation (validation branch only):** New `/ui-c2-7-preview` Academy Owner-only route with compact premium football identity, selectable center breakdown, fully visible daily sessions, compact filterable attendance matrix, clearer financial hierarchy, and scoped enquiry navigation. Existing `/dashboard` and `/ui-c2-5-preview` preserved. Focused tests **37/37 passed**, CRA build **passed** on code commit `410c805` (Actions run `41794949339`), and Vercel Preview deployment succeeded. Complete Jest suite still has 16 failures in four unchanged coach/performance test files. Authenticated browser, negative RBAC and Owner acceptance pending. See `frontend/docs/UI_C2_7_OWNER_DASHBOARD.md`.
 
 ## UI-C2.6 — Academy Owner preview visual refinement (4 November 2026)
 
