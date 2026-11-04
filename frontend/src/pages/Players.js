@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { supabase } from "../services/supabase";
 import {
@@ -80,6 +80,8 @@ function Players() {
   const [currentPage, setCurrentPage] = useState(1);
   const [openFilter, setOpenFilter] = useState(null);
   const [selectedCoachPlayer, setSelectedCoachPlayer] = useState(null);
+  const profileDialogRef = useRef(null);
+  const profileReturnFocusRef = useRef(null);
   const [expandedMobilePlayerId, setExpandedMobilePlayerId] = useState(null);
   const [profileSnapshot, setProfileSnapshot] = useState(null);
   const [profileSnapshotLoading, setProfileSnapshotLoading] = useState(false);
@@ -101,6 +103,56 @@ function Players() {
     gender: [],
     status: [],
   });
+
+  // PP5: contain focus in the modal and restore it to the opening player row.
+  useEffect(() => {
+    if (!selectedCoachPlayer?.id) return undefined;
+    const dialog = profileDialogRef.current;
+    const previousFocus = profileReturnFocusRef.current || document.activeElement;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    dialog?.querySelector('[aria-label="Close player details"]')?.focus();
+
+    const getFocusable = () => Array.from(dialog?.querySelectorAll(
+      'button:not(:disabled), a[href], input:not(:disabled):not([type="file"]), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])'
+    ) || []).filter((element) => element.getAttribute("aria-hidden") !== "true");
+
+    const handleProfileKeyDown = (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        event.stopPropagation();
+        setSelectedCoachPlayer(null);
+      } else if (event.key === "Tab") {
+        const focusable = getFocusable();
+        if (!focusable.length) {
+          event.preventDefault();
+          dialog?.focus();
+          return;
+        }
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (!dialog?.contains(document.activeElement)) {
+          event.preventDefault();
+          (event.shiftKey ? last : first).focus();
+        } else if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
+    };
+    document.addEventListener("keydown", handleProfileKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleProfileKeyDown);
+      document.body.style.overflow = previousOverflow;
+      if (previousFocus?.isConnected && typeof previousFocus.focus === "function") {
+        previousFocus.focus();
+      }
+      profileReturnFocusRef.current = null;
+    };
+  }, [selectedCoachPlayer?.id]);
 
   const PAGE_SIZE = 10;
   const canViewPlayerFees = isSuperAdmin(loggedInUser) || isAcademyOwner(loggedInUser);
@@ -1572,10 +1624,14 @@ useEffect(() => {
                   <tr
                     key={player.id}
                     className={(isCoach(loggedInUser) ? "players-coach-row " : "") + (expandedMobilePlayerId === player.id ? "players-mobile-expanded" : "")}
-                    onClick={() => setSelectedCoachPlayer(player)}
+                    onClick={(event) => {
+                      profileReturnFocusRef.current = event.currentTarget;
+                      setSelectedCoachPlayer(player);
+                    }}
                     onKeyDown={(event) => {
                       if (event.key === "Enter" || event.key === " ") {
                         event.preventDefault();
+                        profileReturnFocusRef.current = event.currentTarget;
                         setSelectedCoachPlayer(player);
                       }
                     }}
@@ -1668,6 +1724,8 @@ useEffect(() => {
           <div className="coach-player-modal-backdrop" role="presentation" onClick={() => setSelectedCoachPlayer(null)}>
             <section
               className="coach-player-modal"
+              ref={profileDialogRef}
+              tabIndex={-1}
               role="dialog"
               aria-modal="true"
               aria-labelledby="coach-player-detail-title"
