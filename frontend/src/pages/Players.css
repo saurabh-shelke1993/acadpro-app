@@ -2306,3 +2306,17 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* PH4: the photo was saved even if legacy-object cleanup or preview fails. */
+.player-profile-notice {
+  margin: 0.4rem 0 0;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--ap-border);
+  border-radius: var(--ap-radius-md);
+  background: var(--ap-slate-50);
+  color: var(--ap-slate-700);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
