@@ -1,0 +1,42 @@
+name: Player profile validation
+
+on:
+  push:
+    branches: [payment-module-finalization]
+    paths:
+      - 'frontend/src/pages/Players.js'
+      - 'frontend/src/pages/Players.css'
+      - 'frontend/src/pages/Players.test.js'
+      - 'frontend/src/utils/playerProfilePresentation.js'
+      - 'frontend/src/utils/playerProfilePresentation.test.js'
+      - '.github/workflows/player-profile-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  player-profile-regression:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Run PP5 profile regression tests
+        env:
+          CI: 'true'
+        run: npm test -- --watchAll=false --runInBand --testPathPattern='(Players|playerProfilePresentation)\.test\.js$'
+      - name: Production build
+        env:
+          CI: 'true'
+        run: npm run build
