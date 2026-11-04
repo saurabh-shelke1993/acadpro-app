@@ -2320,3 +2320,66 @@
   line-height: 1.45;
   overflow-wrap: anywhere;
 }
+
+/* PP5: accessible Player Profile dialog and compact viewport safeguards. */
+.coach-player-modal:focus {
+  outline: none; /* Keyboard focus is moved to the visible Close control. */
+}
+
+.players-table tbody tr[tabindex="0"]:focus-visible,
+.coach-player-modal .player-photo-upload-button:focus-within {
+  outline: 2px solid var(--ap-primary-600);
+  outline-offset: 2px;
+}
+
+.coach-player-modal-backdrop,
+.coach-player-modal,
+.coach-player-modal .player-profile-identity,
+.coach-player-modal .player-profile-hero-copy,
+.coach-player-modal .player-profile-detail-panels,
+.coach-player-modal .player-profile-snapshot-grid,
+.coach-player-modal .player-profile-section,
+.coach-player-modal .player-profile-fees-grid {
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.coach-player-modal .player-profile-hero-copy,
+.coach-player-modal .player-profile-facts dd,
+.coach-player-modal .player-profile-fees-grid strong,
+.coach-player-modal .player-profile-section-heading,
+.coach-player-modal .player-profile-performance-link-wrap {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 480px) {
+  .coach-player-modal-backdrop {
+    padding: 0.55rem;
+    padding-bottom: max(0.55rem, env(safe-area-inset-bottom));
+  }
+
+  .coach-player-modal .player-profile-identity {
+    gap: 0.5rem;
+  }
+
+  .coach-player-modal .player-profile-hero-actions button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .coach-player-modal .player-profile-performance-link {
+    min-height: 44px;
+  }
+
+  .coach-player-modal .player-profile-schedule-row {
+    min-width: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .coach-player-modal-backdrop *,
+  .coach-player-modal * {
+    scroll-behavior: auto;
+    transition-duration: 0.01ms !important;
+  }
+}
