@@ -155,3 +155,47 @@ test("no dashboard source data renders an explicit failure state",()=>{
   mount(null);
   expect(screen.getByRole("status")).toHaveTextContent("Dashboard unavailable");
 });
+
+
+test("preview palette switches among three named themes without global state",()=>{
+  mount();
+  const preview = document.querySelector(".c27-dashboard");
+  const picker = screen.getByRole("group",{name:"Preview dashboard color palette"});
+  expect(preview).toHaveAttribute("data-palette","classic");
+  expect(within(picker).getByRole("button",{name:"Classic Blue"})).toHaveAttribute("aria-pressed","true");
+  fireEvent.click(within(picker).getByRole("button",{name:"Pitchside Emerald"}));
+  expect(preview).toHaveAttribute("data-palette","pitchside");
+  expect(within(picker).getByRole("button",{name:"Pitchside Emerald"})).toHaveAttribute("aria-pressed","true");
+  fireEvent.click(within(picker).getByRole("button",{name:"Floodlight Indigo"}));
+  expect(preview).toHaveAttribute("data-palette","floodlight");
+  fireEvent.click(within(picker).getByRole("button",{name:"Classic Blue"}));
+  expect(preview).toHaveAttribute("data-palette","classic");
+  expect(document.body).not.toHaveAttribute("data-palette");
+});
+test("weekly training pulse shows actual present/recorded counts not a decorative 100-percent bar",()=>{
+  mount();
+  const attendance=section("Weekly attendance by batch");
+  expect(within(attendance).getByText("Training batch pulse")).toBeInTheDocument();
+  expect(within(attendance).getByText("8/10 present")).toBeInTheDocument();
+  expect(within(attendance).getByText("1/2 present")).toBeInTheDocument();
+  expect(within(attendance).getByText("Not recorded")).toBeInTheDocument();
+  const segments=attendance.querySelectorAll(".c28-attendance-segment");
+  expect(segments).toHaveLength(20);
+  expect(within(attendance).getByRole("img",{name:/Juniors: 80% of recorded marks present, 8 of 10/})).toBeInTheDocument();
+  expect(within(attendance).getByText(/No marks.*does not mean 0% attendance/)).toBeInTheDocument();
+});
+test("center selection preserves academy-wide recorded-mark rate and mark counts",()=>{
+  mount();
+  const attendance=section("Weekly attendance by batch");
+  fireEvent.change(within(attendance).getByRole("combobox",{name:"Filter attendance by center"}),{target:{value:"South Ground"}});
+  expect(within(attendance).getByText("75%")).toBeInTheDocument();
+  expect(within(attendance).getByText("2/3")).toBeInTheDocument();
+  expect(within(attendance).getByText("Not recorded")).toBeInTheDocument();
+});
+test("touchline action remains scoped to existing attendance navigation",()=>{
+  mount();
+  const training=section("Today's training sessions");
+  expect(within(training).getByRole("link",{name:/Attendance workspace/})).toHaveAttribute("href","/attendance");
+  expect(within(training).getByText("4 sessions have no marks recorded yet")).toBeInTheDocument();
+  expect(within(training).getAllByRole("link",{name:/Open attendance for/})).toHaveLength(5);
+});

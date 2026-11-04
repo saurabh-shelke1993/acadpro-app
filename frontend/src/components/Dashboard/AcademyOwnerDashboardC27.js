@@ -10,6 +10,23 @@ import "./AcademyOwnerDashboardC27.css";
  * UI-C2.7 visual candidate. Academy Owner only through the existing ProtectedRoute.
  * Read-only: reuses the existing dashboard service contract and scoped navigation.
  */
+const DASHBOARD_PALETTES = [
+  {id:"classic",label:"Classic Blue",color:"#245bdc"},
+  {id:"pitchside",label:"Pitchside Emerald",color:"#087c6e"},
+  {id:"floodlight",label:"Floodlight Indigo",color:"#4f46cf"}
+];
+function PalettePicker({value,onChange}) {
+  return <div className="c28-palette-picker" role="group" aria-label="Preview dashboard color palette">
+    <span>Try palette</span>
+    {DASHBOARD_PALETTES.map(p => <button key={p.id} type="button"
+      aria-pressed={value === p.id} aria-label={p.label} title={p.label}
+      className={"c28-palette-choice" + (value === p.id ? " is-selected" : "")}
+      onClick={() => onChange(p.id)}>
+      <i className="c28-palette-swatch" style={{background:p.color}} aria-hidden="true"/>
+      <span>{p.label}</span>
+    </button>)}
+  </div>;
+}
 function Glyph({ name, size = 18 }) {
   const shapes = {
     grid: <><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></>,
@@ -126,7 +143,11 @@ function Training({ data }) {
         <div className="c27-training-status">
           <span className="c27-status-indicator" aria-hidden="true"/>
           <strong>{formatCount(recorded)} of {formatCount(sessions.length)}</strong>
-          <span>batches with marks</span>
+          <span>training sessions with marks</span>
+        </div>
+        <div className="c28-touchline-note">
+          <span>{formatCount(sessions.length - recorded)} sessions have no marks recorded yet</span>
+          <Link to="/attendance">Attendance workspace <Glyph name="arrow" size={14}/></Link>
         </div>
         <div className="c27-training-groups">
           {groups.map(group => <div className="c27-training-group" key={group.key}>
@@ -156,14 +177,14 @@ function Attendance({ data }) {
   const allGroups = groupByCenter(batches, b => b.centerName || "Unassigned center", b => b.centerName || "Unassigned center");
   const groups = selectedCenter === "all" ? allGroups : allGroups.filter(g => g.key === selectedCenter);
   return <section className="c27-panel c27-attendance" aria-label="Weekly attendance by batch">
-    <PanelTitle kicker="TRAINING CONSISTENCY" title="Weekly attendance" icon="chart"
+    <PanelTitle kicker="TRAINING PULSE" title="Weekly attendance" icon="chart"
       right={<span className="c27-period">LAST 7 DAYS</span>}/>
     {batches === null ? <Empty title="Attendance unavailable" detail="The last-seven-day attendance data could not be loaded."/> :
       summary.rate === null ? <Empty title="No recorded attendance marks" detail="Recorded present and absent marks will appear here after attendance is taken."/> :
       <>
         <div className="c27-attendance-toolbar">
           <div className="c27-attendance-metrics">
-            <div><strong>{summary.rate}%</strong><span>Present among recorded marks</span></div>
+            <div><strong>{summary.rate}%</strong><span>Recorded-mark attendance</span></div>
             <div><strong>{formatCount(summary.recordedBatches)}/{formatCount(summary.totalBatches)}</strong><span>Batches with marks</span></div>
           </div>
           <div className="c27-attendance-actions">
@@ -177,6 +198,10 @@ function Attendance({ data }) {
             <Link className="c27-view-link" to="/attendance">Open attendance <Glyph name="arrow" size={15}/></Link>
           </div>
         </div>
+        <div className="c28-attendance-context">
+          <span><Glyph name="field" size={14}/> Training batch pulse</span>
+          <span>{formatCount(summary.totalBatches - summary.recordedBatches)} batches have no marks in the last 7 days</span>
+        </div>
         <div className="c27-attendance-matrix">
           {groups.map(group => {
             const marked = group.rows.filter(b => Number(b.totalRecords) > 0).length;
@@ -186,21 +211,27 @@ function Attendance({ data }) {
                 <span>{marked}/{group.rows.length} batches with marks</span>
               </div>
               {group.rows.map(batch => {
-                const available = Number(batch.totalRecords) > 0;
-                const rate = available ? Math.round(100 * Number(batch.presentRecords || 0) / Number(batch.totalRecords)) : null;
-                return <div className="c27-attendance-row" key={batch.id || batch.batchId || batch.batchName}>
+                const total = Math.max(0,Number(batch.totalRecords || 0));
+                const present = Math.max(0,Number(batch.presentRecords || 0));
+                const available = total > 0;
+                const rate = available ? Math.round(100 * present / total) : null;
+                return <div className="c27-attendance-row c28-attendance-row" key={batch.id || batch.batchId || batch.batchName}>
                   <span className="c27-attendance-name">{batch.batchName || "Unnamed batch"}</span>
-                  <div className={"c27-progress" + (available ? "" : " no-data")}
-                    role="img" aria-label={(batch.batchName || "Batch") + ": " + (rate === null ? "no recorded marks" : rate + "% attendance of recorded marks")}>
-                    {available ? <span style={{width:Math.max(0,Math.min(100,rate))+"%"}}/> : null}
+                  <div className={"c28-attendance-strip" + (available ? "" : " no-data")}
+                    role="img" aria-label={(batch.batchName || "Batch") + ": " +
+                      (rate === null ? "no recorded marks" : rate + "% of recorded marks present, " + formatCount(present) + " of " + formatCount(total))}>
+                    {available ? Array.from({length:10}, (_,i) => <i key={i} className="c28-attendance-segment"
+                      style={{opacity:Math.max(0,Math.min(1,rate/10-i))}} aria-hidden="true"/>) :
+                      <span className="c28-no-marks-line" aria-hidden="true"/>}
                   </div>
+                  <span className="c28-attendance-fraction">{available ? formatCount(present) + "/" + formatCount(total) + " present" : "Not recorded"}</span>
                   <strong className={available ? "" : "no-data"}>{rate === null ? "No marks" : rate+"%"}</strong>
                 </div>;
               })}
             </div>;
           })}
         </div>
-        <p className="c27-fineprint">Academy rate = present marks ÷ recorded present/absent marks; not session coverage. Center filter changes only the rows shown.</p>
+        <p className="c27-fineprint">Percentages reflect recorded present/absent marks, not scheduled training sessions. “No marks” does not mean 0% attendance. Center filtering changes only the listed batches.</p>
       </>}
   </section>;
 }
@@ -263,11 +294,13 @@ function Enquiries({ data }) {
 }
 export default function AcademyOwnerDashboardC27({ data }) {
   const adapted = useMemo(() => adaptOwnerData(data), [data]);
+  const [palette, setPalette] = useState("classic");
   if (!adapted) return <div className="c27-dashboard"><Empty title="Dashboard unavailable" detail="The Academy Owner dashboard data was not returned." /></div>;
-  return <div className="c27-dashboard">
+  return <div className="c27-dashboard c28-polished" data-palette={palette}>
     <div className="c27-preview-line">
-      <span className="c27-preview-mark"><i/>UI-C2.7 · DESIGN VALIDATION</span>
-      <div><Link to="/ui-c2-5-preview">Compare previous preview</Link><Link to="/dashboard">Current dashboard <Glyph name="arrow" size={13}/></Link></div>
+      <span className="c27-preview-mark"><i/>UI-C2.8 · FOOTBALL UI LAB</span>
+      <PalettePicker value={palette} onChange={setPalette}/>
+      <div className="c28-preview-links"><Link to="/ui-c2-5-preview">Previous preview</Link><Link to="/dashboard">Current dashboard <Glyph name="arrow" size={13}/></Link></div>
     </div>
     <header className="c27-header">
       <div className="c27-header-title">
