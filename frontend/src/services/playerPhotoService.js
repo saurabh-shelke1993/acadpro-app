@@ -1,8 +1,7 @@
 import { supabase } from "./supabase";
+import { MAX_STORED_PLAYER_PHOTO_BYTES, optimizePlayerPhoto } from "../utils/playerPhotoOptimization";
 
 const BUCKET = "player-photos";
-const MAX_FILE_SIZE = 2 * 1024 * 1024;
-const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 export const getPlayerPhotoUrl = async (storedValue) => {
   if (!storedValue) return null;
@@ -25,22 +24,21 @@ export const uploadPlayerPhoto = async ({ player, file }) => {
   if (!player?.id || !player?.academy_id) {
     throw new Error("Player and academy information are required.");
   }
-  if (!file) throw new Error("Choose a photo to upload.");
-  if (!ALLOWED_TYPES.has(file.type)) {
-    throw new Error("Use a JPG, PNG, or WebP image.");
-  }
-  if (file.size > MAX_FILE_SIZE) {
-    throw new Error("Photo must be 2 MB or smaller.");
+  // Validate and optimize locally before making a Storage or database request.
+  // PH4 cleanup of old objects is deliberately out of scope.
+  const optimizedPhoto = await optimizePlayerPhoto(file);
+  if (optimizedPhoto.type !== "image/webp" ||
+      optimizedPhoto.size > MAX_STORED_PLAYER_PHOTO_BYTES) {
+    throw new Error("Photo optimization did not produce a valid WebP under 150 KB.");
   }
 
-  const extension = ({ "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" })[file.type];
-  const path = `${player.academy_id}/${player.id}/${Date.now()}-${Math.random().toString(36).slice(2, 10)}.${extension}`;
+  const path = `${player.academy_id}/${player.id}/${Date.now()}-${Math.random().toString(36).slice(2, 10)}.webp`;
 
   const { error: uploadError } = await supabase.storage
     .from(BUCKET)
-    .upload(path, file, {
+    .upload(path, optimizedPhoto, {
       cacheControl: "3600",
-      contentType: file.type,
+      contentType: "image/webp",
       upsert: false,
     });
   if (uploadError) throw uploadError;
