@@ -11,7 +11,7 @@ Security and data isolation are prerequisites for production.
 - [x] Distinct heading surfaces, card/surface hierarchy, button states and color-matched player distribution
 - [x] Isolated Owner-only route and palette chooser using existing data/service/security boundaries
 - [x] Regression assertions and CI workflow updated
-- [ ] Exact-head focused tests, full regression inspection, CRA build, Preview deployment verification
+- [x] Exact-head focused tests 48/48, CRA build and Vercel Preview deployment passed on `cd1837d` (Actions `41801325127`); full suite still has 16 pre-existing coach/performance failures
 - [ ] Product Owner desktop/mobile and role/tenant acceptance
 - [ ] Choose final palette and separately plan approved global design-system changes
 

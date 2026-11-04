@@ -4,7 +4,7 @@
 **Working branch:** `ui-c2-5-owner-dashboard-validation`
 **New route:** `/ui-c2-9-palettes`
 **Feature scope:** Academy Owner-only visual experimentation (no production merge)
-**Status:** Source implementation; CI build and authenticated browser acceptance must be recorded separately.
+**Status:** Implemented and build-verified; authenticated browser and Product Owner acceptance pending.
 
 ## Goal
 
@@ -40,12 +40,23 @@ Approximate primary-text contrast against pure white is respectively **6.58:1, 9
 - `.github/workflows/ui-c2-5-owner-dashboard-validation.yml` — include new test
 - Project status, backlog and continuity handoff records
 
+## Exact-head CI verification — 4 November 2026
+
+- Code commit: `cd1837d286ccfee1196a331eb318c1e1efe327f9`
+- GitHub Actions: https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/41801325127
+- `npm ci`: **passed**
+- Focused preview (C29, C27, C25) and ProtectedRoute tests: **4 suites / 48 tests passed**
+- Actual Create React App production build: **passed** (compiled successfully)
+- Full Jest suite: **failed**, 4 suites failed / 26 passed; 16 tests failed / 200 passed. Same four previously failing coach/performance suites: `CoachPerformanceAssessments`, `CoachProfile`, `PlayerPerformanceReport`, `PerformanceWorkspaceTabs`. No attempt to suppress these.
+- Vercel Preview deployment: **success** — https://vercel.com/saurabh-shelke-s-projects/acadpro-app/DKzDN8mzESnHkctXahAAWGCsxpM6
+- Authenticated Owner visual testing, responsive QA, Super Admin / Coach / Parent denial, tenant-scope and Product Owner palette choice: **pending**.
+
 ## Validation gates
 
-- [ ] Focused preview + ProtectedRoute tests pass on exact code commit
-- [ ] Real CRA `npm run build` passes on exact code commit
+- [x] Focused preview + ProtectedRoute tests passed (48/48) on exact code commit
+- [x] Real CRA `npm run build` passed on exact code commit
 - [ ] Pre-existing unrelated full Jest failures remain documented (not silently ignored)
-- [ ] Vercel Preview builds and renders `/ui-c2-9-palettes`
+- [x] Vercel Preview deployment succeeded; authenticated route rendering remains to be manually verified
 - [ ] Product Owner tests five themes on desktop and at 768px, 390px, 360px and 320px
 - [ ] Product Owner verifies actual academy counts, zero-player batches, sessions, links, attendance marks, finance and enquiries
 - [ ] Direct role-denial testing for Super Admin, Coach and Parent, including cross-academy scope

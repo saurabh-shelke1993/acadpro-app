@@ -171,3 +171,5 @@ On `ui-c2-5-owner-dashboard-validation`, code commit `0411509` refines `/ui-c2-7
 ## UI-C2.9 — Five-theme palette lab (4 November 2026)
 
 New Academy Owner-only `/ui-c2-9-palettes` authored on `ui-c2-5-owner-dashboard-validation`, with five radically different colors and surface treatments; C2.7 source reused through a `paletteLab` prop. Existing `/dashboard`, `/ui-c2-5-preview`, `/ui-c2-7-preview` preserved. No global sidebar or branding changes and no new Supabase operations. Pending exact-head CI/build and authenticated desktop/mobile/RBAC acceptance. See `frontend/docs/UI_C2_9_FIVE_PALETTE_LAB.md`.
+
+**C2.9 CI verification:** Code `cd1837d` / Actions `41801325127`: 48 focused tests passed; CRA build passed; full suite 4 failed / 26 passed (16 failed / 200 passed tests, same known coach/performance suites). Vercel Preview success. Owner authenticated/browser/RBAC and 5-palette visual acceptance pending. Document: `frontend/docs/UI_C2_9_FIVE_PALETTE_LAB.md`.
