@@ -31,10 +31,23 @@ The chart uses distinguishable categories `#087C6E`, `#A6C96A`, `#CE9B55`, `#4F8
 4. Reused existing `getAcademyOwnerDashboardData` and `academyOwnerC25Adapter`. No database, RLS, RPC, authentication, payment-calculation, third-party package, or build-system changes.
 5. Added dedicated regression tests for selected palette lock, academy counts, zero-player batches, center links, training sessions, weighted attendance, finances, N/A collection rate, and empty source data.
 
+## Exact code-commit verification (4 November 2026)
+
+**Code HEAD:** `b7a761e320f18a37e6f10b337ebd1257b5740b7a` (one test assertion corrected after initial commit `a9a2e35`).
+
+**CI:** https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/41803968992
+
+- Dependencies: `npm ci` **passed**.
+- Focused C30, C29, C27, C25 and ProtectedRoute tests: **5 suites / 56 tests passed**.
+- Real Create React App production build: **passed**, `Compiled successfully.`
+- Full existing Jest suite: **failed** (4 failed / 27 passed suites; 16 failed / 208 passed tests). All four failures are in previously failing coach/performance suites: `CoachPerformanceAssessments`, `CoachProfile`, `PlayerPerformanceReport`, `PerformanceWorkspaceTabs`. No tests were suppressed and these remain separate release blockers.
+- Vercel Preview deployment: **successful**, https://vercel.com/saurabh-shelke-s-projects/acadpro-app/7tDC9AYeDKdKBPzfvvvX5nfa6HRT .
+- Authenticated Owner desktop/mobile QA, access denial for other roles, tenant isolation and final approval: **pending**.
+
 ## Rollout conditions
 
-- [ ] Focused C30, C29, C27, C25, ProtectedRoute tests pass on exact commit.
-- [ ] CRA production build succeeds and Vercel Preview deploys.
+- [x] Focused C30, C29, C27, C25, ProtectedRoute tests passed (56/56).
+- [x] CRA production build passed and Vercel Preview deployment succeeded.
 - [ ] Full-suite failures are enumerated and unresolved regressions tracked separately.
 - [ ] Academy Owner authenticated desktop/tablet/mobile review at 1440px, 1024px, 768px, 390px, 360px and 320px.
 - [ ] Verify all existing player, attendance, financial and enquiries links and metric parity with original dashboard.

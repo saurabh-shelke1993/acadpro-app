@@ -177,3 +177,5 @@ New Academy Owner-only `/ui-c2-9-palettes` authored on `ui-c2-5-owner-dashboard-
 ## UI-C2.10 — Selected Pitchside Emerald candidate (4 November 2026)
 
 Product Owner chose Pitchside Emerald over alternatives. Dedicated AO-only `/ui-c2-10-pitchside` uses a locked emerald theme on existing C27 dashboard with `AcademyOwnerDashboardC30.css` scoped styling and distinct chart colors. Original `/dashboard`, C2.7/C2.9 previews, shared sidebar and all roles are unchanged. CI and authenticated browser testing tracked separately. No migrations, auth/RLS or package changes. See `frontend/docs/UI_C2_10_PITCHSIDE_EMERALD.md`.
+
+**UI-C2.10 validation:** Code `b7a761e` / Actions `41803968992`: 56/56 focused tests passed across five suites, actual CRA build passed, Vercel Preview success. Full Jest suite 4 failed / 27 passed, 16 failed tests / 208 passed, matching prior coach/performance failures. AO authenticated/mobile, cross-role and tenant acceptance still pending. This is a theme candidate, not global rollout.

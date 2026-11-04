@@ -6,7 +6,7 @@
 
 ## UI-C2.10 — Selected Pitchside Emerald Academy Owner dashboard (4 November 2026)
 
-Product Owner selected Pitchside Emerald as preferred visual identity. An isolated `/ui-c2-10-pitchside` Academy Owner-only route uses scoped forest/emerald/lime styling and keeps previous previews and `/dashboard` unchanged. No database, RLS, payment, auth, global styling or package changes. Implementation tests/build and authenticated acceptance are tracked separately. See `frontend/docs/UI_C2_10_PITCHSIDE_EMERALD.md`.
+Product Owner selected Pitchside Emerald as preferred visual identity. An isolated `/ui-c2-10-pitchside` Academy Owner-only route uses scoped forest/emerald/lime styling and keeps previous previews and `/dashboard` unchanged. No database, RLS, payment, auth, global styling or package changes. Implementation verified on code commit `b7a761e`: focused 56/56 tests passed and CRA production build passed (Actions `41803968992`); Vercel Preview deployed. Full suite still has 16 failures in four unchanged coach/performance suites. Authenticated acceptance pending. See `frontend/docs/UI_C2_10_PITCHSIDE_EMERALD.md`.
 
 ## UI-C2.9 — Five-theme premium brand exploration (4 November 2026)
 

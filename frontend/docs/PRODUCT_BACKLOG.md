@@ -11,7 +11,7 @@ Security and data isolation are prerequisites for production.
 - [x] Implement dedicated isolated protected route and scoped forest/emerald/lime theme
 - [x] Recolor player-center donut and interaction states without changing real data
 - [x] Add focused component regression tests and CI workflow coverage
-- [ ] Exact-head CI and CRA build
+- [x] Exact-head CI focused 56/56 tests and CRA build passed on `b7a761e` (Actions `41803968992`); broader suite still fails in four pre-existing coach/performance files
 - [ ] Authenticated Academy Owner browser and mobile review
 - [ ] Role-denial, tenant isolation, accessibility and metric parity
 - [ ] Decide on later adoption across shared sidebar and all other roles/pages; not authorized yet
