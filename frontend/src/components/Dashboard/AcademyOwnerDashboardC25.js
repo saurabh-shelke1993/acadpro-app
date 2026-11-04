@@ -142,11 +142,11 @@ function Enquiries({ data }) {
 export default function AcademyOwnerDashboardC25({ data }) {
   const adapted=useMemo(()=>adaptOwnerData(data),[data]);
   if (!adapted) return <div className="c25-dashboard"><Empty title="Dashboard unavailable" detail="Academy dashboard data was not returned." /></div>;
-  return <main className="c25-dashboard">
+  return <div className="c25-dashboard">
     <div className="c25-preview-bar"><span>UI-C2.5 · Academy Owner preview only</span><Link to="/dashboard">Return to current dashboard ↗</Link></div>
     <header className="c25-pagehead"><div><span className="c25-eyebrow">Kheltriva · Football operations</span><h1>Academy overview</h1><p>{adapted.academyName} · Your training day at a glance</p></div><span className="c25-tag">FOOTBALL FIRST</span></header>
     <div className="c25-top"><Overview data={adapted}/><Sessions data={adapted}/></div>
     <Attendance data={adapted}/>
     <div className="c25-bottom"><Finances data={adapted}/><Enquiries data={adapted}/></div>
-  </main>;
+  </div>;
 }
