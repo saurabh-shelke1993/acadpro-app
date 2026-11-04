@@ -5,6 +5,18 @@
 
 Security and data isolation are prerequisites for production.
 
+## UI-C2.8 — Premium football dashboard visual experiment
+
+- [x] Scoped typography improvements without additional packages
+- [x] Ten-segment attendance pulse with exact recorded present/total marks and no-data state
+- [x] Football training attendance shortcut / sessions-without-marks count
+- [x] Three switchable palette options in owner-only preview, not in app shell
+- [x] Exact-head CI focused regression 41/41 and real CRA build passed (`0411509`)
+- [ ] Academy Owner visual review at desktop/tablet/mobile and color-palette selection
+- [ ] Manual cross-role route and second-tenant security checks
+- [ ] Full pre-existing coach/performance Jest failures investigated separately
+- [ ] Decide whether one palette should be promoted into shared design tokens after approval
+
 ## UI-C2.7 — Owner preview redesign (4 November 2026)
 
 - [x] UI-C2.7A: scoped premium football typography, spacing, tokens and compact KPI hierarchy

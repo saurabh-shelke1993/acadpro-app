@@ -4,6 +4,10 @@
 **Current Version:** V1.0 Beta (development; not release sign-off)  
 **Current Git Branch:** `payment-module-finalization`
 
+## UI-C2.8 — Academy Owner font, training pulse and theme experiment (4 November 2026)
+
+Isolated `/ui-c2-7-preview` enhanced with more readable type, segmented recorded-mark attendance (with actual numerator/denominator), a link to the training attendance workspace, and three **preview-only** selectable palettes (Classic Blue, Pitchside Emerald, Floodlight Indigo). Code `0411509` passed 41 focused tests and CRA build (Actions run `41798844256`), Vercel Preview success. The full suite still has 16 failed tests in four unchanged coach/performance suites. Authenticated browser/RBAC, accessibility and Product Owner palette approval pending. The shared sidebar, original `/dashboard`, global styles and Supabase were not changed. See `frontend/docs/UI_C2_8_DASHBOARD_VISUAL_EXPERIMENT.md`.
+
 ## UI-C2.7 — Premium Academy Owner Dashboard preview (4 November 2026)
 
 **Implementation (validation branch only):** New `/ui-c2-7-preview` Academy Owner-only route with compact premium football identity, selectable center breakdown, fully visible daily sessions, compact filterable attendance matrix, clearer financial hierarchy, and scoped enquiry navigation. Existing `/dashboard` and `/ui-c2-5-preview` preserved. Focused tests **37/37 passed**, CRA build **passed** on code commit `410c805` (Actions run `41794949339`), and Vercel Preview deployment succeeded. Complete Jest suite still has 16 failures in four unchanged coach/performance test files. Authenticated browser, negative RBAC and Owner acceptance pending. See `frontend/docs/UI_C2_7_OWNER_DASHBOARD.md`.

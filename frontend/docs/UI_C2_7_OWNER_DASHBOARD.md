@@ -63,3 +63,7 @@
 - [ ] Attempt direct route access with Super Admin, Coach, Parent and a second academy account to verify role and tenant isolation.
 
 **Release gate:** Do not merge into `payment-module-finalization` or `main` until product-owner visual acceptance and authenticated role regression have passed. Existing base full-suite failures remain a separate release blocker.
+
+## UI-C2.8 follow-on (4 November 2026)
+
+The owner-only C2.7 preview was further refined in-place with readable type, segmented recorded-mark attendance, a football training action summary and switchable palette experiments. See `UI_C2_8_DASHBOARD_VISUAL_EXPERIMENT.md` for theme tokens, checks and acceptance gates. Original `/dashboard` is still unchanged.
