@@ -173,7 +173,8 @@ test("PP5 owner sees a single accessible profile identity with editing, upload a
   expect(within(dialog).getByRole("button", { name: "Deactivate Arjun Shelke" })).toBeInTheDocument();
   expect(within(dialog).getByText(/original up to 10 MB/)).toBeInTheDocument();
   expect(within(dialog).getByRole("heading", { name: "Fees paid" })).toBeInTheDocument();
-  expect(within(dialog).getByText("₹1,000")).toBeInTheDocument();
+  expect(await within(dialog).findByText("₹1,000")).toBeInTheDocument();
+  expect(screen.queryByRole("row", { name: "View profile for Other Academy Player" })).not.toBeInTheDocument();
 });
 
 test("PP5 coach sees scoped training and attendance without owner-only actions or financial totals", async () => {
@@ -183,13 +184,14 @@ test("PP5 coach sees scoped training and attendance without owner-only actions o
   expect(within(dialog).queryByText(/original up to 10 MB/)).not.toBeInTheDocument();
   expect(within(dialog).queryByRole("heading", { name: "Fees paid" })).not.toBeInTheDocument();
   expect(within(dialog).getByRole("heading", { name: "Overall attendance" })).toBeInTheDocument();
-  expect(within(dialog).getByText("3 of 4 recorded sessions attended")).toBeInTheDocument();
+  expect(await within(dialog).findByText("3 of 4 recorded sessions attended")).toBeInTheDocument();
   expect(within(dialog).getByText("75%")).toBeInTheDocument();
-  expect(within(dialog).getByText("2 weekly sessions")).toBeInTheDocument();
+  expect(await within(dialog).findByText("2 weekly sessions")).toBeInTheDocument();
   // Different center appears under its session; identical center/batch is not repeated.
   expect(within(dialog).getByText("Other Center · Juniors")).toBeInTheDocument();
   expect(within(dialog).queryByText("GawandBaugh · Juniors")).not.toBeInTheDocument();
   expect(getCoachAssignedBatchIds).toHaveBeenCalled();
+  expect(screen.queryByRole("row", { name: "View profile for Other Academy Player" })).not.toBeInTheDocument();
 });
 
 test("PP5 Super Admin retains academy visibility and read-only profile controls with fee access", async () => {
