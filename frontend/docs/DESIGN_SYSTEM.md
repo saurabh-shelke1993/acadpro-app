@@ -115,3 +115,12 @@ Before D2, audit and standardize:
 - Empty/loading/error/success feedback
 
 The design system should remain the single source of truth for these patterns.
+
+
+## UI-C2.10 selected design candidate — PAUSED (4 November 2026)
+
+**Do not replace the D1 shared tokens with these yet.** The Academy Owner-only validation branch `ui-c2-5-owner-dashboard-validation` contains a selected *preview* direction, **Pitchside Emerald**, with deep forest `#0C2629`, emerald `#087C6E`, lime `#C5EC85`, light canvas `#F2F8F5` and card white `#FFFFFF`. The selected palette is confined to `.c30-pitchside` styles under `/ui-c2-10-pitchside`; it is not a shared design-system migration and makes no changes to academy logos or the global sidebar.
+
+Existing production D1 blue/slate primitives and semantic danger/success/warning states remain the source of truth until a separately approved design-system rollout. No new global tokens, shadcn dependencies or framework migration have been authorized. Design work is paused while `payment-module-finalization` architecture work continues.
+
+When explicitly resumed, review `frontend/docs/UI_C2_DESIGN_PAUSE_HANDOFF.md`, compare current payment/UI branch HEADs, validate the selected preview with real role/tenant data, then *propose* phased shared-token migration and regression. Do not apply this palette to all modules solely because it has been selected as the preferred **Academy Owner** direction.

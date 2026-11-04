@@ -4,6 +4,8 @@
 **Branch:** `ui-c2-5-owner-dashboard-validation`
 **Route:** `/ui-c2-10-pitchside`
 **Role:** Academy Owner only, behind the existing `ProtectedRoute`
+
+**PAUSE UPDATE — 4 November 2026:** Product Owner requested a stop to design work so payment architecture can be completed. The selected Pitchside Emerald dashboard remains on the isolated Preview branch, not accepted for global or production rollout. Automated focused tests (56/56) and CRA build passed at `b7a761e`; authenticated Owner/mobile, role/tenant and metric parity after payment changes remain pending. See `UI_C2_DESIGN_PAUSE_HANDOFF.md` for exact restart procedure.
 **Status:** Code and scoped CSS authored; focused CI, actual React build, authenticated browser testing, role/tenant validation and final rollout approval are separate gates.
 
 ## Product decision

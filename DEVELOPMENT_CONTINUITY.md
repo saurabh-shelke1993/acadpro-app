@@ -179,3 +179,10 @@ New Academy Owner-only `/ui-c2-9-palettes` authored on `ui-c2-5-owner-dashboard-
 Product Owner chose Pitchside Emerald over alternatives. Dedicated AO-only `/ui-c2-10-pitchside` uses a locked emerald theme on existing C27 dashboard with `AcademyOwnerDashboardC30.css` scoped styling and distinct chart colors. Original `/dashboard`, C2.7/C2.9 previews, shared sidebar and all roles are unchanged. CI and authenticated browser testing tracked separately. No migrations, auth/RLS or package changes. See `frontend/docs/UI_C2_10_PITCHSIDE_EMERALD.md`.
 
 **UI-C2.10 validation:** Code `b7a761e` / Actions `41803968992`: 56/56 focused tests passed across five suites, actual CRA build passed, Vercel Preview success. Full Jest suite 4 failed / 27 passed, 16 failed tests / 208 passed, matching prior coach/performance failures. AO authenticated/mobile, cross-role and tenant acceptance still pending. This is a theme candidate, not global rollout.
+
+
+## Academy Owner UI-C2 — explicit PAUSE handoff (4 November 2026)
+
+**Priority shift:** Product Owner has paused further UI design work to continue architecture in `payment-module-finalization`. **Do not automatically resume UI work** or merge its separate validation branch. Preferred theme: **Pitchside Emerald** on `/ui-c2-10-pitchside`, branch `ui-c2-5-owner-dashboard-validation`; source implemented, focused tests/build passed, manual Owner/role/tenant acceptance pending. The original `/dashboard` is untouched. The full Jest suite still has four known coach/performance failing suites (16 tests).
+
+**Authoritative restart document:** `frontend/docs/UI_C2_DESIGN_PAUSE_HANDOFF.md` in the UI branch. Read it and the current four core project documents, inspect current Git branch HEADs and Supabase/database state, compare payment vs UI branches and only proceed on Product Owner request. No production merge or global theme application is authorized.

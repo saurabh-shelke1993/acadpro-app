@@ -4,6 +4,10 @@
 **Current Version:** V1.0 Beta (development; not release sign-off)  
 **Current Git Branch:** `payment-module-finalization`
 
+### UI design workstream — PAUSED (4 November 2026)
+
+Design work is now explicitly **paused** while payment-module architectural finalization takes priority. Selected direction is **Pitchside Emerald**, implemented on independent preview branch `ui-c2-5-owner-dashboard-validation` (not merged). Last tested code `b7a761e`: 56 focused tests and CRA build passed; 16 previously known failures persist in the broader coach/performance Jest suites. Authenticated role/tenant and manual visual sign-off are pending. **Do not assume the preview theme or design branch has been promoted to production.** Full restart checklist: `frontend/docs/UI_C2_DESIGN_PAUSE_HANDOFF.md`.
+
 ## UI-C2.10 — Selected Pitchside Emerald Academy Owner dashboard (4 November 2026)
 
 Product Owner selected Pitchside Emerald as preferred visual identity. An isolated `/ui-c2-10-pitchside` Academy Owner-only route uses scoped forest/emerald/lime styling and keeps previous previews and `/dashboard` unchanged. No database, RLS, payment, auth, global styling or package changes. Implementation verified on code commit `b7a761e`: focused 56/56 tests passed and CRA production build passed (Actions `41803968992`); Vercel Preview deployed. Full suite still has 16 failures in four unchanged coach/performance suites. Authenticated acceptance pending. See `frontend/docs/UI_C2_10_PITCHSIDE_EMERALD.md`.

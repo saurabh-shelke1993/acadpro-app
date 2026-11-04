@@ -5,6 +5,17 @@
 
 Security and data isolation are prerequisites for production.
 
+### Design workstream pause / resumption gate (4 November 2026)
+
+**ON HOLD — priority is `payment-module-finalization` architecture work.** Do not start further Academy Owner design iterations, change global tokens, or merge preview routes before Product Owner requests resumption. Preferred candidate is **UI-C2.10 Pitchside Emerald**, implemented only on `ui-c2-5-owner-dashboard-validation`. Source and automated checks completed; product acceptance, responsive QA, tenant/role checks and compatibility review against any newer payment changes remain pending. See `frontend/docs/UI_C2_DESIGN_PAUSE_HANDOFF.md`.
+
+- [x] Document UI-C2.5–C2.10 implementation sequence, data semantics, code paths, theme tokens and test evidence
+- [x] Freeze selected Pitchside Emerald as a *candidate* rather than global branding
+- [ ] Resume after payment architecture work, at Product Owner request
+- [ ] Diff latest UI/payment branches and verify changed dashboard data/finance contract before integration
+- [ ] Re-run focused/full tests and authenticated desktop/mobile/role/tenant acceptance
+- [ ] Obtain release approval before any shared design-system or production rollout
+
 ## UI-C2.10 — Pitchside Emerald selected-theme validation
 
 - [x] Select Pitchside Emerald for Academy Owner dashboard direction

@@ -185,3 +185,12 @@ Parent coach details are provided through dedicated RPCs that scope results to t
 ## 12. Production principles
 
 Before production, AcadPro must complete full module regression, negative authorization testing, parent/player isolation testing, authentication/session review, environment hardening, development-feature removal and production security review.
+
+
+## UI-C2 preview-branch architecture note — NOT MERGED (4 November 2026)
+
+The separate `ui-c2-5-owner-dashboard-validation` branch implements a protected, read-only Academy Owner dashboard design experiment. The route `/ui-c2-10-pitchside` and older `/ui-c2-5-preview`, `/ui-c2-7-preview`, `/ui-c2-9-palettes` are preview-only route additions on that branch, not active production architecture. They reuse the existing dashboard service, adapter, role guard and data-scope assumptions; no Supabase migrations, RLS policy changes, payment RPC changes or auth changes were introduced for UI-C2.
+
+The selected Pitchside Emerald style is component-scoped and does **not** change the D1 shared design tokens, production `/dashboard`, sidebar, role dashboards or academy-specific branding. Implementation passed 56 focused tests and CRA build on code commit `b7a761e`, but authenticated browser and cross-role/tenant acceptance are pending; broader unrelated Jest failures remain.
+
+**Status:** design work paused pending architectural payment work. Read `frontend/docs/UI_C2_DESIGN_PAUSE_HANDOFF.md` for the safe resumption and merge gates. Any future integration requires inspecting the current payment branch and reconciling the dashboard/finance contract first.
