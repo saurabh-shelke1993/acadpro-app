@@ -90,7 +90,7 @@ test("weighted recorded attendance is separate from number of batches with marks
   const attendance=section("Weekly attendance by batch");
   expect(within(attendance).getByText("75%")).toBeInTheDocument();
   expect(within(attendance).getByText("2/3")).toBeInTheDocument();
-  expect(within(attendance).getByText(/not session coverage/)).toBeInTheDocument();
+  expect(within(attendance).getByText(/not scheduled training sessions/)).toBeInTheDocument();
   expect(recordedMarkSummary(fixture.attendanceByBatch).marked).toBe(12);
 });
 test("center attendance filter controls only visible rows, not global totals",()=>{
@@ -142,7 +142,7 @@ test("enquiries links preserve centerId scope",()=>{
 });
 test("compare links retain old preview and original dashboard",()=>{
   mount();
-  expect(screen.getByRole("link",{name:"Compare previous preview"})).toHaveAttribute("href","/ui-c2-5-preview");
+  expect(screen.getByRole("link",{name:"Previous preview"})).toHaveAttribute("href","/ui-c2-5-preview");
   expect(screen.getByRole("link",{name:/Current dashboard/i})).toHaveAttribute("href","/dashboard");
 });
 test("empty academy renders without false numbers",()=>{
