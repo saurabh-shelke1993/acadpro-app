@@ -1,6 +1,6 @@
 # AcadPro Product Backlog
 
-**Last Updated:** 12 October 2026  
+**Last Updated:** 4 November 2026 (recent PP5 checkpoint; historical sections retained)  
 **Current Branch:** `payment-module-finalization`
 
 Security and data isolation are prerequisites for production.
@@ -355,3 +355,17 @@ AcadPro V1.0 aims to provide academy administration, center and batch management
 
 ### Next development task
 The next product feature has not yet been selected after Enquiries implementation. Expenses was previously excluded from the P1.6 UPI release scope; that exclusion did not authorize adding Expenses to P1.6. If selected now, Expenses must be handled as its own feature/phase with separate scope and regression checks.
+
+
+## Kheltriva Player Profile PP1–PP5 — Development checkpoint (4 November 2026)
+
+- [x] **PP1–PP2 implementation** — Compact identity/action header; separate Player and Parent contact facts; consistent DOB/joining date labels.
+- [x] **PP3 implementation** — Compact training schedule, explicitly overall attendance and existing three-month net-fee summary.
+- [x] **PP4 implementation** — Authorized player Performance Report link, empty/error states and responsive layout.
+- [x] **PP5 implementation** — Modal Escape, focus containment/restore, nested table-row keyboard safety, narrow-width/long-text improvements.
+- [x] **PP5 test and CI source** — 8 new Player Profile component cases plus 5 existing presentation tests; focused GitHub Actions workflow authored.
+- [ ] **PP5 runtime acceptance** — Confirm exact-HEAD Jest and production build, 320/375/430px, tablet and desktop UX, and Owner/Coach/Super Admin/Parent role/browser scenarios.
+- [ ] **PP5 negative authorization** — Controlled cross-academy/assigned-batch/Parent direct-route tests; no live business-record mutations.
+- [ ] **Player photo PH5 release checks** — Separate 25 authored photo tests still require execution and controlled replacement/Storage validation.
+
+**Status:** PP1–PP5 source implementation complete, **NOT** production-accepted. Role-permission matrix and Supabase RLS are unchanged. Reference: `frontend/docs/PLAYER_PROFILE_PP5_REGRESSION_20261104.md` and repository-root `DEVELOPMENT_CONTINUITY.md`.
