@@ -88,6 +88,12 @@ function Players() {
   const [playerPhotoUploading, setPlayerPhotoUploading] = useState(false);
   const [playerPhotoError, setPlayerPhotoError] = useState("");
   const [playerPhotoNotice, setPlayerPhotoNotice] = useState("");
+
+  // Clear messages when switching to a different player or edit context.
+  useEffect(() => {
+    setPlayerPhotoNotice("");
+    setPlayerPhotoError("");
+  }, [selectedCoachPlayer?.id, editingPlayerId]);
   const [columnFilters, setColumnFilters] = useState({
     academy: [],
     center: [],
