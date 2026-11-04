@@ -35,4 +35,5 @@ jobs:
       - name: Run complete frontend Jest suite
         run: npm test -- --watchAll=false --runInBand
       - name: Build actual Create React App frontend
+        if: ${{ !cancelled() }}
         run: npm run build
