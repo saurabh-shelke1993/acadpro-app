@@ -4,6 +4,7 @@ import DashboardCard from "../components/Dashboard/DashboardCard";
 import DashboardCharts from "../components/DashboardCharts";
 import SuperAdminDashboard from "../components/Dashboard/SuperAdminDashboard";
 import AcademyOwnerDashboard from "../components/Dashboard/AcademyOwnerDashboard";
+import AcademyOwnerDashboardC25 from "../components/Dashboard/AcademyOwnerDashboardC25";
 import Layout from "../components/Layout";
 import { getAcademyOwnerDashboardData, getDashboardSummary, getSuperAdminDashboardData } from "../services/dashboardService";
 import "../styles/dashboard.css";
@@ -28,7 +29,7 @@ const initialSummary = {
 const formatCurrency = (amount) =>
   `₹${Number(amount || 0).toLocaleString("en-IN")}`;
 
-function Dashboard() {
+function Dashboard({ ownerPreview = false }) {
   const [user, setUser] = useState(null);
   const [summary, setSummary] = useState(initialSummary);
   const [loading, setLoading] = useState(true);
@@ -129,11 +130,17 @@ function Dashboard() {
   if (isAcademyOwner(user)) {
     return (
       <Layout>
-        <AcademyOwnerDashboard
-          user={user}
-          data={summary.academyOwner}
-          onRefresh={() => setRefreshToken((value) => value + 1)}
-        />
+        {ownerPreview ? (
+          <AcademyOwnerDashboardC25
+            data={summary.academyOwner}
+          />
+        ) : (
+          <AcademyOwnerDashboard
+            user={user}
+            data={summary.academyOwner}
+            onRefresh={() => setRefreshToken((value) => value + 1)}
+          />
+        )}
       </Layout>
     );
   }
