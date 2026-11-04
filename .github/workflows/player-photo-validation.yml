@@ -36,12 +36,7 @@ jobs:
       - name: Run player photo tests
         env:
           CI: 'true'
-        run: npm test -- --watchAll=false --runInBand --testPathPattern='(playerPhotoOptimization|playerPhotoCleanup|playerPhotoService)\.test\.js
-      - name: Build React frontend
-        env:
-          CI: 'true'
-        run: npm run build
-
+        run: npm test -- --watchAll=false --runInBand --testPathPattern='(playerPhotoOptimization|playerPhotoCleanup|playerPhotoService)\.test\.js$'
       - name: Build React frontend
         env:
           CI: 'true'
