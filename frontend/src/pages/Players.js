@@ -1629,6 +1629,8 @@ useEffect(() => {
                       setSelectedCoachPlayer(player);
                     }}
                     onKeyDown={(event) => {
+                      // Do not hijack Enter/Space from Edit, Deactivate or other row controls.
+                      if (event.target !== event.currentTarget) return;
                       if (event.key === "Enter" || event.key === " ") {
                         event.preventDefault();
                         profileReturnFocusRef.current = event.currentTarget;
