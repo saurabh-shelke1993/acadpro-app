@@ -136,3 +136,27 @@
     min-width: 40px;
   }
 }
+
+/* AM4: explain date-limited Coach editing without hiding historical records. */
+.attendance-history-coach-rule {
+  color: var(--ap-slate-600);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  margin: 0.25rem 0 0.5rem;
+  max-width: 58rem;
+  overflow-wrap: anywhere;
+}
+
+.attendance-history-readonly {
+  display: inline-flex;
+  align-items: center;
+  color: var(--ap-slate-500);
+  background: var(--ap-slate-50);
+  border: 1px solid var(--ap-border);
+  border-radius: var(--ap-radius-full);
+  padding: 0.25rem 0.5rem;
+  min-height: 28px;
+  font-size: 0.72rem;
+  font-weight: 650;
+  white-space: nowrap;
+}
