@@ -1,9 +1,12 @@
-name: Attendance AM1–AM4 validation
+name: Attendance AM1–AM5 validation
 
 on:
   push:
     branches: [payment-module-finalization]
     paths:
+      - 'frontend/src/routes/AppRoutes.js'
+      - 'frontend/src/pages/AttendanceWorkspace.js'
+      - 'frontend/src/pages/AttendanceWorkspace.test.js'
       - 'frontend/src/components/AttendanceWorkspaceTabs.js'
       - 'frontend/src/components/AttendanceWorkspaceTabs.css'
       - 'frontend/src/components/AttendanceWorkspaceTabs.test.js'
@@ -16,6 +19,9 @@ on:
       - 'frontend/src/pages/AttendanceHistory.js'
       - 'frontend/src/pages/AttendanceHistory.css'
       - 'frontend/src/pages/AttendanceHistory.test.js'
+      - 'frontend/src/pages/Dashboard.js'
+      - 'frontend/src/pages/CoachDashboard.js'
+      - 'frontend/src/components/Dashboard/AcademyOwnerDashboard.js'
       - 'frontend/src/services/attendanceService.js'
       - 'frontend/src/services/attendanceService.test.js'
       - 'frontend/src/utils/attendanceEditWindow.js'
@@ -43,10 +49,10 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
-      - name: Run AM1–AM4 regression tests
+      - name: Run AM1–AM5 regression tests
         env:
           CI: 'true'
-        run: npm test -- --watchAll=false --runInBand --testPathPattern='(AttendanceWorkspaceTabs|Sidebar|Attendance|CoachAttendance|AttendanceHistory|attendanceEditWindow|attendanceService)\.test\.js$'
+        run: npm test -- --watchAll=false --runInBand --testPathPattern='(AttendanceWorkspace|AttendanceWorkspaceTabs|Sidebar|Attendance|CoachAttendance|AttendanceHistory|attendanceEditWindow|attendanceService)\.test\.js$'
       - name: Build React frontend
         env:
           CI: 'true'
