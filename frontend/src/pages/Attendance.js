@@ -487,7 +487,7 @@ useEffect(() => {
   }, [selectedBatch, selectedSchedule, attendanceDate, fetchPlayers]);
 
   // AM2: Super Admin is history-only. Existing INSERT RLS prohibits marking.
-  if (isSuperAdmin(user)) return <Navigate to="/attendance?view=history" replace />;
+  if (isSuperAdmin(user)) return <Navigate to="/attendance-history" replace />;
 
   return (
   <Layout>
