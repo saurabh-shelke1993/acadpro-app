@@ -376,11 +376,16 @@ The next product feature has not yet been selected after Enquiries implementatio
 - [x] **AM1 — Unified navigation** — One Attendance sidebar entry for Owner, Coach and Super Admin; shared Mark Attendance / Attendance History cards over the current routes, with existing role selection preserved.
 - [x] **AM1 — Test source / CI** — Selection-card and sidebar role/navigation regression cases authored, targeted GitHub Actions workflow configured.
 - [ ] **AM1 — Runtime/visual acceptance** — Confirm latest-head Jest/build, desktop/tablet/phone, Owner/Coach/Super Admin/Parent navigation and both dashboard deep links.
-- [ ] **AM2 — Owner/Admin mark integration** — Preserve marking service; align Super Admin direct `/attendance` route and UI with role matrix and existing database INSERT denial.
-- [ ] **AM3 — Coach mark integration** — Preserve assigned-session/date/batch deep links, Coach edit window and current save/update logic.
-- [ ] **AM4 — Attendance History integration** — Preserve filters, soft-delete, five-per-page results; hide Coach edit actions for date-restricted history; avoid client-side fetch-all scaling changes until separately approved.
+- [x] **AM2 — Owner/Admin mark integration (source)** — Super Admin direct `/attendance` redirects to History; Owner-only creation and UTC future-date guard; existing Owner dashboard route and save preserved.
+- [x] **AM3 — Coach mark integration (source)** — Assigned-session verification before roster query, older existing records read-only outside UTC seven-date policy, update zero-row detection; Coach deep links, insert/update kept.
+- [x] **AM4 — Attendance History integration (source)** — Coach per-record Edit only within seven dates, older Read-only; Owner/Admin edit/delete, filters, soft-delete, pagination 5 preserved. Fail on zero-row RLS update.
 - [ ] **AM5 — Canonical route and regression** — Transition to `/attendance?view=mark|history` with tested legacy-route compatibility, role/tenant negative tests and documentation.
 - [ ] **AM6 — Mark Attendance UX improvements** — Plan only after navigation/integration is visually accepted.
 - [ ] **AM7 — History UX improvements** — Plan only after navigation/integration is visually accepted.
 
-**AM1 status:** **Implemented** in frontend navigation; latest-head automated and browser acceptance **not yet confirmed**. No attendance database/RLS changes. See `frontend/docs/ATTENDANCE_AM1_WORKSPACE_20261105.md`.
+- [x] **AM2–AM4 regression test source** — 22 newly authored cases (Owner/SA direct route, Coach session scope and read-only window, History permissions, service denial, UTC date boundaries); combined AM1–AM4 40 authored cases and CI/build workflow. **Execution pending**.
+- [ ] **AM1–AM4 combined acceptance** — Exact-head Jest/build, controlled Owner/Coach/Super Admin/Parent browser tests, dashboard deep links, 320/375/768px responsive review and negative tenant/RLS checks.
+- [ ] **Coach update transaction follow-up** — Original per-row Coach updates remain non-transactional; inspect partial-failure scenarios independently before proposing an RPC.
+- [ ] **History scale follow-up** — Existing client-side fetch-all still in place; assess server filtering/pagination when AM7 is approved.
+
+**Current status:** **AM1–AM4 source implemented**, **not runtime-tested or release-accepted**. AM5 canonical route and AM6/AM7 UX phases remain pending. No attendance database/RLS modifications. See `frontend/docs/ATTENDANCE_AM2_AM4_20261105.md`.
