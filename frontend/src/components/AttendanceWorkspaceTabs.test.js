@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import AttendanceWorkspaceTabs from "./AttendanceWorkspaceTabs";
 
-const renderViews = (path, role = "academy_owner") =>
+const renderViews = (path, role) =>
   render(
     <MemoryRouter initialEntries={[path]}>
       <AttendanceWorkspaceTabs role={role} />
@@ -26,7 +26,7 @@ test("Academy Owner sees two views with Mark Attendance selected at the existing
 });
 
 test("Owner dashboard center/batch deep-link query retains Mark selected", () => {
-  renderViews("/attendance?centerId=center-1&batchId=batch-1");
+  renderViews("/attendance?centerId=center-1&batchId=batch-1", "academy_owner");
   expect(screen.getByRole("link", { name: "Mark Attendance" }))
     .toHaveAttribute("aria-current", "page");
 });
@@ -53,7 +53,7 @@ test.each(["academy_owner", "coach"])(
 );
 
 test("selection links switch between existing Owner routes without new queries", () => {
-  renderViews("/attendance");
+  renderViews("/attendance", "academy_owner");
   const mark = screen.getByRole("link", { name: "Mark Attendance" });
   const history = screen.getByRole("link", { name: "Attendance History" });
   fireEvent.click(history);
