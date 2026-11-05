@@ -18,6 +18,7 @@ import {
 } from "../services/attendanceService";
 import Layout from "../components/Layout";
 import AttendanceWorkspaceTabs from "../components/AttendanceWorkspaceTabs";
+import { canEditAttendanceRecord } from "../utils/attendanceEditWindow";
 import "./AttendanceHistory.css";
 
 const PAGE_SIZE = 5;
@@ -307,8 +308,9 @@ function AttendanceHistory() {
 
   const updateAttendance = async (attendanceId) => {
     try {
-      if (!canEditAttendance(user)) {
-        alert("You are not authorized to edit attendance.");
+      const record = attendanceHistory.find((item) => item.id === attendanceId);
+      if (!canEditAttendance(user) || !canEditAttendanceRecord(user, record)) {
+        alert("This record is read-only. Coaches can edit only the last 7 calendar dates.");
         return;
       }
 
@@ -487,6 +489,9 @@ function AttendanceHistory() {
           <div>
             <span className="attendance-history-section-label">Records</span>
             <h2>Attendance records</h2>
+            {user?.role === "coach" && (
+              <p className="attendance-history-coach-rule">Coaches can edit attendance from the last 7 calendar dates. Earlier records are read-only.</p>
+            )}
             <p>
               {startDate || endDate
                 ? `Showing records from ${startDate ? formatDate(startDate) : "the beginning"} to ${endDate ? formatDate(endDate) : "the latest available date"}.`
@@ -589,7 +594,7 @@ function AttendanceHistory() {
                         <div className="attendance-history-actions">
                           {editingAttendanceId === item.id ? (
                             <>
-                              {canEditAttendance(user) && (
+                              {canEditAttendanceRecord(user, item) && (
                                 <button
                                   className="attendance-action-button attendance-action-save"
                                   type="button"
@@ -613,7 +618,7 @@ function AttendanceHistory() {
                             </>
                           ) : (
                             <>
-                              {canEditAttendance(user) && (
+                              {canEditAttendanceRecord(user, item) && (
                                 <button
                                   className="attendance-icon-button"
                                   type="button"
@@ -627,7 +632,10 @@ function AttendanceHistory() {
                                   ✏️
                                 </button>
                               )}
-                              {canDeleteAttendance(user) && (
+                              {!canEditAttendanceRecord(user, item) && !canDeleteAttendance(user) && (
+                                 <span className="attendance-history-readonly" title="Editing is limited to the last 7 calendar dates">Read-only</span>
+                               )}
+                               {canDeleteAttendance(user) && (
                                 <button
                                   className="attendance-icon-button attendance-delete-button"
                                   type="button"
