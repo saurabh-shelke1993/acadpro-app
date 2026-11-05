@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import Layout from "../components/Layout";
 import AttendanceWorkspaceTabs from "../components/AttendanceWorkspaceTabs";
+import { canCoachEditAttendanceDate, utcAttendanceToday } from "../utils/attendanceEditWindow";
 import "./Attendance.css";
 import { supabase } from "../supabaseClient";
 import {
@@ -54,7 +55,9 @@ function CoachAttendance() {
   }, [user, attendanceDate, initialBatchId]);
 
   const loadPlayers = useCallback(async () => {
-    if (!selectedSchedule) {
+    // Do not query a schedule until the server-scoped assignment list confirms it.
+    // This also prevents a tampered scheduleId deep link from triggering a roster read.
+    if (!selectedSchedule || !sessions.some((session) => session.id === selectedSchedule)) {
       setPlayers([]);
       setIsEditMode(false);
       return;
@@ -93,7 +96,7 @@ function CoachAttendance() {
     } finally {
       setLoading(false);
     }
-  }, [selectedSchedule, attendanceDate]);
+  }, [selectedSchedule, attendanceDate, sessions]);
 
   useEffect(() => {
     loadSessions();
@@ -119,6 +122,14 @@ function CoachAttendance() {
 
   const saveAttendance = async () => {
     if (!selectedSchedule || !players.length || saving) return;
+    if (!sessions.some((session) => session.id === selectedSchedule)) {
+      setError("Select an assigned training session before saving.");
+      return;
+    }
+    if (isEditMode && !canCoachEditAttendanceDate(attendanceDate)) {
+      setError("Older attendance is read-only. Coaches may edit only the last 7 calendar dates.");
+      return;
+    }
     const today = new Date();
     const localToday = [today.getFullYear(), String(today.getMonth() + 1).padStart(2, "0"), String(today.getDate()).padStart(2, "0")].join("-");
     if (attendanceDate > localToday) {
@@ -144,6 +155,9 @@ function CoachAttendance() {
 
       if (existingError) throw existingError;
       if (existing?.length) {
+        if (!canCoachEditAttendanceDate(attendanceDate)) {
+          throw new Error("Older attendance is read-only. Coaches may edit only the last 7 calendar dates.");
+        }
         const existingByPlayer = new Map(existing.map((row) => [row.player_id, row]));
         const updateResults = await Promise.all(
           players
@@ -153,10 +167,14 @@ function CoachAttendance() {
                 .from("attendance")
                 .update({ status: player.status })
                 .eq("id", existingByPlayer.get(player.id).id)
+                .select("id")
             )
         );
         const updateError = updateResults.find((result) => result.error)?.error;
         if (updateError) throw updateError;
+        if (updateResults.some((result) => !Array.isArray(result.data) || result.data.length !== 1)) {
+          throw new Error("Some attendance updates were not permitted. Refresh and review this session.");
+        }
         setIsEditMode(true);
         setMessage("Attendance updated successfully.");
         return;
@@ -188,6 +206,7 @@ function CoachAttendance() {
   };
 
   const selectedSession = sessions.find((session) => session.id === selectedSchedule);
+  const readOnlyExisting = isEditMode && !canCoachEditAttendanceDate(attendanceDate);
 
   return (
     <Layout>
@@ -197,7 +216,7 @@ function CoachAttendance() {
           <div className="attendance-workspace-heading">
             <div>
               <span className="attendance-page-eyebrow">Daily operations</span>
-              <h1 id="coach-attendance-title">Coach Attendance</h1>
+              <h1 id="coach-attendance-title">Mark Attendance</h1>
               <p>Select one of your assigned recurring sessions, then mark the enrolled players.</p>
             </div>
             {selectedSchedule ? (
@@ -213,7 +232,7 @@ function CoachAttendance() {
               <input
                 id="coach-attendance-date"
                 type="date"
-                max={new Date().toLocaleDateString("en-CA")}
+                max={utcAttendanceToday()}
                 value={attendanceDate}
                 onChange={(e) => {
                   setAttendanceDate(e.target.value);
@@ -257,6 +276,13 @@ function CoachAttendance() {
             </div>
           )}
 
+          {readOnlyExisting && (
+            <div className="attendance-inline-message" role="status">
+              <strong>Read-only</strong>
+              <span>Coaches can update recorded attendance only within the last 7 calendar dates. Older sessions remain available for review.</span>
+            </div>
+          )}
+
           {message ? (
             <div className="attendance-inline-message attendance-inline-success" role="status">
               <strong>✓</strong><span>{message}</span>
@@ -279,8 +305,8 @@ function CoachAttendance() {
 
             {selectedSchedule && players.length > 0 ? (
               <div className="attendance-bulk-actions">
-                <button type="button" className="attendance-secondary-button" onClick={() => markAll("present")}>✓ Mark all present</button>
-                <button type="button" className="attendance-secondary-button attendance-secondary-button-muted" onClick={() => markAll("absent")}>Mark all absent</button>
+                <button type="button" className="attendance-secondary-button" onClick={() => markAll("present")} disabled={saving || loading || readOnlyExisting}>✓ Mark all present</button>
+                <button type="button" className="attendance-secondary-button attendance-secondary-button-muted" onClick={() => markAll("absent")} disabled={saving || loading || readOnlyExisting}>Mark all absent</button>
               </div>
             ) : null}
           </div>
@@ -303,13 +329,13 @@ function CoachAttendance() {
                     <td className="attendance-player-name"><strong>{player.full_name || "—"}</strong>{!player.status ? <span>Not marked</span> : null}</td>
                     <td>
                       <label className={`attendance-choice attendance-choice-present ${player.status === "present" ? "attendance-choice-selected" : ""}`}>
-                        <input type="radio" name={`attendance-${player.id}`} checked={player.status === "present"} onChange={() => handleAttendanceChange(player.id, "present")} />
+                        <input type="radio" name={`attendance-${player.id}`} checked={player.status === "present"} onChange={() => handleAttendanceChange(player.id, "present")} disabled={saving || loading || readOnlyExisting} />
                         <span className="attendance-choice-label">P</span>
                       </label>
                     </td>
                     <td>
                       <label className={`attendance-choice attendance-choice-absent ${player.status === "absent" ? "attendance-choice-selected" : ""}`}>
-                        <input type="radio" name={`attendance-${player.id}`} checked={player.status === "absent"} onChange={() => handleAttendanceChange(player.id, "absent")} />
+                        <input type="radio" name={`attendance-${player.id}`} checked={player.status === "absent"} onChange={() => handleAttendanceChange(player.id, "absent")} disabled={saving || loading || readOnlyExisting} />
                         <span className="attendance-choice-label">A</span>
                       </label>
                     </td>
@@ -323,7 +349,7 @@ function CoachAttendance() {
 
           {selectedSchedule && players.length > 0 ? (
             <div className="attendance-save-bar">
-              <button type="button" className="attendance-primary-button" onClick={saveAttendance} disabled={saving}>
+              <button type="button" className="attendance-primary-button" onClick={saveAttendance} disabled={saving || loading || readOnlyExisting}>
                 {saving ? "Saving…" : isEditMode ? "Update Attendance" : "Save Attendance"}
               </button>
             </div>
