@@ -66,7 +66,7 @@ function CoachDashboard() {
         <section className="coach-dashboard-section">
           <div className="coach-dashboard-section-heading">
             <div><span className="coach-dashboard-section-kicker">Schedule</span><h2>Upcoming Sessions</h2></div>
-            <Link className="coach-dashboard-link" to="/coach-attendance">Open attendance →</Link>
+            <Link className="coach-dashboard-link" to="/attendance?view=mark">Open attendance →</Link>
           </div>
           {scheduleView.upcoming.length ? (
             <div className="coach-dashboard-batches">
@@ -81,7 +81,7 @@ function CoachDashboard() {
                   </div>
                   <div className="coach-batch-card-footer">
                     <span className="coach-dashboard-helper">{formatScheduleTime(session.start_time)}–{formatScheduleTime(session.end_time)}</span>
-                    <Link className="coach-dashboard-link" to={`/coach-attendance?scheduleId=${session.id}&date=${session.date}`}>Take attendance →</Link>
+                    <Link className="coach-dashboard-link" to={`/attendance?view=mark&scheduleId=${encodeURIComponent(session.id)}&date=${encodeURIComponent(session.date)}`}>Take attendance →</Link>
                   </div>
                 </article>
               ))}
@@ -109,7 +109,7 @@ function CoachDashboard() {
                   </div>
                   <div className="coach-batch-card-footer">
                     <span className="coach-dashboard-helper">{formatScheduleTime(session.start_time)}–{formatScheduleTime(session.end_time)}</span>
-                    <Link className="coach-dashboard-link" to={`/coach-attendance?scheduleId=${session.id}`}>Attendance →</Link>
+                    <Link className="coach-dashboard-link" to={`/attendance?view=mark&scheduleId=${encodeURIComponent(session.id)}`}>Attendance →</Link>
                   </div>
                 </article>
               ))}
@@ -151,7 +151,7 @@ function CoachDashboard() {
                 </div>
                 <div className="coach-batch-card-footer">
                   <span className="coach-dashboard-helper">{batch.attendanceRecorded ? "Attendance is on record" : "Attendance still needed"}</span>
-                  <Link className="coach-dashboard-link" to={`/coach-attendance?batchId=${batch.id}`}>{batch.attendanceRecorded ? "Review attendance →" : "Mark attendance →"}</Link>
+                  <Link className="coach-dashboard-link" to={`/attendance?view=mark&batchId=${encodeURIComponent(batch.id)}`}>{batch.attendanceRecorded ? "Review attendance →" : "Mark attendance →"}</Link>
                 </div>
               </article>
             )) : <div className="coach-dashboard-panel coach-dashboard-empty">No active batches are assigned to you.</div>}
