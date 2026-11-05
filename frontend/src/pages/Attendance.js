@@ -3,6 +3,8 @@ import { Navigate, useSearchParams } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import Layout from "../components/Layout";
 import AttendanceWorkspaceTabs from "../components/AttendanceWorkspaceTabs";
+import AttendanceRosterSummary from "../components/AttendanceRosterSummary";
+import { countAttendance, formatAttendanceSessionLabel } from "../utils/attendancePresentation";
 import "./Attendance.css";
 import {
   getAccessibleAcademies,
@@ -27,7 +29,6 @@ import {
 import {
   getAttendanceSessionsForBatch,
   getEnrolledPlayersForSchedule,
-  formatScheduleLabel,
 } from "../services/scheduleViewService";
 
 function Attendance() {
@@ -305,30 +306,19 @@ setBatches(data || []);
     setAttendanceError("");
   };
 
-  const attendanceSummary = players.reduce(
-    (summary, item) => {
-      const status = attendanceData[item.player_id];
-      summary.total += 1;
-
-      if (status === "present") {
-        summary.present += 1;
-      } else if (status === "absent") {
-        summary.absent += 1;
-      } else {
-        summary.unmarked += 1;
-      }
-
-      return summary;
-    },
-    { total: 0, present: 0, absent: 0, unmarked: 0 }
-  );
+  const attendanceSummary = countAttendance(players, (item) => attendanceData[item.player_id]);
+  const canSaveAttendance = isAcademyOwner(user) &&
+    !!selectedSchedule && players.length > 0 &&
+    !attendanceLoading && !attendanceSaving && !attendanceExists &&
+    attendanceSummary.unmarked === 0;
+  const academyName = academies.find((academy) => academy.id === selectedAcademy)?.academy_name || "Academy";
 
   // =====================================================
   // SAVE ATTENDANCE
   // =====================================================
 
   const saveAttendance = async () => {
-    if (attendanceSaving) return;
+    if (attendanceSaving || attendanceLoading) return;
 
     setAttendanceMessage("");
     setAttendanceError("");
@@ -360,6 +350,10 @@ setBatches(data || []);
 
       if (!selectedBatch) {
         alert("Please select batch");
+        return;
+      }
+      if (!selectedSchedule || !scheduleOptions.some((item) => item.id === selectedSchedule)) {
+        setAttendanceError("Select an available training session before saving.");
         return;
       }
 
@@ -493,7 +487,7 @@ useEffect(() => {
   }, [selectedBatch, selectedSchedule, attendanceDate, fetchPlayers]);
 
   // AM2: Super Admin is history-only. Existing INSERT RLS prohibits marking.
-  if (isSuperAdmin(user)) return <Navigate to="/attendance-history" replace />;
+  if (isSuperAdmin(user)) return <Navigate to="/attendance?view=history" replace />;
 
   return (
   <Layout>
@@ -505,7 +499,7 @@ useEffect(() => {
           <div>
             <span className="attendance-page-eyebrow">Daily operations</span>
             <h1 id="attendance-workspace-title">Mark Attendance</h1>
-            <p>Select the batch and date, then mark each player.</p>
+            <p><span className="attendance-academy-context">Academy: {academyName}</span> · Select a session and mark each player.</p>
           </div>
           {selectedBatch ? (
             <span className={attendanceExists ? "attendance-status-badge attendance-status-existing" : "attendance-status-badge"}>
@@ -514,36 +508,8 @@ useEffect(() => {
           ) : null}
         </div>
 
-        <div className={isCoach(user) ? "attendance-filter-card attendance-filter-card-coach" : "attendance-filter-card"}>
-          <div className={isCoach(user) ? "attendance-filter-field coach-hidden-filter" : "attendance-filter-field"}>
-            <label htmlFor="attendance-academy">Academy</label>
-            <select
-              id="attendance-academy"
-              value={selectedAcademy}
-              onChange={(e) => {
-                setSelectedAcademy(e.target.value);
-                setSelectedCenter("");
-                setSelectedBatch("");
-                setCenters([]);
-                setBatches([]);
-                setPlayers([]);
-                setAttendanceData({});
-                setAttendanceExists(false);
-                setAttendanceMessage("");
-                setAttendanceError("");
-              }}
-              disabled={isAcademyOwner(user) || isCoach(user)}
-            >
-              <option value="">Select Academy</option>
-              {academies.map((academy) => (
-                <option key={academy.id} value={academy.id}>
-                  {academy.academy_name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className={isCoach(user) ? "attendance-filter-field coach-hidden-filter" : "attendance-filter-field"}>
+        <div className="attendance-filter-card attendance-owner-filter-card">
+          <div className="attendance-filter-field">
             <label htmlFor="attendance-center">Center</label>
             <select
               id="attendance-center"
@@ -637,6 +603,21 @@ useEffect(() => {
           </div>
 
           <div className="attendance-filter-field">
+            <label htmlFor="attendance-date">Date</label>
+            <input
+              id="attendance-date"
+              type="date"
+              max={new Date().toISOString().slice(0, 10)}
+              value={attendanceDate}
+              onChange={(e) => {
+                setAttendanceDate(e.target.value);
+                setAttendanceMessage("");
+                setAttendanceError("");
+              }}
+            />
+          </div>
+
+          <div className="attendance-filter-field">
             <label htmlFor="attendance-session">Session</label>
             <select
               id="attendance-session"
@@ -654,48 +635,14 @@ useEffect(() => {
               <option value="">Select Session</option>
               {scheduleOptions.map((schedule) => (
                 <option key={schedule.id} value={schedule.id}>
-                  {formatScheduleLabel(schedule)}
+                  {formatAttendanceSessionLabel(schedule)}
                 </option>
               ))}
             </select>
           </div>
 
-          <div className="attendance-filter-field">
-            <label htmlFor="attendance-date">Date</label>
-            <input
-              id="attendance-date"
-              type="date"
-              max={new Date().toISOString().slice(0, 10)}
-              value={attendanceDate}
-              onChange={(e) => {
-                setAttendanceDate(e.target.value);
-                setAttendanceMessage("");
-                setAttendanceError("");
-              }}
-            />
-          </div>
-        </div>
 
-        {selectedBatch ? (
-          <div className="attendance-summary" aria-label="Attendance summary">
-            <div className="attendance-summary-item">
-              <span>Total players</span>
-              <strong>{attendanceSummary.total}</strong>
-            </div>
-            <div className="attendance-summary-item attendance-summary-present">
-              <span>Present</span>
-              <strong>{attendanceSummary.present}</strong>
-            </div>
-            <div className="attendance-summary-item attendance-summary-absent">
-              <span>Absent</span>
-              <strong>{attendanceSummary.absent}</strong>
-            </div>
-            <div className="attendance-summary-item attendance-summary-unmarked">
-              <span>Unmarked</span>
-              <strong>{attendanceSummary.unmarked}</strong>
-            </div>
-          </div>
-        ) : null}
+        </div>
 
         {attendanceMessage ? (
           <div className="attendance-inline-message attendance-inline-success" role="status">
@@ -746,6 +693,8 @@ useEffect(() => {
           ) : null}
         </div>
 
+        {selectedSchedule && <AttendanceRosterSummary totals={attendanceSummary} />}
+
         <div className="attendance-table-wrap">
           <table className="attendance-table">
             <thead>
@@ -781,14 +730,16 @@ useEffect(() => {
               ) : (
                 players.map((item, index) => {
                   const status = attendanceData[item.player_id];
-                  const disabled = attendanceExists || attendanceSaving;
+                  const disabled = attendanceExists || attendanceSaving || attendanceLoading;
 
                   return (
                     <tr key={item.player_id} className={status ? `attendance-row-${status}` : "attendance-row-unmarked"}>
                       <td className="attendance-player-number">{index + 1}</td>
                       <td className="attendance-player-name">
                         <strong>{item.full_name}</strong>
-                        {!status ? <span>Not marked</span> : null}
+                        <span className={`attendance-row-status attendance-row-status-${status || "unmarked"}`}>
+                          {status === "present" ? "Present" : status === "absent" ? "Absent" : "Not marked"}
+                        </span>
                       </td>
 
                       <td>
@@ -799,6 +750,7 @@ useEffect(() => {
                             name={`attendance-${item.player_id}`}
                             checked={status === "present"}
                             onChange={() => handleAttendanceChange(item.player_id, "present")}
+                            aria-label={`Mark ${item.full_name || "player"} present`}
                             disabled={disabled}
                           />
                           <span className="attendance-choice-label">P</span>
@@ -813,6 +765,7 @@ useEffect(() => {
                             name={`attendance-${item.player_id}`}
                             checked={status === "absent"}
                             onChange={() => handleAttendanceChange(item.player_id, "absent")}
+                            aria-label={`Mark ${item.full_name || "player"} absent`}
                             disabled={disabled}
                           />
                           <span className="attendance-choice-label">A</span>
@@ -827,11 +780,11 @@ useEffect(() => {
         </div>
       </section>
 
-      {isAcademyOwner(user) && selectedBatch && players.length > 0 && !attendanceExists ? (
+      {isAcademyOwner(user) && selectedSchedule && players.length > 0 && !attendanceExists ? (
         <div className="attendance-action-bar">
           <div className="attendance-action-summary">
-            <strong>{attendanceSummary.total} players</strong>
-            <span>{attendanceSummary.present} present · {attendanceSummary.absent} absent · {attendanceSummary.unmarked} unmarked</span>
+            <strong>{attendanceSummary.unmarked > 0 ? `${attendanceSummary.unmarked} unmarked` : "Ready to save"}</strong>
+            <span>{attendanceSummary.unmarked > 0 ? "Mark every player before saving." : "All players marked. Save to record attendance."}</span>
           </div>
           <div className="attendance-action-buttons">
             <button
@@ -846,7 +799,7 @@ useEffect(() => {
               className="attendance-save-button"
               type="button"
               onClick={saveAttendance}
-              disabled={attendanceSaving || attendanceLoading || attendanceSummary.unmarked > 0}
+              disabled={!canSaveAttendance}
             >
               {attendanceSaving ? "Saving..." : "Save Attendance"}
             </button>
