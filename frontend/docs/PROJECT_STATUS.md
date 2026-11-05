@@ -1,10 +1,18 @@
 # AcadPro Project Status
 
-**Last Updated:** 5 November 2026 (Attendance AM1 checkpoint; older sections retain historical dates)  
+**Last Updated:** 5 November 2026 (Attendance AM6.6 checkpoint; older sections retain historical dates)  
 **Current Version:** V1.0 Beta (development; not release sign-off)  
 **Current Git Branch:** `payment-module-finalization`
 
-## Latest development checkpoint — Attendance AM6.1–AM6.5 (5 November 2026)
+## Latest development checkpoint — Attendance AM6.6 (5 November 2026)
+
+**Source implemented:** Removed the large Daily Operations header blocks and abbreviated the roster headings in both Academy Owner and Coach Mark Attendance. Academy Owner's four-filter area now shows the selected batch's **recurring active weekdays** (e.g. Runs: Mon · Wed · Fri) from a separate read-only `batch_schedules` query scoped by batch/center; the date-scoped session and roster queries are unchanged. Coach Assigned Session dropdown and its compact context line now make **batch, center, weekday and 12-hour start/end** explicit. Existing marked/recorded/save labels and actions are preserved.
+
+**Verification:** Source at `b97b58c`, follow-up accessibility-test/CI fixes at `a546615d` and `728652df`. The scoped Attendance GitHub Actions run [41962962698](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/41962962698) passed **10/10 Jest suites, 82/82 tests and React production build** at `728652df`. The full frontend suite at the same SHA failed **4/40 suites, 16/288 tests**, all in Coach Profile / Player Performance tests; track independently, not as Attendance test failures.
+
+**Manual/release gate open:** No Owner/Coach screenshot or browser acceptance, phone/tablet/desktop review, direct negative role/tenant/RLS execution, or production release verification recorded for AM6.6. **AM7 History UX remains planned.** No database migration, attendance mutation service, RLS/RPC, Auth or role-matrix change.
+
+## Prior checkpoint — Attendance AM6.1–AM6.5 (5 November 2026)
 
 **AM6 daily marking UX — implemented:** Owner `Attendance.js` now shows selected academy as text context (no redundant disabled academy dropdown), with compact **Center → Batch → Date → Session** filters and 12-hour weekday/session labels. Coach `CoachAttendance.js` retains Date/Assigned Session filters, also with 12-hour session presentation. Both workflows share `AttendanceRosterSummary.js`: one compact live Total/Present/Absent/Unmarked strip above their player roster, removing the oversized/repeated totals cards. The action bar communicates unmarked count/readiness rather than repeating totals.
 
