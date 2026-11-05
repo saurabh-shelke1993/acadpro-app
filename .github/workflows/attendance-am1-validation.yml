@@ -1,4 +1,4 @@
-name: Attendance AM1 validation
+name: Attendance AM1–AM4 validation
 
 on:
   push:
@@ -10,8 +10,16 @@ on:
       - 'frontend/src/components/Sidebar.js'
       - 'frontend/src/components/Sidebar.test.js'
       - 'frontend/src/pages/Attendance.js'
-      - 'frontend/src/pages/AttendanceHistory.js'
+      - 'frontend/src/pages/Attendance.test.js'
       - 'frontend/src/pages/CoachAttendance.js'
+      - 'frontend/src/pages/CoachAttendance.test.js'
+      - 'frontend/src/pages/AttendanceHistory.js'
+      - 'frontend/src/pages/AttendanceHistory.css'
+      - 'frontend/src/pages/AttendanceHistory.test.js'
+      - 'frontend/src/services/attendanceService.js'
+      - 'frontend/src/services/attendanceService.test.js'
+      - 'frontend/src/utils/attendanceEditWindow.js'
+      - 'frontend/src/utils/attendanceEditWindow.test.js'
       - '.github/workflows/attendance-am1-validation.yml'
   workflow_dispatch:
 
@@ -19,7 +27,7 @@ permissions:
   contents: read
 
 jobs:
-  attendance-navigation:
+  attendance-regression:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -35,11 +43,11 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
-      - name: Run attendance AM1 navigation tests
+      - name: Run AM1–AM4 regression tests
         env:
           CI: 'true'
-        run: npm test -- --watchAll=false --runInBand --testPathPattern='(AttendanceWorkspaceTabs|Sidebar)\.test\.js$'
-      - name: Build frontend
+        run: npm test -- --watchAll=false --runInBand --testPathPattern='(AttendanceWorkspaceTabs|Sidebar|Attendance|CoachAttendance|AttendanceHistory|attendanceEditWindow|attendanceService)\.test\.js$'
+      - name: Build React frontend
         env:
           CI: 'true'
         run: npm run build
