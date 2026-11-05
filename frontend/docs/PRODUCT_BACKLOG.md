@@ -369,3 +369,18 @@ The next product feature has not yet been selected after Enquiries implementatio
 - [ ] **Player photo PH5 release checks** — Separate 25 authored photo tests still require execution and controlled replacement/Storage validation.
 
 **Status:** PP1–PP5 source implementation complete, **NOT** production-accepted. Role-permission matrix and Supabase RLS are unchanged. Reference: `frontend/docs/PLAYER_PROFILE_PP5_REGRESSION_20261104.md` and repository-root `DEVELOPMENT_CONTINUITY.md`.
+
+
+## Attendance merge AM1–AM7 — Single Attendance workspace (5 November 2026)
+
+- [x] **AM1 — Unified navigation** — One Attendance sidebar entry for Owner, Coach and Super Admin; shared Mark Attendance / Attendance History cards over the current routes, with existing role selection preserved.
+- [x] **AM1 — Test source / CI** — Selection-card and sidebar role/navigation regression cases authored, targeted GitHub Actions workflow configured.
+- [ ] **AM1 — Runtime/visual acceptance** — Confirm latest-head Jest/build, desktop/tablet/phone, Owner/Coach/Super Admin/Parent navigation and both dashboard deep links.
+- [ ] **AM2 — Owner/Admin mark integration** — Preserve marking service; align Super Admin direct `/attendance` route and UI with role matrix and existing database INSERT denial.
+- [ ] **AM3 — Coach mark integration** — Preserve assigned-session/date/batch deep links, Coach edit window and current save/update logic.
+- [ ] **AM4 — Attendance History integration** — Preserve filters, soft-delete, five-per-page results; hide Coach edit actions for date-restricted history; avoid client-side fetch-all scaling changes until separately approved.
+- [ ] **AM5 — Canonical route and regression** — Transition to `/attendance?view=mark|history` with tested legacy-route compatibility, role/tenant negative tests and documentation.
+- [ ] **AM6 — Mark Attendance UX improvements** — Plan only after navigation/integration is visually accepted.
+- [ ] **AM7 — History UX improvements** — Plan only after navigation/integration is visually accepted.
+
+**AM1 status:** **Implemented** in frontend navigation; latest-head automated and browser acceptance **not yet confirmed**. No attendance database/RLS changes. See `frontend/docs/ATTENDANCE_AM1_WORKSPACE_20261105.md`.
