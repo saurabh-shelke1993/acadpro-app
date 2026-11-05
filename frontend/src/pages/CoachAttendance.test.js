@@ -21,6 +21,9 @@ const session = {
   academy_id: "academy-1",
   batch_id: "batch-1",
   center_id: "center-1",
+  day_of_week: 4,
+  start_time: "17:00:00",
+  end_time: "18:00:00",
   batches: { batch_name: "Juniors" },
   centers: { center_name: "GawandBaugh" },
 };
@@ -104,7 +107,7 @@ test("AM6.1 Coach shows 12-hour session labels and one live attendance summary",
   setup("/coach-attendance?scheduleId=session-1&date=" + recentDate);
   await screen.findByText("Test Junior");
   expect(screen.getAllByLabelText("Attendance summary")).toHaveLength(1);
-  expect(screen.getByText("Session")).toBeInTheDocument();
+  expect(screen.getAllByText(/Thursday · 5:00 PM–6:00 PM/).length).toBeGreaterThan(0);
   expect(screen.getByRole("button", { name: "Update Attendance" })).not.toBeDisabled();
 });
 
