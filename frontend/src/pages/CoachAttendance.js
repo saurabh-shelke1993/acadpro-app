@@ -1,14 +1,15 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import Layout from "../components/Layout";
 import AttendanceWorkspaceTabs from "../components/AttendanceWorkspaceTabs";
+import AttendanceRosterSummary from "../components/AttendanceRosterSummary";
+import { countAttendance, formatAttendanceSessionLabel } from "../utils/attendancePresentation";
 import { canCoachEditAttendanceDate, utcAttendanceToday } from "../utils/attendanceEditWindow";
 import "./Attendance.css";
 import { supabase } from "../supabaseClient";
 import {
   getCoachAttendanceSessions,
   getEnrolledPlayersForSchedule,
-  formatScheduleLabel,
 } from "../services/scheduleViewService";
 
 function CoachAttendance() {
@@ -26,6 +27,7 @@ function CoachAttendance() {
     return [now.getFullYear(), String(now.getMonth() + 1).padStart(2, "0"), String(now.getDate()).padStart(2, "0")].join("-");
   });
   const [players, setPlayers] = useState([]);
+  const loadedStatusRef = useRef({});
   const [isEditMode, setIsEditMode] = useState(false);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -59,6 +61,7 @@ function CoachAttendance() {
     // This also prevents a tampered scheduleId deep link from triggering a roster read.
     if (!selectedSchedule || !sessions.some((session) => session.id === selectedSchedule)) {
       setPlayers([]);
+      loadedStatusRef.current = {};
       setIsEditMode(false);
       return;
     }
@@ -84,6 +87,7 @@ function CoachAttendance() {
       }));
 
       setPlayers(nextPlayers);
+      loadedStatusRef.current = Object.fromEntries(nextPlayers.map((player) => [player.id, player.status]));
       setIsEditMode((data || []).length > 0);
       setMessage((data || []).length > 0
         ? "Attendance already exists for this session and date. Review or edit the recorded attendance."
@@ -91,6 +95,7 @@ function CoachAttendance() {
     } catch (err) {
       console.error(err);
       setPlayers([]);
+      loadedStatusRef.current = {};
       setIsEditMode(false);
       setError(err.message || "Unable to load session attendance.");
     } finally {
@@ -107,6 +112,7 @@ function CoachAttendance() {
   }, [loadPlayers]);
 
   const handleAttendanceChange = (playerId, status) => {
+    if (saving || loading || (isEditMode && !canCoachEditAttendanceDate(attendanceDate))) return;
     setPlayers((current) =>
       current.map((player) => player.id === playerId ? { ...player, status } : player)
     );
@@ -115,7 +121,20 @@ function CoachAttendance() {
   };
 
   const markAll = (status) => {
+    if (saving || loading || !players.length || (isEditMode && !canCoachEditAttendanceDate(attendanceDate))) return;
     setPlayers((current) => current.map((player) => ({ ...player, status })));
+    setMessage("");
+    setError("");
+  };
+
+  // Reset only local draft changes. For an existing session restore the values
+  // fetched from the database; for a new session clear all unsaved marks.
+  const resetAttendance = () => {
+    if (saving || loading || (isEditMode && !canCoachEditAttendanceDate(attendanceDate))) return;
+    setPlayers((current) => current.map((player) => ({
+      ...player,
+      status: isEditMode ? loadedStatusRef.current[player.id] || "" : "",
+    })));
     setMessage("");
     setError("");
   };
@@ -130,9 +149,7 @@ function CoachAttendance() {
       setError("Older attendance is read-only. Coaches may edit only the last 7 calendar dates.");
       return;
     }
-    const today = new Date();
-    const localToday = [today.getFullYear(), String(today.getMonth() + 1).padStart(2, "0"), String(today.getDate()).padStart(2, "0")].join("-");
-    if (attendanceDate > localToday) {
+    if (attendanceDate > utcAttendanceToday()) {
       setError("Attendance cannot be marked for a future date. Select today or an earlier date.");
       return;
     }
@@ -175,6 +192,7 @@ function CoachAttendance() {
         if (updateResults.some((result) => !Array.isArray(result.data) || result.data.length !== 1)) {
           throw new Error("Some attendance updates were not permitted. Refresh and review this session.");
         }
+        loadedStatusRef.current = Object.fromEntries(players.map((player) => [player.id, player.status]));
         setIsEditMode(true);
         setMessage("Attendance updated successfully.");
         return;
@@ -195,6 +213,7 @@ function CoachAttendance() {
       const { error: insertError } = await supabase.from("attendance").insert(rows);
       if (insertError) throw insertError;
 
+      loadedStatusRef.current = Object.fromEntries(players.map((player) => [player.id, player.status]));
       setIsEditMode(true);
       setMessage(`Attendance saved successfully · ${players.filter((p) => p.status === "present").length} present · ${players.filter((p) => p.status === "absent").length} absent`);
     } catch (err) {
@@ -207,6 +226,9 @@ function CoachAttendance() {
 
   const selectedSession = sessions.find((session) => session.id === selectedSchedule);
   const readOnlyExisting = isEditMode && !canCoachEditAttendanceDate(attendanceDate);
+  const attendanceSummary = countAttendance(players, (player) => player.status);
+  const canSaveAttendance = !!selectedSchedule && !!selectedSession && players.length > 0 &&
+    !saving && !loading && !readOnlyExisting && attendanceSummary.unmarked === 0;
 
   return (
     <Layout>
@@ -217,16 +239,16 @@ function CoachAttendance() {
             <div>
               <span className="attendance-page-eyebrow">Daily operations</span>
               <h1 id="coach-attendance-title">Mark Attendance</h1>
-              <p>Select one of your assigned recurring sessions, then mark the enrolled players.</p>
+              <p>Select one of your assigned sessions, then mark every player.</p>
             </div>
             {selectedSchedule ? (
               <span className={isEditMode ? "attendance-status-badge attendance-status-existing" : "attendance-status-badge"}>
-                {isEditMode ? "Attendance recorded" : "Ready to mark"}
+                {readOnlyExisting ? "Read-only" : isEditMode ? "Attendance recorded" : "Ready to mark"}
               </span>
             ) : null}
           </div>
 
-          <div className="attendance-filter-card attendance-coach-filter-card">
+          <div className="attendance-filter-card attendance-coach-filter-card attendance-am6-coach-filters">
             <div className="attendance-filter-field">
               <label htmlFor="coach-attendance-date">Date</label>
               <input
@@ -257,7 +279,7 @@ function CoachAttendance() {
                 <option value="">Select Session</option>
                 {sessions.map((session) => (
                   <option key={session.id} value={session.id}>
-                    {formatScheduleLabel(session)}
+                    {formatAttendanceSessionLabel(session)}
                   </option>
                 ))}
               </select>
@@ -267,7 +289,7 @@ function CoachAttendance() {
           {selectedSession ? (
             <div className="attendance-inline-message attendance-inline-success" role="status">
               <strong>Session</strong>
-              <span>{formatScheduleLabel(selectedSession)} · {selectedSession.centers?.center_name || "Center"} · {selectedSession.batches?.batch_name || "Batch"}</span>
+              <span>{formatAttendanceSessionLabel(selectedSession)} · {selectedSession.centers?.center_name || "Center"} · {selectedSession.batches?.batch_name || "Batch"}</span>
             </div>
           ) : (
             <div className="attendance-inline-message" role="status">
@@ -311,12 +333,7 @@ function CoachAttendance() {
             ) : null}
           </div>
 
-          <div className="attendance-summary attendance-coach-summary" aria-label="Attendance summary">
-            <div className="attendance-summary-item"><span>Total players</span><strong>{players.length}</strong></div>
-            <div className="attendance-summary-item attendance-summary-present"><span>Present</span><strong>{players.filter((p) => p.status === "present").length}</strong></div>
-            <div className="attendance-summary-item attendance-summary-absent"><span>Absent</span><strong>{players.filter((p) => p.status === "absent").length}</strong></div>
-            <div className="attendance-summary-item attendance-summary-unmarked"><span>Unmarked</span><strong>{players.filter((p) => !p.status).length}</strong></div>
-          </div>
+          {selectedSchedule && <AttendanceRosterSummary totals={attendanceSummary} />}
 
           <div className="attendance-table-wrap">
             <table className="attendance-table">
@@ -326,16 +343,21 @@ function CoachAttendance() {
                 {players.length ? players.map((player, index) => (
                   <tr key={player.id} className={player.status ? `attendance-row-${player.status}` : "attendance-row-unmarked"}>
                     <td className="attendance-player-number">{index + 1}</td>
-                    <td className="attendance-player-name"><strong>{player.full_name || "—"}</strong>{!player.status ? <span>Not marked</span> : null}</td>
+                    <td className="attendance-player-name">
+                      <strong>{player.full_name || "—"}</strong>
+                      <span className={`attendance-row-status attendance-row-status-${player.status || "unmarked"}`}>
+                        {player.status === "present" ? "Present" : player.status === "absent" ? "Absent" : "Not marked"}
+                      </span>
+                    </td>
                     <td>
                       <label className={`attendance-choice attendance-choice-present ${player.status === "present" ? "attendance-choice-selected" : ""}`}>
-                        <input type="radio" name={`attendance-${player.id}`} checked={player.status === "present"} onChange={() => handleAttendanceChange(player.id, "present")} disabled={saving || loading || readOnlyExisting} />
+                        <input type="radio" name={`attendance-${player.id}`} checked={player.status === "present"} onChange={() => handleAttendanceChange(player.id, "present")} aria-label={`Mark ${player.full_name || "player"} present`} disabled={saving || loading || readOnlyExisting} />
                         <span className="attendance-choice-label">P</span>
                       </label>
                     </td>
                     <td>
                       <label className={`attendance-choice attendance-choice-absent ${player.status === "absent" ? "attendance-choice-selected" : ""}`}>
-                        <input type="radio" name={`attendance-${player.id}`} checked={player.status === "absent"} onChange={() => handleAttendanceChange(player.id, "absent")} disabled={saving || loading || readOnlyExisting} />
+                        <input type="radio" name={`attendance-${player.id}`} checked={player.status === "absent"} onChange={() => handleAttendanceChange(player.id, "absent")} aria-label={`Mark ${player.full_name || "player"} absent`} disabled={saving || loading || readOnlyExisting} />
                         <span className="attendance-choice-label">A</span>
                       </label>
                     </td>
@@ -348,10 +370,17 @@ function CoachAttendance() {
           </div>
 
           {selectedSchedule && players.length > 0 ? (
-            <div className="attendance-save-bar">
-              <button type="button" className="attendance-primary-button" onClick={saveAttendance} disabled={saving || loading || readOnlyExisting}>
-                {saving ? "Saving…" : isEditMode ? "Update Attendance" : "Save Attendance"}
-              </button>
+            <div className="attendance-action-bar attendance-coach-action-bar">
+              <div className="attendance-action-summary" role="status">
+                <strong>{readOnlyExisting ? "Read-only session" : attendanceSummary.unmarked ? `${attendanceSummary.unmarked} unmarked` : "Ready to save"}</strong>
+                <span>{readOnlyExisting ? "Past attendance remains available for review." : attendanceSummary.unmarked ? "Mark every player before saving." : "All players marked. Save to record attendance."}</span>
+              </div>
+              <div className="attendance-action-buttons">
+                <button type="button" className="attendance-secondary-button" onClick={resetAttendance} disabled={saving || loading || readOnlyExisting}>Reset</button>
+                <button type="button" className="attendance-save-button" onClick={saveAttendance} disabled={!canSaveAttendance}>
+                  {saving ? "Saving…" : isEditMode ? "Update Attendance" : "Save Attendance"}
+                </button>
+              </div>
             </div>
           ) : null}
         </section>
