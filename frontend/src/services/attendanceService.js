@@ -25,14 +25,19 @@ export const updateAttendanceStatus = async (
   status
 ) => {
 
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("attendance")
     .update({
       status
     })
-    .eq("id", attendanceId);
+    .eq("id", attendanceId)
+    .select("id");
 
   if (error) throw error;
+  // Supabase RLS can filter an UPDATE to zero rows without returning an error.
+  if (!Array.isArray(data) || data.length !== 1) {
+    throw new Error("Attendance update was not applied. Check edit permissions and refresh.");
+  }
 
 };
 
