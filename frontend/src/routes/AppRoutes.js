@@ -21,8 +21,7 @@ import Centers from "../pages/Centers";
 import Batches from "../pages/Batches";
 import Players from "../pages/Players";
 import Enquiries from "../pages/Enquiries";
-import Attendance from "../pages/Attendance";
-import AttendanceHistory from "../pages/AttendanceHistory";
+import AttendanceWorkspace, { LegacyAttendanceRedirect } from "../pages/AttendanceWorkspace";
 import SubscriptionPlans from "../pages/SubscriptionPlans";
 import PlayerSubscriptions from "../pages/PlayerSubscriptions";
 import PaymentDues from "../pages/PaymentDues";
@@ -32,7 +31,6 @@ import Coaches from "../pages/Coaches";
 import CoachBatchMapping from "../pages/CoachBatchMapping";
 
 import CoachDashboard from "../pages/CoachDashboard";
-import CoachAttendance from "../pages/CoachAttendance";
 import CoachPerformanceAssessments from "../pages/CoachPerformanceAssessments";
 import PlayerPerformanceReport from "../pages/PlayerPerformanceReport";
 import ParentPortal from "../pages/ParentPortal";
@@ -181,10 +179,11 @@ function AppRoutes() {
             <ProtectedRoute
               allowedRoles={[
                 "super_admin",
-                "academy_owner"
+                "academy_owner",
+                "coach"
               ]}
             >
-              <Attendance />
+              <AttendanceWorkspace />
             </ProtectedRoute>
           }
         />
@@ -199,7 +198,7 @@ function AppRoutes() {
                 "coach"
               ]}
             >
-              <AttendanceHistory />
+              <LegacyAttendanceRedirect view="history" />
             </ProtectedRoute>
           }
         />
@@ -391,7 +390,7 @@ function AppRoutes() {
                 "coach"
               ]}
             >
-              <CoachAttendance />
+              <LegacyAttendanceRedirect view="mark" />
             </ProtectedRoute>
           }
         />
