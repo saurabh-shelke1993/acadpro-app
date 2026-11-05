@@ -1,10 +1,14 @@
 # AcadPro Project Status
 
-**Last Updated:** 4 November 2026 (recent module checkpoint; older sections retain historical dates)  
+**Last Updated:** 5 November 2026 (Attendance AM1 checkpoint; older sections retain historical dates)  
 **Current Version:** V1.0 Beta (development; not release sign-off)  
 **Current Git Branch:** `payment-module-finalization`
 
-## Latest development checkpoint — Kheltriva (3 November 2026)
+## Latest development checkpoint — Attendance AM1 (5 November 2026)
+
+**Attendance workspace (AM1 implemented):** Added a single role-aware **Attendance** sidebar entry and compact Mark Attendance / Attendance History selection cards across the **existing** `Attendance.js`, `CoachAttendance.js` and `AttendanceHistory.js` pages. Academy Owner Mark -> `/attendance`; Coach Mark -> `/coach-attendance`; Super Admin sees **History only** -> `/attendance-history`; Parent remains excluded from attendance management. Current routes, guards, dashboard deep-link query parameters, marking/saving, History filters and edit/soft-delete code remain unchanged. New `AttendanceWorkspaceTabs.js`/CSS, selector/sidebar Jest tests and focused GitHub Actions workflow are committed; **tests authored, not executed**, latest-head build/role/mobile acceptance **pending**. Known deferred scope: AM2 Super Admin direct marking page mismatch versus live INSERT RLS; AM4 Coach History edit-button visibility older than 7 days; AM5 canonical route migration/legacy compatibility. No schema, RLS, RPC or permission change. See `ATTENDANCE_AM1_WORKSPACE_20261105.md` and root `DEVELOPMENT_CONTINUITY.md`.
+
+## Prior development checkpoint — Kheltriva (3 November 2026)
 
 **Coaches & Assignments:** CMA1–CMA4 and CMA6 UI changes are implemented, including one Coaches sidebar entry, selection cards, compact forms, session chips and mobile actions. CMA5 source/test authoring is recorded; runtime regression and manual acceptance remain pending. See `COACHES_CMA5_REGRESSION_AND_ISSUES_20261103.md` and the repository-root `DEVELOPMENT_CONTINUITY.md`.
 
