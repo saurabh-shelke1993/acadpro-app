@@ -1,0 +1,45 @@
+name: Attendance AM1 validation
+
+on:
+  push:
+    branches: [payment-module-finalization]
+    paths:
+      - 'frontend/src/components/AttendanceWorkspaceTabs.js'
+      - 'frontend/src/components/AttendanceWorkspaceTabs.css'
+      - 'frontend/src/components/AttendanceWorkspaceTabs.test.js'
+      - 'frontend/src/components/Sidebar.js'
+      - 'frontend/src/components/Sidebar.test.js'
+      - 'frontend/src/pages/Attendance.js'
+      - 'frontend/src/pages/AttendanceHistory.js'
+      - 'frontend/src/pages/CoachAttendance.js'
+      - '.github/workflows/attendance-am1-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  attendance-navigation:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Run attendance AM1 navigation tests
+        env:
+          CI: 'true'
+        run: npm test -- --watchAll=false --runInBand --testPathPattern='(AttendanceWorkspaceTabs|Sidebar)\.test\.js$'
+      - name: Build frontend
+        env:
+          CI: 'true'
+        run: npm run build
