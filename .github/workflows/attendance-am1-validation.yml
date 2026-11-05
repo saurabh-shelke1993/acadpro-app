@@ -1,4 +1,4 @@
-name: Attendance AM1–AM5 validation
+name: Attendance AM1–AM6 validation
 
 on:
   push:
@@ -12,6 +12,10 @@ on:
       - 'frontend/src/components/AttendanceWorkspaceTabs.test.js'
       - 'frontend/src/components/Sidebar.js'
       - 'frontend/src/components/Sidebar.test.js'
+      - 'frontend/src/components/AttendanceRosterSummary.js'
+      - 'frontend/src/pages/Attendance.css'
+      - 'frontend/src/utils/attendancePresentation.js'
+      - 'frontend/src/utils/attendancePresentation.test.js'
       - 'frontend/src/pages/Attendance.js'
       - 'frontend/src/pages/Attendance.test.js'
       - 'frontend/src/pages/CoachAttendance.js'
@@ -49,10 +53,10 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
-      - name: Run AM1–AM5 regression tests
+      - name: Run AM1–AM6 regression tests
         env:
           CI: 'true'
-        run: npm test -- --watchAll=false --runInBand --testPathPattern='(AttendanceWorkspace|AttendanceWorkspaceTabs|Sidebar|Attendance|CoachAttendance|AttendanceHistory|attendanceEditWindow|attendanceService)\.test\.js$'
+        run: npm test -- --watchAll=false --runInBand --testPathPattern='(AttendanceWorkspace|AttendanceWorkspaceTabs|Sidebar|Attendance|CoachAttendance|AttendanceHistory|attendanceEditWindow|attendancePresentation|attendanceService)\.test\.js$'
       - name: Build React frontend
         env:
           CI: 'true'
