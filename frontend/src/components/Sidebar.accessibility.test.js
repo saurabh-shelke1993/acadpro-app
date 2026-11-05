@@ -2,6 +2,10 @@ import { render, screen } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import Sidebar from "./Sidebar";
 
+/* No live Supabase client is required for navigation accessibility assertions. */
+jest.mock("../supabaseClient", () => ({ supabase: { from: jest.fn() } }));
+jest.mock("../utils/auth", () => ({ logoutUser: jest.fn() }));
+
 const renderSidebar = (role) => {
   localStorage.setItem(
     "acadpro_user",
