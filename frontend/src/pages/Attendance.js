@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import Layout from "../components/Layout";
+import AttendanceWorkspaceTabs from "../components/AttendanceWorkspaceTabs";
 import "./Attendance.css";
 import {
   getAccessibleAcademies,
@@ -490,6 +491,7 @@ useEffect(() => {
   return (
   <Layout>
     <div className="attendance-page">
+      <AttendanceWorkspaceTabs role={user?.role} />
 
       <section className="attendance-workspace-card" aria-labelledby="attendance-workspace-title">
         <div className="attendance-workspace-heading">
