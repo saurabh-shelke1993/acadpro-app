@@ -100,7 +100,7 @@ test.each(["academy_owner", "super_admin"])(
 test("AM4 History retains scoped navigation and attendance data loading", async () => {
   await renderHistory("coach");
   expect(screen.getByRole("link", { name: "Mark Attendance" }))
-    .toHaveAttribute("href", "/coach-attendance");
+    .toHaveAttribute("href", "/attendance?view=mark");
   expect(screen.getByRole("link", { name: "Attendance History" }))
     .toHaveAttribute("aria-current", "page");
   expect(supabase.from).toHaveBeenCalledWith("attendance");
