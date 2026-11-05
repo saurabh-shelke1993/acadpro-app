@@ -4,7 +4,17 @@
 **Current Version:** V1.0 Beta (development; not release sign-off)  
 **Current Git Branch:** `payment-module-finalization`
 
-## Latest development checkpoint — Attendance AM2–AM4 (5 November 2026)
+## Latest development checkpoint — Attendance AM5 (5 November 2026)
+
+**AM5 canonical routing — implemented in GitHub:** `frontend/src/pages/AttendanceWorkspace.js` routes all authorized staff through `/attendance?view=mark|history`, mounting the unchanged Owner Mark, Coach assigned-session Mark, or History component based on the authenticated database role. Academy Owner and Coach default to Mark; Super Admin is history-only; Parent retains no attendance management permission. Invalid/missing `view` is normalized with replace navigation. Existing `/coach-attendance` and `/attendance-history` URLs retain their original role guards and redirect to the canonical workspace while preserving query parameters and hash.
+
+**Navigation/deep links:** One Attendance sidebar entry and shared view cards now target canonical links. Coach Dashboard and Academy Owner Dashboard now include `view=mark` without losing schedule/date/batch or center/batch context; generic Dashboard metrics go to `view=history`, while its quick action offers Mark only to Owner and History to Super Admin.
+
+**AM5 regression/CI:** Added actual `ProtectedRoute` + `AttendanceWorkspace` routing tests for role defaults, Super Admin Mark denial, Parent/direct-route denial, legacy redirects with query/hash, invalid view values, and Coach/Owner component selection. Updated sidebar, selector and page link tests. The existing Attendance GitHub Actions workflow now covers AM1–AM5 tests and runs `npm ci` plus a React production build. Source review and diff checks are available, but **no confirmed exact-HEAD Jest pass, full-build result, user mobile/browser role acceptance or live negative RLS regression** has been recorded. **AM5 is not release-signed-off.**
+
+**Boundaries:** No changes to attendance INSERT/UPDATE/soft-delete services, data-scope helpers, `ROLE_MATRIX.md`, database schema, RLS policies or RPCs. Original Coach per-row update remains non-transactional. AM6 and AM7 are separate pending UX optimization phases. Detailed checkpoint: `ATTENDANCE_AM5_ROUTING_20261105.md`; architecture `PROJECT_ARCHITECTURE.md`; root `DEVELOPMENT_CONTINUITY.md`.
+
+## Prior checkpoint — Attendance AM2–AM4 (5 November 2026)
 
 **AM2 Owner/Admin marking — implemented:** Academy Owner keeps current batch/session/date filters and save path. Direct Super Admin `/attendance` is redirected to `/attendance-history` after authenticated user load, with Owner-only mark/save guards and UTC future-date prevention. No route removal; Owner dashboard query parameters remain intact.
 
