@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import CoachAttendance from "./CoachAttendance";
 import { supabase } from "../supabaseClient";
@@ -75,9 +75,10 @@ test("AM3 existing Coach attendance outside seven dates is visible but read-only
 test("AM3 new, unrecorded historical sessions are not mistaken for existing read-only data", async () => {
   setup("/coach-attendance?scheduleId=session-1&date=2020-01-01", []);
   expect(await screen.findByText("Test Junior")).toBeInTheDocument();
-  await waitFor(() =>
-    expect(screen.getByRole("button", { name: "Save Attendance" })).not.toBeDisabled()
-  );
+  const save = screen.getByRole("button", { name: "Save Attendance" });
+  expect(save).toBeDisabled();
+  fireEvent.click(screen.getByRole("radio", { name: "Mark Test Junior present" }));
+  await waitFor(() => expect(save).not.toBeDisabled());
   expect(screen.queryByText(/Older sessions remain available for review/)).not.toBeInTheDocument();
 });
 
@@ -96,4 +97,45 @@ test("AM3 retains direct Coach Dashboard session/date routing", async () => {
   expect(getCoachAttendanceSessions).toHaveBeenCalledWith(
     expect.objectContaining({ role: "coach", academy_id: "academy-1" }), "2020-01-01"
   );
+});
+
+test("AM6.1 Coach shows 12-hour session labels and one live attendance summary", async () => {
+  const recentDate = new Date().toISOString().slice(0, 10);
+  setup("/coach-attendance?scheduleId=session-1&date=" + recentDate);
+  await screen.findByText("Test Junior");
+  expect(screen.getAllByLabelText("Attendance summary")).toHaveLength(1);
+  expect(screen.getByText("Session")).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Update Attendance" })).not.toBeDisabled();
+});
+
+test("AM6.3–6.4 Coach Reset restores saved status without writing to Supabase", async () => {
+  const recentDate = new Date().toISOString().slice(0, 10);
+  setup("/coach-attendance?scheduleId=session-1&date=" + recentDate);
+  await screen.findByText("Test Junior");
+  const present = screen.getByRole("radio", { name: "Mark Test Junior present" });
+  const absent = screen.getByRole("radio", { name: "Mark Test Junior absent" });
+  await waitFor(() => expect(present).toBeChecked());
+
+  fireEvent.click(absent);
+  expect(absent).toBeChecked();
+  fireEvent.click(screen.getByRole("button", { name: "Reset" }));
+  expect(present).toBeChecked();
+  expect(absent).not.toBeChecked();
+  expect(supabase.from.mock.calls.every(([table]) => table === "attendance")).toBe(true);
+});
+
+test("AM6.4 Coach new-session Reset clears draft marks and locks Save", async () => {
+  const recentDate = new Date().toISOString().slice(0, 10);
+  setup("/coach-attendance?scheduleId=session-1&date=" + recentDate, []);
+  await screen.findByText("Test Junior");
+  const save = screen.getByRole("button", { name: "Save Attendance" });
+  await waitFor(() => expect(save).toBeDisabled());
+
+  fireEvent.click(screen.getByRole("button", { name: /Mark all absent/ }));
+  expect(screen.getByRole("radio", { name: "Mark Test Junior absent" })).toBeChecked();
+  expect(save).not.toBeDisabled();
+
+  fireEvent.click(screen.getByRole("button", { name: "Reset" }));
+  expect(screen.getAllByRole("radio").every((radio) => !radio.checked)).toBe(true);
+  expect(save).toBeDisabled();
 });
