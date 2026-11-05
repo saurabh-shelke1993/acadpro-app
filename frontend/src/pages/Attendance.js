@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Navigate, useSearchParams } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import Layout from "../components/Layout";
 import AttendanceWorkspaceTabs from "../components/AttendanceWorkspaceTabs";
@@ -16,8 +16,8 @@ import {
 
 import {
   isAcademyOwner,
+  isSuperAdmin,
   isCoach,
-  canManageAttendance,
   canAccessBatch,
 } from "../utils/permissions";
 
@@ -334,7 +334,7 @@ setBatches(data || []);
     setAttendanceError("");
 
     try {
-        if (!canManageAttendance(user)) {
+        if (!isAcademyOwner(user)) {
             alert("You are not authorized to mark attendance.");
             return;
         }
@@ -363,6 +363,10 @@ setBatches(data || []);
         return;
       }
 
+      if (attendanceDate > new Date().toISOString().slice(0, 10)) {
+        setAttendanceError("Attendance cannot be marked for a future date.");
+        return;
+      }
       if (attendanceExists) {
         setAttendanceError(
           "Attendance has already been recorded for this batch and date. Use Attendance History to edit it."
@@ -488,6 +492,9 @@ useEffect(() => {
     }
   }, [selectedBatch, selectedSchedule, attendanceDate, fetchPlayers]);
 
+  // AM2: Super Admin is history-only. Existing INSERT RLS prohibits marking.
+  if (isSuperAdmin(user)) return <Navigate to="/attendance-history" replace />;
+
   return (
   <Layout>
     <div className="attendance-page">
@@ -497,7 +504,7 @@ useEffect(() => {
         <div className="attendance-workspace-heading">
           <div>
             <span className="attendance-page-eyebrow">Daily operations</span>
-            <h1 id="attendance-workspace-title">Attendance</h1>
+            <h1 id="attendance-workspace-title">Mark Attendance</h1>
             <p>Select the batch and date, then mark each player.</p>
           </div>
           {selectedBatch ? (
@@ -658,6 +665,7 @@ useEffect(() => {
             <input
               id="attendance-date"
               type="date"
+              max={new Date().toISOString().slice(0, 10)}
               value={attendanceDate}
               onChange={(e) => {
                 setAttendanceDate(e.target.value);
@@ -716,7 +724,7 @@ useEffect(() => {
             </p>
           </div>
 
-          {selectedSchedule && canManageAttendance(user) && !attendanceExists ? (
+          {selectedSchedule && isAcademyOwner(user) && !attendanceExists ? (
             <div className="attendance-bulk-actions">
               <button
                 type="button"
@@ -819,7 +827,7 @@ useEffect(() => {
         </div>
       </section>
 
-      {canManageAttendance(user) && selectedBatch && players.length > 0 && !attendanceExists ? (
+      {isAcademyOwner(user) && selectedBatch && players.length > 0 && !attendanceExists ? (
         <div className="attendance-action-bar">
           <div className="attendance-action-summary">
             <strong>{attendanceSummary.total} players</strong>
