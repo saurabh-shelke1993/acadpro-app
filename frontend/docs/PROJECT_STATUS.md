@@ -4,7 +4,15 @@
 **Current Version:** V1.0 Beta (development; not release sign-off)  
 **Current Git Branch:** `payment-module-finalization`
 
-## Latest development checkpoint — Attendance AM5 (5 November 2026)
+## Latest development checkpoint — Attendance AM6.1–AM6.5 (5 November 2026)
+
+**AM6 daily marking UX — implemented:** Owner `Attendance.js` now shows selected academy as text context (no redundant disabled academy dropdown), with compact **Center → Batch → Date → Session** filters and 12-hour weekday/session labels. Coach `CoachAttendance.js` retains Date/Assigned Session filters, also with 12-hour session presentation. Both workflows share `AttendanceRosterSummary.js`: one compact live Total/Present/Absent/Unmarked strip above their player roster, removing the oversized/repeated totals cards. The action bar communicates unmarked count/readiness rather than repeating totals.
+
+**Marking and save behavior:** Original P/A radio inputs are retained with larger accessible 44px targets, distinct green/red selected chips, clear status text and responsive player-name wrapping. Mark All/Reset remain unsaved drafts. Owner Save is blocked until roster/session ready and all players marked; previously recorded attendance remains read-only and directed to History for corrections. Coach Reset restores fetched existing P/A status (or clears new unsaved marks); Update/Save is blocked until fully marked and still respects the existing seven-calendar-date edit window. Current Supabase insert/update service methods are unchanged.
+
+**Responsive / validation:** `Attendance.css` now supports four Owner filter columns on desktop, two on tablet and one on narrow phones, compact roster totals and responsive action/footer controls. `attendancePresentation.test.js` contains 5 authored display/tally tests; Owner page has 3 new AM6 tests, Coach page has 3 new AM6 tests and its existing gating expectation was updated. AM1–AM6 scoped GitHub Actions workflow includes new tests and production React build. **No exact-HEAD Jest/build, live browser/viewport/role acceptance or deployment release gate is confirmed** at this checkpoint. No database/schema, RLS, RPC, permissions or Attendance History changes. See `ATTENDANCE_AM6_MARK_UX_20261105.md` and repository root `DEVELOPMENT_CONTINUITY.md`.
+
+## Prior checkpoint — Attendance AM5 (5 November 2026)
 
 **AM5 canonical routing — implemented in GitHub:** `frontend/src/pages/AttendanceWorkspace.js` routes all authorized staff through `/attendance?view=mark|history`, mounting the unchanged Owner Mark, Coach assigned-session Mark, or History component based on the authenticated database role. Academy Owner and Coach default to Mark; Super Admin is history-only; Parent retains no attendance management permission. Invalid/missing `view` is normalized with replace navigation. Existing `/coach-attendance` and `/attendance-history` URLs retain their original role guards and redirect to the canonical workspace while preserving query parameters and hash.
 
