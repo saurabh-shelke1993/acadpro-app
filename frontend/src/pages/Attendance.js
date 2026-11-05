@@ -719,11 +719,15 @@ useEffect(() => {
               ) : players.length === 0 ? (
                 <tr>
                   <td className="attendance-empty-state" colSpan={4}>
-                    <strong>{selectedBatch ? "No players to mark" : "Select a batch to begin"}</strong>
+                    <strong>{attendanceError ? "Attendance unavailable" : selectedSchedule ? "No players to mark" : selectedBatch ? "Select a session" : "Select a batch to begin"}</strong>
                     <span>
-                      {selectedBatch
-                        ? "No active players are available in this batch."
-                        : "Choose an academy, center and batch to load the attendance roster."}
+                      {attendanceError
+                        ? "Check the error message above and try selecting the session again."
+                        : selectedSchedule
+                          ? "No active players are enrolled in this selected session."
+                          : selectedBatch
+                            ? "Choose a recurring session to load its roster."
+                            : "Choose a center and batch to load the attendance roster."}
                     </span>
                   </td>
                 </tr>
