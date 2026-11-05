@@ -379,7 +379,7 @@ The next product feature has not yet been selected after Enquiries implementatio
 - [x] **AM2 — Owner/Admin mark integration (source)** — Super Admin direct `/attendance` redirects to History; Owner-only creation and UTC future-date guard; existing Owner dashboard route and save preserved.
 - [x] **AM3 — Coach mark integration (source)** — Assigned-session verification before roster query, older existing records read-only outside UTC seven-date policy, update zero-row detection; Coach deep links, insert/update kept.
 - [x] **AM4 — Attendance History integration (source)** — Coach per-record Edit only within seven dates, older Read-only; Owner/Admin edit/delete, filters, soft-delete, pagination 5 preserved. Fail on zero-row RLS update.
-- [ ] **AM5 — Canonical route and regression** — Transition to `/attendance?view=mark|history` with tested legacy-route compatibility, role/tenant negative tests and documentation.
+- [x] **AM5 — Canonical routing (source)** — `/attendance?view=mark|history` selects existing Owner/Coach/History views by trusted role; legacy routes redirect with query/hash preserved; dashboard/sidebar links updated; integrated role/redirect Jest test source and AM1–AM5 CI authored. **Execution/browser acceptance pending.**
 - [ ] **AM6 — Mark Attendance UX improvements** — Plan only after navigation/integration is visually accepted.
 - [ ] **AM7 — History UX improvements** — Plan only after navigation/integration is visually accepted.
 
@@ -388,4 +388,8 @@ The next product feature has not yet been selected after Enquiries implementatio
 - [ ] **Coach update transaction follow-up** — Original per-row Coach updates remain non-transactional; inspect partial-failure scenarios independently before proposing an RPC.
 - [ ] **History scale follow-up** — Existing client-side fetch-all still in place; assess server filtering/pagination when AM7 is approved.
 
-**Current status:** **AM1–AM4 source implemented**, **not runtime-tested or release-accepted**. AM5 canonical route and AM6/AM7 UX phases remain pending. No attendance database/RLS modifications. See `frontend/docs/ATTENDANCE_AM2_AM4_20261105.md`.
+- [x] **AM5 regression source / architecture** — Added `AttendanceWorkspace.test.js` for actual ProtectedRoute/redirect behavior, updated old selectors and links, extended scoped CI; architecture/status/continuity checkpoint updated.
+- [ ] **AM1–AM5 release acceptance** — Confirm exact-HEAD Jest and build status; Owner/Coach/Admin/Parent navigation, old bookmarks, query/hash/deep links, browser history, 320–1440px responsive layout and live negative cross-academy/session RLS.
+- [ ] **AM5 routing load/performance follow-up** — Canonical wrapper obtains the current database role again after `ProtectedRoute`; acceptable interim but can optimize only after comparing actual network behavior, without relaxing security.
+
+**Current status:** **AM1–AM5 frontend source implemented**, **not automatically tested or release-signed-off**. AM6/AM7 separate UX enhancements pending. No attendance database/RLS changes. See `frontend/docs/ATTENDANCE_AM5_ROUTING_20261105.md` and the earlier AM1–AM4 checkpoints.
