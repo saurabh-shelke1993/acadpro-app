@@ -4,7 +4,17 @@
 **Current Version:** V1.0 Beta (development; not release sign-off)  
 **Current Git Branch:** `payment-module-finalization`
 
-## Latest development checkpoint — Attendance AM1 (5 November 2026)
+## Latest development checkpoint — Attendance AM2–AM4 (5 November 2026)
+
+**AM2 Owner/Admin marking — implemented:** Academy Owner keeps current batch/session/date filters and save path. Direct Super Admin `/attendance` is redirected to `/attendance-history` after authenticated user load, with Owner-only mark/save guards and UTC future-date prevention. No route removal; Owner dashboard query parameters remain intact.
+
+**AM3 Coach marking — implemented:** Original `/coach-attendance` session/date/batch deep links and insert/update remain. Roster loads only after an assigned session is verified. Existing attendance older than the UTC seven-calendar-date RLS edit window is shown read-only with disabled actions and save-time guards. Update requests detect zero permitted rows instead of reporting blanket success. Existing non-transactional per-row updates remain, so partial-update errors require manual review.
+
+**AM4 History — implemented:** Existing filters, five-per-page pagination, soft deletion and role-scoped query remain. Coach old-record Edit is hidden and replaced with Read-only; new `attendanceEditWindow.js` helper matches verified live Supabase `CURRENT_DATE-6`.. `CURRENT_DATE` in UTC and is checked again on save. Academy Owner and Super Admin retain historical Edit/Delete. Shared `updateAttendanceStatus` now rejects silently denied zero-row updates.
+
+**Validation:** Live attendance RLS policies/function and database timezone were inspected **read-only**; no data changes, migrations, RLS/RPC, auth or relationship modifications. **22 AM2–AM4 cases + 18 AM1 navigation cases = 40 authored test cases**, and the existing Attendance CI workflow was extended to cover these plus the React production build. **No confirmed exact-HEAD Jest pass, build result, deployment, manual browser acceptance or negative RLS audit** as of this checkpoint. User plans to review AM2–AM4 together. See `ATTENDANCE_AM2_AM4_20261105.md` and root `DEVELOPMENT_CONTINUITY.md`.
+
+## Prior checkpoint — Attendance AM1 (5 November 2026)
 
 **Attendance workspace (AM1 implemented):** Added a single role-aware **Attendance** sidebar entry and compact Mark Attendance / Attendance History selection cards across the **existing** `Attendance.js`, `CoachAttendance.js` and `AttendanceHistory.js` pages. Academy Owner Mark -> `/attendance`; Coach Mark -> `/coach-attendance`; Super Admin sees **History only** -> `/attendance-history`; Parent remains excluded from attendance management. Current routes, guards, dashboard deep-link query parameters, marking/saving, History filters and edit/soft-delete code remain unchanged. New `AttendanceWorkspaceTabs.js`/CSS, selector/sidebar Jest tests and focused GitHub Actions workflow are committed; **tests authored, not executed**, latest-head build/role/mobile acceptance **pending**. Known deferred scope: AM2 Super Admin direct marking page mismatch versus live INSERT RLS; AM4 Coach History edit-button visibility older than 7 days; AM5 canonical route migration/legacy compatibility. No schema, RLS, RPC or permission change. See `ATTENDANCE_AM1_WORKSPACE_20261105.md` and root `DEVELOPMENT_CONTINUITY.md`.
 
