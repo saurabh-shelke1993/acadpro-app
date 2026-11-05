@@ -66,7 +66,7 @@ test("AM2 Academy Owner retains Mark Attendance workspace and existing selection
   expect(await screen.findByRole("heading", { name: "Mark Attendance" })).toBeInTheDocument();
   expect(screen.queryByRole("heading", { name: "History landing" })).not.toBeInTheDocument();
   expect(screen.getByRole("link", { name: "Attendance History" }))
-    .toHaveAttribute("href", "/attendance-history");
+    .toHaveAttribute("href", "/attendance?view=history");
   expect(screen.getByLabelText("Date")).toHaveAttribute("max", new Date().toISOString().slice(0, 10));
   await waitFor(() => expect(getAccessibleAcademies).toHaveBeenCalled());
 });
