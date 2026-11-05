@@ -12,6 +12,7 @@ on:
       - 'frontend/src/components/AttendanceWorkspaceTabs.test.js'
       - 'frontend/src/components/Sidebar.js'
       - 'frontend/src/components/Sidebar.test.js'
+      - 'frontend/src/components/Sidebar.accessibility.test.js'
       - 'frontend/src/components/AttendanceRosterSummary.js'
       - 'frontend/src/pages/Attendance.css'
       - 'frontend/src/utils/attendancePresentation.js'
@@ -56,7 +57,7 @@ jobs:
       - name: Run AM1–AM6 regression tests
         env:
           CI: 'true'
-        run: npm test -- --watchAll=false --runInBand --testPathPattern='(AttendanceWorkspace|AttendanceWorkspaceTabs|Sidebar|Attendance|CoachAttendance|AttendanceHistory|attendanceEditWindow|attendancePresentation|attendanceService)\.test\.js$'
+        run: npm test -- --watchAll=false --runInBand --testPathPattern='(AttendanceWorkspace|AttendanceWorkspaceTabs|Sidebar(?:\.accessibility)?|Attendance|CoachAttendance|AttendanceHistory|attendanceEditWindow|attendancePresentation|attendanceService)\.test\.js$'
       - name: Build React frontend
         env:
           CI: 'true'

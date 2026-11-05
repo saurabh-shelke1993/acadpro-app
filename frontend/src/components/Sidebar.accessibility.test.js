@@ -29,7 +29,7 @@ describe("Sidebar cross-role accessibility and navigation visibility", () => {
     expect(screen.getByRole("link", { name: "Dashboard" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Academies" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Payment Collections" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Attendance History" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Attendance" })).toHaveAttribute("href", "/attendance?view=history");
   });
 
   test("Academy Owner exposes academy-scoped management without the Super Admin academy page", () => {
@@ -38,6 +38,7 @@ describe("Sidebar cross-role accessibility and navigation visibility", () => {
     expect(screen.getByRole("link", { name: "Dashboard" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Centers" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Payment Dues" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Attendance" })).toHaveAttribute("href", "/attendance?view=mark");
     expect(screen.queryByRole("link", { name: "Academies" })).not.toBeInTheDocument();
   });
 
@@ -45,7 +46,7 @@ describe("Sidebar cross-role accessibility and navigation visibility", () => {
     renderSidebar("coach");
 
     expect(screen.getByRole("link", { name: "Dashboard" })).toHaveAttribute("href", "/coach-dashboard");
-    expect(screen.getByRole("link", { name: "Attendance" })).toHaveAttribute("href", "/coach-attendance");
+    expect(screen.getByRole("link", { name: "Attendance" })).toHaveAttribute("href", "/attendance?view=mark");
     expect(screen.getByRole("link", { name: "Players" })).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Payment Dues" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Payment Collections" })).not.toBeInTheDocument();
