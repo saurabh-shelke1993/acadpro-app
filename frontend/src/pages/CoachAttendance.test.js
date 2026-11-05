@@ -1,5 +1,5 @@
 import React from "react";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import CoachAttendance from "./CoachAttendance";
 import { supabase } from "../supabaseClient";
@@ -141,4 +141,18 @@ test("AM6.4 Coach new-session Reset clears draft marks and locks Save", async ()
   fireEvent.click(screen.getByRole("button", { name: "Reset" }));
   expect(screen.getAllByRole("radio").every((radio) => !radio.checked)).toBe(true);
   expect(save).toBeDisabled();
+});
+
+test("AM6.6 Coach sees batch, weekday, time and center in the session choice and context", async () => {
+  setup("/coach-attendance?scheduleId=session-1&date=2020-01-01", []);
+  await screen.findByText("Test Junior");
+  expect(screen.getByRole("option", {
+    name: "Juniors · Thursday · 5:00 PM–6:00 PM · GawandBaugh",
+  })).toBeInTheDocument();
+  const context = screen.getByLabelText("Selected attendance session");
+  expect(within(context).getByText("Juniors")).toBeInTheDocument();
+  expect(context).toHaveTextContent("GawandBaugh");
+  expect(context).toHaveTextContent("Thursday · 5:00 PM–6:00 PM");
+  expect(screen.queryByText("Daily operations")).not.toBeInTheDocument();
+  expect(screen.queryByText("Session roster")).not.toBeInTheDocument();
 });

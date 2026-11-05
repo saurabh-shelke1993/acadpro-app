@@ -4,7 +4,7 @@ import { supabase } from "../supabaseClient";
 import Layout from "../components/Layout";
 import AttendanceWorkspaceTabs from "../components/AttendanceWorkspaceTabs";
 import AttendanceRosterSummary from "../components/AttendanceRosterSummary";
-import { countAttendance, formatAttendanceSessionLabel } from "../utils/attendancePresentation";
+import { countAttendance, formatAttendanceSessionLabel, formatAttendanceTrainingDays } from "../utils/attendancePresentation";
 import "./Attendance.css";
 import {
   getAccessibleAcademies,
@@ -28,6 +28,7 @@ import {
 } from "../services/attendanceService";
 import {
   getAttendanceSessionsForBatch,
+  getActiveBatchAttendanceDays,
   getEnrolledPlayersForSchedule,
 } from "../services/scheduleViewService";
 
@@ -48,6 +49,7 @@ function Attendance() {
   const [selectedBatch, setSelectedBatch] = useState("");
   const [scheduleOptions, setScheduleOptions] = useState([]);
   const [selectedSchedule, setSelectedSchedule] = useState("");
+  const [trainingDays, setTrainingDays] = useState({ days: [], loading: false, error: false });
   const [coachBatchMenuOpen, setCoachBatchMenuOpen] = useState(false);
 
   const [attendanceDate, setAttendanceDate] = useState(
@@ -216,6 +218,26 @@ setBatches(data || []);
 
     loadSessions();
   }, [selectedBatch, selectedCenter, attendanceDate]);
+
+  // AM6.6: independent read-only week schedule for the selected batch.
+  // A stale response cannot overwrite days when the Owner switches batches.
+  useEffect(() => {
+    let cancelled = false;
+    if (!selectedBatch || !selectedCenter) {
+      setTrainingDays({ days: [], loading: false, error: false });
+      return;
+    }
+    setTrainingDays({ days: [], loading: true, error: false });
+    getActiveBatchAttendanceDays(selectedBatch, selectedCenter)
+      .then((days) => {
+        if (!cancelled) setTrainingDays({ days, loading: false, error: false });
+      })
+      .catch((error) => {
+        console.error("Unable to load active batch days:", error);
+        if (!cancelled) setTrainingDays({ days: [], loading: false, error: true });
+      });
+    return () => { cancelled = true; };
+  }, [selectedBatch, selectedCenter]);
 
   // =====================================================
   // FETCH PLAYERS
@@ -494,20 +516,16 @@ useEffect(() => {
     <div className="attendance-page">
       <AttendanceWorkspaceTabs role={user?.role} />
 
-      <section className="attendance-workspace-card" aria-labelledby="attendance-workspace-title">
-        <div className="attendance-workspace-heading">
-          <div>
-            <span className="attendance-page-eyebrow">Daily operations</span>
-            <h1 id="attendance-workspace-title">Mark Attendance</h1>
-            <p><span className="attendance-academy-context">Academy: {academyName}</span> · Select a session and mark each player.</p>
-          </div>
-          {selectedBatch ? (
+      <section className="attendance-workspace-card attendance-marking-filters" aria-label="Mark Attendance filters">
+        <h1 className="sr-only">Mark Attendance</h1>
+        <div className="attendance-marking-context">
+          <span className="attendance-academy-context">Academy: {academyName}</span>
+          {selectedSchedule ? (
             <span className={attendanceExists ? "attendance-status-badge attendance-status-existing" : "attendance-status-badge"}>
               {attendanceExists ? "Attendance recorded" : "Ready to mark"}
             </span>
           ) : null}
         </div>
-
         <div className="attendance-filter-card attendance-owner-filter-card">
           <div className="attendance-filter-field">
             <label htmlFor="attendance-center">Center</label>
@@ -644,6 +662,18 @@ useEffect(() => {
 
         </div>
 
+        {selectedBatch ? (
+          <div className="attendance-training-days" role="status">
+            {trainingDays.loading
+              ? "Loading training days…"
+              : trainingDays.error
+                ? "Training days unavailable; session selection still works."
+                : trainingDays.days.length
+                  ? <>Runs: {formatAttendanceTrainingDays(trainingDays.days)}</>
+                  : "No active training days scheduled for this batch."}
+          </div>
+        ) : null}
+
         {attendanceMessage ? (
           <div className="attendance-inline-message attendance-inline-success" role="status">
             <strong>✓</strong>
@@ -661,15 +691,9 @@ useEffect(() => {
 
       <section className="attendance-list-section" aria-labelledby="players-attendance-title">
         <div className="attendance-list-header">
-          <div>
-            <span className="attendance-section-eyebrow">Daily roster</span>
-            <h2 id="players-attendance-title">Players Attendance</h2>
-            <p>
-              {selectedSchedule
-                ? `${players.length} ${players.length === 1 ? "player" : "players"} enrolled in the selected session`
-                : selectedBatch ? "Select a recurring session to load enrolled players." : "Select a batch to load sessions."}
-            </p>
-          </div>
+          <h2 id="players-attendance-title">
+            Players{selectedSchedule ? <span className="attendance-roster-count"> · {players.length} enrolled</span> : null}
+          </h2>
 
           {selectedSchedule && isAcademyOwner(user) && !attendanceExists ? (
             <div className="attendance-bulk-actions">

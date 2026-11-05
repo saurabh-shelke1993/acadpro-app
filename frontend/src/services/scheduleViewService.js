@@ -380,6 +380,24 @@ export const getAttendanceSessionsForBatch = async (batchId, centerId = "", date
   return data || [];
 };
 
+/** Read-only active recurring weekdays; existing date-specific session lookup is unchanged. */
+export const getActiveBatchAttendanceDays = async (batchId, centerId = "") => {
+  if (!batchId) return [];
+  let query = supabase
+    .from("batch_schedules")
+    .select("day_of_week")
+    .eq("batch_id", batchId)
+    .eq("is_active", true)
+    .order("day_of_week");
+  if (centerId) query = query.eq("center_id", centerId);
+  const { data, error } = await query;
+  if (error) throw error;
+  return [...new Set((data || [])
+    .map((schedule) => Number(schedule.day_of_week))
+    .filter((day) => Number.isInteger(day) && day >= 1 && day <= 7))]
+    .sort((a, b) => a - b);
+};
+
 export const getEnrolledPlayersForSchedule = async (scheduleId, attendanceDate) => {
   if (!scheduleId) return [];
 

@@ -1,4 +1,4 @@
-import { formatAttendanceClock, formatAttendanceSessionLabel, countAttendance } from "./attendancePresentation";
+import { formatAttendanceClock, formatAttendanceSessionLabel, formatAttendanceTrainingDays, formatCoachAttendanceSessionOption, countAttendance } from "./attendancePresentation";
 
 test("AM6.1 formats 24-hour DB times into readable 12-hour labels", () => {
   expect(formatAttendanceClock("17:00:00")).toBe("5:00 PM");
@@ -45,4 +45,15 @@ test("AM6.2 counts owner player_id draft marks without changing roster", () => {
     total: 2, present: 1, absent: 0, unmarked: 1,
   });
   expect(roster).toEqual([{ player_id: "one" }, { player_id: "two" }]);
+});
+
+test("AM6.6 sorts and deduplicates weekly weekdays without inventing missing days", () => {
+  expect(formatAttendanceTrainingDays([5, 1, 3, 1, 0, 8, null])).toBe("Mon · Wed · Fri");
+  expect(formatAttendanceTrainingDays([])).toBe("");
+});
+test("AM6.6 describes Coach batch, weekday, time and center", () => {
+  expect(formatCoachAttendanceSessionOption({
+    day_of_week: 4, start_time: "17:00:00", end_time: "18:00:00",
+    batches: { batch_name: "Juniors" }, centers: { center_name: "Lodha Amara" },
+  })).toBe("Juniors · Thursday · 5:00 PM–6:00 PM · Lodha Amara");
 });

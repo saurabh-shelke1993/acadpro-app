@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import Layout from "../components/Layout";
 import AttendanceWorkspaceTabs from "../components/AttendanceWorkspaceTabs";
 import AttendanceRosterSummary from "../components/AttendanceRosterSummary";
-import { countAttendance, formatAttendanceSessionLabel } from "../utils/attendancePresentation";
+import { countAttendance, formatAttendanceSessionLabel, formatCoachAttendanceSessionOption } from "../utils/attendancePresentation";
 import { canCoachEditAttendanceDate, utcAttendanceToday } from "../utils/attendanceEditWindow";
 import "./Attendance.css";
 import { supabase } from "../supabaseClient";
@@ -234,20 +234,8 @@ function CoachAttendance() {
     <Layout>
       <div className="attendance-page">
         <AttendanceWorkspaceTabs role={user?.role} />
-        <section className="attendance-workspace-card" aria-labelledby="coach-attendance-title">
-          <div className="attendance-workspace-heading">
-            <div>
-              <span className="attendance-page-eyebrow">Daily operations</span>
-              <h1 id="coach-attendance-title">Mark Attendance</h1>
-              <p>Select one of your assigned sessions, then mark every player.</p>
-            </div>
-            {selectedSchedule ? (
-              <span className={isEditMode ? "attendance-status-badge attendance-status-existing" : "attendance-status-badge"}>
-                {readOnlyExisting ? "Read-only" : isEditMode ? "Attendance recorded" : "Ready to mark"}
-              </span>
-            ) : null}
-          </div>
-
+        <section className="attendance-workspace-card attendance-marking-filters" aria-label="Mark Attendance filters">
+          <h1 className="sr-only">Mark Attendance</h1>
           <div className="attendance-filter-card attendance-coach-filter-card attendance-am6-coach-filters">
             <div className="attendance-filter-field">
               <label htmlFor="coach-attendance-date">Date</label>
@@ -279,7 +267,7 @@ function CoachAttendance() {
                 <option value="">Select Session</option>
                 {sessions.map((session) => (
                   <option key={session.id} value={session.id}>
-                    {formatAttendanceSessionLabel(session)}
+                    {formatCoachAttendanceSessionOption(session)}
                   </option>
                 ))}
               </select>
@@ -287,16 +275,19 @@ function CoachAttendance() {
           </div>
 
           {selectedSession ? (
-            <div className="attendance-inline-message attendance-inline-success" role="status">
-              <strong>Session</strong>
-              <span>{formatAttendanceSessionLabel(selectedSession)} · {selectedSession.centers?.center_name || "Center"} · {selectedSession.batches?.batch_name || "Batch"}</span>
+            <div className="attendance-session-context" aria-label="Selected attendance session" role="status">
+              <strong>{selectedSession.batches?.batch_name || "Batch"}</strong>
+              <span>· {selectedSession.centers?.center_name || "Center"}</span>
+              <span>· {formatAttendanceSessionLabel(selectedSession)}</span>
+              <span className="attendance-session-readiness">
+                {readOnlyExisting ? "Read-only" : isEditMode ? "Recorded" : "Ready to mark"}
+              </span>
             </div>
-          ) : (
-            <div className="attendance-inline-message" role="status">
-              <strong>!</strong>
-              <span>No assigned session is available for the selected date.</span>
+          ) : !loading && !error ? (
+            <div className="attendance-training-days" role="status">
+              No assigned session for this date. Choose another date.
             </div>
-          )}
+          ) : null}
 
           {readOnlyExisting && (
             <div className="attendance-inline-message" role="status">
@@ -319,11 +310,9 @@ function CoachAttendance() {
 
         <section className="attendance-list-section" aria-labelledby="coach-players-attendance-title">
           <div className="attendance-list-header">
-            <div>
-              <span className="attendance-section-eyebrow">Session roster</span>
-              <h2 id="coach-players-attendance-title">Players Attendance</h2>
-              <p>{selectedSchedule ? `${players.length} ${players.length === 1 ? "player" : "players"} enrolled in this session` : "Select a session to load enrolled players."}</p>
-            </div>
+            <h2 id="coach-players-attendance-title">
+              Players{selectedSchedule ? <span className="attendance-roster-count"> · {players.length} enrolled</span> : null}
+            </h2>
 
             {selectedSchedule && players.length > 0 ? (
               <div className="attendance-bulk-actions">

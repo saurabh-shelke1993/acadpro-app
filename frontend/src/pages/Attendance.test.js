@@ -5,7 +5,7 @@ import Attendance from "./Attendance";
 import { supabase } from "../supabaseClient";
 import { getAccessibleAcademies, getAccessibleCenters, getAccessibleBatches } from "../utils/dataScope";
 import { saveAttendanceRecords } from "../services/attendanceService";
-import { getAttendanceSessionsForBatch, getEnrolledPlayersForSchedule } from "../services/scheduleViewService";
+import { getAttendanceSessionsForBatch, getActiveBatchAttendanceDays, getEnrolledPlayersForSchedule } from "../services/scheduleViewService";
 
 jest.mock("../components/Layout", () => ({ children }) => <>{children}</>);
 jest.mock("../supabaseClient", () => ({
@@ -18,6 +18,7 @@ jest.mock("../utils/dataScope", () => ({
 }));
 jest.mock("../services/scheduleViewService", () => ({
   getAttendanceSessionsForBatch: jest.fn(async () => []),
+  getActiveBatchAttendanceDays: jest.fn(async () => []),
   getEnrolledPlayersForSchedule: jest.fn(async () => []),
   formatScheduleLabel: jest.fn(() => "Training session"),
 }));
@@ -63,6 +64,7 @@ beforeEach(() => {
   getAccessibleCenters.mockResolvedValue([]);
   getAccessibleBatches.mockResolvedValue([]);
   saveAttendanceRecords.mockResolvedValue(undefined);
+  getActiveBatchAttendanceDays.mockResolvedValue([]);
 });
 
 test("AM2 Super Admin direct /attendance is redirected to History, without a marking action", async () => {
@@ -76,7 +78,7 @@ test("AM2 Academy Owner retains Mark Attendance workspace and existing selection
   renderAttendance("academy_owner");
   expect(await screen.findByRole("heading", { name: "Mark Attendance" })).toBeInTheDocument();
   expect(screen.queryByRole("heading", { name: "History landing" })).not.toBeInTheDocument();
-  expect(screen.getByRole("link", { name: "Attendance History" }))
+  expect(await screen.findByRole("link", { name: "Attendance History" }))
     .toHaveAttribute("href", "/attendance?view=history");
   expect(screen.getByLabelText("Date")).toHaveAttribute("max", new Date().toISOString().slice(0, 10));
   await waitFor(() => expect(getAccessibleAcademies).toHaveBeenCalled());
@@ -95,6 +97,7 @@ const openOwnerRoster = async (existingRows = []) => {
     { id: "batch-1", batch_name: "Juniors" },
   ]);
   getAttendanceSessionsForBatch.mockResolvedValue([session]);
+  getActiveBatchAttendanceDays.mockResolvedValue([1, 3, 5]);
   getEnrolledPlayersForSchedule.mockResolvedValue([
     { player_id: "player-1", full_name: "Pratik Maheshwari" },
     { player_id: "player-2", full_name: "Pratham Naik" },
@@ -164,4 +167,13 @@ test("AM6.4 Owner previously recorded attendance is read-only and not saved agai
   expect(screen.getAllByRole("radio").every((radio) => radio.disabled)).toBe(true);
   expect(screen.queryByRole("button", { name: "Save Attendance" })).not.toBeInTheDocument();
   expect(saveAttendanceRecords).not.toHaveBeenCalled();
+});
+
+test("AM6.6 Owner sees batch operating days independently of date-scoped sessions", async () => {
+  await openOwnerRoster();
+  expect(await screen.findByText("Runs: Mon · Wed · Fri")).toBeInTheDocument();
+  expect(getActiveBatchAttendanceDays).toHaveBeenCalledWith("batch-1", "center-1");
+  expect(getAttendanceSessionsForBatch).toHaveBeenCalledWith("batch-1", "center-1", expect.any(String));
+  expect(screen.queryByText("Daily operations")).not.toBeInTheDocument();
+  expect(screen.queryByText("Daily roster")).not.toBeInTheDocument();
 });

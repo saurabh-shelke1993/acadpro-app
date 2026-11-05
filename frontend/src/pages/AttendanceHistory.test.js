@@ -62,7 +62,7 @@ const renderHistory = async (role) => {
       <AttendanceHistory />
     </MemoryRouter>
   );
-  await screen.findByText("Old Junior");
+  await screen.findByRole("cell", { name: "Old Junior" });
 };
 
 beforeEach(() => {
@@ -74,8 +74,8 @@ beforeEach(() => {
 
 test("AM4 Coach can edit recent attendance but sees older records as read-only", async () => {
   await renderHistory("coach");
-  const recent = screen.getByText("Recent Junior").closest("tr");
-  const old = screen.getByText("Old Junior").closest("tr");
+  const recent = screen.getByRole("cell", { name: "Recent Junior" }).closest("tr");
+  const old = screen.getByRole("cell", { name: "Old Junior" }).closest("tr");
   expect(within(recent).getByRole("button", { name: "Edit attendance for Recent Junior" }))
     .toBeInTheDocument();
   expect(within(old).queryByRole("button", { name: "Edit attendance for Old Junior" }))
@@ -89,7 +89,7 @@ test.each(["academy_owner", "super_admin"])(
   "AM4 %s retains edit and soft-delete controls for older attendance",
   async (role) => {
     await renderHistory(role);
-    const old = screen.getByText("Old Junior").closest("tr");
+    const old = screen.getByRole("cell", { name: "Old Junior" }).closest("tr");
     expect(within(old).getByRole("button", { name: "Edit attendance for Old Junior" }))
       .toBeInTheDocument();
     expect(within(old).getByRole("button", { name: "Delete attendance for Old Junior" }))
