@@ -95,9 +95,8 @@ function Sidebar({ isOpen = false, onClose = () => {}, closeButtonRef }) {
               {renderLink("/coach-dashboard", "Dashboard", "⌂")}
 
               <div className="app-nav-group-title">Coaching</div>
-              {renderLink("/coach-attendance", "Attendance", "✓")}
+              {renderLink("/coach-attendance", "Attendance", "✓", ["/attendance-history"])}
               {renderLink("/player-performance-report", "Player Performance", "▥", ["/coach-performance-assessments"])}
-              {renderLink("/attendance-history", "Attendance History", "◷")}
 
               <div className="app-nav-group-title">Academy</div>
               {renderLink("/centers", "Centers", "⌂")}
@@ -128,8 +127,9 @@ function Sidebar({ isOpen = false, onClose = () => {}, closeButtonRef }) {
 
               <div className="app-nav-group-title">Performance</div>
               {renderLink("/player-performance-report", "Player Performance", "▥", ["/coach-performance-assessments"])}
-              {renderLink("/attendance", "Attendance", "✓")}
-              {renderLink("/attendance-history", "Attendance History", "◷")}
+              {isSuperAdmin(user)
+                ? renderLink("/attendance-history", "Attendance", "✓", ["/attendance"])
+                : renderLink("/attendance", "Attendance", "✓", ["/attendance-history"])}
 
               <div className="app-nav-group-title">Finance</div>
               {renderLink("/subscription-plans", "Subscription Plans", "◇")}
