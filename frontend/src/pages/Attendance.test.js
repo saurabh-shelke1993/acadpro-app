@@ -24,7 +24,7 @@ jest.mock("../services/attendanceService", () => ({
   saveAttendanceRecords: jest.fn(),
 }));
 
-const renderAttendance = (role) => {
+const renderAttendance = (role, initialRoute = "/attendance") => {
   supabase.auth.getUser.mockResolvedValue({ data: { user: { id: "user-1" } }, error: null });
   supabase.from.mockImplementation((table) => {
     if (table !== "users") throw new Error("Unexpected data table: " + table);
@@ -38,7 +38,7 @@ const renderAttendance = (role) => {
   });
 
   return render(
-    <MemoryRouter initialEntries={["/attendance?centerId=center-1&batchId=batch-1"]}>
+    <MemoryRouter initialEntries={[initialRoute]}>
       <Routes>
         <Route path="/attendance" element={<Attendance />} />
         <Route path="/attendance-history" element={<h1>History landing</h1>} />
