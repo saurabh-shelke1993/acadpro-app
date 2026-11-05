@@ -92,7 +92,7 @@ test("AM3 retains direct Coach Dashboard session/date routing", async () => {
   setup("/coach-attendance?scheduleId=session-1&date=2020-01-01&batchId=batch-1");
   expect(await screen.findByRole("heading", { name: "Mark Attendance" })).toBeInTheDocument();
   expect(screen.getByRole("link", { name: "Attendance History" }))
-    .toHaveAttribute("href", "/attendance-history");
+    .toHaveAttribute("href", "/attendance?view=history");
   expect(getCoachAttendanceSessions).toHaveBeenCalledWith(
     expect.objectContaining({ role: "coach", academy_id: "academy-1" }), "2020-01-01"
   );
