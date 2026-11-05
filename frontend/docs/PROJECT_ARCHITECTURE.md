@@ -1,6 +1,6 @@
 # AcadPro Architecture
 
-**Last Updated:** 12 October 2026  
+**Last Updated:** 5 November 2026 (Attendance AM5 routing checkpoint; other sections historical)  
 **Current Branch:** `payment-module-finalization`
 
 ## 1. Platform
@@ -31,6 +31,15 @@ Parent linkage is represented by `players.parent_id → parents.id`. Parent auth
 - Parent: `/parent-portal`
 
 The Parent Portal is protected by a parent-only route guard. Supabase Auth handles authentication; role and academy information is stored in `public.users`.
+
+### Attendance workspace routing (AM5)
+
+- The **canonical attendance entry route** is `/attendance?view=mark|history`. `AttendanceWorkspace.js` resolves the authenticated database-backed user role and mounts the existing Owner `Attendance.js`, Coach `CoachAttendance.js`, or role-scoped `AttendanceHistory.js` view. Their existing Layout, filtering, session selection, inserts/updates and History soft-deletion are preserved.
+- Academy Owners and Coaches default to `?view=mark`; Super Admin defaults to `?view=history`. Any Super Admin request for Mark is normalized to History. Parent is denied all Attendance management routes.
+- Former `/attendance-history` and `/coach-attendance` paths still have their original role guards and now redirect via `LegacyAttendanceRedirect` to the appropriate canonical view. Query parameters (centerId/batchId/scheduleId/date and any others) and URL hashes are preserved during these redirects. The existing Owner `/attendance` links normalize to Mark without losing dashboard parameters.
+- Sidebar, view cards, Coach Dashboard, Academy Owner Dashboard and generic Dashboard navigation now use canonical links. The page views still mount/unmount on selection, so unsaved draft selections are not retained across views.
+- Route and visual permissions **do not replace Supabase RLS**. Super Admin is history-only for creation, Coach marking remains assigned-session scoped, and Coach edits are limited to the seven UTC calendar dates ending today. No new table, RLS policy, service-role access or privileged RPC was introduced.
+- Release acceptance is pending exact-HEAD Jest/build, owner/coach/admin/parent browser tests and negative cross-tenant security validation. See `ATTENDANCE_AM5_ROUTING_20261105.md`.
 
 ## 5. Authorization layers
 
