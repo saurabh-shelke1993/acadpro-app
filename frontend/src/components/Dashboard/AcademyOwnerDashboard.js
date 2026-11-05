@@ -91,7 +91,7 @@ function TodaySessions({ sessions }) {
             <strong>{session.batchName}</strong>
             <span className="ao-session-time">{formatTime12Hour(session.startTime)}{session.endTime ? ` – ${formatTime12Hour(session.endTime)}` : ""}</span>
           </div>
-          <Link className="ao-session-attendance-link" to={`/attendance?centerId=${encodeURIComponent(session.centerId || "")}&batchId=${encodeURIComponent(session.batchId)}`} aria-label={`Open attendance for ${session.batchName} at ${group.centerName}`}>Attendance <span aria-hidden="true">→</span></Link>
+          <Link className="ao-session-attendance-link" to={`/attendance?view=mark&centerId=${encodeURIComponent(session.centerId || "")}&batchId=${encodeURIComponent(session.batchId)}`} aria-label={`Open attendance for ${session.batchName} at ${group.centerName}`}>Attendance <span aria-hidden="true">→</span></Link>
         </div>
       ))}</div>
     </section>
@@ -134,7 +134,7 @@ function BatchAttendanceChart({ batches }) {
   const presentTotal = chartBatches.reduce((sum, batch) => sum + (batch.presentRecords || 0), 0);
   const markedTotal = chartBatches.reduce((sum, batch) => sum + (batch.totalRecords || 0), 0);
   const academyRate = markedTotal ? Math.round((presentTotal / markedTotal) * 100) : null;
-  if (!markedTotal) return <div className="ao-attendance-empty-compact"><div><strong>No attendance recorded in the last 7 days</strong><span>The chart will appear after coaches record attendance.</span></div><Link to="/attendance" className="ao-empty-attendance-link">Go to attendance →</Link></div>;
+  if (!markedTotal) return <div className="ao-attendance-empty-compact"><div><strong>No attendance recorded in the last 7 days</strong><span>The chart will appear after coaches record attendance.</span></div><Link to="/attendance?view=mark" className="ao-empty-attendance-link">Go to attendance →</Link></div>;
 
   // Keep a stable, wide viewBox and let the SVG fit the available desktop width.
   // This prevents 15–20 batches from forcing a horizontal scrollbar.
