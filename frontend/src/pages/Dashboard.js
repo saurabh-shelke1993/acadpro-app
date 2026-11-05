@@ -201,10 +201,10 @@ function Dashboard() {
           </div>
 
           <div className="dashboard-grid dashboard-grid-4">
-            <DashboardCard title="Recorded" value={summary.attendanceTaken} icon="▤" color="sky" to="/attendance" />
-            <DashboardCard title="Present" value={summary.presentPlayers} icon="✓" color="green" to="/attendance" />
-            <DashboardCard title="Absent" value={summary.absentPlayers} icon="×" color="red" to="/attendance" />
-            <DashboardCard title="Present %" value={summary.attendancePercentage + "%"} icon="↗" color="purple" to="/attendance-history" />
+            <DashboardCard title="Recorded" value={summary.attendanceTaken} icon="▤" color="sky" to="/attendance?view=history" />
+            <DashboardCard title="Present" value={summary.presentPlayers} icon="✓" color="green" to="/attendance?view=history" />
+            <DashboardCard title="Absent" value={summary.absentPlayers} icon="×" color="red" to="/attendance?view=history" />
+            <DashboardCard title="Present %" value={summary.attendancePercentage + "%"} icon="↗" color="purple" to="/attendance?view=history" />
           </div>
         </section>
 
@@ -240,7 +240,7 @@ function Dashboard() {
               <span className="dashboard-attention-arrow" aria-hidden="true">→</span>
             </Link>
 
-            <Link className="dashboard-attention-card" to="/attendance">
+            <Link className="dashboard-attention-card" to="/attendance?view=history">
               <span className="dashboard-attention-icon dashboard-attention-icon-info">✓</span>
               <span className="dashboard-attention-content">
                 <strong>Attendance Recorded</strong>
@@ -307,11 +307,11 @@ function Dashboard() {
               </span>
             </Link>
 
-            <Link className="dashboard-action" to="/attendance">
+            <Link className="dashboard-action" to={isSuperAdmin(user) ? "/attendance?view=history" : "/attendance?view=mark"}>
               <span className="dashboard-action-icon">✓</span>
               <span>
-                <strong>Mark Attendance</strong>
-                <small>Record today&apos;s attendance</small>
+                <strong>{isSuperAdmin(user) ? "Attendance History" : "Mark Attendance"}</strong>
+                <small>{isSuperAdmin(user) ? "Review recorded attendance" : "Record today&apos;s attendance"}</small>
               </span>
             </Link>
 
