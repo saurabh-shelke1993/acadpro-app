@@ -97,7 +97,7 @@ test.each(["academy_owner", "super_admin"])(
   }
 );
 
-test("AM4 History retains five-record pagination contract and scoped view navigation", async () => {
+test("AM4 History retains scoped navigation and attendance data loading", async () => {
   await renderHistory("coach");
   expect(screen.getByRole("link", { name: "Mark Attendance" }))
     .toHaveAttribute("href", "/coach-attendance");
