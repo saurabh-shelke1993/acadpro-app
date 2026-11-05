@@ -17,6 +17,7 @@ import {
   softDeleteAttendance,
 } from "../services/attendanceService";
 import Layout from "../components/Layout";
+import AttendanceWorkspaceTabs from "../components/AttendanceWorkspaceTabs";
 import "./AttendanceHistory.css";
 
 const PAGE_SIZE = 5;
@@ -362,6 +363,7 @@ function AttendanceHistory() {
   return (
     <Layout>
       <div className="attendance-history-page">
+        <AttendanceWorkspaceTabs role={user?.role} />
         <section className="attendance-history-filter-card" aria-labelledby="attendance-history-filters">
           <div className="attendance-history-section-heading">
             <div>
