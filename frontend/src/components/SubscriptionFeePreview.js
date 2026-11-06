@@ -1,3 +1,4 @@
+/* global BigInt */
 import { useEffect, useMemo, useState } from "react";
 import { getPlayerScheduleEnrollments } from "../services/playerScheduleService";
 import {
@@ -89,7 +90,7 @@ export default function SubscriptionFeePreview({ player, plan, joinDate }) {
         <h3>First-period fee preview</h3><span>Simulation only</span>
       </div>
       <p className="subscription-fee-preview-warning">
-        This calculation is not applied. <strong>Create subscription will not save this discount or create a payment due.</strong>
+        This calculation is not applied. <strong>Create subscription will not save the estimated end date, billing model, discount or payment due.</strong>
       </p>
       {!sameAcademy ? (
         <p role="alert">Preview unavailable: player and plan must belong to the same academy.</p>

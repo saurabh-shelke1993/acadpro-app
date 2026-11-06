@@ -20,7 +20,7 @@ beforeEach(() => {
 test("monthly only; no save or charge actions", () => {
   const { rerender } = render(<SubscriptionFeePreview player={player} plan={plan} joinDate="2027-01-15" />);
   expect(screen.getByRole("region",{name:"First-period fee preview"})).toBeInTheDocument();
-  expect(screen.getByText(/Create subscription will not save this discount/)).toBeInTheDocument();
+  expect(screen.getByText(/Create subscription will not save the estimated end date/)).toBeInTheDocument();
   expect(screen.queryByRole("button")).not.toBeInTheDocument();
   rerender(<SubscriptionFeePreview player={player} plan={{...plan,billing_cycle:"quarterly"}} joinDate="2027-01-15" />);
   expect(screen.queryByRole("region",{name:"First-period fee preview"})).not.toBeInTheDocument();

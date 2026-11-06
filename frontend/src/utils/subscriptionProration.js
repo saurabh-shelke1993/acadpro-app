@@ -1,3 +1,4 @@
+/* global BigInt */
 /**
  * PS-L1P1: pure first-period, monthly tuition proration.
  *
