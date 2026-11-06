@@ -2,7 +2,7 @@ import React from "react";
 import { render, screen, within, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import AttendanceHistory from "./AttendanceHistory";
-import { supabase } from "../supabaseClient";
+import { getAttendanceHistoryPage } from "../services/attendanceHistoryService";
 import { getCurrentUser } from "../utils/auth";
 import {
   getAccessibleAcademies,
@@ -12,7 +12,10 @@ import {
 import { utcAttendanceToday } from "../utils/attendanceEditWindow";
 
 jest.mock("../components/Layout", () => ({ children }) => <>{children}</>);
-jest.mock("../supabaseClient", () => ({ supabase: { from: jest.fn() } }));
+jest.mock("../services/attendanceHistoryService", () => ({
+  ATTENDANCE_HISTORY_PAGE_SIZE: 5,
+  getAttendanceHistoryPage: jest.fn(),
+}));
 jest.mock("../utils/auth", () => ({ getCurrentUser: jest.fn() }));
 jest.mock("../utils/dataScope", () => ({
   getAccessibleAcademies: jest.fn(),
@@ -44,19 +47,16 @@ const rows = [
   makeRecord("old-1", "Old Junior", oldDate),
 ];
 
-const renderHistory = async (role) => {
+const renderHistory = async (role, data = rows) => {
   getCurrentUser.mockResolvedValue({ id: "user-1", role, academy_id: "academy-1" });
-  const chain = {
-    select: () => chain,
-    eq: () => chain,
-    order: () => chain,
-    gte: () => chain,
-    lte: () => chain,
-    in: () => chain,
-    then: (resolve, reject) =>
-      Promise.resolve({ data: rows, error: null }).then(resolve, reject),
-  };
-  supabase.from.mockReturnValue(chain);
+  // Match the server contract: apply filters before slicing five records.
+  getAttendanceHistoryPage.mockImplementation(async ({ page, playerName, status }) => {
+    const filtered = data.filter((item) =>
+      (!status || item.status === status) &&
+      (!playerName || item.players.full_name.toLowerCase().includes(playerName.toLowerCase()))
+    );
+    return { rows: filtered.slice((page - 1) * 5, page * 5), count: filtered.length };
+  });
   render(
     <MemoryRouter initialEntries={["/attendance-history"]}>
       <AttendanceHistory />
@@ -103,7 +103,7 @@ test("AM4 History retains scoped navigation and attendance data loading", async 
     .toHaveAttribute("href", "/attendance?view=mark");
   expect(screen.getByRole("link", { name: "Attendance History" }))
     .toHaveAttribute("aria-current", "page");
-  expect(supabase.from).toHaveBeenCalledWith("attendance");
+  expect(getAttendanceHistoryPage).toHaveBeenCalledWith(expect.objectContaining({ user: expect.objectContaining({ academy_id: "academy-1" }) }));
 });
 
 test("AM7 Owner sees compact academy context instead of a disabled academy selector", async () => {
@@ -138,5 +138,48 @@ test("AM7 status filtering and reset keep the same scoped records", async () => 
   expect(await screen.findByText("No attendance records found")).toBeInTheDocument();
   fireEvent.click(screen.getByRole("button", { name: "Reset filters" }));
   await waitFor(() => expect(screen.getByRole("cell", { name: "Old Junior" })).toBeInTheDocument());
-  expect(supabase.from).toHaveBeenCalledWith("attendance");
+  expect(getAttendanceHistoryPage).toHaveBeenCalledWith(expect.objectContaining({ user: expect.objectContaining({ academy_id: "academy-1" }) }));
+});
+
+test("AM7.3 Next/Previous load only the selected server page and preserve full record count", async () => {
+  const many = [...rows, ...Array.from({ length: 10 }, (_, index) =>
+    makeRecord("extra-" + index, "Extra Junior " + index, oldDate))];
+  await renderHistory("academy_owner", many);
+  expect(screen.getByRole("heading", { name: /Records · 12/ })).toBeInTheDocument();
+  expect(screen.getByText("Showing 1–5 of 12")).toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: "Next" }));
+  await waitFor(() => expect(getAttendanceHistoryPage).toHaveBeenCalledWith(expect.objectContaining({ page: 2 })));
+  expect(await screen.findByRole("cell", { name: "Extra Junior 3" })).toBeInTheDocument();
+  expect(screen.queryByRole("cell", { name: "Old Junior" })).not.toBeInTheDocument();
+  expect(screen.getByText("Showing 6–10 of 12")).toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: "Previous" }));
+  expect(await screen.findByRole("cell", { name: "Old Junior" })).toBeInTheDocument();
+  expect(screen.getByText("Showing 1–5 of 12")).toBeInTheDocument();
+});
+
+test("AM7.3 player search matches records not present on first page", async () => {
+  const many = [...rows, ...Array.from({ length: 6 }, (_, index) =>
+    makeRecord("other-" + index, "Other Junior " + index, oldDate)),
+    makeRecord("unique", "Unique Remote Player", oldDate)];
+  await renderHistory("coach", many);
+  expect(screen.queryByRole("cell", { name: "Unique Remote Player" })).not.toBeInTheDocument();
+  fireEvent.change(screen.getByRole("searchbox", { name: "Player name" }), {
+    target: { value: "Unique Remote" },
+  });
+  await waitFor(() => expect(getAttendanceHistoryPage).toHaveBeenCalledWith(expect.objectContaining({
+    playerName: "Unique Remote", page: 1,
+  })));
+  expect(await screen.findByRole("cell", { name: "Unique Remote Player" })).toBeInTheDocument();
+  expect(screen.getByRole("heading", { name: /Records · 1/ })).toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "Next" })).not.toBeInTheDocument();
+});
+
+test("AM7.3 server error shows Retry instead of a false empty-result success", async () => {
+  await renderHistory("coach");
+  getAttendanceHistoryPage.mockRejectedValueOnce(new Error("Unavailable"));
+  fireEvent.change(screen.getByRole("combobox", { name: "Status" }), { target: { value: "absent" } });
+  expect(await screen.findByRole("alert")).toHaveTextContent("Unable to load attendance history.");
+  expect(screen.getByRole("button", { name: "Retry" })).toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+  await waitFor(() => expect(screen.getByText("No attendance records found")).toBeInTheDocument());
 });
