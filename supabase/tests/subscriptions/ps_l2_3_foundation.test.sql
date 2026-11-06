@@ -242,7 +242,7 @@ BEGIN
  IF (SELECT count(*) FROM public.subscription_lifecycle_events) <> 1
  THEN RAISE EXCEPTION 'Rejected event left a row'; END IF;
 END $$;
-echo 'PS-L2.3: actual Postgres grants + RLS negative-role checks'
+\echo 'PS-L2.3: actual Postgres grants + RLS negative-role checks'
 DO $$
 BEGIN
  IF has_table_privilege('anon','public.subscription_periods','SELECT')
