@@ -1,0 +1,62 @@
+name: PS-L2.3 Supabase local integration (unapplied proposal)
+
+on:
+  push:
+    branches: [payment-module-finalization]
+    paths:
+      - 'supabase/proposals/subscriptions/ps_l2_3_foundation.sql'
+      - 'supabase/tests/subscriptions/ps_l2_3_supabase_parity.test.sql'
+      - '.github/workflows/subscriptions-ps-l2-3-supabase-local.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  local-supabase-migration-parity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PGHOST: '127.0.0.1'
+      PGPORT: '54322'
+      PGUSER: 'postgres'
+      PGDATABASE: 'postgres'
+      PGPASSWORD: 'postgres'
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Install pinned Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: 3.0.0
+      - name: Verify local-only CLI commands
+        run: |
+          supabase --version
+          supabase db start --help
+          supabase db reset --help
+      - name: Start isolated Supabase database
+        run: supabase db start
+      - name: Replay repository migration history on local database
+        run: supabase db reset
+      - name: Verify actual auth, roles and finance helpers exist
+        run: |
+          psql -X -v ON_ERROR_STOP=1 -c "
+            DO \$\$
+            BEGIN
+              IF to_regclass('auth.users') IS NULL
+                 OR to_regclass('public.player_subscriptions') IS NULL
+                 OR to_regclass('public.payment_dues') IS NULL
+                 OR to_regprocedure('private.can_manage_academy(uuid)') IS NULL
+                 OR to_regprocedure('public.collect_payment(uuid,numeric,text,text,text)') IS NULL
+              THEN
+                RAISE EXCEPTION 'Local migration replay missing Auth, subscription or finance dependency';
+              END IF;
+            END
+            \$\$;"
+      - name: Apply PS-L2.3 proposal ONLY to local database
+        run: psql -X -v ON_ERROR_STOP=1 -f supabase/proposals/subscriptions/ps_l2_3_foundation.sql
+      - name: Assert Supabase auth, RLS, financial schema parity
+        run: psql -X -v ON_ERROR_STOP=1 -f supabase/tests/subscriptions/ps_l2_3_supabase_parity.test.sql
+      - name: Stop disposable local database
+        if: always()
+        run: supabase stop --no-backup || true
