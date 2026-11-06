@@ -146,15 +146,15 @@ test("AM7.3 Next/Previous load only the selected server page and preserve full r
     makeRecord("extra-" + index, "Extra Junior " + index, oldDate))];
   await renderHistory("academy_owner", many);
   expect(screen.getByRole("heading", { name: /Records · 12/ })).toBeInTheDocument();
-  expect(screen.getByText("Showing 1–5 of 12")).toBeInTheDocument();
+  expect(screen.getAllByText("Showing 1–5 of 12")).toHaveLength(2);
   fireEvent.click(screen.getByRole("button", { name: "Next" }));
   await waitFor(() => expect(getAttendanceHistoryPage).toHaveBeenCalledWith(expect.objectContaining({ page: 2 })));
   expect(await screen.findByRole("cell", { name: "Extra Junior 3" })).toBeInTheDocument();
   expect(screen.queryByRole("cell", { name: "Old Junior" })).not.toBeInTheDocument();
-  expect(screen.getByText("Showing 6–10 of 12")).toBeInTheDocument();
+  expect(screen.getAllByText("Showing 6–10 of 12")).toHaveLength(2);
   fireEvent.click(screen.getByRole("button", { name: "Previous" }));
   expect(await screen.findByRole("cell", { name: "Old Junior" })).toBeInTheDocument();
-  expect(screen.getByText("Showing 1–5 of 12")).toBeInTheDocument();
+  expect(screen.getAllByText("Showing 1–5 of 12")).toHaveLength(2);
 });
 
 test("AM7.3 player search matches records not present on first page", async () => {
