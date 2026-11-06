@@ -1,4 +1,4 @@
-name: Subscriptions SM2–SM3 validation
+name: Subscriptions SM2-SM3 validation
 
 on:
   push:
@@ -13,9 +13,7 @@ on:
       - 'frontend/src/components/Sidebar.js'
       - 'frontend/src/components/Sidebar.test.js'
       - 'frontend/src/pages/SubscriptionPlans.js'
-      - 'frontend/src/pages/SubscriptionPlans.css'
       - 'frontend/src/pages/PlayerSubscriptions.js'
-      - 'frontend/src/pages/PlayerSubscriptions.css'
       - '.github/workflows/subscriptions-merge-validation.yml'
   workflow_dispatch:
 
@@ -39,15 +37,14 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
-      - name: Run subscriptions route and sidebar regression tests
+      - name: Run Subscriptions workspace tests
         env:
           CI: 'true'
-        run: npm test -- --watchAll=false --runInBand --testPathPattern='(SubscriptionsWorkspace|SubscriptionsWorkspaceTabs|Sidebar(?:\.accessibility)?)\.test\.js
-      - name: Build React frontend
+        run: npm test -- --watchAll=false --runInBand --testPathPattern=SubscriptionsWorkspace
+      - name: Run Sidebar regression tests
         env:
           CI: 'true'
-        run: npm run build
-
+        run: npm test -- --watchAll=false --runInBand --testPathPattern=Sidebar
       - name: Build React frontend
         env:
           CI: 'true'
