@@ -510,6 +510,12 @@ useEffect(() => {
         )}
 
         <section className="player-subscriptions-filter-bar" aria-label="Subscription scope">
+          {loggedInUser && !isSuperAdmin(loggedInUser) && (
+            <div className="player-subscriptions-scope-academy">
+              <span>Academy</span>
+              <strong>{academies.find((academy) => academy.id === selectedAcademy)?.academy_name || "Academy unavailable"}</strong>
+            </div>
+          )}
           {isSuperAdmin(loggedInUser) && (
             <div className="player-subscriptions-filter-field">
               <label htmlFor="player-subscription-academy">Academy</label>
@@ -567,17 +573,14 @@ useEffect(() => {
           </div>
         </section>
 
-        <section id="player-subscription-form" className="player-subscriptions-form-card">
+        <section id="player-subscription-form" className="player-subscriptions-form-card" aria-labelledby="player-subscription-form-title">
           <div className="player-subscriptions-form-heading">
-            <div>
-              <span className="player-subscriptions-section-label">
-                {isEditing ? "Edit subscription" : "Assign subscription"}
-              </span>
-              <h2>{isEditing ? "Update player subscription" : "Assign a plan to a player"}</h2>
-            </div>
-            {isEditing && (
+            <h2 id="player-subscription-form-title">
+              {isEditing ? "Update player subscription" : "Assign a plan to a player"}
+            </h2>
+            {hasUnsavedSubscription && (
               <button type="button" className="player-subscriptions-secondary-button" onClick={resetAssignmentForm}>
-                Cancel edit
+                {isEditing ? "Cancel edit" : "Clear form"}
               </button>
             )}
           </div>
@@ -678,7 +681,7 @@ useEffect(() => {
             <div className="player-subscriptions-list-title">
               <h2>Subscriptions</h2>
               <span>
-                {visibleSubscriptions.length} shown · {activeCount} active · {inactiveCount} inactive
+                {visibleSubscriptions.length} matching · {activeCount} active · {inactiveCount} inactive
               </span>
             </div>
 

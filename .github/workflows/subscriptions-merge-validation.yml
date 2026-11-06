@@ -14,6 +14,7 @@ on:
       - 'frontend/src/components/Sidebar.test.js'
       - 'frontend/src/pages/SubscriptionPlans.js'
       - 'frontend/src/pages/PlayerSubscriptions.js'
+      - 'frontend/src/pages/PlayerSubscriptions.test.js'
       - '.github/workflows/subscriptions-merge-validation.yml'
   workflow_dispatch:
 
@@ -45,6 +46,10 @@ jobs:
         env:
           CI: 'true'
         run: npm test -- --watchAll=false --runInBand --testPathPattern=Sidebar
+      - name: Run Player Subscriptions PS1 tests
+        env:
+          CI: 'true'
+        run: npm test -- --watchAll=false --runInBand --testPathPattern=PlayerSubscriptions.test.js
       - name: Build React frontend
         env:
           CI: 'true'

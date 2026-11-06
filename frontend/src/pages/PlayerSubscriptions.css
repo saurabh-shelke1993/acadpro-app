@@ -847,3 +847,76 @@
     display: none;
   }
 }
+
+/* PS1 — compact scope and assignment workspace, preserving every existing form field. */
+.player-subscriptions-page .player-subscriptions-filter-bar {
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-bottom: 0.7rem;
+  padding: 0.65rem 0.8rem;
+}
+.player-subscriptions-filter-bar > .player-subscriptions-filter-field {
+  flex: 1 1 190px;
+  min-width: 0;
+}
+.player-subscriptions-scope-academy {
+  display: flex;
+  flex: 1 1 190px;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 0.32rem;
+  padding: 0 0.15rem 0.15rem;
+}
+.player-subscriptions-scope-academy span {
+  color: var(--ap-slate-600);
+  font-size: var(--ap-font-size-xs);
+  font-weight: 700;
+}
+.player-subscriptions-scope-academy strong {
+  color: var(--ap-slate-900);
+  font-size: var(--ap-font-size-sm);
+  font-weight: 750;
+  overflow-wrap: anywhere;
+}
+.player-subscriptions-page .player-subscriptions-form-card {
+  padding: 0.75rem 0.85rem;
+  border-radius: var(--ap-radius-lg);
+}
+.player-subscriptions-page .player-subscriptions-form-heading {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem 0.75rem;
+  padding: 0;
+  border-bottom: 0;
+}
+.player-subscriptions-page .player-subscriptions-form-heading h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+.player-subscriptions-page .player-subscriptions-form-heading .player-subscriptions-secondary-button {
+  margin-left: auto;
+}
+.player-subscriptions-page .player-subscriptions-assignment-grid {
+  gap: 0.65rem;
+  margin-top: 0.7rem;
+}
+.player-subscriptions-page .player-subscriptions-assignment-summary {
+  gap: 0.65rem;
+  margin-top: 0.65rem;
+  padding: 0.55rem 0.65rem;
+}
+.player-subscriptions-page .player-subscriptions-list-section { margin-top: 0.85rem; }
+.player-subscriptions-page .player-subscriptions-list-toolbar { margin-bottom: 0.55rem; }
+@media (max-width: 640px) {
+  .player-subscriptions-page .player-subscriptions-filter-bar > .player-subscriptions-filter-field,
+  .player-subscriptions-page .player-subscriptions-scope-academy {
+    flex-basis: 100%;
+  }
+  .player-subscriptions-page .player-subscriptions-form-heading h2 {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}
