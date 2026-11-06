@@ -1,6 +1,6 @@
 # AcadPro Architecture
 
-**Last Updated:** 6 November 2026 (PS-L2.3 isolated source candidate, not live; Owner-approved camp pricing)
+**Last Updated:** 6 November 2026 (PS-L2.3 local Supabase replay gap; no live deployment)
 **Current Branch:** `payment-module-finalization`
 
 ## 1. Platform
@@ -199,6 +199,10 @@ The import layer includes:
 - Import summary for imported players and parent reuse/creation
 
 No database writes occur during parsing or validation/preview.
+
+### PS-L2.3 staging-readiness limitation: historic migrations cannot replay cleanly (6 November 2026)
+
+A separate Supabase CLI v3.0.0 local-only workflow was added; **three attempts stopped in existing historical migrations** before the PS-L2.3 candidate could be applied. The original repo migration snapshot omits a self-contained `private` authorization helper baseline, and later payment-correction policies reference absent definitions. A limited CI-only reconstruction was insufficient; this is not a successful Supabase Auth/RLS/financial-trigger compatibility test. The synthetic PostgreSQL candidate test still passes. Reconcile migration lineage against the actual live function/policy schema before further staging or live DDL. Report: `PLAYER_SUBSCRIPTIONS_PS_L2_3_LOCAL_REPLAY_GAP_20261106.md`.
 
 ### PS-L2.3 regular tuition schema candidate (in repo, NOT applied)
 

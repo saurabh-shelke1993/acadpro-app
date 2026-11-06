@@ -6,6 +6,10 @@
 **CI:** [PS-L2.3 disposable PostgreSQL validation — PASS](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42195789707)
 **State:** **Candidate written and tested on disposable PostgreSQL 17. NOT APPLIED to live Supabase.** No subscription renewal/financial lifecycle feature or camp module is operational.
 
+### Subsequent Supabase local replay result (6 November 2026)
+
+A second validation workflow now tests the **actual tracked migration chain** with Supabase CLI v3.0.0. It is **BLOCKED before the PS-L2.3 proposal executes**: repository migrations lack a complete `private` security-helper baseline. Local run [42204705752](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42204705752) failed in historic payment foundation; two earlier runs exposed missing schema/parent-column prerequisites. **Therefore the earlier synthetic PostgreSQL PASS must not be interpreted as actual Supabase RLS/finance compatibility.** Full report: `PLAYER_SUBSCRIPTIONS_PS_L2_3_LOCAL_REPLAY_GAP_20261106.md`.
+
 ## 1. Owner-approved camp pricing (separate future product module)
 
 For **each individual special camp**, the Academy Owner can select exactly one of three pricing modes:

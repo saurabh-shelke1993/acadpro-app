@@ -1,8 +1,14 @@
 # AcadPro Project Status
 
-**Last Updated:** 6 November 2026 (PS-L2.3 unapplied SQL candidate and disposable Postgres CI; Owner camp pricing approved)
+**Last Updated:** 6 November 2026 (PS-L2.3 local Supabase migration replay blocked; prior synthetic CI passed)
 **Current Version:** V1.0 Beta (development; not release sign-off)  
 **Current Git Branch:** `payment-module-finalization`
+
+## Latest PS-L2.3 staging-readiness gate — BLOCKED by incomplete historical migration replay (6 November 2026)
+
+**Implemented:** Local-only Supabase CLI CI workflow and test-only authorization bootstrap/parity script; no production migrations or app code changed. [Local replay run 42204705752](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42204705752) **FAIL** before installing proposed PS-L2.3 schema: historic `private` authorization helpers are absent from repository's self-contained baseline; the earlier two runs exposed missing `private` schema and parent-column ordering. These private helpers exist in the live project but their migration lineage is incomplete in Git. **Do not mark real Supabase integration validated.**
+
+**Still passed:** Synthetic PostgreSQL 17 candidate suite [run 42195789707](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42195789707). **Still pending:** PS-L2.3B historical migration baseline reconstruction, authentic Supabase RLS/trigger/tenant tests and separate Owner sign-off for any live migration. No hosted database modifications. Full blocker record: `PLAYER_SUBSCRIPTIONS_PS_L2_3_LOCAL_REPLAY_GAP_20261106.md`.
 
 ## Latest implementation checkpoint — PS-L2.3 isolated tuition schema candidate (6 November 2026)
 
