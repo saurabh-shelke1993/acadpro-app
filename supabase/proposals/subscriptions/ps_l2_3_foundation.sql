@@ -43,6 +43,9 @@ ALTER TABLE public.player_subscriptions
   ADD COLUMN activated_by uuid REFERENCES public.users(id) ON DELETE RESTRICT,
   ADD COLUMN activated_at timestamptz;
 
+ALTER TABLE public.player_subscriptions
+  ADD CONSTRAINT ps_l2_3_agreement_academy_identity UNIQUE (id, academy_id);
+
 -- Write-lock new contract metadata until an audited activation RPC is built.
 -- Existing create/edit/deactivate forms still work on their original columns.
 CREATE FUNCTION private.ps_l2_3_guard_contract_metadata()
@@ -138,6 +141,7 @@ CREATE TABLE public.subscription_periods (
   UNIQUE (agreement_id,period_sequence),
   UNIQUE (agreement_id,period_start),
   UNIQUE (id,agreement_id,player_id),
+  UNIQUE (id,agreement_id,academy_id),
   -- CRITICAL: exclusion covers two different agreement IDs for the same
   -- academy/player, not just overlaps within one agreement.
   CONSTRAINT ps_l2_3_no_concurrent_regular_tuition
@@ -220,6 +224,12 @@ CREATE TABLE public.subscription_lifecycle_events (
   after_snapshot jsonb NOT NULL DEFAULT '{}'::jsonb,
   verified_frozen_paid_days integer CHECK (verified_frozen_paid_days >= 0),
   authorization_evidence jsonb NOT NULL DEFAULT '{}'::jsonb,
+  CONSTRAINT ps_l2_3_event_agreement_scope_fk
+    FOREIGN KEY (agreement_id,academy_id)
+    REFERENCES public.player_subscriptions(id,academy_id) ON DELETE RESTRICT,
+  CONSTRAINT ps_l2_3_event_period_scope_fk
+    FOREIGN KEY (period_id,agreement_id,academy_id)
+    REFERENCES public.subscription_periods(id,agreement_id,academy_id) ON DELETE RESTRICT,
   UNIQUE (academy_id,idempotency_key)
 );
 

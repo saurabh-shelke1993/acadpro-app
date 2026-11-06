@@ -208,7 +208,42 @@ BEGIN
  END;
 END $$;
 
-\echo 'PS-L2.3: actual Postgres grants + RLS negative-role checks'
+\
+\echo 'PS-L2.3: event academy and period/contract scope'
+DO $$
+BEGIN
+ BEGIN
+  INSERT INTO public.subscription_lifecycle_events (
+    academy_id,agreement_id,period_id,event_type,idempotency_key,
+    actor_kind,reason
+  ) VALUES (
+    'a0000000-0000-4000-8000-000000000002',
+    '40000000-0000-4000-8000-000000000001',
+    '70000000-0000-4000-8000-000000000001',
+    'renew','90000000-0000-4000-8000-000000000008',
+    'academy_owner','Attempt forged academy in lifecycle event'
+  );
+  RAISE EXCEPTION 'Cross-academy lifecycle event accepted';
+ EXCEPTION WHEN foreign_key_violation THEN NULL;
+ END;
+ BEGIN
+  INSERT INTO public.subscription_lifecycle_events (
+    academy_id,agreement_id,period_id,event_type,idempotency_key,
+    actor_kind,reason
+  ) VALUES (
+    'a0000000-0000-4000-8000-000000000001',
+    '40000000-0000-4000-8000-000000000002',
+    '70000000-0000-4000-8000-000000000001',
+    'renew','90000000-0000-4000-8000-000000000009',
+    'academy_owner','Attempt wrong contract period link'
+  );
+  RAISE EXCEPTION 'Wrong agreement for lifecycle period accepted';
+ EXCEPTION WHEN foreign_key_violation THEN NULL;
+ END;
+ IF (SELECT count(*) FROM public.subscription_lifecycle_events) <> 1
+ THEN RAISE EXCEPTION 'Rejected event left a row'; END IF;
+END $$;
+echo 'PS-L2.3: actual Postgres grants + RLS negative-role checks'
 DO $$
 BEGIN
  IF has_table_privilege('anon','public.subscription_periods','SELECT')
