@@ -1,9 +1,9 @@
-# Kheltriva — Player Subscription Lifecycle Contract v1.2
+# Kheltriva — Player Subscription Lifecycle Contract v1.3
 
 **Date:** 6 November 2026  
 **Latest decision:** Original recurring price locked for existing subscribers until explicit Academy Owner approval of a future-only change. **PS-L1 pure date calculator implemented and focused-CI validated**. PS-L0B Owner row-level activation decisions pending.  
 **Branch inspected:** `payment-module-finalization` at `cdd029deba64334aebf2c7db2d0cbd4d2fce0014`  
-**Status:** Six product requirements and locked-price policy approved. **PS-L1 calculation utility implemented in source, 86/86 focused tests passed; no UI integration yet.** No SQL migration, database records, scheduler, RLS policy, subscription write operation or payment behavior changed in PS-L1.
+**Status:** Lifecycle/locked-price and both monthly billing alignments approved. PS-L1 date calculator and PS-L1P1 pure proration calculator implemented and focused-tested; no academy setting, form, period ledger, due or payment integration. No SQL migration, data change, RLS or scheduler activation.
 
 ## 1. Approved product decisions
 
@@ -24,11 +24,19 @@
 - On an approved vacation extension or pause/resume, delay the next renewal to one day after the **revised effective end** and **rebase the future anniversary** to that actual next start; never silently backdate billing.
 - **PS-L1 IMPLEMENTED:** Pure `frontend/src/utils/subscriptionLifecycleDates.js` date-only helper with **86 passing Jest tests**, covering Feb 29, month-end 29/30/31, short months, year transitions, 1/3/6/12-month cycles, continuous anniversary preservation, vacation extension, verified paid-day pause and resumed anniversary rebasing. Not yet imported into subscription forms or renewal/payment services. See `PLAYER_SUBSCRIPTIONS_PS_L1_CALCULATOR_20261106.md`.
 
-## 2A. PS-L1P mid-cycle proration proposal (not yet approved)
+## 2A. Approved PS-L1P alignment + implemented pure proration (not integrated)
+
+**Approved by Owner (6 November 2026):** Support **both fixed-calendar-month and anniversary-month monthly billing**, configurable by academy. For a first partial fixed calendar month, tuition is eligible for proration. Anniversary-based periods cover a full rolling month and do not automatically prorate. Future full renewals use the original locked agreed amount.
+
+**Implemented in PS-L1P1:** Pure `frontend/src/utils/subscriptionProration.js` handles inclusive calendar-day and actual scheduled-session calculations with strict ISO dates, trusted-input assumptions, enrollment windows, optional session exclusions, and half-up rounding in integer paise. A fixed-month quote **requires explicit method selection**; academy-wide default proration method is **not yet approved**. The utility returns an advisory `requiresReview` flag if no eligible sessions remain and never generates a due.
+
+**Automated validated:** 61 new tests + 86 prior PS-L1 + 45 Subscriptions/Sidebar = **192/192 focused tests, production React build PASS** at `00eb8d3`, [CI run 42167075145](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42167075145). **No UI integration, academy setting storage, schedule authorization service, schema migration or financial record modification.** See `PLAYER_SUBSCRIPTIONS_PS_L1P1_PRORATION_20261106.md`.
+
+### Previous proposal and accounting examples
 
 The Owner requested reduced charges for a child joining mid-January, ideally based on the actual Mon/Wed/Fri sessions remaining. This request requires an explicit alignment decision: the existing PS-L1 rolling anniversary month 15 Jan–14 Feb is a full monthly entitlement, but a **fixed calendar-month** first period 15–31 Jan can be prorated. Two future calculations are proposed: actual authorized **scheduled sessions** remaining / actual sessions in the full calendar month (preferred for coaching), or inclusive eligible **calendar days** / full calendar days. Count distinct schedule occurrences, not assumed 12/month or attendance marks. At INR 1,500 in January 2027 Mon/Wed/Fri there are 13 sessions, seven from January 15: INR 807.69. Calendar days: 17/31 = INR 822.58. Only an initial partial period should be discounted; later full periods renew at the agreed locked price.
 
-**Status:** Proposed, NOT implemented or approved as billing policy. No holiday/cancellation schedule ledger exists. Do not create dues, change PS-L1 approved anniversary logic or migrate any database until the Owner confirms billing alignment. Detailed proposal: `PLAYER_SUBSCRIPTIONS_PRORATION_PROPOSAL_20261106.md`.
+**Updated status:** Both monthly billing alignments approved; pure calculator implemented and tested. **Not approved:** academy-wide default proration method or holiday/cancellation data policy. No holiday ledger, UI, dues or migrations. Do not change existing PS-L1 anniversary behavior. Detailed proposal: `PLAYER_SUBSCRIPTIONS_PRORATION_PROPOSAL_20261106.md`.
 
 ## 3. Domain model proposed for later migration (not implemented)
 
@@ -100,8 +108,9 @@ The Owner requested reduced charges for a child joining mid-January, ideally bas
 - [x] Reconciliation risks identified at aggregate level
 - [x] Per-subscription pseudonymized **read-only** reconciliation matrix created; **Owner activation/price/paid-through decisions outstanding**
 - [x] **PS-L1 source and unit tests passed** (86/86); **real browser/ledger integration not implemented**
+- [x] PS-L1P1 pure first-period proration calculator (61 passing tests), not integrated into billing
 - [ ] Database schema/security migration reviewed and approved
 - [ ] Automated renewal/billing code and scheduler created
 - [ ] Manual browser/role/tenant regression and production sign-off
 
-**End of contract. The pure PS-L1 calculator is implemented and tested; all lifecycle database/UI/renewal features remain planned, not deployed.**
+**End of contract. PS-L1 and PS-L1P1 are pure implemented/tested helpers. Academy settings, lifecycle UI/database and automatic billing are still planned, not deployed.**

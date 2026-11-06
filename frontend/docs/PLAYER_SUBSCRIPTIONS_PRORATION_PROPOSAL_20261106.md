@@ -2,7 +2,7 @@
 
 **Date:** 6 November 2026  
 **Source branch inspected:** `payment-module-finalization` at `ce2b51080e8d8d14a5d52c6224add9023ba94f4c`  
-**State:** **Design proposal only — billing-alignment decision pending.** No proration code, due generation, UI, table, migration or existing finance record was changed.
+**State:** Billing alignment APPROVED; PS-L1P1 pure calculator implemented and focused-tested. No live UI, academy setting, database migration, payment due or data change.
 
 ## 1. Incoming requirement
 
@@ -53,19 +53,17 @@ If a particular authorized batch has multiple sessions on a weekday, count each 
 | Phase | Work | Approval / safety gate |
 |---|---|---|
 | PS-L1P0 — Design | Compare fixed-calendar vs anniversary model, actual session denominator, cancellation policies, locked price | **Inspected and documented; essential billing policy not yet approved** |
-| PS-L1P1 — Pure proration utility | Unit-tested calendar-day and session-count calculations; weekday/period/leap/year-boundary cases, rounding, null/zero schedule, enrollment validation | No SQL/UI/billing writes |
+| PS-L1P1 — Pure proration utility | **Implemented:** calendar-day/session calculations, enrollment, exclusions, rounding and validation | **61/61 tests PASS, no SQL/UI/billing writes** |
 | PS-L1P2 — Owner preview | First-month quote shows Start/End, nominal rate, sessions/days total and eligible, discount and first-period fee; no automatic charge | Requires fixed-cycle and proration-method decision |
 | PS-L2 — Model design | Proposed optional billing alignment, initial method, immutable period amount and basis, schedule snapshot, due linkage, adjustment audit and RLS | **Review-only migration design**; none applied |
 | Later PS-L3/PS-L4 | Persist first period through an authorized transaction, create exactly one due, renew at full locked rate | Reconciliation + owner acceptance + RBAC/financial regression + idempotency |
 
-## 5. Owner decision REQUIRED before active billing implementation
+## 5. Owner decision recorded — 6 November 2026
 
-**Which monthly billing model should Kheltriva support?**
+**Approved:** Both fixed-calendar-month and anniversary-based monthly billing will be configurable by academy. Fixed-calendar mid-month admissions may be prorated; anniversary months retain the full rolling-month charge.
 
-1. **Fixed calendar month**: Player joins 15 January, initial period 15–31 January is prorated; full monthly renewal is 1 February. **Recommended for the requested use case.**
-2. **Anniversary month**: Player joins 15 January, period 15 January–14 February is a full month, with no admission proration.
-3. **Both, academy-configurable**: Academy chooses one alignment policy; fixed-period academies offer configured day/session proration and anniversary academies use full rolling monthly entitlement. **Recommended platform flexibility once policy is approved.**
+**PS-L1P1 implemented:** `frontend/src/utils/subscriptionProration.js` and `subscriptionProration.test.js`; explicit method `calendar_days` or `scheduled_sessions` is required for a fixed-calendar quote. This is a calculation library, **not a saved academy configuration or financial workflow**.
 
-Proposed default for a fixed-period academy: use **scheduled-session proration** with Owner-visible preview and the option to select calendar-day calculation as a distinct transparent pricing policy. Do not silently switch between methods or store a discounted rate as the contracted full recurring price.
+**CI:** [Run 42167075145](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42167075145) at `00eb8d3` — 61 new tests, 192/192 total targeted tests and React production build passed. See `PLAYER_SUBSCRIPTIONS_PS_L1P1_PRORATION_20261106.md`.
 
-**Current status:** No product approval of the new billing-mode policy recorded. No PS-L1P calculator, UI preview, due write, RLS/migration, scheduler or financial record modifications performed.
+**Still pending:** Academy-wide method/default, holiday policy, preview UI, authorized schedule/price snapshot, financial ledger/RLS migration and any due generation. No billing or database data changed.

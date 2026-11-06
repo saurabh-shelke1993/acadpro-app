@@ -7,6 +7,13 @@
 **Original branch baseline (before this file was created):** `0bfc71099ed14cdada08022320a72c378e9da5f7`. Subsequent CMA commits exist; recheck current branch HEAD before development.  
 **Purpose:** Stable, handoff-friendly checkpoint between ChatGPT conversations. This document is NOT a substitute for inspecting live code, the current database, or current tests.
 
+## Latest implementation checkpoint — Player Subscriptions PS-L1P1 (6 November 2026)
+
+- **Owner approved:** Both fixed-calendar-month and anniversary-based monthly billing as academy configuration policies; initial partial fixed month may be prorated. **Method/default remains undecided**, so the new pure helper requires explicit calendar-day or scheduled-session selection for fixed-month quotes.
+- **Source:** `frontend/src/utils/subscriptionProration.js` and 61 Jest tests. Actual session occurrences, player enrollment dates, optional exact exclusions, leap/month bounds and integer-paise rounding. At ₹1,500, Jan 15 2027 M/W/F: 7/13 → ₹807.69; day method 17/31 → ₹822.58; anniversary through Feb 14 → ₹1,500.
+- **Validation:** [Subscriptions CI 42167075145](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42167075145) at `00eb8d3` — 61/61 PS-L1P1 + 86/86 PS-L1 + 45/45 existing = **192/192 targeted tests, React build PASS**. Full app Jest still 16 unrelated failures/479 tests (Coach Profile/Player Performance).
+- **Not implemented:** academy settings, UI, RLS/schema, contracted-price or session snapshot persistence, payment dues, scheduler, any SQL or business-data writes. Legacy PS-L0B Owner reconciliation remains pending. Next PS-L1P2 read-only preview specification and PS-L2 migration **design only**. See `frontend/docs/PLAYER_SUBSCRIPTIONS_PS_L1P1_PRORATION_20261106.md`.
+
 ## Latest planning checkpoint — Player Subscription PS-L1P mid-month proration (6 November 2026)
 
 - **New requested scope:** Mid-January admissions should not pay a full fixed-calendar-month tuition where fewer scheduled sessions remain. Discussed two proration modes: calendar days or actual authorized scheduled Mon/Wed/Fri sessions. **Existing PS-L1 is anniversary-based**, so fixed-month vs rolling-month billing policy must be resolved first.

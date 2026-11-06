@@ -1,6 +1,6 @@
 # AcadPro Architecture
 
-**Last Updated:** 6 November 2026 (PS-L1P proration design; other sections historical)
+**Last Updated:** 6 November 2026 (PS-L1P1 calculator CI checkpoint; other sections historical)
 **Current Branch:** `payment-module-finalization`
 
 ## 1. Platform
@@ -31,6 +31,13 @@ Parent linkage is represented by `players.parent_id → parents.id`. Parent auth
 - Parent: `/parent-portal`
 
 The Parent Portal is protected by a parent-only route guard. Supabase Auth handles authentication; role and academy information is stored in `public.users`.
+
+### Implemented PS-L1P1 pure monthly proration (no UI/data integration)
+
+- `frontend/src/utils/subscriptionProration.js` reuses the PS-L1 date helper, pure and independent of React, Supabase or network. Inputs: explicit academy alignment, joining date and contracted integer-paise amount; fixed-calendar billing **requires explicit** day/session method selection. Anniversary billing yields a full rolling month at full locked rate.
+- The fixed-month day method uses inclusive join-through-month-end days / inclusive month days. The session method counts **occurrences** of each assigned schedule ID on its ISO weekday, intersecting actual player enrollment windows and optionally excluding exact approved sessions. Multiple slots on one day are separate; no attendance-based discounts. No holiday/cancellation table exists in the database yet.
+- The first prorated fee is separate from the original locked recurring price. BigInt intermediate arithmetic and half-up rounding give exact integer paise; `requiresReview` flags no remaining eligible sessions. No quote constitutes authorization, approval or due creation; future server-side tenant/schedule/price validation required.
+- Focused CI at `00eb8d3` **192/192 tests + production React build PASS** (61 new proration tests). Academy-settings storage, period ledger, RLS and idempotent due linkage **not implemented**; PS-L2 design only. See `PLAYER_SUBSCRIPTIONS_PS_L1P1_PRORATION_20261106.md`.
 
 ### Proposed PS-L1P first-month proration (design only)
 

@@ -1,8 +1,18 @@
 # AcadPro Project Status
 
-**Last Updated:** 6 November 2026 (PS-L1P proration proposal; older sections retain historical dates)
+**Last Updated:** 6 November 2026 (PS-L1P1 calculator CI checkpoint; older sections retain historical dates)
 **Current Version:** V1.0 Beta (development; not release sign-off)  
 **Current Git Branch:** `payment-module-finalization`
+
+## Latest implementation checkpoint — PS-L1P1 pure monthly proration calculator (6 November 2026)
+
+**Owner-approved product rule:** Both `fixed_calendar_month` and `anniversary_month` billing models, to be configured by academy. First partial fixed-calendar periods may use proration; anniversary-based periods retain full rolling-month entitlement. Fixed-month method is explicit per quote; no default method/holiday policy finalized.
+
+**Implemented source:** New pure `subscriptionProration.js` and 61 Jest tests. Integer-paise half-up pricing; inclusive day ratio or actual scheduled-session ratio using ISO weekdays, distinct session IDs, player enrollment dates and optional approved exclusions. Zero eligible sessions produces review flag, **not** automatic billing. Full recurring contracted price remains separate from the initial prorated fee.
+
+**Focused CI validated:** [Run 42167075145](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42167075145) at `00eb8d3`: **61/61 new + 86/86 lifecycle + 45/45 Subscriptions regressions = 192/192 tests; React production build PASS.** Full application [run 42167075109](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42167075109) still **FAIL 16/479** in unrelated Coach Profile/Player Performance suites.
+
+**Boundary:** No academy configuration, quote UI, period price snapshot, Supabase schema/RLS, payment due, scheduler or financial data write. 22 legacy subscription records remain held for PS-L0B Owner reconciliation. Next phase PS-L1P2 preview/data-scope design and PS-L2 proposal-only billing schema. Handoff: `PLAYER_SUBSCRIPTIONS_PS_L1P1_PRORATION_20261106.md`.
 
 ## Latest planning checkpoint — PS-L1P mid-cycle proration design (6 November 2026)
 
