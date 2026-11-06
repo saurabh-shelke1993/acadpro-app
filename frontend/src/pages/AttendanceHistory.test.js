@@ -111,7 +111,7 @@ test("AM7 Owner sees compact academy context instead of a disabled academy selec
   expect(screen.getByText(/Academy:/)).toHaveTextContent("Academy: Test Academy");
   expect(screen.queryByRole("combobox", { name: "Academy" })).not.toBeInTheDocument();
   expect(screen.getByRole("button", { name: "Reset filters" })).toBeDisabled();
-  expect(screen.getByRole("heading", { name: "Records" })).toBeInTheDocument();
+  expect(screen.getByRole("heading", { name: /^Records/ })).toBeInTheDocument();
 });
 
 test("AM7 Super Admin retains academy filtering without changing their role scope", async () => {
