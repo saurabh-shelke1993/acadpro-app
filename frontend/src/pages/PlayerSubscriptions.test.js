@@ -78,3 +78,15 @@ test("PS1 Super Admin keeps Academy selector and original filters", async () => 
   expect(screen.getByRole("combobox", { name: "Status" })).toHaveValue("active");
   expect(screen.getByText(/matching/)).toBeInTheDocument();
 });
+
+test("PS-L1P2 preview is read-only when a player and monthly plan are selected", async () => {
+  render(<PlayerSubscriptions />);
+  await screen.findByText("Test Academy");
+  await waitFor(() => expect(screen.getByLabelText("Player").querySelector('option[value="player-1"]')).not.toBeNull());
+  fireEvent.change(screen.getByLabelText("Player"), { target: { value: "player-1" } });
+  fireEvent.change(screen.getByLabelText("Plan"), { target: { value: "plan-1" } });
+  expect(screen.getByRole("region",{name:"First-period fee preview"})).toBeInTheDocument();
+  expect(screen.getByText(/Create subscription will not save this discount/)).toBeInTheDocument();
+  expect(screen.getByRole("button",{name:"Create subscription"})).toBeInTheDocument();
+  expect(supabase.from).not.toHaveBeenCalledWith("payment_dues");
+});

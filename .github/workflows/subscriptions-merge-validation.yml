@@ -15,6 +15,9 @@ on:
       - 'frontend/src/pages/SubscriptionPlans.js'
       - 'frontend/src/pages/PlayerSubscriptions.js'
       - 'frontend/src/pages/PlayerSubscriptions.test.js'
+      - 'frontend/src/components/SubscriptionFeePreview.js'
+      - 'frontend/src/components/SubscriptionFeePreview.css'
+      - 'frontend/src/components/SubscriptionFeePreview.test.js'
       - 'frontend/src/utils/subscriptionLifecycleDates.js'
       - 'frontend/src/utils/subscriptionLifecycleDates.test.js'
       - 'frontend/src/utils/subscriptionProration.js'
@@ -62,6 +65,10 @@ jobs:
         env:
           CI: 'true'
         run: npm test -- --watchAll=false --runInBand --testPathPattern=subscriptionProration.test.js
+      - name: Run PS-L1P2 read-only quote preview tests
+        env:
+          CI: 'true'
+        run: npm test -- --watchAll=false --runInBand --testPathPattern=SubscriptionFeePreview.test.js
       - name: Build React frontend
         env:
           CI: 'true'

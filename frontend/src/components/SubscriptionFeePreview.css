@@ -1,0 +1,50 @@
+.subscription-fee-preview {
+  margin: .7rem 0 .85rem;
+  padding: .75rem .85rem;
+  border: 1px solid var(--ap-border);
+  border-radius: var(--ap-radius-lg);
+  background: var(--ap-slate-50);
+  color: var(--ap-slate-800);
+}
+.subscription-fee-preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .4rem;
+}
+.subscription-fee-preview-header h3 { margin: 0; font-size: .92rem; color: var(--ap-slate-950); }
+.subscription-fee-preview-header span { font-size: .72rem; color: var(--ap-slate-600); font-weight: 750; }
+.subscription-fee-preview p { font-size: .78rem; line-height: 1.45; margin: .5rem 0; }
+.subscription-fee-preview-warning { color: var(--ap-slate-800); }
+.subscription-fee-preview-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .65rem;
+  margin-top: .65rem;
+}
+.subscription-fee-preview-controls label { display: block; margin-bottom: .28rem; font-size: .75rem; font-weight: 750; }
+.subscription-fee-preview-controls select {
+  width: 100%; min-height: var(--ap-control-standard-height);
+  border: 1px solid var(--ap-border); border-radius: var(--ap-radius-md);
+  padding: .4rem .6rem; background: var(--ap-surface); color: var(--ap-slate-900); font: inherit; font-size: .8rem;
+}
+.subscription-fee-preview-controls select:focus-visible { outline: 3px solid var(--ap-primary-600); outline-offset: 2px; }
+.subscription-fee-preview-metrics {
+  display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: .7rem; margin: .75rem 0 0;
+}
+.subscription-fee-preview-metrics > div { min-width: 0; }
+.subscription-fee-preview-metrics dt { color: var(--ap-slate-600); font-size: .73rem; }
+.subscription-fee-preview-metrics dd {
+  margin: .2rem 0 0; color: var(--ap-slate-950); font-size: .86rem; font-weight: 750; overflow-wrap: anywhere;
+}
+.subscription-fee-preview-total dd { color: var(--ap-primary-700); }
+.subscription-fee-preview-note { color: var(--ap-slate-600); }
+@media (max-width: 700px) {
+  .subscription-fee-preview-controls { grid-template-columns: 1fr; }
+  .subscription-fee-preview-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+@media (max-width: 400px) {
+  .subscription-fee-preview { padding: .65rem; }
+  .subscription-fee-preview-metrics { grid-template-columns: 1fr; }
+}

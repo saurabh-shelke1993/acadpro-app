@@ -1,6 +1,7 @@
 import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import Layout from "../components/Layout";
 import SubscriptionsWorkspaceTabs from "../components/SubscriptionsWorkspaceTabs";
+import SubscriptionFeePreview from "../components/SubscriptionFeePreview";
 import "./PlayerSubscriptions.css";
 import { supabase } from "../services/supabase";
 import { getLoggedInUser, isSuperAdmin, getAcademyId } from "../utils/auth";
@@ -675,6 +676,16 @@ useEffect(() => {
             </div>
           )}
         </section>
+
+        {!isEditing && selectedPlayerRecord && selectedPlanRecord && startDate &&
+          selectedPlanRecord.billing_cycle === "monthly" && (
+            <SubscriptionFeePreview
+              key={selectedPlayer + ":" + selectedPlan + ":" + selectedAcademy}
+              player={selectedPlayerRecord}
+              plan={selectedPlanRecord}
+              joinDate={startDate}
+            />
+          )}
 
         <section className="player-subscriptions-list-section">
           <div className="player-subscriptions-list-toolbar">
