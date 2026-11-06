@@ -1,4 +1,4 @@
-# Kheltriva — Player Subscription Lifecycle Contract v1.5
+# Kheltriva — Player Subscription Lifecycle Contract v1.6
 
 **Date:** 6 November 2026  
 **Latest decision:** Original recurring price locked for existing subscribers until explicit Academy Owner approval of a future-only change. **PS-L1 pure date calculator implemented and focused-CI validated**. PS-L0B Owner row-level activation decisions pending.  
@@ -50,6 +50,12 @@ The Owner requested reduced charges for a child joining mid-January, ideally bas
 Verified live Postgres schema, grants, RLS and financial/UPI dependencies. Recommended durable existing subscription agreement -> proposed period ledger -> one linked new tuition due per period; snapshot original contracted rate separately from first prorated amount; immutable Owner lifecycle events; and academy-configurable alignment/settings. For an existing Active subscription, **Renew**, not Create, is the intended future action.
 
 Current subscription->due and due->payment FK deletion is CASCADE. Grants are broader than RLS use, including TRUNCATE, and must be reviewed before new billing. Prior PS-L0B showed 4 mismatched academy plans; fresh read-only SQL shows 3, so legacy audit must be rerun. **No migration or actual financial lifecycle behavior was implemented.** See PLAYER_SUBSCRIPTIONS_PS_L2_1_ARCHITECTURE_REVIEW_20261106.md.
+
+### PS-L2.2 detailed security/transaction proposal (NOT approved or applied)
+
+A separately reviewed design specifies versioned academy billing policies, frozen contracted recurring paise and legacy HOLD on stable agreements, dated priced periods and append-only events, and nullable period-linked future tuition dues protected by database uniqueness. A single authenticated/authorized database transaction would lock the agreement, verify player/plan/tenant/date/rate, create one period and one pending due, then append a non-rewriteable idempotent audit event. Pauses/resumes/free extensions and repricing have separate guarded future workflows. Existing dues/payments/receipts and legacy history remain untouched.
+
+Future financial RLS/GRANT permissions, current TRUNCATE and ON DELETE CASCADE risks, 4 dual-Active player groups, current 3 academy mismatches and legacy Owner paid-through evidence are mandatory gates. **No schema, payment, UI or scheduler implementation yet.** Full proposal: `PLAYER_SUBSCRIPTIONS_PS_L2_2_SCHEMA_SECURITY_TRANSACTIONS_20261106.md`.
 
 ## 3. Domain model proposed for later migration (not implemented)
 

@@ -1,8 +1,14 @@
 # AcadPro Project Status
 
-**Last Updated:** 6 November 2026 (PS-L2.1 design-only lifecycle architecture review; older sections retain historical dates)
+**Last Updated:** 6 November 2026 (PS-L2.2 detailed design proposal; older sections retain historical dates)
 **Current Version:** V1.0 Beta (development; not release sign-off)  
 **Current Git Branch:** `payment-module-finalization`
+
+## Latest design checkpoint — PS-L2.2 schema, RLS, atomic billing proposal (6 November 2026)
+
+**Proposed only:** Field-level academy policy, agreement rate/HOLD, subscription periods, append-only events and nullable per-period due link. Documented UNIQUE/index/overlap rules; role-specific RLS plus GRANT matrix; guarded PostgreSQL Create/Renew/Extend/Pause/Resume/Reprice transaction with row locking, exact paise and idempotency; cascade and TRUNCATE hardening, non-destructive rollback and isolated testing plan.
+
+**Actual state:** No database DDL, migration, RLS changes, RPC/React writes or generated dues. No runtime tests for this design-only task. 22 legacy records still require Owner reconciliation. PS-L1P2 preview and historical dues unchanged. **Next:** Owner design/policy sign-off before PS-L2.3 unapplied migration candidate. See `PLAYER_SUBSCRIPTIONS_PS_L2_2_SCHEMA_SECURITY_TRANSACTIONS_20261106.md`.
 
 ## Latest architecture checkpoint — PS-L2.1 reviewed (6 November 2026)
 

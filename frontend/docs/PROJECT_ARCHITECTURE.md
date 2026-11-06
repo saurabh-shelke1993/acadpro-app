@@ -1,6 +1,6 @@
 # AcadPro Architecture
 
-**Last Updated:** 6 November 2026 (PS-L2.1 design-only architecture review; other sections historical)
+**Last Updated:** 6 November 2026 (PS-L2.2 detailed design, unapplied; other sections historical)
 **Current Branch:** `payment-module-finalization`
 
 ## 1. Platform
@@ -199,6 +199,10 @@ The import layer includes:
 - Import summary for imported players and parent reuse/creation
 
 No database writes occur during parsing or validation/preview.
+
+### PS-L2.2 detailed proposed lifecycle schema/security (NOT implemented)
+
+Detailed column/constraints and permission contract is in `PLAYER_SUBSCRIPTIONS_PS_L2_2_SCHEMA_SECURITY_TRANSACTIONS_20261106.md`: versioned academy billing policy; additive locked-rate and legacy-HOLD agreement columns; inclusive subscription_periods with exact paise rate/charge and proration evidence; append-only lifecycle events; nullable new-dues period FK and one-due-per-period uniqueness. A future guarded single-database transaction validates role/tenant, locks agreement, generates period+due+audit atomically, and returns existing results on identical retry. Separate financial cascade/GRANT hardening and Coach read-policy mismatch remain pending. **No schema migration or subscription/payment code changed.**
 
 ### PS-L2.1 proposed subscription lifecycle architecture (NOT implemented)
 
