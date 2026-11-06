@@ -1,8 +1,18 @@
 # AcadPro Project Status
 
-**Last Updated:** 6 November 2026 (PS-L1P1 calculator CI checkpoint; older sections retain historical dates)
+**Last Updated:** 6 November 2026 (PS-L1P2 preview UI and focused CI; older sections retain historical dates)
 **Current Version:** V1.0 Beta (development; not release sign-off)  
 **Current Git Branch:** `payment-module-finalization`
+
+## Latest implementation checkpoint — PS-L1P2 read-only fee preview (6 November 2026)
+
+**Implemented:** First-period fee preview for a selected player and monthly plan on the management **Player Subscriptions** page, using a separate `SubscriptionFeePreview.js` component. The Owner/Super Admin must explicitly choose the preview-only monthly model (fixed calendar or anniversary). Fixed-month previews require an explicit method (scheduled training sessions or calendar days). Displays first-period dates, next renewal date, source recurring Plan.amount, ratio, discount and estimated first-period amount. Responsive CSS and accessible form labels added.
+
+**Read-only behavior:** Existing `getPlayerScheduleEnrollments` provides academy/player/batch-scoped active training schedules and enrollment dates; the preview further checks active flags and tenant/batch/center consistency and fails closed if no suitable assignments. Player/plan academy mismatch blocks calculation. No holidays/cancellations are excluded. The page explicitly warns that **Create subscription does not save calculated end dates, billing model, discount or dues**. Original subscription create/edit/deactivate, duplicate-active prevention, seven-per-page listing and financial queries are untouched. No DB/RLS/migration/academy-setting/payment changes.
+
+**Automated tested:** [Subscriptions CI 42169267470](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42169267470) at `7e0ddb4` passed **203/203 targeted tests** (10 new preview, 4 Player Subscriptions, 18 workspace, 24 Sidebar, 86 PS-L1, 61 PS-L1P1) and **React production build**. Separate [full frontend run 42169267502](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42169267502) still fails 16/490 in four unrelated Coach Profile/Player Performance suites.
+
+**Pending:** Manual Academy Owner/Super Admin desktop/mobile acceptance, real authorized schedule and negative-RLS browser scenarios; academy billing-method policy/default, holiday/cancellation handling, PS-L0B Owner review, price/period/dues persistence and PS-L2 proposal-only schema design. See `PLAYER_SUBSCRIPTIONS_PS_L1P2_PREVIEW_20261106.md`.
 
 ## Latest implementation checkpoint — PS-L1P1 pure monthly proration calculator (6 November 2026)
 

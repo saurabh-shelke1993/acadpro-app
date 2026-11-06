@@ -1,6 +1,6 @@
 # AcadPro Product Backlog
 
-**Last Updated:** 6 November 2026 (PS-L1P1 calculator CI checkpoint; historical sections retained)
+**Last Updated:** 6 November 2026 (PS-L1P2 read-only preview checkpoint; historical sections retained)
 **Current Branch:** `payment-module-finalization`
 
 Security and data isolation are prerequisites for production.
@@ -429,7 +429,9 @@ See `frontend/docs/PLAYER_SUBSCRIPTIONS_PS1_20261106.md`. Original SM1–SM3 com
 - [x] **PS-L1 — Pure calendar subscription calculator + unit tests implemented.** Month-end anniversary anchors, leap years, 1/3/6/12-month periods, free extension, verified-paid pause entitlement and resume rebasing. **86/86 new tests + 45/45 Subscriptions/Sidebar tests + React build PASS** in [CI 42163864483](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42163864483) at `387e1210`. **Not integrated to UI/DB.** No migrations or business writes. See `frontend/docs/PLAYER_SUBSCRIPTIONS_PS_L1_CALCULATOR_20261106.md`.
 - [x] **PS-L1P0 — Alignment decision approved:** Both fixed-calendar-month and anniversary-based monthly billing configurable by academy, partial first fixed month eligible for proration.
 - [x] **PS-L1P1 — Pure calculator and tests:** Explicit calendar-day/scheduled-session method, strict dates, eligible player enrollment, session exclusions and accurate paise rounding. **61/61 new + 86/86 PS-L1 + 45/45 previous = 192/192 targeted tests and React build PASS**, [run 42167075145](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42167075145), code SHA `00eb8d3`. No UI, academy setting or DB/payment writes. See `frontend/docs/PLAYER_SUBSCRIPTIONS_PS_L1P1_PRORATION_20261106.md`.
-- [ ] **PS-L1P2 — Academy Owner preview/data-scope design:** Show original contracted amount, full/eligible dates or session counts, first-period amount and discount; choose method/default and holiday policy before live UI/financial integration.
+- [x] **PS-L1P2 — Read-only Player Subscriptions fee preview implemented and focused-tested:** Separate responsive `SubscriptionFeePreview`, explicit fixed/anniversary and session/day choices, scoped read-only active schedule mapping, same-academy check, clear estimate-only warning; no end date/discount/due/setting persistence. **10/10 new preview + 4/4 Player Subscriptions + 189/189 remaining targeted tests = 203/203 PASS; React build PASS** at `7e0ddb4` ([CI 42169267470](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42169267470)). See `frontend/docs/PLAYER_SUBSCRIPTIONS_PS_L1P2_PREVIEW_20261106.md`.
+- [ ] **PS-L1P2 manual acceptance:** Owner/Super Admin sample fixed calendar/anniversary quotes, 7/13 session mapping, missing/failed enrollment, cross-academy mismatch, 320–1440px, confirm no payment/due/save change. **Not yet tested by Owner.**
+- [ ] **PS-L1P3 / PS-L2 policy and schema design:** Decide academy's default proration method and holiday/cancellation handling; design future explicit saved alignment, immutable rate/period basis, authoritative RLS checks and idempotent due linkage. **No migration approved.**
 - [ ] **PS-L2 — Proposed schema/RLS migrations for period and immutable events:** Draft only until reviewed/approved; preserve stable subscription FK and existing payments; add idempotency/academy guards.
 - [ ] **PS-L3 — Approved lifecycle management UI + controlled migration:** Extension, pause/resume, Coach attendance badge, Parent read-only state; role/tenant regression.
 - [ ] **PS-L4 — Automatic renewal engine + due creation:** Atomic/idempotent, scheduled trigger disabled until dry-run and financial pricing policy signed off. No back-billing or payment collection.

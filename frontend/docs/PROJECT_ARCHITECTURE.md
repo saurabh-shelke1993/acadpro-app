@@ -1,6 +1,6 @@
 # AcadPro Architecture
 
-**Last Updated:** 6 November 2026 (PS-L1P1 calculator CI checkpoint; other sections historical)
+**Last Updated:** 6 November 2026 (PS-L1P2 preview and read-only data-scope checkpoint; other sections historical)
 **Current Branch:** `payment-module-finalization`
 
 ## 1. Platform
@@ -31,6 +31,14 @@ Parent linkage is represented by `players.parent_id → parents.id`. Parent auth
 - Parent: `/parent-portal`
 
 The Parent Portal is protected by a parent-only route guard. Supabase Auth handles authentication; role and academy information is stored in `public.users`.
+
+### PS-L1P2 read-only fee preview (implemented, NOT billing)
+
+- `frontend/src/components/SubscriptionFeePreview.js` and CSS compose the pure `subscriptionProration.js` calculator with a selected new `PlayerSubscriptions.js` monthly assignment. Original save/update/deactivate functions were not modified. The preview is **not** rendered when editing a legacy subscription or for non-monthly plans.
+- Simulation-only explicit inputs: fixed/anniversary model, fixed-period calendar-day/session calculation. No academy-wide alignment or default method is stored yet; the current plan `amount` is only a provisional quote basis and **cannot establish an existing player's historical locked recurring rate**.
+- `playerScheduleService.getPlayerScheduleEnrollments` performs active, RLS-controlled read of `player_batch_schedules` and nested `batch_schedules`. Preview filters mapped rows by player/academy/batch/center and active flags; no client-side check replaces future server-side authorization or a trusted quote snapshot. No holiday/cancellation ledger/policy is connected.
+- Cross-academy player/plan mismatch blocks the estimate. Missing/failed schedule reads produce no session fee. Explicit UI disclaimer makes clear **no end date, billing model, discount, due or payment is saved or posted**. A preview amount is not a contract, invoice or approved fee.
+- Source SHA `7e0ddb4`, focused CI **203/203 tests and React build PASS** in [run 42169267470](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42169267470). Browser/manual acceptance pending; no schema/RLS/financial migration. PS-L2 period-and-price RLS design remains separately gated.
 
 ### Implemented PS-L1P1 pure monthly proration (no UI/data integration)
 
