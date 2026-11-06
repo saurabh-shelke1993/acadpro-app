@@ -1,10 +1,20 @@
 # AcadPro Project Status
 
-**Last Updated:** 5 November 2026 (Attendance AM6.6 checkpoint; older sections retain historical dates)  
+**Last Updated:** 6 November 2026 (Attendance AM7 checkpoint; older sections retain historical dates)  
 **Current Version:** V1.0 Beta (development; not release sign-off)  
 **Current Git Branch:** `payment-module-finalization`
 
-## Latest development checkpoint — Attendance AM6.6 (5 November 2026)
+## Latest development checkpoint — Attendance AM7.1–AM7.2 (6 November 2026)
+
+**Implementation:** Optimized `AttendanceHistory.js` and CSS: removed redundant tall History/Records headings, compacted the filter toolbar (Academy selection only for Super Admin; Owner/Coach see scoped academy context), retained Center/Batch/Player/Status/From-To and Reset, and compacted the records counter. On tablet/mobile, the 8-column table rows render as responsive cards showing all fields — including previously hidden Status, Marked By and session details — plus authorized per-record actions. Existing `formatAttendanceSessionLabel` provides weekday and 12-hour time for available schedule records. Legacy attendance fallback remains.
+
+**Preserved:** Same read-only Supabase `attendance` query, server-applied academy/batch/center/date filters, client-side Player/Status filters and five-record pagination; `updateAttendanceStatus`, `softDeleteAttendance`, Coach UTC seven-calendar-date restrictions and RLS/authorization remain unchanged. No database migrations, policies, RPCs, new privileges or attendance record mutations were made.
+
+**Automated validation:** GitHub commits `226cd33` and `c5e9f9e`; [AM1–AM7 run 42148002910](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42148002910) on `c5e9f9e` **PASSED 10/10 focused Jest suites, 86/86 tests and React production build**. Full application Jest still **FAILED 4/40 suites, 16/292 tests**, confined to Coach Profile and Player Performance; track outside AM7. AM6 visual change approval preceded this phase, not full security/release sign-off.
+
+**Still pending:** Owner/Coach/Admin/Parent browser/regression, 320/375/430/768/1440px visual accessibility review, edit/delete/filters/legacy/deep-link controlled fixture behavior and negative RLS testing. AM7.3 history dataset-scale review (current fetch-all + client pagination) is separate and not implemented. See `ATTENDANCE_AM7_HISTORY_UX_20261106.md`.
+
+## Prior checkpoint — Attendance AM6.6 (5 November 2026)
 
 **Source implemented:** Removed the large Daily Operations header blocks and abbreviated the roster headings in both Academy Owner and Coach Mark Attendance. Academy Owner's four-filter area now shows the selected batch's **recurring active weekdays** (e.g. Runs: Mon · Wed · Fri) from a separate read-only `batch_schedules` query scoped by batch/center; the date-scoped session and roster queries are unchanged. Coach Assigned Session dropdown and its compact context line now make **batch, center, weekday and 12-hour start/end** explicit. Existing marked/recorded/save labels and actions are preserved.
 

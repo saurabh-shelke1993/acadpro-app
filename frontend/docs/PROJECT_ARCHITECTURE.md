@@ -1,6 +1,6 @@
 # AcadPro Architecture
 
-**Last Updated:** 5 November 2026 (Attendance AM6.6 UI checkpoint; other sections historical)  
+**Last Updated:** 6 November 2026 (Attendance AM7 UI checkpoint; other sections historical)  
 **Current Branch:** `payment-module-finalization`
 
 ## 1. Platform
@@ -47,6 +47,13 @@ The Parent Portal is protected by a parent-only route guard. Supabase Auth handl
 - Coach page `CoachAttendance.js` uses the already fetched authorized `getCoachAttendanceSessions` records (including `batches`, `centers`, weekday/start/end time) to identify the training session in the option label and compact context; **no additional Coach fetch**.
 - `attendancePresentation.js` formats recurring weekdays and Coach option text. Load/empty/error day states do not permit or block writes: schedule selection and backend attendance RLS remain authoritative. Neither marking component's existing Save/Update calls, role guards, History edits/soft deletes nor any database objects changed.
 - Source reviewed and focused CI passed; live browser/negative-RLS and release acceptance pending.
+
+### Attendance AM7 — History presentation (no data-contract change)
+
+- `AttendanceHistory.js` retains existing History query flow: `attendance` scoped by authenticated role's RLS, optional academy/batch/center/date filters, client Player/Status filtering and `PAGE_SIZE = 5` slicing. AM7.1–AM7.2 change presentation and scoped filter controls only, not authorization or database API calls.
+- The Academy select renders only to Super Admin; Owner and Coach see their read-only academy name. Native record table rows become mobile/tablet presentation cards through CSS; all Date/Player/Center/Batch/Session/Status/Marked By/Actions cells remain present and accessible. Buttons continue using existing `canEditAttendanceRecord` and `canDeleteAttendance`.
+- `formatAttendanceSessionLabel` is reused for non-legacy History schedule time presentation. Coach seven-UTC-date existing-record edit restrictions and Owner/Admin historical edit/delete remain unchanged.
+- AM7 focused CI passed **10 suites / 86 Jest tests and React build** on `c5e9f9e`; live role/browser/RLS acceptance pending. A server-paginated scalable History contract is **not** implemented; any future AM7.3 change requires an explicit review of Supabase filtering, relationship selection, count, cross-tenant RLS and pagination consistency.
 
 ## 5. Authorization layers
 
