@@ -1,10 +1,22 @@
 # AcadPro Project Status
 
-**Last Updated:** 6 November 2026 (Attendance AM7.3 development closure; older sections retain historical dates)  
+**Last Updated:** 6 November 2026 (Subscriptions SM1–SM3 navigation merge; older sections retain historical dates)  
 **Current Version:** V1.0 Beta (development; not release sign-off)  
 **Current Git Branch:** `payment-module-finalization`
 
-## Latest development checkpoint — Attendance AM7.3 completed in source (6 November 2026)
+## Latest development checkpoint — Subscriptions SM1–SM3 (6 November 2026)
+
+**Intent:** Academy Owner requested one combined Subscriptions navigation/workspace, like Attendance, before later independent improvements to the two management modules.
+
+**Implemented:** Shared `SubscriptionsWorkspace.js` and link-based `SubscriptionsWorkspaceTabs.js` / CSS. Finance sidebar now has a single **Subscriptions** entry for Super Admin and Academy Owner. The canonical URLs are `/subscriptions?view=players` (default Player Subscriptions) and `/subscriptions?view=plans`. Old `/player-subscriptions` and `/subscription-plans` URLs retain protected redirects, additional query params and hash. The legacy components are still rendered intact, including their independent Layouts, queries, mutation functions and original pagination (7 player subscriptions / 5 plans). The tab cards warn when switching away from a populated/edited form; unrelated browser navigation is not fully guarded.
+
+**Data and security:** No changes to Supabase, role matrix, RLS or business records. Super Admin/Academy Owner management remains behind the original ProtectedRoute roles and existing database policies. Coach/Parent management routes continue to deny access. The existing duplicate-active subscription UI check remains unchanged; no new database uniqueness or transaction guarantee is implied.
+
+**Validation:** [Subscriptions CI run 42153066796](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42153066796) at `da0cdb55`: **18/18 workspace tests and 24/24 Sidebar tests passed; React production build passed**. The Attendance scoped workflow at initial code commit `0fc4165e` also passed. The full app Jest at `0fc4165e` remains **FAIL 4/43 suites, 16/329 tests** for Coach Profile / Player Performance, outside SM2–SM3.
+
+**Acceptance:** Browser UI, small-screen responsive behavior, plan CRUD, subscription assignment/edit/deactivation, old bookmarks, save state across view switches and authorized role/tenant negative tests are **pending**. No production release sign-off claimed. Next: Owner verifies the merged navigation; then separate UX phases for Player Subscriptions and Subscription Plans. See `SUBSCRIPTIONS_SM1_SM3_WORKSPACE_20261106.md`.
+
+## Prior checkpoint — Attendance AM7.3 completed in source (6 November 2026)
 
 **Owner acceptance:** AM7.1–AM7.2 visual changes were confirmed acceptable. Owner requested completing remaining AM7.3, which is implemented and focused-CI validated. This is **not** confirmation of AM7.3 manual browser or production security acceptance.
 

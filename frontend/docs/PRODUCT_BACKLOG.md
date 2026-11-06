@@ -1,6 +1,6 @@
 # AcadPro Product Backlog
 
-**Last Updated:** 6 November 2026 (Attendance AM7.3 development closure; historical sections retained)  
+**Last Updated:** 6 November 2026 (Subscriptions SM1–SM3 checkpoint; historical sections retained)  
 **Current Branch:** `payment-module-finalization`
 
 Security and data isolation are prerequisites for production.
@@ -399,3 +399,14 @@ The next product feature has not yet been selected after Enquiries implementatio
 - [ ] **AM1–AM6 negative authorization/release gate** — Confirm SA history-only, Parent denial and Coach assigned-session / seven-date RLS in controlled browser plus exact SHA/deployment.
 
 **Current status:** **AM1–AM7.3 development implementation COMPLETE with focused automated validation** (11/11 suites, 98/98 Jest tests, React build at `98cb6cb1`). AM7.1–AM7.2 **Owner visually accepted**. AM7.3 live role/tenant browser, load and deployment acceptance remain a separate, **open release QA gate**. Full-app Jest still fails 16/304 unrelated cases. No attendance schema/RLS migrations. See `frontend/docs/ATTENDANCE_AM7_HISTORY_UX_20261106.md`.
+
+## Subscriptions unified workspace — SM1–SM6 (6 November 2026)
+
+- [x] **SM1 — Existing implementations + active database inspection.** Verified current routes/sidebar, Plan CRUD/active status, Player assignment/edit/deactivate, five/seven pagination, plan/player FK, existing RLS, and management roles. No DB modifications.
+- [x] **SM2 — Shared Subscriptions view selector.** Accessible Player Subscriptions (default) and Subscription Plans cards reuse the original components; view-card navigation prompts before discarding a modified/edited form. No business logic rewrite.
+- [x] **SM3 — Single sidebar + canonical/legacy URLs.** One Finance **Subscriptions** link, `/subscriptions?view=players|plans`, protected old-path redirects preserving query/hash, only Owner/Super Admin.
+- [x] **SM4 — Focused automated regression.** [GitHub CI 42153066796](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42153066796) at `da0cdb55`: **18/18 workspace and 24/24 sidebar tests PASS; React build PASS**. Full-app Jest has unrelated Coach Profile/Player Performance failures.
+- [ ] **SM5 — Manual acceptance and release gate.** Owner and Super Admin test view switching, forms, plan CRUD, player assignment/update/deactivate, relevant old bookmarks, mobile 320–1440px, Coach/Parent denial, cross-academy scope, and current payment-linked subscription behavior on controlled data. **Not yet accepted**.
+- [x] **SM6 — Source/design documentation checkpoint.** Updated `PROJECT_STATUS`, `PROJECT_ARCHITECTURE`, `PRODUCT_BACKLOG`, `DEVELOPMENT_CONTINUITY` and `SUBSCRIPTIONS_SM1_SM3_WORKSPACE_20261106.md`; source and CI commits already pushed. Confirm final documentation commit in GitHub.
+
+**Scope boundary:** Navigation integration is implemented; no migrations, changes to Plan or Player Subscription writes, duplicate prevention hardening, UI redesign, or financial billing logic changes. Improve Player Subscriptions and Subscription Plans as **two separate** later phases only after SM5 acceptance.

@@ -1,6 +1,6 @@
 # AcadPro Architecture
 
-**Last Updated:** 6 November 2026 (Attendance AM7.3 pagination checkpoint; other sections historical)  
+**Last Updated:** 6 November 2026 (Subscriptions SM2–SM3 navigation checkpoint; other sections historical)  
 **Current Branch:** `payment-module-finalization`
 
 ## 1. Platform
@@ -31,6 +31,15 @@ Parent linkage is represented by `players.parent_id → parents.id`. Parent auth
 - Parent: `/parent-portal`
 
 The Parent Portal is protected by a parent-only route guard. Supabase Auth handles authentication; role and academy information is stored in `public.users`.
+
+### Subscriptions workspace routing (SM2–SM3)
+
+- Academy Owner and Super Admin management entry: `/subscriptions?view=players` by default; `/subscriptions?view=plans` for plan administration.
+- `SubscriptionsWorkspace.js` composes the **unmodified business behavior** from `PlayerSubscriptions.js` and `SubscriptionPlans.js`, with query-driven view selection. Each page still owns its Layout, reads, writes, filters, and local form state; selection cards render via `SubscriptionsWorkspaceTabs.js`.
+- Former URLs `/player-subscriptions` and `/subscription-plans` are protected `LegacySubscriptionsRedirect` routes. Non-view query parameters and URL hashes survive navigation. No invented interpretation of legacy params is added to page form components.
+- Outer `ProtectedRoute` and inner read-only role check allow `super_admin` / `academy_owner` only; Coach and Parent remain excluded. `subscription_plans` and `player_subscriptions` RLS policies, original table relationships and write operations are **unchanged**.
+- The view cards prompt before leaving a populated/edited form, but do **not** globally block browser Back/refresh/sidebar navigation. URL changes unmount one original component and mount the other; no shared form state or cross-view optimistic data cache introduced.
+- Focused CI validates 18 workspace tests, 24 Sidebar tests, and production React build at `da0cdb55`. Manual CRUD/role/tenant and deployment acceptance pending; no schema migration required.
 
 ### Attendance workspace routing (AM5)
 
