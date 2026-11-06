@@ -1,4 +1,4 @@
-# Kheltriva — Player Subscription Lifecycle Contract v1.6
+# Kheltriva — Player Subscription Lifecycle Contract v1.7
 
 **Date:** 6 November 2026  
 **Latest decision:** Original recurring price locked for existing subscribers until explicit Academy Owner approval of a future-only change. **PS-L1 pure date calculator implemented and focused-CI validated**. PS-L0B Owner row-level activation decisions pending.  
@@ -13,6 +13,10 @@
 4. **Pause** suspends future renewals and due generation; record unused paid calendar days and **resume** by applying those days from the approved resumption date.
 5. Keep a paused player **on the current batch and attendance roster**, visibly labelled Paused. Preserve existing attendance marking permissions; do not force present/absent or exclude the player.
 6. Reconcile existing legacy subscriptions and associated payments first; start new billing periods **prospectively**, with **no retroactive automatic payment dues or fabricated historical periods**.
+
+### PS-L2.2 Owner-approved product decisions
+
+**Owner D1–D7 APPROVED 6 November 2026:** Only one date-effective **regular tuition** entitlement per player/academy, regardless of whether a monthly/quarterly period belongs to a different subscription agreement. Special camps (e.g., Diwali) may run simultaneously as **separate nonrecurring programme enrolments**, optionally linked to the existing agreement; their pricing/free/included policy is **undecided** and camp implementation is separate. Scheduled-session proration is academy default with calendar-day option; only Owner-approved holidays/cancellations affect session counts; existing agreement prices/cycles/alignment stay fixed except prospective Owner change; zero-eligible-session fee deferred/manual exception; Coach Paused roster-only; financial cascade/privilege fixes independently approved for execution. **Business rules approved, no SQL/app migration authorized.** See `PLAYER_SUBSCRIPTIONS_PS_L2_2_OWNER_DECISIONS_20261106.md`.
 
 ## 2. Date-only calendar rules (technical contract)
 

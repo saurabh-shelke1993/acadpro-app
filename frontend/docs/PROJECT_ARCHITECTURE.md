@@ -1,6 +1,6 @@
 # AcadPro Architecture
 
-**Last Updated:** 6 November 2026 (PS-L2.2 detailed design, unapplied; other sections historical)
+**Last Updated:** 6 November 2026 (PS-L2.2 Owner business-rule approval; other sections historical)
 **Current Branch:** `payment-module-finalization`
 
 ## 1. Platform
@@ -199,6 +199,12 @@ The import layer includes:
 - Import summary for imported players and parent reuse/creation
 
 No database writes occur during parsing or validation/preview.
+
+### PS-L2.2 Owner D1–D7 product architecture (approved, not implemented)
+
+**Owner D1–D7 APPROVED 6 November 2026:** Only one date-effective **regular tuition** entitlement per player/academy, regardless of whether a monthly/quarterly period belongs to a different subscription agreement. Special camps (e.g., Diwali) may run simultaneously as **separate nonrecurring programme enrolments**, optionally linked to the existing agreement; their pricing/free/included policy is **undecided** and camp implementation is separate. Scheduled-session proration is academy default with calendar-day option; only Owner-approved holidays/cancellations affect session counts; existing agreement prices/cycles/alignment stay fixed except prospective Owner change; zero-eligible-session fee deferred/manual exception; Coach Paused roster-only; financial cascade/privilege fixes independently approved for execution. **Business rules approved, no SQL/app migration authorized.** See `PLAYER_SUBSCRIPTIONS_PS_L2_2_OWNER_DECISIONS_20261106.md`.
+
+No camp/event enrolment module presently exists; PS-L2.3 remains scoped to tuition agreement/period/dues integrity.
 
 ### PS-L2.2 detailed proposed lifecycle schema/security (NOT implemented)
 

@@ -3,7 +3,7 @@
 **Review date:** 6 November 2026 (Asia/Kolkata)
 **Baseline:** `payment-module-finalization` at `c310f8a6ac7fca1e38d0cbd228bae32c3c530ebf`
 **Live project inspected:** `ulyealhkmlorsbdiknrh` — read-only
-**Status:** **PROPOSED / NOT APPROVED / NOT IMPLEMENTED.** No SQL migration file, DDL, RLS, GRANT, RPC, Cron, source-code change or financial-data mutation occurred. PS-L2.3, after Owner approval, is a separate **unapplied** migration/testing task.
+**Status:** **Owner business rules D1–D7 APPROVED; exact SQL schema NOT IMPLEMENTED.** Camp fee policy open. No DDL, RLS, GRANT, RPC, Cron, code or financial data was changed. PS-L2.3 may prepare only an **unapplied regular-tuition migration and isolated tests**; live execution requires separate approval.
 
 ## 1. Verified baseline and required behavior
 
@@ -232,6 +232,12 @@ Use tenant/player composite FK validations only after clean agreement academy da
 **Rollback:** Before any new due/period, feature-flag off and retain empty additive tables or drop only if proven empty/unreferenced. **After any period or due is issued**, no destructive rollback: disable writers/worker and perform forward recovery or approved financial corrections, retaining period/due/payment/receipt linkages. A test rollback and staged restore rehearsal must precede live DDL.
 
 **Required isolated test matrix:** SA and Owners A/B, Coach/Parent/anonymous and forged UUIDs; conflicting concurrent requests; same request repeated; interrupted due insertion / event write; current player-plan mismatch and legitimate multiple products; Jan 29–31/leap/1–3–6–12-month dates; 7/13 session and 17/31 calendar proration; enrollment + holiday exclusions; zero sessions; exact paisa rounding; overdue/partial/paid/correction/UPI/receipts; end-date extension with successor; pause after paid and unpaid periods; ledger overlapping; existing direct-Due action blocked at activated cutover; no TRUNCATE privilege for anon/auth after reviewed grant remediation; full frontend and mobile/browser QA.
+
+## 7A. Owner approval and cross-agreement tuition constraint
+
+**Owner D1–D7 APPROVED 6 November 2026:** Only one date-effective **regular tuition** entitlement per player/academy, regardless of whether a monthly/quarterly period belongs to a different subscription agreement. Special camps (e.g., Diwali) may run simultaneously as **separate nonrecurring programme enrolments**, optionally linked to the existing agreement; their pricing/free/included policy is **undecided** and camp implementation is separate. Scheduled-session proration is academy default with calendar-day option; only Owner-approved holidays/cancellations affect session counts; existing agreement prices/cycles/alignment stay fixed except prospective Owner change; zero-eligible-session fee deferred/manual exception; Coach Paused roster-only; financial cascade/privilege fixes independently approved for execution. **Business rules approved, no SQL/app migration authorized.** See `PLAYER_SUBSCRIPTIONS_PS_L2_2_OWNER_DECISIONS_20261106.md`.
+
+The following seven numbered questions are the **historical pre-approval list**, resolved for regular tuition by the Owner decision above. **Design correction:** per-agreement period nonoverlap is insufficient—enforce regular tuition exclusivity at player+academy+date scope across agreements. Optional camps stay outside the regular-tuition uniqueness rule. No old subscription is automatically repaired or activated.
 
 ## 7. Decisions requiring Owner sign-off before PS-L2.3
 

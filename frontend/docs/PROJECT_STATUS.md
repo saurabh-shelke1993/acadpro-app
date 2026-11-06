@@ -1,8 +1,14 @@
 # AcadPro Project Status
 
-**Last Updated:** 6 November 2026 (PS-L2.2 detailed design proposal; older sections retain historical dates)
+**Last Updated:** 6 November 2026 (PS-L2.2 Owner business-rule approval; older sections retain historical dates)
 **Current Version:** V1.0 Beta (development; not release sign-off)  
 **Current Git Branch:** `payment-module-finalization`
+
+## Latest Owner decision checkpoint — PS-L2.2 D1–D7 (6 November 2026)
+
+**Owner D1–D7 APPROVED 6 November 2026:** Only one date-effective **regular tuition** entitlement per player/academy, regardless of whether a monthly/quarterly period belongs to a different subscription agreement. Special camps (e.g., Diwali) may run simultaneously as **separate nonrecurring programme enrolments**, optionally linked to the existing agreement; their pricing/free/included policy is **undecided** and camp implementation is separate. Scheduled-session proration is academy default with calendar-day option; only Owner-approved holidays/cancellations affect session counts; existing agreement prices/cycles/alignment stay fixed except prospective Owner change; zero-eligible-session fee deferred/manual exception; Coach Paused roster-only; financial cascade/privilege fixes independently approved for execution. **Business rules approved, no SQL/app migration authorized.** See `PLAYER_SUBSCRIPTIONS_PS_L2_2_OWNER_DECISIONS_20261106.md`.
+
+**Implementation:** No app, database or payment changes, tests or browser acceptance in this documentation phase. All legacy agreements remain HOLD; PS-L2.3 is unapplied design/tests only.
 
 ## Latest design checkpoint — PS-L2.2 schema, RLS, atomic billing proposal (6 November 2026)
 
