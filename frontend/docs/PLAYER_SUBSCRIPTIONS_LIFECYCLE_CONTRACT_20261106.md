@@ -1,6 +1,7 @@
-# Kheltriva — Player Subscription Lifecycle Contract v1.0
+# Kheltriva — Player Subscription Lifecycle Contract v1.1
 
 **Date:** 6 November 2026  
+**Latest decision:** Original recurring price locked for existing subscribers until an explicit Academy Owner-approved change. PS-L0B read-only audit completed; Owner row-level activation decisions pending.  
 **Branch inspected:** `payment-module-finalization` at `cdd029deba64334aebf2c7db2d0cbd4d2fce0014`  
 **Status:** Six product requirements approved. Technical safeguards and phased plan documented. **No application code, SQL migration, database records, scheduler, or RLS policy changed in this checkpoint.**
 
@@ -41,7 +42,9 @@
 - Existing pending/partial/paid dues remain unchanged; unpaid prior dues do **not** block renewal because the Owner explicitly approved automatic renewal, but must remain visible as outstanding balances.
 - `monthly`, `quarterly`, `half_yearly`, `yearly` mapping must be supported consistently by Subscription Plans, Player Subscriptions, Payment Dues and parent-facing finance. Currently the Plans form offers monthly/quarterly/half_yearly and Payment Dues manual form offers monthly/quarterly/registration: **yearly support is not yet implemented**.
 - Renewal scheduler must be time-zone-aware, observable, retry-safe and disabled until reviewed, role/RLS tested and manually accepted. A dry-run report is mandatory before creating any due.
-- **Open financial-policy approval before enabling automatic dues:** whether existing subscribers keep the originally agreed recurring price or inherit a future plan-price change. Safe provisional rule: preserve an enrolled price snapshot until the Owner explicitly changes it; do not automatically reprice past periods.
+- **APPROVED PRICING RULE (6 November 2026):** An existing subscriber retains their **originally agreed recurring price**, even if the Academy Owner later edits the Subscription Plan's default amount. Only an explicit, authorized Owner price-change action may alter that agreement's **future** billing periods. Each period must store an immutable contracted-price snapshot; previous periods, dues, collections and receipts are never retroactively repriced.
+- **Legacy pricing evidence limitation:** Existing `player_subscriptions` records contain no enrolled-rate snapshot. Current plan amounts and historical due amounts are **not sufficient proof** of the original agreement. **Every legacy subscription requires explicit contracted-price confirmation** before activation. A price change action must record old/new rates, actor, reason, approval date and first affected future period; it must never silently change already-generated dues.
+- **No approval for backfilling prices from today's plan rate:** any initial price snapshot for legacy rows requires a separately reviewed Owner-approved reconciliation result.
 
 ## 5. Vacation extensions, pause/resume and exceptions
 
@@ -58,7 +61,7 @@
 - Inspected `player_subscriptions`, `subscription_plans`, `payment_dues` columns, relationships and RLS. Existing `player_subscriptions` has nullable `end_date`, `status`, and the stable FK from `payment_dues.subscription_id`.
 - As of 2026-11-06: **22 active player subscriptions, all 22 without an end date**; **4 subscriptions link a player to a plan in another academy**, with **6 associated dues, 5 paid or partially paid**; **1 active subscription references a player marked inactive**. These groups may overlap.
 - `subscription_plans` currently holds monthly and quarterly plans only in live data. There are existing historical payment dues; do not rebuild or relink them automatically.
-- Create an anonymized, read-only **reconciliation report** keyed by stable subscription IDs (avoid copying player names into development logs) with academy match, player activity, plan cycle, prior dues, paid-through evidence and proposed activation date.
+- PS-L0B **read-only pseudonymized reconciliation matrix is complete** at `PLAYER_SUBSCRIPTIONS_PS_L0B_RECONCILIATION_20261106.md`. No names, raw UUIDs or amounts are committed. It records per-subscription academy matching, player activity, multiple active agreements, plan cycle, dues and payment evidence. **Owner decisions on paid-through date, locked recurring price and prospective activation date are still pending.**
 - Every existing row starts **`renewal_eligible = false` by policy** until reviewed. Owner approves its future paid-through/end date and first prospective renewal anchor; if evidence is insufficient, keep it quarantined rather than guessing or back-billing.
 - **No blanket UPDATE/INSERT**, retroactive period backfill, repairs to paid dues or archive/deactivation of the four mismatches without explicit, case-by-case approval and verifiable rollback plan.
 
@@ -73,7 +76,7 @@
 | Phase | Deliverable | Database effects | Approval/test gate |
 |---|---|---|---|
 | PS-L0A | Freeze lifecycle contract + read-only schema and row audit | None | **This checkpoint: approved six rules, written contract** |
-| PS-L0B | Anonymized reconciliation matrix for all 22 subscriptions and 26 existing dues, include mismatches and inactive players | **SELECT only** | Owner reviews flagged rows and establishes paid-through evidence |
+| PS-L0B | Pseudonymized reconciliation matrix for 22 subscriptions and all 26 dues, including 4 academy mismatches, 4 players with two active subscriptions, 1 inactive player and payment evidence gaps | **SELECT only; audited** | **Audit complete; Owner row-level decisions pending** |
 | PS-L1 | Standalone date-only calendar and pause-day calculator with exhaustive Jest edge tests | None | Build and deterministic unit tests, owner review of month-end cases |
 | PS-L2 | Proposed schema/RLS/migration SQL and test plan, initially un-applied | None until explicitly authorized | Review data model, unique constraints, grants, Parent/Coach reads |
 | PS-L3 | Apply approved schema + add Owner extension/pause/resume controls | **Controlled migration** | Staging/isolated tests + Owner acceptance, no live blanket mutation |
@@ -81,14 +84,15 @@
 | PS-L5 | Prospective per-subscription activation and scheduler rollout | Approved future-period writes only | Manual acceptance, operational monitoring, rollback and payment regression |
 | PS-L6 | Docs, Git and release sign-off | None outside approved phases | Exact-HEAD tests, production review, no unapproved changes |
 
-**Immediate next task: PS-L0B.** Build a read-only reconciled inventory/report; do **not** migrate, enable Cron, create dues, extend or pause real subscriptions. Separately, PS-L1 can be prepared without touching the database once the date-rule samples are accepted.
+**PS-L0B audit complete (SELECT only).** Next safe implementation: PS-L1 pure date/extension/pause calculator and deterministic unit tests. In parallel, Owner reviews PS-L0B flagged records, confirms paid-through and contract price, and approves prospective activation dates. **No migrations or scheduler activation permitted until reconciliation acceptance and separate migration review.**
 
 ## 9. Implementation-state checklist
 
 - [x] Six lifecycle rules explicitly decided by Product Owner
+- [x] Original recurring price lock explicitly approved; only Owner-approved prospective repricing allowed
 - [x] Existing Github branch/source and Supabase schema reviewed
 - [x] Reconciliation risks identified at aggregate level
-- [ ] Per-subscription read-only reconciliation matrix and Owner decisions
+- [x] Per-subscription pseudonymized **read-only** reconciliation matrix created; **Owner activation/price/paid-through decisions outstanding**
 - [ ] Calendar/extension/pause calculator and tests
 - [ ] Database schema/security migration reviewed and approved
 - [ ] Automated renewal/billing code and scheduler created

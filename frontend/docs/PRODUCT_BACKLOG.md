@@ -1,6 +1,6 @@
 # AcadPro Product Backlog
 
-**Last Updated:** 6 November 2026 (PS-L0A lifecycle plan; historical sections retained)  
+**Last Updated:** 6 November 2026 (PS-L0B read-only audit and pricing decision; historical sections retained)  
 **Current Branch:** `payment-module-finalization`
 
 Security and data isolation are prerequisites for production.
@@ -424,7 +424,8 @@ See `frontend/docs/PLAYER_SUBSCRIPTIONS_PS1_20261106.md`. Original SM1–SM3 com
 ## Player Subscription Lifecycle — PS-L0 to PS-L6 (6 November 2026)
 
 - [x] **PS-L0A — Product lifecycle contract approved and documented:** 1/3/6/12-month date-only calendar cycles; Owner free extension; automatic future renewal and pending due; freeze/restore on pause; Paused badge in attendance; reconcile legacy data and do not retroactively bill. Read-only source/schema audit conducted. See `frontend/docs/PLAYER_SUBSCRIPTIONS_LIFECYCLE_CONTRACT_20261106.md`.
-- [ ] **PS-L0B — Read-only legacy reconciliation (next phase):** 22 legacy active agreements with missing end dates; four player/plan academy mismatches linked to six dues (five paid/partial); one active agreement for inactive player. Review per-subscription paid-through evidence, isolate affected rows and obtain Owner decisions. No writes.
+- [x] **PS-L0B — Read-only legacy reconciliation AUDIT complete:** 22 active agreements, 26 dues; four academy mismatches, four players with two active subscription rows, one inactive player, five subscriptions with no dues, ten Paid dues without directly linked payment rows. Pseudonymous per-record report `frontend/docs/PLAYER_SUBSCRIPTIONS_PS_L0B_RECONCILIATION_20261106.md`. No data, payment or migration writes.
+- [ ] **PS-L0B Owner reconciliation acceptance:** 10 P0 integrity records, 1 P1 missing due, 11 P2 standard review. Confirm each agreement's correct plan, locked recurring price, paid-through date and prospective activation. **All 22 remain renewal-ineligible until approved.**
 - [ ] **PS-L1 — Pure calendar subscription calculator + unit tests:** month-end anchors, leap years, 1/3/6/12 months, free extension, pause-day freeze and resume rebasing. No database/React lifecycle mutation.
 - [ ] **PS-L2 — Proposed schema/RLS migrations for period and immutable events:** Draft only until reviewed/approved; preserve stable subscription FK and existing payments; add idempotency/academy guards.
 - [ ] **PS-L3 — Approved lifecycle management UI + controlled migration:** Extension, pause/resume, Coach attendance badge, Parent read-only state; role/tenant regression.
@@ -432,4 +433,4 @@ See `frontend/docs/PLAYER_SUBSCRIPTIONS_PS1_20261106.md`. Original SM1–SM3 com
 - [ ] **PS-L5 — Prospective activation, end-to-end tenant/RLS/finance regression and scheduler rollout:** controlled first batch, monitored outcomes, rollback plans.
 - [ ] **PS-L6 — Docs, Git, manual and production acceptance:** distinguish implemented, automated-tested, Owner accepted and release ready.
 
-**Open financial decision before PS-L4:** subscription's original agreed price vs latest edited plan price at renewal; safest draft default is to lock price unless Owner approves an explicit reprice. This is not yet approved. **Nothing in PS-L0A changes subscription/plans/payment data.**
+**Financial pricing decision APPROVED:** Original agreed recurring price is locked for existing subscribers until explicit Academy Owner-approved **prospective** repricing; current plan amount is not evidence of original agreement. The PS-L0B audit was SELECT-only and modified no business records. **Implementation of price snapshots and auto-renewals still pending.**

@@ -1,6 +1,6 @@
 # AcadPro Architecture
 
-**Last Updated:** 6 November 2026 (PS-L0A lifecycle design; other sections historical)  
+**Last Updated:** 6 November 2026 (PS-L0B reconciliation / approved pricing contract; other sections historical)  
 **Current Branch:** `payment-module-finalization`
 
 ## 1. Platform
@@ -32,12 +32,18 @@ Parent linkage is represented by `players.parent_id → parents.id`. Parent auth
 
 The Parent Portal is protected by a parent-only route guard. Supabase Auth handles authentication; role and academy information is stored in `public.users`.
 
+### Player Subscription PS-L0B read-only audit and contracted-price rule (no schema changes)
+
+- Owner-approved **contracted recurring price lock**: enrolled price persists independently of later `subscription_plans.amount` edits; an explicit Owner-authorized future-only rate adjustment must be audited and reflected only in newly generated period price snapshots. Existing `player_subscriptions` records have **no contracted amount snapshot**, so a legacy price must be confirmed rather than inferred.
+- Pseudonymized 22-row read-only report: `PLAYER_SUBSCRIPTIONS_PS_L0B_RECONCILIATION_20261106.md`. It identifies four academy plan mismatches, four players with two active agreements (eight rows), one inactive player, five no-due subscriptions and ten dues marked Paid lacking directly linked payment rows. Ten P0 + one P1 + eleven P2 cases, **zero eligible for auto-renewal** pending Owner review.
+- Future periods ledger and idempotent billing model are **planned only**. No code/service/RPC, RLS, index, migration, plan price, due, payment, subscription record or Cron scheduler changed during this task.
+
 ### Player Subscription Lifecycle — PS-L0A design only (not implemented)
 
 - Six Product Owner rules are frozen; see `PLAYER_SUBSCRIPTIONS_LIFECYCLE_CONTRACT_20261106.md`. Current `player_subscriptions` and `payment_dues` remain the actual live contract; no periods/events tables, automatic renewal, extra statuses, triggers or scheduler currently exist.
 - Proposed future structure preserves `player_subscriptions.id` for all historical dues; separate period ledger + audited adjustments and pauses; unique period-to-due constraint; academy-matching FKs/authorization checks; and idempotent server-side renewal. No database permissions changed in this planning step.
 - Current live blockers: 22/22 active subscriptions with null end dates; four player-to-plan cross-academy mismatches (six linked dues); one active subscription for inactive player. **Reconciliation before migration and scheduler**. No blanket backfill or automated historical due generation.
-- Next PS-L0B is read-only record-level audit and paid-through eligibility verification. PS-L1 is date-only business calculator in isolation. Schema migration/RLS/financial renewal work are explicitly deferred to separately approved phases.
+- PS-L0B SELECT-only audit completed; individual Owner paid-through/price eligibility decisions remain pending. PS-L1 is date-only business calculator in isolation. Schema migration/RLS/financial renewal work are explicitly deferred to separately approved phases.
 ### Player Subscriptions PS1 (presentation-only)
 
 - `PlayerSubscriptions.js` now shows a read-only Academy name for academy owners beside the existing Center/Batch scope. Super Admin Academy selection remains as-is. Existing academy/center/batch data scope and `player_subscriptions` queries are not modified.

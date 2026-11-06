@@ -7,12 +7,19 @@
 **Original branch baseline (before this file was created):** `0bfc71099ed14cdada08022320a72c378e9da5f7`. Subsequent CMA commits exist; recheck current branch HEAD before development.  
 **Purpose:** Stable, handoff-friendly checkpoint between ChatGPT conversations. This document is NOT a substitute for inspecting live code, the current database, or current tests.
 
-## Latest checkpoint — Player Subscription Lifecycle contract PS-L0A (6 November 2026)
+## Latest checkpoint — Player Subscription PS-L0B reconciliation and price lock (6 November 2026)
+
+- **Pricing policy APPROVED:** An enrolled subscriber retains the original recurring price until the Academy Owner explicitly approves a future-only rate change. There is no per-agreement historic price snapshot in the current schema; **do not infer it from today's plan amount**.
+- **PS-L0B audit performed (read-only):** 22 active legacy subscriptions, all missing end dates; 26 linked dues (19 Paid / 4 Partial / 3 Pending); 4 academy plan mismatches, 4 players with two active subscriptions (8 rows), 1 inactive linked player, 5 subscriptions without dues; 10 Paid dues without directly linked payment rows. **No billing, migration or live data change.**
+- **Review priorities:** 10 P0 integrity, 1 P1 no-dues-only, 11 P2 evidence review; all 22 **HOLD** until Owner confirms original agreed rate, paid-through date, valid plan and first future renewal. Pseudonymized per-row matrix: `frontend/docs/PLAYER_SUBSCRIPTIONS_PS_L0B_RECONCILIATION_20261106.md`. No player names/UUIDs/amounts committed.
+- **Development:** PS-L0B read-only audit **COMPLETE**, Owner reconciliation/eligibility sign-off **PENDING**. Next code phase PS-L1 deterministic date-only calendar and pause calculator, no schema or business writes. Lifecycle contract updated to v1.1. No automated renewal service/scheduler currently implemented.
+
+## Prior checkpoint — Player Subscription Lifecycle contract PS-L0A (6 November 2026)
 
 - **Product decisions approved:** calendar-month subscription validity; free Owner-approved date extensions; automatic contiguous renewal + one pending due per period; pause/resume freezes unused entitlement and suspends future renewal/dues; paused players remain on attendance roster visibly labelled; legacy history reconciled before any **prospective only** billing.
 - **Reviewed live state (read-only):** 22 active subscriptions all with NULL end date; 4 player/plan academy mismatches; those mismatch records link to 6 dues (5 paid or partially paid); 1 active agreement belongs to an inactive player. There is **no deployed renewal scheduler**.
-- **Technical design recorded:** stable legacy subscription IDs and due FKs, eventual per-period ledger and audit events, calendar-anniversary anchor rules, zero double billing, RLS and database idempotency, no retroactive billing. One **outstanding financial pricing decision** must be resolved before automatic dues are enabled.
-- **Current status:** **contract documented; implementation NOT STARTED. No React/SQL/database migration/scheduler changes.** Next isolated phase PS-L0B: read-only per-subscription reconciliation report, then PS-L1 pure calendar calculator + unit tests. See `frontend/docs/PLAYER_SUBSCRIPTIONS_LIFECYCLE_CONTRACT_20261106.md`.
+- **Technical design recorded:** stable legacy subscription IDs and due FKs, eventual per-period ledger and audit events, calendar-anniversary anchor rules, zero double billing, RLS and database idempotency, no retroactive billing. Pricing decision **resolved**: original recurring rate locked; any later Owner-approved reprice is prospective only. Legacy rates still require evidence.
+- **Current status:** **contract documented; implementation NOT STARTED. No React/SQL/database migration/scheduler changes.** PS-L0B read-only inventory subsequently completed; Owner reconciliation decisions still pending. PS-L1 pure calendar calculator is next. See `frontend/docs/PLAYER_SUBSCRIPTIONS_LIFECYCLE_CONTRACT_20261106.md`.
 
 ## Prior checkpoint — Player Subscriptions PS1 compact assignment workspace (6 November 2026)
 

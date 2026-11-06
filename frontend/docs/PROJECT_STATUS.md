@@ -1,10 +1,20 @@
 # AcadPro Project Status
 
-**Last Updated:** 6 November 2026 (PS-L0A lifecycle contract; older sections retain historical dates)  
+**Last Updated:** 6 November 2026 (PS-L0B read-only reconciliation and original-price lock; older sections retain historical dates)  
 **Current Version:** V1.0 Beta (development; not release sign-off)  
 **Current Git Branch:** `payment-module-finalization`
 
-## Latest development checkpoint — Player Subscriptions PS-L0A lifecycle contract (6 November 2026)
+## Latest development checkpoint — PS-L0B reconciliation + contracted-price policy (6 November 2026)
+
+**Confirmed financial policy:** Original agreed recurring subscription price remains locked for an enrolled player until Academy Owner explicitly approves a **future-only** price change. No historic contracted price snapshot exists in the database; current plan amount and historic due amounts cannot independently establish original agreement terms. Contract updated to v1.1, no application migration.
+
+**Read-only PS-L0B completed:** 22 active subscriptions, all missing end dates, with 26 linked dues (19 Paid, 4 Partial, 3 Pending). Identified **four academy mismatches, four players holding two active subscriptions (eight subscription rows), one inactive player with an Active subscription, five subscriptions without dues and ten Paid dues with no directly linked payments row**. A pseudonymized per-subscription matrix separates ten P0 integrity, one P1 no-due-only and eleven P2 standard evidence-review cases. No row has a verified paid-through date or original contracted price, so **none is eligible for automatic renewal**.
+
+**Deliverable:** `PLAYER_SUBSCRIPTIONS_PS_L0B_RECONCILIATION_20261106.md` with all 22 pseudonymous audit references, risk flags, due-status counts and a **SELECT-only private identification query**. Names, raw UUIDs, amounts, transaction references and receipt numbers were not committed. Source review is complete; Owner per-row corrective and activation decisions are **PENDING**. No subscription, payment, RLS, SQL migration, Cron or app-source changes.
+
+**Next independent implementation:** PS-L1 pure calendar-month validity / free extension / pause-and-resume calculations and comprehensive Jest edge tests, after reviewing the date contract. Do not deploy scheduled renewal or create future dues until the separate schema/payment approval and legacy reconciliation acceptance.
+
+## Prior checkpoint — Player Subscriptions PS-L0A lifecycle contract (6 November 2026)
 
 **Approved business rules, planning only:** 1/3/6/12-month calendar validity, Owner-approved vacation extension, automatic renewal with one pending payment due per prospective period, freeze/resume unused paid calendar days, retain paused players in Coach attendance roster, and reconcile all legacy rows before any new billing. Preserve existing financial ledger, payment collection and receipts.
 
