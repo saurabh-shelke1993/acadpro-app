@@ -410,3 +410,13 @@ The next product feature has not yet been selected after Enquiries implementatio
 - [x] **SM6 — Source/design documentation checkpoint.** Updated `PROJECT_STATUS`, `PROJECT_ARCHITECTURE`, `PRODUCT_BACKLOG`, `DEVELOPMENT_CONTINUITY` and `SUBSCRIPTIONS_SM1_SM3_WORKSPACE_20261106.md`; source and CI commits already pushed. Confirm final documentation commit in GitHub.
 
 **Scope boundary:** Navigation integration is implemented; no migrations, changes to Plan or Player Subscription writes, duplicate prevention hardening, UI redesign, or financial billing logic changes. Improve Player Subscriptions and Subscription Plans as **two separate** later phases only after SM5 acceptance.
+
+## Player Subscriptions optimization — PS series (6 November 2026)
+
+- [x] **PS1 — Compact Owner scope and assignment form (source + focused CI).** Read-only Owner academy context, dense Center/Batch filters, shortened redundant heading, unchanged Player/Plan/Start date controls and assignment preview, conditional Clear form and Cancel edit. List count now describes filtered *matching* rows. **Git SHA `92f28d8`: 45/45 targeted Jest tests + React production build PASS.** No subscription business logic or database changes.
+- [ ] **PS1 manual acceptance.** Owner/Super Admin check academy context, field options, Clear form/Cancel edit, assignment/create/update/deactivate and 7-row paging, mobile 320/375/430/768px and desktop; use controlled records. No live negative-RLS path test completed by this change.
+- [ ] **PS2 — Mobile subscription ledger details/actions.** Inspect positional column-hiding CSS and preserve clear access to Center/Batch, Player, Plan, Amount, Start/End, Status and Edit/Deactivate at small widths without horizontal overflow. Implement/test separately.
+- [ ] **PS3 — Player Subscriptions data-loading/error/performance review.** Consider server-side filtering/pagination and active-duplicate integrity only after schema/RLS and payment-linked behavior contract review; no database migration approved.
+- [ ] **Subscription Plans independent optimization.** Start after Player Subscriptions PS-series visual/functional acceptance; do not couple plan mutation rules to the navigation layout.
+
+See `frontend/docs/PLAYER_SUBSCRIPTIONS_PS1_20261106.md`. Original SM1–SM3 combined Subscriptions navigation and legacy redirects are preserved.

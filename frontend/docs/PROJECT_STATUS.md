@@ -1,10 +1,20 @@
 # AcadPro Project Status
 
-**Last Updated:** 6 November 2026 (Subscriptions SM1–SM3 navigation merge; older sections retain historical dates)  
+**Last Updated:** 6 November 2026 (Player Subscriptions PS1 checkpoint; older sections retain historical dates)  
 **Current Version:** V1.0 Beta (development; not release sign-off)  
 **Current Git Branch:** `payment-module-finalization`
 
-## Latest development checkpoint — Subscriptions SM1–SM3 (6 November 2026)
+## Latest development checkpoint — Player Subscriptions PS1 (6 November 2026)
+
+**Scope:** Independently optimize Player Subscriptions after Owner accepted the consolidated navigation direction. Subscription Plans remain an independent module and have not been redesigned.
+
+**PS1 source implemented:** Compact owner Academy/Center/Batch scope toolbar (academy shown as read-only context); reduced duplicate assignment heading, denser field alignment and selection summary; conditional **Clear form** while composing an assignment, using the existing form reset; existing **Cancel edit** remains. Subscription count label now says *matching* for filtered results. Original Player/Plan/Start date selections, Create/Update/Deactivate, duplicate-active warning, status/column filters, seven-record pagination, Supabase queries and access control are unchanged.
+
+**Automated validation:** At `92f28d8`, [focused CI 42154238168](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42154238168) **PASS: 45/45 tests across 5 suites and React production build** (18 workspace, 24 Sidebar, 3 new Player Subscriptions). Full-app [Phase 7.5 run 42154238060](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42154238060) **FAIL: 16/332 tests across four Coach Profile/Player Performance suites**, separate regression. No database schema/RLS/migration changes or business-data writes.
+
+**Pending:** Owner/Super Admin actual browser, responsive 320–1440px and controlled assignment/Edit/Deactivate/filters regression. PS2 mobile record details and actions planned as separate phase. **Subscription Plans UX phase not started.** See `PLAYER_SUBSCRIPTIONS_PS1_20261106.md`.
+
+## Prior checkpoint — Subscriptions SM1–SM3 (6 November 2026)
 
 **Intent:** Academy Owner requested one combined Subscriptions navigation/workspace, like Attendance, before later independent improvements to the two management modules.
 

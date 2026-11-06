@@ -1,6 +1,6 @@
 # AcadPro Architecture
 
-**Last Updated:** 6 November 2026 (Subscriptions SM2–SM3 navigation checkpoint; other sections historical)  
+**Last Updated:** 6 November 2026 (Player Subscriptions PS1 layout checkpoint; other sections historical)  
 **Current Branch:** `payment-module-finalization`
 
 ## 1. Platform
@@ -31,6 +31,13 @@ Parent linkage is represented by `players.parent_id → parents.id`. Parent auth
 - Parent: `/parent-portal`
 
 The Parent Portal is protected by a parent-only route guard. Supabase Auth handles authentication; role and academy information is stored in `public.users`.
+
+### Player Subscriptions PS1 (presentation-only)
+
+- `PlayerSubscriptions.js` now shows a read-only Academy name for academy owners beside the existing Center/Batch scope. Super Admin Academy selection remains as-is. Existing academy/center/batch data scope and `player_subscriptions` queries are not modified.
+- `PlayerSubscriptions.css` tightens scope toolbar, form heading, assignment grid and selected Player/Plan summary. There is no new persistence layer or shared form state with `SubscriptionPlans`.
+- The original `resetAssignmentForm` can be invoked from new **Clear form** action for partially entered new assignments, while existing **Cancel edit** remains. The form continues validating required selections on save, using the same existing duplicate-active check, insert/update/deactivate queries and RLS.
+- Focused CI for PS1 passed **45 Jest tests and production React build** at `92f28d8`. Browser/multi-role acceptance pending. The mobile table continues hiding date/status columns under old responsive CSS; redesign is a *separate PS2 phase*, not delivered in PS1.
 
 ### Subscriptions workspace routing (SM2–SM3)
 
