@@ -1,10 +1,18 @@
 # AcadPro Project Status
 
-**Last Updated:** 6 November 2026 (PS-L0B read-only reconciliation and original-price lock; older sections retain historical dates)  
+**Last Updated:** 6 November 2026 (PS-L1 date-only lifecycle calculator; older sections retain historical dates)  
 **Current Version:** V1.0 Beta (development; not release sign-off)  
 **Current Git Branch:** `payment-module-finalization`
 
-## Latest development checkpoint — PS-L0B reconciliation + contracted-price policy (6 November 2026)
+## Latest development checkpoint — PS-L1 calendar/extension/pause calculator (6 November 2026)
+
+**Implemented:** `frontend/src/utils/subscriptionLifecycleDates.js` contains pure date-only helpers for calendar cycles `monthly/quarterly/half_yearly/yearly`, inclusive validity periods, preserved 29/30/31 anniversary anchors, vacation-day end-date extensions, verified paid days frozen at pause and restoration after resume. Future renewal anniversary rebaselining occurs only after an adjustment, not a normal February-clamped renewal. No browser/React/DB imports.
+
+**Focused validation PASSED:** On source commit `387e1210`, [Subscriptions run 42163864483](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42163864483) passed **86 lifecycle tests, 45 workspace/sidebar/Player Subscriptions tests = 131/131, and production React build**. The separate full-frontend [run 42163864482](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42163864482) failed **16/418 cases (4/45 suites)** in Coach Profile/Player Performance, unrelated to PS-L1.
+
+**Boundary:** The helper is **not wired** to Player Subscriptions form or Subscription Plans, Attendance, Parent Portal, Payment Dues or database. No end dates were written; no RLS/policy, migration, scheduler, subscription, due or collection mutation. Owner PS-L0B per-record agreement/reprice/paid-through/activation approval is **still pending**; 22 historical subscriptions remain excluded from automatic billing. No UI acceptance applies to this helper-only phase. Next technical phase PS-L2 **draft schema/RLS/idempotency design, not migration**. See `PLAYER_SUBSCRIPTIONS_PS_L1_CALCULATOR_20261106.md`.
+
+## Prior checkpoint — PS-L0B reconciliation + contracted-price policy (6 November 2026)
 
 **Confirmed financial policy:** Original agreed recurring subscription price remains locked for an enrolled player until Academy Owner explicitly approves a **future-only** price change. No historic contracted price snapshot exists in the database; current plan amount and historic due amounts cannot independently establish original agreement terms. Contract updated to v1.1, no application migration.
 

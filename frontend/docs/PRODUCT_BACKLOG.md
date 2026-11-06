@@ -1,6 +1,6 @@
 # AcadPro Product Backlog
 
-**Last Updated:** 6 November 2026 (PS-L0B read-only audit and pricing decision; historical sections retained)  
+**Last Updated:** 6 November 2026 (PS-L1 calculator CI checkpoint; historical sections retained)  
 **Current Branch:** `payment-module-finalization`
 
 Security and data isolation are prerequisites for production.
@@ -426,7 +426,7 @@ See `frontend/docs/PLAYER_SUBSCRIPTIONS_PS1_20261106.md`. Original SM1–SM3 com
 - [x] **PS-L0A — Product lifecycle contract approved and documented:** 1/3/6/12-month date-only calendar cycles; Owner free extension; automatic future renewal and pending due; freeze/restore on pause; Paused badge in attendance; reconcile legacy data and do not retroactively bill. Read-only source/schema audit conducted. See `frontend/docs/PLAYER_SUBSCRIPTIONS_LIFECYCLE_CONTRACT_20261106.md`.
 - [x] **PS-L0B — Read-only legacy reconciliation AUDIT complete:** 22 active agreements, 26 dues; four academy mismatches, four players with two active subscription rows, one inactive player, five subscriptions with no dues, ten Paid dues without directly linked payment rows. Pseudonymous per-record report `frontend/docs/PLAYER_SUBSCRIPTIONS_PS_L0B_RECONCILIATION_20261106.md`. No data, payment or migration writes.
 - [ ] **PS-L0B Owner reconciliation acceptance:** 10 P0 integrity records, 1 P1 missing due, 11 P2 standard review. Confirm each agreement's correct plan, locked recurring price, paid-through date and prospective activation. **All 22 remain renewal-ineligible until approved.**
-- [ ] **PS-L1 — Pure calendar subscription calculator + unit tests:** month-end anchors, leap years, 1/3/6/12 months, free extension, pause-day freeze and resume rebasing. No database/React lifecycle mutation.
+- [x] **PS-L1 — Pure calendar subscription calculator + unit tests implemented.** Month-end anniversary anchors, leap years, 1/3/6/12-month periods, free extension, verified-paid pause entitlement and resume rebasing. **86/86 new tests + 45/45 Subscriptions/Sidebar tests + React build PASS** in [CI 42163864483](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42163864483) at `387e1210`. **Not integrated to UI/DB.** No migrations or business writes. See `frontend/docs/PLAYER_SUBSCRIPTIONS_PS_L1_CALCULATOR_20261106.md`.
 - [ ] **PS-L2 — Proposed schema/RLS migrations for period and immutable events:** Draft only until reviewed/approved; preserve stable subscription FK and existing payments; add idempotency/academy guards.
 - [ ] **PS-L3 — Approved lifecycle management UI + controlled migration:** Extension, pause/resume, Coach attendance badge, Parent read-only state; role/tenant regression.
 - [ ] **PS-L4 — Automatic renewal engine + due creation:** Atomic/idempotent, scheduled trigger disabled until dry-run and financial pricing policy signed off. No back-billing or payment collection.

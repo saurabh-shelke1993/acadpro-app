@@ -1,9 +1,9 @@
-# Kheltriva — Player Subscription Lifecycle Contract v1.1
+# Kheltriva — Player Subscription Lifecycle Contract v1.2
 
 **Date:** 6 November 2026  
-**Latest decision:** Original recurring price locked for existing subscribers until an explicit Academy Owner-approved change. PS-L0B read-only audit completed; Owner row-level activation decisions pending.  
+**Latest decision:** Original recurring price locked for existing subscribers until explicit Academy Owner approval of a future-only change. **PS-L1 pure date calculator implemented and focused-CI validated**. PS-L0B Owner row-level activation decisions pending.  
 **Branch inspected:** `payment-module-finalization` at `cdd029deba64334aebf2c7db2d0cbd4d2fce0014`  
-**Status:** Six product requirements approved. Technical safeguards and phased plan documented. **No application code, SQL migration, database records, scheduler, or RLS policy changed in this checkpoint.**
+**Status:** Six product requirements and locked-price policy approved. **PS-L1 calculation utility implemented in source, 86/86 focused tests passed; no UI integration yet.** No SQL migration, database records, scheduler, RLS policy, subscription write operation or payment behavior changed in PS-L1.
 
 ## 1. Approved product decisions
 
@@ -22,7 +22,7 @@
 - Example: start 2026-11-05, monthly → end 2026-12-04; renewal starts 2026-12-05 → end 2027-01-04.
 - Example: start 2027-01-31, monthly and anchor 31 → first period ends 2027-02-27; next starts 2027-02-28, next ends 2027-03-30; then start 2027-03-31. Leap years clamp February to 29 when applicable.
 - On an approved vacation extension or pause/resume, delay the next renewal to one day after the **revised effective end** and **rebase the future anniversary** to that actual next start; never silently backdate billing.
-- Validity calculator must be a **pure, separately tested function** before enabling any database write or scheduler; include Feb 29, 30th/31st, year boundaries, quarterly/six-month/yearly, and successive renewals.
+- **PS-L1 IMPLEMENTED:** Pure `frontend/src/utils/subscriptionLifecycleDates.js` date-only helper with **86 passing Jest tests**, covering Feb 29, month-end 29/30/31, short months, year transitions, 1/3/6/12-month cycles, continuous anniversary preservation, vacation extension, verified paid-day pause and resumed anniversary rebasing. Not yet imported into subscription forms or renewal/payment services. See `PLAYER_SUBSCRIPTIONS_PS_L1_CALCULATOR_20261106.md`.
 
 ## 3. Domain model proposed for later migration (not implemented)
 
@@ -77,14 +77,14 @@
 |---|---|---|---|
 | PS-L0A | Freeze lifecycle contract + read-only schema and row audit | None | **This checkpoint: approved six rules, written contract** |
 | PS-L0B | Pseudonymized reconciliation matrix for 22 subscriptions and all 26 dues, including 4 academy mismatches, 4 players with two active subscriptions, 1 inactive player and payment evidence gaps | **SELECT only; audited** | **Audit complete; Owner row-level decisions pending** |
-| PS-L1 | Standalone date-only calendar and pause-day calculator with exhaustive Jest edge tests | None | Build and deterministic unit tests, owner review of month-end cases |
+| PS-L1 | **Implemented** standalone date-only calendar and pause/resume calculator with 86 Jest tests; no UI/DB wiring | None | **Automated tested:** Subscriptions CI 42163864483 PASSED (131 total targeted tests + React build). Owner business examples accepted in v1.1 contract; live lifecycle acceptance deferred. |
 | PS-L2 | Proposed schema/RLS/migration SQL and test plan, initially un-applied | None until explicitly authorized | Review data model, unique constraints, grants, Parent/Coach reads |
 | PS-L3 | Apply approved schema + add Owner extension/pause/resume controls | **Controlled migration** | Staging/isolated tests + Owner acceptance, no live blanket mutation |
 | PS-L4 | New period + payment due idempotent transaction, dry-run/backfill eligibility and scheduled job **disabled by default** | Controlled transactional writes after approval | Repeated-run/concurrency and cross-tenant negative tests |
 | PS-L5 | Prospective per-subscription activation and scheduler rollout | Approved future-period writes only | Manual acceptance, operational monitoring, rollback and payment regression |
 | PS-L6 | Docs, Git and release sign-off | None outside approved phases | Exact-HEAD tests, production review, no unapproved changes |
 
-**PS-L0B audit complete (SELECT only).** Next safe implementation: PS-L1 pure date/extension/pause calculator and deterministic unit tests. In parallel, Owner reviews PS-L0B flagged records, confirms paid-through and contract price, and approves prospective activation dates. **No migrations or scheduler activation permitted until reconciliation acceptance and separate migration review.**
+**PS-L1 source + focused automated tests complete.** Next isolated phase: **PS-L2 proposal-only subscription periods/events schema, price snapshots, RLS and idempotent due-link contract**. Do not apply migrations, wire forms, add renewal jobs or create dues without explicit schema/security approval and per-row Owner legacy reconciliation. PS-L0B approval remains outstanding.
 
 ## 9. Implementation-state checklist
 
@@ -93,9 +93,9 @@
 - [x] Existing Github branch/source and Supabase schema reviewed
 - [x] Reconciliation risks identified at aggregate level
 - [x] Per-subscription pseudonymized **read-only** reconciliation matrix created; **Owner activation/price/paid-through decisions outstanding**
-- [ ] Calendar/extension/pause calculator and tests
+- [x] **PS-L1 source and unit tests passed** (86/86); **real browser/ledger integration not implemented**
 - [ ] Database schema/security migration reviewed and approved
 - [ ] Automated renewal/billing code and scheduler created
 - [ ] Manual browser/role/tenant regression and production sign-off
 
-**End of contract. This document is planning only, not evidence of a deployed feature or migration.**
+**End of contract. The pure PS-L1 calculator is implemented and tested; all lifecycle database/UI/renewal features remain planned, not deployed.**

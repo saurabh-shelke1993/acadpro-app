@@ -1,6 +1,6 @@
 # AcadPro Architecture
 
-**Last Updated:** 6 November 2026 (PS-L0B reconciliation / approved pricing contract; other sections historical)  
+**Last Updated:** 6 November 2026 (PS-L1 date-only lifecycle calculator; other sections historical)  
 **Current Branch:** `payment-module-finalization`
 
 ## 1. Platform
@@ -31,6 +31,14 @@ Parent linkage is represented by `players.parent_id → parents.id`. Parent auth
 - Parent: `/parent-portal`
 
 The Parent Portal is protected by a parent-only route guard. Supabase Auth handles authentication; role and academy information is stored in `public.users`.
+
+### Player Subscription PS-L1 pure calendar utility (implemented, not integrated)
+
+- `frontend/src/utils/subscriptionLifecycleDates.js` is a standalone, dependency-free, deterministic ISO YYYY-MM-DD Gregorian calendar helper. No database, payments, React, UI, RPC or scheduler import. It is currently **not consumed** by the subscription page or other production services.
+- `calculateSubscriptionPeriod({anchorStartDate,billingCycle,periodIndex})` supports 1/3/6/12-month intervals and preserves the original anniversary day over February/short months; return values include period start, original/effective end and next renewal. Periods are inclusive; date-only arithmetic is independent of browser time zone and JavaScript timestamp mutations.
+- `calculateVacationExtension` computes revised end and next renewal from approved positive calendar-day input; provisional `successorPeriodExists` / `successorDueExists` flags reject an existing successor. **These flags are caller-provided; future server-side transaction checks must be authoritative**.
+- `calculatePauseEntitlement` requires verified full-period paid-through evidence and a pause day inside the period; frozen unused paid days include the pause day. `calculateResumeEntitlement` restores those days from a later approved resume date, producing the new effective end/anniversary; `calculateRebasedSubscriptionPeriod` is used only after an adjustment/resume, not for ordinary renewal.
+- New Jest suite: **86/86** passed; full scoped Subscriptions CI: **131/131 + React build** at `387e1210`. PS-L2 period/event ledger and contracted-price snapshots, RLS, Owner audit, due idempotency and Cron remain **design/pending**, with PS-L0B Owner reconciliation still open. No Supabase migration or business-data writes.
 
 ### Player Subscription PS-L0B read-only audit and contracted-price rule (no schema changes)
 
