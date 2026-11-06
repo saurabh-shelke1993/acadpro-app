@@ -8,7 +8,7 @@
 
 A player joining an academy **partway through January** should not automatically be charged a full fixed-calendar-month recurring fee when they have fewer training opportunities in the remainder of that billing period. For a Monday/Wednesday/Friday batch the fee may be based on the actual number of scheduled sessions remaining, rather than an assumed 12 per month.
 
-**Do not confuse** the proposed fixed-calendar-month first period `15 Jan–31 Jan` with the already-approved PS-L1 rolling anniversary month `15 Jan–14 Feb`. The latter covers a full calendar month of entitlement and ordinarily bills full price. **Product-owner decision required:** support academy-level calendar-month alignment, keep rolling cycles, or both as explicitly configured alternatives. Do not silently change PS-L1 existing anniversary contract.
+**Do not confuse** the proposed fixed-calendar-month first period `15 Jan–31 Jan` with the already-approved PS-L1 rolling anniversary month `15 Jan–14 Feb`. The latter covers a full calendar month of entitlement and ordinarily bills full price. **Owner decision (6 November 2026):** support both fixed-calendar-month and rolling-anniversary monthly alignment as academy-configurable options. Do not silently change PS-L1 existing anniversary contract.
 
 ## 2. Two calculation modes (proposed)
 
@@ -16,7 +16,7 @@ A player joining an academy **partway through January** should not automatically
 
 `firstPeriodFee = roundToPaisa(lockedRecurringFee * inclusiveEligibleCalendarDays / inclusiveCalendarDaysInFullFixedPeriod)`.
 
-Example **January 2027**: INR 1,500 recurring amount, join `2027-01-15`, first partial period ends `2027-01-31`. **17 / 31 days** = **INR 822.58** after final rounding. Normal full INR 1,500 renewal would begin 1 February, if fixed-month billing is approved.
+Example **January 2027**: INR 1,500 recurring amount, join `2027-01-15`, first partial period ends `2027-01-31`. **17 / 31 days** = **INR 822.58** after final rounding. Under the approved fixed-calendar alignment, the next full INR 1,500 renewal would begin on 1 February.
 
 ### B. Scheduled training-session ratio (preferred operational default, subject to approval)
 
@@ -52,9 +52,9 @@ If a particular authorized batch has multiple sessions on a weekday, count each 
 
 | Phase | Work | Approval / safety gate |
 |---|---|---|
-| PS-L1P0 — Design | Compare fixed-calendar vs anniversary model, actual session denominator, cancellation policies, locked price | **Inspected and documented; essential billing policy not yet approved** |
+| PS-L1P0 — Design | Compare fixed-calendar vs anniversary model, actual session denominator, cancellation policies, locked price | **Alignment approved: both models; proration method/default still pending** |
 | PS-L1P1 — Pure proration utility | **Implemented:** calendar-day/session calculations, enrollment, exclusions, rounding and validation | **61/61 tests PASS, no SQL/UI/billing writes** |
-| PS-L1P2 — Owner preview | First-month quote shows Start/End, nominal rate, sessions/days total and eligible, discount and first-period fee; no automatic charge | Requires fixed-cycle and proration-method decision |
+| PS-L1P2 — Owner preview | First-month quote shows Start/End, nominal rate, sessions/days total and eligible, discount and first-period fee; no automatic charge | Alignment approved; requires proration method/default and preview data-scope decision |
 | PS-L2 — Model design | Proposed optional billing alignment, initial method, immutable period amount and basis, schedule snapshot, due linkage, adjustment audit and RLS | **Review-only migration design**; none applied |
 | Later PS-L3/PS-L4 | Persist first period through an authorized transaction, create exactly one due, renew at full locked rate | Reconciliation + owner acceptance + RBAC/financial regression + idempotency |
 
