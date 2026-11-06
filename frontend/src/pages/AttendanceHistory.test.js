@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, within, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import AttendanceHistory from "./AttendanceHistory";
 import { supabase } from "../supabaseClient";
@@ -103,5 +103,40 @@ test("AM4 History retains scoped navigation and attendance data loading", async 
     .toHaveAttribute("href", "/attendance?view=mark");
   expect(screen.getByRole("link", { name: "Attendance History" }))
     .toHaveAttribute("aria-current", "page");
+  expect(supabase.from).toHaveBeenCalledWith("attendance");
+});
+
+test("AM7 Owner sees compact academy context instead of a disabled academy selector", async () => {
+  await renderHistory("academy_owner");
+  expect(screen.getByText(/Academy:/)).toHaveTextContent("Academy: Test Academy");
+  expect(screen.queryByRole("combobox", { name: "Academy" })).not.toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Reset filters" })).toBeDisabled();
+  expect(screen.getByRole("heading", { name: "Records" })).toBeInTheDocument();
+});
+
+test("AM7 Super Admin retains academy filtering without changing their role scope", async () => {
+  await renderHistory("super_admin");
+  expect(screen.getByRole("combobox", { name: "Academy" })).toBeInTheDocument();
+  expect(screen.getByRole("option", { name: "All academies" })).toBeInTheDocument();
+});
+
+test("AM7 presents all eight historical record details for mobile card layout", async () => {
+  await renderHistory("coach");
+  const row = screen.getByRole("cell", { name: "Old Junior" }).closest("tr");
+  expect(row).toHaveClass("attendance-history-record-row");
+  expect(within(row).getByRole("cell", { name: "present" })).toHaveAttribute("data-label", "Status");
+  expect(within(row).getByRole("cell", { name: "GawandBaugh" })).toHaveAttribute("data-label", "Center");
+  expect(within(row).getByRole("cell", { name: "Juniors" })).toHaveAttribute("data-label", "Batch");
+  expect(within(row).getByRole("cell", { name: "Legacy / batch attendance" })).toHaveAttribute("data-label", "Session");
+  expect(within(row).getByRole("cell", { name: "Test Coach" })).toHaveAttribute("data-label", "Marked by");
+  expect(within(row).getByRole("cell", { name: "Read-only" })).toHaveAttribute("data-label", "Actions");
+});
+
+test("AM7 status filtering and reset keep the same scoped records", async () => {
+  await renderHistory("coach");
+  fireEvent.change(screen.getByRole("combobox", { name: "Status" }), { target: { value: "absent" } });
+  expect(await screen.findByText("No attendance records found")).toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: "Reset filters" }));
+  await waitFor(() => expect(screen.getByRole("cell", { name: "Old Junior" })).toBeInTheDocument());
   expect(supabase.from).toHaveBeenCalledWith("attendance");
 });

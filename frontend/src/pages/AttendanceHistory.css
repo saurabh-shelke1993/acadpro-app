@@ -9,7 +9,7 @@
 .attendance-history-filter-card{padding:var(--ap-space-4) var(--ap-space-5);border:1px solid var(--ap-border);border-radius:var(--ap-radius-xl);background:var(--ap-surface);box-shadow:var(--ap-shadow-sm)}
 .attendance-history-section-heading{display:flex;align-items:center;justify-content:space-between;gap:var(--ap-space-4);margin-bottom:var(--ap-space-4)}
 .attendance-history-section-heading h2,.attendance-history-list-header h2{margin:0;color:var(--ap-slate-950);font-size:1.05rem;letter-spacing:-.015em}
-.attendance-history-filter-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:var(--ap-space-3)}
+.attendance-history-filter-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:.65rem}
 .attendance-history-field{display:flex;min-width:0;flex-direction:column;gap:.35rem;color:var(--ap-slate-700);font-size:var(--ap-font-size-xs);font-weight:750}
 .attendance-history-field select,.attendance-history-field input{box-sizing:border-box;width:100%;min-height:40px;padding:.55rem .7rem;border:1px solid var(--ap-border);border-radius:var(--ap-radius-md);background:var(--ap-surface);color:var(--ap-slate-800)}
 .attendance-history-field select:disabled{cursor:not-allowed;background:var(--ap-slate-50);color:var(--ap-slate-400)}
@@ -62,47 +62,77 @@
 .attendance-history-loading-line{width:260px;height:10px;border-radius:var(--ap-radius-full);background:var(--ap-border);animation:attendance-history-pulse 1.2s ease-in-out infinite}
 .attendance-history-loading-line.short{width:150px;margin-bottom:.6rem}
 @keyframes attendance-history-pulse{0%,100%{opacity:.45}50%{opacity:1}}
-@media(max-width:1200px){.attendance-history-filter-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:1200px){.attendance-history-filter-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:900px){.attendance-history-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.attendance-history-list-header{align-items:flex-start;flex-direction:column}.attendance-history-result-count{white-space:normal}}
-@media(max-width:640px){.attendance-history-toolbar{align-items:flex-start;flex-direction:column}.attendance-history-toolbar-meta{align-items:flex-start}.attendance-history-filter-grid,.attendance-history-summary{grid-template-columns:1fr}.attendance-history-section-heading{align-items:flex-start;flex-direction:column}.attendance-history-reset-button{width:100%}.attendance-history-pagination{align-items:flex-start;flex-direction:column}.attendance-history-pagination-controls{width:100%;justify-content:space-between}.attendance-history-pagination-controls button{flex:1}.attendance-history-pagination-controls span{padding:0 .25rem;white-space:nowrap}}
+@media(max-width:640px){.attendance-history-filter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.attendance-history-section-heading{flex-wrap:wrap}.attendance-history-pagination{align-items:flex-start;flex-direction:column}.attendance-history-pagination-controls{width:100%;justify-content:space-between}.attendance-history-pagination-controls button{flex:1}.attendance-history-pagination-controls span{padding:0 .25rem;white-space:nowrap}}
 
 
-/* Compact history view for tablet and mobile: prioritize date, player, batch, status and actions. */
-@media(max-width:900px){
-  .attendance-history-table{min-width:0;table-layout:fixed}
-  .attendance-history-table th,
-  .attendance-history-table td{padding:.55rem .6rem}
-  .attendance-history-table th:nth-child(3),
-  .attendance-history-table td:nth-child(3),
-  .attendance-history-table th:nth-child(6),
-  .attendance-history-table td:nth-child(6){display:none}
-  .attendance-history-table th:nth-child(1),
-  .attendance-history-table td:nth-child(1){width:72px}
-  .attendance-history-table th:nth-child(2),
-  .attendance-history-table td:nth-child(2){width:30%}
-  .attendance-history-table th:nth-child(4),
-  .attendance-history-table td:nth-child(4){width:22%}
-  .attendance-history-table th:nth-child(5),
-  .attendance-history-table td:nth-child(5){width:78px}
-  .attendance-history-table th:nth-child(7),
-  .attendance-history-table td:nth-child(7){width:86px}
+/* AM7: full record details remain accessible on mobile without horizontal
+   scrolling. Each native table row visually becomes a compact record card. */
+@media (max-width: 900px) {
+  .attendance-history-table-wrap { overflow-x: hidden; border: 0; background: transparent; box-shadow: none; }
+  .attendance-history-table { min-width: 0; display: block; }
+  .attendance-history-table thead {
+    position: absolute; width: 1px; height: 1px; padding: 0;
+    margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0);
+    white-space: nowrap; border: 0;
+  }
+  .attendance-history-table tbody {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 350px), 1fr));
+    gap: 0.65rem;
+  }
+  .attendance-history-table .attendance-history-record-row {
+    display: grid;
+    min-width: 0;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.55rem 0.8rem;
+    padding: 0.8rem 0.85rem;
+    border: 1px solid var(--ap-border);
+    border-radius: var(--ap-radius-lg);
+    background: var(--ap-surface);
+    box-shadow: var(--ap-shadow-sm);
+  }
+  .attendance-history-table .attendance-history-record-row td {
+    display: block;
+    width: auto;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    font-size: var(--ap-font-size-xs);
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+  .attendance-history-table .attendance-history-record-row td::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 0.12rem;
+    color: var(--ap-slate-500);
+    font-size: 0.67rem;
+    font-weight: 750;
+    text-transform: uppercase;
+    letter-spacing: 0.035em;
+  }
+  .attendance-history-table .attendance-history-record-row td:nth-child(1) { order: 1; }
+  .attendance-history-table .attendance-history-record-row td:nth-child(2) {
+    order: 0; grid-column: 1 / -1; font-size: var(--ap-font-size-sm);
+  }
+  .attendance-history-table .attendance-history-record-row td:nth-child(3) { order: 3; }
+  .attendance-history-table .attendance-history-record-row td:nth-child(4) { order: 4; }
+  .attendance-history-table .attendance-history-record-row td:nth-child(5) { order: 5; grid-column: 1 / -1; }
+  .attendance-history-table .attendance-history-record-row td:nth-child(6) { order: 2; }
+  .attendance-history-table .attendance-history-record-row td:nth-child(7) { order: 6; }
+  .attendance-history-table .attendance-history-record-row td:nth-child(8) {
+    order: 7; grid-column: 1 / -1;
+    padding-top: 0.35rem; border-top: 1px solid var(--ap-border);
+  }
+  .attendance-history-table .attendance-history-actions {
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
 }
-@media(max-width:640px){
-  .attendance-history-table th,
-  .attendance-history-table td{padding:.5rem .45rem;font-size:12px}
-  .attendance-history-table th:nth-child(4),
-  .attendance-history-table td:nth-child(4){display:none}
-  .attendance-history-table th:nth-child(1),
-  .attendance-history-table td:nth-child(1){width:66px}
-  .attendance-history-table th:nth-child(2),
-  .attendance-history-table td:nth-child(2){width:auto}
-  .attendance-history-table th:nth-child(5),
-  .attendance-history-table td:nth-child(5){width:66px}
-  .attendance-history-table th:nth-child(7),
-  .attendance-history-table td:nth-child(7){width:72px}
-  .attendance-history-player-cell{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .attendance-history-actions{gap:.25rem}
-   .attendance-icon-button,.attendance-action-button{min-height:var(--ap-control-standard-height);padding:.3rem .45rem}
+@media (max-width: 400px) {
+  .attendance-history-table .attendance-history-record-row { padding: 0.7rem; gap: 0.45rem; }
 }
 
 /* Summary cards removed: keep history focused on filters and records. */
@@ -159,4 +189,41 @@
   font-size: 0.72rem;
   font-weight: 650;
   white-space: nowrap;
+}
+
+/* AM7 compact History controls to match accepted AM6 marking density. */
+.attendance-history-filter-card { padding: 0.65rem 0.85rem; }
+.attendance-history-section-heading {
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 0.5rem;
+}
+.attendance-history-filter-title {
+  min-width: 0;
+  color: var(--ap-slate-600);
+  font-size: var(--ap-font-size-xs);
+  overflow-wrap: anywhere;
+}
+.attendance-history-filter-title strong { color: var(--ap-slate-800); }
+.attendance-history-reset-button { margin-left: auto; }
+.attendance-history-field { gap: 0.2rem; }
+.attendance-history-field select, .attendance-history-field input { min-height: 42px; }
+.attendance-history-list-header {
+  align-items: center;
+  gap: 0.65rem;
+  margin: 0.85rem 0 0.5rem;
+}
+.attendance-history-list-header h2 { font-size: 1rem; }
+.attendance-history-record-count {
+  color: var(--ap-slate-500);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+.attendance-history-page .attendance-history-coach-rule { margin: 0.15rem 0 0; }
+@media (max-width: 640px) {
+  .attendance-history-section-heading { flex-direction: row; }
+  .attendance-history-reset-button { width: auto; }
+}
+@media (max-width: 400px) {
+  .attendance-history-filter-grid { grid-template-columns: minmax(0, 1fr); }
 }

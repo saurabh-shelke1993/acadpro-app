@@ -19,6 +19,7 @@ import {
 import Layout from "../components/Layout";
 import AttendanceWorkspaceTabs from "../components/AttendanceWorkspaceTabs";
 import { canEditAttendanceRecord } from "../utils/attendanceEditWindow";
+import { formatAttendanceSessionLabel } from "../utils/attendancePresentation";
 import "./AttendanceHistory.css";
 
 const PAGE_SIZE = 5;
@@ -249,7 +250,7 @@ function AttendanceHistory() {
 
 
   const hasActiveFilters = Boolean(
-    selectedAcademy ||
+    (isSuperAdmin(user) && selectedAcademy) ||
       selectedCenter ||
       selectedBatch ||
       selectedPlayer ||
@@ -368,10 +369,12 @@ function AttendanceHistory() {
         <AttendanceWorkspaceTabs role={user?.role} />
         <section className="attendance-history-filter-card" aria-labelledby="attendance-history-filters">
           <div className="attendance-history-section-heading">
-            <div>
-              <span className="attendance-history-section-label">Filters</span>
-              <h2 id="attendance-history-filters">Attendance history</h2>
-            </div>
+            <h1 id="attendance-history-filters" className="sr-only">Attendance History filters</h1>
+            <span className="attendance-history-filter-title">
+              {isSuperAdmin(user) ? "Filter attendance records" : (
+                <>Academy: <strong>{academies.find((academy) => academy.id === selectedAcademy)?.academy_name || "Loading academy…"}</strong></>
+              )}
+            </span>
             <button
               type="button"
               className="attendance-history-reset-button"
@@ -381,23 +384,18 @@ function AttendanceHistory() {
               Reset filters
             </button>
           </div>
-
           <div className="attendance-history-filter-grid">
-            <label className="attendance-history-field">
-              <span>Academy</span>
-              <select
-                value={selectedAcademy}
-                onChange={(event) => handleAcademyChange(event.target.value)}
-                disabled={!isSuperAdmin(user)}
-              >
-                <option value="">All academies</option>
-                {academies.map((academy) => (
-                  <option key={academy.id} value={academy.id}>
-                    {academy.academy_name}
-                  </option>
-                ))}
-              </select>
-            </label>
+            {isSuperAdmin(user) && (
+              <label className="attendance-history-field">
+                <span>Academy</span>
+                <select value={selectedAcademy} onChange={(event) => handleAcademyChange(event.target.value)}>
+                  <option value="">All academies</option>
+                  {academies.map((academy) => (
+                    <option key={academy.id} value={academy.id}>{academy.academy_name}</option>
+                  ))}
+                </select>
+              </label>
+            )}
 
             <label className="attendance-history-field">
               <span>Center</span>
@@ -464,7 +462,7 @@ function AttendanceHistory() {
             </label>
 
             <label className="attendance-history-field">
-              <span>Start date</span>
+              <span>From date</span>
               <input
                 type="date"
                 value={startDate}
@@ -474,7 +472,7 @@ function AttendanceHistory() {
             </label>
 
             <label className="attendance-history-field">
-              <span>End date</span>
+              <span>To date</span>
               <input
                 type="date"
                 value={endDate}
@@ -487,18 +485,24 @@ function AttendanceHistory() {
 
         <div className="attendance-history-list-header">
           <div>
-            <span className="attendance-history-section-label">Records</span>
-            <h2>Attendance records</h2>
+            <h2>
+              Records
+              {!loading && !errorMessage && (
+                <span className="attendance-history-record-count"> · {filteredHistory.length}</span>
+              )}
+            </h2>
             {user?.role === "coach" && (
-              <p className="attendance-history-coach-rule">Coaches can edit attendance from the last 7 calendar dates. Earlier records are read-only.</p>
+              <p className="attendance-history-coach-rule">
+                Coaches can edit attendance from the last 7 calendar dates. Earlier records are read-only.
+              </p>
             )}
-            <p>
-              {startDate || endDate
-                ? `Showing records from ${startDate ? formatDate(startDate) : "the beginning"} to ${endDate ? formatDate(endDate) : "the latest available date"}.`
-                : "Latest attendance records first."}
-            </p>
+            {(startDate || endDate) && (
+              <p>
+                {startDate ? formatDate(startDate) : "Earliest"} – {endDate ? formatDate(endDate) : "Latest"}
+              </p>
+            )}
           </div>
-          {filteredHistory.length > 0 && (
+          {!loading && !errorMessage && filteredHistory.length > 0 && (
             <div className="attendance-history-result-count">
               Showing {pageStart}–{pageEnd} of {filteredHistory.length}
             </div>
@@ -544,7 +548,7 @@ function AttendanceHistory() {
         ) : (
           <>
             <div className="attendance-history-table-wrap">
-              <table className="attendance-history-table">
+              <table className="attendance-history-table" role="table">
                 <caption className="sr-only">
                   Attendance history with date, player, center, batch, status, and available actions
                 </caption>
@@ -562,15 +566,15 @@ function AttendanceHistory() {
                 </thead>
                 <tbody>
                   {paginatedHistory.map((item) => (
-                    <tr key={item.id}>
-                      <td>{formatDate(item.attendance_date)}</td>
-                      <td className="attendance-history-player-cell">
+                    <tr key={item.id} className="attendance-history-record-row">
+                      <td data-label="Date">{formatDate(item.attendance_date)}</td>
+                      <td className="attendance-history-player-cell" data-label="Player">
                         {item.players?.full_name || "—"}
                       </td>
-                      <td>{item.batches?.centers?.center_name || "—"}</td>
-                      <td>{item.batches?.batch_name || "—"}</td>
-                      <td>{item.batch_schedules ? [item.batch_schedules.session_label, item.batch_schedules.start_time ? `${String(item.batch_schedules.start_time).slice(0, 5)}–${String(item.batch_schedules.end_time || "").slice(0, 5)}` : null].filter(Boolean).join(" · ") : "Legacy / batch attendance"}</td>
-                      <td>
+                      <td data-label="Center">{item.batches?.centers?.center_name || "—"}</td>
+                      <td data-label="Batch">{item.batches?.batch_name || "—"}</td>
+                      <td data-label="Session">{item.batch_schedules ? formatAttendanceSessionLabel(item.batch_schedules) : "Legacy / batch attendance"}</td>
+                      <td data-label="Status">
                         {editingAttendanceId === item.id ? (
                           <select
                             className="attendance-history-status-select"
@@ -589,8 +593,8 @@ function AttendanceHistory() {
                           </span>
                         )}
                       </td>
-                      <td>{item.users?.full_name || "—"}</td>
-                      <td>
+                      <td data-label="Marked by">{item.users?.full_name || "—"}</td>
+                      <td data-label="Actions">
                         <div className="attendance-history-actions">
                           {editingAttendanceId === item.id ? (
                             <>

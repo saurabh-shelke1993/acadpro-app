@@ -1,4 +1,4 @@
-name: Attendance AM1–AM6 validation
+name: Attendance AM1–AM7 validation
 
 on:
   push:
@@ -54,7 +54,7 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
-      - name: Run AM1–AM6 regression tests
+      - name: Run AM1–AM7 regression tests
         env:
           CI: 'true'
         run: npm test -- --watchAll=false --runInBand --testPathPattern='(AttendanceWorkspace|AttendanceWorkspaceTabs|Sidebar(?:\.accessibility)?|Attendance|CoachAttendance|AttendanceHistory|attendanceEditWindow|attendancePresentation|attendanceService)\.test\.js$'
