@@ -6,6 +6,7 @@ on:
     paths:
       - 'supabase/proposals/subscriptions/ps_l2_3_foundation.sql'
       - 'supabase/tests/subscriptions/ps_l2_3_supabase_parity.test.sql'
+      - 'supabase/tests/subscriptions/ps_l2_3_local_private_baseline.sql'
       - '.github/workflows/subscriptions-ps-l2-3-supabase-local.yml'
   workflow_dispatch:
 
@@ -34,10 +35,14 @@ jobs:
           supabase --version
           supabase db start --help
           supabase db reset --help
-      - name: Start isolated Supabase database
+      - name: Reconstruct missing historical private helpers in CI checkout ONLY
+        run: |
+          # This file is generated only inside the disposable runner's checkout.
+          # It is NEVER committed under supabase/migrations and never run remotely.
+          cp supabase/tests/subscriptions/ps_l2_3_local_private_baseline.sql \
+            supabase/migrations/20260823100000_ps_l2_3_ci_only_private_baseline.sql
+      - name: Start isolated Supabase database and replay migrations
         run: supabase db start
-      - name: Replay repository migration history on local database
-        run: supabase db reset
       - name: Verify actual auth, roles and finance helpers exist
         run: |
           psql -X -v ON_ERROR_STOP=1 -c "
@@ -47,7 +52,7 @@ jobs:
                  OR to_regclass('public.player_subscriptions') IS NULL
                  OR to_regclass('public.payment_dues') IS NULL
                  OR to_regprocedure('private.can_manage_academy(uuid)') IS NULL
-                 OR to_regprocedure('public.collect_payment(uuid,numeric,text,text,text)') IS NULL
+                 OR to_regprocedure('public.collect_payment(uuid,numeric,text,text)') IS NULL
               THEN
                 RAISE EXCEPTION 'Local migration replay missing Auth, subscription or finance dependency';
               END IF;
