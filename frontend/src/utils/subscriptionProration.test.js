@@ -55,6 +55,20 @@ describe("PS-L1P1 billing alignment and initial fixed-period proration", () => {
       firstPeriodAmountPaise: 150000, discountPaise: 0, requiresReview: false,
     });
   });
+  test("anniversary subscription does not require an irrelevant proration method", () => {
+    const result = quote(request({
+      billingAlignment: ALIGN.ANNIVERSARY_MONTH,
+      prorationMethod: undefined,
+      sessionSlots: [],
+    }));
+    expect(result).toMatchObject({
+      appliedMethod: "none", firstPeriodAmountPaise: 150000,
+      nextRenewalDate: "2027-02-15",
+    });
+  });
+  test("fixed-calendar subscription requires an explicit proration method", () => {
+    expect(() => quote(request({ prorationMethod: undefined }))).toThrow(/Unsupported proration method/);
+  });
   test.each([["2027-01-01",31,31],["2027-01-31",1,31]])(
     "fixed calendar days join %s earns %i/%i", (joinDate, eligible, total) => {
       const result = quote(request({ joinDate, prorationMethod: METHOD.CALENDAR_DAYS }));

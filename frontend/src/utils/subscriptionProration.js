@@ -178,7 +178,7 @@ export const calculateInitialMonthlyProration = ({
   billingAlignment,
   joinDate,
   agreedAmountPaise,
-  prorationMethod = SUBSCRIPTION_PRORATION_METHOD.SCHEDULED_SESSIONS,
+  prorationMethod,
   sessionSlots = [],
   excludedOccurrences = [],
 }) => {
@@ -189,11 +189,11 @@ export const calculateInitialMonthlyProration = ({
   if (!Object.values(SUBSCRIPTION_BILLING_ALIGNMENT).includes(billingAlignment)) {
     throw new RangeError("Billing alignment must be explicitly selected");
   }
-  requireMethod(prorationMethod);
   if (!Array.isArray(excludedOccurrences)) {
     throw new RangeError("Excluded occurrences must be an array");
   }
   if (billingAlignment === SUBSCRIPTION_BILLING_ALIGNMENT.ANNIVERSARY_MONTH) {
+    if (prorationMethod !== undefined) requireMethod(prorationMethod);
     if (excludedOccurrences.length > 0) {
       throw new RangeError("Session exclusions cannot alter anniversary-based full pricing");
     }
@@ -216,6 +216,8 @@ export const calculateInitialMonthlyProration = ({
     };
   }
 
+  // Fixed-month billing must select a pricing basis explicitly; no silent default.
+  requireMethod(prorationMethod);
   const { fullPeriodStartDate, firstPeriodEndDate, nextRenewalDate } = monthBounds(joinDate);
   let totalCount;
   let eligibleCount;
