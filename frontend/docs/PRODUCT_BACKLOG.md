@@ -1,6 +1,6 @@
 # AcadPro Product Backlog
 
-**Last Updated:** 6 November 2026 (PS-L1P2 read-only preview checkpoint; historical sections retained)
+**Last Updated:** 6 November 2026 (PS-L2.1 architecture review; historical sections retained)
 **Current Branch:** `payment-module-finalization`
 
 Security and data isolation are prerequisites for production.
@@ -432,7 +432,9 @@ See `frontend/docs/PLAYER_SUBSCRIPTIONS_PS1_20261106.md`. Original SM1–SM3 com
 - [x] **PS-L1P2 — Read-only Player Subscriptions fee preview implemented and focused-tested:** Separate responsive `SubscriptionFeePreview`, explicit fixed/anniversary and session/day choices, scoped read-only active schedule mapping, same-academy check, clear estimate-only warning; no end date/discount/due/setting persistence. **10/10 new preview + 4/4 Player Subscriptions + 189/189 remaining targeted tests = 203/203 PASS; React build PASS** at `7e0ddb4` ([CI 42169267470](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42169267470)). See `frontend/docs/PLAYER_SUBSCRIPTIONS_PS_L1P2_PREVIEW_20261106.md`.
 - [ ] **PS-L1P2 manual acceptance:** Owner/Super Admin sample fixed calendar/anniversary quotes, 7/13 session mapping, missing/failed enrollment, cross-academy mismatch, 320–1440px, confirm no payment/due/save change. **Not yet tested by Owner.**
 - [ ] **PS-L1P3 / PS-L2 policy and schema design:** Decide academy's default proration method and holiday/cancellation handling; design future explicit saved alignment, immutable rate/period basis, authoritative RLS checks and idempotent due linkage. **No migration approved.**
-- [ ] **PS-L2 — Proposed schema/RLS migrations for period and immutable events:** Draft only until reviewed/approved; preserve stable subscription FK and existing payments; add idempotency/academy guards.
+- [x] **PS-L2.1 architecture REVIEW DONE (documentation only):** Live read-only schema, grants/RLS/FKs/RPC and UI dependencies inspected; proposed stable agreement, period price ledger, lifecycle audit, academy policy and due idempotency. Flagged cascade deletion, broad TRUNCATE grants, Coach subscription-policy mismatch and 3 current vs 4 historic academy mismatches. No migrations, code or records changed. See frontend/docs/PLAYER_SUBSCRIPTIONS_PS_L2_1_ARCHITECTURE_REVIEW_20261106.md.
+- [ ] **PS-L2.2 detailed schema/security proposal:** Draft explicit columns, FK/index/unique/overlap rules, RLS/grants/RPC, deletion protections, legacy HOLD activation, negative role/tenant tests and reversibility for Owner architecture review; do not apply.
+- [ ] **PS-L2.3 isolated unapplied migration/test candidate:** Source-controlled schema candidate, only after PS-L2.2 design approval; separate authorization required for any live DDL.
 - [ ] **PS-L3 — Approved lifecycle management UI + controlled migration:** Extension, pause/resume, Coach attendance badge, Parent read-only state; role/tenant regression.
 - [ ] **PS-L4 — Automatic renewal engine + due creation:** Atomic/idempotent, scheduled trigger disabled until dry-run and financial pricing policy signed off. No back-billing or payment collection.
 - [ ] **PS-L5 — Prospective activation, end-to-end tenant/RLS/finance regression and scheduler rollout:** controlled first batch, monitored outcomes, rollback plans.

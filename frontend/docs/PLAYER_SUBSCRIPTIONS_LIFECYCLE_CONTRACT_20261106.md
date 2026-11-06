@@ -1,4 +1,4 @@
-# Kheltriva — Player Subscription Lifecycle Contract v1.4
+# Kheltriva — Player Subscription Lifecycle Contract v1.5
 
 **Date:** 6 November 2026  
 **Latest decision:** Original recurring price locked for existing subscribers until explicit Academy Owner approval of a future-only change. **PS-L1 pure date calculator implemented and focused-CI validated**. PS-L0B Owner row-level activation decisions pending.  
@@ -44,6 +44,12 @@
 The Owner requested reduced charges for a child joining mid-January, ideally based on the actual Mon/Wed/Fri sessions remaining. This request requires an explicit alignment decision: the existing PS-L1 rolling anniversary month 15 Jan–14 Feb is a full monthly entitlement, but a **fixed calendar-month** first period 15–31 Jan can be prorated. Two future calculations are proposed: actual authorized **scheduled sessions** remaining / actual sessions in the full calendar month (preferred for coaching), or inclusive eligible **calendar days** / full calendar days. Count distinct schedule occurrences, not assumed 12/month or attendance marks. At INR 1,500 in January 2027 Mon/Wed/Fri there are 13 sessions, seven from January 15: INR 807.69. Calendar days: 17/31 = INR 822.58. Only an initial partial period should be discounted; later full periods renew at the agreed locked price.
 
 **Updated status:** Both alignments approved and the read-only preview UI is implemented. **Not approved:** saved academy billing default/method or holiday/cancellation data policy. No holiday ledger, authoritative billing UI, generated dues or migration. Do not change existing PS-L1 anniversary behavior. Detailed proposal: `PLAYER_SUBSCRIPTIONS_PRORATION_PROPOSAL_20261106.md`.
+
+### PS-L2.1 actual schema and architecture checkpoint (planning only)
+
+Verified live Postgres schema, grants, RLS and financial/UPI dependencies. Recommended durable existing subscription agreement -> proposed period ledger -> one linked new tuition due per period; snapshot original contracted rate separately from first prorated amount; immutable Owner lifecycle events; and academy-configurable alignment/settings. For an existing Active subscription, **Renew**, not Create, is the intended future action.
+
+Current subscription->due and due->payment FK deletion is CASCADE. Grants are broader than RLS use, including TRUNCATE, and must be reviewed before new billing. Prior PS-L0B showed 4 mismatched academy plans; fresh read-only SQL shows 3, so legacy audit must be rerun. **No migration or actual financial lifecycle behavior was implemented.** See PLAYER_SUBSCRIPTIONS_PS_L2_1_ARCHITECTURE_REVIEW_20261106.md.
 
 ## 3. Domain model proposed for later migration (not implemented)
 

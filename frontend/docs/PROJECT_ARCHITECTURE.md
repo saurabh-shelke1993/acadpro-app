@@ -1,6 +1,6 @@
 # AcadPro Architecture
 
-**Last Updated:** 6 November 2026 (PS-L1P2 preview and read-only data-scope checkpoint; other sections historical)
+**Last Updated:** 6 November 2026 (PS-L2.1 design-only architecture review; other sections historical)
 **Current Branch:** `payment-module-finalization`
 
 ## 1. Platform
@@ -199,6 +199,10 @@ The import layer includes:
 - Import summary for imported players and parent reuse/creation
 
 No database writes occur during parsing or validation/preview.
+
+### PS-L2.1 proposed subscription lifecycle architecture (NOT implemented)
+
+Keep player_subscriptions.id as the durable agreement; propose academy billing policy, immutable price and date snapshots in subscription_periods, lifecycle event history, and a nullable future period link on payment_dues with one recurring tuition due per period. Renew under the existing agreement; never create duplicate Active agreements to simulate renewal. Current financial ancestry uses ON DELETE CASCADE on agreement->due and due->payment; correct this only through a reviewed safe migration. Protect existing Parent UPI/payment corrections and RLS policies. Current table grants and Coach read-policy discrepancy require PS-L2.2 least-privilege/design review. **No DDL, financial write or scheduler activation in PS-L2.1.** Full proposal: PLAYER_SUBSCRIPTIONS_PS_L2_1_ARCHITECTURE_REVIEW_20261106.md.
 
 ## 9. Implemented modules
 

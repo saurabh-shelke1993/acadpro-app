@@ -1,8 +1,16 @@
 # AcadPro Project Status
 
-**Last Updated:** 6 November 2026 (PS-L1P2 preview UI and focused CI; older sections retain historical dates)
+**Last Updated:** 6 November 2026 (PS-L2.1 design-only lifecycle architecture review; older sections retain historical dates)
 **Current Version:** V1.0 Beta (development; not release sign-off)  
 **Current Git Branch:** `payment-module-finalization`
+
+## Latest architecture checkpoint — PS-L2.1 reviewed (6 November 2026)
+
+**Read-only inspected:** Existing subscriptions, plans, dues, payments, corrections, Parent UPI and schedule relationships; associated React create/update/deactivation, financial RPC/trigger, RLS policies, database grants and FKs. **Proposed, not implemented:** durable agreement -> multiple billing periods -> one new pending tuition due per period; approved rate/price/proration snapshot; immutable extension/pause/resume/reprice history; academy billing configuration.
+
+**Risks:** Current subscription-to-due and due-to-payment cascade-delete FKs must be protected; financial tables have broad grants including TRUNCATE requiring separate least-privilege audit, though no direct UI exploit is established. Role Matrix Coach subscription read differs from live RLS. Fresh data now has 3 academy mismatches vs 4 historical; all 22 legacy end dates remain NULL. No approved legacy activation.
+
+**Status:** PS-L2.1 review documented, **zero database/app/financial changes** and no new automated tests to run. Next PS-L2.2 proposed schema/constraints/RLS/transaction/rollback design, then separate Owner approval before migration. See PLAYER_SUBSCRIPTIONS_PS_L2_1_ARCHITECTURE_REVIEW_20261106.md.
 
 ## Latest implementation checkpoint — PS-L1P2 read-only fee preview (6 November 2026)
 
