@@ -1,5 +1,6 @@
 import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import Layout from "../components/Layout";
+import SubscriptionsWorkspaceTabs from "../components/SubscriptionsWorkspaceTabs";
 import "./SubscriptionPlans.css";
 import { supabase } from "../services/supabase";
 import { getLoggedInUser, isSuperAdmin, getAcademyId } from "../utils/auth";
@@ -220,8 +221,13 @@ function SubscriptionPlans() {
   const inactivePlanCount = plans.length - activePlanCount;
   const selectedAcademyName = academies.find((academy) => academy.id === selectedAcademy)?.academy_name || "Select academy";
 
+  const hasUnsavedPlan = Boolean(
+    editingPlanId || planName.trim() || billingCycle || amount !== "" || registrationFee !== ""
+  );
+
   return (
     <Layout>
+      <SubscriptionsWorkspaceTabs currentView="plans" hasUnsavedChanges={hasUnsavedPlan} />
       <div className={"subscription-plans-page" + (isSuperAdmin(loggedInUser) ? " subscription-plans-page-super-admin" : "")}>
         <section className="subscription-plans-form-card">
           <div className="subscription-plans-form-heading">

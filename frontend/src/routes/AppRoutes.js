@@ -22,8 +22,7 @@ import Batches from "../pages/Batches";
 import Players from "../pages/Players";
 import Enquiries from "../pages/Enquiries";
 import AttendanceWorkspace, { LegacyAttendanceRedirect } from "../pages/AttendanceWorkspace";
-import SubscriptionPlans from "../pages/SubscriptionPlans";
-import PlayerSubscriptions from "../pages/PlayerSubscriptions";
+import SubscriptionsWorkspace, { LegacySubscriptionsRedirect } from "../pages/SubscriptionsWorkspace";
 import PaymentDues from "../pages/PaymentDues";
 import PaymentCollections from "../pages/PaymentCollections";
 import Expenses from "../pages/Expenses";
@@ -204,29 +203,26 @@ function AppRoutes() {
         />
 
         <Route
-          path="/subscription-plans"
+          path="/subscriptions"
           element={
-            <ProtectedRoute
-              allowedRoles={[
-                "super_admin",
-                "academy_owner"
-              ]}
-            >
-              <SubscriptionPlans />
+            <ProtectedRoute allowedRoles={["super_admin", "academy_owner"]}>
+              <SubscriptionsWorkspace />
             </ProtectedRoute>
           }
         />
-
+        <Route
+          path="/subscription-plans"
+          element={
+            <ProtectedRoute allowedRoles={["super_admin", "academy_owner"]}>
+              <LegacySubscriptionsRedirect view="plans" />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/player-subscriptions"
           element={
-            <ProtectedRoute
-              allowedRoles={[
-                "super_admin",
-                "academy_owner"
-              ]}
-            >
-              <PlayerSubscriptions />
+            <ProtectedRoute allowedRoles={["super_admin", "academy_owner"]}>
+              <LegacySubscriptionsRedirect view="players" />
             </ProtectedRoute>
           }
         />

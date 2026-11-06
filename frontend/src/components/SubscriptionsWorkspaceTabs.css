@@ -1,0 +1,98 @@
+/* SM2 — view-only switcher; no subscription form styles are changed. */
+.subscriptions-workspace-nav {
+  width: 100%;
+  min-width: 0;
+  margin: 0 0 var(--ap-space-4);
+}
+.subscriptions-workspace-views {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ap-space-3);
+}
+.subscriptions-workspace-view {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 68px;
+  gap: 0.7rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--ap-border);
+  border-radius: var(--ap-radius-lg);
+  background: var(--ap-surface);
+  box-shadow: var(--ap-shadow-sm);
+  color: var(--ap-slate-800);
+  text-decoration: none;
+}
+.subscriptions-workspace-view:hover {
+  background: var(--ap-primary-50);
+  border-color: var(--ap-primary-200);
+}
+.subscriptions-workspace-view-active,
+.subscriptions-workspace-view-active:hover {
+  border: 2px solid var(--ap-primary-600);
+  background: var(--ap-primary-50);
+  padding: calc(0.7rem - 1px) calc(0.85rem - 1px);
+}
+.subscriptions-workspace-view:focus-visible {
+  outline: 3px solid var(--ap-primary-600);
+  outline-offset: 2px;
+}
+.subscriptions-workspace-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  border-radius: 50%;
+  background: var(--ap-primary-100);
+  color: var(--ap-primary-700);
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+.subscriptions-workspace-copy {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+  gap: 0.15rem;
+}
+.subscriptions-workspace-copy strong {
+  color: var(--ap-slate-950);
+  font-size: 0.9rem;
+  line-height: 1.3;
+  font-weight: 750;
+  overflow-wrap: anywhere;
+}
+.subscriptions-workspace-copy small {
+  color: var(--ap-slate-600);
+  font-size: var(--ap-font-size-xs);
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.subscriptions-workspace-selected {
+  margin-left: auto;
+  flex: 0 0 auto;
+  padding: 0.2rem 0.45rem;
+  border-radius: var(--ap-radius-full);
+  background: var(--ap-primary-100);
+  color: var(--ap-primary-700);
+  font-size: var(--ap-font-size-xs);
+  font-weight: 750;
+}
+@media (max-width: 680px) {
+  .subscriptions-workspace-views { grid-template-columns: minmax(0, 1fr); }
+  .subscriptions-workspace-view { min-height: 62px; }
+}
+@media (max-width: 400px) {
+  .subscriptions-workspace-view { gap: 0.5rem; padding: 0.6rem 0.65rem; }
+  .subscriptions-workspace-view-active,
+  .subscriptions-workspace-view-active:hover {
+    padding: calc(0.6rem - 1px) calc(0.65rem - 1px);
+  }
+  .subscriptions-workspace-icon { flex-basis: 32px; width: 32px; height: 32px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .subscriptions-workspace-view { transition: none; }
+}

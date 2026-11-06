@@ -1,5 +1,6 @@
 import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import Layout from "../components/Layout";
+import SubscriptionsWorkspaceTabs from "../components/SubscriptionsWorkspaceTabs";
 import "./PlayerSubscriptions.css";
 import { supabase } from "../services/supabase";
 import { getLoggedInUser, isSuperAdmin, getAcademyId } from "../utils/auth";
@@ -492,8 +493,14 @@ useEffect(() => {
     fetchBatches(selectedCenter);
   }, [selectedCenter, fetchBatches]);
 
+  const hasUnsavedSubscription = Boolean(
+    isEditing || selectedPlayer || selectedPlan ||
+    startDate !== new Date().toISOString().split("T")[0]
+  );
+
   return (
     <Layout>
+      <SubscriptionsWorkspaceTabs currentView="players" hasUnsavedChanges={hasUnsavedSubscription} />
       <div className={"player-subscriptions-page" + (isSuperAdmin(loggedInUser) ? " player-subscriptions-page-super-admin" : "")}>
         {toast && (
           <div className={"player-subscriptions-toast player-subscriptions-toast-" + toast.type} role="status">

@@ -68,3 +68,29 @@ test("AM5 Parent has no Attendance management sidebar link", () => {
   expect(screen.queryByRole("link", { name: "Attendance" })).not.toBeInTheDocument();
   expect(screen.queryByRole("link", { name: "Attendance History" })).not.toBeInTheDocument();
 });
+
+test.each(["academy_owner", "super_admin"])(
+  "SM3 %s has exactly one Subscriptions management sidebar link", (role) => {
+    renderSidebar(role, "/subscriptions?view=players");
+    const nav = screen.getByRole("navigation", { name: "Primary navigation" });
+    const links = within(nav).getAllByRole("link", { name: "Subscriptions" });
+    expect(links).toHaveLength(1);
+    expect(links[0]).toHaveAttribute("href", "/subscriptions?view=players");
+    expect(links[0]).toHaveClass("app-nav-link-active");
+    expect(within(nav).queryByRole("link", { name: "Subscription Plans" })).not.toBeInTheDocument();
+    expect(within(nav).queryByRole("link", { name: "Player Subscriptions" })).not.toBeInTheDocument();
+  }
+);
+test.each([
+  ["academy_owner", "/subscriptions?view=plans"],
+  ["super_admin", "/subscription-plans"],
+  ["academy_owner", "/player-subscriptions"],
+])("SM3 %s keeps Subscriptions highlighted on %s", (role, route) => {
+  renderSidebar(role, route);
+  expect(screen.getByRole("link", { name: "Subscriptions" }))
+    .toHaveClass("app-nav-link-active");
+});
+test.each(["coach", "parent"])("SM3 %s has no Subscriptions management link", (role) => {
+  renderSidebar(role, role === "parent" ? "/parent-portal" : "/coach-dashboard");
+  expect(screen.queryByRole("link", { name: "Subscriptions" })).not.toBeInTheDocument();
+});

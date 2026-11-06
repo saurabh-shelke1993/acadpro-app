@@ -132,8 +132,7 @@ function Sidebar({ isOpen = false, onClose = () => {}, closeButtonRef }) {
                 : renderLink("/attendance?view=mark", "Attendance", "✓", ["/attendance-history"])}
 
               <div className="app-nav-group-title">Finance</div>
-              {renderLink("/subscription-plans", "Subscription Plans", "◇")}
-              {renderLink("/player-subscriptions", "Player Subscriptions", "▤")}
+              {renderLink("/subscriptions?view=players", "Subscriptions", "▤", ["/subscription-plans", "/player-subscriptions"])}
               {renderLink("/payment-dues", "Payment Dues", "₹")}
               {renderLink("/payment-collections", "Payment Collections", "↗")}
               {renderLink("/parent-upi-submissions", "Parent UPI Claims", "✓")}
