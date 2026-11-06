@@ -7,7 +7,15 @@
 **Original branch baseline (before this file was created):** `0bfc71099ed14cdada08022320a72c378e9da5f7`. Subsequent CMA commits exist; recheck current branch HEAD before development.  
 **Purpose:** Stable, handoff-friendly checkpoint between ChatGPT conversations. This document is NOT a substitute for inspecting live code, the current database, or current tests.
 
-## Latest checkpoint — Player Subscriptions PS1 compact assignment workspace (6 November 2026)
+## Latest checkpoint — Player Subscription Lifecycle contract PS-L0A (6 November 2026)
+
+- **Product decisions approved:** calendar-month subscription validity; free Owner-approved date extensions; automatic contiguous renewal + one pending due per period; pause/resume freezes unused entitlement and suspends future renewal/dues; paused players remain on attendance roster visibly labelled; legacy history reconciled before any **prospective only** billing.
+- **Reviewed live state (read-only):** 22 active subscriptions all with NULL end date; 4 player/plan academy mismatches; those mismatch records link to 6 dues (5 paid or partially paid); 1 active agreement belongs to an inactive player. There is **no deployed renewal scheduler**.
+- **Technical design recorded:** stable legacy subscription IDs and due FKs, eventual per-period ledger and audit events, calendar-anniversary anchor rules, zero double billing, RLS and database idempotency, no retroactive billing. One **outstanding financial pricing decision** must be resolved before automatic dues are enabled.
+- **Current status:** **contract documented; implementation NOT STARTED. No React/SQL/database migration/scheduler changes.** Next isolated phase PS-L0B: read-only per-subscription reconciliation report, then PS-L1 pure calendar calculator + unit tests. See `frontend/docs/PLAYER_SUBSCRIPTIONS_LIFECYCLE_CONTRACT_20261106.md`.
+
+## Prior checkpoint — Player Subscriptions PS1 compact assignment workspace (6 November 2026)
+
 
 - **Product decision:** Owner approved proceeding from the combined Subscriptions navigation to independently optimize **Player Subscriptions first**, then **Subscription Plans**. The two management components, database tables and financial business rules must remain separate.
 - **Implemented PS1:** Owner-visible read-only academy context beside Center and Batch scope; compact scope and assignment form layout; reduced duplicate heading; existing `resetAssignmentForm` exposed as **Clear form** on incomplete new assignments (Cancel edit still works); counts say *matching* instead of *shown*. All original Player/Plan/Start date controls, database reads/writes, duplicate-active check, deactivate, table/filters and 7-per-page slicing are unchanged.

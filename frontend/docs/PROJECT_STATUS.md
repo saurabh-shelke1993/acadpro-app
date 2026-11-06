@@ -1,10 +1,21 @@
 # AcadPro Project Status
 
-**Last Updated:** 6 November 2026 (Player Subscriptions PS1 checkpoint; older sections retain historical dates)  
+**Last Updated:** 6 November 2026 (PS-L0A lifecycle contract; older sections retain historical dates)  
 **Current Version:** V1.0 Beta (development; not release sign-off)  
 **Current Git Branch:** `payment-module-finalization`
 
-## Latest development checkpoint — Player Subscriptions PS1 (6 November 2026)
+## Latest development checkpoint — Player Subscriptions PS-L0A lifecycle contract (6 November 2026)
+
+**Approved business rules, planning only:** 1/3/6/12-month calendar validity, Owner-approved vacation extension, automatic renewal with one pending payment due per prospective period, freeze/resume unused paid calendar days, retain paused players in Coach attendance roster, and reconcile all legacy rows before any new billing. Preserve existing financial ledger, payment collection and receipts.
+
+**Source-of-truth review:** Latest branch `cdd029d`. Live read-only inspection found 22 active subscriptions with null end dates, four cross-academy player/plan associations (six linked dues, five paid/partial), and one active subscription for an inactive player. No safe algorithm can infer current paid-through dates from old start dates alone. No Cron scheduler has been deployed.
+
+**Architecture plan:** Keep the stable `player_subscriptions.id` referenced by `payment_dues`; introduce a period/history ledger, adjustment events, transaction-level duplicate guards and RLS only after the separate schema approval. Avoid retroactive generated dues and hold mismatched/inactive/unknown-paid-through subscriptions out of automated renewal until Owner review. **No implementation or database changes occurred in this checkpoint.**
+
+**Immediate next safe phase:** PS-L0B anonymized, read-only legacy reconciliation matrix, including linked payment evidence and Owner decisions on prospective activation dates. PS-L1 later develops a pure date-calculation utility and edge-case tests, without database changes. Pending billing price-change policy before automatic due generation. See `PLAYER_SUBSCRIPTIONS_LIFECYCLE_CONTRACT_20261106.md`.
+
+## Prior checkpoint — Player Subscriptions PS1 (6 November 2026)
+
 
 **Scope:** Independently optimize Player Subscriptions after Owner accepted the consolidated navigation direction. Subscription Plans remain an independent module and have not been redesigned.
 
