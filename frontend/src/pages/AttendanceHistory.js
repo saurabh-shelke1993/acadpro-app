@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "../supabaseClient";
 import {
   getAccessibleCenters,
@@ -20,9 +20,8 @@ import Layout from "../components/Layout";
 import AttendanceWorkspaceTabs from "../components/AttendanceWorkspaceTabs";
 import { canEditAttendanceRecord } from "../utils/attendanceEditWindow";
 import { formatAttendanceSessionLabel } from "../utils/attendancePresentation";
+import { getAttendanceHistoryPage, ATTENDANCE_HISTORY_PAGE_SIZE } from "../services/attendanceHistoryService";
 import "./AttendanceHistory.css";
-
-const PAGE_SIZE = 5;
 
 function AttendanceHistory() {
   const [user, setUser] = useState(null);
@@ -32,11 +31,14 @@ function AttendanceHistory() {
   const [selectedAcademy, setSelectedAcademy] = useState("");
   const [selectedCenter, setSelectedCenter] = useState("");
   const [selectedBatch, setSelectedBatch] = useState("");
-  const [selectedPlayer, setSelectedPlayer] = useState("");
+  const [playerSearch, setPlayerSearch] = useState("");
+  const [debouncedPlayerSearch, setDebouncedPlayerSearch] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [attendanceHistory, setAttendanceHistory] = useState([]);
+  const [totalHistoryCount, setTotalHistoryCount] = useState(0);
+  const historyRequestRef = useRef(0);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [editingAttendanceId, setEditingAttendanceId] = useState(null);
@@ -135,125 +137,55 @@ function AttendanceHistory() {
     fetchBatches();
   }, [user, selectedAcademy, selectedCenter, selectedBatch]);
 
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedPlayerSearch(playerSearch.trim()), 300);
+    return () => clearTimeout(timer);
+  }, [playerSearch]);
+
   const fetchAttendanceHistory = useCallback(async () => {
     if (!user) return;
-
+    const requestId = ++historyRequestRef.current;
+    setLoading(true);
+    setErrorMessage("");
     try {
-      setLoading(true);
-      setErrorMessage("");
-
-      let query = supabase
-        .from("attendance")
-        .select(`
-          *,
-          players (full_name),
-          batches (
-            batch_name,
-            centers (center_name)
-          ),
-          batch_schedules (
-            day_of_week,
-            start_time,
-            end_time,
-            session_label
-          ),
-          users!attendance_marked_by_fkey (full_name)
-        `)
-        .eq("is_deleted", false)
-        .order("attendance_date", { ascending: false });
-
-      if (selectedAcademy) {
-        query = query.eq("academy_id", selectedAcademy);
+      const { rows, count } = await getAttendanceHistoryPage({
+        user, academyId: selectedAcademy, centerId: selectedCenter,
+        batchId: selectedBatch, playerName: debouncedPlayerSearch,
+        status: selectedStatus, startDate, endDate, page: currentPage,
+      });
+      if (requestId !== historyRequestRef.current) return;
+      const lastPage = Math.max(1, Math.ceil(count / ATTENDANCE_HISTORY_PAGE_SIZE));
+      if (currentPage > lastPage) {
+        setCurrentPage(lastPage);
+        return;
       }
-
-      if (selectedCenter) {
-        const centerBatches = await getAccessibleBatches(user, selectedCenter);
-        const batchIds = centerBatches.map((batch) => batch.id).filter(Boolean);
-
-        if (batchIds.length === 0) {
-          setAttendanceHistory([]);
-          setLoading(false);
-          return;
-        }
-
-        query = query.in("batch_id", batchIds);
-      }
-
-      if (selectedBatch) {
-        query = query.eq("batch_id", selectedBatch);
-      }
-
-      if (startDate) {
-        query = query.gte("attendance_date", startDate);
-      }
-
-      if (endDate) {
-        query = query.lte("attendance_date", endDate);
-      }
-
-      const { data, error } = await query;
-      if (error) throw error;
-
-      setAttendanceHistory(data || []);
-      setCurrentPage(1);
+      setAttendanceHistory(rows);
+      setTotalHistoryCount(count);
     } catch (error) {
+      if (requestId !== historyRequestRef.current) return;
       console.error(error);
       setAttendanceHistory([]);
+      setTotalHistoryCount(0);
       setErrorMessage("Unable to load attendance history.");
     } finally {
-      setLoading(false);
+      if (requestId === historyRequestRef.current) setLoading(false);
     }
-}, [user, selectedAcademy, selectedCenter, selectedBatch, startDate, endDate]);
+  }, [user, selectedAcademy, selectedCenter, selectedBatch,
+      debouncedPlayerSearch, selectedStatus, startDate, endDate, currentPage]);
 
   useEffect(() => {
-    if (!user) return;
     fetchAttendanceHistory();
-  }, [user, fetchAttendanceHistory]);
+    return () => { historyRequestRef.current += 1; };
+  }, [fetchAttendanceHistory]);
 
-  const playerOptions = useMemo(() => {
-    const map = new Map();
-    attendanceHistory.forEach((item) => {
-      const id = item.player_id || item.players?.id;
-      const name = item.players?.full_name;
-      if (id && name) map.set(id, name);
-    });
-
-    return Array.from(map.entries())
-      .map(([id, name]) => ({ id, name }))
-      .sort((a, b) => a.name.localeCompare(b.name));
-  }, [attendanceHistory]);
-
-  const filteredHistory = useMemo(() => {
-    return attendanceHistory.filter((item) => {
-      const playerMatches =
-        !selectedPlayer || item.player_id === selectedPlayer;
-      const statusMatches =
-        !selectedStatus || item.status === selectedStatus;
-
-      return playerMatches && statusMatches;
-    });
-  }, [attendanceHistory, selectedPlayer, selectedStatus]);
-
-  const totalPages = Math.max(1, Math.ceil(filteredHistory.length / PAGE_SIZE));
-
-  useEffect(() => {
-    if (currentPage > totalPages) {
-      setCurrentPage(totalPages);
-    }
-  }, [currentPage, totalPages]);
-
-  const paginatedHistory = useMemo(() => {
-    const start = (currentPage - 1) * PAGE_SIZE;
-    return filteredHistory.slice(start, start + PAGE_SIZE);
-  }, [filteredHistory, currentPage]);
-
-
+  const totalPages = Math.max(1, Math.ceil(totalHistoryCount / ATTENDANCE_HISTORY_PAGE_SIZE));
+  const paginatedHistory = attendanceHistory;
 
   const hasActiveFilters = Boolean(
     (isSuperAdmin(user) && selectedAcademy) ||
       selectedCenter ||
       selectedBatch ||
-      selectedPlayer ||
+      playerSearch ||
       selectedStatus ||
       startDate ||
       endDate
@@ -262,7 +194,8 @@ function AttendanceHistory() {
   const resetFilters = () => {
     setSelectedCenter("");
     setSelectedBatch("");
-    setSelectedPlayer("");
+    setPlayerSearch("");
+    setDebouncedPlayerSearch("");
     setSelectedStatus("");
     setStartDate("");
     setEndDate("");
@@ -277,20 +210,23 @@ function AttendanceHistory() {
     setSelectedAcademy(value);
     setSelectedCenter("");
     setSelectedBatch("");
-    setSelectedPlayer("");
+    setPlayerSearch("");
+    setDebouncedPlayerSearch("");
     setCurrentPage(1);
   };
 
   const handleCenterChange = (value) => {
     setSelectedCenter(value);
     setSelectedBatch("");
-    setSelectedPlayer("");
+    setPlayerSearch("");
+    setDebouncedPlayerSearch("");
     setCurrentPage(1);
   };
 
   const handleBatchChange = (value) => {
     setSelectedBatch(value);
-    setSelectedPlayer("");
+    setPlayerSearch("");
+    setDebouncedPlayerSearch("");
     setCurrentPage(1);
   };
 
@@ -358,10 +294,10 @@ function AttendanceHistory() {
         });
   };
 
-  const pageStart = filteredHistory.length
-    ? (currentPage - 1) * PAGE_SIZE + 1
+  const pageStart = totalHistoryCount
+    ? (currentPage - 1) * ATTENDANCE_HISTORY_PAGE_SIZE + 1
     : 0;
-  const pageEnd = Math.min(currentPage * PAGE_SIZE, filteredHistory.length);
+  const pageEnd = Math.min(currentPage * ATTENDANCE_HISTORY_PAGE_SIZE, totalHistoryCount);
 
   return (
     <Layout>
@@ -429,21 +365,16 @@ function AttendanceHistory() {
             </label>
 
             <label className="attendance-history-field">
-              <span>Player</span>
-              <select
-                value={selectedPlayer}
+              <span>Player name</span>
+              <input
+                type="search"
+                placeholder="Search all attendance records"
+                value={playerSearch}
                 onChange={(event) => {
-                  setSelectedPlayer(event.target.value);
+                  setPlayerSearch(event.target.value);
                   setCurrentPage(1);
                 }}
-              >
-                <option value="">All players</option>
-                {playerOptions.map((player) => (
-                  <option key={player.id} value={player.id}>
-                    {player.name}
-                  </option>
-                ))}
-              </select>
+              />
             </label>
 
             <label className="attendance-history-field">
@@ -488,7 +419,7 @@ function AttendanceHistory() {
             <h2>
               Records
               {!loading && !errorMessage && (
-                <span className="attendance-history-record-count"> · {filteredHistory.length}</span>
+                <span className="attendance-history-record-count"> · {totalHistoryCount}</span>
               )}
             </h2>
             {user?.role === "coach" && (
@@ -502,9 +433,9 @@ function AttendanceHistory() {
               </p>
             )}
           </div>
-          {!loading && !errorMessage && filteredHistory.length > 0 && (
+          {!loading && !errorMessage && totalHistoryCount > 0 && (
             <div className="attendance-history-result-count">
-              Showing {pageStart}–{pageEnd} of {filteredHistory.length}
+              Showing {pageStart}–{pageEnd} of {totalHistoryCount}
             </div>
           )}
         </div>
@@ -527,7 +458,7 @@ function AttendanceHistory() {
               Retry
             </button>
           </div>
-        ) : filteredHistory.length === 0 ? (
+        ) : totalHistoryCount === 0 ? (
           <div className="attendance-history-state">
             <strong>No attendance records found</strong>
             <span>
@@ -663,7 +594,7 @@ function AttendanceHistory() {
             {totalPages > 1 && (
               <div className="attendance-history-pagination" aria-label="Attendance history pagination">
                 <span>
-                  Showing {pageStart}–{pageEnd} of {filteredHistory.length}
+                  Showing {pageStart}–{pageEnd} of {totalHistoryCount}
                 </span>
                 <div className="attendance-history-pagination-controls">
                   <button

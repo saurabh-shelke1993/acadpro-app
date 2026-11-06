@@ -29,6 +29,8 @@ on:
       - 'frontend/src/components/Dashboard/AcademyOwnerDashboard.js'
       - 'frontend/src/services/attendanceService.js'
       - 'frontend/src/services/attendanceService.test.js'
+      - 'frontend/src/services/attendanceHistoryService.js'
+      - 'frontend/src/services/attendanceHistoryService.test.js'
       - 'frontend/src/utils/attendanceEditWindow.js'
       - 'frontend/src/utils/attendanceEditWindow.test.js'
       - '.github/workflows/attendance-am1-validation.yml'
@@ -57,7 +59,7 @@ jobs:
       - name: Run AM1–AM7 regression tests
         env:
           CI: 'true'
-        run: npm test -- --watchAll=false --runInBand --testPathPattern='(AttendanceWorkspace|AttendanceWorkspaceTabs|Sidebar(?:\.accessibility)?|Attendance|CoachAttendance|AttendanceHistory|attendanceEditWindow|attendancePresentation|attendanceService)\.test\.js$'
+        run: npm test -- --watchAll=false --runInBand --testPathPattern='(AttendanceWorkspace|AttendanceWorkspaceTabs|Sidebar(?:\.accessibility)?|Attendance|CoachAttendance|AttendanceHistory|attendanceEditWindow|attendancePresentation|attendanceService|attendanceHistoryService)\.test\.js$'
       - name: Build React frontend
         env:
           CI: 'true'
