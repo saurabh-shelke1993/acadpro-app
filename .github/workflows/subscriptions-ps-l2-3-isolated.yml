@@ -1,0 +1,45 @@
+name: PS-L2.3 isolated proposal SQL validation
+
+on:
+  push:
+    branches: [payment-module-finalization]
+    paths:
+      - 'supabase/proposals/subscriptions/ps_l2_3_foundation.sql'
+      - 'supabase/tests/subscriptions/ps_l2_3_bootstrap.sql'
+      - 'supabase/tests/subscriptions/ps_l2_3_foundation.test.sql'
+      - '.github/workflows/subscriptions-ps-l2-3-isolated.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  isolated-postgres-17:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: isolated_fixture_only
+          POSTGRES_DB: ps_l2_3_disposable
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d ps_l2_3_disposable"
+          --health-interval=10s --health-timeout=5s --health-retries=10
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: '5432'
+      PGDATABASE: ps_l2_3_disposable
+      PGUSER: postgres
+      PGPASSWORD: isolated_fixture_only
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify PostgreSQL client available
+        run: command -v psql || (sudo apt-get update && sudo apt-get install -y postgresql-client)
+      - name: Create synthetic legacy fixture (disposable PostgreSQL only)
+        run: psql -X -v ON_ERROR_STOP=1 -f supabase/tests/subscriptions/ps_l2_3_bootstrap.sql
+      - name: Apply proposed schema to disposable PostgreSQL only
+        run: psql -X -v ON_ERROR_STOP=1 -f supabase/proposals/subscriptions/ps_l2_3_foundation.sql
+      - name: Verify HOLD, cross-agreement overlap, dues, immutability, RLS
+        run: psql -X -v ON_ERROR_STOP=1 -f supabase/tests/subscriptions/ps_l2_3_foundation.test.sql
