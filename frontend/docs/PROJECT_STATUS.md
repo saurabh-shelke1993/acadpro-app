@@ -1,10 +1,14 @@
 # AcadPro Project Status
 
-**Last Updated:** 6 November 2026 (PS-L1 date-only lifecycle calculator; older sections retain historical dates)  
+**Last Updated:** 6 November 2026 (PS-L1P proration proposal; older sections retain historical dates)
 **Current Version:** V1.0 Beta (development; not release sign-off)  
 **Current Git Branch:** `payment-module-finalization`
 
-## Latest development checkpoint — PS-L1 calendar/extension/pause calculator (6 November 2026)
+## Latest planning checkpoint — PS-L1P mid-cycle proration design (6 November 2026)
+
+**New requested behavior:** A child joining a monthly plan during January should be charged fairly for a partial fixed calendar month, potentially by the remaining scheduled Mon/Wed/Fri sessions. **No business logic or database implemented yet:** calendar alignment is not the same as existing PS-L1 rolling-anniversary periods. Recommend academy-configurable fixed/anniversary alignment and schedule-based first-month quote for fixed-month billing; await Owner decision. January 2027 verified 13 Mon/Wed/Fri sessions, seven from the 15th (INR 1,500 example: INR 807.69); daily method 17/31 = INR 822.58. Source tables `batch_schedules` and `player_batch_schedules` support schedule/enrollment discovery but there is no holiday/cancellation ledger. Plan fee vs actual due amount requires future PS-L2 period price snapshot. **No code/SQL/billing changes in this checkpoint.** See `PLAYER_SUBSCRIPTIONS_PRORATION_PROPOSAL_20261106.md`.
+
+## Prior checkpoint — PS-L1 calendar/extension/pause calculator (6 November 2026)
 
 **Implemented:** `frontend/src/utils/subscriptionLifecycleDates.js` contains pure date-only helpers for calendar cycles `monthly/quarterly/half_yearly/yearly`, inclusive validity periods, preserved 29/30/31 anniversary anchors, vacation-day end-date extensions, verified paid days frozen at pause and restoration after resume. Future renewal anniversary rebaselining occurs only after an adjustment, not a normal February-clamped renewal. No browser/React/DB imports.
 

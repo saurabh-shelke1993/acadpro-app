@@ -1,6 +1,6 @@
 # AcadPro Architecture
 
-**Last Updated:** 6 November 2026 (PS-L1 date-only lifecycle calculator; other sections historical)  
+**Last Updated:** 6 November 2026 (PS-L1P proration design; other sections historical)
 **Current Branch:** `payment-module-finalization`
 
 ## 1. Platform
@@ -31,6 +31,12 @@ Parent linkage is represented by `players.parent_id → parents.id`. Parent auth
 - Parent: `/parent-portal`
 
 The Parent Portal is protected by a parent-only route guard. Supabase Auth handles authentication; role and academy information is stored in `public.users`.
+
+### Proposed PS-L1P first-month proration (design only)
+
+- The existing PS-L1 calculator is anniversary-anchored (join 15 Jan → paid to 14 Feb). A fixed calendar-month contract (join 15 Jan → end 31 Jan) requires separate billing-alignment policy and an initial partial-period price. Do not silently alter approved calendar logic.
+- Potential inputs: `subscription_plans` agreed rate + `batch_schedules` active weekday sessions + `player_batch_schedules` player-level enrollment dates. Full denominator must reflect actual scheduled occurrences for the applicable period, not an estimated 12 sessions or attendance; live project has no holiday/closure exception ledger.
+- PS-L2 design must record immutable contracted recurring rate, billed first-period rate, prorate method, full/eligible session or day counts, schedule snapshot, effective dates and source/approval audit, plus idempotent payment-due linkage. Existing RLS and tenant checks must be protected. **Proposed only.** See `PLAYER_SUBSCRIPTIONS_PRORATION_PROPOSAL_20261106.md`.
 
 ### Player Subscription PS-L1 pure calendar utility (implemented, not integrated)
 

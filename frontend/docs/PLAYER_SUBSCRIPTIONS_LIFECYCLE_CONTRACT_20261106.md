@@ -24,6 +24,12 @@
 - On an approved vacation extension or pause/resume, delay the next renewal to one day after the **revised effective end** and **rebase the future anniversary** to that actual next start; never silently backdate billing.
 - **PS-L1 IMPLEMENTED:** Pure `frontend/src/utils/subscriptionLifecycleDates.js` date-only helper with **86 passing Jest tests**, covering Feb 29, month-end 29/30/31, short months, year transitions, 1/3/6/12-month cycles, continuous anniversary preservation, vacation extension, verified paid-day pause and resumed anniversary rebasing. Not yet imported into subscription forms or renewal/payment services. See `PLAYER_SUBSCRIPTIONS_PS_L1_CALCULATOR_20261106.md`.
 
+## 2A. PS-L1P mid-cycle proration proposal (not yet approved)
+
+The Owner requested reduced charges for a child joining mid-January, ideally based on the actual Mon/Wed/Fri sessions remaining. This request requires an explicit alignment decision: the existing PS-L1 rolling anniversary month 15 Jan–14 Feb is a full monthly entitlement, but a **fixed calendar-month** first period 15–31 Jan can be prorated. Two future calculations are proposed: actual authorized **scheduled sessions** remaining / actual sessions in the full calendar month (preferred for coaching), or inclusive eligible **calendar days** / full calendar days. Count distinct schedule occurrences, not assumed 12/month or attendance marks. At INR 1,500 in January 2027 Mon/Wed/Fri there are 13 sessions, seven from January 15: INR 807.69. Calendar days: 17/31 = INR 822.58. Only an initial partial period should be discounted; later full periods renew at the agreed locked price.
+
+**Status:** Proposed, NOT implemented or approved as billing policy. No holiday/cancellation schedule ledger exists. Do not create dues, change PS-L1 approved anniversary logic or migrate any database until the Owner confirms billing alignment. Detailed proposal: `PLAYER_SUBSCRIPTIONS_PRORATION_PROPOSAL_20261106.md`.
+
 ## 3. Domain model proposed for later migration (not implemented)
 
 - Retain existing `player_subscriptions.id` as the stable **agreement/subscription identity** referenced by existing `payment_dues.subscription_id`. Never delete/reinsert this row during renewal.

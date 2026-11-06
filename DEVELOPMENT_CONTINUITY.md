@@ -7,7 +7,14 @@
 **Original branch baseline (before this file was created):** `0bfc71099ed14cdada08022320a72c378e9da5f7`. Subsequent CMA commits exist; recheck current branch HEAD before development.  
 **Purpose:** Stable, handoff-friendly checkpoint between ChatGPT conversations. This document is NOT a substitute for inspecting live code, the current database, or current tests.
 
-## Latest checkpoint — Player Subscription PS-L1 calendar calculator (6 November 2026)
+## Latest planning checkpoint — Player Subscription PS-L1P mid-month proration (6 November 2026)
+
+- **New requested scope:** Mid-January admissions should not pay a full fixed-calendar-month tuition where fewer scheduled sessions remain. Discussed two proration modes: calendar days or actual authorized scheduled Mon/Wed/Fri sessions. **Existing PS-L1 is anniversary-based**, so fixed-month vs rolling-month billing policy must be resolved first.
+- **Verified live/read-only:** `batch_schedules` active session data and player-specific `player_batch_schedules` exist; no holiday/cancellation table found. Monday/Wednesday/Friday in Jan 2027 = 13 occurrences, seven from 15 Jan (inclusive). At ₹1,500, first-period fee would be ₹807.69 by sessions or ₹822.58 by calendar days (17/31). Not a quote or stored due.
+- **Plan:** Prefer configurable academy billing alignment and scheduled-session prorating for an approved partial fixed first period. Save a period-specific billed price and explanatory count snapshot; renew later at locked agreed full price. Preserve all existing RLS, fee ledgers, paused entitlement and historical payments.
+- **Current status:** PS-L1P proposal documented but **NOT approved/implemented/tested**. No code, due writes, migrations, holiday table or changes to original subscription periods. See `frontend/docs/PLAYER_SUBSCRIPTIONS_PRORATION_PROPOSAL_20261106.md`. Decision on fixed vs anniversary vs both is required before billing implementation.
+
+## Prior checkpoint — Player Subscription PS-L1 calendar calculator (6 November 2026)
 
 - **Implemented source:** `frontend/src/utils/subscriptionLifecycleDates.js`, with `subscriptionLifecycleDates.test.js`. Strict ISO YYYY-MM-DD Gregorian date-only arithmetic, no JS Date clock/time zone or Supabase/React calls. 1/3/6/12-month periods preserve original anniversary day through February clamping; non-overlapping inclusive ranges and invalid-date fail-closed rules.
 - **Extension and pause:** Free positive integer calendar-day extension previews shift the next renewal, with provisional guard when a successor/due already exists; freeze only **verified paid entitlement** within the period and restore saved days after approved resume. The next renewal after extension/resume becomes a new anniversary anchor. These are pure calculators, **not authorization, approval audit or transactional guards**.
