@@ -1,6 +1,6 @@
 # AcadPro Product Backlog
 
-**Last Updated:** 6 November 2026 (PS-L2.2 Owner business-rule approval; historical sections retained)
+**Last Updated:** 6 November 2026 (PS-L2.3 isolated SQL foundation tested; per-camp pricing policy approved)
 **Current Branch:** `payment-module-finalization`
 
 Security and data isolation are prerequisites for production.
@@ -435,8 +435,10 @@ See `frontend/docs/PLAYER_SUBSCRIPTIONS_PS1_20261106.md`. Original SM1–SM3 com
 - [x] **PS-L2.1 architecture REVIEW DONE (documentation only):** Live read-only schema, grants/RLS/FKs/RPC and UI dependencies inspected; proposed stable agreement, period price ledger, lifecycle audit, academy policy and due idempotency. Flagged cascade deletion, broad TRUNCATE grants, Coach subscription-policy mismatch and 3 current vs 4 historic academy mismatches. No migrations, code or records changed. See frontend/docs/PLAYER_SUBSCRIPTIONS_PS_L2_1_ARCHITECTURE_REVIEW_20261106.md.
 - [x] **PS-L2.2 DETAILED DESIGN WRITTEN (not implemented/approved):** Versioned academy policy, agreement price/HOLD, period and immutable lifecycle event schemas, nullable one-due-per-period FK, exact paise/ratio, scope/RLS/GRANT matrix, secure atomic Create/Renew/Pause/Resume/Extend/Reprice RPC contract, manual Due collision, cascade/TRUNCATE hardening, rollback and isolated test matrix. **Docs only; no DDL, code, billing or tests.** See `frontend/docs/PLAYER_SUBSCRIPTIONS_PS_L2_2_SCHEMA_SECURITY_TRANSACTIONS_20261106.md`.
 - [x] **PS-L2.2 Owner business architecture D1–D7 approved:** Exclusive non-overlapping regular tuition periods across agreements, separate camp add-on enrolments with pricing TBD, academy scheduled-session proration default/calendar-day alternative, approved cancellations, locked terms, zero-session defer/manual exception, Coach Paused roster-only, separately approved FK/grants hardening. **No migrations or financial implementation.** Decision: `frontend/docs/PLAYER_SUBSCRIPTIONS_PS_L2_2_OWNER_DECISIONS_20261106.md`.
-- [ ] **PS-L2.3 unapplied tuition migration and isolated tests:** Enforce cross-agreement player+academy tuition period nonoverlap, one period/due, RLS/tenant isolation and legacy HOLD; no live DDL authorized.
-- [ ] **Separate camp add-on design:** Set programme dates, enrolments and free/included/optional separate charge policy; not part of core tuition migration.
+- [x] **PS-L2.3 regular tuition schema CANDIDATE AUTHORING + SYNTHETIC DB TESTS:** `supabase/proposals/subscriptions/ps_l2_3_foundation.sql` (NOT under migrations), disposable Postgres fixture/assertions, [isolated CI run 42195789707](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42195789707) **PASS** at `5afae2a`. New policy/contract-HOLD/period/event/period-due structures, cross-agreement player/academy GiST exclusion, RLS and composite tenant/due/event guards. **Not applied to live Supabase; no renewal/due RPC or financial feature.** Report: `frontend/docs/PLAYER_SUBSCRIPTIONS_PS_L2_3_ISOLATED_CANDIDATE_20261106.md`.
+- [ ] **PS-L2.3 pre-production staging/security review:** Test against true isolated Supabase schema/Auth/payment trigger/legacy drift, multi-session concurrency and failed-due transaction rollback; Owner to authorize any live migration separately.
+- [x] **Camp-pricing business decision APPROVED:** Academy Owner selects per camp: **free**, **included in regular tuition** or **separately chargeable**. No second recurring tuition agreement or automatic renewal.
+- [ ] **Separate camp add-on implementation:** Future programme/calendar, enrolment, eligibility, per-camp amount/one-time charges, Parent/Coach permissions and tests; **not** in PS-L2.3 tuition candidate.
 
 - [ ] **PS-L2.3 isolated unapplied migration/test candidate:** Source-controlled schema candidate, only after PS-L2.2 design approval; separate authorization required for any live DDL.
 - [ ] **PS-L3 — Approved lifecycle management UI + controlled migration:** Extension, pause/resume, Coach attendance badge, Parent read-only state; role/tenant regression.

@@ -1,8 +1,18 @@
 # AcadPro Project Status
 
-**Last Updated:** 6 November 2026 (PS-L2.2 Owner business-rule approval; older sections retain historical dates)
+**Last Updated:** 6 November 2026 (PS-L2.3 unapplied SQL candidate and disposable Postgres CI; Owner camp pricing approved)
 **Current Version:** V1.0 Beta (development; not release sign-off)  
 **Current Git Branch:** `payment-module-finalization`
+
+## Latest implementation checkpoint — PS-L2.3 isolated tuition schema candidate (6 November 2026)
+
+**Source implemented (unapplied):** Created `supabase/proposals/subscriptions/ps_l2_3_foundation.sql` with academy billing policy versions, additive locked-price/renewal-HOLD agreement fields, period ledger, append-only events, nullable period-to-due key, tenant/event identity constraints, GiST **cross-agreement regular-tuition overlap exclusion**, and RLS read access scoped to Owner/SA/linked Parent. Original direct create/edit forms remain unchanged; new contract activation fields are guarded against old UI writes. No renewal/payment RPC or jobs.
+
+**Automated validation:** Disposable GitHub Actions PostgreSQL 17 [CI run 42195789707](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42195789707) on `5afae2a` **PASS** for synthetic legacy preservation/HOLD, negative cross-agreement dates and tenant cases, wrong due/event keys, append-only audit, idempotency uniqueness, RLS permissions and role isolation. This **does not** validate complete live Supabase Auth/RLS/payment triggers, transaction renewal concurrency or financial collection. No frontend Jest/build required/run for schema-only changes.
+
+**Live Supabase unchanged:** Postcommit SELECT-only snapshot: 22 subscriptions, 26 dues, 42 payment rows, no new three PS-L2.3 tables and no `payment_dues.subscription_period_id` in live schema. No financial mutations or migrations applied. **Camp fee policy also approved:** Owner chooses free, included in tuition or separately chargeable for each camp; no camp module/fees implemented.
+
+**Pending:** Real isolated Supabase migration parity and security review, separately approved live DDL, existing financial cascade/privilege hardening, PS-L0B Owner reconciliation, and future atomic lifecycle RPCs/fee integration. Detailed report: `PLAYER_SUBSCRIPTIONS_PS_L2_3_ISOLATED_CANDIDATE_20261106.md`.
 
 ## Latest Owner decision checkpoint — PS-L2.2 D1–D7 (6 November 2026)
 

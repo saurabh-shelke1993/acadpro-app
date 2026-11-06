@@ -1,6 +1,6 @@
 # AcadPro Architecture
 
-**Last Updated:** 6 November 2026 (PS-L2.2 Owner business-rule approval; other sections historical)
+**Last Updated:** 6 November 2026 (PS-L2.3 isolated source candidate, not live; Owner-approved camp pricing)
 **Current Branch:** `payment-module-finalization`
 
 ## 1. Platform
@@ -199,6 +199,13 @@ The import layer includes:
 - Import summary for imported players and parent reuse/creation
 
 No database writes occur during parsing or validation/preview.
+
+### PS-L2.3 regular tuition schema candidate (in repo, NOT applied)
+
+- `supabase/proposals/subscriptions/ps_l2_3_foundation.sql` is a **non-migration** candidate outside `supabase/migrations/`; it introduces additive agreement HOLD/contract fields, versioned academy billing policies, scoped period and event ledgers, one-due-per-period unique composite-linked FK and GiST exclusion **across different agreement IDs for the same academy/player**.
+- New table RLS policies allow only relevant Owner/SA/Parent read; direct mutation grants denied to authenticated clients; Coach finance remains denied. Legacy contracts default HOLD and their activation metadata is protected by a trigger until an audited RPC is implemented. New period/event rows are not inserted.
+- [Isolated Postgres 17 CI run 42195789707](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42195789707) **passed** for synthetic fixtures; actual Supabase migration/history, protected payment RPC integration and multi-session concurrency tests remain pending. Live Postgres schema untouched.
+- **Future camp programme** stays separate from core tuition; its Owner-approved per-camp `free`, `included_in_tuition`, `separately_chargeable` modes have no schema/UI today. See `PLAYER_SUBSCRIPTIONS_PS_L2_3_ISOLATED_CANDIDATE_20261106.md`.
 
 ### PS-L2.2 Owner D1–D7 product architecture (approved, not implemented)
 

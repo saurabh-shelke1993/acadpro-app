@@ -1,4 +1,4 @@
-# Kheltriva — Player Subscription Lifecycle Contract v1.7
+# Kheltriva — Player Subscription Lifecycle Contract v1.8
 
 **Date:** 6 November 2026  
 **Latest decision:** Original recurring price locked for existing subscribers until explicit Academy Owner approval of a future-only change. **PS-L1 pure date calculator implemented and focused-CI validated**. PS-L0B Owner row-level activation decisions pending.  
@@ -16,7 +16,11 @@
 
 ### PS-L2.2 Owner-approved product decisions
 
-**Owner D1–D7 APPROVED 6 November 2026:** Only one date-effective **regular tuition** entitlement per player/academy, regardless of whether a monthly/quarterly period belongs to a different subscription agreement. Special camps (e.g., Diwali) may run simultaneously as **separate nonrecurring programme enrolments**, optionally linked to the existing agreement; their pricing/free/included policy is **undecided** and camp implementation is separate. Scheduled-session proration is academy default with calendar-day option; only Owner-approved holidays/cancellations affect session counts; existing agreement prices/cycles/alignment stay fixed except prospective Owner change; zero-eligible-session fee deferred/manual exception; Coach Paused roster-only; financial cascade/privilege fixes independently approved for execution. **Business rules approved, no SQL/app migration authorized.** See `PLAYER_SUBSCRIPTIONS_PS_L2_2_OWNER_DECISIONS_20261106.md`.
+**Owner D1–D7 APPROVED 6 November 2026:** Only one date-effective **regular tuition** entitlement per player/academy, regardless of whether a monthly/quarterly period belongs to a different subscription agreement. Special camps (e.g., Diwali) may run simultaneously as **separate nonrecurring programme enrolments**, optionally linked to the existing agreement; Academy Owner-approved **per-camp** pricing may be free, included in regular tuition or separately chargeable; the camp module remains a future separate feature. Scheduled-session proration is academy default with calendar-day option; only Owner-approved holidays/cancellations affect session counts; existing agreement prices/cycles/alignment stay fixed except prospective Owner change; zero-eligible-session fee deferred/manual exception; Coach Paused roster-only; financial cascade/privilege fixes independently approved for execution. **Business rules approved, no SQL/app migration authorized.** See `PLAYER_SUBSCRIPTIONS_PS_L2_2_OWNER_DECISIONS_20261106.md`.
+
+### PS-L2.3 unapplied schema + isolated testing checkpoint
+
+The proposed foundation SQL is source-controlled at `supabase/proposals/subscriptions/ps_l2_3_foundation.sql`; PostgreSQL 17 isolated CI **passed** on `5afae2a` ([run 42195789707](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42195789707)). It is **NOT** applied to Supabase, does not add running lifecycle RPCs, and does not charge dues. Future regular tuition periods must exclude overlaps per player/academy even across different agreements. New immutable agreement fields remain locked with default `legacy_hold` pending Owner-authorized activation. Full report: `PLAYER_SUBSCRIPTIONS_PS_L2_3_ISOLATED_CANDIDATE_20261106.md`.
 
 ## 2. Date-only calendar rules (technical contract)
 

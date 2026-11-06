@@ -16,7 +16,7 @@
 
 **Special camps:** A Diwali fun session, holiday camp or workshop is a separate, **nonrecurring programme enrolment**, with its own session calendar and optional reference to the player's existing regular tuition agreement. It is **not** a second regular tuition subscription, does not trigger monthly/quarterly auto-renewal or change the contracted recurring rate, and is outside the regular tuition no-overlap constraint. The repository currently has no camp module.
 
-**Unresolved camp fee detail:** Participation could be free, included in monthly tuition or separately charged. The Owner has not yet decided which; do not generate a camp due or assume a pricing rule. Camp enrolment/charging is a separately approved future feature, **not** included automatically in PS-L2.3.
+**Owner-approved camp fee options (6 November 2026):** Each camp is independently configurable by the Academy Owner as **free**, **included in regular tuition** (no extra charge for eligible enrolled players), or **separately chargeable** (independent one-time amount). The concrete camp module, amount/eligibility, separate fee posting and related RBAC remain **not implemented** and require a future scoped design. Do not generate camp dues automatically or include camp tables in PS-L2.3.
 
 **PS-L2.3 design implication:** Agreement-level uniqueness and `UNIQUE(agreement_id,period_sequence)` alone are insufficient. Design a database-authoritative overlap rule at **academy_id + player_id + regular_tuition entitlement dates**, including across distinct agreements and under concurrent requests. A player-level lock and/or reviewed cross-agreement exclusion strategy is needed. Do not add `UNIQUE(player_id) WHERE status='active'` to current dirty legacy data; four players had multiple Active agreements in the read-only inventory. Do not delete or deactivate them automatically.
 
@@ -50,4 +50,4 @@ All **22 legacy subscription agreements** remain **on renewal HOLD** until the A
 
 The approved D1–D7 product rules permit **preparing PS-L2.3 regular-tuition SQL migrations and isolated tests as unapplied repository artifacts only**. Live schema changes, security grant revocations, new dues, camp product implementation and automated billing need explicit separate authorizations.
 
-**Next camp-specific decision:** Should an academy mark each camp **free, included in normal tuition, or independently chargeable**? Its answer does not block PS-L2.3's core tuition migration candidate.
+**Camp pricing question resolved:** The Owner approved all three pricing modes **per camp**, rather than one academy-wide mode. Future separate camp UX/data-model/fee/eligibility design pending. PS-L2.3 remains a standalone, unapplied regular-tuition schema candidate.
