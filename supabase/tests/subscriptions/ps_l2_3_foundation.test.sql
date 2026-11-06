@@ -208,7 +208,6 @@ BEGIN
  END;
 END $$;
 
-\
 \echo 'PS-L2.3: event academy and period/contract scope'
 DO $$
 BEGIN
