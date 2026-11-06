@@ -146,14 +146,14 @@ const countSessionOccurrences = ({
   for (let offset = 0; offset < length; offset += 1) {
     const date = addSubscriptionCalendarDays(periodStart, offset);
     const dayOfWeek = isoWeekday(date);
-    slots.forEach((slot) => {
-      if (slot.dayOfWeek !== dayOfWeek || excluded.has(`${slot.scheduleId}|${date}`)) return;
+    for (const slot of slots) {
+      if (slot.dayOfWeek !== dayOfWeek || excluded.has(`${slot.scheduleId}|${date}`)) continue;
       total += 1;
       if (date >= joinDate && date >= slot.enrolledFrom &&
           (slot.enrolledUntil == null || date <= slot.enrolledUntil)) {
         eligible += 1;
       }
-    });
+    }
   }
   if (total === 0) throw new RangeError("No scheduled sessions in the full billing month");
   return {
