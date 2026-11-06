@@ -42,7 +42,12 @@ jobs:
       - name: Run subscriptions route and sidebar regression tests
         env:
           CI: 'true'
-        run: npm test -- --watchAll=false --runInBand --testPathPattern='(SubscriptionsWorkspace|SubscriptionsWorkspaceTabs|Sidebar(?:\\.accessibility)?)\\.test\\.js$'
+        run: npm test -- --watchAll=false --runInBand --testPathPattern='(SubscriptionsWorkspace|SubscriptionsWorkspaceTabs|Sidebar(?:\.accessibility)?)\.test\.js
+      - name: Build React frontend
+        env:
+          CI: 'true'
+        run: npm run build
+
       - name: Build React frontend
         env:
           CI: 'true'
