@@ -1,6 +1,6 @@
 # AcadPro Product Backlog
 
-**Last Updated:** 6 November 2026 (Attendance AM7 checkpoint; historical sections retained)  
+**Last Updated:** 6 November 2026 (Attendance AM7.3 development closure; historical sections retained)  
 **Current Branch:** `payment-module-finalization`
 
 Security and data isolation are prerequisites for production.
@@ -383,12 +383,12 @@ The next product feature has not yet been selected after Enquiries implementatio
 - [x] **AM6.1–AM6.5 — Mark Attendance UX (source)** — Owner academy context + 4-field compact filters, Owner/Coach 12-hour session labels, one shared live roster summary, accessible larger P/A, local-only Mark All/Reset, guarded Save/Update and responsive layout. **Tests authored; runtime/owner browser acceptance pending.**
 - [x] **AM6.6 — Compact selection context (source + focused automated validation)** — Remove tall Owner/Coach Daily Operations and extra roster headings; Owner displays selected batch's active weekdays, Coach option/context shows batch, weekday, 12-hour time and center. Fixed Attendance/History and legacy Sidebar accessibility tests. **CI at `728652df`: 10 suites / 82 tests and React build passed. Browser/RBAC acceptance pending.**
 - [x] **AM7.1–AM7.2 — History UX implemented + focused validated** — Compact Academy-aware filters/Reset, concise records heading, 12-hour session text, responsive full-detail row cards on tablets/phones, original five-row pagination and edit/soft-delete role rules. CI at `c5e9f9e` **PASS: 10 Jest suites, 86 tests, React build**. **Browser / RBAC / release acceptance pending**.
-- [ ] **AM7.3 — History scale/performance decision** — Client fetch-all with five-record slicing remains; inspect data volume, Supabase query limits, server filters/counts/relationships and RLS before planning server-side pagination. No migration or query rewrite approved.
+- [x] **AM7.3 — Server-side History filtering/pagination (source + focused CI)** — Exact filtered count; five records per request, stable date/id ordering; Owner/Coach academy and center/batch scope; Status/From/To server filters; debounced player-name search across all authorized records; stale request protection and last-page clamping. **98/98 focused tests and React build passed on `98cb6cb1`.** No migration/RPC/RLS changes. **AM7.3 live browser/negative-RLS/performance acceptance pending.**
 
 - [x] **AM2–AM4 regression test source** — 22 newly authored cases (Owner/SA direct route, Coach session scope and read-only window, History permissions, service denial, UTC date boundaries); combined AM1–AM4 40 authored cases and CI/build workflow. **Execution pending**.
 - [ ] **AM1–AM4 combined acceptance** — Exact-head Jest/build, controlled Owner/Coach/Super Admin/Parent browser tests, dashboard deep links, 320/375/768px responsive review and negative tenant/RLS checks.
 - [ ] **Coach update transaction follow-up** — Original per-row Coach updates remain non-transactional; inspect partial-failure scenarios independently before proposing an RPC.
-- [ ] **History scale follow-up (AM7.3)** — Existing client-side fetch-all still in place; plan server-side filtering/pagination only after separate dataset-scale and permission contract review.
+- [ ] **History load/performance monitoring (release follow-up)** — When datasets become materially larger, measure exact-count query latency and composite-index need with representative authorized workloads. AM7.3 server pagination is implemented; this is **not** a remaining AM7 feature.
 
 - [x] **AM5 regression source / architecture** — Added `AttendanceWorkspace.test.js` for actual ProtectedRoute/redirect behavior, updated old selectors and links, extended scoped CI; architecture/status/continuity checkpoint updated.
 - [ ] **AM1–AM5 release acceptance** — Confirm exact-HEAD Jest and build status; Owner/Coach/Admin/Parent navigation, old bookmarks, query/hash/deep links, browser history, 320–1440px responsive layout and live negative cross-academy/session RLS.
@@ -398,4 +398,4 @@ The next product feature has not yet been selected after Enquiries implementatio
 - [ ] **AM6 owner combined acceptance** — Focused Jest/build **passed on `728652df`**; Owner/Coach live browser bulk marking, Reset restore/clear, Save gating, recorded read-only behavior, weekday/session labels, Center/Batch/Date/Session filters and 320–1440px layouts remain pending.
 - [ ] **AM1–AM6 negative authorization/release gate** — Confirm SA history-only, Parent denial and Coach assigned-session / seven-date RLS in controlled browser plus exact SHA/deployment.
 
-**Current status:** **AM1–AM7.2 source implemented; Attendance-focused CI PASSED** (10/10 suites, 86/86 Jest tests and React build on `c5e9f9e`). **Not browser/role/tenant accepted or release-ready.** Full application Jest still has 16 failed tests across Coach Profile and Player Performance suites. **AM7.3 scalability remains pending.** No attendance schema/RLS migrations. See `frontend/docs/ATTENDANCE_AM7_HISTORY_UX_20261106.md`.
+**Current status:** **AM1–AM7.3 development implementation COMPLETE with focused automated validation** (11/11 suites, 98/98 Jest tests, React build at `98cb6cb1`). AM7.1–AM7.2 **Owner visually accepted**. AM7.3 live role/tenant browser, load and deployment acceptance remain a separate, **open release QA gate**. Full-app Jest still fails 16/304 unrelated cases. No attendance schema/RLS migrations. See `frontend/docs/ATTENDANCE_AM7_HISTORY_UX_20261106.md`.

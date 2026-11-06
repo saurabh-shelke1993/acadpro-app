@@ -1,8 +1,8 @@
-# Kheltriva — Attendance History AM7.1–AM7.2 UX checkpoint
+# Kheltriva — Attendance History AM7.1–AM7.3 development closure
 
 **Date:** 6 November 2026  
 **Branch:** `payment-module-finalization`  
-**State:** AM7 History UI **implemented in source and focused CI validated**; live Owner/Coach/Admin/Parent browser, device and negative-RLS acceptance **pending**. AM7.3 server-side pagination **not started**.
+**State:** AM7.1–AM7.3 **implemented in source**, AM7.1–AM7.2 **visually accepted by Owner**, 98/98 focused tests and React build **passed** at `98cb6cb1`. AM7.3 authenticated browser/negative-RLS, high-volume load and deployment release acceptance **pending**, despite development closure.
 
 ## Owner decision / scope
 
@@ -71,10 +71,27 @@ GitHub Actions [AM1–AM7 run 42148002910](https://github.com/saurabh-shelke1993
 | AM7-11 | Role/deep-link QA | Mark↔History cards, old URLs and dashboard links still route safely; no unsaved-draft guarantee |
 | AM7-12 | Live deployment | Verify actual deployed SHA, browser console, loading/empty/error states, no database writes during read-only inspection |
 
-## Explicitly separate follow-up — AM7.3 History scale
+## AM7.3 — Server pagination and scalable filtering (implemented)
 
-The existing History query still retrieves all currently matching rows and slices them locally into groups of five. At higher attendance volumes, backend query limits and client memory may cause truncated or slow results. **Do not treat the visible five-record pagination as true server-side pagination.**
+- `frontend/src/services/attendanceHistoryService.js` now obtains **only five records** for the requested page, plus a server-side `count: "exact"`, and sorts by `attendance_date DESC, id DESC` for stable ordering. It uses existing authenticated Supabase access and RLS; no new SQL migration, index or RPC.
+- `AttendanceHistory.js` no longer fetches every row for browser slicing, and it ignores stale response results when filters or pagination change. It clamps to the final valid page after records are edited/deleted. The existing five-record page size, navigation, table/cards, status buttons, date controls and role rules remain.
+- The Player dropdown is intentionally replaced by a **debounced Player name search**. `players!inner(full_name)` with case-insensitive substring matching is applied at Supabase **before** count and page slicing. This allows names outside the currently displayed page to be found; unlike the earlier dropdown, search can match multiple players with similar names.
+- Academy Owner/Coach always require their own trusted profile academy; Super Admin can use all/specific academies. The existing authorized Center→Batch lookup is reused to include legacy attendance records missing a populated `attendance.center_id`. The existing Coach seven-UTC-date edit policy, Owner/Admin edit/delete and Parent route denial remain unchanged.
+- New unit tests assert exact count, zero-based page ranges (including page 200/1,205 records), stable sorting, nested name filtering, center/batch/status/date constraints, cross-academy denial and errors. Updated component tests verify Next/Previous, search past page one, reset and retry.
 
-Before changing the data-access contract, review actual row volumes and result limits, server-side center/batch/player/status/date filters, associated player/batch/center/schedule joins, consistent row counts, role/RLS scope and pagination ordering. An AM7.3 query rewrite requires its own plan, tests and owner approval.
+## Validation / acceptance status
 
-**Release decision:** AM7.1–AM7.2 source and focused CI complete; **not manually accepted or production release-ready**.
+| Check | Evidence |
+|---|---|
+| AM7.1–AM7.2 Owner visual acceptance | **Accepted in conversation** (6 November 2026) |
+| AM7.3 service + History Jest and earlier Attendance regressions | **PASS 11/11 suites, 98/98 tests** |
+| React production build | **PASS** |
+| GitHub Actions source run | [42150812932](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42150812932), SHA `98cb6cb1` |
+| Active database read-only review | Schema, RLS/relationship and deterministic five-row page checks; **no data write** |
+| Full frontend Jest | **FAIL: 4/41 suites, 16/304 tests**, Coach Profile / Player Performance (separate backlog) |
+| AM7.3 authenticated browser Owner/Coach/SA/Parent and negative-RLS checks | **PENDING** |
+| AM7.3 production deployment / high-volume load acceptance | **PENDING** |
+
+**AM7 feature implementation task is closed at the code + focused CI level.** Keep the AM7.3 browser and security verification as an **explicit release-quality gate**; do not mark an unexecuted test passed. The database is currently small (roughly 140 active Attendance rows during read-only inspection); scale behavior at 1,000+ records was unit-tested for range math, not performance/load tested on live data. Revisit query plans/indexes only with evidence as volumes grow.
+
+**Source commits:** `8c2b7b95` (new service), `bbdc7731` (UI), `85b927ab` (tests), `ccbe95b9` (obsolete import), `98cb6cb1` (focused test expectation). **No Supabase schema/RPC/RLS changes.**

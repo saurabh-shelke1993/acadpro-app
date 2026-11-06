@@ -1,10 +1,20 @@
 # AcadPro Project Status
 
-**Last Updated:** 6 November 2026 (Attendance AM7 checkpoint; older sections retain historical dates)  
+**Last Updated:** 6 November 2026 (Attendance AM7.3 development closure; older sections retain historical dates)  
 **Current Version:** V1.0 Beta (development; not release sign-off)  
 **Current Git Branch:** `payment-module-finalization`
 
-## Latest development checkpoint — Attendance AM7.1–AM7.2 (6 November 2026)
+## Latest development checkpoint — Attendance AM7.3 completed in source (6 November 2026)
+
+**Owner acceptance:** AM7.1–AM7.2 visual changes were confirmed acceptable. Owner requested completing remaining AM7.3, which is implemented and focused-CI validated. This is **not** confirmation of AM7.3 manual browser or production security acceptance.
+
+**History scalability:** A separate `services/attendanceHistoryService.js` now retrieves only the requested five records with a server-side **exact filtered count**. The service preserves authorized batch-ID-based Center filtering for legacy attendance with null `center_id`, selected Academy/Batch/Status/From/To constraints, and uses a debounced **Player name search** with an inner `players` relationship so matches can be found beyond the current page. The former Player ID dropdown and fetch-all/client-side slicing are removed from History. Rows have stable date-descending, ID-descending ordering; invalid/empty center scopes avoid widening the query; database remains the final RBAC/RLS boundary. After edits or soft deletion, the page is refreshed and clamps to the final existing page when necessary.
+
+**Automated validated:** Source at `98cb6cb1` after commits `8c2b7b95`, `bbdc7731`, `85b927ab`, `ccbe95b9`, `98cb6cb1`. GitHub Actions [Attendance run 42150812932](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42150812932) **PASS: 11/11 suites, 98/98 Jest tests and React production build**. Active Supabase read-only checks confirmed schema, RLS policies, queryable join columns, and five-row pagination at current modest dataset volumes. There was **no live authenticated browser or cross-tenant negative-RLS test**. Full-app Jest at the same SHA remains **FAIL: 4/41 suites, 16/304 tests** in Coach Profile/Player Performance.
+
+**Development closure versus release gate:** All scoped AM7 implementation phases **completed in source and focused-automated-tested**. AM7.1–AM7.2 Owner visual acceptance completed. AM7.3 live browser/role/multi-tenant, high-volume load and Vercel production verification remain unverified; do **not** claim full production release readiness. No Supabase schema migration, SQL writes, policy change, RLS bypass, RPC or modified attendance insert/update/delete behavior.
+
+## Prior checkpoint — Attendance AM7.1–AM7.2 (6 November 2026)
 
 **Implementation:** Optimized `AttendanceHistory.js` and CSS: removed redundant tall History/Records headings, compacted the filter toolbar (Academy selection only for Super Admin; Owner/Coach see scoped academy context), retained Center/Batch/Player/Status/From-To and Reset, and compacted the records counter. On tablet/mobile, the 8-column table rows render as responsive cards showing all fields — including previously hidden Status, Marked By and session details — plus authorized per-record actions. Existing `formatAttendanceSessionLabel` provides weekday and 12-hour time for available schedule records. Legacy attendance fallback remains.
 

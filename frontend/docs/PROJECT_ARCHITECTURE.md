@@ -1,6 +1,6 @@
 # AcadPro Architecture
 
-**Last Updated:** 6 November 2026 (Attendance AM7 UI checkpoint; other sections historical)  
+**Last Updated:** 6 November 2026 (Attendance AM7.3 pagination checkpoint; other sections historical)  
 **Current Branch:** `payment-module-finalization`
 
 ## 1. Platform
@@ -54,6 +54,14 @@ The Parent Portal is protected by a parent-only route guard. Supabase Auth handl
 - The Academy select renders only to Super Admin; Owner and Coach see their read-only academy name. Native record table rows become mobile/tablet presentation cards through CSS; all Date/Player/Center/Batch/Session/Status/Marked By/Actions cells remain present and accessible. Buttons continue using existing `canEditAttendanceRecord` and `canDeleteAttendance`.
 - `formatAttendanceSessionLabel` is reused for non-legacy History schedule time presentation. Coach seven-UTC-date existing-record edit restrictions and Owner/Admin historical edit/delete remain unchanged.
 - AM7 focused CI passed **10 suites / 86 Jest tests and React build** on `c5e9f9e`; live role/browser/RLS acceptance pending. A server-paginated scalable History contract is **not** implemented; any future AM7.3 change requires an explicit review of Supabase filtering, relationship selection, count, cross-tenant RLS and pagination consistency.
+
+### Attendance AM7.3 — server-side, RLS-scoped History pagination
+
+- `frontend/src/services/attendanceHistoryService.js` is a new **read-only authenticated Data API wrapper**. It selects only the five current records with `count: "exact"`, `.order("attendance_date", { ascending: false })`, `.order("id", { ascending: false })`, then `.range((page - 1) * 5, (page - 1) * 5 + 4)`. No service-role key, new endpoint, SQL migration or privileged RPC is introduced.
+- Academy Owner and Coach queries require their own profile `academy_id`, reject mismatched academy-filter parameters before requesting data, and still depend on `public.attendance` RLS. Super Admin may select a platform-wide scope or specific academy; Parent is denied this management service. Coach has no expanded permissions. Selected center is converted to authorized batch IDs via existing `getAccessibleBatches` rather than assuming legacy `attendance.center_id` is populated.
+- Batch, status and inclusive date bounds filter at PostgREST. History's former Player-ID dropdown is replaced with a debounced **player-name substring filter**, backed by `players!inner(full_name)` and `ilike`, applied **before** exact count and paging. No player-data scan is transferred to the browser.
+- History view stores only current rows and count; a sequence counter drops stale responses. Save/Delete refresh the active server page and page number clamps when a deletion empties the last page. Existing `canEditAttendanceRecord`, `canDeleteAttendance`, `updateAttendanceStatus`, `softDeleteAttendance` and 7-UTC-date policy remain unchanged.
+- Focused CI validated **11/11 suites, 98/98 tests and production React build at `98cb6cb1`**. Active Supabase read-only schema and page-count SQL were inspected. **Live logged-in role/RLS and high-volume performance verification remain pending**. No index creation was made; evaluate query plans if dataset growth justifies it.
 
 ## 5. Authorization layers
 
