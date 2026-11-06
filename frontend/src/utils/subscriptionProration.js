@@ -190,6 +190,9 @@ export const calculateInitialMonthlyProration = ({
     throw new RangeError("Billing alignment must be explicitly selected");
   }
   requireMethod(prorationMethod);
+  if (!Array.isArray(excludedOccurrences)) {
+    throw new RangeError("Excluded occurrences must be an array");
+  }
   if (billingAlignment === SUBSCRIPTION_BILLING_ALIGNMENT.ANNIVERSARY_MONTH) {
     if (excludedOccurrences.length > 0) {
       throw new RangeError("Session exclusions cannot alter anniversary-based full pricing");

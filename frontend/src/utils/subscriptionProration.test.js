@@ -121,7 +121,7 @@ describe("PS-L1P1 actual scheduled occurrences and player enrollment", () => {
   test("one Wednesday session per week is computed from real dates", () => {
     expect(quote(request({
       sessionSlots: [{ scheduleId: "wed", dayOfWeek: 3, enrolledFrom: "2027-01-15" }],
-    })).toMatchObject({
+    }))).toMatchObject({
       totalCount: 4, eligibleCount: 2, firstPeriodAmountPaise: 75000,
     });
   });
@@ -225,12 +225,12 @@ describe("PS-L1P1 fail-closed invalid inputs and money rounding", () => {
       ],
     }))).toThrow(/No scheduled sessions/);
   });
-  test("rounds exactly half a paisa up with integer arithmetic", () => {
+  test("rounds an exact half-paisa upward with integer arithmetic", () => {
     const example = quote(request({
-      joinDate:"2027-01-16", agreedAmountPaise:1,
-      prorationMethod:METHOD.CALENDAR_DAYS,
+      agreedAmountPaise: 1,
+      sessionSlots: [{scheduleId:"wed", dayOfWeek:3, enrolledFrom:"2027-01-15"}],
     }));
-    expect(example).toMatchObject({eligibleCount:16,totalCount:31,firstPeriodAmountPaise:1});
+    expect(example).toMatchObject({eligibleCount:2,totalCount:4,firstPeriodAmountPaise:1});
   });
   test("high safely representable amount does not overflow intermediate multiplication", () => {
     expect(quote(request({
