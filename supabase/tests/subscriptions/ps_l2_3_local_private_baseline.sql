@@ -4,6 +4,10 @@
 -- READ-ONLY inspection of the active database on 6 November 2026.
 -- ONLY copied into supabase/migrations inside disposable GitHub CI checkout.
 -- Not proof that the full historical migration chain matches production.
+-- First remote schema snapshot predates parents.user_id, so disable SQL body
+-- checking *only while reconstructing functions in this disposable checkout*.
+-- The real body will be checked when invoked after all migrations are replayed.
+SET check_function_bodies = off;
 CREATE SCHEMA IF NOT EXISTS private;
 CREATE OR REPLACE FUNCTION private.current_user_role()
 RETURNS text LANGUAGE sql STABLE SECURITY DEFINER
@@ -76,3 +80,5 @@ GRANT EXECUTE ON FUNCTION
  private.current_parent_id(), private.can_manage_academy(uuid),
  private.is_parent_of_player(uuid)
  TO authenticated;
+
+SET check_function_bodies = on;
