@@ -191,7 +191,7 @@ describe("PS-L1P1 fail-closed invalid inputs and money rounding", () => {
     [{ scheduleId: "mon", dayOfWeek: 1, enrolledFrom: "2027-01-20", enrolledUntil: "2027-01-10" }],
     [{ scheduleId: "mon", dayOfWeek: 1, enrolledFrom: "2027-01-15" },
      { scheduleId: "mon", dayOfWeek: 1, enrolledFrom: "2027-01-15" }],
-  ])("rejects invalid or untrusted session snapshot %j", sessionSlots => {
+  ].map(value => [value]))("rejects invalid or untrusted session snapshot %j", sessionSlots => {
     expect(() => quote(request({sessionSlots}))).toThrow(RangeError);
   });
   test.each([
@@ -201,7 +201,7 @@ describe("PS-L1P1 fail-closed invalid inputs and money rounding", () => {
     [{ scheduleId: "mon", date: "2027-01-18" },{ scheduleId: "mon", date: "2027-01-18" }],
     [{ scheduleId: "mon", date: "bad" }],
     [null],
-  ])("rejects invalid holiday/cancellation snapshot %j", excludedOccurrences => {
+  ].map(value => [value]))("rejects invalid holiday/cancellation snapshot %j", excludedOccurrences => {
     expect(() => quote(request({excludedOccurrences}))).toThrow(RangeError);
   });
   test("rejects session exclusion for calendar-day and anniversary pricing", () => {
