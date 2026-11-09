@@ -4,6 +4,14 @@
 **Current Version:** V1.0 Beta (development; not release sign-off)  
 **Current Git Branch:** `payment-module-finalization`
 
+## PS-L2.3B B2.4 SQL parity checkpoint (9 November 2026)
+
+**Source work:** Implemented offline historical migration content comparator, seven tests, README documentation and metadata-only `parity-fingerprints-readonly-20261109.json`. Recovery GitHub Actions [42615314401](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42615314401) **PASS (15 total tests)**.
+
+**Live read-only SQL parity:** 82 remote ledger versions / 40 Git SQL files. 17 byte-exact + 6 trailing-LF + 2 leading-LF matches = **25 strict content matches** (8 verified retimestamped). 6 same-version content discrepancies, 51 unmatched remote migrations and 15 unmatched Git files still require review. Two Git files share migration version `20260926133000`.
+
+**Security gate:** Full quarantined historical SQL export and original baseline helper provenance (11 functions) unresolved. No clean disposable Supabase replay or actual subscription/finance/RLS integration PASS. PS-L2.3 proposal remains unapplied, legacy 22 subscription agreements remain HOLD for automated billing, and hosted data/schema remain unchanged. Detailed report: `PS_L2_3B_B2_4_SQL_CONTENT_PARITY_20261109.md`. Next B2.5 source review; no production migration approval granted.
+
 ## PS-L2.3B B2.3/B2.4 audit update (9 November 2026)
 
 **Implemented and tested:** Offline `analyze_replay_dependencies.py` and four new tests (8 total recovery tests green in [GitHub Actions 42610773284](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42610773284) at `acb03aa2`). Quarantined statement input only; no hosted SQL changes.
