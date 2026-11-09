@@ -8,7 +8,7 @@
 
 **Source implemented:** `supabase/recovery/historical-baseline/` contains read-only SQL export tooling, tests, quarantine controls, documentation and an 82-record **metadata-only** historical migration inventory. GitHub branch `payment-module-finalization`; no new active migration, payment writes or schema modification.
 
-**Verification:** Four exporter integrity tests passed locally; latest branch CI is **unconfirmed**. Exporter has not performed the full database-history SQL export. There is no clean Supabase replay or real Auth/RLS/payment integration PASS. Historical provenance remains unresolved for 11 foundational private helpers and local timestamp collision `20260926133000`.
+**Verification:** Four exporter integrity tests passed locally; focused recovery CI [42609954991](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42609954991) **PASSED** at `ed2eb184`. Exporter has not performed the full database-history SQL export. There is no clean Supabase replay or real Auth/RLS/payment integration PASS. Historical provenance remains unresolved for 11 foundational private helpers and local timestamp collision `20260926133000`.
 
 **Next:** B2.3 sensitive-data-reviewed evidence extraction and helper/version reconciliation, then B2.4 dependency-safe replay preparation. **Do not promote PS-L2.3 to production or remove legacy subscription HOLD.**
 
