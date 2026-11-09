@@ -4,6 +4,14 @@
 **Current Version:** V1.0 Beta (development; not release sign-off)  
 **Current Git Branch:** `payment-module-finalization`
 
+## PS-L2.3B B2.3/B2.4 audit update (9 November 2026)
+
+**Implemented and tested:** Offline `analyze_replay_dependencies.py` and four new tests (8 total recovery tests green in [GitHub Actions 42610773284](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42610773284) at `acb03aa2`). Quarantined statement input only; no hosted SQL changes.
+
+**Critical finding:** No stored historical migration explicitly creates the `private` schema or foundational `current_user_role()` / `is_super_admin()` functions. The deployed functions exist, but their historical source provenance is unresolved; `parents.user_id` was added in version `20260912142706`. The current migration history **cannot yet reconstruct itself**.
+
+**Outstanding:** Full raw SQL quarantine/export, content comparison, 11 helper provenance findings, timestamp collision resolution, fresh Supabase replay, real role/finance tests, Owner acceptance. Existing PS-L2.3 proposal stays **unapplied** and all 22 legacy subscriptions stay HOLD.
+
 ## Current PS-L2.3B milestone — recovery evidence tooling (9 November 2026)
 
 **Source implemented:** `supabase/recovery/historical-baseline/` contains read-only SQL export tooling, tests, quarantine controls, documentation and an 82-record **metadata-only** historical migration inventory. GitHub branch `payment-module-finalization`; no new active migration, payment writes or schema modification.
