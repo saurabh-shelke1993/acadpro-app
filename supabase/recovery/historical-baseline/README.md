@@ -25,3 +25,17 @@ Never commit raw output. Inspect for PII, data backfills, destructive SQL, secre
 Observed 2026-11-09 checkpoint: 82 remote records, 40 repository SQL files, 23 matching version IDs, 59 remote-only versions, 17 local-only files, and two files sharing version `20260926133000`. These are not content-equivalence counts.
 
 Future replay must be performed solely against a disposable unlinked database, after reviewed migration ordering, user-data quarantine, helper origin identification, and explicit phase approval. Never modify hosted migration history.
+
+## B2.3 dependency audit (offline only)
+
+After a **private** export has passed manual sensitive-SQL review, execute:
+
+```bash
+python supabase/recovery/historical-baseline/analyze_replay_dependencies.py \
+  --archive supabase/recovery/historical-baseline/.recovery-private/baseline-001 \
+  --output supabase/recovery/historical-baseline/.recovery-private/dependency-audit-001.json
+```
+
+This outputs **metadata only**; SQL is never executed. All items remain `replay_approved=false`. The scanner is a heuristic: a flagged missing dependency or DML operation requires manual SQL inspection. It cannot prove object or tenant security correctness.
+
+See `frontend/docs/PS_L2_3B_B2_3_B2_4_DEPENDENCY_REVIEW_20261109.md` for verified live historical gaps.
