@@ -1,0 +1,855 @@
+{
+  "schema": "kheltriva-historical-migration-inventory-v1",
+  "retrieved_date": "2026-11-09",
+  "project_id": "ulyealhkmlorsbdiknrh",
+  "branch": "payment-module-finalization",
+  "origin": "SELECT-only Supabase migration metadata + GitHub branch tree",
+  "WARNING": "Hashes are of PostgreSQL array_to_json(statements)::text, NOT of the separately exported compact Python JSON file. No SQL text is included. Version matching alone does NOT imply content equivalence.",
+  "remote_records": 82,
+  "local_file_count": 40,
+  "version_matches": 23,
+  "remote_only_count": 59,
+  "local_only_versions": {
+    "20260919130000": [
+      "20260919130000_player_bulk_import_transaction.sql"
+    ],
+    "20260920050000": [
+      "20260920050000_fix_player_batch_constraint_timing.sql"
+    ],
+    "20260920051000": [
+      "20260920051000_make_player_batch_invariant_rpc_safe.sql"
+    ],
+    "20260926120000": [
+      "20260926120000_payment_financial_foundation.sql"
+    ],
+    "20260926123000": [
+      "20260926123000_payment_financial_foundation_apply.sql"
+    ],
+    "20260926130000": [
+      "20260926130000_backfill_legacy_receipts.sql"
+    ],
+    "20260926131500": [
+      "20260926131500_fix_coach_payment_rls_execute.sql"
+    ],
+    "20260926133000": [
+      "20260926133000_fix_generated_payment_due_updates.sql",
+      "20260926133000_restrict_payment_operations_to_admin_roles.sql"
+    ],
+    "20260926134500": [
+      "20260926134500_fix_payment_overpayment_message.sql"
+    ],
+    "20260926135500": [
+      "20260926135500_format_payment_overpayment_amount.sql"
+    ],
+    "20260926140000": [
+      "20260926140000_reconcile_legacy_overpaid_dues.sql"
+    ],
+    "20261011090000": [
+      "20261011090000_allow_batch_enrolled_players_in_coach_attendance.sql"
+    ],
+    "20261011093000": [
+      "20261011093000_allow_coach_retroactive_attendance_and_block_future_dates.sql"
+    ],
+    "20261011140000": [
+      "20261011140000_phase_7_lock_down_unused_public_tables.sql"
+    ],
+    "202610210001": [
+      "202610210001_private_player_photo_storage.sql"
+    ],
+    "20261031123000": [
+      "20261031123000_center_code_fields.sql"
+    ]
+  },
+  "local_timestamp_collisions": {
+    "20260926133000": [
+      "20260926133000_fix_generated_payment_due_updates.sql",
+      "20260926133000_restrict_payment_operations_to_admin_roles.sql"
+    ]
+  },
+  "migrations": [
+    {
+      "version": "20260823093317",
+      "name": "remote_schema",
+      "statement_count": 87,
+      "pg_json_bytes": 21429,
+      "pg_json_sha256": "091135ba43c75d67b254b3d39d9cc934ea847dbd985badf8fecd5b6101fef894",
+      "local_filenames": [
+        "20260823093317_remote_schema.sql"
+      ],
+      "status": "version-matches-unverified-content"
+    },
+    {
+      "version": "20260903173804",
+      "name": "phase_3_2_assignment_isolation",
+      "statement_count": 1,
+      "pg_json_bytes": 2549,
+      "pg_json_sha256": "44e8fb6cae0e6f3e31744bf479158db6f227ae77fb8a1de68d66c3233bc96b0e",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20260903185104",
+      "name": "phase_3_4_batch_mutation_security",
+      "statement_count": 1,
+      "pg_json_bytes": 723,
+      "pg_json_sha256": "45d6f2b7b518d8ae6a73aa6dc2329da93710d7668364c224b137db37e3e5e1dd",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20260907180752",
+      "name": "phase_3_5_player_mutation_security",
+      "statement_count": 1,
+      "pg_json_bytes": 3750,
+      "pg_json_sha256": "64e2d401dd2435630e3955452f65a5864d80c65db16565f7c4b074e6ff302df5",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20260908061110",
+      "name": "phase_3_6_attendance_mutation_security",
+      "statement_count": 1,
+      "pg_json_bytes": 5059,
+      "pg_json_sha256": "9f7deab323b53f74d61c4e7f38dc50612ef9b1d7de01d5ddda8bb1dc3f445a93",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20260908062059",
+      "name": "phase_4_1_parent_read_isolation",
+      "statement_count": 1,
+      "pg_json_bytes": 2751,
+      "pg_json_sha256": "ca1726609cfdd7879f909cf939d3e12027ce31a35e23a4292093575840dc0305",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20260908070804",
+      "name": "phase_6_3_subscription_security",
+      "statement_count": 1,
+      "pg_json_bytes": 6948,
+      "pg_json_sha256": "fdcf5b9fec1436556d24b8c2b20e28c16ac38a027fdf37db0949c3ad78e222b4",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20260908073942",
+      "name": "phase_7_payment_due_security",
+      "statement_count": 1,
+      "pg_json_bytes": 3822,
+      "pg_json_sha256": "6d708b5f7f6396ed51a77989a5fc0d4f1fbcd0efd06a9bedc75eefe7b8e86341",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20260908075043",
+      "name": "phase_8_2_payment_mutation_security",
+      "statement_count": 1,
+      "pg_json_bytes": 4051,
+      "pg_json_sha256": "c2268aea7a0bb4de0857f982e5caf9ff96b12e3abe372166d3e51ce0316d92bb",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20260912085524",
+      "name": "tighten_centers_and_player_batches_rbac",
+      "statement_count": 1,
+      "pg_json_bytes": 3421,
+      "pg_json_sha256": "54471077dacbf895e24b24e656b755960199fcdff1f16626af79477c136549d5",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20260912142706",
+      "name": "link_parents_to_auth_users",
+      "statement_count": 1,
+      "pg_json_bytes": 1417,
+      "pg_json_sha256": "03fd918f93209187e462aaff7c945caca8a4a6c3c9bc61aeb0f3465d869a0cfa",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20260912180959",
+      "name": "allow_parents_to_view_linked_attendance",
+      "statement_count": 1,
+      "pg_json_bytes": 602,
+      "pg_json_sha256": "226909e0057a44f7a94b18affae43ad98dc25becc46788b40f0735b4b7ac4218",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20260912184118",
+      "name": "create_player_performance_assessments",
+      "statement_count": 1,
+      "pg_json_bytes": 4712,
+      "pg_json_sha256": "abdf6dbc57d116340bc2b9affcda4de762dd57145898c96c3ebd995f2d3cde3e",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20260912185706",
+      "name": "limit_performance_assessment_scores_to_ten",
+      "statement_count": 1,
+      "pg_json_bytes": 823,
+      "pg_json_sha256": "b239936532b74be05cb6ffe56c6af02d93272e5ee8ba4cb41ae996fc443cd984",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20260915111222",
+      "name": "harden_player_performance_assessment_rls_coach_lookup",
+      "statement_count": 1,
+      "pg_json_bytes": 4941,
+      "pg_json_sha256": "7c9f69fea04a180d615f90bc9f28db14f1e79876228ac9fe0eafcf892e03a07a",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20260919074807",
+      "name": "player_bulk_import_transaction",
+      "statement_count": 1,
+      "pg_json_bytes": 7385,
+      "pg_json_sha256": "c1120c0a8f6981cb5bb722fa8b02142f4af9b03d43f89995bc672e9a356759f1",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20260919074831",
+      "name": "fix_player_bulk_import_player_id",
+      "statement_count": 1,
+      "pg_json_bytes": 7216,
+      "pg_json_sha256": "a1f6f0b23814a52969c1a1523e0743ea7ff542c28c457cadf6cbcf53f85300d0",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20260919074950",
+      "name": "fix_player_bulk_import_phone_normalization",
+      "statement_count": 1,
+      "pg_json_bytes": 7229,
+      "pg_json_sha256": "ceaa083101e23e4bc8e43b5bffb6ee2994d1c3aea9f1b007a2236a4487600ddd",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20260919075003",
+      "name": "revoke_bulk_player_import_anon",
+      "statement_count": 1,
+      "pg_json_bytes": 165,
+      "pg_json_sha256": "bcb73f40dd85ee3fb7cfb068264dba4b89c903272c8279f4dc9b0a3f483b9efc",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20260919075012",
+      "name": "restrict_bulk_player_import_execute",
+      "statement_count": 1,
+      "pg_json_bytes": 167,
+      "pg_json_sha256": "2735ae44bb637b02a13ffda631b3f5e20063bf9ec104b5e3e82a527f2e870559",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20260920041302",
+      "name": "player_batch_invariant_transactional_writes",
+      "statement_count": 1,
+      "pg_json_bytes": 9947,
+      "pg_json_sha256": "e549c68d586ce8e7212dccafa6a1b1db3315c439a518aabd023c565574201e2e",
+      "local_filenames": [
+        "20260920041302_player_batch_invariant_transactional_writes.sql"
+      ],
+      "status": "version-matches-unverified-content"
+    },
+    {
+      "version": "20260920041356",
+      "name": "enforce_player_batch_invariant",
+      "statement_count": 1,
+      "pg_json_bytes": 2350,
+      "pg_json_sha256": "f45890ff6ffaee5e17dccaff0e57e0f0aeb86963ddae087e6d1a200d16eb2295",
+      "local_filenames": [
+        "20260920041356_enforce_player_batch_invariant.sql"
+      ],
+      "status": "version-matches-unverified-content"
+    },
+    {
+      "version": "20260920041457",
+      "name": "scope_player_batch_invariant_to_active_players",
+      "statement_count": 1,
+      "pg_json_bytes": 2382,
+      "pg_json_sha256": "ec14895c54c0a2cd84f628e47171da1f20c8af0ef828a1a803bc9744286c5476",
+      "local_filenames": [
+        "20260920041457_scope_player_batch_invariant_to_active_players.sql"
+      ],
+      "status": "version-matches-unverified-content"
+    },
+    {
+      "version": "20260920041516",
+      "name": "reconcile_active_player_batch_mappings",
+      "statement_count": 1,
+      "pg_json_bytes": 946,
+      "pg_json_sha256": "4b461339b4612a6112f90a768c5e53d2e605c4e23cabf09753e55b674a9fc064",
+      "local_filenames": [
+        "20260920041516_reconcile_active_player_batch_mappings.sql"
+      ],
+      "status": "version-matches-unverified-content"
+    },
+    {
+      "version": "20260920041606",
+      "name": "reconcile_pratik_missing_current_batch",
+      "statement_count": 1,
+      "pg_json_bytes": 95,
+      "pg_json_sha256": "aea8a2948b7bc20576d50b4b2635252709736196c39d65dc9b571e4841d85eed",
+      "local_filenames": [
+        "20260920041606_reconcile_pratik_missing_current_batch.sql"
+      ],
+      "status": "version-matches-unverified-content"
+    },
+    {
+      "version": "20260920041653",
+      "name": "enforce_single_player_batch_mapping",
+      "statement_count": 1,
+      "pg_json_bytes": 108,
+      "pg_json_sha256": "2676d5a2f153baed6ba5dc80bf5362fc3ea1affebb796a4b4f9d28df01edeb40",
+      "local_filenames": [
+        "20260920041653_enforce_single_player_batch_mapping.sql"
+      ],
+      "status": "version-matches-unverified-content"
+    },
+    {
+      "version": "20260920041849",
+      "name": "restrict_transactional_player_function_execute",
+      "statement_count": 1,
+      "pg_json_bytes": 830,
+      "pg_json_sha256": "eb6851cebb54b792630771ec32d0c489f6bb2d21b411f971d77f72bc8cd28de7",
+      "local_filenames": [
+        "20260920041849_restrict_transactional_player_function_execute.sql"
+      ],
+      "status": "version-matches-unverified-content"
+    },
+    {
+      "version": "20260920043638",
+      "name": "fix_player_batch_constraint_timing",
+      "statement_count": 1,
+      "pg_json_bytes": 18038,
+      "pg_json_sha256": "d9aa7a8c872feeeaa9abfaa125b149dc582aa3231f58b65086ef0264453c1bff",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20260920045132",
+      "name": "make_player_batch_invariant_rpc_safe",
+      "statement_count": 1,
+      "pg_json_bytes": 17800,
+      "pg_json_sha256": "1a7b8716447d12d946a702690a1c10350f3a1e63360141dfe57fc29570c8f8e8",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20260920045507",
+      "name": "make_player_batch_invariant_rpc_safe_v2",
+      "statement_count": 1,
+      "pg_json_bytes": 17967,
+      "pg_json_sha256": "b4fa74d2eade8b3e173dbf31871c0db831edefb492b62d94a4749a12b98b8a81",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20260920051907",
+      "name": "player_rollback_regression_test_trigger",
+      "statement_count": 1,
+      "pg_json_bytes": 540,
+      "pg_json_sha256": "6ce6d72757cd6cd6fd879e2151fcb873f1665fc75eb9728133c66360346e924e",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20260920051959",
+      "name": "player_rollback_regression_test_cleanup",
+      "statement_count": 1,
+      "pg_json_bytes": 160,
+      "pg_json_sha256": "4131403efbc51f9a7c37a13656b5a053c405bcdf90cb946c1bc41e7eddc4ac2e",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20260920053210",
+      "name": "player_parent_duplicate_cleanup_20260920",
+      "statement_count": 1,
+      "pg_json_bytes": 1636,
+      "pg_json_sha256": "d3f0095e76aa44bfd3f9ebc8bae87b0ab2f65f3373b52021bf03e54f162426c5",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20260920053416",
+      "name": "restrict_player_batch_assert_execute",
+      "statement_count": 1,
+      "pg_json_bytes": 84,
+      "pg_json_sha256": "a19ed0c1aec7263cd0ae5595621eb51020478c8adbf6825e8f2193b3b1460613",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20260925063432",
+      "name": "20260925120000_allow_multiple_active_coaches_per_batch",
+      "statement_count": 1,
+      "pg_json_bytes": 1398,
+      "pg_json_sha256": "4cfb1b9b635ecc7f0ec7e5f1a61124f45ecb530182abdcb46115700e2343ff1d",
+      "local_filenames": [
+        "20260925063432_allow_multiple_active_coaches_per_batch.sql"
+      ],
+      "status": "version-matches-unverified-content"
+    },
+    {
+      "version": "20260925081658",
+      "name": "restrict_player_performance_mutations_to_coaches",
+      "statement_count": 1,
+      "pg_json_bytes": 2253,
+      "pg_json_sha256": "62691422c9efbcab427ef50b3722356db43110b9bc593caa58eed13d6180c3da",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20260925082735",
+      "name": "restore_admin_performance_assessment_management",
+      "statement_count": 1,
+      "pg_json_bytes": 4389,
+      "pg_json_sha256": "928f3835af2b26e83e308c5c00e42785ba67ac9d0f5d2e185bc4a0b29418ccbf",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20260926081010",
+      "name": "payment_financial_foundation",
+      "statement_count": 1,
+      "pg_json_bytes": 93,
+      "pg_json_sha256": "721bb15b5a19185b3a92f8999923689d443e9d1a15f0afa29fd53e8890b43a44",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20260926081053",
+      "name": "payment_financial_foundation_apply",
+      "statement_count": 1,
+      "pg_json_bytes": 26523,
+      "pg_json_sha256": "d5ad3aebc912073af643c9172741db3458737799c81076daa6812e6833326dcf",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20260926081320",
+      "name": "backfill_legacy_receipts",
+      "statement_count": 1,
+      "pg_json_bytes": 537,
+      "pg_json_sha256": "f2143c9edace95aac4e369b253f1fadad3b243613eea51d777295d25f3fea8fc",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20260926093830",
+      "name": "fix_coach_payment_rls_execute",
+      "statement_count": 1,
+      "pg_json_bytes": 85,
+      "pg_json_sha256": "f330e3b84e81a883d128cc9c91d09865f6b27e7a652c3a847867589faecb15ab",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20260926094904",
+      "name": "fix_generated_payment_due_updates",
+      "statement_count": 1,
+      "pg_json_bytes": 9719,
+      "pg_json_sha256": "710994f91de3186f7a26c6449836217478e1ac6b16c2c95dba7a3613f868c71d",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20260926095749",
+      "name": "fix_payment_overpayment_message",
+      "statement_count": 1,
+      "pg_json_bytes": 9864,
+      "pg_json_sha256": "f91c9a35ce3e88351c7e82656dd7d8ab02c0f725c693be6bd10f1b8c61ed4223",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20260926095814",
+      "name": "format_payment_overpayment_amount",
+      "statement_count": 1,
+      "pg_json_bytes": 9978,
+      "pg_json_sha256": "304101cabfb674242e97929b0373a2582c49c742dd9508f087b35e2c36d7056d",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20260926111113",
+      "name": "restrict_payment_operations_to_admin_roles",
+      "statement_count": 1,
+      "pg_json_bytes": 7408,
+      "pg_json_sha256": "8ffbaf6de5b8135896bc036098d1787e4cac4d5e339b4affd9ae0c080abdb922",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20260926113534",
+      "name": "reconcile_legacy_overpaid_dues",
+      "statement_count": 1,
+      "pg_json_bytes": 1668,
+      "pg_json_sha256": "d396242a193ca98172d9a05c8f8c3ed49fc9de1b095517c1de1b020bf37ffe24",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20260930071849",
+      "name": "academy_logo_management_and_admin_write_policies",
+      "statement_count": 1,
+      "pg_json_bytes": 1674,
+      "pg_json_sha256": "088ec089af371a00db127115b1f0dc94cec71dec5bc534c87d31fc4af6c16732",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20261008021921",
+      "name": "coach_profile_v1",
+      "statement_count": 1,
+      "pg_json_bytes": 5452,
+      "pg_json_sha256": "cb6df3b1951a0b23cf3541e2513c5bf087cac1442bb942963e16c6e95715cb6d",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20261008075914",
+      "name": "coach_profile_photo_storage",
+      "statement_count": 1,
+      "pg_json_bytes": 2696,
+      "pg_json_sha256": "ec8498bf53464e87736a8674f7313325d5a79c5c540d3a61e7face10b8f9b191",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20261008080032",
+      "name": "coach_photo_storage_policy_hardening",
+      "statement_count": 1,
+      "pg_json_bytes": 1800,
+      "pg_json_sha256": "a1b584ac09ee84dacc1614c2ea04a9979c78e0b695b5eb5310da8f8337081ca7",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20261010010821",
+      "name": "create_batch_schedule_tables",
+      "statement_count": 1,
+      "pg_json_bytes": 3775,
+      "pg_json_sha256": "26f1f5a5abc7711da5fe601b13e497e7b06724922cbbfb19ae55aa03cc17b86e",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20261010010827",
+      "name": "add_attendance_batch_schedule_reference",
+      "statement_count": 1,
+      "pg_json_bytes": 351,
+      "pg_json_sha256": "a9cbcd09148a407e53113959cdf7cee9f927f76b4710a098db10fb00861e6476",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20261010010929",
+      "name": "add_batch_schedule_validation",
+      "statement_count": 1,
+      "pg_json_bytes": 2468,
+      "pg_json_sha256": "4848c507404602258bd14b9e77fcec0204233adb2918adeb0d4287eac9d54ce2",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20261010011133",
+      "name": "validate_player_batch_schedule_enrollment",
+      "statement_count": 1,
+      "pg_json_bytes": 4644,
+      "pg_json_sha256": "4db0de7e9f170910ecd37a99051e28325bd33197d68d82e47a69c61f26ea6a26",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20261010011502",
+      "name": "validate_coach_batch_schedule_assignment",
+      "statement_count": 1,
+      "pg_json_bytes": 4140,
+      "pg_json_sha256": "712f684b35c04478d13c23530661a8be013134d6cfcd1a42f6c7a88843409a0f",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20261010011733",
+      "name": "validate_schedule_aware_attendance",
+      "statement_count": 1,
+      "pg_json_bytes": 3420,
+      "pg_json_sha256": "903992ba9089f37630b0f7092c48f13bbee2229ca56b3bc0362be49da0b7cc40",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20261010011746",
+      "name": "protect_schedule_change_consistency",
+      "statement_count": 1,
+      "pg_json_bytes": 10308,
+      "pg_json_sha256": "7d009d360e2cd44bbf936a2732ce336d302d4bdf091961b3dfc8bf1b3c6336b9",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20261010011828",
+      "name": "schedule_rls_and_attendance_access",
+      "statement_count": 1,
+      "pg_json_bytes": 12092,
+      "pg_json_sha256": "86af2bdfed415ad999bcb69ecde8831eb17d7922a2fdc79de422c9fb2301a8cb",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20261010011839",
+      "name": "transition_attendance_schedule_uniqueness",
+      "statement_count": 1,
+      "pg_json_bytes": 1264,
+      "pg_json_sha256": "c2ab77ba94f4b0d6fe824b8bb67c7f1358dceda5549a98fa292e5b4db278240d",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20261010012010",
+      "name": "lock_schedule_during_attendance_validation",
+      "statement_count": 1,
+      "pg_json_bytes": 3337,
+      "pg_json_sha256": "bce3e09acef131f32ca88aac683edb3f34a717c4b2587bbaba7de6b41efcdf6d",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20261010012034",
+      "name": "secure_attendance_validation_trigger",
+      "statement_count": 1,
+      "pg_json_bytes": 282,
+      "pg_json_sha256": "e68a2f852b7aa5a7ad9d5f62bf2fce4dd9481bbfb95f184b0ba04a3c9dba7e53",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20261011083110",
+      "name": "allow_batch_enrolled_players_in_coach_attendance",
+      "statement_count": 1,
+      "pg_json_bytes": 2957,
+      "pg_json_sha256": "c59186cb708ad3afab0d05cf6d1084865a0174261341731baae5bb3c978bf891",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20261011083351",
+      "name": "allow_coach_retroactive_attendance_and_block_future_dates",
+      "statement_count": 1,
+      "pg_json_bytes": 1099,
+      "pg_json_sha256": "8d389af3a0ee1f6303568dcd23fa502a920cae4b2e681a835172cbb27af9da3f",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20261011105104",
+      "name": "phase_7_harden_rpc_grants_and_schedule_search_paths",
+      "statement_count": 1,
+      "pg_json_bytes": 1331,
+      "pg_json_sha256": "9b4503796e904271d6bd61a1c5074e5d4187dbcba39fa7b9f500dfd1643a7f24",
+      "local_filenames": [
+        "20261011105104_phase_7_harden_rpc_grants_and_schedule_search_paths.sql"
+      ],
+      "status": "version-matches-unverified-content"
+    },
+    {
+      "version": "20261011130546",
+      "name": "phase_7_lock_down_unused_public_tables",
+      "statement_count": 1,
+      "pg_json_bytes": 736,
+      "pg_json_sha256": "08c3990d0b85ffc521baee9d120720d11fae8391d7b03898bd5da86be58764b9",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20261011135131",
+      "name": "expenses_module_foundation",
+      "statement_count": 1,
+      "pg_json_bytes": 5492,
+      "pg_json_sha256": "ff2557a26202275be8cff6a1b50b81e4917ab53f23fda0ad4372c0249f32fad7",
+      "local_filenames": [
+        "20261011135131_expenses_module_foundation.sql"
+      ],
+      "status": "version-matches-unverified-content"
+    },
+    {
+      "version": "20261011135208",
+      "name": "tighten_expenses_table_grants",
+      "statement_count": 1,
+      "pg_json_bytes": 577,
+      "pg_json_sha256": "23e0533a1cee3577afb8c119b5a06cc4a18b11d9ac1f588691069cef6ffff268",
+      "local_filenames": [
+        "20261011135208_tighten_expenses_table_grants.sql"
+      ],
+      "status": "version-matches-unverified-content"
+    },
+    {
+      "version": "20261012013143",
+      "name": "academy_upi_settings_foundation",
+      "statement_count": 1,
+      "pg_json_bytes": 6383,
+      "pg_json_sha256": "516bb3297130403fbcf1b25bf5bbe7d5457edec601dcda6f9fe63792e09b6bf8",
+      "local_filenames": [
+        "20261012013143_academy_upi_settings_foundation.sql"
+      ],
+      "status": "version-matches-unverified-content"
+    },
+    {
+      "version": "20261012013320",
+      "name": "academy_upi_settings_policy_tuning",
+      "statement_count": 1,
+      "pg_json_bytes": 1180,
+      "pg_json_sha256": "3831f1bbaf7cb25e0bad126bbfedf8af0eafef5e1b8e37591589b67909e2d811",
+      "local_filenames": [
+        "20261012013320_academy_upi_settings_policy_tuning.sql"
+      ],
+      "status": "version-matches-unverified-content"
+    },
+    {
+      "version": "20261012013452",
+      "name": "academy_upi_settings_remove_redundant_index",
+      "statement_count": 1,
+      "pg_json_bytes": 227,
+      "pg_json_sha256": "da405072d83d4a195cf8c2c6deeb33aeb524c81e0e6917ee5ee1704c5e1f772e",
+      "local_filenames": [
+        "20261012013452_academy_upi_settings_remove_redundant_index.sql"
+      ],
+      "status": "version-matches-unverified-content"
+    },
+    {
+      "version": "20261012023354",
+      "name": "parent_upi_payment_submissions",
+      "statement_count": 1,
+      "pg_json_bytes": 9671,
+      "pg_json_sha256": "e7c13eed33677bbacbc727e729e1d7cb5d0c483b58dabe80bc4095fb318d214b",
+      "local_filenames": [
+        "20261012023354_parent_upi_payment_submissions.sql"
+      ],
+      "status": "version-matches-unverified-content"
+    },
+    {
+      "version": "20261012023526",
+      "name": "parent_upi_submission_invariants",
+      "statement_count": 1,
+      "pg_json_bytes": 3322,
+      "pg_json_sha256": "8b5ed87ab2ba312ffd8299f40e667921e3b75fa64d1293938dc4f73a2a9b8f4f",
+      "local_filenames": [
+        "20261012023526_parent_upi_submission_invariants.sql"
+      ],
+      "status": "version-matches-unverified-content"
+    },
+    {
+      "version": "20261012025707",
+      "name": "parent_upi_claim_ledger_recording",
+      "statement_count": 1,
+      "pg_json_bytes": 5832,
+      "pg_json_sha256": "aac1626fd11bd78cb97e0ae37bb95f53727a95ff87b81a32112c81bcee25a136",
+      "local_filenames": [
+        "20261012025707_parent_upi_claim_ledger_recording.sql"
+      ],
+      "status": "version-matches-unverified-content"
+    },
+    {
+      "version": "20261012031132",
+      "name": "expense_occurrence_recording",
+      "statement_count": 1,
+      "pg_json_bytes": 5523,
+      "pg_json_sha256": "dd0a32dce8570a5df5fc8979f4bbf39fb1695be1d730651e7d5f7adb45e28295",
+      "local_filenames": [
+        "20261012031132_expense_occurrence_recording.sql"
+      ],
+      "status": "version-matches-unverified-content"
+    },
+    {
+      "version": "20261012031710",
+      "name": "protect_recurring_expense_history",
+      "statement_count": 1,
+      "pg_json_bytes": 1979,
+      "pg_json_sha256": "51c5db05f4b1885cc811f0abd3fad33834c8a34f6afb0eacca0218e906ef92f5",
+      "local_filenames": [
+        "20261012031710_protect_recurring_expense_history.sql"
+      ],
+      "status": "version-matches-unverified-content"
+    },
+    {
+      "version": "20261012032425",
+      "name": "revert_p16_expense_changes",
+      "statement_count": 1,
+      "pg_json_bytes": 1195,
+      "pg_json_sha256": "61fa04264cb8cdf179530bfa3499897b5326a7e7229e793ad7a0249adcb6afbe",
+      "local_filenames": [
+        "20261012032425_revert_p16_expense_changes.sql"
+      ],
+      "status": "version-matches-unverified-content"
+    },
+    {
+      "version": "20261012035934",
+      "name": "enquiries_r2_database_security",
+      "statement_count": 1,
+      "pg_json_bytes": 25941,
+      "pg_json_sha256": "87ff6aa8c63b326da1b07a6ef3b504587f52bcc31418a27e1ecf1f35ee4a84bf",
+      "local_filenames": [
+        "20261012035934_enquiries_r2_database_security.sql"
+      ],
+      "status": "version-matches-unverified-content"
+    },
+    {
+      "version": "20261021052601",
+      "name": "private_player_photo_storage",
+      "statement_count": 1,
+      "pg_json_bytes": 3577,
+      "pg_json_sha256": "99dc87a8c91269955cfda15356bd17403edf97aa4df6550af0b43eeef31450b7",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20261025171400",
+      "name": "delete_inquiry",
+      "statement_count": 1,
+      "pg_json_bytes": 1799,
+      "pg_json_sha256": "822a357408c249aba8a6abd94b47cf5cc68672457165b1b1ae9387f089481308",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20261031113746",
+      "name": "add_center_code_to_centers",
+      "statement_count": 1,
+      "pg_json_bytes": 73,
+      "pg_json_sha256": "e556d263203742f684d8f7665ca05ec08fc2ccc8e0e4d3b3a67e5cca06121e3f",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20261031113758",
+      "name": "enforce_center_code_format_and_uniqueness",
+      "statement_count": 1,
+      "pg_json_bytes": 264,
+      "pg_json_sha256": "1c32bc18b85536db7ba5c4b37380e14bd12b63ac36d57dc615568595de65de6c",
+      "local_filenames": [],
+      "status": "remote-only-unverified-content"
+    },
+    {
+      "version": "20261101082001",
+      "name": "enquiries_e5_1_owner_only_delete",
+      "statement_count": 1,
+      "pg_json_bytes": 1457,
+      "pg_json_sha256": "31b8977ddd3583d75faafeb07d2074dd61d89d3f92715f53137371495784e0a4",
+      "local_filenames": [
+        "20261101082001_enquiries_e5_1_owner_only_delete.sql"
+      ],
+      "status": "version-matches-unverified-content"
+    }
+  ]
+}
