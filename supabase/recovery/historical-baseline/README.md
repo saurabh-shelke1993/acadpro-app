@@ -39,3 +39,20 @@ python supabase/recovery/historical-baseline/analyze_replay_dependencies.py \
 This outputs **metadata only**; SQL is never executed. All items remain `replay_approved=false`. The scanner is a heuristic: a flagged missing dependency or DML operation requires manual SQL inspection. It cannot prove object or tenant security correctness.
 
 See `frontend/docs/PS_L2_3B_B2_3_B2_4_DEPENDENCY_REVIEW_20261109.md` for verified live historical gaps.
+
+## B2.4 historical SQL content parity (offline)
+
+After extracting **and integrity-checking** all 82 original statement arrays in a private, ignored directory, compare the Git tree's local SQL files without executing any SQL:
+
+```bash
+python supabase/recovery/historical-baseline/compare_migration_content.py \
+  --archive supabase/recovery/historical-baseline/.recovery-private/baseline-001 \
+  --migrations supabase/migrations \
+  --output supabase/recovery/historical-baseline/.recovery-private/parity-001.json
+```
+
+Only three narrowly bounded content matches are accepted: **byte-identical**, **exactly one appended LF**, or **exactly one removed leading LF**. The tool reports same-version content divergences and no-content-matches as unresolved, and flags local timestamp collisions. It compares **all local files to all remote rows**, not just same-version pairs. It verifies SHA-256 of the quarantined statement arrays first. It never executes SQL, changes Git files, or authorizes replay.
+
+Read-only live fingerprints and the pinned Git blob hashes are recorded in `parity-fingerprints-readonly-20261109.json` (schema v2). The current snapshot proves **17 byte-exact + 6 terminal-LF-only + 2 leading-LF-only = 25 content links**. Of these, 8 use retimestamped local files. **Six same-version SQL divergences and 51 remote records with no Git content match remain.** Fifteen tracked local files have no content-matched remote record. These are provenance gaps, not a reason to rewrite deployed migration history.
+
+The live fingerprint inventory was collected by SELECT-only catalog queries, without exporting raw historical SQL into Git. Raw archive extraction and all semantic/deterministic replay checks remain pending. This is an **evidence-only** checkpoint. See `frontend/docs/PS_L2_3B_B2_4_SQL_CONTENT_PARITY_20261109.md` for recovery candidate ordering and review stops.
