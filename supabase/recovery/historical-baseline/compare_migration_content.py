@@ -56,7 +56,10 @@ def compare(archive: Path, migrations: Path) -> dict:
         raw = "".join(statements).encode("utf-8")
         direct = by_sha.get(git_blob_sha1(raw), [])
         with_lf = [] if direct else by_sha.get(git_blob_sha1(raw + b"\n"), [])
-        candidates = direct or with_lf
+        no_leading_lf = []
+        if not direct and not with_lf and raw.startswith(b"\n"):
+            no_leading_lf = by_sha.get(git_blob_sha1(raw[1:]), [])
+        candidates = direct or with_lf or no_leading_lf
         for info in candidates:
             matched_files.add(info["file"])
         same_version = by_version.get(version, [])
@@ -64,6 +67,8 @@ def compare(archive: Path, migrations: Path) -> dict:
             status = "exact-bytes"
         elif with_lf:
             status = "terminal-lf-only"
+        elif no_leading_lf:
+            status = "leading-lf-only"
         elif same_version:
             status = "same-version-content-divergence"
         else:
@@ -86,7 +91,7 @@ def compare(archive: Path, migrations: Path) -> dict:
         for version, items in sorted(by_version.items()) if len(items) > 1
     }
     counts = {name: sum(x["content_status"] == name for x in results)
-              for name in ("exact-bytes", "terminal-lf-only",
+              for name in ("exact-bytes", "terminal-lf-only", "leading-lf-only",
                            "same-version-content-divergence", "no-content-match")}
     return {
         "schema": "kheltriva-b2-4-local-parity-v1",
