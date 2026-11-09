@@ -1,0 +1,599 @@
+{
+  "source": "read-only pg_proc + migration ledger SQL text matching",
+  "date": "2026-11-09",
+  "project_id": "ulyealhkmlorsbdiknrh",
+  "warning": "Heuristic regexp over unquoted CREATE FUNCTION private.name patterns; unmatched origin is not proof of missing historical definition. Metadata and hashes only; no function body, credentials or user data.",
+  "total_live_private_functions": 42,
+  "matching_historical_creation_pattern": 31,
+  "without_matching_creation_pattern": 11,
+  "functions": [
+    {
+      "helper": "batch_academy_id",
+      "signature": "p_batch_id uuid",
+      "security_definer": true,
+      "search_path_config": [
+        "search_path=public, private"
+      ],
+      "anon_exec": false,
+      "authenticated_exec": true,
+      "live_definition_sha256": "6b8486e76ae56f94eba6789d5647eec5ec234a0e381616d1160d4e4b9cd0d0f8",
+      "first_version": null,
+      "latest_version": null,
+      "definition_occurrences": null
+    },
+    {
+      "helper": "can_access_batch",
+      "signature": "p_batch_id uuid",
+      "security_definer": true,
+      "search_path_config": [
+        "search_path=public, private"
+      ],
+      "anon_exec": true,
+      "authenticated_exec": true,
+      "live_definition_sha256": "d4ac81a958778d242ad971818d622e79d6eabf5eea8a3e6c0600e22827331b66",
+      "first_version": null,
+      "latest_version": null,
+      "definition_occurrences": null
+    },
+    {
+      "helper": "can_access_center",
+      "signature": "p_center_id uuid",
+      "security_definer": true,
+      "search_path_config": [
+        "search_path=public, private"
+      ],
+      "anon_exec": true,
+      "authenticated_exec": true,
+      "live_definition_sha256": "4d0c556a60dfbdff7636b1ed8e1bdd53597e01ebdb96c9f351e4be70fe506270",
+      "first_version": null,
+      "latest_version": null,
+      "definition_occurrences": null
+    },
+    {
+      "helper": "can_access_coach",
+      "signature": "p_coach_id uuid",
+      "security_definer": true,
+      "search_path_config": [
+        "search_path=public, private"
+      ],
+      "anon_exec": true,
+      "authenticated_exec": true,
+      "live_definition_sha256": "364df38dad34f66080ba6c852257ffae87e449299daf55ce065f6ce6f68751e4",
+      "first_version": null,
+      "latest_version": null,
+      "definition_occurrences": null
+    },
+    {
+      "helper": "can_access_coach_batch",
+      "signature": "p_coach_batch_id uuid",
+      "security_definer": true,
+      "search_path_config": [
+        "search_path=public, private"
+      ],
+      "anon_exec": true,
+      "authenticated_exec": true,
+      "live_definition_sha256": "af11997f83895cbe71846dd086cbe60d5b647529eeb9b8abb5d7fe30604959a1",
+      "first_version": null,
+      "latest_version": null,
+      "definition_occurrences": null
+    },
+    {
+      "helper": "can_coach_access_attendance",
+      "signature": "p_academy_id uuid, p_batch_id uuid, p_batch_schedule_id uuid, p_attendance_date date",
+      "security_definer": true,
+      "search_path_config": [
+        "search_path=\"\""
+      ],
+      "anon_exec": false,
+      "authenticated_exec": true,
+      "live_definition_sha256": "8ad55a1894b6d128e121ca62da30d83584f3143a15f7b74c02fc07059c173bf4",
+      "first_version": "20261010011828",
+      "latest_version": "20261011083351",
+      "definition_occurrences": 2
+    },
+    {
+      "helper": "can_coach_update_attendance",
+      "signature": "p_attendance_id uuid, p_academy_id uuid, p_player_id uuid, p_batch_id uuid, p_attendance_date date, p_marked_by uuid, p_remarks text, p_created_at timestamp with time zone, p_center_id uuid, p_is_deleted boolean, p_deleted_at timestamp without time zone, p_deleted_by uuid",
+      "security_definer": true,
+      "search_path_config": [
+        "search_path=public, private, pg_catalog"
+      ],
+      "anon_exec": false,
+      "authenticated_exec": true,
+      "live_definition_sha256": "2e916c48879633be80a3980c63132e530e8545e76025a9812882feaedc033514",
+      "first_version": "20260908061110",
+      "latest_version": "20260908061110",
+      "definition_occurrences": 1
+    },
+    {
+      "helper": "can_coach_update_attendance_schedule",
+      "signature": "p_attendance_id uuid, p_academy_id uuid, p_player_id uuid, p_batch_id uuid, p_attendance_date date, p_marked_by uuid, p_remarks text, p_created_at timestamp with time zone, p_center_id uuid, p_is_deleted boolean, p_deleted_at timestamp without time zone, p_deleted_by uuid, p_batch_schedule_id uuid",
+      "security_definer": true,
+      "search_path_config": [
+        "search_path=\"\""
+      ],
+      "anon_exec": false,
+      "authenticated_exec": true,
+      "live_definition_sha256": "2d66cf1c854b3d97499ed7506b01a28a7785728bca1b2203af49cbcc3aab892f",
+      "first_version": "20261010011828",
+      "latest_version": "20261010011828",
+      "definition_occurrences": 1
+    },
+    {
+      "helper": "can_manage_academy",
+      "signature": "p_academy_id uuid",
+      "security_definer": true,
+      "search_path_config": [
+        "search_path=\"\""
+      ],
+      "anon_exec": false,
+      "authenticated_exec": true,
+      "live_definition_sha256": "4750ed89fa7d31ef98dcf7ff3235ca2e7a0d5a10d7eb7d529ece08bd4d2ea494",
+      "first_version": "20261010011828",
+      "latest_version": "20261010011828",
+      "definition_occurrences": 1
+    },
+    {
+      "helper": "can_manage_attendance",
+      "signature": "p_batch_id uuid, p_academy_id uuid",
+      "security_definer": true,
+      "search_path_config": [
+        "search_path=public, private, pg_catalog"
+      ],
+      "anon_exec": false,
+      "authenticated_exec": true,
+      "live_definition_sha256": "6d7f48b230cfbe799552ac77d6d6a90b428602b3180bf8794a80f665d9bf5b45",
+      "first_version": "20260908061110",
+      "latest_version": "20260908061110",
+      "definition_occurrences": 1
+    },
+    {
+      "helper": "coach_academy_id",
+      "signature": "p_coach_id uuid",
+      "security_definer": true,
+      "search_path_config": [
+        "search_path=\"\""
+      ],
+      "anon_exec": false,
+      "authenticated_exec": true,
+      "live_definition_sha256": "59bfbdbf10b444b139748564defedc64306d3aecc2309f6ee778dceffc8dce03",
+      "first_version": "20260903173804",
+      "latest_version": "20260903173804",
+      "definition_occurrences": 1
+    },
+    {
+      "helper": "current_academy_id",
+      "signature": "",
+      "security_definer": true,
+      "search_path_config": [
+        "search_path=public, pg_catalog"
+      ],
+      "anon_exec": false,
+      "authenticated_exec": true,
+      "live_definition_sha256": "9811951339849bf17c049a950da050ad25a0057effab940118e80a16b4818c62",
+      "first_version": null,
+      "latest_version": null,
+      "definition_occurrences": null
+    },
+    {
+      "helper": "current_parent_id",
+      "signature": "",
+      "security_definer": true,
+      "search_path_config": [
+        "search_path=public, private, pg_catalog"
+      ],
+      "anon_exec": false,
+      "authenticated_exec": true,
+      "live_definition_sha256": "cfb7d74285e6ac0fe19a1018ed7d70f60fbdf51b920ca5c2ebdd630f769a3c9a",
+      "first_version": "20260908062059",
+      "latest_version": "20260912142706",
+      "definition_occurrences": 2
+    },
+    {
+      "helper": "current_user_role",
+      "signature": "",
+      "security_definer": true,
+      "search_path_config": [
+        "search_path=public, private"
+      ],
+      "anon_exec": false,
+      "authenticated_exec": true,
+      "live_definition_sha256": "04a3fdd43ae2e79009b1f7e2ebafcd465099911c126d6dbe17c27ff99364afa9",
+      "first_version": null,
+      "latest_version": null,
+      "definition_occurrences": null
+    },
+    {
+      "helper": "enforce_payment_due_financial_state",
+      "signature": "",
+      "security_definer": true,
+      "search_path_config": [
+        "search_path=\"\""
+      ],
+      "anon_exec": false,
+      "authenticated_exec": false,
+      "live_definition_sha256": "19aa27a0aac28acb404d16fcb6f4b3f0685226c1cf1e7e41fb5fd5d52f3b5166",
+      "first_version": "20260926081053",
+      "latest_version": "20260926095814",
+      "definition_occurrences": 4
+    },
+    {
+      "helper": "inquiry_can_access_center",
+      "signature": "p_center_id uuid",
+      "security_definer": true,
+      "search_path_config": [
+        "search_path=\"\""
+      ],
+      "anon_exec": false,
+      "authenticated_exec": true,
+      "live_definition_sha256": "c42c297bdf6c2c34af0f9a5228f6f6966b1aa88e627b55cf0f3e003b13915c73",
+      "first_version": "20261012035934",
+      "latest_version": "20261012035934",
+      "definition_occurrences": 1
+    },
+    {
+      "helper": "is_academy_owner",
+      "signature": "",
+      "security_definer": true,
+      "search_path_config": [
+        "search_path=public, private"
+      ],
+      "anon_exec": true,
+      "authenticated_exec": true,
+      "live_definition_sha256": "27b439a6914a9301980a109fac7c4a817cb8e006196cfc6974a585234a762423",
+      "first_version": null,
+      "latest_version": null,
+      "definition_occurrences": null
+    },
+    {
+      "helper": "is_coach",
+      "signature": "",
+      "security_definer": true,
+      "search_path_config": [
+        "search_path=public, private"
+      ],
+      "anon_exec": true,
+      "authenticated_exec": true,
+      "live_definition_sha256": "8f1d18d5cd46478632c1d2edc3aa00ae6077c74b63884d9f6e5d5ece0931b83c",
+      "first_version": null,
+      "latest_version": null,
+      "definition_occurrences": null
+    },
+    {
+      "helper": "is_coach_assigned_to_batch",
+      "signature": "p_batch_id uuid",
+      "security_definer": true,
+      "search_path_config": [
+        "search_path=public, private"
+      ],
+      "anon_exec": true,
+      "authenticated_exec": true,
+      "live_definition_sha256": "961a62883dbcd3e5cdc3eeeb6479257031d620d6be8453ec501632c075ed7d0a",
+      "first_version": null,
+      "latest_version": null,
+      "definition_occurrences": null
+    },
+    {
+      "helper": "is_coach_assigned_to_schedule",
+      "signature": "p_schedule_id uuid",
+      "security_definer": true,
+      "search_path_config": [
+        "search_path=\"\""
+      ],
+      "anon_exec": false,
+      "authenticated_exec": true,
+      "live_definition_sha256": "c63f55e84e4cbb9431b5c8dc088285aeca9b233f11897e53da2b243460b18bce",
+      "first_version": "20261010011828",
+      "latest_version": "20261010011828",
+      "definition_occurrences": 1
+    },
+    {
+      "helper": "is_my_coach_schedule_assignment",
+      "signature": "p_coach_id uuid",
+      "security_definer": true,
+      "search_path_config": [
+        "search_path=\"\""
+      ],
+      "anon_exec": false,
+      "authenticated_exec": true,
+      "live_definition_sha256": "50cc1b01e3d42fc9fa03c782809ff6d3f0f77cdcdcc366ed9740406ca228a480",
+      "first_version": "20261010011828",
+      "latest_version": "20261010011828",
+      "definition_occurrences": 1
+    },
+    {
+      "helper": "is_parent_of_player",
+      "signature": "p_player_id uuid",
+      "security_definer": true,
+      "search_path_config": [
+        "search_path=public, private, pg_catalog"
+      ],
+      "anon_exec": false,
+      "authenticated_exec": true,
+      "live_definition_sha256": "a5145725aa2f6732362821c4729244c5d6514539c329656e7f8e0ef01c81a94b",
+      "first_version": "20260908062059",
+      "latest_version": "20260908070804",
+      "definition_occurrences": 2
+    },
+    {
+      "helper": "is_parent_of_player_batch",
+      "signature": "p_player_id uuid, p_batch_id uuid",
+      "security_definer": true,
+      "search_path_config": [
+        "search_path=public, private, pg_catalog"
+      ],
+      "anon_exec": false,
+      "authenticated_exec": true,
+      "live_definition_sha256": "4a2d765675edd0e8eb04ef8028134727192e13c522c127e1d27fc33b4e2c638e",
+      "first_version": "20260908062059",
+      "latest_version": "20260908062059",
+      "definition_occurrences": 1
+    },
+    {
+      "helper": "is_parent_payment_due",
+      "signature": "p_player_id uuid",
+      "security_definer": true,
+      "search_path_config": [
+        "search_path=public, private, pg_catalog"
+      ],
+      "anon_exec": false,
+      "authenticated_exec": true,
+      "live_definition_sha256": "c2f27dd517993772f0b67e38dcbd1dda76db5f7fc9184c3929ee70f29bdd7b08",
+      "first_version": "20260908073942",
+      "latest_version": "20260908073942",
+      "definition_occurrences": 1
+    },
+    {
+      "helper": "is_parent_payment_player",
+      "signature": "p_player_id uuid",
+      "security_definer": true,
+      "search_path_config": [
+        "search_path=public, private, pg_catalog"
+      ],
+      "anon_exec": false,
+      "authenticated_exec": true,
+      "live_definition_sha256": "61f73ba25cee9696f0a52a51ab1f04900246c9794f11e4c544d0285748eac431",
+      "first_version": "20260908075043",
+      "latest_version": "20260908075043",
+      "definition_occurrences": 1
+    },
+    {
+      "helper": "is_parent_subscription_plan",
+      "signature": "p_plan_id uuid",
+      "security_definer": true,
+      "search_path_config": [
+        "search_path=public, private, pg_catalog"
+      ],
+      "anon_exec": false,
+      "authenticated_exec": true,
+      "live_definition_sha256": "9e2729d2a99cf0adeb1657a666323fa21002f1ddbcc93383954fbbb41d4a2c19",
+      "first_version": "20260908070804",
+      "latest_version": "20260908070804",
+      "definition_occurrences": 1
+    },
+    {
+      "helper": "is_payment_due_for_player",
+      "signature": "p_due_id uuid, p_player_id uuid",
+      "security_definer": true,
+      "search_path_config": [
+        "search_path=public, private, pg_catalog"
+      ],
+      "anon_exec": false,
+      "authenticated_exec": true,
+      "live_definition_sha256": "a77cef570a94bff6929851b4198c9467ca8dba32bd4932d82d71c2cd84756cc9",
+      "first_version": "20260908075043",
+      "latest_version": "20260908075043",
+      "definition_occurrences": 1
+    },
+    {
+      "helper": "is_payment_due_in_current_academy",
+      "signature": "p_player_id uuid",
+      "security_definer": true,
+      "search_path_config": [
+        "search_path=public, private, pg_catalog"
+      ],
+      "anon_exec": false,
+      "authenticated_exec": true,
+      "live_definition_sha256": "4198c1cfbc43b8a8ca06e83bc9655281bbd47c8fa4cfd0121a02bd813dd9ed30",
+      "first_version": "20260908073942",
+      "latest_version": "20260908073942",
+      "definition_occurrences": 1
+    },
+    {
+      "helper": "is_payment_due_subscription_for_player",
+      "signature": "p_subscription_id uuid, p_player_id uuid",
+      "security_definer": true,
+      "search_path_config": [
+        "search_path=public, private, pg_catalog"
+      ],
+      "anon_exec": false,
+      "authenticated_exec": true,
+      "live_definition_sha256": "c6cbccece16147d6752297f3ae7e5c5e54267b6f8a159c9c2eaf48ea1d5a6559",
+      "first_version": "20260908073942",
+      "latest_version": "20260908073942",
+      "definition_occurrences": 1
+    },
+    {
+      "helper": "is_payment_player_in_current_academy",
+      "signature": "p_player_id uuid",
+      "security_definer": true,
+      "search_path_config": [
+        "search_path=public, private, pg_catalog"
+      ],
+      "anon_exec": false,
+      "authenticated_exec": true,
+      "live_definition_sha256": "4719da8fc13b4e3b3cd43c86d3bab65df3b5c95fafa91b8846e14a651caff800",
+      "first_version": "20260908075043",
+      "latest_version": "20260908075043",
+      "definition_occurrences": 1
+    },
+    {
+      "helper": "is_player_in_current_academy",
+      "signature": "p_player_id uuid",
+      "security_definer": true,
+      "search_path_config": [
+        "search_path=public, private, pg_catalog"
+      ],
+      "anon_exec": false,
+      "authenticated_exec": true,
+      "live_definition_sha256": "fefb30d89e8fde062b4d7cf9a2eaadf157dcc64118c3bdcce9002a79c6460c05",
+      "first_version": "20260908070804",
+      "latest_version": "20260908070804",
+      "definition_occurrences": 1
+    },
+    {
+      "helper": "is_super_admin",
+      "signature": "",
+      "security_definer": true,
+      "search_path_config": [
+        "search_path=public, pg_catalog"
+      ],
+      "anon_exec": false,
+      "authenticated_exec": true,
+      "live_definition_sha256": "ccd74e3bef0154c8159204a291be77ed68491a73b0927138de6daea47ba20103",
+      "first_version": null,
+      "latest_version": null,
+      "definition_occurrences": null
+    },
+    {
+      "helper": "next_payment_number",
+      "signature": "p_number_type text, p_date date",
+      "security_definer": true,
+      "search_path_config": [
+        "search_path=\"\""
+      ],
+      "anon_exec": false,
+      "authenticated_exec": false,
+      "live_definition_sha256": "e2d0042c5567f2249ef5f95953fcc580b62d5721c0d82c67e0f1104f6dc2b78e",
+      "first_version": "20260926081053",
+      "latest_version": "20260926081053",
+      "definition_occurrences": 1
+    },
+    {
+      "helper": "parent_has_schedule",
+      "signature": "p_schedule_id uuid",
+      "security_definer": true,
+      "search_path_config": [
+        "search_path=\"\""
+      ],
+      "anon_exec": false,
+      "authenticated_exec": true,
+      "live_definition_sha256": "491d4b2bf8892e9592e3a9ce7cbbdf1fd18fd6e244a46a19ad7beb0738323f56",
+      "first_version": "20261010011828",
+      "latest_version": "20261010011828",
+      "definition_occurrences": 1
+    },
+    {
+      "helper": "set_academy_payment_settings_updated_at",
+      "signature": "",
+      "security_definer": false,
+      "search_path_config": [
+        "search_path=\"\""
+      ],
+      "anon_exec": false,
+      "authenticated_exec": false,
+      "live_definition_sha256": "bc3f120f8241994d7c45f984f22d90b5b58f54d626a1a101118902f2e8d77706",
+      "first_version": "20261012013143",
+      "latest_version": "20261012013143",
+      "definition_occurrences": 1
+    },
+    {
+      "helper": "set_expenses_updated_at",
+      "signature": "",
+      "security_definer": false,
+      "search_path_config": [
+        "search_path=\"\""
+      ],
+      "anon_exec": false,
+      "authenticated_exec": false,
+      "live_definition_sha256": "e7bf14b23ec8fc34e6eb4e34af2328af582bf3493bea7e8bc3a55a65e51af76b",
+      "first_version": "20261011135131",
+      "latest_version": "20261011135131",
+      "definition_occurrences": 1
+    },
+    {
+      "helper": "set_inquiry_updated_at",
+      "signature": "",
+      "security_definer": false,
+      "search_path_config": [
+        "search_path=\"\""
+      ],
+      "anon_exec": false,
+      "authenticated_exec": false,
+      "live_definition_sha256": "4db131a1f1d374263347c2270b0dc9e66eb17b61e6339854b93e2a9f0dabf995",
+      "first_version": "20261012035934",
+      "latest_version": "20261012035934",
+      "definition_occurrences": 1
+    },
+    {
+      "helper": "validate_attendance_batch_schedule",
+      "signature": "",
+      "security_definer": true,
+      "search_path_config": [
+        "search_path=\"\""
+      ],
+      "anon_exec": false,
+      "authenticated_exec": false,
+      "live_definition_sha256": "1a455a5a10e2b35336f063dc3e721a5d9e1d5912275e4cdef8b1a7b989cf6cae",
+      "first_version": "20261010011733",
+      "latest_version": "20261011083110",
+      "definition_occurrences": 3
+    },
+    {
+      "helper": "validate_batch_schedule_change_consistency",
+      "signature": "",
+      "security_definer": false,
+      "search_path_config": [
+        "search_path=\"\""
+      ],
+      "anon_exec": false,
+      "authenticated_exec": false,
+      "live_definition_sha256": "c388c30177605f1504436aa65e752d319d76b61a1e8d49f12349028cf2d4a19e",
+      "first_version": "20261010011746",
+      "latest_version": "20261010011746",
+      "definition_occurrences": 1
+    },
+    {
+      "helper": "validate_batch_schedule_consistency",
+      "signature": "",
+      "security_definer": false,
+      "search_path_config": [
+        "search_path=\"\""
+      ],
+      "anon_exec": false,
+      "authenticated_exec": false,
+      "live_definition_sha256": "e85a364f7e0e05bde8f60be95eda5b526e01624581b9858f2b7a7965e950594c",
+      "first_version": "20261010010929",
+      "latest_version": "20261010010929",
+      "definition_occurrences": 1
+    },
+    {
+      "helper": "validate_coach_batch_schedule_assignment",
+      "signature": "",
+      "security_definer": false,
+      "search_path_config": [
+        "search_path=\"\""
+      ],
+      "anon_exec": false,
+      "authenticated_exec": false,
+      "live_definition_sha256": "387b4703d6ecffda6c1a4081bac3a4f8cf8296a4c89f6243aa4b3151fe961bf2",
+      "first_version": "20261010011502",
+      "latest_version": "20261010011746",
+      "definition_occurrences": 2
+    },
+    {
+      "helper": "validate_player_batch_schedule_enrollment",
+      "signature": "",
+      "security_definer": false,
+      "search_path_config": [
+        "search_path=\"\""
+      ],
+      "anon_exec": false,
+      "authenticated_exec": false,
+      "live_definition_sha256": "726a490101dd49f21975da1c68cbb7c8fe43535b322bd9b014e0f8474962de57",
+      "first_version": "20261010011133",
+      "latest_version": "20261010011746",
+      "definition_occurrences": 2
+    }
+  ]
+}
