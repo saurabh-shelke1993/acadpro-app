@@ -7,6 +7,14 @@
 **Original branch baseline (before this file was created):** `0bfc71099ed14cdada08022320a72c378e9da5f7`. Subsequent CMA commits exist; recheck current branch HEAD before development.  
 **Purpose:** Stable, handoff-friendly checkpoint between ChatGPT conversations. This document is NOT a substitute for inspecting live code, the current database, or current tests.
 
+## Latest checkpoint — PS-L2.3B B2.3/B2.4 offline dependency audit (9 November 2026)
+
+- Historical SQL metadata audit confirms **no explicit `CREATE SCHEMA private`** in all 82 recorded migrations and no `CREATE FUNCTION` for `private.current_user_role()` or `private.is_super_admin()` in the scanned recorded SQL. The deployed helper layer exists, but its original creation provenance remains **unverified**. `parents.user_id` is added in remote version `20260912142706`.
+- New `supabase/recovery/historical-baseline/analyze_replay_dependencies.py` plus four focused tests analyze SHA-256-verified **quarantined** statement archives, flag missing private helpers and schema/column ordering and risky historical DML, and **never execute SQL**. README/CI updated. No active migration changed.
+- [GitHub Actions 42610773284](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42610773284) **PASS** at `acb03aa2`: existing four exporter and four new analyzer tests. CI of the subsequent workflow compilation adjustment to be checked separately.
+- **Still blocked:** a complete sensitive-reviewed remote SQL export using a dedicated SELECT-only connection, all 23 same-version source-content comparisons and 59 remote-only vs 17 local-only file reconciliation, provenance of 11 foundational helpers and a self-contained disposable Supabase replay. None of the subscription proposals, live financial data, hosted schema or remote migration ledger were changed.
+- Detailed report: `frontend/docs/PS_L2_3B_B2_3_B2_4_DEPENDENCY_REVIEW_20261109.md`. Next review-controlled B2.4 SQL archive/content parity; then only an authorized disposable environment can test local replay.
+
 ## Latest checkpoint — PS-L2.3B B2.2 read-only recovery tooling (9 November 2026)
 
 - **Implemented and committed (source only):** isolated `supabase/recovery/historical-baseline/` workspace with read-only `export_migrations.py`, integrity unit tests, focused GitHub Actions workflow, quarantine `.gitignore`, README and sanitized `inventory-readonly-20261109.json`. No changes to `supabase/migrations/` or application source.
