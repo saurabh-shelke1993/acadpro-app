@@ -46,6 +46,13 @@ class MigrationContentParityTests(unittest.TestCase):
         self.assertEqual(report["counts"]["terminal-lf-only"], 1)
         self.assertEqual(report["counts"]["exact-bytes"], 0)
 
+    def test_single_leading_newline_is_classified_separately(self):
+        self.write_migration("20260925063432", "coaches", b"select 1;\n")
+        self.archive_rows([("20260925063432", "coaches", ["\nselect 1;\n"])])
+        report = compare(self.archive, self.local)
+        self.assertEqual(report["counts"]["leading-lf-only"], 1)
+        self.assertEqual(report["counts"]["same-version-content-divergence"], 0)
+
     def test_same_version_different_sql_is_not_verified(self):
         self.write_migration("20260926081053", "payment", b"select true;")
         self.archive_rows([("20260926081053", "payment", ["select false;"])])
