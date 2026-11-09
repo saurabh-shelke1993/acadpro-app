@@ -7,6 +7,13 @@
 **Original branch baseline (before this file was created):** `0bfc71099ed14cdada08022320a72c378e9da5f7`. Subsequent CMA commits exist; recheck current branch HEAD before development.  
 **Purpose:** Stable, handoff-friendly checkpoint between ChatGPT conversations. This document is NOT a substitute for inspecting live code, the current database, or current tests.
 
+## Latest checkpoint — PS-L2.3B B2.2 read-only recovery tooling (9 November 2026)
+
+- **Implemented and committed (source only):** isolated `supabase/recovery/historical-baseline/` workspace with read-only `export_migrations.py`, integrity unit tests, focused GitHub Actions workflow, quarantine `.gitignore`, README and sanitized `inventory-readonly-20261109.json`. No changes to `supabase/migrations/` or application source.
+- **Live ledger inspection (SELECT-only):** 82 records, each retaining statements; 40 branch SQL files, 23 matching timestamp versions, 59 remote-only versions, 17 local-only files, and duplicate local timestamp `20260926133000`. Inventory stores PostgreSQL-source hashes and metadata only, **no raw historical SQL**. Matching versions do not establish content parity.
+- **Validation:** Four focused Python integrity tests and syntax compilation **passed against local draft**; committed GitHub Actions run not yet independently verified. The exporter has **not yet been executed against hosted Supabase using a read-only DB credential**; therefore no full raw SQL archive or verified comparison is complete.
+- **Safety:** SQL output is quarantined/ignored; all exported items default `replay_approved=false`. Never alter remote migration history or apply PS-L2.3 live. PS-L2.3 Supabase replay still **BLOCKED**. Next B2.3: authorized read-only extraction, review potentially sensitive historical SQL, reconcile missing helper origins/version collisions, prepare isolated replay plan. No operational subscription billing or renewal activated.
+
 ## Latest development checkpoint — PS-L2.3 local Supabase replay blocker (6 November 2026)
 
 - Added `.github/workflows/subscriptions-ps-l2-3-supabase-local.yml` (pinned CLI v3.0.0, **disposable local DB only**) and `supabase/tests/subscriptions/ps_l2_3_supabase_parity.test.sql`, plus a temporary-only private helper bootstrap copied to the migration folder **inside CI checkout**. **No active production migration tracked/added.**
