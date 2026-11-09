@@ -11,7 +11,7 @@ import sys
 
 VERSION = re.compile(r"^[0-9]{14}$")
 NAME = re.compile(r"^[A-Za-z0-9_]+$")
-SENSITIVE = re.compile(r"(?i)(?:password\\s*=|service_role|\\b(?:insert\\s+into|update|delete\\s+from|truncate)\\b|auth\\.users|\\b(?:phone|email|token|secret)\\b)")
+SENSITIVE = re.compile(r"(?i)(?:password\s*=|service_role|\b(?:insert\s+into|update|delete\s+from|truncate)\b|auth\.users|\b(?:phone|email|token|secret)\b)")
 QUERY = """SELECT row_to_json(m)::text FROM (
  SELECT version, name, statements FROM supabase_migrations.schema_migrations
  ORDER BY version, name
