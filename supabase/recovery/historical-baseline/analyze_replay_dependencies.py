@@ -13,7 +13,7 @@ PRIVATE_USE = re.compile(r"\bprivate\.([a-z_][a-z0-9_]*)\s*\(", re.I)
 SCHEMA_DEFINE = re.compile(r"\bcreate\s+schema\s+(?:if\s+not\s+exists\s+)?\"?private\"?", re.I)
 PARENTS_ADD = re.compile(r"\balter\s+table\s+(?:if\s+exists\s+)?(?:public\.)?parents\b[\s\S]{0,500}?\badd\s+(?:column\s+)?(?:if\s+not\s+exists\s+)?user_id\b", re.I)
 PARENTS_USE = re.compile(r"\b(?:public\.)?parents\s*\.\s*user_id\b", re.I)
-DATA_MUTATION = re.compile(r"\b(?:insert\s+into|update\s+[a-z_]|delete\s+from|truncate)\b", re.I)
+DATA_MUTATION = re.compile(r"\b(?:insert\s+into|update\s+|delete\s+from|truncate\b)", re.I)
 
 
 def digest(data):
