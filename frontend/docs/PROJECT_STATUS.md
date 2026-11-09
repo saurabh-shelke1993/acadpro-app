@@ -4,6 +4,14 @@
 **Current Version:** V1.0 Beta (development; not release sign-off)  
 **Current Git Branch:** `payment-module-finalization`
 
+## Current PS-L2.3B milestone — recovery evidence tooling (9 November 2026)
+
+**Source implemented:** `supabase/recovery/historical-baseline/` contains read-only SQL export tooling, tests, quarantine controls, documentation and an 82-record **metadata-only** historical migration inventory. GitHub branch `payment-module-finalization`; no new active migration, payment writes or schema modification.
+
+**Verification:** Four exporter integrity tests passed locally; latest branch CI is **unconfirmed**. Exporter has not performed the full database-history SQL export. There is no clean Supabase replay or real Auth/RLS/payment integration PASS. Historical provenance remains unresolved for 11 foundational private helpers and local timestamp collision `20260926133000`.
+
+**Next:** B2.3 sensitive-data-reviewed evidence extraction and helper/version reconciliation, then B2.4 dependency-safe replay preparation. **Do not promote PS-L2.3 to production or remove legacy subscription HOLD.**
+
 ## Latest PS-L2.3 staging-readiness gate — BLOCKED by incomplete historical migration replay (6 November 2026)
 
 **Implemented:** Local-only Supabase CLI CI workflow and test-only authorization bootstrap/parity script; no production migrations or app code changed. [Local replay run 42204705752](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42204705752) **FAIL** before installing proposed PS-L2.3 schema: historic `private` authorization helpers are absent from repository's self-contained baseline; the earlier two runs exposed missing `private` schema and parent-column ordering. These private helpers exist in the live project but their migration lineage is incomplete in Git. **Do not mark real Supabase integration validated.**
