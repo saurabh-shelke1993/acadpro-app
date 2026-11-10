@@ -1,0 +1,1739 @@
+{
+  "schema": "kheltriva-b2-5-recovery-review-queue-v1",
+  "created_at_date": "2026-11-10",
+  "git_branch": "payment-module-finalization",
+  "git_head_at_review": "7dfa554d63ed3634a3338815c042439a81da51d7",
+  "database_project_id": "ulyealhkmlorsbdiknrh",
+  "evidence_links": [
+    "parity-fingerprints-readonly-20261109.json",
+    "helper-provenance-readonly-20261109.json"
+  ],
+  "scope": "Metadata-only, no SQL bodies, no user rows; Supabase migration ledger SELECT only",
+  "warnings": [
+    "Review flags are heuristic, not proof of direct data changes",
+    "No pending item has approval to run",
+    "A matching Git blob does not authorize historical data fixes",
+    "No changes to production migration history"
+  ],
+  "summary": {
+    "migration_records": 82,
+    "requires_review": 82,
+    "strict_content_linked": 25,
+    "unlinked": 57,
+    "unresolved_foundation_helpers": 11,
+    "possible_embedded_uuid_literal": 4,
+    "potential_dml": 54,
+    "privilege_ddl": 40,
+    "security_definer": 25,
+    "destructive_keyword": 3
+  },
+  "unresolved_helpers": [
+    {
+      "name": "batch_academy_id",
+      "signature": "p_batch_id uuid",
+      "provenance_status": "UNRESOLVED",
+      "replay_approved": false
+    },
+    {
+      "name": "can_access_batch",
+      "signature": "p_batch_id uuid",
+      "provenance_status": "UNRESOLVED",
+      "replay_approved": false
+    },
+    {
+      "name": "can_access_center",
+      "signature": "p_center_id uuid",
+      "provenance_status": "UNRESOLVED",
+      "replay_approved": false
+    },
+    {
+      "name": "can_access_coach",
+      "signature": "p_coach_id uuid",
+      "provenance_status": "UNRESOLVED",
+      "replay_approved": false
+    },
+    {
+      "name": "can_access_coach_batch",
+      "signature": "p_coach_batch_id uuid",
+      "provenance_status": "UNRESOLVED",
+      "replay_approved": false
+    },
+    {
+      "name": "current_academy_id",
+      "signature": "",
+      "provenance_status": "UNRESOLVED",
+      "replay_approved": false
+    },
+    {
+      "name": "current_user_role",
+      "signature": "",
+      "provenance_status": "UNRESOLVED",
+      "replay_approved": false
+    },
+    {
+      "name": "is_academy_owner",
+      "signature": "",
+      "provenance_status": "UNRESOLVED",
+      "replay_approved": false
+    },
+    {
+      "name": "is_coach",
+      "signature": "",
+      "provenance_status": "UNRESOLVED",
+      "replay_approved": false
+    },
+    {
+      "name": "is_coach_assigned_to_batch",
+      "signature": "p_batch_id uuid",
+      "provenance_status": "UNRESOLVED",
+      "replay_approved": false
+    },
+    {
+      "name": "is_super_admin",
+      "signature": "",
+      "provenance_status": "UNRESOLVED",
+      "replay_approved": false
+    }
+  ],
+  "records": [
+    {
+      "version": "20260823093317",
+      "name": "remote_schema",
+      "statements": 87,
+      "bytes": 20044,
+      "content_status": "same-version-content-divergence",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "privilege_ddl",
+        "auth_table_ref"
+      ],
+      "known_divergence": "structural_content_difference",
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260903173804",
+      "name": "phase_3_2_assignment_isolation",
+      "statements": 1,
+      "bytes": 2460,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "function_ddl",
+        "rls_ddl",
+        "privilege_ddl",
+        "security_definer",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260903185104",
+      "name": "phase_3_4_batch_mutation_security",
+      "statements": 1,
+      "bytes": 685,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "rls_ddl",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260907180752",
+      "name": "phase_3_5_player_mutation_security",
+      "statements": 1,
+      "bytes": 3595,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "rls_ddl",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260908061110",
+      "name": "phase_3_6_attendance_mutation_security",
+      "statements": 1,
+      "bytes": 4884,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "function_ddl",
+        "rls_ddl",
+        "privilege_ddl",
+        "security_definer",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260908062059",
+      "name": "phase_4_1_parent_read_isolation",
+      "statements": 1,
+      "bytes": 2655,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "function_ddl",
+        "rls_ddl",
+        "privilege_ddl",
+        "security_definer",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260908070804",
+      "name": "phase_6_3_subscription_security",
+      "statements": 1,
+      "bytes": 6721,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "function_ddl",
+        "rls_ddl",
+        "privilege_ddl",
+        "security_definer",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260908073942",
+      "name": "phase_7_payment_due_security",
+      "statements": 1,
+      "bytes": 3696,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "function_ddl",
+        "rls_ddl",
+        "privilege_ddl",
+        "security_definer",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260908075043",
+      "name": "phase_8_2_payment_mutation_security",
+      "statements": 1,
+      "bytes": 3911,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "function_ddl",
+        "rls_ddl",
+        "privilege_ddl",
+        "security_definer",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260912085524",
+      "name": "tighten_centers_and_player_batches_rbac",
+      "statements": 1,
+      "bytes": 3276,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "rls_ddl",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260912142706",
+      "name": "link_parents_to_auth_users",
+      "statements": 1,
+      "bytes": 1358,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "function_ddl",
+        "privilege_ddl",
+        "security_definer",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260912180959",
+      "name": "allow_parents_to_view_linked_attendance",
+      "statements": 1,
+      "bytes": 574,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "rls_ddl",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260912184118",
+      "name": "create_player_performance_assessments",
+      "statements": 1,
+      "bytes": 4582,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "rls_ddl",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260912185706",
+      "name": "limit_performance_assessment_scores_to_ten",
+      "statements": 1,
+      "bytes": 804,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260915111222",
+      "name": "harden_player_performance_assessment_rls_coach_lookup",
+      "statements": 1,
+      "bytes": 4749,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "rls_ddl",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260919074807",
+      "name": "player_bulk_import_transaction",
+      "statements": 1,
+      "bytes": 7103,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "function_ddl",
+        "privilege_ddl",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260919074831",
+      "name": "fix_player_bulk_import_player_id",
+      "statements": 1,
+      "bytes": 6937,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "function_ddl",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260919074950",
+      "name": "fix_player_bulk_import_phone_normalization",
+      "statements": 1,
+      "bytes": 6948,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "function_ddl",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260919075003",
+      "name": "revoke_bulk_player_import_anon",
+      "statements": 1,
+      "bytes": 161,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "privilege_ddl"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260919075012",
+      "name": "restrict_bulk_player_import_execute",
+      "statements": 1,
+      "bytes": 163,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "privilege_ddl"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260920041302",
+      "name": "player_batch_invariant_transactional_writes",
+      "statements": 1,
+      "bytes": 9551,
+      "content_status": "same-version-content-divergence",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "function_ddl",
+        "privilege_ddl",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260920041356",
+      "name": "enforce_player_batch_invariant",
+      "statements": 1,
+      "bytes": 2263,
+      "content_status": "same-version-content-divergence",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "function_ddl",
+        "trigger_ddl"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260920041457",
+      "name": "scope_player_batch_invariant_to_active_players",
+      "statements": 1,
+      "bytes": 2298,
+      "content_status": "same-version-content-divergence",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "function_ddl",
+        "trigger_ddl"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260920041516",
+      "name": "reconcile_active_player_batch_mappings",
+      "statements": 1,
+      "bytes": 916,
+      "content_status": "same-version-content-divergence",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "potential_embedded_uuid_literal"
+      ],
+      "known_divergence": "quoted_literal_value_difference",
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260920041606",
+      "name": "reconcile_pratik_missing_current_batch",
+      "statements": 1,
+      "bytes": 90,
+      "content_status": "same-version-content-divergence",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "potential_embedded_uuid_literal"
+      ],
+      "known_divergence": "quoted_literal_value_difference",
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260920041653",
+      "name": "enforce_single_player_batch_mapping",
+      "statements": 1,
+      "bytes": 103,
+      "content_status": "terminal-lf-only",
+      "matched_git_files": [
+        "supabase/migrations/20260920041653_enforce_single_player_batch_mapping.sql"
+      ],
+      "version_drift": false,
+      "review_flags": [],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260920041849",
+      "name": "restrict_transactional_player_function_execute",
+      "statements": 1,
+      "bytes": 820,
+      "content_status": "terminal-lf-only",
+      "matched_git_files": [
+        "supabase/migrations/20260920041849_restrict_transactional_player_function_execute.sql"
+      ],
+      "version_drift": false,
+      "review_flags": [
+        "privilege_ddl"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260920043638",
+      "name": "fix_player_batch_constraint_timing",
+      "statements": 1,
+      "bytes": 17349,
+      "content_status": "exact-bytes",
+      "matched_git_files": [
+        "supabase/migrations/20260920050000_fix_player_batch_constraint_timing.sql"
+      ],
+      "version_drift": true,
+      "review_flags": [
+        "potential_dml",
+        "function_ddl",
+        "privilege_ddl",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260920045132",
+      "name": "make_player_batch_invariant_rpc_safe",
+      "statements": 1,
+      "bytes": 17404,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "function_ddl",
+        "privilege_ddl",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260920045507",
+      "name": "make_player_batch_invariant_rpc_safe_v2",
+      "statements": 1,
+      "bytes": 17563,
+      "content_status": "exact-bytes",
+      "matched_git_files": [
+        "supabase/migrations/20260920051000_make_player_batch_invariant_rpc_safe.sql"
+      ],
+      "version_drift": true,
+      "review_flags": [
+        "potential_dml",
+        "function_ddl",
+        "privilege_ddl",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260920051907",
+      "name": "player_rollback_regression_test_trigger",
+      "statements": 1,
+      "bytes": 516,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "function_ddl",
+        "trigger_ddl"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260920051959",
+      "name": "player_rollback_regression_test_cleanup",
+      "statements": 1,
+      "bytes": 151,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "trigger_ddl",
+        "destructive_keyword"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260920053210",
+      "name": "player_parent_duplicate_cleanup_20260920",
+      "statements": 1,
+      "bytes": 1579,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "potential_embedded_uuid_literal"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260920053416",
+      "name": "restrict_player_batch_assert_execute",
+      "statements": 1,
+      "bytes": 80,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "privilege_ddl"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260925063432",
+      "name": "20260925120000_allow_multiple_active_coaches_per_batch",
+      "statements": 1,
+      "bytes": 1352,
+      "content_status": "leading-lf-only",
+      "matched_git_files": [
+        "supabase/migrations/20260925063432_allow_multiple_active_coaches_per_batch.sql"
+      ],
+      "version_drift": false,
+      "review_flags": [
+        "function_ddl",
+        "privilege_ddl",
+        "security_definer",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260925081658",
+      "name": "restrict_player_performance_mutations_to_coaches",
+      "statements": 1,
+      "bytes": 2170,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "rls_ddl",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260925082735",
+      "name": "restore_admin_performance_assessment_management",
+      "statements": 1,
+      "bytes": 4235,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "rls_ddl",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260926081010",
+      "name": "payment_financial_foundation",
+      "statements": 1,
+      "bytes": 89,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260926081053",
+      "name": "payment_financial_foundation_apply",
+      "statements": 1,
+      "bytes": 25565,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "function_ddl",
+        "rls_ddl",
+        "privilege_ddl",
+        "trigger_ddl",
+        "security_definer",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260926081320",
+      "name": "backfill_legacy_receipts",
+      "statements": 1,
+      "bytes": 514,
+      "content_status": "exact-bytes",
+      "matched_git_files": [
+        "supabase/migrations/20260926130000_backfill_legacy_receipts.sql"
+      ],
+      "version_drift": true,
+      "review_flags": [
+        "potential_dml",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260926093830",
+      "name": "fix_coach_payment_rls_execute",
+      "statements": 1,
+      "bytes": 81,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "privilege_ddl",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260926094904",
+      "name": "fix_generated_payment_due_updates",
+      "statements": 1,
+      "bytes": 9312,
+      "content_status": "exact-bytes",
+      "matched_git_files": [
+        "supabase/migrations/20260926133000_fix_generated_payment_due_updates.sql"
+      ],
+      "version_drift": true,
+      "review_flags": [
+        "potential_dml",
+        "function_ddl",
+        "privilege_ddl",
+        "trigger_ddl",
+        "security_definer",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260926095749",
+      "name": "fix_payment_overpayment_message",
+      "statements": 1,
+      "bytes": 9454,
+      "content_status": "exact-bytes",
+      "matched_git_files": [
+        "supabase/migrations/20260926134500_fix_payment_overpayment_message.sql"
+      ],
+      "version_drift": true,
+      "review_flags": [
+        "potential_dml",
+        "function_ddl",
+        "privilege_ddl",
+        "trigger_ddl",
+        "security_definer",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260926095814",
+      "name": "format_payment_overpayment_amount",
+      "statements": 1,
+      "bytes": 9566,
+      "content_status": "exact-bytes",
+      "matched_git_files": [
+        "supabase/migrations/20260926135500_format_payment_overpayment_amount.sql"
+      ],
+      "version_drift": true,
+      "review_flags": [
+        "potential_dml",
+        "function_ddl",
+        "privilege_ddl",
+        "trigger_ddl",
+        "security_definer",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260926111113",
+      "name": "restrict_payment_operations_to_admin_roles",
+      "statements": 1,
+      "bytes": 7121,
+      "content_status": "exact-bytes",
+      "matched_git_files": [
+        "supabase/migrations/20260926133000_restrict_payment_operations_to_admin_roles.sql"
+      ],
+      "version_drift": true,
+      "review_flags": [
+        "potential_dml",
+        "function_ddl",
+        "rls_ddl",
+        "privilege_ddl",
+        "security_definer",
+        "destructive_keyword",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260926113534",
+      "name": "reconcile_legacy_overpaid_dues",
+      "statements": 1,
+      "bytes": 1604,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "potential_embedded_uuid_literal"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20260930071849",
+      "name": "academy_logo_management_and_admin_write_policies",
+      "statements": 1,
+      "bytes": 1587,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "rls_ddl",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20261008021921",
+      "name": "coach_profile_v1",
+      "statements": 1,
+      "bytes": 5243,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "function_ddl",
+        "rls_ddl",
+        "privilege_ddl",
+        "security_definer",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20261008075914",
+      "name": "coach_profile_photo_storage",
+      "statements": 1,
+      "bytes": 2594,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "rls_ddl",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20261008080032",
+      "name": "coach_photo_storage_policy_hardening",
+      "statements": 1,
+      "bytes": 1735,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "rls_ddl",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20261010010821",
+      "name": "create_batch_schedule_tables",
+      "statements": 1,
+      "bytes": 3716,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20261010010827",
+      "name": "add_attendance_batch_schedule_reference",
+      "statements": 1,
+      "bytes": 345,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20261010010929",
+      "name": "add_batch_schedule_validation",
+      "statements": 1,
+      "bytes": 2379,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "function_ddl",
+        "trigger_ddl",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20261010011133",
+      "name": "validate_player_batch_schedule_enrollment",
+      "statements": 1,
+      "bytes": 4502,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "function_ddl",
+        "trigger_ddl",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20261010011502",
+      "name": "validate_coach_batch_schedule_assignment",
+      "statements": 1,
+      "bytes": 4011,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "function_ddl",
+        "trigger_ddl",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20261010011733",
+      "name": "validate_schedule_aware_attendance",
+      "statements": 1,
+      "bytes": 3317,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "function_ddl",
+        "trigger_ddl",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20261010011746",
+      "name": "protect_schedule_change_consistency",
+      "statements": 1,
+      "bytes": 10073,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "function_ddl",
+        "trigger_ddl",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20261010011828",
+      "name": "schedule_rls_and_attendance_access",
+      "statements": 1,
+      "bytes": 11780,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "function_ddl",
+        "rls_ddl",
+        "privilege_ddl",
+        "security_definer",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20261010011839",
+      "name": "transition_attendance_schedule_uniqueness",
+      "statements": 1,
+      "bytes": 1223,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20261010012010",
+      "name": "lock_schedule_during_attendance_validation",
+      "statements": 1,
+      "bytes": 3240,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "function_ddl",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20261010012034",
+      "name": "secure_attendance_validation_trigger",
+      "statements": 1,
+      "bytes": 270,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "privilege_ddl",
+        "security_definer",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20261011083110",
+      "name": "allow_batch_enrolled_players_in_coach_attendance",
+      "statements": 1,
+      "bytes": 2872,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "function_ddl",
+        "security_definer",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20261011083351",
+      "name": "allow_coach_retroactive_attendance_and_block_future_dates",
+      "statements": 1,
+      "bytes": 1064,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "function_ddl",
+        "security_definer",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20261011105104",
+      "name": "phase_7_harden_rpc_grants_and_schedule_search_paths",
+      "statements": 1,
+      "bytes": 1309,
+      "content_status": "leading-lf-only",
+      "matched_git_files": [
+        "supabase/migrations/20261011105104_phase_7_harden_rpc_grants_and_schedule_search_paths.sql"
+      ],
+      "version_drift": false,
+      "review_flags": [
+        "privilege_ddl",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20261011130546",
+      "name": "phase_7_lock_down_unused_public_tables",
+      "statements": 1,
+      "bytes": 721,
+      "content_status": "terminal-lf-only",
+      "matched_git_files": [
+        "supabase/migrations/20261011140000_phase_7_lock_down_unused_public_tables.sql"
+      ],
+      "version_drift": true,
+      "review_flags": [
+        "rls_ddl",
+        "privilege_ddl"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20261011135131",
+      "name": "expenses_module_foundation",
+      "statements": 1,
+      "bytes": 5355,
+      "content_status": "terminal-lf-only",
+      "matched_git_files": [
+        "supabase/migrations/20261011135131_expenses_module_foundation.sql"
+      ],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "function_ddl",
+        "rls_ddl",
+        "privilege_ddl",
+        "trigger_ddl",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20261011135208",
+      "name": "tighten_expenses_table_grants",
+      "statements": 1,
+      "bytes": 565,
+      "content_status": "terminal-lf-only",
+      "matched_git_files": [
+        "supabase/migrations/20261011135208_tighten_expenses_table_grants.sql"
+      ],
+      "version_drift": false,
+      "review_flags": [
+        "privilege_ddl"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20261012013143",
+      "name": "academy_upi_settings_foundation",
+      "statements": 1,
+      "bytes": 6183,
+      "content_status": "exact-bytes",
+      "matched_git_files": [
+        "supabase/migrations/20261012013143_academy_upi_settings_foundation.sql"
+      ],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "function_ddl",
+        "rls_ddl",
+        "privilege_ddl",
+        "trigger_ddl",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20261012013320",
+      "name": "academy_upi_settings_policy_tuning",
+      "statements": 1,
+      "bytes": 1145,
+      "content_status": "exact-bytes",
+      "matched_git_files": [
+        "supabase/migrations/20261012013320_academy_upi_settings_policy_tuning.sql"
+      ],
+      "version_drift": false,
+      "review_flags": [
+        "rls_ddl",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20261012013452",
+      "name": "academy_upi_settings_remove_redundant_index",
+      "statements": 1,
+      "bytes": 220,
+      "content_status": "exact-bytes",
+      "matched_git_files": [
+        "supabase/migrations/20261012013452_academy_upi_settings_remove_redundant_index.sql"
+      ],
+      "version_drift": false,
+      "review_flags": [],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20261012023354",
+      "name": "parent_upi_payment_submissions",
+      "statements": 1,
+      "bytes": 9401,
+      "content_status": "exact-bytes",
+      "matched_git_files": [
+        "supabase/migrations/20261012023354_parent_upi_payment_submissions.sql"
+      ],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "function_ddl",
+        "rls_ddl",
+        "privilege_ddl",
+        "security_definer",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20261012023526",
+      "name": "parent_upi_submission_invariants",
+      "statements": 1,
+      "bytes": 3222,
+      "content_status": "exact-bytes",
+      "matched_git_files": [
+        "supabase/migrations/20261012023526_parent_upi_submission_invariants.sql"
+      ],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "function_ddl",
+        "privilege_ddl",
+        "security_definer",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20261012025707",
+      "name": "parent_upi_claim_ledger_recording",
+      "statements": 1,
+      "bytes": 5671,
+      "content_status": "exact-bytes",
+      "matched_git_files": [
+        "supabase/migrations/20261012025707_parent_upi_claim_ledger_recording.sql"
+      ],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "function_ddl",
+        "privilege_ddl",
+        "security_definer",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20261012031132",
+      "name": "expense_occurrence_recording",
+      "statements": 1,
+      "bytes": 5366,
+      "content_status": "exact-bytes",
+      "matched_git_files": [
+        "supabase/migrations/20261012031132_expense_occurrence_recording.sql"
+      ],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "function_ddl",
+        "rls_ddl",
+        "privilege_ddl",
+        "trigger_ddl",
+        "security_definer",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20261012031710",
+      "name": "protect_recurring_expense_history",
+      "statements": 1,
+      "bytes": 1921,
+      "content_status": "exact-bytes",
+      "matched_git_files": [
+        "supabase/migrations/20261012031710_protect_recurring_expense_history.sql"
+      ],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "function_ddl",
+        "privilege_ddl",
+        "trigger_ddl",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20261012032425",
+      "name": "revert_p16_expense_changes",
+      "statements": 1,
+      "bytes": 1168,
+      "content_status": "exact-bytes",
+      "matched_git_files": [
+        "supabase/migrations/20261012032425_revert_p16_expense_changes.sql"
+      ],
+      "version_drift": false,
+      "review_flags": [
+        "rls_ddl",
+        "trigger_ddl",
+        "destructive_keyword",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20261012035934",
+      "name": "enquiries_r2_database_security",
+      "statements": 1,
+      "bytes": 25184,
+      "content_status": "exact-bytes",
+      "matched_git_files": [
+        "supabase/migrations/20261012035934_enquiries_r2_database_security.sql"
+      ],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "function_ddl",
+        "rls_ddl",
+        "privilege_ddl",
+        "trigger_ddl",
+        "security_definer",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20261021052601",
+      "name": "private_player_photo_storage",
+      "statements": 1,
+      "bytes": 3478,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "rls_ddl",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20261025171400",
+      "name": "delete_inquiry",
+      "statements": 1,
+      "bytes": 1740,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "function_ddl",
+        "privilege_ddl",
+        "security_definer",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20261031113746",
+      "name": "add_center_code_to_centers",
+      "statements": 1,
+      "bytes": 69,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20261031113758",
+      "name": "enforce_center_code_format_and_uniqueness",
+      "statements": 1,
+      "bytes": 260,
+      "content_status": "no-content-match",
+      "matched_git_files": [],
+      "version_drift": false,
+      "review_flags": [],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    },
+    {
+      "version": "20261101082001",
+      "name": "enquiries_e5_1_owner_only_delete",
+      "statements": 1,
+      "bytes": 1407,
+      "content_status": "terminal-lf-only",
+      "matched_git_files": [
+        "supabase/migrations/20261101082001_enquiries_e5_1_owner_only_delete.sql"
+      ],
+      "version_drift": false,
+      "review_flags": [
+        "potential_dml",
+        "function_ddl",
+        "privilege_ddl",
+        "security_definer",
+        "private_schema_reference"
+      ],
+      "known_divergence": null,
+      "requires_manual_review": true,
+      "approval_status": "PENDING",
+      "replay_approved": false,
+      "notes": "No SQL body included; automated risk scanning is conservative and may flag function bodies or comments"
+    }
+  ],
+  "global_gates": {
+    "full_sql_archive_reviewed": false,
+    "all_content_mismatches_reviewed": false,
+    "all_foundation_helpers_proven_or_labeled_snapshot": false,
+    "duplicate_local_migration_timestamp_resolved_for_disposable_only": false,
+    "production_data_reconciliation_excluded_or_isolated": false,
+    "auth_rls_finance_parity_executed": false
+  },
+  "eligible_for_disposable_replay": false
+}
