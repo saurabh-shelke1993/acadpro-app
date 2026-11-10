@@ -15,6 +15,8 @@ The module `supabase/recovery/historical-baseline/b3_2_reconciliation_design.py`
 
 An accompanying six-case redacted review inventory is `supabase/recovery/historical-baseline/b3_2_six_divergences_review_20261111.json`. All source review and approval flags remain PENDING/false.
 
+> **Follow-up source correction (B3.3, 11 November 2026):** The initial `20260823093317` remote history stores 87 *separate semicolon-free array elements*, whereas the Git file contains 87 delimited statements. The earlier whole-concatenation token mismatch does **not** persist when the original statement boundaries are preserved: a read-only ordinal-level lexical review matched **87/87** positions. Strict byte-level fingerprints remain different and actual DDL/RLS/constraint/privilege replay parity remains **unproven**. See `PS_L2_3B_B3_3_ORIGINAL_STATEMENT_REVIEW_20261111.md`. The other five source divergences retain their prior dispositions.
+
 ## A. Actual source comparison — six same-version divergences
 
 A fresh Supabase **SELECT-only** retrieval of six affected history rows was compared in memory with the corresponding Git files. No original SQL body or changed UUID selector was committed.
