@@ -7,6 +7,12 @@ Security and data isolation are prerequisites for production.
 
 # ✅ Completed
 
+## Active blocker — PS-L2.3B B3.1 reviewed migration order, not yet executable (11 November 2026)
+
+**Implemented/tested:** One-to-one 82-version metadata assembly, strict local SQL fingerprint checks, 14 data/procedural quarantine flags, source-order and test-only helper insertion proposal, nine CI tests **PASS** ([run 42882011251](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42882011251)). No database SQL executed.
+
+**Still pending:** Original 82-migration protected archive and historical provenance sign-off, six same-version source divergences, 51 remote no-content-match records, 11 helper original creation origins, record-specific player/payment cleanup decisions, duplicate/12-digit local version reconciliation in disposable workspace, B3 full Supabase migration replay and B4 subscription integration. Automatic expiry/renewal/proration/next dues remain **not deployed**.
+
 ## Active blocker — PS-L2.3B B3.0 full Supabase replay readiness (11 November 2026)
 
 **Implemented/tested:** Offline seven-gate B3.0 preflight, focused GitHub Actions CI and repository/source-risk inventory. `ready_for_disposable_full_replay=false` pending 82-record historical SQL provenance and a reviewed temporary-only migration assembly.
