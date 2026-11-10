@@ -8,7 +8,7 @@ import unittest
 
 from attest_private_archive import git_blob_sha1
 from b3_4_import_dashboard_csv import read_csv_exports, preverify, import_csv_archive
-from b3_1_assembly_manifest import PARITY
+from b3_1_assembly_manifest import PARITY, RISKS
 from b3_3_original_source_audit import EVIDENCE
 
 
@@ -146,6 +146,45 @@ class DashboardCsvPrivateArchiveTests(unittest.TestCase):
             "version,statements\nx,y\n", encoding="utf-8")
         with self.assertRaisesRegex(ValueError, "migration_json"):
             read_csv_exports(self.input)
+
+    def test_all_fourteen_quarantine_cases_remain_blocked(self):
+        root = Path(__file__).resolve().parents[3]
+        register = json.loads((
+            root / "supabase/recovery/historical-baseline/"
+            "b3_4_data_procedural_quarantine_review_20261111.json"
+        ).read_text(encoding="utf-8"))
+        risks = json.loads((root / RISKS).read_text(encoding="utf-8"))
+        expected = {
+            row["version"] for row in risks["records"]
+            if row["direct_data_statement_count"] > 0
+            or row["do_block_count"] > 0
+            or row["possible_with_mutation_count"] > 0
+            or row["version"] in ("20260920041516", "20260920041606")
+        }
+        actual = {row["version"] for row in register["cases"]}
+        self.assertEqual(len(actual), 14)
+        self.assertEqual(actual, expected)
+        self.assertFalse(register["all_approved"])
+        self.assertFalse(register["sql_bodies_embedded"])
+        for item in register["cases"]:
+            self.assertFalse(item["replay_approved"])
+            self.assertFalse(item["original_sql_privately_archived"])
+            self.assertFalse(item["statement_level_review_completed"])
+            self.assertFalse(item["essential_ddl_separation_approved"])
+
+    def test_quarantined_player_literal_cases_are_not_auto_replayed(self):
+        root = Path(__file__).resolve().parents[3]
+        register = json.loads((
+            root / "supabase/recovery/historical-baseline/"
+            "b3_4_data_procedural_quarantine_review_20261111.json"
+        ).read_text(encoding="utf-8"))
+        rows = {row["version"]: row for row in register["cases"]}
+        for version in ("20260920041516", "20260920041606"):
+            self.assertEqual(rows[version]["review_class"],
+                             "record_specific_player_reconciliation")
+            self.assertEqual(rows[version]["dispose_data_operations_for_scratch_only"],
+                             "PENDING_OWNER_REVIEW")
+            self.assertFalse(rows[version]["replay_approved"])
 
     def test_no_hosted_sql_commands(self):
         code = (Path(__file__).parent / "b3_4_import_dashboard_csv.py").read_text()
