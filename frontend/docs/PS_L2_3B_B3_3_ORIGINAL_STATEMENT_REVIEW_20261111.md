@@ -58,9 +58,9 @@ The **14** historical data/procedural migrations remain under mandatory review. 
 
 Implemented:
 - `supabase/recovery/historical-baseline/b3_3_original_source_audit.py` — fail-closed, source-ordered audit of all **168** committed original element hashes, names and ordinals against B3.1/B3.2 metadata. With an optional **privately archived, SHA-256-verified original SQL source**, it independently validates all 168 actual source elements and compares six divergent migrations without emitting SQL text, quoted literals or customer values.
-- `test_b3_3_original_source_audit.py` — ten tests of source inventory completeness, archive-not-ready gating, semicolon-free statement handling, protected string and dollar-quoted bodies, changed historical UUID literals, invalid quotes/comments, tampering of source order, premature approval and falsely claimed base-schema semantic parity.
+- `test_b3_3_original_source_audit.py` — twelve tests of source inventory completeness, archive-not-ready gating, semicolon-free statement handling, protected string and dollar-quoted bodies, changed historical UUID literals, invalid quotes/comments, tampering of source order, premature approval and falsely claimed base-schema semantic parity.
 - `.github/workflows/subscriptions-ps-l2-3-b3-3-original-source.yml` — metadata-only CI; **no database connection or SQL execution**, and it publishes a short-lived non-executable attestation artifact.
-- **GitHub Actions [42886224678](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42886224678): PASS — 10 tests**, metadata checks, blocked replay assertions.
+- **GitHub Actions [42886946692](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42886946692): PASS — 12 tests**, metadata checks, synthetic exact-hash verification, blocked replay assertions.
 
 From the repository root (no DB password required for the metadata-only step):
 
