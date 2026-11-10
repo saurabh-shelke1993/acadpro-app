@@ -7,6 +7,13 @@
 **Original branch baseline (before this file was created):** `0bfc71099ed14cdada08022320a72c378e9da5f7`. Subsequent CMA commits exist; recheck current branch HEAD before development.  
 **Purpose:** Stable, handoff-friendly checkpoint between ChatGPT conversations. This document is NOT a substitute for inspecting live code, the current database, or current tests.
 
+## Latest checkpoint — PS-L2.3B B3.0 Supabase replay readiness (11 November 2026)
+
+- **Implemented/CI-tested:** offline, fail-closed `supabase/recovery/historical-baseline/b3_0_replay_readiness.py` plus focused tests and isolated source-only GitHub Actions workflow. Explicit decision: **`ready_for_disposable_full_replay=false`**; no local Supabase DB, hosted SQL, finance RPC or subscription proposal executed during this phase.
+- **Exact blockers:** old CI fixture has 7 helper definitions and overlaps with B2.9's 11 verified helpers on 4 names (`current_user_role`, `current_academy_id`, `is_academy_owner`, `is_super_admin`). Three old-only functions (`current_parent_id`, `can_manage_academy`, `is_parent_of_player`) need historical placement. Old fixture creates `current_parent_id` at temporary version `20260823100000` before `parents.user_id` originates at `20260912142706` and disables `check_function_bodies`; do not merge fixtures.
+- **Historical source:** 82 remote versions / 40 local SQL files, 25 strict source links, 6 same-version differences, 51 remote without content match, 15 unmatched Git files, duplicate `20260926133000`. New B3.0 discovery: `202610210001_private_player_photo_storage.sql` has a **12-digit** version, not a normal 14-digit timestamp. No files renamed and no remote migration-ledger changes.
+- **Pending:** secure original SQL source archive / reconciliation, explicit helper/parent-schema timing decisions, temporary-only migration assembly, actual complete B3 Supabase Auth/RLS/finance replay, then B4 PS-L2.3 integration. Detailed decision: `frontend/docs/PS_L2_3B_B3_0_SUPABASE_REPLAY_READINESS_20261111.md`. **No production DDL, billing automation, user-data writes or password changes.**
+
 ## Latest checkpoint — PS-L2.3B B2.9 disposable current-state auth bootstrap (11 November 2026)
 
 - **IMPLEMENTED / TESTED:** Captured the exact current definitions of 11 unproven historical `private` helpers via connected Supabase **SELECT only**, checked original per-function SHA-256 hashes 11/11, source signatures, PostgreSQL ownership, `SECURITY DEFINER`, volatility, search paths and role EXECUTE. Stored under `supabase/tests/subscriptions/ps_l2_3_b2_9_live_helper_snapshot.sql` and an explicit manifest; these are **current-state disposable-only test artifacts**, **NOT original historical migrations**.
