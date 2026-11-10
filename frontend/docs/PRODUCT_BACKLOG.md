@@ -7,6 +7,14 @@ Security and data isolation are prerequisites for production.
 
 # ✅ Completed
 
+## Active blocker — PS-L2.3B B3.0 full Supabase replay readiness (11 November 2026)
+
+**Implemented/tested:** Offline seven-gate B3.0 preflight, focused GitHub Actions CI and repository/source-risk inventory. `ready_for_disposable_full_replay=false` pending 82-record historical SQL provenance and a reviewed temporary-only migration assembly.
+
+**New findings:** Four helper definition overlaps in old/new fixtures, three old-only historical helper definitions, premature `parents.user_id` function reference and disabled function-body validation, duplicate `20260926133000` migration prefix and a 12-digit `202610210001` prefix. Do not combine old and B2.9 helper scripts or apply subscription proposal to a partially replayed DB.
+
+**Pending:** B3.1 approved source reconciliation and disposable-only assembly manifest, real B3 Supabase RLS/payment/Auth replay, B4 PS-L2.3 integration. Subscription expiry/renewal and automatic dues remain **not deployed**; no hosted database writes.
+
 ## Active blocker — PS-L2.3B B2.9 auth snapshot validated; full Supabase replay pending (11 November 2026)
 
 **Implemented / tested:** 11 live `private` helpers preserved as a **disposable-only current-state** test fixture, validated against live definition SHA-256 and grants; synthetic PostgreSQL 17 role-isolation tests and 5 integrity checks **PASS** ([CI 42878988432](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42878988432)). No live changes.
