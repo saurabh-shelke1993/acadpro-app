@@ -4,6 +4,14 @@
 **Current Version:** V1.0 Beta (development; not release sign-off)  
 **Current Git Branch:** `payment-module-finalization`
 
+## PS-L2.3B B2.7 private source archival readiness (10 November 2026)
+
+**Implemented:** `run_verified_private_archive.py` and `attest_private_archive.py` verify all 82 migration identities and source SQL fingerprints before writing any private file, then create SHA-256-verified, Git-ignored SQL evidence and non-executing parity/risk reports. Archive traversal, duplicate-version and overwrite controls hardened. [Recovery CI 42751093715](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42751093715) **PASS — 43 tests**.
+
+**Operational gate still pending:** Actual full original SQL private archive must be generated once by the owner on a trusted computer with a read-only-capable `psql` connection; connected Supabase cannot write directly to the owner's filesystem. This was **not completed** in this session. Do not claim B3 source replay or B4 Auth/RLS/finance parity.
+
+**Original subscription lifecycle issue still open:** automated expiry, pause/resume, prorated billing, renewal and next-period payment-due creation not deployed. Legacy 22 agreements remain HOLD for auto-billing. All hosted schema, finance records and migration ledger unchanged. See `PS_L2_3B_B2_7_PRIVATE_ARCHIVE_READINESS_20261110.md`.
+
 ## PS-L2.3B B2.6 source inspection checkpoint (10 November 2026)
 
 **Source review:** All 82 hosted migration SQL records inspected with SELECT-only queries, 168 recorded array elements segmented into 790 top-level statements by a non-executing lexer. Detected **11 migration records with 20 direct data-changing SQL statements**, and **7 with procedural DO blocks**; a previous 54-migration broad keyword screen was conservative. Historical player/parent reconciliations, payment counter and dues adjustments, and unfiltered enquiry backfills require distinct review. Metadata only was committed.
