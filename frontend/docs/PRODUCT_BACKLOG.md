@@ -9,7 +9,7 @@ Security and data isolation are prerequisites for production.
 
 ## Active blocker — PS-L2.3B B3.3 exact historical statement-source recovery (11 November 2026)
 
-**Completed read-only investigation:** Exact per-element hashes of 168 SQL ledger strings (82 versions) and 87/87 lexical alignment of initial base-schema elements with the Git statements after preserving original boundaries. B3.3 offline audit and 10 GitHub CI tests **PASS** ([42886224678](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42886224678)). No hosted migration or data writes.
+**Completed read-only investigation:** Exact per-element hashes of 168 SQL ledger strings (82 versions) and 87/87 lexical alignment of initial base-schema elements with the Git statements after preserving original boundaries. B3.3 offline audit and 12 GitHub CI tests **PASS** ([42886946692](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42886946692)). No hosted migration or data writes.
 
 **Still pending:** Save and attest the protected original SQL archive, manually verify privileges/constraints and remaining function changes, resolve historical player-specific UUID selectors, approve the 14 data/procedural quarantine cases, then complete isolated Supabase Auth/RLS/payment replay and PS-L2.3 subscription integration. Current subscription expiry/renewal/proration/automatic dues **not deployed**.
 
