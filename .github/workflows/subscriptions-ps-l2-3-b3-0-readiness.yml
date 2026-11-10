@@ -1,0 +1,46 @@
+name: PS-L2.3B B3.0 replay readiness audit (no SQL execution)
+
+on:
+  push:
+    branches: [payment-module-finalization]
+    paths:
+      - 'supabase/recovery/historical-baseline/b3_0_replay_readiness.py'
+      - 'supabase/recovery/historical-baseline/test_b3_0_replay_readiness.py'
+      - '.github/workflows/subscriptions-ps-l2-3-b3-0-readiness.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fail-closed-replay-source-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check B3.0 source and risk-analysis unit tests
+        run: |
+          python -m unittest discover \
+            -s supabase/recovery/historical-baseline \
+            -p 'test_b3_0_replay_readiness.py' -v
+          python -m py_compile \
+            supabase/recovery/historical-baseline/b3_0_replay_readiness.py
+      - name: Generate non-executable readiness decision
+        run: |
+          python supabase/recovery/historical-baseline/b3_0_replay_readiness.py \
+            --root . \
+            --output /tmp/kheltriva-b3-0-preflight.json
+          python - <<'PY'
+          import json
+          with open('/tmp/kheltriva-b3-0-preflight.json', encoding='utf-8') as file:
+              report = json.load(file)
+          assert report['ready_for_disposable_full_replay'] is False
+          assert report['ready_for_production'] is False
+          assert report['candidate_sql_executed'] is False
+          assert report['production_writes'] is False
+          assert len(report['gates']) == 7
+          print('B3.0 preflight passed its integrity checks; full Supabase replay remains BLOCKED')
+          PY
