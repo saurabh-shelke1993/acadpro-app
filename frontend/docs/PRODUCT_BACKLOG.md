@@ -7,6 +7,12 @@ Security and data isolation are prerequisites for production.
 
 # ✅ Completed
 
+## Active dependency — B3.4 original SQL private archive acquisition (11 November 2026)
+
+**Implemented & tested:** New SQL Editor (Google-login, no DB password) CSV-to-private-archive importer with 82 migration-wide and 168 original SQL-element pre-write fingerprint checks; 14-case DML/procedural manual-review register; GitHub Actions [42889010851](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42889010851) **PASS (12 synthetic tests)**.
+
+**NOT done:** Original five CSV batches have not been downloaded by the owner; no local private SQL archive is present/attested. No production database or credential changes. Full historic B3 Auth/RLS/payment replay and B4 lifecycle expiration, renewal, proration, and generated next-period dues remain BLOCKED. Next concrete step: owner private SQL Editor export and one-time local import, then B3.5 review of 14 historical sensitive data/procedure migrations.
+
 ## Active blocker — PS-L2.3B B3.3 exact historical statement-source recovery (11 November 2026)
 
 **Completed read-only investigation:** Exact per-element hashes of 168 SQL ledger strings (82 versions) and 87/87 lexical alignment of initial base-schema elements with the Git statements after preserving original boundaries. B3.3 offline audit and 12 GitHub CI tests **PASS** ([42886946692](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42886946692)). No hosted migration or data writes.
