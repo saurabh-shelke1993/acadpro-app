@@ -7,6 +7,13 @@
 **Original branch baseline (before this file was created):** `0bfc71099ed14cdada08022320a72c378e9da5f7`. Subsequent CMA commits exist; recheck current branch HEAD before development.  
 **Purpose:** Stable, handoff-friendly checkpoint between ChatGPT conversations. This document is NOT a substitute for inspecting live code, the current database, or current tests.
 
+## Latest checkpoint — PS-L2.3B B3.4 password-free private SQL archive tooling (11 November 2026)
+
+- **IMPLEMENTED / CI-TESTED:** A new import workflow takes 5 (or 1–20) Google-authenticated Supabase SQL Editor CSV exports into the existing ignored .recovery-private folder; requires NO PostgreSQL password reset. The importer verifies 82 original migration-wide hashes and all 168 original SQL element SHA-256s **before writing raw SQL**, reuses B2.7 private export/attestation and B3.3 original-source audit, and refuses incomplete, duplicate, tampered or unsafe-path input. **Real owner CSV export/import has NOT been run**.
+- **CI PASS:** [GitHub Actions 42889010851](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42889010851) **12 tests PASS** with synthetic SQL only; hosted migration ledger, schema and financial data unchanged. Connected read-only check reconfirmed 82 versions / 168 SQL elements.
+- **Quarantine:** b3_4_data_procedural_quarantine_review_20261111.json lists all 14 historical direct-data/procedure review cases, including 2 conflicting player selector corrections and financial/receipt backfills. All review/replay flags PENDING/false.
+- **Owner next action:** SQL Editor SELECT row_to_json batch export at offsets 0/20/40/60/80, move five CSVs into private ignored folder, run b3_4_import_dashboard_csv.py and inspect sanitized attestation. Instructions: frontend/docs/PS_L2_3B_B3_4_PRIVATE_ARCHIVE_ACQUISITION_20261111.md. **Do not share raw SQL or passwords.** B3 full Supabase/Auth/RLS/finance replay and B4 subscription lifecycle are BLOCKED; 22 legacy subscription agreements remain on automatic billing HOLD.
+
 ## Latest checkpoint — PS-L2.3B B3.3 original historical SQL element audit (11 November 2026)
 
 - **Read-only original SQL recovery evidence:** Connected Supabase query captured exact SHA-256, 1-based array ordinal and UTF-8 byte length for **all 168 original retained SQL elements across 82 migrations** (361,302 SQL source bytes); counts match B2.4 for every version. Sanitized metadata: `supabase/recovery/historical-baseline/b3_3_original_statement_fingerprints_20261111.json`. No actual raw SQL, private user identifiers or passwords committed.
