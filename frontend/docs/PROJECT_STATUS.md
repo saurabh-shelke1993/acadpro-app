@@ -1,8 +1,16 @@
 # AcadPro Project Status
 
-**Last Updated:** 6 November 2026 (PS-L2.3 local Supabase migration replay blocked; prior synthetic CI passed)
+**Last Updated:** 10 November 2026 (PS-L2.3B B2.5 evidence gating implemented; disposable replay still blocked)
 **Current Version:** V1.0 Beta (development; not release sign-off)  
 **Current Git Branch:** `payment-module-finalization`
+
+## PS-L2.3B B2.5 recovery review checkpoint (10 November 2026)
+
+**Implemented:** Comprehensive metadata-only 82-record recovery review queue, 11 unresolved helper origin gates, and a fail-closed non-executable `build_review_candidate.py` validator. [GitHub Actions 42744787611](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42744787611) **PASS — 21 focused tests** including generation of the blocked review plan from actual evidence.
+
+**Stop condition:** Of 82 remote migrations, 25 strict Git content matches, 6 same-version SQL divergences, 51 without strict content linkage, 15 unmatched Git files, and a local `20260926133000` collision. Two same-version player-history reconciliations (`20260920041516`, `20260920041606`) differ in quoted literal SQL values. Do not replay historical cleanup without verified original statements and review.
+
+**Pending:** Private full SQL export/sensitive-data inspection; provenance of 11 foundational `private` helpers; migration assembly sign-off; full disposable Supabase/Auth/RLS/financial replay; PS-L2.3 proposal local parity. Candidate is `ready_for_disposable_replay=false`; **no live schema/finance/billing changes**, and 22 historical agreements remain HOLD for automation. See `PS_L2_3B_B2_5_REVIEW_GATE_20261110.md`.
 
 ## PS-L2.3B B2.4 SQL parity checkpoint (9 November 2026)
 
