@@ -95,7 +95,7 @@ class B31AssemblyTests(unittest.TestCase):
             meta = json.loads(path.read_text(encoding="utf-8"))
             meta["authoritative_historical_provenance"] = True
             path.write_text(json.dumps(meta), encoding="utf-8")
-            with self.assertRaisesRegex(ValueError, "falsely approved"):
+            with self.assertRaisesRegex(ValueError, "misrepresented as historical"):
                 assemble(tmp)
 
     def test_no_unapproved_original_sql_can_become_executable(self):
