@@ -1,12 +1,13 @@
 """B3.3 original per-element source fingerprint preflight, no database access."""
 import json
+import hashlib
 from pathlib import Path
 import shutil
 import tempfile
 import unittest
 
 from b3_3_original_source_audit import (
-    analyze, tokens_and_statements, EVIDENCE, BASE_REVIEW,
+    analyze, tokens_and_statements, verify_original_element_hashes, EVIDENCE, BASE_REVIEW,
 )
 from b3_2_reconciliation_design import DIVERGENCES, REVIEW
 from b3_1_assembly_manifest import PARITY, RISKS, HELPERS
@@ -69,6 +70,36 @@ class B33OriginalSourceAuditTests(unittest.TestCase):
             with self.subTest(example=example[:7]):
                 with self.assertRaisesRegex(ValueError, "Unclosed"):
                     tokens_and_statements(example)
+
+    def test_exact_original_sha256_works_without_emitting_sql(self):
+        statements = [
+            "CREATE TABLE public.test (id uuid)",
+            "DELETE FROM public.player_batches WHERE player_id='11111111-1111-1111-1111-111111111111'",
+        ]
+        rows = [
+            {"version": "20260101000000", "name": "synthetic",
+             "ordinal": idx + 1,
+             "sql_byte_length": len(text.encode("utf-8")),
+             "original_sql_element_sha256": hashlib.sha256(text.encode("utf-8")).hexdigest()}
+            for idx, text in enumerate(statements)
+        ]
+        result = verify_original_element_hashes(rows, {"20260101000000": ("synthetic", statements)})
+        self.assertEqual(result, 2)
+
+    def test_changed_private_original_statement_is_refused(self):
+        statement = "SELECT 'original-literal';"
+        rows = [{
+            "version": "20260101000000", "name": "synthetic", "ordinal": 1,
+            "sql_byte_length": len(statement.encode("utf-8")),
+            "original_sql_element_sha256": hashlib.sha256(statement.encode("utf-8")).hexdigest(),
+        }]
+        with self.assertRaisesRegex(ValueError, "fingerprint mismatch"):
+            verify_original_element_hashes(
+                rows, {"20260101000000": ("synthetic", ["SELECT 'modified-literal';"])})
+        with self.assertRaisesRegex(ValueError, "ordinal missing"):
+            verify_original_element_hashes(
+                [{**rows[0], "ordinal": 2}],
+                {"20260101000000": ("synthetic", [statement])})
 
     def test_missing_original_statement_is_refused(self):
         with self.clone_sources() as root:
