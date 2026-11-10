@@ -56,3 +56,18 @@ Only three narrowly bounded content matches are accepted: **byte-identical**, **
 Read-only live fingerprints and the pinned Git blob hashes are recorded in `parity-fingerprints-readonly-20261109.json` (schema v2). The current snapshot proves **17 byte-exact + 6 terminal-LF-only + 2 leading-LF-only = 25 content links**. Of these, 8 use retimestamped local files. **Six same-version SQL divergences and 51 remote records with no Git content match remain.** Fifteen tracked local files have no content-matched remote record. These are provenance gaps, not a reason to rewrite deployed migration history.
 
 The live fingerprint inventory was collected by SELECT-only catalog queries, without exporting raw historical SQL into Git. Raw archive extraction and all semantic/deterministic replay checks remain pending. This is an **evidence-only** checkpoint. See `frontend/docs/PS_L2_3B_B2_4_SQL_CONTENT_PARITY_20261109.md` for recovery candidate ordering and review stops.
+
+## B2.5 fail-closed review candidate (metadata only)
+
+This step uses the committed **metadata-only**, read-only evidence files. It does **not** execute SQL, does **not** export raw SQL, does **not** create a runnable migration folder, and does **not** approve replay.
+
+```bash
+python supabase/recovery/historical-baseline/build_review_candidate.py \
+  --parity supabase/recovery/historical-baseline/parity-fingerprints-readonly-20261109.json \
+  --review supabase/recovery/historical-baseline/review-queue-readonly-20261110.json \
+  --output supabase/recovery/historical-baseline/.recovery-private/b2-5-review-candidate.json
+```
+
+Expected result: 82 historical records, `ready_for_disposable_replay=false`, `ready_for_production=false`, all entries `PENDING`. Any manually changed approved state or missing security gate causes validation failure. The output is a **blocked review plan**, not a migration.
+
+See `frontend/docs/PS_L2_3B_B2_5_REVIEW_GATE_20261110.md` for the six same-version SQL discrepancies and mandatory evidence to collect before B3.
