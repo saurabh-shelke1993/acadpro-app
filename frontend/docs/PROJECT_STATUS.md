@@ -1,8 +1,16 @@
 # AcadPro Project Status
 
-**Last Updated:** 10 November 2026 (PS-L2.3B B2.5 evidence gating implemented; disposable replay still blocked)
+**Last Updated:** 10 November 2026 (PS-L2.3B B2.6 read-only historical SQL risk triage; replay blocked)
 **Current Version:** V1.0 Beta (development; not release sign-off)  
 **Current Git Branch:** `payment-module-finalization`
+
+## PS-L2.3B B2.6 source inspection checkpoint (10 November 2026)
+
+**Source review:** All 82 hosted migration SQL records inspected with SELECT-only queries, 168 recorded array elements segmented into 790 top-level statements by a non-executing lexer. Detected **11 migration records with 20 direct data-changing SQL statements**, and **7 with procedural DO blocks**; a previous 54-migration broad keyword screen was conservative. Historical player/parent reconciliations, payment counter and dues adjustments, and unfiltered enquiry backfills require distinct review. Metadata only was committed.
+
+**Implemented/tested:** Offline `inspect_historical_statements.py`, 7 new tests, CI source-evidence checks and README. [GitHub Actions 42748372167](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42748372167) **PASS: 28 total recovery tests**.
+
+**Unfinished:** Full privately archived original SQL export (not yet saved), six content-divergent migrations, 11 unproven foundational `private` helpers, timestamp mapping, disposable Supabase migration replay and actual subscription/finance/RLS parity. No hosted schema or financial data changed; existing 22 legacy subscription agreements remain HOLD for automatic billing. See `PS_L2_3B_B2_6_SOURCE_SQL_TRIAGE_20261110.md`.
 
 ## PS-L2.3B B2.5 recovery review checkpoint (10 November 2026)
 
