@@ -1,0 +1,57 @@
+name: PS-L2.3B B3.3 original SQL source review (metadata only)
+
+on:
+  push:
+    branches: [payment-module-finalization]
+    paths:
+      - 'supabase/recovery/historical-baseline/b3_3_original_source_audit.py'
+      - 'supabase/recovery/historical-baseline/test_b3_3_original_source_audit.py'
+      - 'supabase/recovery/historical-baseline/b3_3_original_statement_fingerprints_20261111.json'
+      - 'supabase/recovery/historical-baseline/b3_3_base_statement_review_20261111.json'
+      - '.github/workflows/subscriptions-ps-l2-3-b3-3-original-source.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-integrity-preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify 168 elements, strict statement boundaries and replay stop conditions
+        run: |
+          python -m unittest discover \
+            -s supabase/recovery/historical-baseline \
+            -p 'test_b3_3_original_source_audit.py' -v
+          python -m py_compile supabase/recovery/historical-baseline/b3_3_original_source_audit.py
+      - name: Generate non-executable original-source inventory attestation
+        run: |
+          python supabase/recovery/historical-baseline/b3_3_original_source_audit.py \
+            --root . \
+            --output /tmp/kheltriva-b3-3-original-source-review.json
+          python - <<'PY'
+          import json
+          with open('/tmp/kheltriva-b3-3-original-source-review.json', encoding='utf-8') as f:
+              data = json.load(f)
+          assert data['remote_migration_count'] == 82
+          assert data['original_ledger_element_count'] == 168
+          assert data['historical_schema_87_statements_lexically_aligned']
+          assert not data['private_archive_present']
+          assert not data['all_168_element_hashes_verified_from_private_archive']
+          assert not data['ready_for_full_supabase_replay']
+          assert not data['ready_for_production']
+          assert not data['original_sql_body_embedded']
+          print('PASS: verified source metadata; original private archive pending; full replay BLOCKED')
+          PY
+      - name: Publish non-executable statement-source evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: kheltriva-b3-3-source-review-metadata-only
+          path: /tmp/kheltriva-b3-3-original-source-review.json
+          retention-days: 14
+          if-no-files-found: error
