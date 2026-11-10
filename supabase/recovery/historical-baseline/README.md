@@ -173,7 +173,7 @@ python supabase/recovery/historical-baseline/b3_2_reconciliation_design.py --roo
 
 Source evidence: `b3_2_six_divergences_review_20261111.json`. The design keeps **25 strict Git-content links**, **6 same-version divergences**, **51 no-content-match remote rows**, **8 retimestamped links**, **14 data/procedural quarantine cases**, the duplicate `20260926133000` and irregular 12-digit filename explicitly unresolved. The initial schema's 17 detected CREATE declarations align by name, but SQL semantics and RLS/security/constraints do **not** have approved parity.
 
-GitHub Actions [42883854807](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42883854807) **PASS (10 tests)**. The workflow publishes metadata-only artifact `kheltriva-b3-2-reconciliation-review-only` for 14 days.
+GitHub Actions [42883854807](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42883854807) **PASS (12 tests)**. The workflow publishes metadata-only artifact `kheltriva-b3-2-reconciliation-review-only` for 14 days.
 
 Every migration entry still has `replay_approved=false`. Do not execute historical customer-specific cleanup SQL, inject the current helper fixture into original history, rewrite tracked migration timestamps or apply the PS-L2.3 candidate. Further steps require privately verified original SQL, manual security/statement review and a disposable Supabase-only environment.
 
@@ -194,6 +194,6 @@ python supabase/recovery/historical-baseline/b3_3_original_source_audit.py --roo
 
 To verify the 168 original raw statement elements **once a private archive exists**, use the same command with `--archive <ignored-private-archive-folder>` and a fresh output filename. This invokes the existing archive SHA-256 validation and checks each original statement individually. **Never put raw SQL into GitHub or include credentials in shell history.**
 
-GitHub Actions [42886224678](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42886224678) **PASS (10 tests)**; the workflow publishes only metadata and does not access a hosted database.
+GitHub Actions [42886946692](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42886946692) **PASS (12 tests)**; the workflow publishes only metadata and does not access a hosted database.
 
 Detailed report: `frontend/docs/PS_L2_3B_B3_3_ORIGINAL_STATEMENT_REVIEW_20261111.md`. A full privately verified SQL archive, original helper origin and 14 data/procedural-source approvals remain pending. B3 full replay and PS-L2.3 subscription integration are **blocked**.
