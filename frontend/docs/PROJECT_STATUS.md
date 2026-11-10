@@ -1,8 +1,16 @@
 # AcadPro Project Status
 
-**Last Updated:** 11 November 2026 (PS-L2.3B B2.9 isolated helper bootstrap validated; replay blocked)
+**Last Updated:** 11 November 2026 (PS-L2.3B B3.3 original SQL source inspection; full replay blocked)
 **Current Version:** V1.0 Beta (development; not release sign-off)  
 **Current Git Branch:** `payment-module-finalization`
+
+## PS-L2.3B B3.3 original SQL statement-source audit (11 November 2026)
+
+**Original source evidence:** The connected Supabase ledger retains **82 migrations, 168 SQL array elements (361,302 UTF-8 bytes)**. All 168 original source element SHA-256 hashes, order and lengths were captured as sanitized metadata. The original `20260823093317` remote schema has 87 semicolon-free array entries, whereas Git has 87 delimited statements: in-memory statement-aware lexical comparison finds **87/87 token-equivalent positions**. This **corrects the prior whole-concatenation token-mismatch assessment**; it does not prove security, constraint or real replay parity.
+
+**Implemented and tested:** `b3_3_original_source_audit.py` and ten focused tests, [GitHub Actions 42886224678](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42886224678) **PASS**. The tool validates committed source metadata now and can verify all 168 original SQL element hashes when a protected raw archive exists. No raw SQL or real user/payment data committed; no migration SQL executed.
+
+**Blocking:** Private full original SQL archive not yet generated/verified, other six-source comparison security sign-off pending, two historical player-cleanup UUID discrepancies quarantined, 14 data/procedural cases require review. Original helper provenance, complete B3 Supabase Auth/RLS/financial replay and B4 subscription integration remain **NOT TESTED**. No live DB/credentials/payment changes. Report: `PS_L2_3B_B3_3_ORIGINAL_STATEMENT_REVIEW_20261111.md`.
 
 ## PS-L2.3B B3.2 source reconciliation checkpoint (11 November 2026)
 
