@@ -1,11 +1,17 @@
 # AcadPro Product Backlog
 
-**Last Updated:** 10 November 2026 (PS-L2.3B B2.6 historical SQL source triage)
+**Last Updated:** 11 November 2026 (PS-L2.3B B2.9 isolated helper bootstrap validated; replay blocked)
 **Current Branch:** `payment-module-finalization`
 
 Security and data isolation are prerequisites for production.
 
 # ✅ Completed
+
+## Active blocker — PS-L2.3B B2.9 auth snapshot validated; full Supabase replay pending (11 November 2026)
+
+**Implemented / tested:** 11 live `private` helpers preserved as a **disposable-only current-state** test fixture, validated against live definition SHA-256 and grants; synthetic PostgreSQL 17 role-isolation tests and 5 integrity checks **PASS** ([CI 42878988432](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42878988432)). No live changes.
+
+**Pending:** Historical source approval, private full original SQL archive, overlapping local CI fixture reconciliation, initial schema/history divergences, clean B3 local Supabase replay and B4 PS-L2.3 Auth/RLS/payment integration. Subscription expiry, proration billing automation, renewals and generated next dues are not deployed. Next controlled task B3.0 review before replay.
 
 ## Active blocker — PS-L2.3B B2.7 protected SQL source archive (10 November 2026)
 
