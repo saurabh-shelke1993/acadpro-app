@@ -1,0 +1,81 @@
+{
+  "schema": "kheltriva-b3-2-six-divergences-review-v1",
+  "observed_date": "2026-11-11",
+  "project_id": "ulyealhkmlorsbdiknrh",
+  "classification_basis": "Read-only original supabase_migrations SQL arrays vs tracked Git SQL. Lexical/object-name scans are triage, not PostgreSQL parse or semantic equivalence.",
+  "no_sql_bodies_or_record_identifiers": true,
+  "all_replay_approved": false,
+  "cases": [
+    {
+      "version": "20260823093317",
+      "review_category": "base_schema_source_difference",
+      "remote_statement_elements": 87,
+      "remote_create_object_declarations_detected": 17,
+      "git_create_object_declarations_detected": 17,
+      "create_object_names_appear_aligned": true,
+      "sql_token_sequences_equal": false,
+      "quoted_literal_value_differences_in_ordered_scan": 0,
+      "disposition": "STOP: compare exact DDL, constraints, RLS and grants at statement level; object names alone do not prove parity",
+      "manual_review_status": "PENDING",
+      "approved": false
+    },
+    {
+      "version": "20260920041302",
+      "review_category": "lexically_aligned_unapproved",
+      "remote_statement_elements": 1,
+      "sql_token_sequences_equal_under_heuristic": true,
+      "quoted_literal_value_differences_in_ordered_scan": 0,
+      "disposition": "PENDING: compare PostgreSQL parse/definitions, function SECURITY DEFINER, search_path, exceptions and transactional behavior",
+      "manual_review_status": "PENDING",
+      "approved": false
+    },
+    {
+      "version": "20260920041356",
+      "review_category": "lexically_aligned_unapproved",
+      "remote_statement_elements": 1,
+      "sql_token_sequences_equal_under_heuristic": true,
+      "quoted_literal_value_differences_in_ordered_scan": 0,
+      "disposition": "PENDING: inspect trigger attachment/order and function SQL before approving isolated replay",
+      "manual_review_status": "PENDING",
+      "approved": false
+    },
+    {
+      "version": "20260920041457",
+      "review_category": "lexically_aligned_unapproved",
+      "remote_statement_elements": 1,
+      "sql_token_sequences_equal_under_heuristic": true,
+      "quoted_literal_value_differences_in_ordered_scan": 0,
+      "disposition": "PENDING: inspect trigger conditions and active-player invariant, not just comments/whitespace",
+      "manual_review_status": "PENDING",
+      "approved": false
+    },
+    {
+      "version": "20260920041516",
+      "review_category": "record_specific_cleanup_conflict",
+      "remote_statement_elements": 1,
+      "sql_token_sequences_equal": false,
+      "quoted_literal_value_differences_in_ordered_scan": 2,
+      "changed_literals_are_uuid_shaped": true,
+      "disposition": "STOP: live/Git player-batch reconciliation selectors differ; never use Git literals as live source or run against real players",
+      "manual_review_status": "PENDING",
+      "approved": false
+    },
+    {
+      "version": "20260920041606",
+      "review_category": "record_specific_cleanup_conflict",
+      "remote_statement_elements": 1,
+      "sql_token_sequences_equal": false,
+      "quoted_literal_value_differences_in_ordered_scan": 1,
+      "changed_literals_are_uuid_shaped": true,
+      "disposition": "STOP: live/Git player-specific cleanup selector differs; no live data writes, synthetic adaptation requires explicit review",
+      "manual_review_status": "PENDING",
+      "approved": false
+    }
+  ],
+  "gates": {
+    "original_remote_sql_privately_archived": false,
+    "statement_level_diffs_completed": false,
+    "semantic_equivalence_approved": false,
+    "player_cleanup_literals_reconciled_for_synthetic_only": false
+  }
+}
