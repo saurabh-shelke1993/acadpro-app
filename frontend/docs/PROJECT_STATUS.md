@@ -1,8 +1,16 @@
 # AcadPro Project Status
 
-**Last Updated:** 10 November 2026 (PS-L2.3B B2.6 read-only historical SQL risk triage; replay blocked)
+**Last Updated:** 11 November 2026 (PS-L2.3B B2.9 isolated helper bootstrap validated; replay blocked)
 **Current Version:** V1.0 Beta (development; not release sign-off)  
 **Current Git Branch:** `payment-module-finalization`
+
+## PS-L2.3B B2.9 verified current-state helper reconstruction (11 November 2026)
+
+**Source implemented:** Test-only SQL snapshot/manifest of **11 live `private` authorization functions** with verified current SHA-256 hashes, exact source and grants. Separate synthetic setup, role-negative assertions and GitHub workflow run against PostgreSQL 17; existing canonical migrations and historic CI bootstrap **not modified**.
+
+**Validation:** [GitHub Actions 42878988432](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42878988432) **PASS** — 5 integrity tests and synthetic PostgreSQL execution/authorization checks (Super Admin, Owner, Coach, foreign coach/academy denial, missing user context). This validates only the 11 current helper definitions, **not complete Supabase Auth, RLS, migration history or payment behavior**.
+
+**Remaining gates:** 82 migration original provenance (especially 11 missing helper origins, 6 same-version SQL divergences, 51 remote without strict content match, local `20260926133000` collision), protected raw archive, B3 local Supabase replay and B4 real subscription integration. Existing 22 legacy subscription agreements remain on automatic billing HOLD; no live schema/data/credential change. See `PS_L2_3B_B2_9_CURRENT_AUTH_BOOTSTRAP_20261111.md`.
 
 ## PS-L2.3B B2.8 read-only live authorization audit (10 November 2026)
 
