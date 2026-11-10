@@ -4,6 +4,12 @@
 **Current Version:** V1.0 Beta (development; not release sign-off)  
 **Current Git Branch:** `payment-module-finalization`
 
+## PS-L2.3B B2.8 read-only live authorization audit (10 November 2026)
+
+**Investigated via connected Supabase (SELECT only):** 11 foundational `private` authorization helpers all present, current definitions intact and unchanged versus prior 2026-11-09 SHA-256 inventory (11/11), `postgres`-owned, `SECURITY DEFINER`, `STABLE`, configured search paths. All referenced `public` tables originate in the first recorded schema migration. Seven helpers have direct live RLS-policy dependencies and four `can_access_*` helpers have no direct calls in scanned live policy/function definitions. Two role wrappers depend on `current_user_role`. A test-only helper reconstruction now has a source in the live catalog, **not an original historical provenance claim**.
+
+**Migration differences clarified:** three same-version Sept 20 SQL files have matching lexical tokens, two historical player-batch data cleanups differ in quoted UUID values, and the initial schema token stream differs. No differences are yet approved as equivalent. Historical helper origins, full archive, B3 disposable replay and B4 subscription/finance/RLS integration remain **PENDING/BLOCKED**. No production data, schema, credentials, migrations or subscriptions changed. Detailed audit: `PS_L2_3B_B2_8_LIVE_AUTH_DEPENDENCY_AUDIT_20261110.md`.
+
 ## PS-L2.3B B2.7 private source archival readiness (10 November 2026)
 
 **Implemented:** `run_verified_private_archive.py` and `attest_private_archive.py` verify all 82 migration identities and source SQL fingerprints before writing any private file, then create SHA-256-verified, Git-ignored SQL evidence and non-executing parity/risk reports. Archive traversal, duplicate-version and overwrite controls hardened. [Recovery CI 42751093715](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42751093715) **PASS — 43 tests**.
