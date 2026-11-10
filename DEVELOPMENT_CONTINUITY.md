@@ -1,11 +1,19 @@
 # Kheltriva — Development Continuity
 
-**Updated:** 2026-11-06 (Asia/Kolkata)  
+**Updated:** 2026-11-10 (Asia/Kolkata)  
 **Project:** Kheltriva (formerly AcadPro) — multi-tenant football academy SaaS  
 **Repository:** https://github.com/saurabh-shelke1993/acadpro-app  
 **Working branch:** `payment-module-finalization`  
 **Original branch baseline (before this file was created):** `0bfc71099ed14cdada08022320a72c378e9da5f7`. Subsequent CMA commits exist; recheck current branch HEAD before development.  
 **Purpose:** Stable, handoff-friendly checkpoint between ChatGPT conversations. This document is NOT a substitute for inspecting live code, the current database, or current tests.
+
+## Latest checkpoint — PS-L2.3B B2.5 historical SQL review gate (10 November 2026)
+
+- **Source implemented:** Metadata-only `supabase/recovery/historical-baseline/review-queue-readonly-20261110.json`, `build_review_candidate.py`, and six fail-closed unit tests. The review queue has all 82 migration records and 11 foundational helper origins **PENDING**; the candidate builder refuses any premature approval and generates no SQL.
+- **Validation:** [Recovery CI 42744787611](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42744787611) **PASS (21 tests)** with real 82-record candidate assembly; replay and production readiness both `false`.
+- **New high-risk evidence:** Read-only comparison found that two September 20 historical player-record reconciliation migrations (`20260920041516`, `20260920041606`) contain changed quoted SQL literal values between remote applied statements and same-version Git files. Their execution is **STOPPED** pending precise source review. Original remote snapshot `20260823093317` also differs structurally. No literals or live record data committed.
+- **Audit summary:** 25 strict content links / 82 remote, 6 same-version mismatches and 51 no-content-match remote rows, 15 unmatched Git files; 11 unproven `private` helper origins and one duplicate local migration version `20260926133000`. SQL risk screening is conservative (DML tokens may occur inside function bodies/comments), not proof of direct writes.
+- **BLOCKED:** Full sensitive-reviewed private SQL export, documented review decisions, authorized disposable-only migration assembly, complete local Supabase replay, Auth/RLS/finance parity and PS-L2.3 local integration. No hosted DDL/data changes, production migration repairs, subscription renewals, dues or receipts changed. See `frontend/docs/PS_L2_3B_B2_5_REVIEW_GATE_20261110.md`. Next gate: secure historical SQL extraction + six-diff manual review, then disposable B3 only after approval.
 
 ## Latest checkpoint — PS-L2.3B B2.4 SQL content parity (9 November 2026)
 
