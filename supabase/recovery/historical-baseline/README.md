@@ -71,3 +71,17 @@ python supabase/recovery/historical-baseline/build_review_candidate.py \
 Expected result: 82 historical records, `ready_for_disposable_replay=false`, `ready_for_production=false`, all entries `PENDING`. Any manually changed approved state or missing security gate causes validation failure. The output is a **blocked review plan**, not a migration.
 
 See `frontend/docs/PS_L2_3B_B2_5_REVIEW_GATE_20261110.md` for the six same-version SQL discrepancies and mandatory evidence to collect before B3.
+
+## B2.6 direct SQL statement-risk review
+
+After a complete private export and `--verify-only` pass, run:
+
+```bash
+python supabase/recovery/historical-baseline/inspect_historical_statements.py \
+  --archive supabase/recovery/historical-baseline/.recovery-private/baseline-001 \
+  --output supabase/recovery/historical-baseline/.recovery-private/direct-dml-triage-001.json
+```
+
+This **never runs SQL** and emits no quoted literal values. It masks comments, strings, double-quoted identifiers and dollar bodies, then classifies top-level INSERT/UPDATE/DELETE and procedural DO statements. It will **not** reliably identify side effects inside procedures, function bodies, dynamic SQL, or complex CTEs. Every migration remains `replay_approved=false`.
+
+A direct read-only source inspection of 82 historical records already yielded 11 migration versions containing 20 top-level data-changing statements, plus 7 versions containing DO blocks. See `frontend/docs/PS_L2_3B_B2_6_SOURCE_SQL_TRIAGE_20261110.md` and `statement-risk-screen-readonly-20261110.json`. This is not a substitute for the still-pending privately archived original SQL source and human review.
