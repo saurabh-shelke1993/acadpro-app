@@ -40,6 +40,22 @@ class RecoveryExportTests(unittest.TestCase):
             export([], self.migrations, self.output)
         self.assertEqual((self.output / "existing.txt").read_text(), "keep")
 
+    def test_manifest_path_traversal_is_rejected(self):
+        manifest = export([{"version": "20260908075043", "name": "security",
+                            "statements": ["SELECT 1;"]}], self.migrations, self.output)
+        manifest["items"][0]["relative_path"] = "../outside.json"
+        (self.output / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+        with self.assertRaises((ValueError, FileNotFoundError)):
+            verify(self.output)
+
+    def test_archive_duplicate_version_is_rejected(self):
+        manifest = export([{"version": "20260908075043", "name": "security",
+                            "statements": ["SELECT 1;"]}], self.migrations, self.output)
+        manifest["items"].append(manifest["items"][0].copy())
+        (self.output / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "Duplicate migration"):
+            verify(self.output)
+
     def test_duplicate_remote_version_refused(self):
         record = {"version": "20260908075043", "name": "security", "statements": ["SELECT 1;"]}
         with self.assertRaises(ValueError):
