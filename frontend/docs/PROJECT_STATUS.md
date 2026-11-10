@@ -4,6 +4,14 @@
 **Current Version:** V1.0 Beta (development; not release sign-off)  
 **Current Git Branch:** `payment-module-finalization`
 
+## PS-L2.3B B3.0 replay-readiness audit (11 November 2026)
+
+**Source implemented:** Read-only local metadata analyzer `supabase/recovery/historical-baseline/b3_0_replay_readiness.py`, focused tests and GitHub CI checking seven explicit replay-readiness gates. **All gates are currently blocked**; a PASS in B3.0 CI means the blockers were reliably detected, not that the database migrated successfully.
+
+**Important findings:** Four helper definitions overlap between the old 7-helper CI stub and verified B2.9 11-helper snapshot; the old `current_parent_id()` references `parents.user_id` before historical creation and uses `check_function_bodies = off`. Repo's migration history remains 40 local files against 82 remote versions with a duplicated `20260926133000` and an irregular 12-digit `202610210001_private_player_photo_storage.sql`. Six source divergences and 51 unmatched remote versions remain; current helpers are not authenticated historical source.
+
+**Not yet tested:** Complete disposable Supabase Auth/RLS/finance migration replay, B4 candidate migration and real subscription lifecycle. Existing 22 legacy agreements remain HOLD for automatic billing; live Supabase data, migrations and credentials unchanged. See `PS_L2_3B_B3_0_SUPABASE_REPLAY_READINESS_20261111.md`.
+
 ## PS-L2.3B B2.9 verified current-state helper reconstruction (11 November 2026)
 
 **Source implemented:** Test-only SQL snapshot/manifest of **11 live `private` authorization functions** with verified current SHA-256 hashes, exact source and grants. Separate synthetic setup, role-negative assertions and GitHub workflow run against PostgreSQL 17; existing canonical migrations and historic CI bootstrap **not modified**.
