@@ -4,6 +4,14 @@
 **Current Version:** V1.0 Beta (development; not release sign-off)  
 **Current Git Branch:** `payment-module-finalization`
 
+## PS-L2.3B B3.1 historical migration assembly checkpoint (11 November 2026)
+
+**Implemented and tested:** Offline `b3_1_assembly_manifest.py` plus 9 tests and CI generation of **82 ordered historical metadata records**, with original source version/name/hash, verified strict Git SQL-content links, original historical sequence, B2.9 helper insertion candidate and per-migration data/procedural quarantine. [GitHub Actions 42882011251](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42882011251) **PASS**, review-only manifest available as CI artifact. No SQL files generated or executed.
+
+**Review status:** 25 strict Git-content links, 57 remote unlinked, 6 content divergences, 51 remote with no content link, 15 unmatched Git files, 14 specifically quarantined historical data/procedure migration records; **all 82 entries remain PENDING**. Duplicate `20260926133000` and 12-digit `202610210001` remain unresolved. Current 11-helper snapshot is **not authentic historical provenance**.
+
+**Blockers:** Complete private original SQL archive, source and historical data/backfill review, correct parent schema timing, temporary-only migration tree, actual B3 Supabase Auth/RLS/finance replay and B4 subscription integration remain **not completed**. Hosted database/migrations/password/payments/subscriptions unchanged; 22 legacy agreements remain on auto-billing HOLD. Report: `PS_L2_3B_B3_1_HISTORICAL_ASSEMBLY_REVIEW_20261111.md`.
+
 ## PS-L2.3B B3.0 replay-readiness audit (11 November 2026)
 
 **Source implemented:** Read-only local metadata analyzer `supabase/recovery/historical-baseline/b3_0_replay_readiness.py`, focused tests and GitHub CI checking seven explicit replay-readiness gates. **All gates are currently blocked**; a PASS in B3.0 CI means the blockers were reliably detected, not that the database migrated successfully.
