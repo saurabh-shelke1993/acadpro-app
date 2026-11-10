@@ -1,11 +1,18 @@
 # Kheltriva — Development Continuity
 
-**Updated:** 2026-11-10 (Asia/Kolkata)
+**Updated:** 2026-11-11 (Asia/Kolkata)
 **Project:** Kheltriva (formerly AcadPro) — multi-tenant football academy SaaS  
 **Repository:** https://github.com/saurabh-shelke1993/acadpro-app  
 **Working branch:** `payment-module-finalization`  
 **Original branch baseline (before this file was created):** `0bfc71099ed14cdada08022320a72c378e9da5f7`. Subsequent CMA commits exist; recheck current branch HEAD before development.  
 **Purpose:** Stable, handoff-friendly checkpoint between ChatGPT conversations. This document is NOT a substitute for inspecting live code, the current database, or current tests.
+
+## Latest checkpoint — PS-L2.3B B2.9 disposable current-state auth bootstrap (11 November 2026)
+
+- **IMPLEMENTED / TESTED:** Captured the exact current definitions of 11 unproven historical `private` helpers via connected Supabase **SELECT only**, checked original per-function SHA-256 hashes 11/11, source signatures, PostgreSQL ownership, `SECURITY DEFINER`, volatility, search paths and role EXECUTE. Stored under `supabase/tests/subscriptions/ps_l2_3_b2_9_live_helper_snapshot.sql` and an explicit manifest; these are **current-state disposable-only test artifacts**, **NOT original historical migrations**.
+- **Isolated integration:** [GitHub Actions 42878988432](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42878988432) **PASS**: five Python source-integrity tests plus real PostgreSQL 17 synthetic actor/academy tests verifying all 11 functions compile, current private schema/function privileges, Super Admin/Owner/Coach positive and cross-academy negative outcomes. Synthetic `auth.uid()` is not Supabase Auth.
+- **UNCHANGED:** Previous incomplete local Supabase replay workflow/fixture, canonical migrations, live schema and migration ledger, customer data/finances, project password and subscriptions. No hosted SQL applied.
+- **PENDING/BLOCKED:** Historical original helper provenance, private 82-migration archive, initial schema discrepancy and historical record-specific SQL differences, complete B3 local Supabase replay, Auth/RLS/42-functions/triggers/finance parity and B4 PS-L2.3 lifecycle integration. See `frontend/docs/PS_L2_3B_B2_9_CURRENT_AUTH_BOOTSTRAP_20261111.md`. Next: B3.0 disposable Supabase replay readiness planning and CI fixture conflict audit.
 
 ## Latest checkpoint — PS-L2.3B B2.8 live authorization-helper dependency audit (10 November 2026)
 
