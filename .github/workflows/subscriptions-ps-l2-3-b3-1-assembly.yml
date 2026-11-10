@@ -1,0 +1,48 @@
+name: PS-L2.3B B3.1 historical assembly review (no SQL execution)
+
+on:
+  push:
+    branches: [payment-module-finalization]
+    paths:
+      - 'supabase/recovery/historical-baseline/b3_1_assembly_manifest.py'
+      - 'supabase/recovery/historical-baseline/test_b3_1_assembly_manifest.py'
+      - '.github/workflows/subscriptions-ps-l2-3-b3-1-assembly.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  metadata-only-assembly:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Test historical source order and quarantine controls
+        run: |
+          python -m unittest discover \
+            -s supabase/recovery/historical-baseline \
+            -p 'test_b3_1_assembly_manifest.py' -v
+          python -m py_compile \
+            supabase/recovery/historical-baseline/b3_1_assembly_manifest.py
+      - name: Generate a review-only 82-version assembly manifest
+        run: |
+          python supabase/recovery/historical-baseline/b3_1_assembly_manifest.py \
+            --root . \
+            --output /tmp/kheltriva-b3-1-review-only.json
+          python - <<'PY'
+          import json
+          with open('/tmp/kheltriva-b3-1-review-only.json',encoding='utf-8') as file:
+              report = json.load(file)
+          assert report['original_source_versions'] == 82
+          assert len(report['ordered_original_migrations']) == 82
+          assert report['ready_for_disposable_sql_generation'] is False
+          assert report['ready_for_disposable_full_replay'] is False
+          assert report['ready_for_production'] is False
+          assert report['sql_files_created'] is False
+          assert not any(report['unmet_release_gates'].values())
+          print('PASS: B3.1 source sequence reviewed; no SQL produced or executed; replay remains BLOCKED')
+          PY
