@@ -1,11 +1,19 @@
 # Kheltriva — Development Continuity
 
-**Updated:** 2026-11-10 (Asia/Kolkata)  
+**Updated:** 2026-11-10 (Asia/Kolkata)
 **Project:** Kheltriva (formerly AcadPro) — multi-tenant football academy SaaS  
 **Repository:** https://github.com/saurabh-shelke1993/acadpro-app  
 **Working branch:** `payment-module-finalization`  
 **Original branch baseline (before this file was created):** `0bfc71099ed14cdada08022320a72c378e9da5f7`. Subsequent CMA commits exist; recheck current branch HEAD before development.  
 **Purpose:** Stable, handoff-friendly checkpoint between ChatGPT conversations. This document is NOT a substitute for inspecting live code, the current database, or current tests.
+
+## Latest checkpoint — PS-L2.3B B2.6 read-only historical SQL source triage (10 November 2026)
+
+- Queried the retained SQL of **all 82** remote migrations using hosted Supabase **SELECT only**; reviewed 168 ledger statement-array elements with non-executing SQL lexical segmentation (**790** top-level statements detected). Evidence is saved without SQL bodies or literal values in `supabase/recovery/historical-baseline/statement-risk-screen-readonly-20261110.json`.
+- Identified **11 migrations with 20 direct top-level INSERT/UPDATE/DELETE statements**, **7 migrations with DO blocks**, and **4 containing quoted UUID-pattern literals**. This narrows the earlier 54 broad DML keyword hits; function bodies/procedures can still hide other writes. Player-batch historical cleanups and payment/dues corrections remain high-risk; two `public.inquiries` UPDATE operations have no top-level WHERE token.
+- **Implemented offline** `inspect_historical_statements.py` with seven new confidentiality/lexical/integrity tests; [GitHub Actions 42748372167](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42748372167) **PASS (28 unit tests)**, plus SQL review metadata assertions and fail-closed B2.5 replay gate.
+- **Still blocked:** Full raw SQL privately retained archive and manual sign-off, six same-version discrepancies including two changed player-specific quoted SQL values, 11 foundational private helper origins, duplicate local migration timestamp and 57 unresolved content links; no disposable Supabase replay or actual subscription Auth/RLS/payment parity has passed. No live schema, data, billing, refunds, receipts or remote migration history changed.
+- Detailed report: `frontend/docs/PS_L2_3B_B2_6_SOURCE_SQL_TRIAGE_20261110.md`. Next: private immutable SQL archive + source provenance / security review, then disposable-only baseline candidate when cleared. Do not mark subscription expiry/renewal/automatic dues complete.
 
 ## Latest checkpoint — PS-L2.3B B2.5 historical SQL review gate (10 November 2026)
 
