@@ -7,6 +7,14 @@
 **Original branch baseline (before this file was created):** `0bfc71099ed14cdada08022320a72c378e9da5f7`. Subsequent CMA commits exist; recheck current branch HEAD before development.  
 **Purpose:** Stable, handoff-friendly checkpoint between ChatGPT conversations. This document is NOT a substitute for inspecting live code, the current database, or current tests.
 
+## Latest checkpoint — PS-L2.3B B3.1 review-only historical migration assembly (11 November 2026)
+
+- **Implemented/CI-tested:** `supabase/recovery/historical-baseline/b3_1_assembly_manifest.py` assembles one **non-executable metadata record** per original remote version, verifies strict linked Git content hashes and historical order, and rejects unreviewed/changed source, altered approvals and provenance mislabeling.
+- [GitHub Actions 42882011251](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42882011251) **PASS — 9 tests**, generated an 82-record manifest and published artifact `kheltriva-b3-1-assembly-review-only` (14-day retention). CI did **not** execute migration SQL, Supabase CLI, PostgreSQL or the PS-L2.3 proposal.
+- **Pinned risk counts:** 82 remote versions; 25 strict Git-content links and 57 unlinked; 6 same-version SQL differences, 51 no-content-match remote rows and 15 unmatched Git files. **14 migrations specifically quarantined** for direct data operations / procedural DO / record-specific historical cleanup; all 82 remain **unapproved for replay**. Duplicate `20260926133000` and irregular 12-digit `202610210001` versions flagged, not renamed.
+- **Bootstrap proposal (not tested in full replay):** reviewed `20260823093317` historical base first; B2.9 current-state 11-helper source tentatively positioned before first private-helper use `20260903173804`, requiring actual source/grant review. Use historical `current_parent_id` body before `parents.user_id` appears at `20260912142706`; do not stack old CI stubs or disable body validation as shortcut.
+- **OPEN:** private original SQL archive, 57 unlinked/6 divergent source reviews, data-fix quarantine decisions, complete disposable Supabase migration replay and Auth/RLS/finance tests, then B4 real subscription integration. **No hosted database, credential, payment, billing or canonical migration changes**. Detailed report: `frontend/docs/PS_L2_3B_B3_1_HISTORICAL_ASSEMBLY_REVIEW_20261111.md`. Next proposed B3.2 targeted provenance and disposable SQL assembly review.
+
 ## Latest checkpoint — PS-L2.3B B3.0 Supabase replay readiness (11 November 2026)
 
 - **Implemented/CI-tested:** offline, fail-closed `supabase/recovery/historical-baseline/b3_0_replay_readiness.py` plus focused tests and isolated source-only GitHub Actions workflow. Explicit decision: **`ready_for_disposable_full_replay=false`**; no local Supabase DB, hosted SQL, finance RPC or subscription proposal executed during this phase.
