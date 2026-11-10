@@ -7,6 +7,14 @@
 **Original branch baseline (before this file was created):** `0bfc71099ed14cdada08022320a72c378e9da5f7`. Subsequent CMA commits exist; recheck current branch HEAD before development.  
 **Purpose:** Stable, handoff-friendly checkpoint between ChatGPT conversations. This document is NOT a substitute for inspecting live code, the current database, or current tests.
 
+## Latest checkpoint — PS-L2.3B B2.7 verified private SQL archive tooling (10 November 2026)
+
+- **IMPLEMENTED / CI-TESTED:** `attest_private_archive.py`, `run_verified_private_archive.py`, archive path and permission protections, 15 additional tests. A single SELECT-only local command now pins all 82 historical migrations against the remote-source fingerprints **before** writing raw SQL to a Git-ignored `.recovery-private/` folder and creates independent attestation, parity and risk review outputs.
+- [GitHub Actions 42751093715](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42751093715) **PASS — 43 recovery tests**, compilation and existing blocked replay gates. No active migrations or app source modified.
+- **STILL PENDING:** the owner must run the documented private archive command on a trusted workstation with a local database connection. ChatGPT's connected Supabase tool can read SQL but cannot persist protected raw SQL directly to the user's workstation. No actual private archive generated and no source approval, B3 disposable replay or B4 Auth/RLS/finance subscription parity completed.
+- Prior B2.6 review stands: 82 remote records / 168 SQL statement elements; 11 migrations have 20 direct top-level data-changing statements, 7 procedural DO migration records, 6 same-version SQL mismatches, 11 unresolved `private` helpers, local duplicate `20260926133000`. Historical player/finance cleanup must not replay against production.
+- **One owner-side execution path:** `supabase/recovery/historical-baseline/README.md`. Detailed checkpoint: `frontend/docs/PS_L2_3B_B2_7_PRIVATE_ARCHIVE_READINESS_20261110.md`. No hosted DDL, ledger, payment or subscription writes.
+
 ## Latest checkpoint — PS-L2.3B B2.6 read-only historical SQL source triage (10 November 2026)
 
 - Queried the retained SQL of **all 82** remote migrations using hosted Supabase **SELECT only**; reviewed 168 ledger statement-array elements with non-executing SQL lexical segmentation (**790** top-level statements detected). Evidence is saved without SQL bodies or literal values in `supabase/recovery/historical-baseline/statement-risk-screen-readonly-20261110.json`.
