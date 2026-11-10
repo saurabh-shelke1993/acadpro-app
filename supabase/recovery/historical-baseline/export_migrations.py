@@ -92,15 +92,30 @@ def export(records, migrations, output):
 
 
 def verify(output):
-    manifest = json.loads((output / "manifest.json").read_text(encoding="utf-8"))
-    for item in manifest["items"]:
-        path = output / item["relative_path"]
+    root = output.resolve(strict=True)
+    manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
+    if manifest.get("schema") != "kheltriva-migration-provenance-v1":
+        raise ValueError("Unexpected archive schema")
+    items = manifest.get("items")
+    if not isinstance(items, list):
+        raise ValueError("Archive manifest must contain migration items")
+    seen = set()
+    for item in items:
+        version = item["version"]
+        if version in seen:
+            raise ValueError("Duplicate migration in archive")
+        seen.add(version)
+        path = (root / item["relative_path"]).resolve(strict=True)
+        if not path.is_relative_to(root) or not path.is_file():
+            raise ValueError("Unsafe archive source path")
         contents = path.read_bytes()
         if digest(contents) != item["sha256"]:
-            raise ValueError(f"Hash mismatch {path}")
+            raise ValueError(f"Hash mismatch {version}")
         statements = json.loads(contents)
-        if not isinstance(statements, list) or len(statements) != item["statement_count"]:
-            raise ValueError(f"Statement count mismatch {path}")
+        if (not isinstance(statements, list)
+                or any(not isinstance(x, str) for x in statements)
+                or len(statements) != item["statement_count"]):
+            raise ValueError(f"Statement count or type mismatch {version}")
     return manifest
 
 
@@ -111,6 +126,9 @@ def main():
     parser.add_argument("--verify-only", action="store_true")
     args = parser.parse_args()
     try:
+        if not args.verify_only:
+            # Restrict private SQL output permissions wherever the OS supports it.
+            os.umask(0o077)
         if args.verify_only:
             manifest = verify(args.output)
         else:
