@@ -159,3 +159,22 @@ The output is **one entry per all 82 original migration versions**, with verifie
 GitHub Actions [42882011251](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42882011251) **PASSED nine tests**, and published the 82-entry metadata-only report as artifact `kheltriva-b3-1-assembly-review-only` (14-day retention).
 
 Do not copy the B2.9 fixture into `supabase/migrations`, combine it with the older seven-helper CI fixture or run the existing full local Supabase workflow based on this manifest. Full original SQL archiving, historical data fixes, authorization ordering, Auth/RLS/finance parity and the PS-L2.3 proposal remain blocked. See `frontend/docs/PS_L2_3B_B3_1_HISTORICAL_ASSEMBLY_REVIEW_20261111.md`.
+
+
+## B3.2 — Historical SQL source reconciliation, review-only
+
+B3.2 generates an **82-migration metadata decision matrix**. It does not generate or execute SQL and does not modify `supabase/migrations/`.
+
+From the repository root in PowerShell:
+
+```powershell
+python supabase/recovery/historical-baseline/b3_2_reconciliation_design.py --root . --output "$env:TEMP\kheltriva_b3_2_review_only.json"
+```
+
+Source evidence: `b3_2_six_divergences_review_20261111.json`. The design keeps **25 strict Git-content links**, **6 same-version divergences**, **51 no-content-match remote rows**, **8 retimestamped links**, **14 data/procedural quarantine cases**, the duplicate `20260926133000` and irregular 12-digit filename explicitly unresolved. The initial schema's 17 detected CREATE declarations align by name, but SQL semantics and RLS/security/constraints do **not** have approved parity.
+
+GitHub Actions [42883854807](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42883854807) **PASS (10 tests)**. The workflow publishes metadata-only artifact `kheltriva-b3-2-reconciliation-review-only` for 14 days.
+
+Every migration entry still has `replay_approved=false`. Do not execute historical customer-specific cleanup SQL, inject the current helper fixture into original history, rewrite tracked migration timestamps or apply the PS-L2.3 candidate. Further steps require privately verified original SQL, manual security/statement review and a disposable Supabase-only environment.
+
+See `frontend/docs/PS_L2_3B_B3_2_SOURCE_RECONCILIATION_20261111.md`.
