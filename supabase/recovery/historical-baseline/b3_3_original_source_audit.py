@@ -173,6 +173,31 @@ def validate_pinned_evidence(root):
     return report, base, plan
 
 
+def verify_original_element_hashes(items, lookup):
+    """Verify every ORIGINAL SQL element's bytes, ordinal, name and SHA-256.
+
+    Exact bytes are checked in memory and never included in returned metadata.
+    A caller must also verify archive manifests and pinned migration-wide hashes.
+    """
+    verified = 0
+    for item in items:
+        row = lookup.get(item["version"])
+        if row is None or row[0] != item["name"]:
+            raise ValueError("Original SQL record missing")
+        statements = row[1]
+        if item["ordinal"] < 1 or item["ordinal"] > len(statements):
+            raise ValueError("Original statement ordinal missing")
+        sql = statements[item["ordinal"] - 1]
+        if not isinstance(sql, str):
+            raise ValueError("Original statement SQL is not text")
+        exact = sql.encode("utf-8")
+        if (len(exact) != item["sql_byte_length"]
+                or hashlib.sha256(exact).hexdigest() != item["original_sql_element_sha256"]):
+            raise ValueError("Historical statement source fingerprint mismatch")
+        verified += 1
+    return verified
+
+
 def analyze(root, archive=None):
     root = Path(root).resolve(strict=True)
     evidence, base_review, plan = validate_pinned_evidence(root)
@@ -220,17 +245,8 @@ def analyze(root, archive=None):
             raise ValueError("Private SQL path traversal")
         statements = json.loads(path.read_bytes())
         lookup[item["version"]] = (item["name"], statements)
-    for item in evidence["items"]:
-        row = lookup.get(item["version"])
-        if row is None or row[0] != item["name"]:
-            raise ValueError("Original SQL record missing")
-        statements = row[1]
-        if item["ordinal"] > len(statements):
-            raise ValueError("Original statement ordinal missing")
-        sql = statements[item["ordinal"] - 1]
-        if (len(sql.encode("utf-8")) != item["sql_byte_length"]
-                or hashlib.sha256(sql.encode("utf-8")).hexdigest() != item["original_sql_element_sha256"]):
-            raise ValueError("Historical statement source fingerprint mismatch")
+    if verify_original_element_hashes(evidence["items"], lookup) != 168:
+        raise ValueError("Not all original SQL elements verified")
 
     output["private_archive_integrity_checked"] = True
     output["private_archive_source_matched_to_live_fingerprints"] = True
