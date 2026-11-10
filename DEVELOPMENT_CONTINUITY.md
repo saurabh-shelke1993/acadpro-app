@@ -7,6 +7,14 @@
 **Original branch baseline (before this file was created):** `0bfc71099ed14cdada08022320a72c378e9da5f7`. Subsequent CMA commits exist; recheck current branch HEAD before development.  
 **Purpose:** Stable, handoff-friendly checkpoint between ChatGPT conversations. This document is NOT a substitute for inspecting live code, the current database, or current tests.
 
+## Latest checkpoint — PS-L2.3B B2.8 live authorization-helper dependency audit (10 November 2026)
+
+- **Read-only Supabase investigation; no credentials changed:** 82 historical migrations (168 retained SQL entries). All 11 historical-origin-unproven `private` helper functions exist as current live definitions, owned by `postgres`, `SECURITY DEFINER`, `STABLE`, configured search paths; current definition hashes match the 2026-11-09 inventory **11/11**. Database catalog and ledger read only; no DDL or data writes.
+- **Foundational dependency graph:** tables referenced by these helpers appear in the initial `20260823093317` historical base schema. `is_academy_owner` and `is_coach` call `current_user_role`; other 9 do not call another foundational helper. Seven are directly referenced by live RLS policies, while four `can_access_*` helpers have no direct live RLS/function call references found. `current_user_role` is used by 21 other live functions, `current_academy_id` by 13.
+- **Historical gap remains:** no explicit `CREATE SCHEMA private`, `CREATE FUNCTION private.current_user_role()`, or `CREATE FUNCTION private.is_super_admin()` in retained migration SQL. A current-state test bootstrap is **plausible but not original historical evidence**. No fixture or replay implemented.
+- **Six same-version source differences:** three Sept 20 files match SQL lexical token sequences but still need semantic review; two player-batch cleanups differ by quoted UUID values (STOP); the initial schema snapshot differs at token level (STOP). No private identifiers/SQL bodies committed.
+- See `frontend/docs/PS_L2_3B_B2_8_LIVE_AUTH_DEPENDENCY_AUDIT_20261110.md`. Next task: reviewed, **disposable-only** current helper bootstrap fixture from current definitions, then local migration replay when separate source and data-fix gates permit. B3/B4 **BLOCKED**, subscription lifecycle **not deployed**.
+
 ## Latest checkpoint — PS-L2.3B B2.7 verified private SQL archive tooling (10 November 2026)
 
 - **IMPLEMENTED / CI-TESTED:** `attest_private_archive.py`, `run_verified_private_archive.py`, archive path and permission protections, 15 additional tests. A single SELECT-only local command now pins all 82 historical migrations against the remote-source fingerprints **before** writing raw SQL to a Git-ignored `.recovery-private/` folder and creates independent attestation, parity and risk review outputs.
