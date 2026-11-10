@@ -46,3 +46,10 @@ jobs:
           assert not any(report['unmet_release_gates'].values())
           print('PASS: B3.1 source sequence reviewed; no SQL produced or executed; replay remains BLOCKED')
           PY
+      - name: Retain metadata-only review manifest for owner inspection
+        uses: actions/upload-artifact@v4
+        with:
+          name: kheltriva-b3-1-assembly-review-only
+          path: /tmp/kheltriva-b3-1-review-only.json
+          if-no-files-found: error
+          retention-days: 14
