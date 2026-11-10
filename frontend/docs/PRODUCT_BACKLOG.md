@@ -1,11 +1,17 @@
 # AcadPro Product Backlog
 
-**Last Updated:** 6 November 2026 (PS-L2.3 local Supabase migration baseline blocker documented)
+**Last Updated:** 10 November 2026 (PS-L2.3B B2.5 recovery review checkpoint)
 **Current Branch:** `payment-module-finalization`
 
 Security and data isolation are prerequisites for production.
 
 # ✅ Completed
+
+## Active blocker — PS-L2.3B historical migration recovery (10 November 2026)
+
+**Source tooling / tests:** Recovery inventory, content fingerprint parity, dependency analyzer and non-executable review gate implemented; [CI 42744787611](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42744787611) **PASS (21 tests)**.
+
+**Outstanding, not completed:** Review full private historical SQL, reconcile six same-version SQL differences (two with changed player-specific quoted literals), verify 11 `private` helper origins, approve a disposable-only migration baseline and pass real Supabase Auth/RLS/finance replay. No renewal engine, subscription expiry automation or new payment-due generation deployed. No production database changes authorized.
 
 ## Authentication and Core Security Foundation
 
