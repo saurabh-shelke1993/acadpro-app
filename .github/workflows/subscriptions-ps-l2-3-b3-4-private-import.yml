@@ -1,0 +1,31 @@
+name: PS-L2.3B B3.4 private SQL Editor export preflight (no DB access)
+
+on:
+  push:
+    branches: [payment-module-finalization]
+    paths:
+      - 'supabase/recovery/historical-baseline/b3_4_import_dashboard_csv.py'
+      - 'supabase/recovery/historical-baseline/test_b3_4_import_dashboard_csv.py'
+      - '.github/workflows/subscriptions-ps-l2-3-b3-4-private-import.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic-source-provenance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Test no-password CSV import safety and exact source fingerprints
+        run: |
+          python -m unittest discover -s supabase/recovery/historical-baseline -p 'test_b3_4_import_dashboard_csv.py' -v
+          python -m py_compile supabase/recovery/historical-baseline/b3_4_import_dashboard_csv.py
+      - name: Verify no SQL source archived in GitHub CI
+        run: |
+          test ! -d supabase/recovery/historical-baseline/.recovery-private
+          echo "PASS: synthetic CSV checks only; no original SQL exported or hosted database accessed"
