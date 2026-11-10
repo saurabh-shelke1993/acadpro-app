@@ -1,11 +1,17 @@
 # AcadPro Product Backlog
 
-**Last Updated:** 10 November 2026 (PS-L2.3B B2.5 recovery review checkpoint)
+**Last Updated:** 10 November 2026 (PS-L2.3B B2.6 historical SQL source triage)
 **Current Branch:** `payment-module-finalization`
 
 Security and data isolation are prerequisites for production.
 
 # ✅ Completed
+
+## Active blocker — PS-L2.3B B2.6 historical SQL source risk review (10 November 2026)
+
+**Implemented/tested:** SELECT-only inspection of all 82 migration SQL bodies; 11 migrations with 20 direct top-level data-changing statements, 7 with procedural DO blocks. Offline risk inspection and CI **28 tests PASS** ([run 42748372167](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42748372167)). No production data or migration change.
+
+**Pending:** Protected immutable historical SQL archive and manual source review, reconciliation of changed quoted literals in historical player data fixes, source of 11 private security helpers, and complete disposable-only Supabase replay. Subscription expiry, renewal and automatic payment-due generation are still **not deployed**.
 
 ## Active blocker — PS-L2.3B historical migration recovery (10 November 2026)
 
