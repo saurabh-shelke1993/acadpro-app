@@ -1,0 +1,1734 @@
+{
+  "schema": "kheltriva-ps-l2-3b-source-reviewed-statement-types-v1",
+  "date": "2026-11-10",
+  "branch": "payment-module-finalization",
+  "project_id": "ulyealhkmlorsbdiknrh",
+  "method": "SELECT-only retrieval of every historical migration's SQL statements; non-executing, conservative SQL lexical masking of comments, string literals, double-quoted identifiers and dollar-quoted bodies; statements split at top-level semicolons.",
+  "limitations": "This is a triage-only heuristic, not a full PostgreSQL SQL parser. DML embedded in DO, functions, dynamic SQL, CTEs or SELECT-callable RPCs is not counted as direct top-level DML; regex may miss edge cases. No historical SQL is approved for replay. No source bodies or identifier values included.",
+  "summary": {
+    "remote_migrations": 82,
+    "stored_statement_entries": 168,
+    "sql_top_level_segments_detected": 790,
+    "direct_data_mutation_migrations": 11,
+    "direct_data_mutation_statements": 20,
+    "procedural_do_block_migrations": 7,
+    "with_mutation_migrations": 0,
+    "lexer_uncertain_migrations": 0,
+    "quoted_uuid_migrations": 4
+  },
+  "records": [
+    {
+      "version": "20260823093317",
+      "name": "remote_schema",
+      "stored_statement_count": 87,
+      "lexed_top_level_statement_count": 87,
+      "top_level_first_keywords": {
+        "ALTER DEFAULT": 15,
+        "CREATE TABLE": 17,
+        "ALTER TABLE": 38,
+        "GRANT DELETE": 17
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 87,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260903173804",
+      "name": "phase_3_2_assignment_isolation",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 12,
+      "top_level_first_keywords": {
+        "CREATE OR": 1,
+        "REVOKE EXECUTE": 1,
+        "GRANT USAGE": 1,
+        "GRANT EXECUTE": 1,
+        "DROP POLICY": 4,
+        "CREATE POLICY": 4
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 12,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260903185104",
+      "name": "phase_3_4_batch_mutation_security",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 4,
+      "top_level_first_keywords": {
+        "DROP POLICY": 2,
+        "CREATE POLICY": 2
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 4,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260907180752",
+      "name": "phase_3_5_player_mutation_security",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 13,
+      "top_level_first_keywords": {
+        "DROP POLICY": 6,
+        "CREATE POLICY": 6,
+        "ALTER TABLE": 1
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 13,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260908061110",
+      "name": "phase_3_6_attendance_mutation_security",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 14,
+      "top_level_first_keywords": {
+        "CREATE OR": 2,
+        "REVOKE ALL": 2,
+        "GRANT EXECUTE": 2,
+        "ALTER TABLE": 1,
+        "DROP POLICY": 4,
+        "CREATE POLICY": 3
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 14,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260908062059",
+      "name": "phase_4_1_parent_read_isolation",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 15,
+      "top_level_first_keywords": {
+        "CREATE OR": 3,
+        "REVOKE ALL": 3,
+        "GRANT EXECUTE": 3,
+        "DROP POLICY": 3,
+        "CREATE POLICY": 3
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 15,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260908070804",
+      "name": "phase_6_3_subscription_security",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 35,
+      "top_level_first_keywords": {
+        "CREATE OR": 3,
+        "REVOKE ALL": 3,
+        "GRANT EXECUTE": 3,
+        "ALTER TABLE": 2,
+        "DROP POLICY": 12,
+        "CREATE POLICY": 12
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 35,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260908073942",
+      "name": "phase_7_payment_due_security",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 22,
+      "top_level_first_keywords": {
+        "CREATE OR": 3,
+        "REVOKE ALL": 3,
+        "GRANT EXECUTE": 3,
+        "ALTER TABLE": 1,
+        "DROP POLICY": 6,
+        "CREATE POLICY": 6
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 22,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260908075043",
+      "name": "phase_8_2_payment_mutation_security",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 22,
+      "top_level_first_keywords": {
+        "CREATE OR": 3,
+        "REVOKE ALL": 3,
+        "GRANT EXECUTE": 3,
+        "ALTER TABLE": 1,
+        "DROP POLICY": 6,
+        "CREATE POLICY": 6
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 22,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260912085524",
+      "name": "tighten_centers_and_player_batches_rbac",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 14,
+      "top_level_first_keywords": {
+        "BEGIN": 1,
+        "DROP POLICY": 6,
+        "CREATE POLICY": 6,
+        "COMMIT": 1
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 12,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260912142706",
+      "name": "link_parents_to_auth_users",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 7,
+      "top_level_first_keywords": {
+        "ALTER TABLE": 1,
+        "UPDATE PUBLIC": 1,
+        "DO": 2,
+        "CREATE OR": 1,
+        "REVOKE ALL": 1,
+        "GRANT EXECUTE": 1
+      },
+      "direct_data_statement_types": [
+        "UPDATE"
+      ],
+      "direct_data_statement_count": 1,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 2,
+      "top_level_ddl_or_session_count": 4,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260912180959",
+      "name": "allow_parents_to_view_linked_attendance",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 1,
+      "top_level_first_keywords": {
+        "DO": 1
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 1,
+      "top_level_ddl_or_session_count": 0,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260912184118",
+      "name": "create_player_performance_assessments",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 9,
+      "top_level_first_keywords": {
+        "CREATE TABLE": 1,
+        "CREATE INDEX": 3,
+        "ALTER TABLE": 1,
+        "CREATE POLICY": 4
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 9,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260912185706",
+      "name": "limit_performance_assessment_scores_to_ten",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 1,
+      "top_level_first_keywords": {
+        "ALTER TABLE": 1
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 1,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260915111222",
+      "name": "harden_player_performance_assessment_rls_coach_lookup",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 10,
+      "top_level_first_keywords": {
+        "BEGIN": 1,
+        "DROP POLICY": 4,
+        "CREATE POLICY": 4,
+        "COMMIT": 1
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 8,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260919074807",
+      "name": "player_bulk_import_transaction",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 3,
+      "top_level_first_keywords": {
+        "CREATE OR": 1,
+        "GRANT EXECUTE": 1,
+        "REVOKE EXECUTE": 1
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 3,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260919074831",
+      "name": "fix_player_bulk_import_player_id",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 1,
+      "top_level_first_keywords": {
+        "CREATE OR": 1
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 1,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260919074950",
+      "name": "fix_player_bulk_import_phone_normalization",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 1,
+      "top_level_first_keywords": {
+        "CREATE OR": 1
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 1,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260919075003",
+      "name": "revoke_bulk_player_import_anon",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 2,
+      "top_level_first_keywords": {
+        "REVOKE EXECUTE": 1,
+        "GRANT EXECUTE": 1
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 2,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260919075012",
+      "name": "restrict_bulk_player_import_execute",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 2,
+      "top_level_first_keywords": {
+        "REVOKE EXECUTE": 1,
+        "GRANT EXECUTE": 1
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 2,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260920041302",
+      "name": "player_batch_invariant_transactional_writes",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 6,
+      "top_level_first_keywords": {
+        "CREATE OR": 2,
+        "REVOKE EXECUTE": 2,
+        "GRANT EXECUTE": 2
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 6,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260920041356",
+      "name": "enforce_player_batch_invariant",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 5,
+      "top_level_first_keywords": {
+        "CREATE OR": 1,
+        "DROP TRIGGER": 2,
+        "CREATE CONSTRAINT": 2
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 5,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260920041457",
+      "name": "scope_player_batch_invariant_to_active_players",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 5,
+      "top_level_first_keywords": {
+        "CREATE OR": 1,
+        "DROP TRIGGER": 2,
+        "CREATE CONSTRAINT": 2
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 5,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260920041516",
+      "name": "reconcile_active_player_batch_mappings",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 2,
+      "top_level_first_keywords": {
+        "DELETE FROM": 1,
+        "INSERT INTO": 1
+      },
+      "direct_data_statement_types": [
+        "DELETE FROM",
+        "INSERT INTO"
+      ],
+      "direct_data_statement_count": 2,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 0,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": true,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260920041606",
+      "name": "reconcile_pratik_missing_current_batch",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 1,
+      "top_level_first_keywords": {
+        "DELETE FROM": 1
+      },
+      "direct_data_statement_types": [
+        "DELETE FROM"
+      ],
+      "direct_data_statement_count": 1,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 0,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": true,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260920041653",
+      "name": "enforce_single_player_batch_mapping",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 1,
+      "top_level_first_keywords": {
+        "CREATE UNIQUE": 1
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 1,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260920041849",
+      "name": "restrict_transactional_player_function_execute",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 6,
+      "top_level_first_keywords": {
+        "REVOKE EXECUTE": 4,
+        "GRANT EXECUTE": 2
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 6,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260920043638",
+      "name": "fix_player_batch_constraint_timing",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 9,
+      "top_level_first_keywords": {
+        "CREATE OR": 3,
+        "REVOKE EXECUTE": 3,
+        "GRANT EXECUTE": 3
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 9,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260920045132",
+      "name": "make_player_batch_invariant_rpc_safe",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 13,
+      "top_level_first_keywords": {
+        "CREATE OR": 5,
+        "REVOKE EXECUTE": 4,
+        "GRANT EXECUTE": 4
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 13,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260920045507",
+      "name": "make_player_batch_invariant_rpc_safe_v2",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 13,
+      "top_level_first_keywords": {
+        "CREATE OR": 5,
+        "REVOKE EXECUTE": 4,
+        "GRANT EXECUTE": 4
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 13,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260920051907",
+      "name": "player_rollback_regression_test_trigger",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 3,
+      "top_level_first_keywords": {
+        "CREATE OR": 1,
+        "DROP TRIGGER": 1,
+        "CREATE TRIGGER": 1
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 3,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260920051959",
+      "name": "player_rollback_regression_test_cleanup",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 2,
+      "top_level_first_keywords": {
+        "DROP TRIGGER": 1,
+        "DROP FUNCTION": 1
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 2,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260920053210",
+      "name": "player_parent_duplicate_cleanup_20260920",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 6,
+      "top_level_first_keywords": {
+        "BEGIN": 1,
+        "UPDATE PUBLIC": 4,
+        "COMMIT": 1
+      },
+      "direct_data_statement_types": [
+        "UPDATE"
+      ],
+      "direct_data_statement_count": 4,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 0,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": true,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260920053416",
+      "name": "restrict_player_batch_assert_execute",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 1,
+      "top_level_first_keywords": {
+        "REVOKE EXECUTE": 1
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 1,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260925063432",
+      "name": "20260925120000_allow_multiple_active_coaches_per_batch",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 4,
+      "top_level_first_keywords": {
+        "CREATE UNIQUE": 1,
+        "CREATE OR": 1,
+        "REVOKE EXECUTE": 1,
+        "GRANT EXECUTE": 1
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 4,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260925081658",
+      "name": "restrict_player_performance_mutations_to_coaches",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 6,
+      "top_level_first_keywords": {
+        "DROP POLICY": 3,
+        "CREATE POLICY": 3
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 6,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260925082735",
+      "name": "restore_admin_performance_assessment_management",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 6,
+      "top_level_first_keywords": {
+        "DROP POLICY": 3,
+        "CREATE POLICY": 3
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 6,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260926081010",
+      "name": "payment_financial_foundation",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 0,
+      "top_level_first_keywords": {},
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 0,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260926081053",
+      "name": "payment_financial_foundation_apply",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 61,
+      "top_level_first_keywords": {
+        "ALTER TABLE": 10,
+        "UPDATE PUBLIC": 2,
+        "CREATE TABLE": 2,
+        "REVOKE ALL": 2,
+        "CREATE OR": 7,
+        "REVOKE EXECUTE": 7,
+        "DO": 1,
+        "INSERT INTO": 1,
+        "CREATE UNIQUE": 3,
+        "GRANT SELECT": 1,
+        "CREATE INDEX": 9,
+        "DROP POLICY": 4,
+        "CREATE POLICY": 6,
+        "DROP TRIGGER": 1,
+        "CREATE TRIGGER": 1,
+        "GRANT EXECUTE": 4
+      },
+      "direct_data_statement_types": [
+        "INSERT INTO",
+        "UPDATE"
+      ],
+      "direct_data_statement_count": 3,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 1,
+      "top_level_ddl_or_session_count": 57,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260926081320",
+      "name": "backfill_legacy_receipts",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 1,
+      "top_level_first_keywords": {
+        "DO": 1
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 1,
+      "top_level_ddl_or_session_count": 0,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260926093830",
+      "name": "fix_coach_payment_rls_execute",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 1,
+      "top_level_first_keywords": {
+        "GRANT EXECUTE": 1
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 1,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260926094904",
+      "name": "fix_generated_payment_due_updates",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 10,
+      "top_level_first_keywords": {
+        "CREATE OR": 3,
+        "REVOKE EXECUTE": 3,
+        "DROP TRIGGER": 1,
+        "CREATE TRIGGER": 1,
+        "GRANT EXECUTE": 2
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 10,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260926095749",
+      "name": "fix_payment_overpayment_message",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 10,
+      "top_level_first_keywords": {
+        "CREATE OR": 3,
+        "REVOKE EXECUTE": 3,
+        "DROP TRIGGER": 1,
+        "CREATE TRIGGER": 1,
+        "GRANT EXECUTE": 2
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 10,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260926095814",
+      "name": "format_payment_overpayment_amount",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 10,
+      "top_level_first_keywords": {
+        "CREATE OR": 3,
+        "REVOKE EXECUTE": 3,
+        "DROP TRIGGER": 1,
+        "CREATE TRIGGER": 1,
+        "GRANT EXECUTE": 2
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 10,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260926111113",
+      "name": "restrict_payment_operations_to_admin_roles",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 10,
+      "top_level_first_keywords": {
+        "CREATE OR": 2,
+        "REVOKE EXECUTE": 2,
+        "GRANT EXECUTE": 2,
+        "DROP POLICY": 3,
+        "DROP FUNCTION": 1
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 10,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260926113534",
+      "name": "reconcile_legacy_overpaid_dues",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 3,
+      "top_level_first_keywords": {
+        "DO": 2,
+        "UPDATE PUBLIC": 1
+      },
+      "direct_data_statement_types": [
+        "UPDATE"
+      ],
+      "direct_data_statement_count": 1,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 2,
+      "top_level_ddl_or_session_count": 0,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": true,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20260930071849",
+      "name": "academy_logo_management_and_admin_write_policies",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 8,
+      "top_level_first_keywords": {
+        "CREATE POLICY": 7,
+        "INSERT INTO": 1
+      },
+      "direct_data_statement_types": [
+        "INSERT INTO"
+      ],
+      "direct_data_statement_count": 1,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 7,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20261008021921",
+      "name": "coach_profile_v1",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 18,
+      "top_level_first_keywords": {
+        "ALTER TABLE": 2,
+        "CREATE TABLE": 1,
+        "CREATE INDEX": 1,
+        "DROP POLICY": 4,
+        "CREATE POLICY": 4,
+        "CREATE OR": 2,
+        "REVOKE EXECUTE": 2,
+        "GRANT EXECUTE": 2
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 18,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20261008075914",
+      "name": "coach_profile_photo_storage",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 9,
+      "top_level_first_keywords": {
+        "INSERT INTO": 1,
+        "DROP POLICY": 4,
+        "CREATE POLICY": 4
+      },
+      "direct_data_statement_types": [
+        "INSERT INTO"
+      ],
+      "direct_data_statement_count": 1,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 8,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20261008080032",
+      "name": "coach_photo_storage_policy_hardening",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 4,
+      "top_level_first_keywords": {
+        "DROP POLICY": 2,
+        "CREATE POLICY": 2
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 4,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20261010010821",
+      "name": "create_batch_schedule_tables",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 13,
+      "top_level_first_keywords": {
+        "CREATE TABLE": 3,
+        "CREATE UNIQUE": 3,
+        "CREATE INDEX": 7
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 13,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20261010010827",
+      "name": "add_attendance_batch_schedule_reference",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 3,
+      "top_level_first_keywords": {
+        "ALTER TABLE": 2,
+        "CREATE INDEX": 1
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 3,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20261010010929",
+      "name": "add_batch_schedule_validation",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 3,
+      "top_level_first_keywords": {
+        "CREATE OR": 1,
+        "DROP TRIGGER": 1,
+        "CREATE TRIGGER": 1
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 3,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20261010011133",
+      "name": "validate_player_batch_schedule_enrollment",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 3,
+      "top_level_first_keywords": {
+        "CREATE OR": 1,
+        "DROP TRIGGER": 1,
+        "CREATE TRIGGER": 1
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 3,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20261010011502",
+      "name": "validate_coach_batch_schedule_assignment",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 3,
+      "top_level_first_keywords": {
+        "CREATE OR": 1,
+        "DROP TRIGGER": 1,
+        "CREATE TRIGGER": 1
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 3,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20261010011733",
+      "name": "validate_schedule_aware_attendance",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 3,
+      "top_level_first_keywords": {
+        "CREATE OR": 1,
+        "DROP TRIGGER": 1,
+        "CREATE TRIGGER": 1
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 3,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20261010011746",
+      "name": "protect_schedule_change_consistency",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 5,
+      "top_level_first_keywords": {
+        "CREATE OR": 3,
+        "DROP TRIGGER": 1,
+        "CREATE TRIGGER": 1
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 5,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20261010011828",
+      "name": "schedule_rls_and_attendance_access",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 58,
+      "top_level_first_keywords": {
+        "CREATE OR": 6,
+        "REVOKE ALL": 7,
+        "GRANT USAGE": 1,
+        "GRANT EXECUTE": 6,
+        "GRANT SELECT": 1,
+        "GRANT ALL": 1,
+        "ALTER TABLE": 3,
+        "DROP POLICY": 17,
+        "CREATE POLICY": 16
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 58,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20261010011839",
+      "name": "transition_attendance_schedule_uniqueness",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 5,
+      "top_level_first_keywords": {
+        "DO": 1,
+        "ALTER TABLE": 2,
+        "CREATE UNIQUE": 2
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 1,
+      "top_level_ddl_or_session_count": 4,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20261010012010",
+      "name": "lock_schedule_during_attendance_validation",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 1,
+      "top_level_first_keywords": {
+        "CREATE OR": 1
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 1,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20261010012034",
+      "name": "secure_attendance_validation_trigger",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 3,
+      "top_level_first_keywords": {
+        "ALTER FUNCTION": 2,
+        "REVOKE ALL": 1
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 3,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20261011083110",
+      "name": "allow_batch_enrolled_players_in_coach_attendance",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 1,
+      "top_level_first_keywords": {
+        "CREATE OR": 1
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 1,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20261011083351",
+      "name": "allow_coach_retroactive_attendance_and_block_future_dates",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 1,
+      "top_level_first_keywords": {
+        "CREATE OR": 1
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 1,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20261011105104",
+      "name": "phase_7_harden_rpc_grants_and_schedule_search_paths",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 11,
+      "top_level_first_keywords": {
+        "REVOKE EXECUTE": 6,
+        "GRANT EXECUTE": 1,
+        "ALTER FUNCTION": 4
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 11,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20261011130546",
+      "name": "phase_7_lock_down_unused_public_tables",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 5,
+      "top_level_first_keywords": {
+        "ALTER TABLE": 2,
+        "REVOKE ALL": 3
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 5,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20261011135131",
+      "name": "expenses_module_foundation",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 24,
+      "top_level_first_keywords": {
+        "CREATE TABLE": 2,
+        "CREATE INDEX": 2,
+        "ALTER TABLE": 2,
+        "REVOKE ALL": 3,
+        "GRANT SELECT": 2,
+        "GRANT ALL": 2,
+        "CREATE POLICY": 8,
+        "CREATE OR": 1,
+        "CREATE TRIGGER": 2
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 24,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20261011135208",
+      "name": "tighten_expenses_table_grants",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 6,
+      "top_level_first_keywords": {
+        "REVOKE ALL": 2,
+        "GRANT SELECT": 2,
+        "GRANT ALL": 2
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 6,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20261012013143",
+      "name": "academy_upi_settings_foundation",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 18,
+      "top_level_first_keywords": {
+        "CREATE TABLE": 1,
+        "CREATE INDEX": 1,
+        "ALTER TABLE": 1,
+        "REVOKE ALL": 2,
+        "GRANT SELECT": 1,
+        "GRANT ALL": 1,
+        "CREATE POLICY": 8,
+        "CREATE OR": 1,
+        "CREATE TRIGGER": 1,
+        "INSERT INTO": 1
+      },
+      "direct_data_statement_types": [
+        "INSERT INTO"
+      ],
+      "direct_data_statement_count": 1,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 17,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20261012013320",
+      "name": "academy_upi_settings_policy_tuning",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 4,
+      "top_level_first_keywords": {
+        "DROP POLICY": 2,
+        "CREATE POLICY": 1,
+        "CREATE INDEX": 1
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 4,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20261012013452",
+      "name": "academy_upi_settings_remove_redundant_index",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 1,
+      "top_level_first_keywords": {
+        "DROP INDEX": 1
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 1,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20261012023354",
+      "name": "parent_upi_payment_submissions",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 18,
+      "top_level_first_keywords": {
+        "CREATE TABLE": 1,
+        "CREATE INDEX": 3,
+        "CREATE UNIQUE": 1,
+        "ALTER TABLE": 1,
+        "REVOKE ALL": 3,
+        "GRANT SELECT": 1,
+        "GRANT ALL": 1,
+        "CREATE POLICY": 3,
+        "CREATE OR": 2,
+        "GRANT EXECUTE": 2
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 18,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20261012023526",
+      "name": "parent_upi_submission_invariants",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 4,
+      "top_level_first_keywords": {
+        "CREATE UNIQUE": 1,
+        "CREATE OR": 1,
+        "REVOKE ALL": 1,
+        "GRANT EXECUTE": 1
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 4,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20261012025707",
+      "name": "parent_upi_claim_ledger_recording",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 10,
+      "top_level_first_keywords": {
+        "ALTER TABLE": 6,
+        "CREATE UNIQUE": 1,
+        "CREATE OR": 1,
+        "REVOKE ALL": 1,
+        "GRANT EXECUTE": 1
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 10,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20261012031132",
+      "name": "expense_occurrence_recording",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 9,
+      "top_level_first_keywords": {
+        "CREATE OR": 2,
+        "REVOKE ALL": 2,
+        "GRANT EXECUTE": 1,
+        "DROP POLICY": 1,
+        "CREATE POLICY": 1,
+        "DROP TRIGGER": 1,
+        "CREATE TRIGGER": 1
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 9,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20261012031710",
+      "name": "protect_recurring_expense_history",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 8,
+      "top_level_first_keywords": {
+        "CREATE OR": 2,
+        "REVOKE ALL": 2,
+        "DROP TRIGGER": 2,
+        "CREATE TRIGGER": 2
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 8,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20261012032425",
+      "name": "revert_p16_expense_changes",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 7,
+      "top_level_first_keywords": {
+        "DROP TRIGGER": 2,
+        "DROP FUNCTION": 3,
+        "DROP POLICY": 1,
+        "CREATE POLICY": 1
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 7,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20261012035934",
+      "name": "enquiries_r2_database_security",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 36,
+      "top_level_first_keywords": {
+        "DO": 3,
+        "ALTER TABLE": 5,
+        "UPDATE PUBLIC": 4,
+        "CREATE INDEX": 3,
+        "CREATE UNIQUE": 1,
+        "CREATE OR": 5,
+        "REVOKE ALL": 6,
+        "GRANT EXECUTE": 4,
+        "GRANT SELECT": 1,
+        "DROP POLICY": 1,
+        "CREATE POLICY": 1,
+        "DROP TRIGGER": 1,
+        "CREATE TRIGGER": 1
+      },
+      "direct_data_statement_types": [
+        "UPDATE"
+      ],
+      "direct_data_statement_count": 4,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 3,
+      "top_level_ddl_or_session_count": 29,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20261021052601",
+      "name": "private_player_photo_storage",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 9,
+      "top_level_first_keywords": {
+        "INSERT INTO": 1,
+        "DROP POLICY": 4,
+        "CREATE POLICY": 4
+      },
+      "direct_data_statement_types": [
+        "INSERT INTO"
+      ],
+      "direct_data_statement_count": 1,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 8,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20261025171400",
+      "name": "delete_inquiry",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 3,
+      "top_level_first_keywords": {
+        "CREATE OR": 1,
+        "REVOKE ALL": 1,
+        "GRANT EXECUTE": 1
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 3,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20261031113746",
+      "name": "add_center_code_to_centers",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 1,
+      "top_level_first_keywords": {
+        "ALTER TABLE": 1
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 1,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20261031113758",
+      "name": "enforce_center_code_format_and_uniqueness",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 2,
+      "top_level_first_keywords": {
+        "ALTER TABLE": 1,
+        "CREATE UNIQUE": 1
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 2,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    },
+    {
+      "version": "20261101082001",
+      "name": "enquiries_e5_1_owner_only_delete",
+      "stored_statement_count": 1,
+      "lexed_top_level_statement_count": 3,
+      "top_level_first_keywords": {
+        "CREATE OR": 1,
+        "REVOKE ALL": 1,
+        "GRANT EXECUTE": 1
+      },
+      "direct_data_statement_types": [],
+      "direct_data_statement_count": 0,
+      "possible_with_mutation_count": 0,
+      "do_block_count": 0,
+      "top_level_ddl_or_session_count": 3,
+      "lexer_unterminated_segment": false,
+      "embedded_quoted_uuid_pattern": false,
+      "review_status": "PENDING",
+      "safe_to_replay": false
+    }
+  ]
+}
