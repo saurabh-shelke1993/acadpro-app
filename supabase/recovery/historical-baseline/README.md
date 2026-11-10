@@ -85,3 +85,60 @@ python supabase/recovery/historical-baseline/inspect_historical_statements.py \
 This **never runs SQL** and emits no quoted literal values. It masks comments, strings, double-quoted identifiers and dollar bodies, then classifies top-level INSERT/UPDATE/DELETE and procedural DO statements. It will **not** reliably identify side effects inside procedures, function bodies, dynamic SQL, or complex CTEs. Every migration remains `replay_approved=false`.
 
 A direct read-only source inspection of 82 historical records already yielded 11 migration versions containing 20 top-level data-changing statements, plus 7 versions containing DO blocks. See `frontend/docs/PS_L2_3B_B2_6_SOURCE_SQL_TRIAGE_20261110.md` and `statement-risk-screen-readonly-20261110.json`. This is not a substitute for the still-pending privately archived original SQL source and human review.
+
+
+## B2.7 — One-command PRIVATE source archive and pinned attestation
+
+**Use this workflow, rather than repeatedly running individual metadata scripts, when the database connection is configured locally.** Never send passwords or raw historical SQL to GitHub, CI logs or ChatGPT. This command runs **SELECT only** against Supabase. It saves the SQL statement arrays in an ignored folder on your own computer. It does **not** run any historical migration SQL.
+
+From the AcadPro repository root (Windows Git Bash / Linux / macOS):
+
+1. Check \`psql --version\` and \`python --version\`. Use PostgreSQL's current \`psql\` binary and Python 3.11+.
+2. Obtain the active project's **Session Pooler** host and username in Supabase **Connect** (project \`ulyealhkmlorsbdiknrh\`). Do not copy the credentials into code or Git.
+3. Configure a locally authorized **SELECT-only** database account if one exists. Otherwise a database account with permissions to read \`supabase_migrations.schema_migrations\` is needed. The exporter explicitly requests read-only transactions; this is a safety guard and not a replacement for server-side least privilege.
+4. Set the environment in your terminal:
+
+\`\`\`bash
+export PGHOST='SESSION_POOLER_HOST_FROM_SUPABASE_CONNECT'
+export PGPORT=5432
+export PGUSER='DATABASE_USER_FROM_SUPABASE_CONNECT'
+export PGDATABASE=postgres
+export PGSSLMODE=require
+read -rs -p 'Database password (not echoed): ' PGPASSWORD; echo
+export PGPASSWORD
+\`\`\`
+
+Then run the **single recovery command** (use a fresh archive suffix if one already exists):
+
+\`\`\`bash
+python supabase/recovery/historical-baseline/run_verified_private_archive.py \
+  --migrations supabase/migrations \
+  --expected-parity supabase/recovery/historical-baseline/parity-fingerprints-readonly-20261109.json \
+  --output supabase/recovery/historical-baseline/.recovery-private/baseline-001
+unset PGPASSWORD
+\`\`\`
+
+The workflow performs all of these steps automatically:
+
+- Fetches remote migration history with **read-only SQL** using the existing exporter; validates **all 82** migration names, versions, exact statement counts, SQL UTF-8 byte lengths and Git-blob fingerprints against the committed, read-only evidence **before any raw SQL is written**. Any mismatch stops without creating the archive.
+- Creates an ignored \`.recovery-private/baseline-001/\` directory with restrictive file permissions where supported by the OS. Saves 82 raw SQL statement arrays and their SHA-256 manifest.
+- Independently verifies every SQL array against the pinned fingerprints and writes \`archive-attestation.json\`.
+- Runs the strict Git migration-content comparison and statement-risk inspection **offline**. Writes \`content-parity.json\` and \`sql-statement-risk-review.json\`.
+- Reports **ready_for_disposable_replay=false** and **ready_for_production=false** even on an integrity PASS. A verified archive is not authorization to replay SQL.
+
+Expected verified-history counters from 10 November 2026 are **82 records, 168 original statement-array elements**. The source may have changed since the fingerprint checkpoint; do not bypass the gate if it reports a drift.
+
+To verify a previously exported local archive again **without a database connection**:
+
+\`\`\`bash
+python supabase/recovery/historical-baseline/run_verified_private_archive.py \
+  --verify-only \
+  --expected-parity supabase/recovery/historical-baseline/parity-fingerprints-readonly-20261109.json \
+  --output supabase/recovery/historical-baseline/.recovery-private/baseline-001
+\`\`\`
+
+The above outputs are **private working evidence**, not committed migrations. Share only sanitized summaries and approval statuses in the next development checkpoint; do not commit or paste raw SQL containing player, parent or payment identifiers.
+
+**Alternate fetch method:** Supabase CLI v3 documents \`supabase migration fetch --remote\` for retrieving migration files from the history table. If used, run \`supabase migration fetch --help\` and perform the fetch inside a separately initialized scratch workspace — never within the current tracked \`supabase/migrations\` directory. Those fetched files must still pass the exact source-fingerprint review before use. The canonical B2.7 workflow above preserves statement arrays explicitly.
+
+The next action *after* a successful private archive is a source/privilege review and controlled disposable Supabase replay design. A full live-history replica has **not yet** been executed or approved.
