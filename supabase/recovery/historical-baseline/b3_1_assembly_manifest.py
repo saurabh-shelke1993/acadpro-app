@@ -253,7 +253,7 @@ def main():
             "original_migrations": manifest["original_source_versions"],
             "migration_issues": manifest["migration_issues"],
             "ready_for_disposable_full_replay": manifest["ready_for_disposable_full_replay"],
-            "all_gates_open": not any(manifest["unmet_release_gates"].values()),
+            "all_release_gates_satisfied": all(manifest["unmet_release_gates"].values()),
         }, indent=2))
     except (OSError, ValueError, KeyError, TypeError, json.JSONDecodeError) as exc:
         print("B3.1 review-only assembly blocked: " + str(exc), file=sys.stderr)
