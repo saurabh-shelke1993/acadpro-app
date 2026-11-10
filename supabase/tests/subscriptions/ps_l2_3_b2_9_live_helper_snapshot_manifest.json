@@ -1,0 +1,205 @@
+{
+  "schema": "kheltriva-b2-9-current-private-helper-snapshot-v1",
+  "project_id": "ulyealhkmlorsbdiknrh",
+  "source_type": "live-current-state-not-historical",
+  "source_date": "2026-11-11",
+  "branch": "payment-module-finalization",
+  "authoritative_historical_provenance": false,
+  "production_replay_approved": false,
+  "disposable_database_test_only": true,
+  "runnable_only_after_required_objects_exist": [
+    "auth.uid()",
+    "public.users",
+    "public.batches",
+    "public.coaches",
+    "public.coach_batches",
+    "public.coach_batch_assignments"
+  ],
+  "functions": [
+    {
+      "helper": "batch_academy_id",
+      "args": "p_batch_id uuid",
+      "sha256_pg_get_functiondef": "6b8486e76ae56f94eba6789d5647eec5ec234a0e381616d1160d4e4b9cd0d0f8",
+      "owner": "postgres",
+      "security_definer": true,
+      "volatility": "stable",
+      "search_path": [
+        "search_path=public, private"
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "service_role_execute": false,
+      "public_execute": false,
+      "definition_untrusted_historical_origin": true
+    },
+    {
+      "helper": "can_access_batch",
+      "args": "p_batch_id uuid",
+      "sha256_pg_get_functiondef": "d4ac81a958778d242ad971818d622e79d6eabf5eea8a3e6c0600e22827331b66",
+      "owner": "postgres",
+      "security_definer": true,
+      "volatility": "stable",
+      "search_path": [
+        "search_path=public, private"
+      ],
+      "anon_execute": true,
+      "authenticated_execute": true,
+      "service_role_execute": true,
+      "public_execute": true,
+      "definition_untrusted_historical_origin": true
+    },
+    {
+      "helper": "can_access_center",
+      "args": "p_center_id uuid",
+      "sha256_pg_get_functiondef": "4d0c556a60dfbdff7636b1ed8e1bdd53597e01ebdb96c9f351e4be70fe506270",
+      "owner": "postgres",
+      "security_definer": true,
+      "volatility": "stable",
+      "search_path": [
+        "search_path=public, private"
+      ],
+      "anon_execute": true,
+      "authenticated_execute": true,
+      "service_role_execute": true,
+      "public_execute": true,
+      "definition_untrusted_historical_origin": true
+    },
+    {
+      "helper": "can_access_coach",
+      "args": "p_coach_id uuid",
+      "sha256_pg_get_functiondef": "364df38dad34f66080ba6c852257ffae87e449299daf55ce065f6ce6f68751e4",
+      "owner": "postgres",
+      "security_definer": true,
+      "volatility": "stable",
+      "search_path": [
+        "search_path=public, private"
+      ],
+      "anon_execute": true,
+      "authenticated_execute": true,
+      "service_role_execute": true,
+      "public_execute": true,
+      "definition_untrusted_historical_origin": true
+    },
+    {
+      "helper": "can_access_coach_batch",
+      "args": "p_coach_batch_id uuid",
+      "sha256_pg_get_functiondef": "af11997f83895cbe71846dd086cbe60d5b647529eeb9b8abb5d7fe30604959a1",
+      "owner": "postgres",
+      "security_definer": true,
+      "volatility": "stable",
+      "search_path": [
+        "search_path=public, private"
+      ],
+      "anon_execute": true,
+      "authenticated_execute": true,
+      "service_role_execute": true,
+      "public_execute": true,
+      "definition_untrusted_historical_origin": true
+    },
+    {
+      "helper": "current_academy_id",
+      "args": "",
+      "sha256_pg_get_functiondef": "9811951339849bf17c049a950da050ad25a0057effab940118e80a16b4818c62",
+      "owner": "postgres",
+      "security_definer": true,
+      "volatility": "stable",
+      "search_path": [
+        "search_path=public, pg_catalog"
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "service_role_execute": false,
+      "public_execute": false,
+      "definition_untrusted_historical_origin": true
+    },
+    {
+      "helper": "current_user_role",
+      "args": "",
+      "sha256_pg_get_functiondef": "04a3fdd43ae2e79009b1f7e2ebafcd465099911c126d6dbe17c27ff99364afa9",
+      "owner": "postgres",
+      "security_definer": true,
+      "volatility": "stable",
+      "search_path": [
+        "search_path=public, private"
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "service_role_execute": false,
+      "public_execute": false,
+      "definition_untrusted_historical_origin": true
+    },
+    {
+      "helper": "is_super_admin",
+      "args": "",
+      "sha256_pg_get_functiondef": "ccd74e3bef0154c8159204a291be77ed68491a73b0927138de6daea47ba20103",
+      "owner": "postgres",
+      "security_definer": true,
+      "volatility": "stable",
+      "search_path": [
+        "search_path=public, pg_catalog"
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "service_role_execute": false,
+      "public_execute": false,
+      "definition_untrusted_historical_origin": true
+    },
+    {
+      "helper": "is_academy_owner",
+      "args": "",
+      "sha256_pg_get_functiondef": "27b439a6914a9301980a109fac7c4a817cb8e006196cfc6974a585234a762423",
+      "owner": "postgres",
+      "security_definer": true,
+      "volatility": "stable",
+      "search_path": [
+        "search_path=public, private"
+      ],
+      "anon_execute": true,
+      "authenticated_execute": true,
+      "service_role_execute": true,
+      "public_execute": true,
+      "definition_untrusted_historical_origin": true
+    },
+    {
+      "helper": "is_coach",
+      "args": "",
+      "sha256_pg_get_functiondef": "8f1d18d5cd46478632c1d2edc3aa00ae6077c74b63884d9f6e5d5ece0931b83c",
+      "owner": "postgres",
+      "security_definer": true,
+      "volatility": "stable",
+      "search_path": [
+        "search_path=public, private"
+      ],
+      "anon_execute": true,
+      "authenticated_execute": true,
+      "service_role_execute": true,
+      "public_execute": true,
+      "definition_untrusted_historical_origin": true
+    },
+    {
+      "helper": "is_coach_assigned_to_batch",
+      "args": "p_batch_id uuid",
+      "sha256_pg_get_functiondef": "961a62883dbcd3e5cdc3eeeb6479257031d620d6be8453ec501632c075ed7d0a",
+      "owner": "postgres",
+      "security_definer": true,
+      "volatility": "stable",
+      "search_path": [
+        "search_path=public, private"
+      ],
+      "anon_execute": true,
+      "authenticated_execute": true,
+      "service_role_execute": true,
+      "public_execute": true,
+      "definition_untrusted_historical_origin": true
+    }
+  ],
+  "schema_permissions": {
+    "owner": "postgres",
+    "anon_usage": false,
+    "authenticated_usage": true,
+    "service_role_usage": false
+  },
+  "verified_source_hashes_match_previous_inventory": true,
+  "historical_source_recovered": false,
+  "actual_supabase_replay_tested": false
+}
