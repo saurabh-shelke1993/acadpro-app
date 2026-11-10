@@ -7,6 +7,12 @@ Security and data isolation are prerequisites for production.
 
 # ✅ Completed
 
+## Active blocker — PS-L2.3B B3.2 source reconciliation (11 November 2026)
+
+**Implemented and tested:** 82-record review-only SQL source decision matrix, exact content linkage verification, six distinct divergence classifications and 14 historical data/procedural quarantine flags. CI [42883854807](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42883854807) **PASS (10 tests)**. No original SQL execution or production modification.
+
+**Pending before B3:** Privately recover/approve all authentic historical SQL; reconcile the initial schema and six divergent sources, quarantine historical customer and financial corrections, validate 11 current-state helper insertion and original parent Auth chronology, resolve irregular/duplicate timestamps **only in scratch**, then pass real disposable Supabase Auth/RLS/finance replay. B4 PS-L2.3 expiry/renewal/proration/next-dues integration remains blocked/not deployed.
+
 ## Active blocker — PS-L2.3B B3.1 reviewed migration order, not yet executable (11 November 2026)
 
 **Implemented/tested:** One-to-one 82-version metadata assembly, strict local SQL fingerprint checks, 14 data/procedural quarantine flags, source-order and test-only helper insertion proposal, nine CI tests **PASS** ([run 42882011251](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42882011251)). No database SQL executed.
