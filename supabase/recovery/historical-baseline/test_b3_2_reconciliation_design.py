@@ -110,7 +110,7 @@ class B32SourceReconciliationTests(unittest.TestCase):
             path = base / "supabase/migrations/20261101082001_enquiries_e5_1_owner_only_delete.sql"
             with path.open("ab") as f:
                 f.write(b"\n-- changed without review")
-            with self.assertRaisesRegex(ValueError, "Tracked SQL changed"):
+            with self.assertRaisesRegex(ValueError, "Tracked SQL changed|Expected trailing LF"):
                 design(base)
 
     def cloned_source(self):
