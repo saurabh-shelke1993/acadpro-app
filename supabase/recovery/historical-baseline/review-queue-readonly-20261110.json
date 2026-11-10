@@ -109,7 +109,7 @@
         "privilege_ddl",
         "auth_table_ref"
       ],
-      "known_divergence": "structural_content_difference",
+      "known_divergence": "unclassified_sql_token_sequence_difference",
       "requires_manual_review": true,
       "approval_status": "PENDING",
       "replay_approved": false,
