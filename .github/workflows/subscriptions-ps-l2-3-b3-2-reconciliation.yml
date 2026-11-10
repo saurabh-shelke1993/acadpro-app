@@ -1,0 +1,58 @@
+name: PS-L2.3B B3.2 source reconciliation (review only)
+
+on:
+  push:
+    branches: [payment-module-finalization]
+    paths:
+      - 'supabase/recovery/historical-baseline/b3_2_reconciliation_design.py'
+      - 'supabase/recovery/historical-baseline/test_b3_2_reconciliation_design.py'
+      - 'supabase/recovery/historical-baseline/b3_2_six_divergences_review_20261111.json'
+      - '.github/workflows/subscriptions-ps-l2-3-b3-2-reconciliation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-reconciliation-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify source reconciliation and fail-closed review gates
+        run: |
+          python -m unittest discover \
+            -s supabase/recovery/historical-baseline \
+            -p 'test_b3_2_reconciliation_design.py' -v
+          python -m py_compile supabase/recovery/historical-baseline/b3_2_reconciliation_design.py
+      - name: Generate metadata-only disposable migration assembly design
+        run: |
+          python supabase/recovery/historical-baseline/b3_2_reconciliation_design.py \
+            --root . \
+            --output /tmp/kheltriva-b3-2-source-design.json
+          python - <<'PY'
+          import json
+          with open('/tmp/kheltriva-b3-2-source-design.json',encoding='utf-8') as f:
+              data = json.load(f)
+          assert data['count'] == 82
+          assert data['source_reconciliation']['strict_content_links_only'] == 25
+          assert data['source_reconciliation']['same_version_conflicts'] == 6
+          assert data['source_reconciliation']['quarantined_data_or_procedural_migrations'] == 14
+          assert data['sql_content_embedded'] is False
+          assert data['sql_files_generated'] is False
+          assert data['ready_to_build_executable_migrations'] is False
+          assert data['ready_for_full_supabase_replay'] is False
+          assert data['ready_for_production'] is False
+          assert all(value == 'PENDING' for value in data['mandatory_human_review'].values())
+          print('PASS: B3.2 non-executable source design validated; replay NOT approved')
+          PY
+      - name: Publish only the metadata-only source decisions
+        uses: actions/upload-artifact@v4
+        with:
+          name: kheltriva-b3-2-reconciliation-review-only
+          path: /tmp/kheltriva-b3-2-source-design.json
+          if-no-files-found: error
+          retention-days: 14
