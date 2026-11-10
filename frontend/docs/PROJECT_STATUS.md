@@ -4,6 +4,14 @@
 **Current Version:** V1.0 Beta (development; not release sign-off)  
 **Current Git Branch:** `payment-module-finalization`
 
+## PS-L2.3B B3.2 source reconciliation checkpoint (11 November 2026)
+
+**Implementation:** Redacted six-divergence inventory and `b3_2_reconciliation_design.py` with 10 tests. [GitHub Actions 42883854807](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42883854807) **PASS**, non-executable **82-entry** review manifest generated and retained as a short-lived artifact; no application or active migrations modified.
+
+**Evidence:** 25 strict Git-content links, 57 unlinked remote records (6 same-version differences, 51 no content match), 8 retimestamped links, 14 data/procedural quarantine cases. Initial remote/Git schema shares 17 detectable CREATE names but is not proven equivalent; two historical player-batch cleanups contain changed UUID selector literals. Original private authorization helpers remain a **current-state test reconstruction**, not historical source.
+
+**Blocked:** Original historical SQL immutable archive/review, six difference decisions, approved statement-level treatment of customer/payment backfills, 11-helper source/privilege timing, disposable-only executable tree, complete Supabase/Auth/RLS/payment B3 replay and B4 subscription lifecycle validation. Existing legacy 22 subscription agreements remain on automatic-billing HOLD. No hosted schema, credentials, payments, dues, receipts or subscriptions changed. See `PS_L2_3B_B3_2_SOURCE_RECONCILIATION_20261111.md`.
+
 ## PS-L2.3B B3.1 historical migration assembly checkpoint (11 November 2026)
 
 **Implemented and tested:** Offline `b3_1_assembly_manifest.py` plus 9 tests and CI generation of **82 ordered historical metadata records**, with original source version/name/hash, verified strict Git SQL-content links, original historical sequence, B2.9 helper insertion candidate and per-migration data/procedural quarantine. [GitHub Actions 42882011251](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42882011251) **PASS**, review-only manifest available as CI artifact. No SQL files generated or executed.
