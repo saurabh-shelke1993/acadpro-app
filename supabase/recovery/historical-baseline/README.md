@@ -142,3 +142,20 @@ The above outputs are **private working evidence**, not committed migrations. Sh
 **Alternate fetch method:** Supabase CLI v3 documents `supabase migration fetch --remote` for retrieving migration files from the history table. If used, run `supabase migration fetch --help` and perform the fetch inside a separately initialized scratch workspace — never within the current tracked `supabase/migrations` directory. Those fetched files must still pass the exact source-fingerprint review before use. The canonical B2.7 workflow above preserves statement arrays explicitly.
 
 The next action *after* a successful private archive is a source/privilege review and controlled disposable Supabase replay design. A full live-history replica has **not yet** been executed or approved.
+
+
+## B3.1 — Original migration sequence assembly (review-only)
+
+This stage does **not** require a database password, `psql`, Docker or full local Supabase. It produces **metadata-only JSON** from the committed B2.4–B2.6 evidence and checks Git SQL source integrity.
+
+From the repository root in VS Code PowerShell:
+
+```powershell
+python supabase/recovery/historical-baseline/b3_1_assembly_manifest.py --root . --output "$env:TEMP\kheltriva_b3_1_review_only.json"
+```
+
+The output is **one entry per all 82 original migration versions**, with verified Git-content links where available and hard replay denial for every entry. It identifies **14 migrations requiring data/procedural quarantine review**, the six same-version differences, 51 no-content-match source records, duplicate `20260926133000` and the 12-digit `202610210001` local version. It proposes a **non-executable** placement window for the B2.9 live-helper snapshot, *not* approval to run or retimestamp it.
+
+GitHub Actions [42882011251](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42882011251) **PASSED nine tests**, and published the 82-entry metadata-only report as artifact `kheltriva-b3-1-assembly-review-only` (14-day retention).
+
+Do not copy the B2.9 fixture into `supabase/migrations`, combine it with the older seven-helper CI fixture or run the existing full local Supabase workflow based on this manifest. Full original SQL archiving, historical data fixes, authorization ordering, Auth/RLS/finance parity and the PS-L2.3 proposal remain blocked. See `frontend/docs/PS_L2_3B_B3_1_HISTORICAL_ASSEMBLY_REVIEW_20261111.md`.
