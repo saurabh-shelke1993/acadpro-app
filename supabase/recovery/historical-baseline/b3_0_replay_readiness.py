@@ -15,7 +15,7 @@ FUNCTION_DEF = re.compile(
     r"\bCREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION\s+private\.([a-z_][a-z_0-9]*)\s*\(",
     re.I,
 )
-DATE_PREFIX = re.compile(r"^(\d{14})_")
+DATE_PREFIX = re.compile(r"^(\d{12,14})_")
 REQUIRED = {
     "old_bootstrap": "supabase/tests/subscriptions/ps_l2_3_local_private_baseline.sql",
     "current_snapshot": "supabase/tests/subscriptions/ps_l2_3_b2_9_live_helper_snapshot.sql",
@@ -44,11 +44,14 @@ def audit(root):
         raise ValueError("Missing canonical migrations; cannot assess readiness")
 
     local_versions = {}
+    irregular_versions = []
     for file in sql_files:
         match = DATE_PREFIX.match(file.name)
         if match is None:
             raise ValueError("Unexpected local migration file name: " + file.name)
         local_versions.setdefault(match.group(1), []).append(file.name)
+        if len(match.group(1)) != 14:
+            irregular_versions.append(file.name)
 
     old = get_text(root, REQUIRED["old_bootstrap"])
     current = get_text(root, REQUIRED["current_snapshot"])
@@ -136,7 +139,7 @@ def audit(root):
         {
             "gate": "historical_source_and_order",
             "ready": not (source_conflicts or unmatched_remote
-                         or source["local_unmatched"] or canonical_dupes),
+                         or source["local_unmatched"] or canonical_dupes or irregular_versions),
             "evidence": {
                 "remote_migrations": len(remote_rows),
                 "local_files": len(sql_files),
@@ -146,6 +149,7 @@ def audit(root):
                 "remote_not_content_linked": len(source_unlinked),
                 "local_unmatched": source["local_unmatched"],
                 "duplicate_version_ids": canonical_dupes,
+                "nonstandard_timestamp_filenames": sorted(irregular_versions),
             },
         },
         {
