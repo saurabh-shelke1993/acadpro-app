@@ -26,7 +26,7 @@ These facts make a production-equivalent clean migration replay **not yet reprod
 
 | Remote version | Content review result | Gate |
 |---|---|---|
-| `20260823093317` | First SQL-token difference occurs near the beginning; SQL token counts differ. Base schema is not source-equivalent. | Baseline diff and object-by-object review |
+| `20260823093317` | First SQL-token difference occurs near the beginning; SQL token counts differ. Strict SQL content does not match; schema/object equivalence has not been verified. | Baseline diff and object-by-object review |
 | `20260920041302` | Token stream compared by a **heuristic** lexical scanner is equal, while raw bytes differ. | Manual SQL review; tokenizer is not a SQL parser |
 | `20260920041356` | Heuristic token stream equal; bytes differ. | Manual trigger/function body review |
 | `20260920041457` | Heuristic token stream equal; bytes differ; comment/whitespace normalization suggests similarity, **not parity**. | Manual trigger/function body review |
