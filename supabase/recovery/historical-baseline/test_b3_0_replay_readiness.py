@@ -32,6 +32,8 @@ class B30ReplayReadinessTests(unittest.TestCase):
         self.assertEqual(evidence["remote_not_content_linked"], 57)
         self.assertEqual(evidence["local_unmatched"], 15)
         self.assertEqual(len(evidence["duplicate_version_ids"]["20260926133000"]), 2)
+        self.assertEqual(evidence["nonstandard_timestamp_filenames"],
+                         ["202610210001_private_player_photo_storage.sql"])
 
     def test_detects_legacy_and_b29_duplicate_helpers(self):
         result = audit(ROOT)
