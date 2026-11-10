@@ -6,6 +6,7 @@ on:
     paths:
       - 'supabase/recovery/historical-baseline/b3_4_import_dashboard_csv.py'
       - 'supabase/recovery/historical-baseline/test_b3_4_import_dashboard_csv.py'
+      - 'supabase/recovery/historical-baseline/b3_4_data_procedural_quarantine_review_20261111.json'
       - '.github/workflows/subscriptions-ps-l2-3-b3-4-private-import.yml'
   workflow_dispatch:
 
