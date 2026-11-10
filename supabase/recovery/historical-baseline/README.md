@@ -197,3 +197,32 @@ To verify the 168 original raw statement elements **once a private archive exist
 GitHub Actions [42886946692](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42886946692) **PASS (12 tests)**; the workflow publishes only metadata and does not access a hosted database.
 
 Detailed report: `frontend/docs/PS_L2_3B_B3_3_ORIGINAL_STATEMENT_REVIEW_20261111.md`. A full privately verified SQL archive, original helper origin and 14 data/procedural-source approvals remain pending. B3 full replay and PS-L2.3 subscription integration are **blocked**.
+
+
+## B3.4 — Private original SQL export without a database password
+
+The owner's Google-authenticated Supabase SQL Editor can export SELECT results to CSV. This provides an alternative when a database username/password cannot be recovered. **The original SQL must remain in .recovery-private and must never be committed.**
+
+At https://supabase.com/dashboard/project/ulyealhkmlorsbdiknrh/sql/new run this **SELECT-only** query five times with OFFSET **0, 20, 40, 60, 80**, exporting each result to a separate CSV file:
+
+    SELECT row_to_json(t)::text AS migration_json
+    FROM (
+      SELECT version, name, statements
+      FROM supabase_migrations.schema_migrations
+      ORDER BY version, name
+      LIMIT 20 OFFSET 0
+    ) AS t;
+
+The expected batch sizes are **20/20/20/20/2**. Do not edit CSV contents in Excel or share the exports. The field name must be migration_json.
+
+From repository root in PowerShell, move the five CSV files to a new, ignored private folder and run:
+
+    $private = "supabase\recovery\historical-baseline\.recovery-private"
+    New-Item -ItemType Directory -Force "$private\dashboard-csv" | Out-Null
+    python supabase/recovery/historical-baseline/b3_4_import_dashboard_csv.py --root . --csv-directory "$private\dashboard-csv" --output "$private\baseline-b3-4-001"
+
+The importer checks **82 migration-wide original source fingerprints** and **all 168 individually retained original SQL element SHA-256 hashes before writing any private archive**. It reuses B2.7 archive verification and B3.3 source-attestation logic. A successful import still reports **replay NOT approved**.
+
+The 14 source-sensitive DML/procedural cases are in b3_4_data_procedural_quarantine_review_20261111.json, all PENDING. Detailed owner instructions: frontend/docs/PS_L2_3B_B3_4_PRIVATE_ARCHIVE_ACQUISITION_20261111.md.
+
+**B3.4 synthetic CI PASS does not mean the real SQL is archived.** The owner must execute the CSV export/import locally. The protected archive is needed before continuing actual full migration replay.
