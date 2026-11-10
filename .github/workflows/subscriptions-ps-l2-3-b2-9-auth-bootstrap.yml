@@ -1,0 +1,62 @@
+name: PS-L2.3B B2.9 disposable auth bootstrap review
+
+on:
+  push:
+    branches: [payment-module-finalization]
+    paths:
+      - 'supabase/tests/subscriptions/ps_l2_3_b2_9_*'
+      - 'supabase/tests/subscriptions/test_b2_9_snapshot_integrity.py'
+      - '.github/workflows/subscriptions-ps-l2-3-b2-9-auth-bootstrap.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  current-state-auth-snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      disposable_postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=5s
+          --health-timeout=3s
+          --health-retries=12
+    steps:
+      - name: Checkout test-only sources
+        uses: actions/checkout@v4
+      - name: Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify current-source SHA-256, manifests and guardrails
+        run: python -m unittest discover -s supabase/tests/subscriptions -p 'test_b2_9_snapshot_integrity.py' -v
+      - name: Apply reconstructed 11 helpers ONLY to disposable PostgreSQL 17
+        env:
+          PGPASSWORD: postgres
+        run: |
+          docker run --rm --network host -e PGPASSWORD=postgres \
+            -v "$GITHUB_WORKSPACE:/workspace:ro" postgres:17 \
+            psql -h 127.0.0.1 -U postgres -d postgres -X -v ON_ERROR_STOP=1 \
+            -f /workspace/supabase/tests/subscriptions/ps_l2_3_b2_9_synthetic_preconditions.sql
+          docker run --rm --network host -e PGPASSWORD=postgres \
+            -v "$GITHUB_WORKSPACE:/workspace:ro" postgres:17 \
+            psql -h 127.0.0.1 -U postgres -d postgres -X -v ON_ERROR_STOP=1 \
+            -f /workspace/supabase/tests/subscriptions/ps_l2_3_b2_9_live_helper_snapshot.sql
+      - name: Test permissions and actor scope (synthetic identities only)
+        run: |
+          docker run --rm --network host -e PGPASSWORD=postgres \
+            -v "$GITHUB_WORKSPACE:/workspace:ro" postgres:17 \
+            psql -h 127.0.0.1 -U postgres -d postgres -X -v ON_ERROR_STOP=1 \
+            -f /workspace/supabase/tests/subscriptions/ps_l2_3_b2_9_synthetic_assertions.sql
+      - name: Reiterate validation boundaries
+        run: |
+          echo "PASS means synthetic 11-helper snapshot parity ONLY"
+          echo "Historical baseline, Supabase Auth/RLS migration replay and PS-L2.3 proposal remain BLOCKED"
