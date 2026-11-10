@@ -7,6 +7,12 @@ Security and data isolation are prerequisites for production.
 
 # ✅ Completed
 
+## Active blocker — PS-L2.3B B2.7 protected SQL source archive (10 November 2026)
+
+**Code ready / validated:** One-command, read-only, fingerprint-pinned private historical migration export; 43 CI tests PASS ([run 42751093715](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42751093715)). All raw historical SQL kept outside Git; user documentation provides local export command.
+
+**Pending owner-side action:** Run the private archive export from an authorized computer; then review 11 missing authorization-helper origins, six source differences and historical player/payment cleanup before disposable B3 replay. No real archive/replay has yet passed, and production subscription renewal or automatic dues remain not implemented.
+
 ## Active blocker — PS-L2.3B B2.6 historical SQL source risk review (10 November 2026)
 
 **Implemented/tested:** SELECT-only inspection of all 82 migration SQL bodies; 11 migrations with 20 direct top-level data-changing statements, 7 with procedural DO blocks. Offline risk inspection and CI **28 tests PASS** ([run 42748372167](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42748372167)). No production data or migration change.
