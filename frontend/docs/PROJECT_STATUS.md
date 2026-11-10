@@ -4,6 +4,14 @@
 **Current Version:** V1.0 Beta (development; not release sign-off)  
 **Current Git Branch:** `payment-module-finalization`
 
+## PS-L2.3B B3.4 private historical source acquisition preparation (11 November 2026)
+
+**Implemented/tested:** Password-free SQL Editor CSV import workflow b3_4_import_dashboard_csv.py. It accepts privately exported original migration statement arrays, verifies B2.4 full-history fingerprints and all 168 B3.3 element-level SHA-256 hashes **before archival**, then reuses B2.7 archive attestation. **12 synthetic CI tests PASS** ([run 42889010851](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42889010851)). Connected Supabase SELECT-only count remains 82 historical versions / 168 original elements.
+
+**Review register:** 14 historical DML/procedural migrations with potential production-data impacts remain quarantined, source/privilege/DDL split **not approved**. No raw SQL in GitHub; no migration executed.
+
+**Pending owner action:** Export five Google-authenticated SQL Editor CSV batches at offsets 0/20/40/60/80 into the ignored local private directory and run importer. **Actual protected SQL archive NOT YET CREATED OR VERIFIED**. Full B3 disposable Supabase/Auth/RLS/finance replay and B4 actual subscription billing integration remain BLOCKED. Production database/migrations/passwords/payments/subscriptions unchanged. See PS_L2_3B_B3_4_PRIVATE_ARCHIVE_ACQUISITION_20261111.md.
+
 ## PS-L2.3B B3.3 original SQL statement-source audit (11 November 2026)
 
 **Original source evidence:** The connected Supabase ledger retains **82 migrations, 168 SQL array elements (361,302 UTF-8 bytes)**. All 168 original source element SHA-256 hashes, order and lengths were captured as sanitized metadata. The original `20260823093317` remote schema has 87 semicolon-free array entries, whereas Git has 87 delimited statements: in-memory statement-aware lexical comparison finds **87/87 token-equivalent positions**. This **corrects the prior whole-concatenation token-mismatch assessment**; it does not prove security, constraint or real replay parity.
