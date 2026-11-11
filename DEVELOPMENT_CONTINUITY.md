@@ -8,6 +8,13 @@
 **Purpose:** Stable, handoff-friendly checkpoint between ChatGPT conversations. This document is NOT a substitute for inspecting live code, the current database, or current tests.
 
 
+## B2.9-C3.3B closed / C3.4A local Auth next (11 November 2026)
+
+**C3.3B LOCAL PASS:** Owner's separate-session SELECT returned 11|2|0|t|f|t, verifying persistence of 11 current-state helpers and intended private schema usage. Original historical helper provenance remains unresolved.
+
+**C3.4A PLANNED, NOT RUN:** Create a single invented account through the **real local Supabase Auth API**, then verify its actual bearer session without printing tokens. No real tenant data or production changes. [C3.4A plan](frontend/docs/PS_L2_3B_B2_9_C3_4_LOCAL_AUTH_PLAN_20261111.md).
+
+**STILL BLOCKED:** Real app role/RLS positive-negative tests, Storage, finance, full B3 historical replay, B4 deployment.
 ## B2.9-C3.3B pinned helpers local installation (11 November 2026)
 
 **C3.3A LOCAL PASS:** Owner confirmed COMMIT, five RLS-enabled synthetic tables, two invented batches, zero Auth/app users, native auth.uid() retained (`5|2|0|0|t`).

@@ -35,7 +35,7 @@ if ($LASTEXITCODE -ne 0) { throw 'Atomic helper installation rejected; stop for 
 
 **Note:** The long docker exec/psql command deliberately uses one line to work in Windows PowerShell. A single transaction is essential: never run the precheck and snapshot separately. Expected successful output ends in `C3.3B CURRENT HELPERS VERIFIED|11|2|0|t` (formatting may vary) and `COMMIT`.
 
-**C3.3B native local execution remains NOT RUN until Owner logs prove it.**
+**C3.3B LOCAL PASS / CLOSED:** Owner's atomic postcheck reported eleven current-state functions and two synthetic batches. A separate fresh SQL connection returned `11|2|0|t|f|t`, proving 11 persisted private functions, 2 batches, zero Auth users, native auth.uid() presence, denied anon private schema usage and enabled authenticated private schema usage. This does NOT establish authentic historical provenance or real signed-in JWT/RLS coverage.
 
 ## Owner's real local result — 11 November 2026
 
