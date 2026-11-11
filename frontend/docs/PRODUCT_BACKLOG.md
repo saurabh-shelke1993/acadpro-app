@@ -1,5 +1,12 @@
 # AcadPro Product Backlog
 
+## AG34-H2 — stage canonical legacy Coach mapping lockdown and emergency recovery
+
+**STAGED/ISOLATED CI PASS, HOSTED NOT DEPLOYED:** Versioned SQL migration filename generated with Supabase CLI v3.0.0 in unlinked [CI 43062730880](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43062730880); exact transaction body matches the source-attested H1 proposal. Two read-only hosted pre/post checks and a fail-closed grants-only emergency downshift are reviewed in [H2 runbook](AG34_HIGH_001_H2_ROLLOUT_PREPARATION.md). Real JWT scratch [CI 43063776080](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43063776080) passed 42 offline guard tests and Owner/Coach/Parent/SA/anon access, regression and rollback isolation. Active modern assignments remain unchanged.
+
+**PRODUCTION TODO:** Explicit separate Owner hosted DDL approval; resolve/review 82 live-vs-40 pre-H2 file provenance and safe single-migration execution/version-recording strategy; capture current live metadata snapshot, verify zero legacy rows, make rollback plan operationally ready, test four-role browser workflows, independently run read-only postflight and Security Advisor. No `db push --remote`, migration repair or automatic historical replay. **HIGH-001 remains OPEN, AG3.4E remains NO-GO; B3/B4 and separate RPC/Storage/QA gates unresolved.**
+
+
 ## Security AG34-HIGH-001 — close unused legacy Coach mapping surface
 
 **IMPLEMENTATION STAGED, NATIVE CI PASS, PRODUCTION STILL OPEN.** Live legacy `public.coach_batches` currently has **0 rows**, but four permissive authenticated policies and broad grants expose writes. AG3.4B previously reproduced unauthorized Coach/Parent mutation in disposable real-JWT replay. New isolated [PR #18](https://github.com/saurabh-shelke1993/acadpro-app/pull/18) proposes deny-all client access to that obsolete table (revoked grants + restrictive RLS policy), leaving active `coach_batch_assignments` and three legacy helper dependencies intact. Transactional SQL fails closed on non-empty table, changed grants or policy digests; native CI [43059424184](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43059424184) PASSED 10+11 static security tests and all real-JWT role denial, an intentionally regranted scratch row, and active mapping regression. [Design and release gates](AG34_HIGH_001_LEGACY_COACH_BATCHES_LOCKDOWN.md).
