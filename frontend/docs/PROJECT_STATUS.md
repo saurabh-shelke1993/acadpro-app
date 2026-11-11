@@ -1,9 +1,17 @@
 # AcadPro Project Status
 
-**Last Updated:** 11 November 2026 (PS-L2.3B B3.3 original SQL source inspection; full replay blocked)
+**Last Updated:** 11 November 2026 (B3.5 offline reviewer CI-tested, local private security review pending)
 **Current Version:** V1.0 Beta (development; not release sign-off)  
 **Current Git Branch:** `payment-module-finalization`
 
+
+## PS-L2.3B B3.5 local historical SQL security-review preparation (11 November 2026)
+
+**Implemented/tested:** Private-only original-source structural reviewer with complete 82-migration/168-element B3.3 fingerprint gate, exact 14-case B3.4 quarantine coverage, masked SQL categories, grant/RLS/trigger/finance manual review checklist and strict no-replay flags. [GitHub Actions 42957811902](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42957811902) **PASS, 12 synthetic tests**. Existing frontend/financial/RLS code and canonical migrations unchanged.
+
+**Connected live catalog (SELECT only):** RLS is enabled for six current player/parent/attendance/batch/payment_dues tables; 42 current private functions (35 SECURITY DEFINER), 114 current policies referencing private schema. This does **not** verify historical grant, function, trigger or SQL replay equivalence.
+
+**Pending:** Actual B3.5 local scan of the owner's private B3.4 original SQL archive, manual classification and owner sign-off of 14 historical data/procedural SQL cases (including historical player UUIDs and payment/receipt backfills), complete unlinked disposable Supabase reconstruction, RBAC tenant-negative/finance parity tests and B4 lifecycle integration. Production unchanged. See PS_L2_3B_B3_5_PRIVATE_SECURITY_REVIEW_20261111.md.
 
 ## PS-L2.3B B3.4 local archive attestation — owner validation PASS (11 November 2026)
 
