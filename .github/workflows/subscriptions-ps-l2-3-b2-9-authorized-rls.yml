@@ -8,6 +8,7 @@ on:
       - 'supabase/tests/subscriptions/test_b2_9_authorized_scope.py'
       - 'supabase/recovery/historical-baseline/b2_9_c2_local_preflight.ps1'
       - 'supabase/recovery/historical-baseline/test_b2_9_c2_local_preflight_safety.py'
+      - 'supabase/tests/subscriptions/test_b2_9_c3_native_schema_guard.py'
       - '.github/workflows/subscriptions-ps-l2-3-b2-9-authorized-rls.yml'
   workflow_dispatch:
 
@@ -43,6 +44,7 @@ jobs:
           python -m unittest discover -s supabase/tests/subscriptions -p 'test_b2_9_snapshot_integrity.py' -v
           python -m unittest discover -s supabase/tests/subscriptions -p 'test_b2_9_authorized_scope.py' -v
           python -m unittest discover -s supabase/recovery/historical-baseline -p 'test_b2_9_c2_local_preflight_safety.py' -v
+          python -m unittest discover -s supabase/tests/subscriptions -p 'test_b2_9_c3_native_schema_guard.py' -v
       - name: Run synthetic B2.9 bootstrap, then isolated RLS checks
         env:
           PGPASSWORD: postgres

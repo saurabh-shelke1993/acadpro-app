@@ -8,6 +8,14 @@
 **Purpose:** Stable, handoff-friendly checkpoint between ChatGPT conversations. This document is NOT a substitute for inspecting live code, the current database, or current tests.
 
 
+## B2.9-C3.3A — native local Supabase synthetic prerequisite fixture (11 November 2026)
+
+**OWNER ENVIRONMENT VERIFIED:** Local isolated Supabase PostgreSQL, Auth and API Gateway running after optional-service exclusions. Local Auth returned HTTP 200; native auth.uid()/roles and absent app tables/private schema all verified with six `t` values.
+
+**IMPLEMENTED / LOCAL EXECUTION PENDING:** Guarded, transaction-scoped **native** Supabase prerequisite SQL creates only five RLS-enabled synthetic app tables and two synthetic batch records; no Auth role/function recreation, no customer/financial data. Exact local Docker container run awaits Owner and CI safety validation. [C3.3A reference](frontend/docs/PS_L2_3B_B2_9_C3_3A_NATIVE_SUPABASE_PREREQUISITE_20261111.md).
+
+**STILL BLOCKED:** Authentic original SQL helper provenance, 14 quarantines, 6 historical divergences, full B3 Supabase Auth/RLS/Storage/finance replay, 22 legacy agreement approvals and B4 billing integration.
+
 ## B2.9-C1/C2 — Owner-authorized disposable-only reconstruction (11 November 2026)
 
 **AUTHORIZED:** Current 11-function B2.9 snapshot as a nonhistorical disposable testing baseline (GitHub Actions first), and preparation of a local unlinked Supabase validation plan. **NOT authorized:** production project access changes, actual player/payment data, canonical migration edits, paid infrastructure or B4 activation.
