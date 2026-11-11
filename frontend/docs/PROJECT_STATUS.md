@@ -5,6 +5,14 @@
 **Current Git Branch:** `payment-module-finalization`
 
 
+## B2.9-C3.3B pinned helpers local installation (11 November 2026)
+
+**C3.3A LOCAL PASS:** Owner confirmed COMMIT, five RLS-enabled synthetic tables, two invented batches, zero Auth/app users, native auth.uid() retained (`5|2|0|0|t`).
+
+**C3.3B IMPLEMENTED; CI PENDING; LOCAL NOT RUN:** Atomic precheck + unchanged 11-helper current-state SQL + postcheck with native Auth SHA-256 preservation, 11 pinned helper-body hashes, ownership/search paths/grants and missing JWT negative tests. [C3.3B plan](PS_L2_3B_B2_9_C3_3B_LOCAL_HELPERS_20261111.md).
+
+**BLOCKED:** Historical replay, actual Auth-JWT positive tests, storage/finance 35-scenario validation and B4 implementation.
+
 ## B2.9-C3.3A — native local Supabase synthetic prerequisite fixture (11 November 2026)
 
 **OWNER ENVIRONMENT VERIFIED:** Local isolated Supabase PostgreSQL, Auth and API Gateway running after optional-service exclusions. Local Auth returned HTTP 200; native auth.uid()/roles and absent app tables/private schema all verified with six `t` values.
