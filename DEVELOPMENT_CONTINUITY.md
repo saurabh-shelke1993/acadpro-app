@@ -1,5 +1,14 @@
 # Kheltriva — Development Continuity
 
+## AG34-H2 — controlled legacy Coach mapping rollout package (11 November 2026)
+
+**DEVELOPMENT STAGED / REAL-JWT CI PASS / HOSTED NOT DEPLOYED.** Fresh read-only active Supabase preflight: legacy `public.coach_batches` **0 rows**, four old source-matched policies and direct authenticated CRUD + anon SELECT; modern `coach_batch_assignments` **11** records, RLS enabled; three legacy private-helper hashes matched. Preflight returned `READY_FOR_SEPARATE_PRODUCTION_APPROVAL`; postflight returned `STOP_INVESTIGATE_NO_REGRANTS` (expected before rollout).
+
+Supabase CLI v3.0.0 unlinked [run 43062730880](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43062730880) generated versioned `supabase/migrations/20261111165330_ag34_h1_legacy_coach_batches_client_lockdown.sql`; body byte-identical to source-tested H1 SQL. [Native scratch rehearsal 43063776080](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43063776080) **PASS** (10+11+10+11 offline tests + real GoTrue signed-JWT H1 lockdown and H2 emergency downshift; clients remain denied after safe downshift; modern assignment unaffected; AG3.4E NO-GO enforced). Review [H2 rollout runbook](frontend/docs/AG34_HIGH_001_H2_ROLLOUT_PREPARATION.md).
+
+**STRICT BOUNDARY:** H2 only prepares a canonical file and safe recovery plan on development branch; **no hosted DDL, migration ledger edit, `main` deployment, B4 release or manual UI signoff**. 82 live historical migration versions versus 40 pre-H2 local source files remain unreconciled; do not `db push --remote` or auto-repair. Production HIGH-001 and overall AG3.4E remain **OPEN / NO-GO**. A separate explicit Product Owner hosted rollout decision and controlled execution/version recording are required.
+
+
 ## AG34-HIGH-001 — proposed legacy Coach mapping lockdown (11 November 2026)
 
 **DESIGNED/STAGED, NOT DEPLOYED:** Latest read-only live catalog: `public.coach_batches` has **zero rows**; four source-matched permissive policies, direct authenticated CRUD and anon SELECT still present. Current Coach Batch Mapping app code uses `coach_batch_assignments`. Three private security-definer helper functions still depend on the legacy table and must be preserved.
