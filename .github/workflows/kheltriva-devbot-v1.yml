@@ -1,0 +1,56 @@
+name: Kheltriva DevBot V1 - Safe validation
+
+on:
+  push:
+    branches: [devbot-v1, payment-module-finalization]
+    paths:
+      - '.github/workflows/kheltriva-devbot-v1.yml'
+      - 'scripts/devbot/**'
+      - 'frontend/docs/KHELTRIVA_DEVBOT_V1.md'
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: 'Approved checks only (no deployments or hosted Supabase)'
+        required: true
+        default: quick
+        type: choice
+        options:
+          - quick
+          - auth-static
+          - frontend
+          - all
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kheltriva-devbot-v1-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: ${{ github.event_name == 'push' && 'auth-static' || github.event.inputs.suite || 'quick' }} - safe validation
+    if: github.repository == 'saurabh-shelke1993/acadpro-app'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout without persisted credentials
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Node 20 for optional React test suite
+        if: contains(fromJSON('["frontend", "all"]'), github.event.inputs.suite)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Run allowlisted checks and publish result summary
+        shell: bash
+        env:
+          DEVBOT_SUITE: ${{ github.event_name == 'push' && 'auth-static' || github.event.inputs.suite || 'quick' }}
+        run: python scripts/devbot/run.py --suite "$DEVBOT_SUITE"
