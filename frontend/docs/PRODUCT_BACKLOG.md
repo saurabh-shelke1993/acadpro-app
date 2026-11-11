@@ -1,5 +1,11 @@
 # AcadPro Product Backlog
 
+## Kheltriva DevBot — AG1/AG2 automation initiative (11 November 2026)
+
+**AG1 CODE IMPLEMENTED, TEST/REVIEW PENDING:** Allowlisted GitHub Actions validation bot with PASS/FAIL report, no hosted keys or paid AI. Phone review via Actions Summary; direct manual dispatch requires a separately approved minimal workflow change on default branch. [DevBot scope](KHELTRIVA_DEVBOT_V1.md).
+
+**AG2 PLANNED:** Real disposable Supabase Auth/RLS CI; existing C3.4B2 laptop result remains unverified. No B4 billing deployment.
+
 **Last Updated:** 11 November 2026 (B2.9-C1/C2 authorized disposable validation; local full replay pending)
 **Current Branch:** `payment-module-finalization`
 

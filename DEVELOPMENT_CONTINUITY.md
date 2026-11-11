@@ -1,5 +1,11 @@
 # Kheltriva — Development Continuity
 
+## Kheltriva DevBot V1 — AG1 implementation (11 November 2026)
+
+**IMPLEMENTED IN REVIEW BRANCH / GITHUB CI PENDING:** Added a safe allowlisted GitHub runner with quick/auth-static/frontend/all suites and in-job PASS/FAIL summary. No API secrets, no hosted database, no shell input or paid AI. Review only; not yet merged. See [DevBot design](frontend/docs/KHELTRIVA_DEVBOT_V1.md).
+
+**AG2 PENDING:** Real disposable GoTrue/JWT RLS tests in GitHub CI. **C3.4B2 laptop state remains unresolved** and is never reset by DevBot. Production/B4 remain blocked.
+
 **Updated:** 2026-11-11 (Asia/Kolkata)
 **Project:** Kheltriva (formerly AcadPro) — multi-tenant football academy SaaS  
 **Repository:** https://github.com/saurabh-shelke1993/acadpro-app  
