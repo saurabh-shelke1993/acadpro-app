@@ -64,7 +64,7 @@
       "severity": "HIGH",
       "status": "open",
       "subject": "Legacy public.coach_batches authenticated same-academy mapping RLS allows unexpected Parent/Coach writes in exact-source scratch replay",
-      "mitigation": "Role-gated policy candidate tested in scratch; NO canonical migration or production deployment."
+      "mitigation": "Client-lockdown proposal staged as noncanonical reviewed SQL in PR #18; native source-attested scratch GoTrue/JWT run 43059424184 PASS (all 8 app roles, anon, regrant defense); no hosted deployment, canonical migration or manual regression. HIGH remains OPEN."
     },
     {
       "id": "AG34-GATE-002",

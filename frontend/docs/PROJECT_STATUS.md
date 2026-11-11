@@ -1,5 +1,11 @@
 # AcadPro Project Status
 
+## Security AG34-HIGH-001 — retire unused legacy Coach mapping API surface (11 November 2026)
+
+**STAGED ON SECURITY REVIEW BRANCH; LIVE UNCHANGED.** Active `public.coach_batches` has **zero rows** and broad authenticated grants/permissive same-academy RLS, previously shown vulnerable in source-attested disposable JWT replay. Current `CoachBatchMapping.js` and dataScope use `coach_batch_assignments`. Three live private helpers still query the legacy table; preserve them and the table. Proposed SQL, *outside canonical migrations*, performs exact policy MD5/zero-row/grant checks, revokes all direct PUBLIC/anon/authenticated privileges, adds restrictive always-deny authenticated RLS, and checks postconditions. Native scratch GoTrue/PostgREST test **PASSED** ([run 43059424184](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43059424184)) on [PR #18](https://github.com/saurabh-shelke1993/acadpro-app/pull/18): 21/21 static security tests, real JWT denial for eight app roles plus anon after a scratch-only accidental re-GRANT, and modern active assignment regressions. [Security design and rollout instructions](AG34_HIGH_001_LEGACY_COACH_BATCHES_LOCKDOWN.md).
+
+**Not completed:** no live migration, no deployed change, no manual Coach/Owner/Parent acceptance. Production HIGH-001 remains **open**, all AG3.4E NO-GO criteria still enforced. Do not re-enable direct access even for Super Admin; SA uses the modern assignments table.
+
 ## AG3.4E — isolated React build compiled, complete frontend QA still red
 
 [Build-only CI 43057423740](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43057423740) **PASS**, merged [PR #15](https://github.com/saurabh-shelke1993/acadpro-app/pull/15), using Node 20, `npm ci`, placeholder Supabase environment and `CI=true npm run build`. **Distinct from** full [Phase 7.5 Jest CI 43056100352](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43056100352), **16/490 tests FAIL** in four suites; that job skipped its build after Jest failures. Final `frontend_all_jest_and_build_green` requirement remains false. AG3.4E production **NO-GO**; no Vercel/main or hosted DB deployment.
