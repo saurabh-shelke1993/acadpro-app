@@ -28,8 +28,6 @@ jobs:
     if: github.repository == 'saurabh-shelke1993/acadpro-app'
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    env:
-      AG2_DIR: ${{ runner.temp }}/kheltriva-ag2-ci
     steps:
       - name: Checkout without persisted token
         uses: actions/checkout@v4
@@ -49,6 +47,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          AG2_DIR="$RUNNER_TEMP/kheltriva-ag2-ci"
           test -z "${SUPABASE_ACCESS_TOKEN:-}"
           test -z "${SUPABASE_DB_URL:-}"
           test ! -e "$AG2_DIR"
@@ -70,6 +69,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          AG2_DIR="$RUNNER_TEMP/kheltriva-ag2-ci"
           cd "$AG2_DIR"
           if ! supabase start -x 'realtime,storage-api,studio,postgres-meta,edge-runtime,imgproxy,logflare,vector,supavisor,mailpit' > "$RUNNER_TEMP/ag2-startup-private.log" 2>&1; then
             echo 'AG2 FAIL: isolated local Supabase start failed. Raw CLI log withheld.'
@@ -80,12 +80,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          AG2_DIR="$RUNNER_TEMP/kheltriva-ag2-ci"
           cd "$AG2_DIR"
           python "$GITHUB_WORKSPACE/scripts/devbot/ag2_real_auth_ci.py"
       - name: Stop disposable Supabase without backup
         if: always()
         shell: bash
         run: |
+          AG2_DIR="$RUNNER_TEMP/kheltriva-ag2-ci"
           if [ -f "$AG2_DIR/supabase/config.toml" ]; then
             cd "$AG2_DIR"
             supabase stop --no-backup > /dev/null 2>&1 || true
