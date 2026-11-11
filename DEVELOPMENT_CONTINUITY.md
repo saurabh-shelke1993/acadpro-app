@@ -10,7 +10,7 @@
 
 ## B2.9-C3.4B1 — first role identity (11 November 2026)
 
-**B1A PREPARED / CI PENDING / OWNER RUN NOT STARTED:** Read-only FK preflight confirmed `1|0|0|0|0|1|1`. Implementation provisions one Auth-issued Academy Owner A in isolated scratch, links exactly one app user using guarded SQL, preserves 5 RLS-enabled app tables, and grants no new client access. [B1a reference](frontend/docs/PS_L2_3B_B2_9_C3_4B1_OWNER_A_20261111.md).
+**B1A IMPLEMENTED / CI 38/38 PASS / OWNER RUN NOT STARTED:** [GitHub Actions 42986582846](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42986582846) passed 38 Python static guards, PowerShell parser checks, and independent native-shaped PostgreSQL 17 mapping SQL. No actual new GoTrue account was created in CI.  Read-only FK preflight confirmed `1|0|0|0|0|1|1`. Implementation provisions one Auth-issued Academy Owner A in isolated scratch, links exactly one app user using guarded SQL, preserves 5 RLS-enabled app tables, and grants no new client access. [B1a reference](frontend/docs/PS_L2_3B_B2_9_C3_4B1_OWNER_A_20261111.md).
 
 **NOT YET TESTED:** Signed JWT role/tenant helper evaluation, Coach B/Owner B mappings, cross-tenant RLS positive/negative cases, historical replay, Storage/finance, B4.
 
