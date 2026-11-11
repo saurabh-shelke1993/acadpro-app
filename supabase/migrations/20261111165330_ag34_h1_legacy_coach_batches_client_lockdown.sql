@@ -4,11 +4,12 @@
 -- Historical migration provenance: 82 live versions vs 40 prior local files.
 -- Never use db push, migration repair or migration up against hosted as
 -- part of development CI; preserve earlier versions and ledger unchanged.
--- Exact SQL transaction body copied from the reviewed H1 proposal.
+-- SQL statements copied from the reviewed H1 proposal, with only the
+-- author-owned BEGIN/COMMIT wrappers removed for atomic CLI-owned
+-- statement execution + migration-ledger insert in the same transaction.
+-- NEVER run this entire file via manual SQL without a transactional wrapper.
 -- Valid only if zero legacy rows, four exact policy digests and grants match.
 -- Does not modify modern coach_batch_assignments or dependent functions.
-BEGIN;
-
 DO $ag34_h1_preflight$
 BEGIN
  IF to_regclass('public.coach_batches') IS NULL
@@ -73,5 +74,4 @@ BEGIN
 END $ag34_h1_postflight$;
 
 NOTIFY pgrst, 'reload schema';
-COMMIT;
 SELECT 'AG34-H1 LEGACY COACH MAPPING CLIENT LOCKDOWN VERIFIED' AS checkpoint;
