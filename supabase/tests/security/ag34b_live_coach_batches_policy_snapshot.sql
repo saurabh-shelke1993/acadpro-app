@@ -21,6 +21,18 @@ BEGIN
  THEN RAISE EXCEPTION 'AG3.4B requires disposable AG3.3 baseline'; END IF;
 END $guard$;
 
+-- Additional exact live dependency: the legacy SELECT predicate directly
+-- queries public.coaches under caller RLS. The AG2 synthetic coaches table
+-- omitted its live academy_id, which is needed for the real coaches_select
+-- predicate. Reconstruct only this verified column and policy.
+ALTER TABLE public.coaches ADD COLUMN academy_id uuid;
+UPDATE public.coaches c SET academy_id=u.academy_id
+ FROM public.users u WHERE u.id=c.user_id;
+ALTER TABLE public.coaches ALTER COLUMN academy_id SET NOT NULL;
+GRANT SELECT ON public.coaches TO authenticated;
+CREATE POLICY coaches_select ON public.coaches FOR SELECT TO authenticated
+USING (private.is_super_admin() OR (private.is_academy_owner() AND (academy_id = private.current_academy_id())) OR ((private.current_user_role() = 'coach'::text) AND (user_id = auth.uid())));
+
 -- Live authenticated CRUD GRANT also exists; simulate explicitly.
 -- The live table's anon SELECT GRANT is also mirrored; RLS TO authenticated
 -- should still deny anon rows even if REST returns empty successfully.
@@ -60,6 +72,10 @@ WITH CHECK (private.is_super_admin() OR (EXISTS ( SELECT 1
 
 DO $verify$
 BEGIN
+ IF (SELECT count(*) FROM pg_policies WHERE schemaname='public'
+       AND tablename='coaches' AND policyname='coaches_select'
+       AND md5(coalesce(qual,'')||chr(31)||coalesce(with_check,''))='a8dcb3c1805bd633cb234706ce4aed3c')<>1
+ THEN RAISE EXCEPTION 'AG3.4B live Coach dependency checksum mismatch'; END IF;
  IF (SELECT count(*) FROM pg_policies WHERE schemaname='public'
        AND tablename='coach_batches' AND
        ((policyname='coach_batches_select' AND md5(coalesce(qual,'')||chr(31)||coalesce(with_check,''))='cd4193d15352dcfb25a4b3835e8850a4')
