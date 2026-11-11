@@ -22,14 +22,23 @@ EMERGENCY_MARKER = "AG34-H2 EMERGENCY GRANTS-STILL-REVOKED VERIFIED"
 def verify_cli_migration_body() -> None:
     source = ORIGINAL.read_text(encoding="utf-8")
     migration = MIGRATION.read_text(encoding="utf-8")
-    original_start = source.find("BEGIN;\n")
-    migration_start = migration.find("BEGIN;\n")
-    if original_start < 0 or migration_start < 0:
-        raise b.SecurityMismatch("AG34-H2 reviewed transaction delimiter missing")
-    if source[original_start:] != migration[migration_start:]:
-        raise b.SecurityMismatch("AG34-H2 canonical migration differs from reviewed JWT-tested source")
-    if "NOT APPLIED" not in migration[:migration_start]:
-        raise b.SecurityMismatch("AG34-H2 migration needs explicit release restriction")
+    # H3: the CLI must own the forward migration's transaction so its
+    # schema change and version record are committed together. Remove *only*
+    # the authored outer BEGIN/COMMIT boundaries from the H1 source.
+    header, sep, original_body = source.partition("\nBEGIN;\n")
+    if not sep or "\nCOMMIT;\n" not in original_body:
+        raise b.SecurityMismatch("AG34-H3 reviewed original SQL boundaries missing")
+    expected = original_body.lstrip("\n").replace("\nCOMMIT;\n", "\n", 1)
+    migration_header, marker, actual = migration.partition("\nDO $ag34_h1_preflight$")
+    if not marker:
+        raise b.SecurityMismatch("AG34-H3 CLI-owned transaction entrypoint missing")
+    actual = "DO $ag34_h1_preflight$" + actual
+    if actual != expected:
+        raise b.SecurityMismatch("AG34-H3 migration statements differ from source after removing outer wrappers")
+    if "NOT APPLIED" not in migration_header:
+        raise b.SecurityMismatch("AG34-H3 migration must document undeployed state")
+    if "\nBEGIN;\n" in migration or "\nCOMMIT;\n" in migration:
+        raise b.SecurityMismatch("AG34-H3 CLI migration contains unsafe authored transaction boundaries")
 
 
 def verify_postflight_sql() -> None:
