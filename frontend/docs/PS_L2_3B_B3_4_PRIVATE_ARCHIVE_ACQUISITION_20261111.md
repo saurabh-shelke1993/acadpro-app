@@ -73,3 +73,32 @@ All are pending; no source or security approval was granted. A procedure/trigger
 - No hosted database, migration, payment, password, or billing updates were made.
 
 **Next gate:** After the five private CSV batches have passed import and per-element hash verification, privately inspect all 14 quarantined originals and the remaining SQL differences, then prepare an approved scratch-only Supabase replay. The current-state 11-helper fixture is still not original historical SQL.
+
+
+## B3.4 follow-up — Windows checkout CRLF hash mismatch (11 November 2026)
+
+**Observed:** First password-free private CSV import stopped: "B3.4 private SQL import refused: Tracked SQL changed from pinned source fingerprint: 20260920041653."
+
+**Root cause in recovery code:** The pinned Git SQL source for 20260920041653_enforce_single_player_batch_mapping.sql contains LF and a final LF. The historical remote SQL Git-blob hash is exactly the Git file after removing that one final LF. Windows Git checkouts can materialize these same SQL lines as CRLF, and B3.1 previously compared the unnormalized working tree against the original LF hash. The user's local physical line endings are not independently observed; the root-cause hypothesis is corroborated by a verified original Git fingerprint and simulated Windows checkout tests.
+
+**Repair:** B3.1 now normalizes only uniform CRLF-to-LF worktree line endings before recomputing the exact unchanged pinned historical content fingerprint. It rejects mixed newline encodings and actual SQL changes, including identifier or quoted-literal changes. No original migration, hosted Supabase history or data was modified.
+
+**Important archive state:** The B3.4 importer finishes the private B2.7 archive before invoking the B3.1 source-history audit that emitted the error. Therefore original historical files and B2.7 reports were likely created on the owner's laptop. They must not be deleted or overwritten without verification.
+
+B3.4 now has a --finalize-existing option, which independently rechecks a previously exported B2.7 archive, all 168 historical original statement SHA-256 values, and existing audit reports, then exclusively creates a sanitized b3-4-dashboard-attestation.json. This mode does not re-import or overwrite any historical SQL.
+
+**Safe owner recovery (repository root, VS Code PowerShell):**
+
+    git pull origin payment-module-finalization
+    $private = "supabase\recovery\historical-baseline\.recovery-private"
+    Test-Path "$private\baseline-b3-4-001\manifest.json"
+
+If True:
+
+    python supabase/recovery/historical-baseline/b3_4_import_dashboard_csv.py --root . --finalize-existing --output "$private\baseline-b3-4-001"
+
+If False, do not delete or overwrite private data; inspect the archive folder filenames only.
+
+**Validation:** [B3.1 CRLF/hash tests](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42954533764) PASS (12 tests); [B3.4 safe resume tests](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42954795483) PASS (15 tests).
+
+**Unchanged blocker:** The owner's actual archive still needs in-place verification. Full disposable Supabase Auth/RLS/financial replay and subscription integration are not approved. This update is confined to offline recovery tooling; no production database, credentials, player records, billing or migration files were changed.
