@@ -1,0 +1,95 @@
+name: Kheltriva DevBot AG3.2 - Coach real JWT batch RLS
+
+on:
+  push:
+    branches: [devbot-ag3-2-coach-jwt-rls, payment-module-finalization]
+    paths:
+      - '.github/workflows/devbot-ag3-2-coach-jwt-rls.yml'
+      - 'scripts/devbot/ag3_2_coach_jwt_rls_ci.py'
+      - 'scripts/devbot/test_ag3_2_coach_jwt_rls_ci.py'
+      - 'scripts/devbot/ag3_real_jwt_rls_ci.py'
+      - 'scripts/devbot/ag2_real_auth_ci.py'
+      - 'supabase/tests/subscriptions/ps_l2_3_b2_9_ag32_coach_batch_rls.sql'
+      - 'supabase/tests/subscriptions/ps_l2_3_b2_9_ag3_owner_batch_rls.sql'
+      - 'supabase/tests/subscriptions/ps_l2_3_b2_9_c3_native_schema.sql'
+      - 'supabase/tests/subscriptions/ps_l2_3_b2_9_live_helper_snapshot.sql'
+      - 'supabase/tests/subscriptions/ps_l2_3_b2_9_c34b1_owner_a_mapping.sql'
+      - 'supabase/tests/subscriptions/ps_l2_3_b2_9_c34b2_owner_b_mapping.sql'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kheltriva-ag32-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  real-coach-active-batch-rls:
+    name: AG3.2 real Coach JWT assigned-batch authorization
+    if: github.repository == 'saurabh-shelke1993/acadpro-app'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout without persisted credentials
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Configure Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run AG3.2 pure safety checks
+        run: python -m unittest discover -s scripts/devbot -p 'test_ag3_2_coach_jwt_rls_ci.py' -v
+      - name: Install Supabase CLI v3.0.0
+        uses: supabase/setup-cli@v1
+        with:
+          version: 3.0.0
+      - name: Initialize isolated unlinked Supabase
+        shell: bash
+        run: |
+          set -euo pipefail
+          AG32_DIR="$RUNNER_TEMP/kheltriva-ag32-ci"
+          test -z "${SUPABASE_ACCESS_TOKEN:-}"
+          test -z "${SUPABASE_DB_URL:-}"
+          test ! -e "$AG32_DIR"
+          mkdir -p "$AG32_DIR"
+          cd "$AG32_DIR"
+          supabase init --yes > /dev/null 2>&1
+          python - <<'PY'
+          from pathlib import Path
+          import tomllib
+          root = Path('supabase')
+          cfg = tomllib.loads((root / 'config.toml').read_text())
+          assert cfg['project_id'] == 'kheltriva-ag32-ci'
+          assert cfg['auth']['email']['enable_confirmations'] is False
+          assert not (root / 'migrations').exists()
+          assert not (root / '.temp' / 'project-ref').exists()
+          PY
+          echo 'AG3.2 PASS: unlinked Supabase CI workspace, no historical migrations.'
+      - name: Start native local Auth PostgREST Kong and PostgreSQL
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/kheltriva-ag32-ci"
+          if ! supabase start -x 'realtime,storage-api,studio,postgres-meta,edge-runtime,imgproxy,logflare,vector,supavisor,mailpit' > "$RUNNER_TEMP/ag32-startup-private.log" 2>&1; then
+            echo 'AG3.2 FAIL: disposable Supabase failed; startup secrets withheld.'
+            exit 1
+          fi
+          echo 'AG3.2 PASS: native GoTrue/PostgREST stack started.'
+      - name: Verify signed-JWT Coach positive/negative RLS
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/kheltriva-ag32-ci"
+          python "$GITHUB_WORKSPACE/scripts/devbot/ag3_2_coach_jwt_rls_ci.py"
+      - name: Destroy disposable database without backup
+        if: always()
+        shell: bash
+        run: |
+          AG32_DIR="$RUNNER_TEMP/kheltriva-ag32-ci"
+          if [ -f "$AG32_DIR/supabase/config.toml" ]; then
+            cd "$AG32_DIR"
+            supabase stop --no-backup >/dev/null 2>&1 || true
+          fi
+          echo 'AG3.2 disposable cleanup attempted; runner is ephemeral.'
