@@ -1,5 +1,12 @@
 # AcadPro Product Backlog
 
+## AG3.2 — Coach signed-JWT assigned-batch isolation (11 November 2026)
+
+**IMPLEMENTED AND AUTOMATED TESTED (CI PASS), OWNER MERGE GATE PENDING:** [Actions run 43031441781](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43031441781) validated two real Coach GoTrue/JWT sessions against scratch-only active-assignment `public.batches` RLS. Successful assigned reads, same-academy inactive denied, foreign-academy direct IDs denied, unmapped/anon/invalid JWT denied, forged headers denied, unauthorized writes denied, mapping tables inaccessible, Owner A/B regression passed. [PR #6](https://github.com/saurabh-shelke1993/acadpro-app/pull/6) awaits explicit Owner acceptance into `payment-module-finalization`.
+
+**REMAINING:** AG3.3 Parent and Super Admin JWT authorization; AG3.4 deployed policy parity and broader real security regression; original local C3.4B2 persistence investigation; 82-source migration replay and B4 lifecycle integration NO-GO. This is nonhistorical synthetic CI evidence only. **AG3.1:** [PR #5](https://github.com/saurabh-shelke1993/acadpro-app/pull/5) Owner approved and merged at `e3505d41` to development branch only. No hosted DB/main/production changes.
+
+
 ## AG3.1 — real JWT-backed owner batch isolation CI PASS (11 November 2026)
 
 **IMPLEMENTED / REAL POSTGREST CI PASS / OWNER REVIEW PENDING:** [Run 43027355787](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43027355787) passed nine AG3 pure safety checks and a full real native Supabase Auth / PostgREST sequence. Both owners' real Auth-issued bearer JWTs can read their own synthetic academy's batch; direct cross-academy ID requests return zero rows. A real signed-in unmapped identity sees zero rows; anonymous and forged bearer tokens receive denial, fake tenant/user HTTP headers do not change scope, and ungranted INSERT/UPDATE/DELETE return rejection. Final SQL confirmed 3 native Auth, 2 app owners, 2 batches, 11 unmodified helpers and the single **scratch-only** scoped SELECT policy. [AG3.1 test design](KHELTRIVA_DEVBOT_AG3.md).
