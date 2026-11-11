@@ -39,7 +39,7 @@ class DGuardTests(unittest.TestCase):
                      "parent_payment_submissions_select_parent",
                      "parent_payment_submissions_select_super_admin"):
             self.assertIn("CREATE POLICY "+name+" ON public.",self.sql)
-        self.assertEqual(self.sql.count("CREATE POLICY "),9)
+        self.assertEqual(self.sql.count("\nCREATE POLICY "),9)
         self.assertIn("np<>9 OR nf<>6",self.sql)
 
     def test_finance_sources_are_scoped_to_select(self):
