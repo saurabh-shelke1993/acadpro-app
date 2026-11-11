@@ -5,6 +5,12 @@
 **Current Git Branch:** `payment-module-finalization`
 
 
+## B3.7B historical helper dependency review (11 November 2026)
+
+**REVIEWED:** The original `20260903173804` first-use statement creates `private.coach_academy_id`, four Coach assignment policies, and schema USAGE grant, but calls four foundational helpers missing their original CREATE statements. Parent email-based resolver at `20260908062059` precedes the `parents.user_id` revision at `20260912142706`. Three candidate reconstruction approaches documented, none approved. [B3.7B report](PS_L2_3B_B3_7B_HELPER_DEPENDENCY_REVIEW_20261111.md).
+
+**BLOCKED:** Authentic helper origin, disposable reconstruction choice, full B3 Supabase security replay, legacy 22-agreement review and B4 subscription integration.
+
 ## B3.7A — historical helper chronology (11 November 2026)
 
 **READ-ONLY REVIEW DONE / CI PENDING:** The retained 82/168 original-source ledger has no identifiable foundational CREATE for the 11 current B2.9 helpers or private schema. All 11 current live function hashes and metadata match the pinned B2.9 manifest. Historical parent function uses email at 20260908062059, before parents.user_id and revised helper at 20260912142706. No historical provenance or replay approval was inferred. [B3.7A details](PS_L2_3B_B3_7A_HISTORICAL_HELPER_CHRONOLOGY_20261111.md).

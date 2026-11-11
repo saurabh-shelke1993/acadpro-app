@@ -1,0 +1,30 @@
+{
+  "schema": "kheltriva-b3-7b-dependency-review-v1",
+  "project_id": "ulyealhkmlorsbdiknrh",
+  "history_first_private_consumer": "20260903173804",
+  "first_consumer_creates": [
+    "private.coach_academy_id"
+  ],
+  "first_consumer_calls": [
+    "private.is_super_admin",
+    "private.is_academy_owner",
+    "private.current_academy_id",
+    "private.batch_academy_id"
+  ],
+  "first_consumer_creates_four_coach_assignment_policies": true,
+  "first_consumer_grants_usage_private_schema": true,
+  "original_private_schema_create_detected": false,
+  "parent_original_version": "20260908062059",
+  "parent_original_lookup": "email",
+  "parent_user_id_and_revised_helper_version": "20260912142706",
+  "reconstruction_paths": [
+    "recover_missing_authentic_history",
+    "review_current_snapshot_as_nonhistorical_disposable_test_fixture",
+    "separately_approve_new_current_state_baseline"
+  ],
+  "source_security_approved": false,
+  "full_supabase_replay_complete": false,
+  "subscription_b4_integrated": false,
+  "contains_original_sql": false,
+  "contains_customer_data": false
+}
