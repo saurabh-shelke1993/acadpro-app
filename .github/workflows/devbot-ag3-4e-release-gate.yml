@@ -1,0 +1,38 @@
+name: Kheltriva AG3.4E - Security release evidence gate NO-GO
+
+on:
+  push:
+    branches: [devbot-ag3-4e-security-release-gate, payment-module-finalization]
+    paths:
+      - '.github/workflows/devbot-ag3-4e-release-gate.yml'
+      - 'scripts/devbot/ag3_4e_security_release_gate.py'
+      - 'scripts/devbot/test_ag3_4e_security_release_gate.py'
+      - 'frontend/docs/AG3_4E_SECURITY_RELEASE_GATE.json'
+  pull_request:
+    branches: [payment-module-finalization]
+    paths:
+      - '.github/workflows/devbot-ag3-4e-release-gate.yml'
+      - 'scripts/devbot/ag3_4e_security_release_gate.py'
+      - 'scripts/devbot/test_ag3_4e_security_release_gate.py'
+      - 'frontend/docs/AG3_4E_SECURITY_RELEASE_GATE.json'
+permissions:
+  contents: read
+jobs:
+  fail-closed-release-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Offline release gate regression suite
+        run: python -m unittest discover -s scripts/devbot -p 'test_ag3_4e_security_release_gate.py' -v
+      - name: Prove security production release remains blocked
+        run: python scripts/devbot/ag3_4e_security_release_gate.py --check-no-go
+      - name: Explain a green workflow
+        run: |
+          echo '**EXPECTED NO-GO**: green job means the security release gate correctly denies production.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'This is not proof that financial RPCs, Storage, historical replay or hosted RLS are safe.' >> "$GITHUB_STEP_SUMMARY"
