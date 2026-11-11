@@ -1,5 +1,14 @@
 # AcadPro Project Status
 
+## AG3.3 — Parent and Super Admin authorization native CI PASS (11 November 2026)
+
+**IMPLEMENTED / AUTOMATED TESTED / OWNER REVIEW PENDING:** [Run 43039558349](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43039558349) successfully completed 14/14 pure safety tests, unlinked Supabase CLI 3.0.0 startup, real GoTrue sessions, signed JWT PostgREST authorization/denial checks, and final database/no-backup teardown. Parent A1/A2 (same academy) and Parent B can only access their own synthetic parent, child and batch; negative direct IDs for both same-tenant other Parent and cross-tenant denied. Super Admin can read across academies and complete synthetic batch create/reassign/delete. Parent/Coach writes denied, earlier Owner/Coach scopes preserved, unmapped/anon/invalid JWT and forged headers denied. [PR #7](https://github.com/saurabh-shelke1993/acadpro-app/pull/7) is open; no Owner acceptance or merge.
+
+**SCOPE / OPEN GATES:** Synthetic Parent/SA policy and minimal parents/players tables are nonhistorical, **not deployed-policy equivalence**. The pinned 11 helpers exclude the production `private.current_parent_id()` function; link checks use verified public FKs and native `auth.uid()`. Parent Portal/RPC, complete hosted role policies, finance/Storage, 82 historical migrations and AG3.4 parity still require separate work. B4 release NO-GO. No main or hosted Supabase updates. [AG3.3 scope](KHELTRIVA_DEVBOT_AG3_3.md).
+
+**AG3.2 OWNER-APPROVED/MERGED:** [PR #6](https://github.com/saurabh-shelke1993/acadpro-app/pull/6) merged at `39766dfe85b36fb1ea8f52e6d7ae14f11552cb1b` into `payment-module-finalization`, not main.
+
+
 ## AG3.2 — real Coach JWT assigned-batch security CI PASS (11 November 2026)
 
 **IMPLEMENTED / REAL NATIVE CI TESTED / OWNER ACCEPTANCE PENDING:** [Run 43031441781](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43031441781) PASS for an unlinked scratch Supabase CLI instance with real GoTrue-issued Coach A/B JWTs and PostgREST. Positive active batch, inactive same-academy membership, cross-academy direct IDs, forged headers, unauthenticated/invalid requests, forbidden writes, no direct Coach mapping table access, and Owner A/B regression passed. [PR #6](https://github.com/saurabh-shelke1993/acadpro-app/pull/6) targets `payment-module-finalization` only; not merged pending Owner acceptance.

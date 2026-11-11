@@ -1,0 +1,97 @@
+name: Kheltriva DevBot AG3.3 - Parent and Super Admin real JWT RLS
+
+on:
+  push:
+    branches: [devbot-ag3-3-parent-sa-jwt-rls, payment-module-finalization]
+    paths:
+      - '.github/workflows/devbot-ag3-3-parent-sa-jwt-rls.yml'
+      - 'scripts/devbot/ag3_3_parent_sa_jwt_rls_ci.py'
+      - 'scripts/devbot/test_ag3_3_parent_sa_jwt_rls_ci.py'
+      - 'scripts/devbot/ag3_2_coach_jwt_rls_ci.py'
+      - 'scripts/devbot/ag3_real_jwt_rls_ci.py'
+      - 'scripts/devbot/ag2_real_auth_ci.py'
+      - 'supabase/tests/subscriptions/ps_l2_3_b2_9_ag33_parent_sa_rls.sql'
+      - 'supabase/tests/subscriptions/ps_l2_3_b2_9_ag32_coach_batch_rls.sql'
+      - 'supabase/tests/subscriptions/ps_l2_3_b2_9_ag3_owner_batch_rls.sql'
+      - 'supabase/tests/subscriptions/ps_l2_3_b2_9_c3_native_schema.sql'
+      - 'supabase/tests/subscriptions/ps_l2_3_b2_9_live_helper_snapshot.sql'
+      - 'supabase/tests/subscriptions/ps_l2_3_b2_9_c34b1_owner_a_mapping.sql'
+      - 'supabase/tests/subscriptions/ps_l2_3_b2_9_c34b2_owner_b_mapping.sql'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kheltriva-ag33-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  parent-super-admin-signed-jwt:
+    name: AG3.3 real Parent and Super Admin JWT/RLS
+    if: github.repository == 'saurabh-shelke1993/acadpro-app'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout without persisted credentials
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Pure AG3.3 safety and denial tests
+        run: python -m unittest discover -s scripts/devbot -p 'test_ag3_3_parent_sa_jwt_rls_ci.py' -v
+      - name: Install pinned native Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: 3.0.0
+      - name: Initialize fresh isolated unlinked native Supabase
+        shell: bash
+        run: |
+          set -euo pipefail
+          AG33_DIR="$RUNNER_TEMP/kheltriva-ag33-ci"
+          test -z "${SUPABASE_ACCESS_TOKEN:-}"
+          test -z "${SUPABASE_DB_URL:-}"
+          test ! -e "$AG33_DIR"
+          mkdir -p "$AG33_DIR"
+          cd "$AG33_DIR"
+          supabase init --yes >/dev/null 2>&1
+          python - <<'PY'
+          from pathlib import Path
+          import tomllib
+          root=Path('supabase')
+          cfg=tomllib.loads((root/'config.toml').read_text())
+          assert cfg['project_id']=='kheltriva-ag33-ci'
+          assert cfg['auth']['email']['enable_confirmations'] is False
+          assert not (root/'migrations').exists()
+          assert not (root/'.temp'/'project-ref').exists()
+          PY
+          echo 'AG3.3 PASS: unlinked no-migration disposable CLI project.'
+      - name: Start real local GoTrue PostgREST Kong and PostgreSQL
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/kheltriva-ag33-ci"
+          if ! supabase start -x 'realtime,storage-api,studio,postgres-meta,edge-runtime,imgproxy,logflare,vector,supavisor,mailpit' >"$RUNNER_TEMP/ag33-startup-private.log" 2>&1; then
+            echo 'AG3.3 FAIL: scratch Supabase startup failed; sensitive logs withheld.'
+            exit 1
+          fi
+          echo 'AG3.3 PASS: native disposable Auth and REST stack started.'
+      - name: Real signed-JWT Parent, SA, and regression authorization checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/kheltriva-ag33-ci"
+          python "$GITHUB_WORKSPACE/scripts/devbot/ag3_3_parent_sa_jwt_rls_ci.py"
+      - name: Stop disposable instance without backup
+        if: always()
+        shell: bash
+        run: |
+          AG33_DIR="$RUNNER_TEMP/kheltriva-ag33-ci"
+          if [ -f "$AG33_DIR/supabase/config.toml" ]; then
+            cd "$AG33_DIR"
+            supabase stop --no-backup >/dev/null 2>&1 || true
+          fi
+          echo 'AG3.3 cleanup attempted; runner ephemeral.'

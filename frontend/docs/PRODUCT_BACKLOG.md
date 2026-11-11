@@ -1,5 +1,14 @@
 # AcadPro Product Backlog
 
+## AG3.3 — Parent and Super Admin real-JWT authorization (11 November 2026)
+
+**IMPLEMENTED + CI TESTED, OWNER ACCEPTANCE PENDING:** [GitHub Actions 43039558349](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43039558349) **PASS** — fourteen static/safety tests, native GoTrue real JWTs and PostgREST with three synthetic Parent identities (A1/A2 same academy, B other), one platform Super Admin, and existing Owner/Coach fixtures. Parent record/linked player/batch positive checks passed; same-academy other-parent and foreign tenant denied; SA global read and synthetic cross-tenant batch INSERT/UPDATE/DELETE passed; unauthorized Parent/Coach writes, ungranted IDs and header/JWT forgery denied. [PR #7](https://github.com/saurabh-shelke1993/acadpro-app/pull/7) needs Owner manual acceptance and merge to `payment-module-finalization` only.
+
+**NOT COMPLETED:** AG3.4 live policy parity and cross-role/finance/security regression, full production Parent Portal/SA service checks, historic 82 migration source replay, Windows C3.4B2 read-only state check and B4 subscription billing release. AG3.3 uses strictly nonhistorical synthetic policies, not actual deployed policies. No production database, main, billing or Vercel changes. [AG3.3 contract](KHELTRIVA_DEVBOT_AG3_3.md).
+
+**AG3.2 OWNER APPROVED/MERGED:** PR #6 at `39766dfe85b36fb1ea8f52e6d7ae14f11552cb1b` on the development branch.
+
+
 ## AG3.2 — Coach signed-JWT assigned-batch isolation (11 November 2026)
 
 **IMPLEMENTED AND AUTOMATED TESTED (CI PASS), OWNER MERGE GATE PENDING:** [Actions run 43031441781](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43031441781) validated two real Coach GoTrue/JWT sessions against scratch-only active-assignment `public.batches` RLS. Successful assigned reads, same-academy inactive denied, foreign-academy direct IDs denied, unmapped/anon/invalid JWT denied, forged headers denied, unauthorized writes denied, mapping tables inaccessible, Owner A/B regression passed. [PR #6](https://github.com/saurabh-shelke1993/acadpro-app/pull/6) awaits explicit Owner acceptance into `payment-module-finalization`.
