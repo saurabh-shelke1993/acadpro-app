@@ -12,7 +12,7 @@
 | AG3.4B | Exact live Coach legacy-mapping policy replay and scratch-only role-gated candidate | [Native CI 43046427442](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43046427442) | Actual signed-JWT unauthorized Parent/Coach cross-Coach mapping writes reproduced in scratch; no hosted remediation |
 | AG3.4C1 | Pinned 28 role-policy and seven helper fingerprints | [CI 43051827250](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43051827250) | Structural source fingerprint contract, not data-plane authorization |
 | AG3.4C2 | Exact six deployed SELECT expressions and live active-Parent helper | [Native PR CI 43053546673](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43053546673) | 9/9 static safety tests and real JWT Parent A1/A2/B, Owner, Coach and SA role reads PASS, including inactive Parent |
-| AG3.4D1 | Nine source-matched finance read predicates + six dependent helpers | **CI result must be checked before promotion** | Only signed-JWT finance read SELECT; NO production financial RPC/ledger mutation or overpayment signoff |
+| AG3.4D1 | Nine source-matched finance read predicates + six dependent helpers | [Native CI 43056181524](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43056181524) **PASS**, 9/9 static tests | Signed-JWT finance SELECT isolation for Parent/Owner/Coach/SA and inactive Parent; NO payment RPC/ledger mutation or overpayment signoff |
 | AG3.4D2 | Source-hashed fourteen public `SECURITY DEFINER` functions, sixteen Storage policies, four bucket flags | Static fingerprint inventory | NOT real negative RPC mutation testing or object Storage authorization |
 | AG3.4E | Evidence ledger, deterministic fail-closed release decision script, tests and GitHub Action | PR-specific offline CI | Explicit **NO-GO** until every critical/high risk and release-gate evidence is independently satisfied |
 
@@ -32,6 +32,14 @@ Security Advisor flags fourteen `SECURITY DEFINER` functions; catalog inspection
 
 Four buckets: three intentional public-read buckets (logos, UPI QR, Coach photos) and private `player-photos`. Bucket flags and all sixteen Storage policy fingerprints were captured; no signed-JWT object upload/read/replace/delete regression was performed.
 
+### Unresolved frontend regression — AG34-GATE-006
+
+The full `Phase 7.5 - Frontend validation` workflow [run 43056100352](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43056100352) failed **4 of 47 Jest test suites, 16 of 490 tests** (474 tests passed). The four failing suites are `CoachProfile.test.js`, `CoachPerformanceAssessments.test.js`, `PlayerPerformanceReport.test.js`, and `PerformanceWorkspaceTabs.test.js`. As tests failed, the subsequent React production build step was skipped.
+
+The same four-suite/16-test pattern was present in [earlier run 43051886803](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43051886803) before AG3.4C2 and E. Since these AG3.4 changes are security test/docs infrastructure rather than UI source, these failures appear pre-existing, but precise root causes still need independent triage before any regression pass claim.
+
+**Release blocker:** Repair or formally disposition the failures, rerun the full frontend test suite and CI React build, then obtain explicit acceptance. No unrelated UI changes were made as part of this security phase.
+
 ### Database migration and operational gap
 
 Live migration ledger **82** entries; local repository **40** migration SQL files; **23** exact version-prefix matches, which do not imply byte-equal SQL source. Missing original security/migration sources prohibit a trustworthy 82-step historical replay. No live migration ledger repair, backfill or one-off reconciliation is authorized.
@@ -40,7 +48,7 @@ The original local Windows C3.4B2 Auth mapping persistence issue remains an inde
 
 ## 3. CI release gate behavior
 
-`scripts/devbot/ag3_4e_security_release_gate.py` consumes `frontend/docs/AG3_4E_SECURITY_RELEASE_GATE.json` using a strict schema. It requires explicit booleans for production remediation, full 14 RPC runtime tests, all 16 Storage object tests, historical provenance, B3 replay, B4 acceptance, manual browser QA, Windows persistence, rollback plan and **fresh explicit production-release approval**.
+`scripts/devbot/ag3_4e_security_release_gate.py` consumes `frontend/docs/AG3_4E_SECURITY_RELEASE_GATE.json` using a strict schema. It requires explicit booleans for production remediation, full 14 RPC runtime tests, all 16 Storage object tests, a clean full frontend test/build run, historical provenance, B3 replay, B4 acceptance, manual browser QA, Windows persistence, rollback plan and **fresh explicit production-release approval**.
 
 - `python scripts/devbot/ag3_4e_security_release_gate.py --check-no-go` should **exit 0 while NO-GO is properly enforced**. This does **not** mean release security passed.
 - `python scripts/devbot/ag3_4e_security_release_gate.py --require-production-go` **exits nonzero** in this state. No shell switch can override it.
