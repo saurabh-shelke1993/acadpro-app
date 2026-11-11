@@ -8,6 +8,13 @@
 **Purpose:** Stable, handoff-friendly checkpoint between ChatGPT conversations. This document is NOT a substitute for inspecting live code, the current database, or current tests.
 
 
+## Latest checkpoint — PS-L2.3B B3.5 private historical SQL review (11 November 2026)
+
+- **IMPLEMENTED/CI PASSED:** b3_5_quarantine_source_review.py scans exactly 14 B2.6/B3.4 high-risk original SQL migrations, but **only from the owner's verified, ignored B3.4 local archive**. It runs B3.3's 82-version/168-element source hash attestation before analysis, masks quoted SQL and dollar-quoted bodies, records structural-only categories and RBAC/financial/security checklists; all approvals remain false.
+- **CI:** [GitHub Actions 42957811902](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42957811902) **PASS — 12 synthetic tests**. CI never downloaded the original private SQL or connected to hosted Supabase.
+- **READ-ONLY current catalog:** players, player_batches, parents, payment_dues, attendance and batches all have RLS currently enabled. Current private schema has 42 functions, 35 SECURITY DEFINER; 114 live policies refer to private functions. This is a *current security reference only*, not historical replay parity.
+- **OWNER ACTION PENDING:** pull branch, run the B3.5 private local reviewer against .recovery-private/baseline-b3-4-001, then share only its console summary. **Manual original-SQL inspection and sign-off for all 14 is not done.** Full B3 disposable Supabase replay, finance/tenant RBAC negative tests and B4 PS-L2.3 subscriptions remain BLOCKED. No production DDL, customer-data or credential changes. Report: frontend/docs/PS_L2_3B_B3_5_PRIVATE_SECURITY_REVIEW_20261111.md.
+
 ## Latest checkpoint — B3.4 verified private original SQL archive (owner run 11 November 2026)
 
 - After successful `git pull` to `bce6a65`, the owner confirmed `baseline-b3-4-001/manifest.json` exists and executed `python supabase/recovery/historical-baseline/b3_4_import_dashboard_csv.py --root . --finalize-existing --output "$private\baseline-b3-4-001"`.
