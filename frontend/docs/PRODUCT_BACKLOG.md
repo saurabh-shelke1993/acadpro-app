@@ -1,5 +1,11 @@
 # AcadPro Product Backlog
 
+## Security AG34-HIGH-001 — close unused legacy Coach mapping surface
+
+**IMPLEMENTATION STAGED, NATIVE CI PASS, PRODUCTION STILL OPEN.** Live legacy `public.coach_batches` currently has **0 rows**, but four permissive authenticated policies and broad grants expose writes. AG3.4B previously reproduced unauthorized Coach/Parent mutation in disposable real-JWT replay. New isolated [PR #17](https://github.com/saurabh-shelke1993/acadpro-app/pull/17) proposes deny-all client access to that obsolete table (revoked grants + restrictive RLS policy), leaving active `coach_batch_assignments` and three legacy helper dependencies intact. Transactional SQL fails closed on non-empty table, changed grants or policy digests; native CI [43059424184](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43059424184) PASSED 10+11 static security tests and all real-JWT role denial, an intentionally regranted scratch row, and active mapping regression. [Design and release gates](AG34_HIGH_001_LEGACY_COACH_BATCHES_LOCKDOWN.md).
+
+**REMAINING:** successful CI, review/merge into development only, separately approved canonical CLI-created migration and rollback rehearsal, manual Owner/Coach/Parent regression and explicit hosted Supabase authorization, live postflight. **AG34-HIGH-001 and production release are still NO-GO.** Do not conflate with unrelated RPC/Storage, frontend, B3/B4 gates.
+
 ## AG3.4E frontend compilation evidence (11 November 2026)
 
 **IMPLEMENTED/TESTED:** Independent Node20 dummy-key React build [run 43057423740](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43057423740) **PASS**, [PR #15](https://github.com/saurabh-shelke1993/acadpro-app/pull/15) merged. **PENDING/BLOCKER:** full Jest regression still **16/490 failed** across four suites (run 43056100352); separate root-cause fix and clean rerun needed. Build compilation alone does not clear `frontend_all_jest_and_build_green`; AG3.4E and billing B4 production release remain **NO-GO**.
