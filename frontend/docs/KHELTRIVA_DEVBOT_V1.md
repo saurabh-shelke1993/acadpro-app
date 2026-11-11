@@ -1,6 +1,6 @@
 # Kheltriva DevBot V1 — Safe validation runner
 
-**Status: AG1 implemented on review branch; quick CI PASS, full suite exercised (existing Jest failures), focused Auth gate pending.** This is a deterministic execution bot, not a paid autonomous AI programming agent.
+**Status: AG1 implemented; cloud quick and focused Auth checks PASSED; [review PR #3](https://github.com/saurabh-shelke1993/acadpro-app/pull/3) awaits Owner approval.** This is a deterministic execution bot, not a paid autonomous AI programming agent.
 
 ## Available test suites
 
@@ -35,6 +35,10 @@ The Owner can assign/approve a check from ChatGPT on the phone; code changes to 
 - [Full run 43003373047](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43003373047): runner self-tests, all eight B2.9 Auth/static safety groups, locked frontend installation and React production build passed. **Jest failed 16 tests / passed 474 tests** (4 failed suites / 43 passed suites).
 - [Existing parent-branch frontend CI 42988928180](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42988928180) showed **the same 16 failures in four suites before DevBot existed**: PerformanceWorkspaceTabs, CoachProfile, PlayerPerformanceReport, CoachPerformanceAssessments.
 - Push event uses the focused **auth-static** gate so the new bot's implementation is reviewed independently. The optional frontend and all suites still report existing Jest failures instead of suppressing them. Fixing those tests is a separate workstream.
+
+## AG1 decision
+
+**Implemented / CI tested:** Ready for owner review on feature PR #3. **Pending:** Owner approval and merge into `payment-module-finalization`; direct manual GitHub Actions button requires a separately approved default-branch workflow. 
 
 ## Acceptance criteria
 

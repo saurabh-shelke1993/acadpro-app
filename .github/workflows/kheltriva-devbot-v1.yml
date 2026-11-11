@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/workflows/kheltriva-devbot-v1.yml'
       - 'scripts/devbot/**'
+      - 'frontend/docs/KHELTRIVA_DEVBOT_V1.md'
   workflow_dispatch:
     inputs:
       suite:
