@@ -1,5 +1,14 @@
 # Kheltriva — Development Continuity
 
+## AG34-H5 — private backup integrity and recovery gate (11 November 2026)
+
+**STAGED, NOT LIVE-VERIFIED:** H4 operator independently reported two private SQL exports (schema+data) and original SHA-256 hashes, plus the isolated 82-applied/1-pending migration workspace. This is **not a tested restore**. Fresh read-only active database reference counts: 5 academies, 51 players, 11 modern Coach assignments, 8 Auth users, 9 Storage object metadata records, 82 migration ledger rows.
+
+**H5.1 development:** `scripts/devbot/ag34_h5_verify_local_backup.ps1` captures an additional private role-only SQL export from hosted (read-only) and calls `ag34_h5_backup_inspector.py` against the **existing** H4 export files. It requires user-entered original SHA256 for both files, 6 critical `CREATE TABLE` markers, 6 nonempty `INSERT` table markers, roles export presence, and no private SQL/record logging. Only synthetic files are used in CI. [H5 recovery runbook](frontend/docs/AG34_HIGH_001_H5_BACKUP_RECOVERY_VERIFICATION.md).
+
+**STILL PENDING:** user execution of H5.1 and **actual isolated full restoration rehearsal** H5.2. H4 separate schema/data dumps are not a common transactional snapshot; H5 roles snapshot is later; neither SQL dump contains physical Storage objects. Neither H5.1 scanner success nor GitHub CI may mark backup recovered or authorize hosted SQL. No Supabase hosted DDL, migration-ledger repair, `main` update or manual UI QA; **HIGH-001 OPEN; AG3.4E NO-GO**.
+
+
 ## AG34-H4 — live read-only release preflight + private Windows operator backup/fetch (11 Nov 2026)
 
 **READ-ONLY LIVE PREFLIGHT PASS, PRODUCTION STILL NO-GO.** Active Supabase project `ulyealhkmlorsbdiknrh` healthy; Free plan. Exact checked-in H2 preflight returned `READY_FOR_SEPARATE_PRODUCTION_APPROVAL`: 82 existing migrations, target `20261111165330` absent, 0 legacy `coach_batches` rows, 4/4 source-matched old policies, current auth CRUD/anon SELECT still granted, 11 modern Coach assignments, 3 legacy helper hashes match. Ledger names digest `09dcece659f31b05aa7db67c05374e44` and SQL digest `8078e33fce865d46766ac894213d1e07` unchanged. Postflight correctly returns `STOP_INVESTIGATE_NO_REGRANTS`.

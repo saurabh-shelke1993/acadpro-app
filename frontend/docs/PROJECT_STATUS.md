@@ -1,5 +1,12 @@
 # AcadPro Project Status
 
+## AG34-H5 — private SQL export verification and restore readiness (11 Nov 2026)
+
+**PLANNED/STAGED, NOT VERIFIED ON ACTUAL FILES:** H4 operator's original schema and data export SHA256 values must be rechecked locally; backup bytes are private on Windows and not accessible to ChatGPT/GitHub. Added `ag34_h5_verify_local_backup.ps1` to export a separate roles SQL file read-only and call `ag34_h5_backup_inspector.py` locally. The inspector fails closed on hash mismatch, missing/empty files, invalid SQL content and missing critical schema/data markers for 6 nonempty relations. Native CI is **invented fixtures only**. [H5 instructions](AG34_HIGH_001_H5_BACKUP_RECOVERY_VERIFICATION.md).
+
+**FULL RESTORE STILL BLOCKED:** No private files imported into isolated local Supabase PostgreSQL; the H4 two dumps are from separate commands and may not be transactionally consistent; separate H5 roles dump is also a different snapshot; SQL does not include Storage physical files. Free plan has no scheduled backups. No hosted migration, no postflight or manual role QA. HIGH-001 **OPEN**, AG3.4E production **NO-GO**, `main` unchanged.
+
+
 ## AG34-H4 — production rollout readiness (11 November 2026)
 
 **LIVE PREFLIGHT CHECKED / NOT DEPLOYED:** Hosted `acadpro-db` is active/healthy on **Supabase Free**. Read-only H2 preflight confirmed **82** historical versions with expected digests, **zero** canonical H3 version, **zero** old `coach_batches` rows, four exact policies, current authenticated legacy CRUD and anon SELECT, three unchanged helpers, modern `coach_batch_assignments` 11 rows and RLS enabled. Read-only postflight intentionally **STOP** because no remediation is applied. Existing Security Advisor notes (14 definer RPC warnings, 2 policy-free info, leaked-password warning) remain independently open.

@@ -1,5 +1,12 @@
 # AcadPro Product Backlog
 
+## AG34-H5 — verify the actual private H4 backup and rehearse safe restoration
+
+**H5.1 IMPLEMENTATION STAGED:** Local-only PowerShell script + Python inspector/checks to compare the two existing H4 SQL export hashes with original printed SHA256, capture a separate read-only roles dump, verify six critical nonempty Auth/Storage/Public/history table schema+data markers and protect private contents. [H5 runbook](AG34_HIGH_001_H5_BACKUP_RECOVERY_VERIFICATION.md). User must run H5.1 locally; CI uses only synthetic SQL.
+
+**H5.2 REQUIRED:** an actual isolated PostgreSQL 17/Supabase-compatible restore of roles/schema/data, compare recovered key tables and migration version ledger and validate dependencies; independently back up/recover physical Storage files. H4 does not guarantee one point-in-time snapshot. **DO NOT** treat file-size/hash/coverage PASS as a restorable recovery plan. Only after verified isolated restore + separate explicit live-DDL approval may the exact H3 versioned migration be run in attended CLI. Hosted HIGH-001 **OPEN**, AG3.4E overall **NO-GO**; B3/B4/RPC/Storage/QA separate.
+
+
 ## AG34-H4 — perform attended legacy Coach table hosted rollout after backup
 
 **SOURCE AND TESTS READY; HOSTED EXECUTION PENDING:** Fresh read-only live checks: 82 migration ledger records and source fingerprints unchanged, target `20261111165330` not applied, legacy `coach_batches` empty but four permissive policies/authenticated CRUD still active; modern mapping has 11 records at checkpoint. Supabase **Free** plan lacks scheduled daily backups; an actual private backup and recoverability check is required. [H4 operator runbook](AG34_HIGH_001_H4_HOSTED_RELEASE_PREFLIGHT.md) and non-deploying PowerShell preparation script now stage a safe backup/history fetch and exactly-one-pending gate, with [CI 43071267472](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43071267472) static PASS.

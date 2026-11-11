@@ -1,0 +1,48 @@
+name: AG34-H5 Private backup verification code checks (no private data)
+
+on:
+  push:
+    branches: [security-ag34-h5-backup-verification, payment-module-finalization]
+    paths:
+      - '.github/workflows/security-ag34-h5-backup-verification.yml'
+      - 'scripts/devbot/ag34_h5_backup_inspector.py'
+      - 'scripts/devbot/ag34_h5_verify_local_backup.ps1'
+      - 'scripts/devbot/test_ag34_h5_backup_inspector.py'
+      - 'frontend/docs/AG3_4E_SECURITY_RELEASE_GATE.json'
+  pull_request:
+    branches: [payment-module-finalization]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-only:
+    name: Synthetic fixture and PowerShell syntax; never touch private backups
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Synthetic SQL dump hash/coverage tests
+        run: |
+          set -euo pipefail
+          python -m unittest discover -s scripts/devbot -p 'test_ag34_h5_backup_inspector.py' -v
+          python scripts/devbot/ag3_4e_security_release_gate.py --check-no-go
+      - name: Parse Windows backup verification helper without executing
+        shell: pwsh
+        run: |
+          $tokens = $null
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            (Join-Path $PWD 'scripts/devbot/ag34_h5_verify_local_backup.ps1'),
+            [ref]$tokens, [ref]$errors) | Out-Null
+          if ($errors.Count -gt 0) { throw 'AG34-H5 PowerShell script syntax failed' }
+      - name: Record strict data boundary
+        run: |
+          echo 'Only invented SQL fixtures tested. Real H4 backups remain local/private.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'No hosted connection, migration, restore or customer data in GitHub Actions.' >> "$GITHUB_STEP_SUMMARY"
