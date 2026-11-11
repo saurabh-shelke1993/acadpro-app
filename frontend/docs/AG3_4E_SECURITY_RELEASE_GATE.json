@@ -33,9 +33,9 @@
     },
     {
       "phase": "AG3.4D1",
-      "state": "tested_pr_pending",
-      "mode": "nine_deployed_finance_read_predicates_real_jwt_9_unit_tests",
-      "url": "https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43056181524"
+      "state": "tested_merged",
+      "mode": "nine_deployed_finance_read_predicates_real_jwt_PR13_merged",
+      "url": "https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43056561458"
     },
     {
       "phase": "AG3.4D2",
