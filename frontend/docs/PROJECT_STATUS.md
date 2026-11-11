@@ -1,5 +1,14 @@
 # AcadPro Project Status
 
+## AG34-H4 — production rollout readiness (11 November 2026)
+
+**LIVE PREFLIGHT CHECKED / NOT DEPLOYED:** Hosted `acadpro-db` is active/healthy on **Supabase Free**. Read-only H2 preflight confirmed **82** historical versions with expected digests, **zero** canonical H3 version, **zero** old `coach_batches` rows, four exact policies, current authenticated legacy CRUD and anon SELECT, three unchanged helpers, modern `coach_batch_assignments` 11 rows and RLS enabled. Read-only postflight intentionally **STOP** because no remediation is applied. Existing Security Advisor notes (14 definer RPC warnings, 2 policy-free info, leaked-password warning) remain independently open.
+
+**STAGED:** Private Windows `ag34_h4_prepare_hosted_release.ps1` uses CLI v3.0.0 to export schema/data locally, fetch the applied 82 versions into an unlinked folder, run H3 history/one-pending-file gates and STOP. No hosted migration command. Static security and PowerShell syntax CI [43071267472](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43071267472) **PASS**. [H4 runbook](AG34_HIGH_001_H4_HOSTED_RELEASE_PREFLIGHT.md).
+
+**PENDING:** Operator-run private backup, restore preparedness, authenticated one-version CLI staging/execution with explicit product-owner live-DDL consent, hosted postflight and four-role browser QA. Supabase Free has no automated daily backup; no claim of verified backup/rollback. Exact migration cannot be applied using the connected generic Supabase migration tool without changing version provenance. Production HIGH-001 **OPEN** and AG3.4E release **NO-GO**; `main` unchanged.
+
+
 ## AG34-H3 — supported single-migration deployment mechanism (11 Nov 2026)
 
 **IMPLEMENTED + SCRATCH NATIVE CI PASS / HOSTED NOT APPLIED.** Fresh live catalog: **82/82** applied migrations store names and SQL statement arrays; all version/name segments are path-safe; target `20261111165330` not present. Supabase CLI v3 `migration fetch` can safely reconstruct applied files into an isolated, unlinked temporary workspace without replay; the normal repo still has incomplete history. H3 removes **only outer BEGIN/COMMIT statements** from the **unapplied** canonical H2 migration so the CLI owns the RLS/grant and migration-version write in one transaction.
