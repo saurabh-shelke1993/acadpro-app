@@ -1,6 +1,6 @@
 # Kheltriva DevBot AG3.1 — Real signed-JWT cross-academy batch RLS
 
-**11 November 2026 — implemented in isolated feature branch; real CI and owner approval pending.**
+**11 November 2026 — implemented and real signed-JWT PostgREST CI PASS on isolated AG3.1 feature branch; Owner merge approval pending.**
 
 ## Scope and method
 
@@ -26,6 +26,10 @@ One standard GitHub Linux job, 20-minute limit, cancellation of superseded runs,
 ## Checkpoint status
 
 AG2: Merged by Owner approval, post-merge real Auth CI PASS (run 43023539387).
-AG3.1: Implemented in feature branch; first real CI pending.
+AG3.1: Implemented, real CI PASS — [GitHub Actions run 43027355787](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43027355787), 9/9 pure safety tests and real JWT/REST positive-negative tenant checks. Owner review and merge to development branch pending.
 AG3.2+: Coach/Parent/SA, actual app RLS policy coverage pending.
 Production/B4: NO-GO / untouched.
+
+## Real CI evidence and remaining coverage
+
+The first native GitHub Actions run completed successfully without local PowerShell: **[43027355787 — PASS](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43027355787)**. Two real owner JWTs only returned their own synthetic academy batch. The unmapped user, anonymous request, invalid bearer, forged HTTP tenant/user headers, and unauthorized mutations were handled as specified. These are genuine PostgREST RLS tests for the **new scratch-only policy**, not a full verification of existing hosted Kheltriva policies. Follow-on AG3.2 tests must inspect actual Coach/Parent relations before adding more role coverage. No main/production changes, no historical replay.
