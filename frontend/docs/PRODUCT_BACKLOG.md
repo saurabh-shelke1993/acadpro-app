@@ -1,5 +1,14 @@
 # AcadPro Product Backlog
 
+## AG3.4C2–E — implementation and release blockers (11 November 2026)
+
+**MERGED / SOURCE-ALIGNED NATIVE TESTED:** AG3.4C2 [PR #11](https://github.com/saurabh-shelke1993/acadpro-app/pull/11) real GoTrue/SELECT policy parity PASS; AG3.4D1 [PR #13](https://github.com/saurabh-shelke1993/acadpro-app/pull/13) finance SELECT policy JWT PASS, nine exact deployed predicates + six helpers; AG3.4D2 source fingerprints of 14 authenticated SECURITY DEFINER RPCs + 16 Storage policies (metadata **only**); AG3.4E [PR #12](https://github.com/saurabh-shelke1993/acadpro-app/pull/12) offline fail-closed production **NO-GO** gate.
+
+**SECURITY ACTIONS REQUIRED (NOT IMPLEMENTED/ACCEPTED FOR PRODUCTION):** (1) HIGH `coach_batches` host-side remediation migration + dependency/rollback review; (2) genuine negative JWT, transaction, concurrency/overpayment tests for all 14 RPCs; (3) real object-level signed-JWT access tests for 16 Storage policies; (4) 82-version source provenance/history replay and B3/B4 blocking anomalies; (5) Windows C3.4B2 persistence and role/browser acceptance.
+
+**FRONTEND QA BLOCKER:** [Run 43056100352](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43056100352): 16/490 Jest tests failed across CoachProfile, CoachPerformanceAssessments, PlayerPerformanceReport and PerformanceWorkspaceTabs; build skipped. Same pre-existing pattern visible [43051886803](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43051886803), source root cause not conclusively established. Future focused, separate frontend regression fix required. **Do not mark AG3.4 full authorization/release security or B4 as completed.** [Final security review](KHELTRIVA_DEVBOT_AG3_4E_FINAL_SECURITY_RELEASE_REVIEW.md).
+
+
 ## AG3.4B — confirmed live-policy authorization candidate (disposable real-JWT replay)
 
 **TESTED:** [Native CI 43046427442](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43046427442) PASS (10/10 pure guards + signed JWT/PostgREST). Exact deployed legacy `coach_batches` expressions permitted invented Parent and Coach identities to insert/delete cross-academy Coach mapping rows; same-academy Parent and inactive Coach mapping reads also occurred. Source-verified `coaches_select` dependency and exact-policy digests were enforced. In scratch, proposed Academy Owner role guard, coach/batch academy match, active Coach-own read scope passed all regression checks. **No canonical migration or hosted remediation applied.** [AG3.4B report](KHELTRIVA_DEVBOT_AG3_4B_COACH_POLICY_PARITY.md).

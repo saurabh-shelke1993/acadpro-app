@@ -1,5 +1,16 @@
 # AcadPro Project Status
 
+## AG3.4 — C2 and D1 source-aligned JWT PASS; E final security gate NO-GO (11 November 2026)
+
+**DEVELOPMENT IMPLEMENTED / PRs MERGED:** C2 [PR #11](https://github.com/saurabh-shelke1993/acadpro-app/pull/11), [native CI 43053546673](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43053546673) PASS: six exact live Parent/Coach/SA SELECT predicates, active Parent helper; 9/9 pure tests and real Parent A1/A2/B, Owner, Coach, SA JWT isolation. D1+D2 [PR #13](https://github.com/saurabh-shelke1993/acadpro-app/pull/13), [native CI 43056561458](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43056561458) PASS: nine live finance SELECT/ALL predicates, six dependency helpers, Parent/Owner/Coach/SA inactive Parent/cross-tenant JWT, 9/9 pure tests; 14 RPC and 16 Storage policy **fingerprints inventoried only**. E [PR #12](https://github.com/saurabh-shelke1993/acadpro-app/pull/12) merged a fail-closed production NO-GO evidence gate.
+
+**OPEN/HIGH:** The AG3.4B legacy `coach_batches` source-attested scratch authorization weakness remains **NOT REMEDIATED on hosted DB**. Complete 14-RPC authenticated mutation/invariant and 16-Storage object-policy negative tests **NOT RUN**. Historical 82-applied/40-local source drift unresolved; B3/B4 NO-GO. Manual role/browser QA and Windows C3.4B2 persistence independently pending. No main/Vercel/hosted changes.
+
+**FULL FRONTEND REGRESSION FAILED:** [Run 43056100352](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43056100352) 4 Jest suites failed, 16 tests failed (474 passed, 490 total) and build skipped; same pattern in pre-C2 [43051886803](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43051886803). Four suites: CoachProfile, CoachPerformanceAssessments, PlayerPerformanceReport and PerformanceWorkspaceTabs. Investigate under a separate scoped frontend PR; do not represent AG3.4 as a complete regression pass.
+
+**E RELEASE VERDICT:** **NO-GO**, even after all approved feature PRs merge. [Final review](KHELTRIVA_DEVBOT_AG3_4E_FINAL_SECURITY_RELEASE_REVIEW.md).
+
+
 ## AG3.4B — confirmed unsafe deployed legacy Coach policy behavior in disposable reconstruction
 
 **CODE/CI COMPLETE (10/10 static + real GoTrue/PostgREST) / HOSTED FIX NOT APPLIED:** [Run 43046427442](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43046427442) cloned four exact live `public.coach_batches` RLS predicates, the required live `coaches_select` dependency and grants. Same-academy Parent accounts read unrelated legacy mappings, Coach read inactive legacy mapping, and both Parent and Coach successfully inserted/deleted **foreign-Coach → own-academy Batch** links in isolated synthetic records. Test-only role-gated candidate closed those paths, protected Owner/SA rights and maintained counts.

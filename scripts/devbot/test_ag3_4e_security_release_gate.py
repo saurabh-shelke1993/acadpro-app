@@ -52,6 +52,14 @@ class ReleaseGateTests(unittest.TestCase):
         with self.assertRaises(gate.GateContractError):
             gate.evaluate(d)
 
+    def test_existing_frontend_jest_failures_keep_release_blocked(self):
+        d=copy.deepcopy(self.data)
+        self.assertFalse(d["production_release_requirements"]["frontend_all_jest_and_build_green"])
+        self.assertIn("AG34-GATE-006", [x["id"] for x in d["blocking_findings"]])
+        decision,reasons=gate.evaluate(d)
+        self.assertEqual(decision,"NO_GO")
+        self.assertIn("AG34-GATE-006",reasons)
+
     def test_missing_high_blocker_is_rejected(self):
         d=copy.deepcopy(self.data)
         d["blocking_findings"]=[f for f in d["blocking_findings"] if f["id"]!="AG34-HIGH-001"]
