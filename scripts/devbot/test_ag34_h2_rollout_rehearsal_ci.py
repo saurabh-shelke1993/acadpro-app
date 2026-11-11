@@ -31,8 +31,12 @@ class H2RolloutGuards(unittest.TestCase):
 
     def test_migration_sql_body_byte_for_byte_matches_reviewed_source(self):
         h2.verify_cli_migration_body()
-        self.assertEqual(self.original[self.original.index("BEGIN;\n"):],
-                         self.migration[self.migration.index("BEGIN;\n"):])
+        source = self.original.split("\nBEGIN;\n", 1)[1].lstrip("\n")
+        expected = source.replace("\nCOMMIT;\n", "\n", 1)
+        self.assertEqual(expected, "DO $ag34_h1_preflight$" +
+                         self.migration.split("\nDO $ag34_h1_preflight$", 1)[1])
+        self.assertNotIn("\nBEGIN;\n", self.migration)
+        self.assertNotIn("\nCOMMIT;\n", self.migration)
 
     def test_migration_is_unapplied_and_source_locked(self):
         for expected in ("NOT APPLIED", "82 live versions vs 40",

@@ -1,5 +1,14 @@
 # AcadPro Project Status
 
+## AG34-H3 — supported single-migration deployment mechanism (11 Nov 2026)
+
+**IMPLEMENTED + SCRATCH NATIVE CI PASS / HOSTED NOT APPLIED.** Fresh live catalog: **82/82** applied migrations store names and SQL statement arrays; all version/name segments are path-safe; target `20261111165330` not present. Supabase CLI v3 `migration fetch` can safely reconstruct applied files into an isolated, unlinked temporary workspace without replay; the normal repo still has incomplete history. H3 removes **only outer BEGIN/COMMIT statements** from the **unapplied** canonical H2 migration so the CLI owns the RLS/grant and migration-version write in one transaction.
+
+**REAL REHEARSAL:** [GitHub native CLI run 43067604744](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43067604744) PASS: 82 invented applied history versions fetched, injection after security DDL failed with unchanged grants/four old policies and unchanged 82 ledger, one subsequent successful migration recorded exact version `20261111165330` as entry 83, second up no-op; Owner/Coach/Parent/SA/anon denied legacy access and modern Coach assignment reads unaffected. New offline operator preflight checks the 82 version/name digest and stages only one reviewed SQL migration. [Operational runbook](AG34_HIGH_001_H3_SINGLE_MIGRATION_DEPLOYMENT_MECHANISM.md).
+
+**PENDING:** separate explicit authorization of hosted one-migration CLI command, backup/change-window, updated read-only preflight/ledger fingerprint, actual application/postflight/legacy JWT denial and full manual role testing. Stored ledger statements are **not proven identical to original Git migration sources**; B3 recovery and B4 billing remain blocked. No `main` or hosted Supabase change; HIGH-001 **OPEN**, AG3.4E release **NO-GO**.
+
+
 ## AG34-H2 — security migration and safe recovery staged, no production deployment (11 Nov 2026)
 
 **IMPLEMENTED / TESTED IN SCRATCH:** CLI v3.0.0 generated forward migration `20261111165330_ag34_h1_legacy_coach_batches_client_lockdown.sql` (unlinked run [43062730880](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43062730880)). The SQL transaction matches prior H1 tested proposal exactly; no hosted schema changed. H2 native GoTrue/JWT/PostgREST [CI 43063776080](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43063776080) **PASS**: source-aligned original risk, Owner/Coach/Parent/SA/anon lockdown, accidental scratch regrant denial, live-style read-only postflight and safe emergency downshift with grants **still revoked**. 42 offline security tests and AG3.4E NO-GO checks passed.

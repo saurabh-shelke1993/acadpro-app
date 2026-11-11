@@ -1,5 +1,14 @@
 # Kheltriva — Development Continuity
 
+## AG34-H3 — single-version deployment mechanism source-audited and scratch tested (11 Nov 2026)
+
+**RESOLVED IN DEVELOPMENT, HOSTED NO-GO:** Live `supabase_migrations.schema_migrations` contains **82** applied version/name records and all **82 stored statement arrays**, each with a safe name and valid 14-digit version. Read-only metadata fingerprints: filename digest `09dcece659f31b05aa7db67c05374e44`, stored SQL ledger digest `8078e33fce865d46766ac894213d1e07`; H2 target version `20261111165330` is **not** applied. A private CLI `migration fetch --remote=<project>` may recover the existing applied ledger SQL **into a throwaway non-Git workspace**; then exactly one reviewed H3 candidate is pending. Do not `db push` from the incomplete normal repo or invent/commit historical migration contents.
+
+**CRITICAL H3 ATOMICITY FIX:** CLI v3.0.0 applies a migration containing authored `BEGIN/COMMIT` as sequential SQL and records the ledger afterward. On the **unapplied** H2 canonical file, H3 removed *only* the authored outer transaction boundaries; CLI now batches the security statements and exact version record in one transaction. H1 original source is preserved; new H2/H3 parity checks compare the security statements after normalizing wrappers. [Native unlinked CLI run 43067604744](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43067604744) **PASS**: fetched 82 **invented already-applied** scratch histories, deliberately failed after policy DDL and verified both schema and ledger rolled back, then applied **exactly one** version `20261111165330`, old history unchanged, full app-role JWT legacy denial and modern assignment regression PASS. [H3 rollout mechanism + safeguards](frontend/docs/AG34_HIGH_001_H3_SINGLE_MIGRATION_DEPLOYMENT_MECHANISM.md).
+
+**STRICT:** No hosted DDL/DML or ledger changes, no historical replay/repair, no `main` deployment, no completed production manual QA. H3 standalone operator gate requires 82 correct fetched version/name files and **only one** exact-byte canonical pending file. Product Owner approval for a GitHub development PR **does not** authorize the hosted `migration up --remote`. HIGH-001 remains **OPEN**; AG3.4E production release **NO-GO**.
+
+
 ## AG34-H2 — controlled legacy Coach mapping rollout package (11 November 2026)
 
 **DEVELOPMENT STAGED / REAL-JWT CI PASS / HOSTED NOT DEPLOYED.** Fresh read-only active Supabase preflight: legacy `public.coach_batches` **0 rows**, four old source-matched policies and direct authenticated CRUD + anon SELECT; modern `coach_batch_assignments` **11** records, RLS enabled; three legacy private-helper hashes matched. Preflight returned `READY_FOR_SEPARATE_PRODUCTION_APPROVAL`; postflight returned `STOP_INVESTIGATE_NO_REGRANTS` (expected before rollout).

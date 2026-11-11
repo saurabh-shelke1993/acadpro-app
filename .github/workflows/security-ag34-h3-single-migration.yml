@@ -1,0 +1,96 @@
+name: AG34-H3 Isolated one-version CLI migration fetch/up atomicity
+
+on:
+  push:
+    branches: [security-ag34-h3-isolated-single-migration, payment-module-finalization]
+    paths:
+      - '.github/workflows/security-ag34-h3-single-migration.yml'
+      - 'scripts/devbot/ag34_h3_single_migration_cli_ci.py'
+      - 'scripts/devbot/test_ag34_h3_single_migration_cli.py'
+      - 'scripts/devbot/ag34_h3_operator_workspace_gate.py'
+      - 'scripts/devbot/test_ag34_h3_operator_workspace_gate.py'
+      - 'scripts/devbot/ag34_h2_rollout_rehearsal_ci.py'
+      - 'scripts/devbot/test_ag34_h2_rollout_rehearsal_ci.py'
+      - 'supabase/migrations/20261111165330_ag34_h1_legacy_coach_batches_client_lockdown.sql'
+      - 'frontend/docs/AG3_4E_SECURITY_RELEASE_GATE.json'
+  pull_request:
+    branches: [payment-module-finalization]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ag34-h3-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cli-one-migration-rehearsal:
+    name: Fetch 82 mock ledger records, apply one, verify rollback and JWT
+    if: github.repository == 'saurabh-shelke1993/acadpro-app'
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Static version safety, previous policy checks and NO-GO
+        run: |
+          set -euo pipefail
+          python -m unittest discover -s scripts/devbot -p 'test_ag34_h2_rollout_rehearsal_ci.py' -v
+          python -m unittest discover -s scripts/devbot -p 'test_ag34_h3_single_migration_cli.py' -v
+          python -m unittest discover -s scripts/devbot -p 'test_ag34_h3_operator_workspace_gate.py' -v
+          python -m unittest discover -s scripts/devbot -p 'test_ag3_4e_security_release_gate.py' -v
+          python scripts/devbot/ag3_4e_security_release_gate.py --check-no-go
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 3.0.0
+      - name: Create fresh unlinked Supabase only in runner temp
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -z "${SUPABASE_ACCESS_TOKEN:-}"
+          test -z "${SUPABASE_DB_URL:-}"
+          ROOT="$RUNNER_TEMP/kheltriva-ag34b-ci"
+          test ! -e "$ROOT"
+          mkdir -p "$ROOT"
+          cd "$ROOT"
+          supabase init --yes >/dev/null
+          python - <<'PY'
+          from pathlib import Path
+          import tomllib
+          p=Path('supabase')
+          conf=tomllib.loads((p/'config.toml').read_text())
+          assert conf['project_id']=='kheltriva-ag34b-ci'
+          assert conf['auth']['email']['enable_confirmations'] is False
+          assert not (p/'migrations').exists()
+          assert not (p/'.temp'/'project-ref').exists()
+          PY
+      - name: Start local GoTrue PostgREST and PostgreSQL
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/kheltriva-ag34b-ci"
+          if ! supabase start -x 'realtime,storage-api,studio,postgres-meta,edge-runtime,imgproxy,logflare,vector,supavisor,mailpit' >"$RUNNER_TEMP/ag34-h3-private.log" 2>&1; then
+            echo 'AG34-H3 FAIL: disposable Supabase startup; diagnostics withheld'
+            exit 1
+          fi
+      - name: Execute CLI migration fetch and one-version atomicity in local scratch
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/kheltriva-ag34b-ci"
+          python "$GITHUB_WORKSPACE/scripts/devbot/ag34_h3_single_migration_cli_ci.py"
+      - name: Remove unlinked scratch data without backup
+        if: always()
+        shell: bash
+        run: |
+          ROOT="$RUNNER_TEMP/kheltriva-ag34b-ci"
+          if [ -f "$ROOT/supabase/config.toml" ]; then
+            cd "$ROOT"
+            supabase stop --no-backup >/dev/null 2>&1 || true
+          fi
+          echo 'AG34-H3: disposable cleanup attempted; hosted migration ledger untouched'

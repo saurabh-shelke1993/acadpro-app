@@ -64,7 +64,7 @@
       "severity": "HIGH",
       "status": "open",
       "subject": "Legacy public.coach_batches authenticated same-academy mapping RLS allows unexpected Parent/Coach writes in exact-source scratch replay",
-      "mitigation": "AG34-H2 CLI-generated versioned forward migration candidate (20261111165330) matches source-tested H1 SQL. Native unlinked GoTrue/JWT + emergency grants-only downshift CI 43063776080 PASS; read-only hosted preflight READY but hosted postflight STOP (not deployed). Original client grants/policies remain in active Supabase; canonical deployment/versioning, manual browser regression and explicit hosted approval pending. DO NOT mark remediated."
+      "mitigation": "AG34-H3 CLI v3 isolated history fetch/one-migration mechanism verified in unlinked native CI 43067604744 (82 invented already-applied versions recovered; failed DDL rolls back grants/RLS and history; one successful version 20261111165330; no old history changes; real JWT RBAC PASS). Frozen live 82-version manifest verified; H3 canonical SQL excludes authored transaction boundaries. Hosted migration NOT applied; single-command explicit Owner approval and manual QA pending. HIGH OPEN."
     },
     {
       "id": "AG34-GATE-002",
@@ -105,7 +105,7 @@
   ],
   "production_decision": "NO_GO",
   "dev_pr_merge_status": "Allowed if PR-specific checks succeed; unrelated to production deployment",
-  "source_limits": "AG34-H2 staged guarded canonical SQL and safe downshift were tested in an unlinked native JWT scratch project; 82-step historical migration replay, actual hosted DDL, Supabase migration-engine/version ledger integration, full frontend/manual QA, RPC/Storage tests and B4 are NOT validated. The production gate remains NO_GO.",
+  "source_limits": "AG34-H3 is validated only in disposable GoTrue/PostgREST/CLI with 82 invented historical version entries; live 82 stored statement arrays inspected read-only, but NOT fetched from hosted and not replayed. No hosted DDL or migration-version change. Release remains NO_GO because HIGH-001, RPC/Storage/Jest, historical source B3, B4, and full browser tests are pending.",
   "independent_frontend_build": {
     "result": "PASS",
     "evidence_url": "https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43057423740",
