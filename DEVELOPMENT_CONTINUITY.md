@@ -1,5 +1,14 @@
 # Kheltriva — Development Continuity
 
+## AG34-H4 — live read-only release preflight + private Windows operator backup/fetch (11 Nov 2026)
+
+**READ-ONLY LIVE PREFLIGHT PASS, PRODUCTION STILL NO-GO.** Active Supabase project `ulyealhkmlorsbdiknrh` healthy; Free plan. Exact checked-in H2 preflight returned `READY_FOR_SEPARATE_PRODUCTION_APPROVAL`: 82 existing migrations, target `20261111165330` absent, 0 legacy `coach_batches` rows, 4/4 source-matched old policies, current auth CRUD/anon SELECT still granted, 11 modern Coach assignments, 3 legacy helper hashes match. Ledger names digest `09dcece659f31b05aa7db67c05374e44` and SQL digest `8078e33fce865d46766ac894213d1e07` unchanged. Postflight correctly returns `STOP_INVESTIGATE_NO_REGRANTS`.
+
+**H4 development artifact:** non-deploying Windows PowerShell `scripts/devbot/ag34_h4_prepare_hosted_release.ps1` generates private logical schema/data exports in a random `LOCALAPPDATA` folder, then fetches the 82 applied SQL statement arrays into a separate unlinked local workspace and stages exactly one Git-approved migration verified by the H3 offline manifest gate. The script does **not** run `migration up`, modify remote schema/ledger or send secrets to CI. [H4 operator handoff](frontend/docs/AG34_HIGH_001_H4_HOSTED_RELEASE_PREFLIGHT.md). [CI 43071267472](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43071267472) **PASS** (static Python and PowerShell syntax; **not run against hosted**).
+
+**BLOCKERS:** Supabase Free has no scheduled daily backups; a real private backup and operational restoration review have **not** been performed by connected tools. The connected Supabase migration tool cannot preserve the CLI-generated exact fixed version, so the actual `migration up --remote` needs attended authenticated CLI on the product owner's Windows machine. Even after staging, confirm exact single version and obtain separate hosted-DDL authorization and user manual role regression. **HIGH-001 remains OPEN; AG3.4E NO-GO; `main` unchanged.**
+
+
 ## AG34-H3 — single-version deployment mechanism source-audited and scratch tested (11 Nov 2026)
 
 **RESOLVED IN DEVELOPMENT, HOSTED NO-GO:** Live `supabase_migrations.schema_migrations` contains **82** applied version/name records and all **82 stored statement arrays**, each with a safe name and valid 14-digit version. Read-only metadata fingerprints: filename digest `09dcece659f31b05aa7db67c05374e44`, stored SQL ledger digest `8078e33fce865d46766ac894213d1e07`; H2 target version `20261111165330` is **not** applied. A private CLI `migration fetch --remote=<project>` may recover the existing applied ledger SQL **into a throwaway non-Git workspace**; then exactly one reviewed H3 candidate is pending. Do not `db push` from the incomplete normal repo or invent/commit historical migration contents.
