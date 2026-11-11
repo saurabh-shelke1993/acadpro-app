@@ -63,6 +63,31 @@ jobs:
               psql -h 127.0.0.1 -U postgres -d postgres -X -v ON_ERROR_STOP=1 \
               -f "/workspace/supabase/tests/subscriptions/$f"
           done
+      - name: Compile C3.3B transactional helper install against separate native-shaped PostgreSQL 17
+        env:
+          PGPASSWORD: postgres
+        run: |
+          set -euo pipefail
+          docker run --rm --network host -e PGPASSWORD=postgres postgres:17 \
+            createdb -h 127.0.0.1 -U postgres b29_native_shaped
+          for f in \
+            ps_l2_3_b2_9_c33b_ci_auth_shim.sql \
+            ps_l2_3_b2_9_c3_native_schema.sql
+          do
+            docker run --rm --network host -e PGPASSWORD=postgres \
+              -v "$GITHUB_WORKSPACE:/workspace:ro" postgres:17 \
+              psql -h 127.0.0.1 -U postgres -d b29_native_shaped \
+              -X -v ON_ERROR_STOP=1 \
+              -f "/workspace/supabase/tests/subscriptions/$f"
+          done
+          docker run --rm --network host -e PGPASSWORD=postgres \
+            -v "$GITHUB_WORKSPACE:/workspace:ro" postgres:17 \
+            psql -h 127.0.0.1 -U postgres -d b29_native_shaped \
+            -X --single-transaction -v ON_ERROR_STOP=1 \
+            -f /workspace/supabase/tests/subscriptions/ps_l2_3_b2_9_c33b_precheck.sql \
+            -f /workspace/supabase/tests/subscriptions/ps_l2_3_b2_9_live_helper_snapshot.sql \
+            -f /workspace/supabase/tests/subscriptions/ps_l2_3_b2_9_c33b_postcheck.sql
+          echo "PASS means SQL compilation/ACL checks with FAKE CI auth only; NOT real Supabase Auth."
       - name: Confirm no production credentials or historical source
         run: |
           test ! -d supabase/recovery/historical-baseline/.recovery-private
