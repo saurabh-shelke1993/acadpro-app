@@ -236,7 +236,7 @@ def main() -> int:
             if code==200:
                 break
             if code not in (404,503):
-                raise SecurityMismatch("Unexpected PostgREST cache status")
+                raise SecurityMismatch("Unexpected PostgREST cache status "+str(code))
             time.sleep(1)
         else:
             raise SecurityMismatch("PostgREST legacy mapping cache not refreshed")
