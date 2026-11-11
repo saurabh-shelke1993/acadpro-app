@@ -6,6 +6,7 @@ Never connects to the real Supabase project or replays historical migrations.
 from __future__ import annotations
 
 import os
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -33,14 +34,18 @@ def command(args: list[str], marker: str | None=None)->str:
                       "AG3.4C requires clean disposable AG3.3 baseline"):
             if known in result.stderr:
                 raise ParityFailure(known)
-        raise ParityFailure("Disposable SQL/Docker failure")
+        # SQLSTATE only (no error response, SQL text, token or auth secret).
+        found=re.search(r'ERROR:\\s*([0-9A-Z]{5})',result.stderr)
+        state=found.group(1) if found else "UNKNOWN"
+        raise ParityFailure("Disposable SQL/Docker failure SQLSTATE="+state)
     if marker and marker not in result.stdout:
         raise ParityFailure("Missing SQL checkpoint marker")
     return result.stdout.strip()
 
 def sql(*args: str, marker: str | None=None)->str:
     return command(["docker","exec",CONTAINER,"psql","-U","postgres",
-                    "-d","postgres","-X","-v","ON_ERROR_STOP=1",*args],marker)
+                    "-d","postgres","-X","-v","ON_ERROR_STOP=1",
+                    "-v","VERBOSITY=sqlstate",*args],marker)
 
 def stage():
     for name in (*ag2.FIXTURES,ag3.POLICY_FILE,
