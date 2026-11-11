@@ -1,0 +1,22 @@
+name: PS-L2.3B B4 integration readiness (no-go review)
+on:
+  push:
+    branches: [payment-module-finalization]
+    paths:
+      - 'supabase/recovery/historical-baseline/b4_readiness_review_20261111.json'
+      - 'supabase/recovery/historical-baseline/test_b4_readiness_review.py'
+      - '.github/workflows/subscriptions-ps-l2-3-b4-readiness.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  no-go-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate genuine B4 readiness is blocked
+        run: python -m unittest discover -s supabase/recovery/historical-baseline -p 'test_b4_readiness_review.py' -v

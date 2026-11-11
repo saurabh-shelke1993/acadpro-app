@@ -8,6 +8,12 @@ Security and data isolation are prerequisites for production.
 # ✅ Completed
 
 
+## B4 subscription lifecycle integration — assessed NO-GO (11 November 2026)
+
+**READ-ONLY AUDIT:** 22 active legacy agreements (all open-ended), three academy mismatches, one linked to inactive player; 26 dues and 42 payments. Proposed PS-L2.3 period/policy/event tables and period due FK absent from active Supabase; no hosted branches, pg_cron or btree_gist. The 35 B3.6 real role/finance tests have not run. Missing original helper provenance and Owner reconciliation prevent B4 live integration. Fail-closed B4 readiness validator prepared (CI pending). [B4 report](PS_L2_3B_B4_INTEGRATION_READINESS_20261111.md).
+
+**NO-GO:** No new subscription schema, RPCs, automatic renewal, due generator, production credentials or payment data changed. B4 remains BLOCKED until unlinked Supabase replay and explicit Owner security/product acceptance.
+
 ## B3.7B historical helper dependency review (11 November 2026)
 
 **REVIEWED:** The original `20260903173804` first-use statement creates `private.coach_academy_id`, four Coach assignment policies, and schema USAGE grant, but calls four foundational helpers missing their original CREATE statements. Parent email-based resolver at `20260908062059` precedes the `parents.user_id` revision at `20260912142706`. Three candidate reconstruction approaches documented, none approved. [B3.7B report](PS_L2_3B_B3_7B_HELPER_DEPENDENCY_REVIEW_20261111.md).
