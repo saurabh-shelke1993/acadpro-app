@@ -245,3 +245,18 @@ From repository root after pulling the branch:
 Run the finalization command **only if Test-Path returns True**; otherwise inspect filenames without deleting any private source files. Detailed B3.4 development report is in frontend/docs/PS_L2_3B_B3_4_PRIVATE_ARCHIVE_ACQUISITION_20261111.md.
 
 **Still blocked:** full disposable Supabase replay, historical DML quarantine approval, Auth/RLS/finance parity, and PS-L2.3 subscription deployment. Hosted database, canonical migrations and credentials unchanged.
+
+
+## B3.5 — Privately review the 14 original high-risk SQL migrations
+
+**B3.5A test-only structural review implemented, CI PASS (12 synthetic tests):** https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42957811902
+
+The owner has verified the previous 82-version/168-statement B3.4 local archive. To run the B3.5 reviewer from the repository root in VS Code PowerShell:
+
+    git pull origin payment-module-finalization
+    $private = "supabase\recovery\historical-baseline\.recovery-private"
+    python supabase/recovery/historical-baseline/b3_5_quarantine_source_review.py --root . --archive "$private\baseline-b3-4-001" --output "$private\b3-5-quarantine-review.json"
+
+The reviewer confirms all original B3.3 fingerprints again and writes **new private metadata only**. It classifies top-level SQL structure but never includes raw SQL, quoted literals or customer/payment data in the output. All 14 cases and every individual structural segment remain PENDING/REPLAY NOT APPROVED. Do not upload the archive, CSVs or full private report to GitHub or chat; share only the console summary.
+
+The lexical mask does not inspect inside DO/function bodies, dynamic SQL or execute policies; a human must inspect those original statements in the protected private directory and approve every essential DDL/data split, tenant/RLS/security-definer grants and synthetic-only handling before any disposable Supabase replay. The current live catalog evidence is in b3_5_current_catalog_readonly_20261111.json and is explicitly **not a historical parity test**. Details: frontend/docs/PS_L2_3B_B3_5_PRIVATE_SECURITY_REVIEW_20261111.md.
