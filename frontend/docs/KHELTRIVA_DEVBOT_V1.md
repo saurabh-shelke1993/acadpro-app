@@ -1,6 +1,6 @@
 # Kheltriva DevBot V1 — Safe validation runner
 
-**Status: AG1 implemented in the isolated review branch; GitHub CI/Owner review pending.** This is a deterministic execution bot, not a paid autonomous AI programming agent.
+**Status: AG1 implemented on review branch; quick CI PASS, full suite exercised (existing Jest failures), focused Auth gate pending.** This is a deterministic execution bot, not a paid autonomous AI programming agent.
 
 ## Available test suites
 
@@ -28,6 +28,13 @@ The Owner can assign/approve a check from ChatGPT on the phone; code changes to 
 - All merges, role/RLS changes and deployments require explicit Owner approval.
 - **Existing C3.4B2 laptop outcome remains pending separate read-only DB verification**; this DevBot must not touch or reset that disposable instance.
 - Next AG2: real, disposable Supabase GoTrue/Auth and JWT testing on GitHub Actions, separately reviewed.
+
+## AG1 CI evidence — 11 November 2026
+
+- [Quick check 43003179195](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43003179195) **PASS** (cloud-hosted).
+- [Full run 43003373047](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43003373047): runner self-tests, all eight B2.9 Auth/static safety groups, locked frontend installation and React production build passed. **Jest failed 16 tests / passed 474 tests** (4 failed suites / 43 passed suites).
+- [Existing parent-branch frontend CI 42988928180](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42988928180) showed **the same 16 failures in four suites before DevBot existed**: PerformanceWorkspaceTabs, CoachProfile, PlayerPerformanceReport, CoachPerformanceAssessments.
+- Push event uses the focused **auth-static** gate so the new bot's implementation is reviewed independently. The optional frontend and all suites still report existing Jest failures instead of suppressing them. Fixing those tests is a separate workstream.
 
 ## Acceptance criteria
 

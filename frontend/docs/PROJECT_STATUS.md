@@ -1,5 +1,13 @@
 # AcadPro Project Status
 
+## Kheltriva DevBot AG1 validation (11 November 2026)
+
+**QUICK PASS:** [GitHub run 43003179195](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43003179195) succeeded without Owner PowerShell.
+
+**FULL SUITE REPORT:** [Run 43003373047](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43003373047) passed self-tests, B2.9 Auth static guards, npm install and React build; Jest has 16 failures/474 passes (4 suites failing). **Verified pre-existing** on parent SHA [Phase 7.5 run 42988928180](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42988928180). No unrelated application code changes.
+
+**AG1 focused CI and PR review PENDING**; push now runs Auth static checks, while frontend/all options continue to show existing test debt. **AG2 real GoTrue integration pending.** C3.4B2 laptop persistence remains unresolved; no hosted DB writes or deployment.
+
 ## Kheltriva DevBot V1 — AG1 implementation (11 November 2026)
 
 **IMPLEMENTED IN FEATURE BRANCH / CI PENDING:** Deterministic CI test runner with short mobile-friendly summary; no secrets, DB mutation, deployment or paid AI. Four suites: quick, auth-static, frontend, all. [Design & limits](KHELTRIVA_DEVBOT_V1.md). Merging/activation requires review. AG2 real disposable Supabase GoTrue tests not implemented.

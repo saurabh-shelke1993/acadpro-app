@@ -28,7 +28,7 @@ concurrency:
 
 jobs:
   validate:
-    name: ${{ github.event_name == 'push' && 'all' || github.event.inputs.suite || 'quick' }} - safe validation
+    name: ${{ github.event_name == 'push' && 'auth-static' || github.event.inputs.suite || 'quick' }} - safe validation
     if: github.repository == 'saurabh-shelke1993/acadpro-app'
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -42,7 +42,7 @@ jobs:
         with:
           python-version: '3.11'
       - name: Node 20 for optional React test suite
-        if: github.event_name == 'push' || contains(fromJSON('["frontend", "all"]'), github.event.inputs.suite)
+        if: contains(fromJSON('["frontend", "all"]'), github.event.inputs.suite)
         uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -51,5 +51,5 @@ jobs:
       - name: Run allowlisted checks and publish result summary
         shell: bash
         env:
-          DEVBOT_SUITE: ${{ github.event_name == 'push' && 'all' || github.event.inputs.suite || 'quick' }}
+          DEVBOT_SUITE: ${{ github.event_name == 'push' && 'auth-static' || github.event.inputs.suite || 'quick' }}
         run: python scripts/devbot/run.py --suite "$DEVBOT_SUITE"
