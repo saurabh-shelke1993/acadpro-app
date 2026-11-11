@@ -21,4 +21,4 @@ The SQL fixture is not authentic historical schema, nor a full-production-schema
 5. **C3.4 later:** Create synthetic local Auth accounts through GoTrue/Auth API; only then link their generated auth.users UUIDs to synthetic Kheltriva app users and coaches, and test actual JWT-backed access. No artificial JWT-sub manipulation counts as real Auth testing.
 6. Full historical migration replay, Storage, 35 B3.6 runtime scenarios, finance/B4 integration and production remain **blocked**.
 
-**Validation:** Offline static guard and original isolated PostgreSQL synthetic tests run on GitHub Actions. Their results do not imply the new native Supabase fixture has been executed. Record actual local output as a separate Owner-run checkpoint.
+**Validation:** [GitHub Actions 42978924163](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42978924163) PASS: **21/21 Python static/fixture guard tests** and original disposable PostgreSQL 17 helper/RLS SQL checks. This does **NOT** certify the new native Supabase fixture as executed; first local run remains pending. Record actual local output as a separate Owner-run checkpoint.
