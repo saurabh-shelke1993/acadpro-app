@@ -61,6 +61,13 @@ WITH CHECK (private.is_super_admin() OR (EXISTS ( SELECT 1
 DO $verify$
 BEGIN
  IF (SELECT count(*) FROM pg_policies WHERE schemaname='public'
+       AND tablename='coach_batches' AND
+       ((policyname='coach_batches_select' AND md5(coalesce(qual,'')||chr(31)||coalesce(with_check,''))='cd4193d15352dcfb25a4b3835e8850a4')
+       OR (policyname='coach_batches_insert' AND md5(coalesce(qual,'')||chr(31)||coalesce(with_check,''))='957ab744836d9772e4258c85504827c0')
+       OR (policyname='coach_batches_update' AND md5(coalesce(qual,'')||chr(31)||coalesce(with_check,''))='7a3ff298bc791c74727729a21549b844')
+       OR (policyname='coach_batches_delete' AND md5(coalesce(qual,'')||chr(31)||coalesce(with_check,''))='f82e68e0224f4417a0e0e7a0897be20e')))<>4
+ THEN RAISE EXCEPTION 'AG3.4B live predicate checksum parity mismatch'; END IF;
+ IF (SELECT count(*) FROM pg_policies WHERE schemaname='public'
        AND tablename='coach_batches')<>4
     OR NOT has_table_privilege('authenticated','public.coach_batches','INSERT')
     OR NOT has_table_privilege('authenticated','public.coach_batches','UPDATE')
