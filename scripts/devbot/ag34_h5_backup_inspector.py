@@ -62,7 +62,7 @@ def coverage_patterns(prefix: bytes) -> dict[str, bytes]:
     patterns = {}
     for schema, table in REQUIRED_TABLES:
         target = SQL_TABLE % (schema.encode(), table.encode())
-        patterns[f"{schema}.{table}"] = prefix + rb"\s+" + target + rb"(?:\s|\(|;)"
+        patterns[f"{schema}.{table}"] = prefix + target + rb"(?:\s|\(|;)"
     return patterns
 
 
@@ -79,7 +79,7 @@ def inspect(folder: Path, expected_schema: str, expected_data: str,
     schema = safe_file(folder, SCHEMA_FILE)
     data = safe_file(folder, DATA_FILE)
     create = coverage_patterns(rb"\bCREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?")
-    inserts = coverage_patterns(rb"\bINSERT\s+INTO")
+    inserts = coverage_patterns(rb"\bINSERT\s+INTO\s+")
     schema_digest, schema_found = scan_file(schema, create)
     data_digest, data_found = scan_file(data, inserts)
     if schema_digest.lower() != expected_schema.lower():
