@@ -1,5 +1,12 @@
 # AcadPro Project Status
 
+## AG3.4B — confirmed unsafe deployed legacy Coach policy behavior in disposable reconstruction
+
+**CODE/CI COMPLETE (10/10 static + real GoTrue/PostgREST) / HOSTED FIX NOT APPLIED:** [Run 43046427442](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43046427442) cloned four exact live `public.coach_batches` RLS predicates, the required live `coaches_select` dependency and grants. Same-academy Parent accounts read unrelated legacy mappings, Coach read inactive legacy mapping, and both Parent and Coach successfully inserted/deleted **foreign-Coach → own-academy Batch** links in isolated synthetic records. Test-only role-gated candidate closed those paths, protected Owner/SA rights and maintained counts.
+
+**CRITICAL DISTINCTION:** No real customer-row exploitation has been alleged, no hosted policy was modified, and the candidate is not a canonical migration. Dedicated migration/release approval, historical reconciliation, full Finance/RPC/Storage and AG3.4E acceptance remain pending. [Design and evidence](KHELTRIVA_DEVBOT_AG3_4B_COACH_POLICY_PARITY.md).
+
+
 ## AG3.4A — live read-only RBAC/RLS catalog inventory (11 November 2026)
 
 **STATUS: INSPECTED AND DOCUMENTED; REVIEW PENDING; NO PRODUCTION CHANGE.** Current healthy `acadpro-db`: 28 public RLS-enabled base tables, 103 policy records, 42 private helpers/functions and 14 public authenticated SECURITY DEFINER RPCs. Security Advisor currently shows 14 RPC warnings, two INFO RLS/no-policy tables with no client table grants, and disabled leaked-password protection. 82 live migration records versus 40 local SQL source files; 23 exact version-prefix matches are not SQL parity. Three intentionally public Storage buckets, one private player-photo bucket. No public views.
