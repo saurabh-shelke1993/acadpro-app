@@ -1,5 +1,12 @@
 # AcadPro Product Backlog
 
+## AG3.4B — confirmed live-policy authorization candidate (disposable real-JWT replay)
+
+**TESTED:** [Native CI 43046427442](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43046427442) PASS (10/10 pure guards + signed JWT/PostgREST). Exact deployed legacy `coach_batches` expressions permitted invented Parent and Coach identities to insert/delete cross-academy Coach mapping rows; same-academy Parent and inactive Coach mapping reads also occurred. Source-verified `coaches_select` dependency and exact-policy digests were enforced. In scratch, proposed Academy Owner role guard, coach/batch academy match, active Coach-own read scope passed all regression checks. **No canonical migration or hosted remediation applied.** [AG3.4B report](KHELTRIVA_DEVBOT_AG3_4B_COACH_POLICY_PARITY.md).
+
+**PENDING:** Production fix migration review, AG3.4C Parent helper/policy parity, AG3.4D finance/RPC/storage evidence, AG3.4E full security and release gate; B3 history and B4 billing NO-GO.
+
+
 ## AG3.4 — real deployed authorization parity and security regression (11 November 2026)
 
 **AG3.4A READ-ONLY INVENTORY IMPLEMENTED IN REVIEW BRANCH; OWNER ACCEPTANCE PENDING:** Live Postgres catalog, `pg_policies`, grants, private helpers, Storage policies, Advisor and 82-version ledger were inspected without live mutation. Baseline 28 public RLS-enabled tables, 103 policies, 42 private helper/functions, 14 authenticated public SECURITY DEFINER functions; 40 repository migration files / 23 exact version-prefix matches. [AG3.4A report](KHELTRIVA_DEVBOT_AG3_4A_LIVE_POLICY_INVENTORY_20261111.md).
