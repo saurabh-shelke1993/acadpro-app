@@ -8,6 +8,12 @@
 **Purpose:** Stable, handoff-friendly checkpoint between ChatGPT conversations. This document is NOT a substitute for inspecting live code, the current database, or current tests.
 
 
+## B3.6 non-executable reconstruction planning (11 November 2026)
+
+**IMPLEMENTED / CI PENDING:** 82 original migrations ordered in a sanitized plan; 14 B3.5C quarantine treatments; six divergent sources, helper/parent/finance chronology, 35 role, Storage and financial synthetic scenarios (all NOT_RUN); 11 fail-closed Python contract tests and independent GitHub Actions workflow. [B3.6 report](frontend/docs/PS_L2_3B_B3_6_DISPOSABLE_RECONSTRUCTION_PLAN_20261111.md).
+
+**BLOCKED:** Essential SQL DDL/data split approval, original helper provenance, isolated Supabase Auth/RLS/Storage replay, 35 runtime role and financial tests, owner security sign-off, 22 legacy subscription renewals, PS-L2.3 integration. No executable SQL, canonical migration changes, production data changes or live credentials affected.
+
 ## B3.5C technical disposition register checkpoint (11 November 2026)
 
 **IMPLEMENTED (docs/metadata only):** Sanitized 14-case technical disposition report and non-executable register added with strict false replay/production flags, preserving original sources in the private archive. Owner B3.5B scan output: 82 versions, 168 elements, 14/14 structurally scanned; manual_review=false and replay=false. Original SQL reviewed with active Supabase SELECT only. All 14 technically classified, **0 approved**. See [B3.5C technical dispositions](frontend/docs/PS_L2_3B_B3_5C_TECHNICAL_DISPOSITIONS_20261111.md).

@@ -1,0 +1,26 @@
+name: PS-L2.3B B3.6 non-executable review
+on:
+  push:
+    branches: [payment-module-finalization]
+    paths:
+      - 'supabase/recovery/historical-baseline/b3_6_*'
+      - '.github/workflows/subscriptions-ps-l2-3-b3-6-review.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-metadata-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate 82 original migrations and non-executable security matrix
+        run: |
+          python -m unittest discover -s supabase/recovery/historical-baseline -p 'test_b3_6_review_contract.py' -v
+          python supabase/recovery/historical-baseline/b3_6_review_contract.py .
+          python -m py_compile supabase/recovery/historical-baseline/b3_6_review_contract.py
+      - name: Ensure private SQL not tracked
+        run: test ! -d supabase/recovery/historical-baseline/.recovery-private

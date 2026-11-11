@@ -1,0 +1,1133 @@
+{
+  "schema": "kheltriva-b3-6-review-only-v1",
+  "project_id": "ulyealhkmlorsbdiknrh",
+  "source_version_count": 82,
+  "source_element_count": 168,
+  "quarantined_version_count": 14,
+  "mode": "NON_EXECUTABLE_NO_DB_OR_SQL",
+  "source_evidence": [
+    "B3.1/B3.2 original order",
+    "B3.5C 14-case technical triage",
+    "ROLE_MATRIX"
+  ],
+  "ordered_versions": [
+    {
+      "version": "20260823093317",
+      "source_match": "same-version-content-divergence",
+      "elements": 87,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20260903173804",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20260903185104",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20260907180752",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20260908061110",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20260908062059",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20260908070804",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20260908073942",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20260908075043",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20260912085524",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20260912142706",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": true,
+      "approved": false
+    },
+    {
+      "version": "20260912180959",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": true,
+      "approved": false
+    },
+    {
+      "version": "20260912184118",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20260912185706",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20260915111222",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20260919074807",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20260919074831",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20260919074950",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20260919075003",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20260919075012",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20260920041302",
+      "source_match": "same-version-content-divergence",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20260920041356",
+      "source_match": "same-version-content-divergence",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20260920041457",
+      "source_match": "same-version-content-divergence",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20260920041516",
+      "source_match": "same-version-content-divergence",
+      "elements": 1,
+      "quarantined": true,
+      "approved": false
+    },
+    {
+      "version": "20260920041606",
+      "source_match": "same-version-content-divergence",
+      "elements": 1,
+      "quarantined": true,
+      "approved": false
+    },
+    {
+      "version": "20260920041653",
+      "source_match": "terminal-lf-only",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20260920041849",
+      "source_match": "terminal-lf-only",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20260920043638",
+      "source_match": "exact-bytes",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20260920045132",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20260920045507",
+      "source_match": "exact-bytes",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20260920051907",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20260920051959",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20260920053210",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": true,
+      "approved": false
+    },
+    {
+      "version": "20260920053416",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20260925063432",
+      "source_match": "leading-lf-only",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20260925081658",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20260925082735",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20260926081010",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20260926081053",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": true,
+      "approved": false
+    },
+    {
+      "version": "20260926081320",
+      "source_match": "exact-bytes",
+      "elements": 1,
+      "quarantined": true,
+      "approved": false
+    },
+    {
+      "version": "20260926093830",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20260926094904",
+      "source_match": "exact-bytes",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20260926095749",
+      "source_match": "exact-bytes",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20260926095814",
+      "source_match": "exact-bytes",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20260926111113",
+      "source_match": "exact-bytes",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20260926113534",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": true,
+      "approved": false
+    },
+    {
+      "version": "20260930071849",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": true,
+      "approved": false
+    },
+    {
+      "version": "20261008021921",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20261008075914",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": true,
+      "approved": false
+    },
+    {
+      "version": "20261008080032",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20261010010821",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20261010010827",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20261010010929",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20261010011133",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20261010011502",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20261010011733",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20261010011746",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20261010011828",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20261010011839",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": true,
+      "approved": false
+    },
+    {
+      "version": "20261010012010",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20261010012034",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20261011083110",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20261011083351",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20261011105104",
+      "source_match": "leading-lf-only",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20261011130546",
+      "source_match": "terminal-lf-only",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20261011135131",
+      "source_match": "terminal-lf-only",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20261011135208",
+      "source_match": "terminal-lf-only",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20261012013143",
+      "source_match": "exact-bytes",
+      "elements": 1,
+      "quarantined": true,
+      "approved": false
+    },
+    {
+      "version": "20261012013320",
+      "source_match": "exact-bytes",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20261012013452",
+      "source_match": "exact-bytes",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20261012023354",
+      "source_match": "exact-bytes",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20261012023526",
+      "source_match": "exact-bytes",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20261012025707",
+      "source_match": "exact-bytes",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20261012031132",
+      "source_match": "exact-bytes",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20261012031710",
+      "source_match": "exact-bytes",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20261012032425",
+      "source_match": "exact-bytes",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20261012035934",
+      "source_match": "exact-bytes",
+      "elements": 1,
+      "quarantined": true,
+      "approved": false
+    },
+    {
+      "version": "20261021052601",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": true,
+      "approved": false
+    },
+    {
+      "version": "20261025171400",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20261031113746",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20261031113758",
+      "source_match": "no-content-match",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    },
+    {
+      "version": "20261101082001",
+      "source_match": "terminal-lf-only",
+      "elements": 1,
+      "quarantined": false,
+      "approved": false
+    }
+  ],
+  "source_counts": {
+    "strict_links": 25,
+    "divergent": 6,
+    "no_content_match": 51
+  },
+  "source_divergences": [
+    {
+      "version": "20260823093317",
+      "category": "base_schema_source_difference",
+      "approved": false
+    },
+    {
+      "version": "20260920041302",
+      "category": "lexically_aligned_unapproved",
+      "approved": false
+    },
+    {
+      "version": "20260920041356",
+      "category": "lexically_aligned_unapproved",
+      "approved": false
+    },
+    {
+      "version": "20260920041457",
+      "category": "lexically_aligned_unapproved",
+      "approved": false
+    },
+    {
+      "version": "20260920041516",
+      "category": "record_specific_cleanup_conflict",
+      "approved": false
+    },
+    {
+      "version": "20260920041606",
+      "category": "record_specific_cleanup_conflict",
+      "approved": false
+    }
+  ],
+  "quarantine_decisions": [
+    {
+      "version": "20260912142706",
+      "data_action": "QUARANTINE_ORIGINAL_PARENT_EMAIL_MATCH_BACKFILL",
+      "ddl_security_action": "REVIEW_PARENT_USER_CONSTRAINTS_AND_CURRENT_PARENT_ID",
+      "approved": false
+    },
+    {
+      "version": "20260912180959",
+      "data_action": "NO_CUSTOMER_DATA_MUTATION_DETECTED",
+      "ddl_security_action": "REVIEW_CONDITIONAL_ATTENDANCE_PARENT_SELECT_POLICY",
+      "approved": false
+    },
+    {
+      "version": "20260920041516",
+      "data_action": "EXCLUDE_ORIGINAL_PLAYER_MAPPING_DELETE_INSERT",
+      "ddl_security_action": "NO_ESSENTIAL_DDL_IDENTIFIED",
+      "approved": false
+    },
+    {
+      "version": "20260920041606",
+      "data_action": "EXCLUDE_ORIGINAL_PLAYER_MAPPING_DELETE",
+      "ddl_security_action": "NO_ESSENTIAL_DDL_IDENTIFIED",
+      "approved": false
+    },
+    {
+      "version": "20260920053210",
+      "data_action": "EXCLUDE_ORIGINAL_PARENT_DEACTIVATION",
+      "ddl_security_action": "NO_ESSENTIAL_DDL_IDENTIFIED",
+      "approved": false
+    },
+    {
+      "version": "20260926081053",
+      "data_action": "QUARANTINE_PAYMENT_REFERENCE_COLLECTOR_AND_COUNTER_BACKFILLS",
+      "ddl_security_action": "REVIEW_FINANCIAL_SCHEMA_RLS_GRANTS_FUNCTIONS_AND_TRIGGERS",
+      "approved": false
+    },
+    {
+      "version": "20260926081320",
+      "data_action": "EXCLUDE_ORIGINAL_LEGACY_RECEIPT_UPDATE",
+      "ddl_security_action": "NO_NEW_DDL_IDENTIFIED",
+      "approved": false
+    },
+    {
+      "version": "20260926113534",
+      "data_action": "EXCLUDE_ORIGINAL_DUE_UUID_UPDATES_AND_GUARDS",
+      "ddl_security_action": "NO_NEW_DDL_IDENTIFIED",
+      "approved": false
+    },
+    {
+      "version": "20260930071849",
+      "data_action": "REVIEW_BUCKET_UPSERT_AS_CONFIG_ONLY",
+      "ddl_security_action": "REVIEW_ACADEMY_LOGO_BUCKET_AND_STORAGE_POLICY",
+      "approved": false
+    },
+    {
+      "version": "20261008075914",
+      "data_action": "REVIEW_BUCKET_UPSERT_AS_CONFIG_ONLY",
+      "ddl_security_action": "REVIEW_COACH_PHOTO_BUCKET_AND_STORAGE_POLICY",
+      "approved": false
+    },
+    {
+      "version": "20261010011839",
+      "data_action": "RETAIN_PREFLIGHT_LOGIC_SYNTHETIC_ONLY",
+      "ddl_security_action": "REVIEW_ATTENDANCE_UNIQUE_CONSTRAINT_TRANSITION",
+      "approved": false
+    },
+    {
+      "version": "20261012013143",
+      "data_action": "REVIEW_BUCKET_UPSERT_AS_CONFIG_ONLY",
+      "ddl_security_action": "REVIEW_SETTINGS_RLS_TRIGGER_GRANTS_AND_QR_STORAGE",
+      "approved": false
+    },
+    {
+      "version": "20261012035934",
+      "data_action": "QUARANTINE_ORIGINAL_ENQUIRY_BULK_UPDATES",
+      "ddl_security_action": "REVIEW_ENQUIRY_CONSTRAINTS_RLS_SECURITY_DEFINER_RPCS",
+      "approved": false
+    },
+    {
+      "version": "20261021052601",
+      "data_action": "REVIEW_BUCKET_UPSERT_AS_CONFIG_ONLY",
+      "ddl_security_action": "REVIEW_PRIVATE_PLAYER_PHOTO_READ_AND_WRITE_POLICIES",
+      "approved": false
+    }
+  ],
+  "dependency_anchors": {
+    "base": "20260823093317",
+    "first_helper_reference": "20260903173804",
+    "historical_parent_helper": "20260908062059",
+    "parents_user_id": "20260912142706",
+    "financial_foundation": "20260926081053",
+    "generated_column_fix": "20260926094904",
+    "financial_role_restriction": "20260926111113",
+    "local_duplicate": "20260926133000",
+    "local_irregular": "202610210001"
+  },
+  "ordered_stages": [
+    {
+      "position": 1,
+      "stage": "ORIGINAL_SOURCE_ATTESTATION",
+      "status": "PENDING",
+      "executed": false,
+      "approved": false
+    },
+    {
+      "position": 2,
+      "stage": "FUTURE_UNLINKED_SYNTHETIC_ENVIRONMENT",
+      "status": "PENDING",
+      "executed": false,
+      "approved": false
+    },
+    {
+      "position": 3,
+      "stage": "ORIGINAL_BASE_AND_AUTH_STORAGE_PREREQUISITES",
+      "status": "PENDING",
+      "executed": false,
+      "approved": false
+    },
+    {
+      "position": 4,
+      "stage": "HISTORICAL_PRIVATE_HELPER_CHRONOLOGY",
+      "status": "PENDING",
+      "executed": false,
+      "approved": false
+    },
+    {
+      "position": 5,
+      "stage": "EACH_MIXED_DDL_DATA_SPLIT",
+      "status": "PENDING",
+      "executed": false,
+      "approved": false
+    },
+    {
+      "position": 6,
+      "stage": "SCRATCH_ONLY_TIMESTAMP_MAPPING",
+      "status": "PENDING",
+      "executed": false,
+      "approved": false
+    },
+    {
+      "position": 7,
+      "stage": "ROLE_STORAGE_RLS_NEGATIVE_TESTS",
+      "status": "PENDING",
+      "executed": false,
+      "approved": false
+    },
+    {
+      "position": 8,
+      "stage": "FINANCIAL_ATOMICITY_AND_RECEIPT_TESTS",
+      "status": "PENDING",
+      "executed": false,
+      "approved": false
+    },
+    {
+      "position": 9,
+      "stage": "OWNER_SIGNOFF_BEFORE_PS_L2_3",
+      "status": "PENDING",
+      "executed": false,
+      "approved": false
+    }
+  ],
+  "negative_test_matrix": [
+    {
+      "id": "AUTH-1",
+      "domain": "AUTH",
+      "principal": "anonymous",
+      "expected": "DENY",
+      "scenario": "Privileged RPC",
+      "status": "NOT_RUN",
+      "passed": false
+    },
+    {
+      "id": "AUTH-2",
+      "domain": "AUTH",
+      "principal": "parent",
+      "expected": "ALLOW",
+      "scenario": "Linked child read",
+      "status": "NOT_RUN",
+      "passed": false
+    },
+    {
+      "id": "AUTH-3",
+      "domain": "AUTH",
+      "principal": "parent",
+      "expected": "DENY",
+      "scenario": "Unrelated child read",
+      "status": "NOT_RUN",
+      "passed": false
+    },
+    {
+      "id": "AUTH-4",
+      "domain": "AUTH",
+      "principal": "academy_owner",
+      "expected": "DENY",
+      "scenario": "Other academy read",
+      "status": "NOT_RUN",
+      "passed": false
+    },
+    {
+      "id": "AUTH-5",
+      "domain": "AUTH",
+      "principal": "super_admin",
+      "expected": "ALLOW",
+      "scenario": "Platform read",
+      "status": "NOT_RUN",
+      "passed": false
+    },
+    {
+      "id": "AUTH-6",
+      "domain": "AUTH",
+      "principal": "all_roles",
+      "expected": "VERIFY",
+      "scenario": "Helper owner/grants/search_path",
+      "status": "NOT_RUN",
+      "passed": false
+    },
+    {
+      "id": "RBAC-1",
+      "domain": "RBAC",
+      "principal": "coach",
+      "expected": "ALLOW",
+      "scenario": "Assigned attendance",
+      "status": "NOT_RUN",
+      "passed": false
+    },
+    {
+      "id": "RBAC-2",
+      "domain": "RBAC",
+      "principal": "coach",
+      "expected": "DENY",
+      "scenario": "Foreign batch attendance",
+      "status": "NOT_RUN",
+      "passed": false
+    },
+    {
+      "id": "RBAC-3",
+      "domain": "RBAC",
+      "principal": "coach",
+      "expected": "DENY",
+      "scenario": "Payment collection",
+      "status": "NOT_RUN",
+      "passed": false
+    },
+    {
+      "id": "RBAC-4",
+      "domain": "RBAC",
+      "principal": "academy_owner",
+      "expected": "ALLOW",
+      "scenario": "Own academy collection",
+      "status": "NOT_RUN",
+      "passed": false
+    },
+    {
+      "id": "RBAC-5",
+      "domain": "RBAC",
+      "principal": "academy_owner",
+      "expected": "DENY",
+      "scenario": "Other academy collection",
+      "status": "NOT_RUN",
+      "passed": false
+    },
+    {
+      "id": "RBAC-6",
+      "domain": "RBAC",
+      "principal": "parent",
+      "expected": "DENY",
+      "scenario": "Due mutation",
+      "status": "NOT_RUN",
+      "passed": false
+    },
+    {
+      "id": "RBAC-7",
+      "domain": "RBAC",
+      "principal": "super_admin",
+      "expected": "DENY",
+      "scenario": "Mark attendance",
+      "status": "NOT_RUN",
+      "passed": false
+    },
+    {
+      "id": "STORAGE-1",
+      "domain": "STORAGE",
+      "principal": "anonymous",
+      "expected": "ALLOW",
+      "scenario": "Public media read",
+      "status": "NOT_RUN",
+      "passed": false
+    },
+    {
+      "id": "STORAGE-2",
+      "domain": "STORAGE",
+      "principal": "anonymous",
+      "expected": "DENY",
+      "scenario": "Private player photo read",
+      "status": "NOT_RUN",
+      "passed": false
+    },
+    {
+      "id": "STORAGE-3",
+      "domain": "STORAGE",
+      "principal": "parent",
+      "expected": "DENY",
+      "scenario": "Unrelated player photo",
+      "status": "NOT_RUN",
+      "passed": false
+    },
+    {
+      "id": "STORAGE-4",
+      "domain": "STORAGE",
+      "principal": "academy_owner",
+      "expected": "DENY",
+      "scenario": "Other academy photo write",
+      "status": "NOT_RUN",
+      "passed": false
+    },
+    {
+      "id": "STORAGE-5",
+      "domain": "STORAGE",
+      "principal": "academy_owner",
+      "expected": "ALLOW",
+      "scenario": "Own academy player photo write",
+      "status": "NOT_RUN",
+      "passed": false
+    },
+    {
+      "id": "FINANCE-1",
+      "domain": "FINANCE",
+      "principal": "academy_owner",
+      "expected": "ALLOW",
+      "scenario": "Full payment receipt",
+      "status": "NOT_RUN",
+      "passed": false
+    },
+    {
+      "id": "FINANCE-2",
+      "domain": "FINANCE",
+      "principal": "academy_owner",
+      "expected": "ALLOW",
+      "scenario": "Partial payment balance",
+      "status": "NOT_RUN",
+      "passed": false
+    },
+    {
+      "id": "FINANCE-3",
+      "domain": "FINANCE",
+      "principal": "academy_owner",
+      "expected": "DENY_ROLLBACK",
+      "scenario": "Overpayment",
+      "status": "NOT_RUN",
+      "passed": false
+    },
+    {
+      "id": "FINANCE-4",
+      "domain": "FINANCE",
+      "principal": "academy_owner",
+      "expected": "DENY_OR_IDEMPOTENT",
+      "scenario": "Duplicate receipt",
+      "status": "NOT_RUN",
+      "passed": false
+    },
+    {
+      "id": "FINANCE-5",
+      "domain": "FINANCE",
+      "principal": "academy_owner",
+      "expected": "ROLLBACK_ALL",
+      "scenario": "Forced transaction error",
+      "status": "NOT_RUN",
+      "passed": false
+    },
+    {
+      "id": "FINANCE-6",
+      "domain": "FINANCE",
+      "principal": "coach",
+      "expected": "DENY",
+      "scenario": "Financial RPC",
+      "status": "NOT_RUN",
+      "passed": false
+    },
+    {
+      "id": "FINANCE-7",
+      "domain": "FINANCE",
+      "principal": "parent",
+      "expected": "DENY",
+      "scenario": "Financial RPC",
+      "status": "NOT_RUN",
+      "passed": false
+    },
+    {
+      "id": "FINANCE-8",
+      "domain": "FINANCE",
+      "principal": "academy_owner",
+      "expected": "VERIFY",
+      "scenario": "Correction ledger consistency",
+      "status": "NOT_RUN",
+      "passed": false
+    },
+    {
+      "id": "PARENT_INTEGRITY-1",
+      "domain": "PARENT_INTEGRITY",
+      "principal": "parent",
+      "expected": "VERIFY",
+      "scenario": "Historic parent helper timing",
+      "status": "NOT_RUN",
+      "passed": false
+    },
+    {
+      "id": "PARENT_INTEGRITY-2",
+      "domain": "PARENT_INTEGRITY",
+      "principal": "academy_owner",
+      "expected": "VERIFY",
+      "scenario": "Duplicate parent player linkage",
+      "status": "NOT_RUN",
+      "passed": false
+    },
+    {
+      "id": "PLAYER_MAPPING-1",
+      "domain": "PLAYER_MAPPING",
+      "principal": "academy_owner",
+      "expected": "DENY_ROLLBACK",
+      "scenario": "Invalid mapping",
+      "status": "NOT_RUN",
+      "passed": false
+    },
+    {
+      "id": "PLAYER_MAPPING-2",
+      "domain": "PLAYER_MAPPING",
+      "principal": "academy_owner",
+      "expected": "VERIFY",
+      "scenario": "Current batch invariant",
+      "status": "NOT_RUN",
+      "passed": false
+    },
+    {
+      "id": "ATTENDANCE-1",
+      "domain": "ATTENDANCE",
+      "principal": "coach",
+      "expected": "DENY",
+      "scenario": "Duplicate session attendance",
+      "status": "NOT_RUN",
+      "passed": false
+    },
+    {
+      "id": "ATTENDANCE-2",
+      "domain": "ATTENDANCE",
+      "principal": "coach",
+      "expected": "VERIFY",
+      "scenario": "Null versus scheduled uniqueness",
+      "status": "NOT_RUN",
+      "passed": false
+    },
+    {
+      "id": "ENQUIRIES-1",
+      "domain": "ENQUIRIES",
+      "principal": "coach",
+      "expected": "DENY",
+      "scenario": "Other center create",
+      "status": "NOT_RUN",
+      "passed": false
+    },
+    {
+      "id": "ENQUIRIES-2",
+      "domain": "ENQUIRIES",
+      "principal": "academy_owner",
+      "expected": "ALLOW",
+      "scenario": "Own academy conversion",
+      "status": "NOT_RUN",
+      "passed": false
+    },
+    {
+      "id": "ENQUIRIES-3",
+      "domain": "ENQUIRIES",
+      "principal": "parent",
+      "expected": "DENY",
+      "scenario": "Mutation RPC",
+      "status": "NOT_RUN",
+      "passed": false
+    }
+  ],
+  "unresolved_finance_evidence": {
+    "due_ledger_mismatches": 11,
+    "paid_dues_without_linked_payment_records": 10,
+    "legacy_subscriptions_on_hold": 22
+  },
+  "guards": {
+    "human_security_approval": false,
+    "source_conflicts_resolved": false,
+    "helper_timing_proven": false,
+    "ddl_data_split_approved": false,
+    "scratch_version_mapping_approved": false,
+    "actual_negative_tests_passed": false,
+    "actual_full_supabase_replay_passed": false,
+    "owner_acceptance": false,
+    "ready_for_disposable_sql_generation": false,
+    "ready_for_disposable_replay": false,
+    "ready_for_production": false
+  },
+  "prohibitions": {
+    "original_sql_embedded": false,
+    "customer_identifiers_embedded": false,
+    "credentials_embedded": false,
+    "generated_sql_present": false,
+    "database_executed": false,
+    "canonical_migrations_changed": false,
+    "live_data_changed": false,
+    "disposable_db_created": false
+  }
+}

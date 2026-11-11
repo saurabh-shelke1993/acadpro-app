@@ -260,3 +260,8 @@ The owner has verified the previous 82-version/168-statement B3.4 local archive.
 The reviewer confirms all original B3.3 fingerprints again and writes **new private metadata only**. It classifies top-level SQL structure but never includes raw SQL, quoted literals or customer/payment data in the output. All 14 cases and every individual structural segment remain PENDING/REPLAY NOT APPROVED. Do not upload the archive, CSVs or full private report to GitHub or chat; share only the console summary.
 
 The lexical mask does not inspect inside DO/function bodies, dynamic SQL or execute policies; a human must inspect those original statements in the protected private directory and approve every essential DDL/data split, tenant/RLS/security-definer grants and synthetic-only handling before any disposable Supabase replay. The current live catalog evidence is in b3_5_current_catalog_readonly_20261111.json and is explicitly **not a historical parity test**. Details: frontend/docs/PS_L2_3B_B3_5_PRIVATE_SECURITY_REVIEW_20261111.md.
+
+
+## B3.6 — Non-executable planning
+
+[Review plan](b3_6_disposable_plan_20261111.json) tracks 82 original versions, 14 quarantines, 35 role/security/integrity cases. Run `python supabase/recovery/historical-baseline/b3_6_review_contract.py .` to validate without SQL or database access. [Report](../../../frontend/docs/PS_L2_3B_B3_6_DISPOSABLE_RECONSTRUCTION_PLAN_20261111.md). All replay approvals remain false.
