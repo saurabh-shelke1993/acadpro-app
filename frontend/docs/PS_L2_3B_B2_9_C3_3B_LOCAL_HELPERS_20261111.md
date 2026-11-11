@@ -6,7 +6,7 @@
 
 Run precheck SQL, pinned helper SQL and postcheck SQL in one PostgreSQL `psql -X --single-transaction -v ON_ERROR_STOP=1` command. The precheck rejects nonempty Auth, existing private schema, and wrong RLS/grants. It stores native auth.uid() OID and SHA256 in a temporary transaction-local table. Postcheck confirms native auth.uid() unchanged, exactly 11 functions with pinned SHA256 hashes, owner, SECURITY DEFINER, STABLE volatility, search paths, effective EXECUTE and private schema USAGE; verifies absent-JWT actor gets no role/academy/batch authorization. All postcheck failures roll back the complete function installation.
 
-**CI outcome — PASS:** [Run 42981068438](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42981068438) completed **27/27 Python tests**, existing synthetic B2.9 helper/RLS SQL checks, and an independent PostgreSQL 17 native-shaped simulation of the complete C3.3A/C3.3B atomic precheck → 11-helper installation → postcheck sequence. This CI-only simulation uses a fake Auth shim, **not actual Supabase GoTrue/Auth**. The native local Supabase SQL remains **NOT RUN**, pending Owner execution.
+**CI outcome — PASS:** [Run 42981068438](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42981068438) completed **27/27 Python tests**, existing synthetic B2.9 helper/RLS SQL checks, and an independent PostgreSQL 17 native-shaped simulation of the complete C3.3A/C3.3B atomic precheck → 11-helper installation → postcheck sequence. This CI-only simulation uses a fake Auth shim, **not actual Supabase GoTrue/Auth**. The Owner subsequently executed the three files within **one disposable-local `psql --single-transaction` session**. SQL output confirmed all 11 functions created and postflight `C3.3B CURRENT HELPERS VERIFIED | 11 | 2 | 0 | t` with no reported error. Because no separate-session read has yet been reported, **post-commit persistence remains PENDING verification**.
 
 **Still pending:** real local Supabase Auth-issued session tests; storage, finance, full 82-migration historical replay and 35 B3.6 runtime scenarios; B4 billing remains blocked. No canonical migration or production database changes.
 
@@ -36,3 +36,9 @@ if ($LASTEXITCODE -ne 0) { throw 'Atomic helper installation rejected; stop for 
 **Note:** The long docker exec/psql command deliberately uses one line to work in Windows PowerShell. A single transaction is essential: never run the precheck and snapshot separately. Expected successful output ends in `C3.3B CURRENT HELPERS VERIFIED|11|2|0|t` (formatting may vary) and `COMMIT`.
 
 **C3.3B native local execution remains NOT RUN until Owner logs prove it.**
+
+## Owner's real local result — 11 November 2026
+
+- **Executed:** precheck → unchanged current-state helper snapshot → postcheck, in the isolated `supabase_db_kheltriva-b29-disposable` container.
+- **Observed:** 11 CREATE FUNCTION statements, both checks succeeded, no SQL errors; final postcheck verified 11 exact helper sources/privileges, two synthetic batches, zero Auth users and original native auth.uid() retained.
+- **Pending:** a fresh psql connection must confirm 11 functions persist, and private schema usage is `anon=false`, `authenticated=true`. Real GoTrue-issued session/RLS tests are **not yet performed**. Historical source provenance and B4 remain blocked.
