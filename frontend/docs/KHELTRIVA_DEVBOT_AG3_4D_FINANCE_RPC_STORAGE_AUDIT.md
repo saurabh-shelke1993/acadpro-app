@@ -3,6 +3,12 @@
 **Implementation:** AG3.4D1 source-matched finance read-policy native CI, and AG3.4D2 read-only public `SECURITY DEFINER`/Storage fingerprint inventory.  
 **Important:** This phase **does not** certify the 14 public callable RPCs, write/overpayment paths, Storage object API access, or end-to-end financial accuracy. Security release remains **NO-GO**.
 
+## Automated validation — PASS, 11 November 2026
+
+[GitHub Actions run 43056181524](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43056181524) completed **successfully** after fixing disposable-only SQL fixture setup issues. **9/9** static safety tests PASS; isolated native GoTrue/PostgREST reused the successful AG3.4C2 source-exact Parent/Coach/SA role baseline, then independently verified **nine** deployed finance read/ALL policy digests and **six** helper source digests against PostgreSQL-normalized expressions. Signed-in Parent A1/A2/B, Owner A/B, Coach A/B and Super Admin finance read/denial scenarios all PASS, including same-academy other-Parent, cross-academy, inactive Parent, forged headers, invalid bearer and fresh postflight counts. No hosted state was touched.
+
+Prior D1 attempts failed during test-only dependency ordering, CREATE POLICY expression parentheses, static statement counting or checksum catalog query; none was a passed behavioral finance check. The final green native run attests the **tested source-only SELECT scope**, not finance RPC mutation or Storage behavior.
+
 ## D1 — source-replayed finance RLS / JWT
 
 Using read-only catalog inspection on active `acadpro-db` (`ulyealhkmlorsbdiknrh`), captured nine current `pg_policies.qual`/`with_check` sources for:
