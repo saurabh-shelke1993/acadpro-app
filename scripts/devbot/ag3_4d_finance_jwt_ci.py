@@ -7,6 +7,7 @@ This does NOT execute the 14 public SECURITY DEFINER RPCs or Storage requests.
 from __future__ import annotations
 import json
 import os
+import re
 import subprocess
 import sys
 import time
@@ -46,7 +47,21 @@ class FinanceFailure(Exception):
     pass
 
 def sql(*args: str,marker: str|None=None)->str:
-    return ag34b.sql(*args,marker=marker)
+    command=["docker","exec",CONTAINER,"psql","-U","postgres","-d","postgres",
+             "-X","-v","ON_ERROR_STOP=1",*args]
+    result=subprocess.run(command,capture_output=True,text=True,timeout=90,check=False)
+    if result.returncode:
+        errors=[line.strip() for line in result.stderr.splitlines()
+                if "ERROR:" in line or "FATAL:" in line]
+        reason=errors[0] if errors else "psql returned nonzero without an ERROR line"
+        reason=re.sub(r"(?i)[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+                      "<synthetic-uuid>",reason)
+        reason=re.sub(r"(?i)[a-z0-9._%+-]+@[a-z0-9.-]+","<redacted-email>",reason)
+        print("AG3.4D1 sanitized scratch SQL error: "+reason[:210],flush=True)
+        raise FinanceFailure("Scratch SQL execution failed")
+    if marker is not None and marker not in result.stdout:
+        raise FinanceFailure("Scratch SQL checkpoint marker absent")
+    return result.stdout.strip()
 
 def rest(key: str,token: str|None,table: str,*,row_filter: str|None=None,
          method: str="GET",headers_extra: dict|None=None,payload: dict|None=None)->tuple[int,object]:
