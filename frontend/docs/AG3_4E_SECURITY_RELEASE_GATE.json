@@ -64,7 +64,7 @@
       "severity": "HIGH",
       "status": "open",
       "subject": "Legacy public.coach_batches authenticated same-academy mapping RLS allows unexpected Parent/Coach writes in exact-source scratch replay",
-      "mitigation": "AG34-H3 CLI v3 isolated history fetch/one-migration mechanism verified in unlinked native CI 43067604744 (82 invented already-applied versions recovered; failed DDL rolls back grants/RLS and history; one successful version 20261111165330; no old history changes; real JWT RBAC PASS). Frozen live 82-version manifest verified; H3 canonical SQL excludes authored transaction boundaries. Hosted migration NOT applied; single-command explicit Owner approval and manual QA pending. HIGH OPEN."
+      "mitigation": "H4 read-only hosted preflight READY; Free plan has no scheduled database backup. Private Windows CLI v3.0.0 backup/fetch/one-version staging script added with static safety CI 43071267472 PASS; no hosted SQL or migration ledger changes, no operator-verified backup, no manual role QA. Existing 82 recorded versions, four legacy policies and authenticated legacy INSERT access persist; target 20261111165330 not applied. HIGH remains OPEN."
     },
     {
       "id": "AG34-GATE-002",
@@ -105,7 +105,7 @@
   ],
   "production_decision": "NO_GO",
   "dev_pr_merge_status": "Allowed if PR-specific checks succeed; unrelated to production deployment",
-  "source_limits": "AG34-H3 is validated only in disposable GoTrue/PostgREST/CLI with 82 invented historical version entries; live 82 stored statement arrays inspected read-only, but NOT fetched from hosted and not replayed. No hosted DDL or migration-version change. Release remains NO_GO because HIGH-001, RPC/Storage/Jest, historical source B3, B4, and full browser tests are pending.",
+  "source_limits": "H4 verifies live metadata and source checks read-only, and static-tests a Windows private backup/history-fetch prep script. It does NOT perform private backup/restore, execute the authenticated CLI single migration, apply hosted DDL, verify hosted JWT/role business flows, or resolve historical source provenance, RPC/Storage, Jest or B4. Production remains NO_GO.",
   "independent_frontend_build": {
     "result": "PASS",
     "evidence_url": "https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43057423740",
