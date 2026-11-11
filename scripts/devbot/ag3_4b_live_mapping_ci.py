@@ -39,6 +39,7 @@ def safe(args: list[str], *, marker: str | None = None) -> str:
     c = subprocess.run(args, capture_output=True, text=True, timeout=90, check=False)
     if c.returncode:
         for known in ("AG3.4B live predicate checksum parity mismatch",
+                      "AG3.4B live Coach dependency checksum mismatch",
                       "AG3.4B live predicate clone is inconsistent",
                       "AG3.4B requires disposable AG3.3 baseline",
                       "AG3.4B remediation target is not isolated fixture",
