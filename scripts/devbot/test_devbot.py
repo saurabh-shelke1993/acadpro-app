@@ -27,6 +27,12 @@ class DevBotSafetyTests(TestCase):
         self.assertTrue(all(x[1][0] == sys.executable for x in plan))
         self.assertFalse(any("psql" in " ".join(x[1]) for x in plan))
 
+    def test_all_suite_contains_static_and_frontend(self):
+        plan = devbot.build_plan("all")
+        self.assertEqual(len(plan), 12)
+        self.assertEqual(plan[0][0], "DevBot self-tests")
+        self.assertEqual(plan[-1][0], "Frontend build")
+
     def test_frontend_is_test_and_build_only(self):
         plan = devbot.build_plan("frontend")
         commands = [" ".join(x[1]) for x in plan]
