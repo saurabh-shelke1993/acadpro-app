@@ -1,0 +1,256 @@
+{
+  "kind": "AG3.4C1 deployed role-policy fingerprint baseline",
+  "captured_utc": "2026-11-11",
+  "environment": "read-only live catalog; do not connect CI to hosted Supabase",
+  "scope": "Role policies and selected helper signatures only; not equivalent to a policy-source or JWT behavioral test",
+  "algorithm": "md5(coalesce(pg_policies.qual,'') || chr(31) || coalesce(pg_policies.with_check,''))",
+  "helpers_algorithm": "md5(pg_get_functiondef(pg_proc.oid))",
+  "policies": [
+    {
+      "tablename": "batches",
+      "policyname": "batches_delete",
+      "cmd": "DELETE",
+      "roles": "{authenticated}",
+      "predicate_md5": "820f30a36662c482e452c71b2f962449"
+    },
+    {
+      "tablename": "batches",
+      "policyname": "batches_insert",
+      "cmd": "INSERT",
+      "roles": "{authenticated}",
+      "predicate_md5": "f800fe21250472c39f3fbf510748651e"
+    },
+    {
+      "tablename": "batches",
+      "policyname": "batches_parent_select",
+      "cmd": "SELECT",
+      "roles": "{authenticated}",
+      "predicate_md5": "7fa1a5d0550c9c2ffa87a02fb037fbd6"
+    },
+    {
+      "tablename": "batches",
+      "policyname": "batches_select",
+      "cmd": "SELECT",
+      "roles": "{authenticated}",
+      "predicate_md5": "cf0a63eba1272ab66cb4766b37057151"
+    },
+    {
+      "tablename": "batches",
+      "policyname": "batches_update",
+      "cmd": "UPDATE",
+      "roles": "{authenticated}",
+      "predicate_md5": "06d39b2b63ee21ef47ecf9ffd77cceee"
+    },
+    {
+      "tablename": "centers",
+      "policyname": "centers_delete",
+      "cmd": "DELETE",
+      "roles": "{authenticated}",
+      "predicate_md5": "820f30a36662c482e452c71b2f962449"
+    },
+    {
+      "tablename": "centers",
+      "policyname": "centers_insert",
+      "cmd": "INSERT",
+      "roles": "{authenticated}",
+      "predicate_md5": "f800fe21250472c39f3fbf510748651e"
+    },
+    {
+      "tablename": "centers",
+      "policyname": "centers_select",
+      "cmd": "SELECT",
+      "roles": "{authenticated}",
+      "predicate_md5": "d0599c914f284afd0b9b091a8d6c7f96"
+    },
+    {
+      "tablename": "centers",
+      "policyname": "centers_update",
+      "cmd": "UPDATE",
+      "roles": "{authenticated}",
+      "predicate_md5": "06d39b2b63ee21ef47ecf9ffd77cceee"
+    },
+    {
+      "tablename": "coach_batch_assignments",
+      "policyname": "coach_batch_assignments_delete",
+      "cmd": "DELETE",
+      "roles": "{authenticated}",
+      "predicate_md5": "1fa6dffb776e986c00bbaf395cb09deb"
+    },
+    {
+      "tablename": "coach_batch_assignments",
+      "policyname": "coach_batch_assignments_insert",
+      "cmd": "INSERT",
+      "roles": "{authenticated}",
+      "predicate_md5": "ecadff19daa9c8d0f4433caa2cd15e12"
+    },
+    {
+      "tablename": "coach_batch_assignments",
+      "policyname": "coach_batch_assignments_select",
+      "cmd": "SELECT",
+      "roles": "{authenticated}",
+      "predicate_md5": "133ffca4096ad2c58e472a078fd80a2b"
+    },
+    {
+      "tablename": "coach_batch_assignments",
+      "policyname": "coach_batch_assignments_update",
+      "cmd": "UPDATE",
+      "roles": "{authenticated}",
+      "predicate_md5": "30fef98881fcc0fdac80a305b7f29ac5"
+    },
+    {
+      "tablename": "parents",
+      "policyname": "parents_delete",
+      "cmd": "DELETE",
+      "roles": "{authenticated}",
+      "predicate_md5": "820f30a36662c482e452c71b2f962449"
+    },
+    {
+      "tablename": "parents",
+      "policyname": "parents_insert",
+      "cmd": "INSERT",
+      "roles": "{authenticated}",
+      "predicate_md5": "f800fe21250472c39f3fbf510748651e"
+    },
+    {
+      "tablename": "parents",
+      "policyname": "parents_parent_select",
+      "cmd": "SELECT",
+      "roles": "{authenticated}",
+      "predicate_md5": "b865353d9d2219422abfc5728d5c96d5"
+    },
+    {
+      "tablename": "parents",
+      "policyname": "parents_select",
+      "cmd": "SELECT",
+      "roles": "{authenticated}",
+      "predicate_md5": "373e2e1995e7ab9e1b3500ed71da9e26"
+    },
+    {
+      "tablename": "parents",
+      "policyname": "parents_update",
+      "cmd": "UPDATE",
+      "roles": "{authenticated}",
+      "predicate_md5": "06d39b2b63ee21ef47ecf9ffd77cceee"
+    },
+    {
+      "tablename": "player_batches",
+      "policyname": "player_batches_delete",
+      "cmd": "DELETE",
+      "roles": "{authenticated}",
+      "predicate_md5": "55428d789183f32a5317df9642021996"
+    },
+    {
+      "tablename": "player_batches",
+      "policyname": "player_batches_insert",
+      "cmd": "INSERT",
+      "roles": "{authenticated}",
+      "predicate_md5": "7064b6fbbdfa575a8f0b0718dd7415d1"
+    },
+    {
+      "tablename": "player_batches",
+      "policyname": "player_batches_parent_select",
+      "cmd": "SELECT",
+      "roles": "{authenticated}",
+      "predicate_md5": "3ca2da7cdd69a29b5bf04eb7e94f3d49"
+    },
+    {
+      "tablename": "player_batches",
+      "policyname": "player_batches_select",
+      "cmd": "SELECT",
+      "roles": "{authenticated}",
+      "predicate_md5": "6f4d965f0b5f316db0c8e6093c478e82"
+    },
+    {
+      "tablename": "player_batches",
+      "policyname": "player_batches_update",
+      "cmd": "UPDATE",
+      "roles": "{authenticated}",
+      "predicate_md5": "d574dde582d27f20eea77e9a7f468c98"
+    },
+    {
+      "tablename": "players",
+      "policyname": "players_delete",
+      "cmd": "DELETE",
+      "roles": "{authenticated}",
+      "predicate_md5": "820f30a36662c482e452c71b2f962449"
+    },
+    {
+      "tablename": "players",
+      "policyname": "players_insert",
+      "cmd": "INSERT",
+      "roles": "{authenticated}",
+      "predicate_md5": "f800fe21250472c39f3fbf510748651e"
+    },
+    {
+      "tablename": "players",
+      "policyname": "players_parent_select",
+      "cmd": "SELECT",
+      "roles": "{authenticated}",
+      "predicate_md5": "4727910545b4a4237a003ba156af09de"
+    },
+    {
+      "tablename": "players",
+      "policyname": "players_select",
+      "cmd": "SELECT",
+      "roles": "{authenticated}",
+      "predicate_md5": "0a877b1bd82f622f005c45fd9fd98cf5"
+    },
+    {
+      "tablename": "players",
+      "policyname": "players_update",
+      "cmd": "UPDATE",
+      "roles": "{authenticated}",
+      "predicate_md5": "06d39b2b63ee21ef47ecf9ffd77cceee"
+    }
+  ],
+  "helpers": [
+    {
+      "signature": "private.can_access_batch(uuid)",
+      "source_md5": "904f63449638d7d62256cd6c646024eb",
+      "security_definer": true,
+      "config": "search_path=public, private"
+    },
+    {
+      "signature": "private.can_manage_academy(uuid)",
+      "source_md5": "d183e094af355464d7c6105f70d2ff55",
+      "security_definer": true,
+      "config": "search_path=\"\""
+    },
+    {
+      "signature": "private.current_academy_id()",
+      "source_md5": "3f3320e172ce45bf35deb520f2f9861b",
+      "security_definer": true,
+      "config": "search_path=public, pg_catalog"
+    },
+    {
+      "signature": "private.current_parent_id()",
+      "source_md5": "5cd00d89a1a947ad5b9ee315bba211e2",
+      "security_definer": true,
+      "config": "search_path=public, private, pg_catalog"
+    },
+    {
+      "signature": "private.current_user_role()",
+      "source_md5": "bb4425d26f4de725c02f1ae591869a65",
+      "security_definer": true,
+      "config": "search_path=public, private"
+    },
+    {
+      "signature": "private.is_coach_assigned_to_batch(uuid)",
+      "source_md5": "b8e7db204915849e774dbda83fae8ffa",
+      "security_definer": true,
+      "config": "search_path=public, private"
+    },
+    {
+      "signature": "private.is_super_admin()",
+      "source_md5": "efca43b3f7c74ec5e51d66d25ed1302e",
+      "security_definer": true,
+      "config": "search_path=public, pg_catalog"
+    }
+  ],
+  "notes": [
+    "This manifest is a snapshot. Live drift requires explicit review; never auto-update to pass.",
+    "Hashes are not proof of authorization behavior; do not treat manifest tests as real-JWT or live RLS validation.",
+    "AG3.4B legacy coach_batches unauthorized writes confirmed only in disposable source-attested CI.",
+    "Production migration and release remain blocked."
+  ]
+}
