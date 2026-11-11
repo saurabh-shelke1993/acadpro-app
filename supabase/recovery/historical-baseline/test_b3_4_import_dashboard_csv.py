@@ -3,11 +3,14 @@ import csv
 import hashlib
 import json
 from pathlib import Path
+from unittest.mock import patch
 import tempfile
 import unittest
 
 from attest_private_archive import git_blob_sha1
-from b3_4_import_dashboard_csv import read_csv_exports, preverify, import_csv_archive
+from b3_4_import_dashboard_csv import (
+    read_csv_exports, preverify, import_csv_archive, finalize_existing_private_archive,
+)
 from b3_1_assembly_manifest import PARITY, RISKS
 from b3_3_original_source_audit import EVIDENCE
 
@@ -185,6 +188,50 @@ class DashboardCsvPrivateArchiveTests(unittest.TestCase):
             self.assertEqual(rows[version]["dispose_data_operations_for_scratch_only"],
                              "PENDING_OWNER_REVIEW")
             self.assertFalse(rows[version]["replay_approved"])
+
+    def synthetic_completed_b27_archive(self):
+        self.output.mkdir()
+        for name in ("manifest.json", "archive-attestation.json",
+                     "content-parity.json", "sql-statement-risk-review.json"):
+            (self.output / name).write_text("{}", encoding="utf-8")
+
+    def test_finalize_existing_preserves_private_archive_without_csv_or_reimport(self):
+        self.synthetic_completed_b27_archive()
+        source = self.output / "quarantine_sql"
+        source.mkdir()
+        untouched = source / "synthetic-source.statements.json"
+        untouched.write_text('["SELECT 1;"]', encoding="utf-8")
+        with patch("b3_4_import_dashboard_csv.analyze", return_value={
+            "all_168_element_hashes_verified_from_private_archive": True,
+            "private_archive_source_matched_to_live_fingerprints": True,
+            "ready_for_full_supabase_replay": False,
+        }) as inspect:
+            report = finalize_existing_private_archive(self.root, self.output)
+        inspect.assert_called_once()
+        self.assertEqual(untouched.read_text(), '["SELECT 1;"]')
+        self.assertTrue((self.output / "b3-4-dashboard-attestation.json").is_file())
+        self.assertEqual(report["original_statement_elements"], 168)
+        self.assertFalse(report["historical_sql_replay_approved"])
+        self.assertFalse(report["ready_for_disposable_replay"])
+
+    def test_finalize_rejects_failed_reverification_without_writing_attestation(self):
+        self.synthetic_completed_b27_archive()
+        with patch("b3_4_import_dashboard_csv.analyze", return_value={
+            "all_168_element_hashes_verified_from_private_archive": False,
+            "private_archive_source_matched_to_live_fingerprints": False,
+            "ready_for_full_supabase_replay": False,
+        }):
+            with self.assertRaisesRegex(ValueError, "attestation not complete"):
+                finalize_existing_private_archive(self.root, self.output)
+        self.assertFalse((self.output / "b3-4-dashboard-attestation.json").exists())
+
+    def test_finalize_refuses_existing_attestation_and_unprotected_archive(self):
+        self.synthetic_completed_b27_archive()
+        (self.output / "b3-4-dashboard-attestation.json").write_text("{}")
+        with self.assertRaisesRegex(ValueError, "refusing overwrite"):
+            finalize_existing_private_archive(self.root, self.output)
+        with self.assertRaisesRegex(ValueError, "ignored .recovery-private"):
+            finalize_existing_private_archive(self.root, self.root)
 
     def test_no_hosted_sql_commands(self):
         code = (Path(__file__).parent / "b3_4_import_dashboard_csv.py").read_text()
