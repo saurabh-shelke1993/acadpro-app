@@ -1,5 +1,12 @@
 # AcadPro Project Status
 
+## Security AG34-HIGH-001 — retire unused legacy Coach mapping API surface (11 November 2026)
+
+**STAGED ON SECURITY REVIEW BRANCH; LIVE UNCHANGED.** Active `public.coach_batches` has **zero rows** and broad authenticated grants/permissive same-academy RLS, previously shown vulnerable in source-attested disposable JWT replay. Current `CoachBatchMapping.js` and dataScope use `coach_batch_assignments`. Three live private helpers still query the legacy table; preserve them and the table. Proposed SQL, *outside canonical migrations*, performs exact policy MD5/zero-row/grant checks, revokes all direct PUBLIC/anon/authenticated privileges, adds restrictive always-deny authenticated RLS, and checks postconditions. Native scratch GoTrue/PostgREST test is under CI on [PR #17](https://github.com/saurabh-shelke1993/acadpro-app/pull/17), including an accidental re-GRANT test and active assignment regression. [Security design and rollout instructions](AG34_HIGH_001_LEGACY_COACH_BATCHES_LOCKDOWN.md).
+
+**Not completed:** no live migration, no deployed change, no manual Coach/Owner/Parent acceptance. Production HIGH-001 remains **open**, all AG3.4E NO-GO criteria still enforced. Do not re-enable direct access even for Super Admin; SA uses the modern assignments table.
+
+
 ## AG3.4 — C2 and D1 source-aligned JWT PASS; E final security gate NO-GO (11 November 2026)
 
 **DEVELOPMENT IMPLEMENTED / PRs MERGED:** C2 [PR #11](https://github.com/saurabh-shelke1993/acadpro-app/pull/11), [native CI 43053546673](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43053546673) PASS: six exact live Parent/Coach/SA SELECT predicates, active Parent helper; 9/9 pure tests and real Parent A1/A2/B, Owner, Coach, SA JWT isolation. D1+D2 [PR #13](https://github.com/saurabh-shelke1993/acadpro-app/pull/13), [native CI 43056561458](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43056561458) PASS: nine live finance SELECT/ALL predicates, six dependency helpers, Parent/Owner/Coach/SA inactive Parent/cross-tenant JWT, 9/9 pure tests; 14 RPC and 16 Storage policy **fingerprints inventoried only**. E [PR #12](https://github.com/saurabh-shelke1993/acadpro-app/pull/12) merged a fail-closed production NO-GO evidence gate.
