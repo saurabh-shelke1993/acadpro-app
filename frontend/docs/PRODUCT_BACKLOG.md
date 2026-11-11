@@ -1,5 +1,10 @@
 # AcadPro Product Backlog
 
+## AG3.4E frontend compilation evidence (11 November 2026)
+
+**IMPLEMENTED/TESTED:** Independent Node20 dummy-key React build [run 43057423740](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43057423740) **PASS**, [PR #15](https://github.com/saurabh-shelke1993/acadpro-app/pull/15) merged. **PENDING/BLOCKER:** full Jest regression still **16/490 failed** across four suites (run 43056100352); separate root-cause fix and clean rerun needed. Build compilation alone does not clear `frontend_all_jest_and_build_green`; AG3.4E and billing B4 production release remain **NO-GO**.
+
+
 ## AG3.4C2–E — implementation and release blockers (11 November 2026)
 
 **MERGED / SOURCE-ALIGNED NATIVE TESTED:** AG3.4C2 [PR #11](https://github.com/saurabh-shelke1993/acadpro-app/pull/11) real GoTrue/SELECT policy parity PASS; AG3.4D1 [PR #13](https://github.com/saurabh-shelke1993/acadpro-app/pull/13) finance SELECT policy JWT PASS, nine exact deployed predicates + six helpers; AG3.4D2 source fingerprints of 14 authenticated SECURITY DEFINER RPCs + 16 Storage policies (metadata **only**); AG3.4E [PR #12](https://github.com/saurabh-shelke1993/acadpro-app/pull/12) offline fail-closed production **NO-GO** gate.
