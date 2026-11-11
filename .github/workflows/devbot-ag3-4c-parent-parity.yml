@@ -1,0 +1,90 @@
+name: Kheltriva DevBot AG3.4C - Parent and role policy parity
+
+on:
+  push:
+    branches: [devbot-ag3-4c-parent-role-policy-parity, payment-module-finalization]
+    paths:
+      - '.github/workflows/devbot-ag3-4c-parent-parity.yml'
+      - 'scripts/devbot/ag3_4c_parent_role_policy_ci.py'
+      - 'scripts/devbot/test_ag3_4c_parent_role_policy_ci.py'
+      - 'supabase/tests/security/ag34c_live_parent_role_policy_snapshot.sql'
+      - 'scripts/devbot/ag3_3_parent_sa_jwt_rls_ci.py'
+      - 'scripts/devbot/ag3_2_coach_jwt_rls_ci.py'
+      - 'scripts/devbot/ag3_real_jwt_rls_ci.py'
+      - 'scripts/devbot/ag2_real_auth_ci.py'
+      - 'supabase/tests/subscriptions/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kheltriva-ag34c-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  exact-parent-helper-policy:
+    name: AG3.4C live Parent policies real-JWT regression
+    if: github.repository == 'saurabh-shelke1993/acadpro-app'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Pure Parent helper, SQL and authorization scope tests
+        run: python -m unittest discover -s scripts/devbot -p 'test_ag3_4c_parent_role_policy_ci.py' -v
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 3.0.0
+      - name: Initialize new isolated unlinked Supabase
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT="$RUNNER_TEMP/kheltriva-ag34c-ci"
+          test -z "${SUPABASE_ACCESS_TOKEN:-}"
+          test -z "${SUPABASE_DB_URL:-}"
+          test ! -e "$ROOT"
+          mkdir -p "$ROOT"
+          cd "$ROOT"
+          supabase init --yes >/dev/null 2>&1
+          python - <<'PY'
+          from pathlib import Path
+          import tomllib
+          root=Path('supabase')
+          cfg=tomllib.loads((root/'config.toml').read_text())
+          assert cfg['project_id']=='kheltriva-ag34c-ci'
+          assert cfg['auth']['email']['enable_confirmations'] is False
+          assert not (root/'migrations').exists()
+          assert not (root/'.temp'/'project-ref').exists()
+          PY
+          echo 'AG3.4C PASS: unlinked scratch project.'
+      - name: Start native GoTrue PostgREST and PostgreSQL
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/kheltriva-ag34c-ci"
+          if ! supabase start -x 'realtime,storage-api,studio,postgres-meta,edge-runtime,imgproxy,logflare,vector,supavisor,mailpit' >"$RUNNER_TEMP/ag34c-private-startup.log" 2>&1; then
+            echo 'AG3.4C FAIL: scratch startup error; secrets withheld.'
+            exit 1
+          fi
+          echo 'AG3.4C PASS: native JWT data API started.'
+      - name: Test exact Parent helper inactive and Coach role RLS
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/kheltriva-ag34c-ci"
+          python "$GITHUB_WORKSPACE/scripts/devbot/ag3_4c_parent_role_policy_ci.py"
+      - name: Remove ephemeral Supabase without backup
+        if: always()
+        shell: bash
+        run: |
+          ROOT="$RUNNER_TEMP/kheltriva-ag34c-ci"
+          if [ -f "$ROOT/supabase/config.toml" ]; then
+            cd "$ROOT"
+            supabase stop --no-backup >/dev/null 2>&1 || true
+          fi
+          echo 'AG3.4C cleanup attempted.'
