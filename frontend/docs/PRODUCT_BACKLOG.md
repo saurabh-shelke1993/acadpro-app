@@ -1,12 +1,18 @@
 # AcadPro Product Backlog
 
-**Last Updated:** 11 November 2026 (PS-L2.3B B3.3 original SQL source inspection; full replay blocked)
+**Last Updated:** 11 November 2026 (B3.5 offline reviewer CI-tested, local private security review pending)
 **Current Branch:** `payment-module-finalization`
 
 Security and data isolation are prerequisites for production.
 
 # ✅ Completed
 
+
+## Active gate — PS-L2.3B B3.5 historical security/data review (11 November 2026)
+
+**Implemented & CI-tested:** Private original-source structural reviewer for all 14 quarantined migrations, full source hash preflight, sanitized review categories and per-module owner/security/finance checklist. [GitHub Actions 42957811902](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42957811902) **PASS — 12 synthetic tests**. No production or canonical migration changes.
+
+**Owner-dependent/pending:** Run B3.5 against the verified private B3.4 archive locally and review the 14 original statements manually. A successful structural scan still does **not** approve any historical player/payment mutation or essential DDL separation. Current RLS catalog observations are not historical replay proof. B3 complete disposable Supabase Auth/RLS/financial baseline and B4 PS-L2.3 subscription proration, expiry, renewal and next-dues automation are BLOCKED/not deployed. See PS_L2_3B_B3_5_PRIVATE_SECURITY_REVIEW_20261111.md.
 
 ## PS-L2.3B B3.4 archive verified locally — next B3.5 security/data review (11 November 2026)
 
