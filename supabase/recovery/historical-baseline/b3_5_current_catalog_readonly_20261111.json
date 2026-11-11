@@ -1,0 +1,60 @@
+{
+  "schema": "kheltriva-b3-5-current-catalog-readonly-guardrails-v1",
+  "observed_date": "2026-11-11",
+  "project_id": "ulyealhkmlorsbdiknrh",
+  "source": "Supabase connected SELECT-only pg_class, pg_policies, pg_trigger, pg_proc and pg_namespace",
+  "distinguishes_current_from_historical": true,
+  "sql_migration_source_executed": false,
+  "current_table_guardrails": [
+    {
+      "table": "attendance",
+      "rls_enabled": true,
+      "policy_count": 4,
+      "non_internal_triggers": 1
+    },
+    {
+      "table": "batches",
+      "rls_enabled": true,
+      "policy_count": 5,
+      "non_internal_triggers": 0
+    },
+    {
+      "table": "parents",
+      "rls_enabled": true,
+      "policy_count": 5,
+      "non_internal_triggers": 0
+    },
+    {
+      "table": "payment_dues",
+      "rls_enabled": true,
+      "policy_count": 6,
+      "non_internal_triggers": 1
+    },
+    {
+      "table": "player_batches",
+      "rls_enabled": true,
+      "policy_count": 5,
+      "non_internal_triggers": 1
+    },
+    {
+      "table": "players",
+      "rls_enabled": true,
+      "policy_count": 5,
+      "non_internal_triggers": 1
+    }
+  ],
+  "current_private_function_counts": {
+    "all": 42,
+    "security_definer": 35,
+    "security_definer_missing_pg_proc_proconfig": 0
+  },
+  "current_rls_policies_referencing_private_schema": 114,
+  "validation_limits": [
+    "These are current production catalog counts only, not a historical snapshot",
+    "Policy contents, tenant-negative tests, function semantics and RLS behavior were not validated in this snapshot",
+    "Security-definer proconfig being set does not itself prove a safe or appropriate search_path",
+    "Stored migration-history fidelity and complete disposable Supabase replay remain blocked"
+  ],
+  "approved_as_historical_security_parity": false,
+  "ready_for_disposable_replay": false
+}
