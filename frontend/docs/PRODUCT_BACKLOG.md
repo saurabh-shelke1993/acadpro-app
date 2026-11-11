@@ -7,6 +7,25 @@ Security and data isolation are prerequisites for production.
 
 # ✅ Completed
 
+
+## B3.4 recovery note — Windows CRLF source-hash false mismatch (11 November 2026)
+
+A Windows local owner import stopped during post-export analysis at original version 20260920041653. Original Git LF content was reverified to match the pinned remote SQL hash after one trailing LF removal; a Windows CRLF working copy can fail the previous strict local-binary check.
+
+B3.1 now accepts CRLF line-endings **only when CRLF-to-LF normalization produces the exact pinned source hash**. Mixed line endings and real SQL content changes still fail. [B3.1 CI 42954533764](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42954533764) **PASS — 12 tests**.
+
+The earlier B3.4 run can have already written its private original archive before the post-archive check failed. A new --finalize-existing mode checks the existing archive's original hashes and creates only a sanitized final attestation; no SQL export, deletion, overwriting or database access. [B3.4 CI 42954795483](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42954795483) **PASS — 15 tests**. The owner still needs to execute the local finalization; actual archive verification status PENDING.
+
+From repository root after pulling the branch:
+
+    $private = "supabase\recovery\historical-baseline\.recovery-private"
+    Test-Path "$private\baseline-b3-4-001\manifest.json"
+    python supabase/recovery/historical-baseline/b3_4_import_dashboard_csv.py --root . --finalize-existing --output "$private\baseline-b3-4-001"
+
+Run the finalization command **only if Test-Path returns True**; otherwise inspect filenames without deleting any private source files. Detailed B3.4 development report is in frontend/docs/PS_L2_3B_B3_4_PRIVATE_ARCHIVE_ACQUISITION_20261111.md.
+
+**Still blocked:** full disposable Supabase replay, historical DML quarantine approval, Auth/RLS/finance parity, and PS-L2.3 subscription deployment. Hosted database, canonical migrations and credentials unchanged.
+
 ## Active dependency — B3.4 original SQL private archive acquisition (11 November 2026)
 
 **Implemented & tested:** New SQL Editor (Google-login, no DB password) CSV-to-private-archive importer with 82 migration-wide and 168 original SQL-element pre-write fingerprint checks; 14-case DML/procedural manual-review register; GitHub Actions [42889010851](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42889010851) **PASS (12 synthetic tests)**.
