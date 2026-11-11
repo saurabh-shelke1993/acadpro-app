@@ -102,3 +102,22 @@ If False, do not delete or overwrite private data; inspect the archive folder fi
 **Validation:** [B3.1 CRLF/hash tests](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42954533764) PASS (12 tests); [B3.4 safe resume tests](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42954795483) PASS (15 tests).
 
 **Unchanged blocker:** The owner's actual archive still needs in-place verification. Full disposable Supabase Auth/RLS/financial replay and subscription integration are not approved. This update is confined to offline recovery tooling; no production database, credentials, player records, billing or migration files were changed.
+
+
+## Owner validation addendum — protected local archive attested (11 November 2026)
+
+The owner subsequently pulled the tested Windows line-ending repair and ran the **existing-archive finalization** in VS Code PowerShell. Their displayed output was:
+
+```json
+{
+  "migration_versions": 82,
+  "original_statement_elements": 168,
+  "source_hashes_verified_before_archive": true,
+  "ready_for_disposable_replay": false
+}
+```
+
+This confirms the **local B3.4 archive-integrity gate passed** according to the owner's terminal output. The finalization path validates the existing B2.7 private source archive and all 168 original element hashes and creates only sanitized attestation metadata. The private archive itself was **not uploaded to or independently inspected from GitHub**. Earlier sections describing export as PENDING document the state *before* this owner verification and are superseded by this addendum.
+
+**Still unapproved:** the 14 historical data/procedural migrations, full parser/privilege and RLS equivalence, actual disposable Supabase replay, and PS-L2.3 subscription integration. Do not copy the private SQL archive into Git, run it against hosted Supabase or infer replay approval from source integrity.
+
