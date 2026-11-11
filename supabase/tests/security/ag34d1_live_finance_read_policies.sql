@@ -141,45 +141,45 @@ AS $function$
   );
 $function$;
 
--- Exact hosted pg_policies.qual/with_check. Real SA ALL on dues is preserved.
+-- Exact hosted pg_policies.qual/with_check. SQL parentheses wrap expressions for CREATE POLICY grammar.
 CREATE POLICY parent_payment_submissions_select_academy_owner ON public.parent_payment_submissions
 FOR SELECT TO authenticated
-USING (( SELECT private.is_academy_owner() AS is_academy_owner) AND (academy_id = ( SELECT private.current_academy_id() AS current_academy_id)));
+USING ((( SELECT private.is_academy_owner() AS is_academy_owner) AND (academy_id = ( SELECT private.current_academy_id() AS current_academy_id))));
 
 CREATE POLICY parent_payment_submissions_select_parent ON public.parent_payment_submissions
 FOR SELECT TO authenticated
-USING (EXISTS ( SELECT 1
+USING ((EXISTS ( SELECT 1
    FROM parents parent_record
-  WHERE ((parent_record.id = parent_payment_submissions.parent_id) AND (parent_record.user_id = ( SELECT auth.uid() AS uid)))));
+  WHERE ((parent_record.id = parent_payment_submissions.parent_id) AND (parent_record.user_id = ( SELECT auth.uid() AS uid))))));
 
 CREATE POLICY parent_payment_submissions_select_super_admin ON public.parent_payment_submissions
 FOR SELECT TO authenticated
-USING ( SELECT private.is_super_admin() AS is_super_admin);
+USING (( SELECT private.is_super_admin() AS is_super_admin));
 
 CREATE POLICY payment_dues_academy_owner_select ON public.payment_dues
 FOR SELECT TO authenticated
-USING (private.is_academy_owner() AND private.is_payment_due_in_current_academy(player_id));
+USING ((private.is_academy_owner() AND private.is_payment_due_in_current_academy(player_id)));
 
 CREATE POLICY payment_dues_parent_select ON public.payment_dues
 FOR SELECT TO authenticated
-USING ((private.current_user_role() = 'parent'::text) AND private.is_parent_payment_due(player_id));
+USING (((private.current_user_role() = 'parent'::text) AND private.is_parent_payment_due(player_id)));
 
 CREATE POLICY payment_dues_super_admin_all ON public.payment_dues
 FOR ALL TO authenticated
-USING private.is_super_admin()
-WITH CHECK private.is_super_admin();
+USING (private.is_super_admin())
+WITH CHECK (private.is_super_admin());
 
 CREATE POLICY payments_academy_owner_select ON public.payments
 FOR SELECT TO authenticated
-USING (private.is_academy_owner() AND private.is_payment_player_in_current_academy(player_id));
+USING ((private.is_academy_owner() AND private.is_payment_player_in_current_academy(player_id)));
 
 CREATE POLICY payments_parent_select ON public.payments
 FOR SELECT TO authenticated
-USING ((private.current_user_role() = 'parent'::text) AND private.is_parent_payment_player(player_id));
+USING (((private.current_user_role() = 'parent'::text) AND private.is_parent_payment_player(player_id)));
 
 CREATE POLICY payments_super_admin_select ON public.payments
 FOR SELECT TO authenticated
-USING ( SELECT private.is_super_admin() AS is_super_admin);
+USING (( SELECT private.is_super_admin() AS is_super_admin));
 
 DO $verify$
 DECLARE np int; nf int;
