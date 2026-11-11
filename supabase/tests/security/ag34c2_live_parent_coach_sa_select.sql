@@ -33,7 +33,7 @@ AS $function$
     AND lower(coalesce(u.role, '')) = 'parent'
     AND p.is_active = true
   LIMIT 1;
-$function$
+$function$;
 
 -- AG3.3 synthetic SELECT conditions are removed to prevent permissive OR bypass.
 DROP POLICY ag3_synthetic_owner_batch_read ON public.batches;
