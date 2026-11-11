@@ -33,10 +33,9 @@ WITH CHECK (
  OR (private.is_academy_owner()
      AND EXISTS (SELECT 1 FROM public.batches b
                  JOIN public.coaches c ON c.id=coach_batches.coach_id
-                 JOIN public.users u ON u.id=c.user_id
                  WHERE b.id=coach_batches.batch_id
                    AND b.academy_id=private.current_academy_id()
-                   AND u.academy_id=private.current_academy_id()))
+                   AND c.academy_id=private.current_academy_id()))
 );
 
 ALTER POLICY coach_batches_update ON public.coach_batches TO authenticated
@@ -52,10 +51,9 @@ WITH CHECK (
  OR (private.is_academy_owner()
      AND EXISTS (SELECT 1 FROM public.batches b
                  JOIN public.coaches c ON c.id=coach_batches.coach_id
-                 JOIN public.users u ON u.id=c.user_id
                  WHERE b.id=coach_batches.batch_id
                    AND b.academy_id=private.current_academy_id()
-                   AND u.academy_id=private.current_academy_id()))
+                   AND c.academy_id=private.current_academy_id()))
 );
 
 ALTER POLICY coach_batches_delete ON public.coach_batches TO authenticated
