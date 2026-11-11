@@ -42,6 +42,12 @@
       "state": "source_inventory_only",
       "mode": "14_public_definer_rpc_16_storage_policy_fingerprints",
       "url": "https://github.com/saurabh-shelke1993/acadpro-app"
+    },
+    {
+      "phase": "AG34-H2",
+      "state": "staged_tested_not_deployed",
+      "mode": "cli_generated_source_identical_sql_native_jwt_and_safe_downshift_rehearsal",
+      "url": "https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43063776080"
     }
   ],
   "production_release_requirements": {
@@ -64,7 +70,7 @@
       "severity": "HIGH",
       "status": "open",
       "subject": "Legacy public.coach_batches authenticated same-academy mapping RLS allows unexpected Parent/Coach writes in exact-source scratch replay",
-      "mitigation": "Client-lockdown proposal staged as noncanonical reviewed SQL in PR #18; native source-attested scratch GoTrue/JWT run 43059424184 PASS (all 8 app roles, anon, regrant defense); no hosted deployment, canonical migration or manual regression. HIGH remains OPEN."
+      "mitigation": "AG34-H2 CLI-generated versioned forward migration candidate (20261111165330) matches source-tested H1 SQL. Native unlinked GoTrue/JWT + emergency grants-only downshift CI 43063776080 PASS; read-only hosted preflight READY but hosted postflight STOP (not deployed). Original client grants/policies remain in active Supabase; canonical deployment/versioning, manual browser regression and explicit hosted approval pending. DO NOT mark remediated."
     },
     {
       "id": "AG34-GATE-002",
@@ -105,7 +111,7 @@
   ],
   "production_decision": "NO_GO",
   "dev_pr_merge_status": "Allowed if PR-specific checks succeed; unrelated to production deployment",
-  "source_limits": "This is a release decision ledger and automated fail-closed blocker check, NOT evidence of complete AG3.4D RPC/Storage runtime tests, production migration or manual QA. Full frontend CI currently fails 16 tests in four suites, build not reached.",
+  "source_limits": "AG34-H2 staged guarded canonical SQL and safe downshift were tested in an unlinked native JWT scratch project; 82-step historical migration replay, actual hosted DDL, Supabase migration-engine/version ledger integration, full frontend/manual QA, RPC/Storage tests and B4 are NOT validated. The production gate remains NO_GO.",
   "independent_frontend_build": {
     "result": "PASS",
     "evidence_url": "https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43057423740",
