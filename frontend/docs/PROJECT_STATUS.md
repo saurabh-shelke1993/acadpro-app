@@ -1,5 +1,10 @@
 # AcadPro Project Status
 
+## AG3.4E — isolated React build compiled, complete frontend QA still red
+
+[Build-only CI 43057423740](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43057423740) **PASS**, merged [PR #15](https://github.com/saurabh-shelke1993/acadpro-app/pull/15), using Node 20, `npm ci`, placeholder Supabase environment and `CI=true npm run build`. **Distinct from** full [Phase 7.5 Jest CI 43056100352](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43056100352), **16/490 tests FAIL** in four suites; that job skipped its build after Jest failures. Final `frontend_all_jest_and_build_green` requirement remains false. AG3.4E production **NO-GO**; no Vercel/main or hosted DB deployment.
+
+
 ## AG3.4 — C2 and D1 source-aligned JWT PASS; E final security gate NO-GO (11 November 2026)
 
 **DEVELOPMENT IMPLEMENTED / PRs MERGED:** C2 [PR #11](https://github.com/saurabh-shelke1993/acadpro-app/pull/11), [native CI 43053546673](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43053546673) PASS: six exact live Parent/Coach/SA SELECT predicates, active Parent helper; 9/9 pure tests and real Parent A1/A2/B, Owner, Coach, SA JWT isolation. D1+D2 [PR #13](https://github.com/saurabh-shelke1993/acadpro-app/pull/13), [native CI 43056561458](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43056561458) PASS: nine live finance SELECT/ALL predicates, six dependency helpers, Parent/Owner/Coach/SA inactive Parent/cross-tenant JWT, 9/9 pure tests; 14 RPC and 16 Storage policy **fingerprints inventoried only**. E [PR #12](https://github.com/saurabh-shelke1993/acadpro-app/pull/12) merged a fail-closed production NO-GO evidence gate.

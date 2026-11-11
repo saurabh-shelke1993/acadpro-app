@@ -105,5 +105,13 @@
   ],
   "production_decision": "NO_GO",
   "dev_pr_merge_status": "Allowed if PR-specific checks succeed; unrelated to production deployment",
-  "source_limits": "This is a release decision ledger and automated fail-closed blocker check, NOT evidence of complete AG3.4D RPC/Storage runtime tests, production migration or manual QA. Full frontend CI currently fails 16 tests in four suites, build not reached."
+  "source_limits": "This is a release decision ledger and automated fail-closed blocker check, NOT evidence of complete AG3.4D RPC/Storage runtime tests, production migration or manual QA. Full frontend CI currently fails 16 tests in four suites, build not reached.",
+  "independent_frontend_build": {
+    "result": "PASS",
+    "evidence_url": "https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43057423740",
+    "merged_pr": "https://github.com/saurabh-shelke1993/acadpro-app/pull/15",
+    "execution": "Node 20, npm ci, CI=true npm run build with non-production placeholder Supabase credentials",
+    "finding": "Compiled successfully. This independently tests build only; full Jest still fails 16 of 490 tests in 4 suites.",
+    "production_release_impact": "None; frontend_all_jest_and_build_green remains false until full suite and build pass together."
+  }
 }
