@@ -44,7 +44,7 @@ class Ag34BSafety(unittest.TestCase):
     def test_candidate_roles_and_active_coach_scope(self):
         for x in ("private.is_academy_owner()","private.is_coach()",
                   "private.is_coach_assigned_to_batch(batch_id)",
-                  "u.academy_id=private.current_academy_id()",
+                  "c.academy_id=private.current_academy_id()",
                   "WITH CHECK","TO authenticated"):
             self.assertIn(x,self.fixed)
         for x in ("token_a1,set()","token_a2,set()",
