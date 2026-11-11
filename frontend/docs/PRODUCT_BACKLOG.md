@@ -8,6 +8,12 @@ Security and data isolation are prerequisites for production.
 # ✅ Completed
 
 
+## PS-L2.3B B3.4 archive verified locally — next B3.5 security/data review (11 November 2026)
+
+**Verified by owner's PowerShell output:** `--finalize-existing` accepted the local protected original SQL archive and reported **82/82 migrations, 168/168 original SQL elements and successful pre-archive source fingerprint verification**; `ready_for_disposable_replay=false`. The private SQL archive stays Git-ignored and was not uploaded to GitHub.
+
+**Remaining blockers:** Manual source/SQL security review and decisions for 14 quarantined historical DML/procedural cases, helper source/provenance and privilege chronology, original-source semantic parity, safe scratch assembly and real B3 Supabase Auth/RLS/payment replay. PS-L2.3 renewal, expiry, proration and auto-generated next dues remain **unapplied / not deployed**. Next checkpoint: B3.5 isolated historical security/data review, with no hosted writes.
+
 ## B3.4 recovery note — Windows CRLF source-hash false mismatch (11 November 2026)
 
 A Windows local owner import stopped during post-export analysis at original version 20260920041653. Original Git LF content was reverified to match the pinned remote SQL hash after one trailing LF removal; a Windows CRLF working copy can fail the previous strict local-binary check.
