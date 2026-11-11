@@ -36,7 +36,7 @@ class Ag34BSafety(unittest.TestCase):
 
     def test_parent_read_and_nested_rls_probes(self):
         for x in ("token_a1,{LINKED,INACTIVE}","token_a2,{LINKED,INACTIVE}",
-                  "coach_a_token,{LINKED,INACTIVE}","parent malicious INSERT",
+                  "coach_a_token,{LINKED,INACTIVE}","Parent malicious INSERT",
                   "LIVE PREDICATE","status=post(key,token_a1,probe)",
                   "status=post(key,coach_a_token,probe)"):
             self.assertIn(x,self.runner)
@@ -58,7 +58,7 @@ class Ag34BSafety(unittest.TestCase):
             for ban in ("INSERT INTO auth.users","CREATE OR REPLACE FUNCTION",
                         "DROP TABLE","supabase db push","supabase link"):
                 self.assertNotIn(ban,sql)
-        self.assertIn("not deployed",self.fixed.lower())
+        self.assertIn("never deploy blindly",self.fixed.lower())
 
     def test_rest_injection_methods_denied(self):
         with self.assertRaises(ValueError):
