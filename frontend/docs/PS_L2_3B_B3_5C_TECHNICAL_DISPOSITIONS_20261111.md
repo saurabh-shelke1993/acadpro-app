@@ -53,10 +53,11 @@
 |---|---|
 | Owner local archive integrity and B3.5B scanner | **PASS (owner-provided console output)** |
 | B3.5C technical original-source triage | **CLASSIFIED (14/14)** |
-| B3.5C sanitized registry integrity test | **Pending exact-HEAD CI** |
+| B3.5C sanitized registry integrity test | **PASS — 13 focused synthetic tests at source `e7d7227` (run 42964368559)** |
 | Manual essential DDL/data split + security sign-off | **PENDING** |
 | Historical original-source/role/privilege semantic parity | **PENDING** |
 | Full unlinked disposable Supabase Auth/RLS/Storage/Finance replay | **NOT RUN / BLOCKED** |
+| Broader frontend Jest regression | **FAIL — 4 suites / 16 tests at `e7d7227`; unrelated B3.5 gate** |
 | Owner acceptance of replay preparation | **PENDING** |
 | PS-L2.3 billing activation, legacy agreements, production replay | **BLOCKED** |
 
