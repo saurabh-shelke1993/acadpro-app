@@ -8,6 +8,7 @@ on:
       - 'scripts/devbot/ag34_h1_legacy_lockdown_ci.py'
       - 'scripts/devbot/test_ag34_h1_legacy_lockdown_ci.py'
       - 'supabase/security_remediation_proposals/ag34_h1_legacy_coach_batches_lockdown.sql'
+      - 'frontend/docs/AG3_4E_SECURITY_RELEASE_GATE.json'
       - 'scripts/devbot/ag3_4b_live_mapping_ci.py'
       - 'scripts/devbot/test_ag3_4b_live_mapping_ci.py'
       - 'supabase/tests/security/ag34b_live_coach_batches_policy_snapshot.sql'
@@ -45,6 +46,8 @@ jobs:
         run: |
           python -m unittest discover -s scripts/devbot -p 'test_ag3_4b_live_mapping_ci.py' -v
           python -m unittest discover -s scripts/devbot -p 'test_ag34_h1_legacy_lockdown_ci.py' -v
+          python -m unittest discover -s scripts/devbot -p 'test_ag3_4e_security_release_gate.py' -v
+          python scripts/devbot/ag3_4e_security_release_gate.py --check-no-go
       - uses: supabase/setup-cli@v1
         with:
           version: 3.0.0
