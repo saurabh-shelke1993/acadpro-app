@@ -40,6 +40,12 @@ The same four-suite/16-test pattern was present in [earlier run 43051886803](htt
 
 **Release blocker:** Repair or formally disposition the failures, rerun the full frontend test suite and CI React build, then obtain explicit acceptance. No unrelated UI changes were made as part of this security phase.
 
+### Independent frontend build — PASS, full Jest remains FAIL
+
+A separate non-deploy Node 20 React production build with `CI=true`, locked `npm ci`, and **dummy Supabase URL/key** compiled successfully in [run 43057423740](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43057423740), merged as [PR #15](https://github.com/saurabh-shelke1993/acadpro-app/pull/15). This establishes **build-only compilation**, not functional correctness.
+
+The **full** [Phase 7.5 Jest run 43056100352](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43056100352) still has **16/490 failed tests across four suites**; its own build step was skipped. Thus the conjunctive release requirement `frontend_all_jest_and_build_green` is **false**. No real Vercel deployment or hosted Supabase connection occurred.
+
 ### Database migration and operational gap
 
 Live migration ledger **82** entries; local repository **40** migration SQL files; **23** exact version-prefix matches, which do not imply byte-equal SQL source. Missing original security/migration sources prohibit a trustworthy 82-step historical replay. No live migration ledger repair, backfill or one-off reconciliation is authorized.
