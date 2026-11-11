@@ -104,16 +104,7 @@ AS $function$
   );
 $function$;
 
-CREATE OR REPLACE FUNCTION private.is_payment_due_in_current_academy(p_player_id uuid)
- RETURNS boolean
- LANGUAGE sql
- STABLE SECURITY DEFINER
- SET search_path TO 'public', 'private', 'pg_catalog'
-AS $function$
-  SELECT private.is_player_in_current_academy(p_player_id);
-$function$;
-
-CREATE OR REPLACE FUNCTION private.is_payment_player_in_current_academy(p_player_id uuid)
+CREATE OR REPLACE FUNCTION private.is_player_in_current_academy(p_player_id uuid)
  RETURNS boolean
  LANGUAGE sql
  STABLE SECURITY DEFINER
@@ -127,7 +118,16 @@ AS $function$
   );
 $function$;
 
-CREATE OR REPLACE FUNCTION private.is_player_in_current_academy(p_player_id uuid)
+CREATE OR REPLACE FUNCTION private.is_payment_due_in_current_academy(p_player_id uuid)
+ RETURNS boolean
+ LANGUAGE sql
+ STABLE SECURITY DEFINER
+ SET search_path TO 'public', 'private', 'pg_catalog'
+AS $function$
+  SELECT private.is_player_in_current_academy(p_player_id);
+$function$;
+
+CREATE OR REPLACE FUNCTION private.is_payment_player_in_current_academy(p_player_id uuid)
  RETURNS boolean
  LANGUAGE sql
  STABLE SECURITY DEFINER
