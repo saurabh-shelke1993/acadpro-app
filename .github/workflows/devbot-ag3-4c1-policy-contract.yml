@@ -1,0 +1,36 @@
+name: Kheltriva DevBot AG3.4C1 - Offline role policy catalog contract
+
+on:
+  push:
+    branches: [devbot-ag3-4c1-policy-parity-contract, payment-module-finalization]
+    paths:
+      - '.github/workflows/devbot-ag3-4c1-policy-contract.yml'
+      - 'scripts/devbot/test_ag3_4c1_role_policy_contract.py'
+      - 'supabase/tests/security/ag34c1_live_role_policy_fingerprints.json'
+  pull_request:
+    branches: [payment-module-finalization]
+    paths:
+      - '.github/workflows/devbot-ag3-4c1-policy-contract.yml'
+      - 'scripts/devbot/test_ag3_4c1_role_policy_contract.py'
+      - 'supabase/tests/security/ag34c1_live_role_policy_fingerprints.json'
+
+permissions:
+  contents: read
+
+jobs:
+  pinned-catalog-structure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate offline pinned source-catalog contract
+        run: python -m unittest discover -s scripts/devbot -p 'test_ag3_4c1_role_policy_contract.py' -v
+      - name: Record scope limitation
+        run: |
+          echo 'AG3.4C1 is only a pinned live-catalog structure check.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'No real JWT replay, no policy parity certification, no production database or secrets.' >> "$GITHUB_STEP_SUMMARY"
