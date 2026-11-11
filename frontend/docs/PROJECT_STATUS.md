@@ -1,5 +1,14 @@
 # AcadPro Project Status
 
+## AG3.2 — real Coach JWT assigned-batch security CI PASS (11 November 2026)
+
+**IMPLEMENTED / REAL NATIVE CI TESTED / OWNER ACCEPTANCE PENDING:** [Run 43031441781](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43031441781) PASS for an unlinked scratch Supabase CLI instance with real GoTrue-issued Coach A/B JWTs and PostgREST. Positive active batch, inactive same-academy membership, cross-academy direct IDs, forged headers, unauthenticated/invalid requests, forbidden writes, no direct Coach mapping table access, and Owner A/B regression passed. [PR #6](https://github.com/saurabh-shelke1993/acadpro-app/pull/6) targets `payment-module-finalization` only; not merged pending Owner acceptance.
+
+**SCOPE:** The Coach policy is synthetic, constructed from the original B2.9 pinned helpers, not deployed-production policy parity. AG3.3 Parent/Super Admin and AG3.4 original policy/security parity still pending. `private.can_access_batch` recognizes `coach_batches` membership independent of activity; `private.is_coach_assigned_to_batch` checks `coach_batch_assignments.is_active` and is the tested batch-read predicate. No hosted database/frontend/payment changes or B4 activation. [AG3.2 contract](KHELTRIVA_DEVBOT_AG3_2.md).
+
+**AG3.1 ACCEPTED/MERGED:** [PR #5](https://github.com/saurabh-shelke1993/acadpro-app/pull/5) merged at `e3505d415285b2a96fe41f2294d7cb293793b986`, development branch only.
+
+
 ## AG3.1 — real JWT-backed owner batch isolation CI PASS (11 November 2026)
 
 **IMPLEMENTED / REAL POSTGREST CI PASS / OWNER REVIEW PENDING:** [Run 43027355787](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43027355787) passed nine AG3 pure safety checks and a full real native Supabase Auth / PostgREST sequence. Both owners' real Auth-issued bearer JWTs can read their own synthetic academy's batch; direct cross-academy ID requests return zero rows. A real signed-in unmapped identity sees zero rows; anonymous and forged bearer tokens receive denial, fake tenant/user HTTP headers do not change scope, and ungranted INSERT/UPDATE/DELETE return rejection. Final SQL confirmed 3 native Auth, 2 app owners, 2 batches, 11 unmodified helpers and the single **scratch-only** scoped SELECT policy. [AG3.1 test design](KHELTRIVA_DEVBOT_AG3.md).
