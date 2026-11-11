@@ -3,7 +3,7 @@
 **Prepared:** 11 November 2026. **Target:** active Supabase `acadpro-db` (`ulyealhkmlorsbdiknrh`).  
 **Scope:** the unused `public.coach_batches` direct client-access vulnerability only.  
 **Branch:** `security-ag34-h2-rollout-prep` into `payment-module-finalization` (not `main`).  
-**Status:** CLI-generated canonical forward migration candidate, live read-only pre/post check scripts, emergency grants-only downshift, and native scratch regression prepared. **Hosted SQL NOT executed. Production finding HIGH-001 remains OPEN.**
+**Status:** CLI-generated canonical forward migration candidate, live read-only pre/post check scripts and scratch-verified emergency grants-only downshift. Native CI [43063776080](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43063776080) **PASS** (10+11+10+11 offline tests and real signed-JWT PostgREST). **Hosted SQL NOT executed. Production finding HIGH-001 remains OPEN.**
 
 ## 1. Verified live preflight source
 
@@ -51,6 +51,8 @@ There is **no auto-deploy workflow for this change**. CI runs only with an isola
 
 **Rollback safety:** The emergency script removes only the *new restrictive policy* while keeping all direct client rights revoked. It does **not** grant legacy API access, roll back the 82 migration ledger, modify modern mapping records, or restore the original insecure exposure. Its use on hosted DB would also require an explicit incident-response decision and fresh verification.
 
+**Validation limitation:** The native runner executes the candidate's byte-identical transaction body through scratch `psql`, not the complete historical 82-step migration chain or a `supabase migration up` replay. The CLI independently generated the canonical filename; full Supabase migration-ledger integration remains blocked. Production frontend/browser regression is untested.
+
 ## 4. Controlled hosted rollout — NOT AUTHORIZED YET
 
 **STOP if any gate is unmet.**
@@ -78,7 +80,7 @@ Only under separately approved incident response and a fresh five-policy/zero-ro
 | Canonical migration candidate | **STAGED, UNAPPLIED** |
 | Read-only hosted preflight | **READY_FOR_SEPARATE_PRODUCTION_APPROVAL** |
 | Hosted postflight | **STOP** (expected before deployment) |
-| H2 native forward/downshift rehearsal | **CI verification required** |
+| H2 native forward/downshift rehearsal | **PASS** — [isolated native GoTrue/JWT/PostgREST CI 43063776080](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43063776080) |
 | Historical version provenance repair | **PENDING; no ledger edits** |
 | Actual hosted DDL and business/manual QA | **PENDING EXPLICIT PRODUCTION APPROVAL** |
 | HIGH-001 in production | **OPEN** |
