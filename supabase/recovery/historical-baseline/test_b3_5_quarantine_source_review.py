@@ -42,6 +42,17 @@ class B35ReviewTests(unittest.TestCase):
         self.assertEqual(sum(x["review_class"] == "record_specific_player_reconciliation"
                              for x in items), 2)
 
+    def test_current_catalog_snapshot_is_not_historical_parity(self):
+        path = ROOT / RECOVERY / "b3_5_current_catalog_readonly_20261111.json"
+        evidence = json.loads(path.read_text(encoding="utf-8"))
+        self.assertEqual(evidence["current_private_function_counts"]["all"], 42)
+        self.assertEqual(evidence["current_private_function_counts"]["security_definer"], 35)
+        self.assertEqual(evidence["current_rls_policies_referencing_private_schema"], 114)
+        self.assertEqual(len(evidence["current_table_guardrails"]), 6)
+        self.assertTrue(all(x["rls_enabled"] for x in evidence["current_table_guardrails"]))
+        self.assertFalse(evidence["approved_as_historical_security_parity"])
+        self.assertFalse(evidence["ready_for_disposable_replay"])
+
     def test_masked_statement_structural_categories(self):
         examples = {
             "INSERT INTO public.players (id) VALUES (NULL)": "DIRECT_MUTATION",
