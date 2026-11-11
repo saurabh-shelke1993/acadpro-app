@@ -1,0 +1,323 @@
+{
+  "snapshot_date": "2026-11-11",
+  "source": "Read-only catalog pg_proc/pg_policies/storage.buckets, active acadpro-db",
+  "environment": "hosted-read-only-inventory",
+  "project_id": "ulyealhkmlorsbdiknrh",
+  "limitations": "Static metadata only: not a runtime Auth/Storage permission regression or production certification",
+  "security_definer_rpcs": [
+    {
+      "signature": "approve_payment_correction(uuid)",
+      "definition_md5": "adfb6a80c05255e6d250207ae1e3ae1d",
+      "security_definer": true,
+      "config": "search_path=\"\"",
+      "authenticated_exec": true,
+      "anon_exec": false,
+      "checks_role_helper": true,
+      "checks_parent_helper": false,
+      "uses_auth_uid": true
+    },
+    {
+      "signature": "collect_payment(uuid,numeric,text,text)",
+      "definition_md5": "fcc5610c509392caf81ffa99b82051a9",
+      "security_definer": true,
+      "config": "search_path=\"\"",
+      "authenticated_exec": true,
+      "anon_exec": false,
+      "checks_role_helper": true,
+      "checks_parent_helper": false,
+      "uses_auth_uid": true
+    },
+    {
+      "signature": "create_inquiry(text,text,date,text,uuid,text)",
+      "definition_md5": "761add2f668686c785a3a2968afcb3df",
+      "security_definer": true,
+      "config": "search_path=\"\"",
+      "authenticated_exec": true,
+      "anon_exec": false,
+      "checks_role_helper": true,
+      "checks_parent_helper": false,
+      "uses_auth_uid": true
+    },
+    {
+      "signature": "delete_inquiry(uuid)",
+      "definition_md5": "c7f07f34c76b422e0d82772696dffd66",
+      "security_definer": true,
+      "config": "search_path=\"\"",
+      "authenticated_exec": true,
+      "anon_exec": false,
+      "checks_role_helper": true,
+      "checks_parent_helper": false,
+      "uses_auth_uid": false
+    },
+    {
+      "signature": "get_parent_child_coaches()",
+      "definition_md5": "ec0310381f68f07c7fe9876e53e2f425",
+      "security_definer": true,
+      "config": "search_path=\"\"",
+      "authenticated_exec": true,
+      "anon_exec": false,
+      "checks_role_helper": true,
+      "checks_parent_helper": true,
+      "uses_auth_uid": false
+    },
+    {
+      "signature": "get_parent_coach_profiles()",
+      "definition_md5": "7afaf8edf939e4c54615a26cc4b13276",
+      "security_definer": true,
+      "config": "search_path=\"\"",
+      "authenticated_exec": true,
+      "anon_exec": false,
+      "checks_role_helper": true,
+      "checks_parent_helper": true,
+      "uses_auth_uid": false
+    },
+    {
+      "signature": "record_accepted_parent_upi_submission(uuid)",
+      "definition_md5": "ff98c595f28944f33b7a8f50b4177722",
+      "security_definer": true,
+      "config": "search_path=\"\"",
+      "authenticated_exec": true,
+      "anon_exec": false,
+      "checks_role_helper": true,
+      "checks_parent_helper": false,
+      "uses_auth_uid": true
+    },
+    {
+      "signature": "record_inquiry_conversion(uuid,text,text,text,text,date,uuid,uuid)",
+      "definition_md5": "b3f2d577f60a440651f938f2c3100829",
+      "security_definer": true,
+      "config": "search_path=\"\"",
+      "authenticated_exec": true,
+      "anon_exec": false,
+      "checks_role_helper": true,
+      "checks_parent_helper": false,
+      "uses_auth_uid": true
+    },
+    {
+      "signature": "reject_payment_correction(uuid,text)",
+      "definition_md5": "c21c953c1ac3e9afa201e5ec7c28c4e5",
+      "security_definer": true,
+      "config": "search_path=\"\"",
+      "authenticated_exec": true,
+      "anon_exec": false,
+      "checks_role_helper": true,
+      "checks_parent_helper": false,
+      "uses_auth_uid": true
+    },
+    {
+      "signature": "request_payment_correction(uuid,numeric,text)",
+      "definition_md5": "9e2900dd0a7c960554896e0e51b23075",
+      "security_definer": true,
+      "config": "search_path=\"\"",
+      "authenticated_exec": true,
+      "anon_exec": false,
+      "checks_role_helper": true,
+      "checks_parent_helper": false,
+      "uses_auth_uid": true
+    },
+    {
+      "signature": "review_parent_upi_payment(uuid,text,text)",
+      "definition_md5": "33852ded2505672448ed44ccf46a43e2",
+      "security_definer": true,
+      "config": "search_path=\"\"",
+      "authenticated_exec": true,
+      "anon_exec": false,
+      "checks_role_helper": true,
+      "checks_parent_helper": false,
+      "uses_auth_uid": true
+    },
+    {
+      "signature": "submit_parent_upi_payment(uuid,numeric,text,date,text)",
+      "definition_md5": "d3788514af85e404504861936cfef20e",
+      "security_definer": true,
+      "config": "search_path=\"\"",
+      "authenticated_exec": true,
+      "anon_exec": false,
+      "checks_role_helper": true,
+      "checks_parent_helper": false,
+      "uses_auth_uid": true
+    },
+    {
+      "signature": "update_inquiry(uuid,text,text,date,text,uuid,text,text,date)",
+      "definition_md5": "1ed7e57c7b6bb331215751462d39a252",
+      "security_definer": true,
+      "config": "search_path=\"\"",
+      "authenticated_exec": true,
+      "anon_exec": false,
+      "checks_role_helper": true,
+      "checks_parent_helper": false,
+      "uses_auth_uid": false
+    },
+    {
+      "signature": "update_my_coach_profile(text,text,text,text,text,integer,date,text)",
+      "definition_md5": "b5ead5f2a809fe0f9874108b48ad4523",
+      "security_definer": true,
+      "config": "search_path=\"\"",
+      "authenticated_exec": true,
+      "anon_exec": false,
+      "checks_role_helper": false,
+      "checks_parent_helper": false,
+      "uses_auth_uid": true
+    }
+  ],
+  "storage_object_policies": [
+    {
+      "tablename": "objects",
+      "policyname": "academy_logos_public_read",
+      "cmd": "SELECT",
+      "roles": "{public}",
+      "predicate_md5": "822d864b6a04d8f1394de703466ff282"
+    },
+    {
+      "tablename": "objects",
+      "policyname": "academy_logos_super_admin_delete",
+      "cmd": "DELETE",
+      "roles": "{authenticated}",
+      "predicate_md5": "0211d0bd73e95ce3b2629f903b2aabda"
+    },
+    {
+      "tablename": "objects",
+      "policyname": "academy_logos_super_admin_insert",
+      "cmd": "INSERT",
+      "roles": "{authenticated}",
+      "predicate_md5": "0a8fe36191cedf85702867b0d99b6ce2"
+    },
+    {
+      "tablename": "objects",
+      "policyname": "academy_logos_super_admin_update",
+      "cmd": "UPDATE",
+      "roles": "{authenticated}",
+      "predicate_md5": "b386e0c7e0287e372728eb222b649785"
+    },
+    {
+      "tablename": "objects",
+      "policyname": "academy_upi_qr_owner_delete",
+      "cmd": "DELETE",
+      "roles": "{authenticated}",
+      "predicate_md5": "eecaa77f2d9aa7bdd7a24e8c77452121"
+    },
+    {
+      "tablename": "objects",
+      "policyname": "academy_upi_qr_owner_insert",
+      "cmd": "INSERT",
+      "roles": "{authenticated}",
+      "predicate_md5": "1f21ddf9666a91d7636f98a0e45bb230"
+    },
+    {
+      "tablename": "objects",
+      "policyname": "academy_upi_qr_owner_update",
+      "cmd": "UPDATE",
+      "roles": "{authenticated}",
+      "predicate_md5": "3ea8dcb897fc7402fbbfddbbca08be3b"
+    },
+    {
+      "tablename": "objects",
+      "policyname": "academy_upi_qr_public_read",
+      "cmd": "SELECT",
+      "roles": "{public}",
+      "predicate_md5": "355e55b81578237f420320a745e8f3a9"
+    },
+    {
+      "tablename": "objects",
+      "policyname": "coach_photos_managed_delete",
+      "cmd": "DELETE",
+      "roles": "{authenticated}",
+      "predicate_md5": "bb8b046d3b039bba8646ecaefeadaf07"
+    },
+    {
+      "tablename": "objects",
+      "policyname": "coach_photos_managed_insert",
+      "cmd": "INSERT",
+      "roles": "{authenticated}",
+      "predicate_md5": "dcd846d09f040482c49b398023621e17"
+    },
+    {
+      "tablename": "objects",
+      "policyname": "coach_photos_managed_update",
+      "cmd": "UPDATE",
+      "roles": "{authenticated}",
+      "predicate_md5": "6b026d1e11fb9c3783f471a5a4f0deff"
+    },
+    {
+      "tablename": "objects",
+      "policyname": "coach_photos_public_read",
+      "cmd": "SELECT",
+      "roles": "{public}",
+      "predicate_md5": "c8b9db176e76a60da35ed605699d8cea"
+    },
+    {
+      "tablename": "objects",
+      "policyname": "player_photos_authorized_read",
+      "cmd": "SELECT",
+      "roles": "{authenticated}",
+      "predicate_md5": "ccb08f142712a49e808e4ae095e61f6e"
+    },
+    {
+      "tablename": "objects",
+      "policyname": "player_photos_owner_delete",
+      "cmd": "DELETE",
+      "roles": "{authenticated}",
+      "predicate_md5": "53e8d1978b0664494d94494220fb03d4"
+    },
+    {
+      "tablename": "objects",
+      "policyname": "player_photos_owner_insert",
+      "cmd": "INSERT",
+      "roles": "{authenticated}",
+      "predicate_md5": "a9eb0e640c3f0e73ae4c07a62491d7e3"
+    },
+    {
+      "tablename": "objects",
+      "policyname": "player_photos_owner_update",
+      "cmd": "UPDATE",
+      "roles": "{authenticated}",
+      "predicate_md5": "159ad54d0ef1b99822aca1e48b1c4f49"
+    }
+  ],
+  "storage_buckets": [
+    {
+      "id": "academy-logos",
+      "public_read": true,
+      "file_size_limit": 2097152,
+      "allowed_mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/webp",
+        "image/svg+xml"
+      ]
+    },
+    {
+      "id": "academy-upi-qr",
+      "public_read": true,
+      "file_size_limit": 2097152,
+      "allowed_mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/webp"
+      ]
+    },
+    {
+      "id": "coach-photos",
+      "public_read": true,
+      "file_size_limit": 2097152,
+      "allowed_mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/webp"
+      ]
+    },
+    {
+      "id": "player-photos",
+      "public_read": false,
+      "file_size_limit": 2097152,
+      "allowed_mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/webp"
+      ]
+    }
+  ],
+  "live_migration_count": 82,
+  "repo_migration_file_count": 40,
+  "matching_version_prefixes": 23
+}
