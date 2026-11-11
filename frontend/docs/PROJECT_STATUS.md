@@ -1,5 +1,14 @@
 # AcadPro Project Status
 
+## AG3.4A — live read-only RBAC/RLS catalog inventory (11 November 2026)
+
+**STATUS: INSPECTED AND DOCUMENTED; REVIEW PENDING; NO PRODUCTION CHANGE.** Current healthy `acadpro-db`: 28 public RLS-enabled base tables, 103 policy records, 42 private helpers/functions and 14 public authenticated SECURITY DEFINER RPCs. Security Advisor currently shows 14 RPC warnings, two INFO RLS/no-policy tables with no client table grants, and disabled leaked-password protection. 82 live migration records versus 40 local SQL source files; 23 exact version-prefix matches are not SQL parity. Three intentionally public Storage buckets, one private player-photo bucket. No public views.
+
+**RISK REGISTER:** `public.coach_batches` authenticated SELECT and mutation grants + academy-equality RLS branches have **no explicit academy_owner check**; current academy helper is not role-gated. This is a **candidate security exposure, not tested exploitation**. No non-internal table triggers/FK-enforced Coach/Batch academy alignment were observed. `centers_select` academy-wide scope requires alignment with Parent Portal and Role Matrix; production `private.current_parent_id()` requires active parent, not represented in AG3.3 synthetic fixture. Next AG3.4B must use review-approved *scratch-only* real-JWT negative tests with exact attested policy/helper dependencies. No live direct-ID mutation or destructive test was run. [Full AG3.4A report](KHELTRIVA_DEVBOT_AG3_4A_LIVE_POLICY_INVENTORY_20261111.md).
+
+**AG3.3 MERGED:** Owner-approved [PR #7](https://github.com/saurabh-shelke1993/acadpro-app/pull/7) merged into `payment-module-finalization` at `9b8ba8edd4c4be7790ad0b5e48c5d8f2c26b36b9`. All native synthetic AG3.1–AG3.3 validations passed, but full deployed authorization is not signed off. `main`, Vercel and hosted Supabase unchanged. B4 NO-GO.
+
+
 ## AG3.3 — Parent and Super Admin authorization native CI PASS (11 November 2026)
 
 **IMPLEMENTED / AUTOMATED TESTED / OWNER REVIEW PENDING:** [Run 43039558349](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43039558349) successfully completed 14/14 pure safety tests, unlinked Supabase CLI 3.0.0 startup, real GoTrue sessions, signed JWT PostgREST authorization/denial checks, and final database/no-backup teardown. Parent A1/A2 (same academy) and Parent B can only access their own synthetic parent, child and batch; negative direct IDs for both same-tenant other Parent and cross-tenant denied. Super Admin can read across academies and complete synthetic batch create/reassign/delete. Parent/Coach writes denied, earlier Owner/Coach scopes preserved, unmapped/anon/invalid JWT and forged headers denied. [PR #7](https://github.com/saurabh-shelke1993/acadpro-app/pull/7) is open; no Owner acceptance or merge.
