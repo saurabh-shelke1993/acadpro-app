@@ -61,20 +61,35 @@ def check_local_source(root, remote):
         if not path.is_relative_to(migration_root) or path.suffix != ".sql":
             raise ValueError("Out-of-tree migration evidence path")
         raw = path.read_bytes()
-        if status == "exact-bytes":
-            canonical = raw
-        elif status == "terminal-lf-only":
-            if not raw.endswith(b"\n"):
-                raise ValueError("Expected trailing LF in Git migration blob")
-            canonical = raw[:-1]
+
+        # Windows Git can materialize LF-tracked .sql files as CRLF. Match
+        # the original immutable Git blob rather than the checkout EOL bytes.
+        # Fail on mixed newlines, then require the exact pinned B2.4 SHA-1;
+        # SQL text changes, including quoted SQL literals, cannot pass.
+        eol_mode = "LF"
+        if b"\r\n" in raw:
+            if b"\n" in raw.replace(b"\r\n", b""):
+                raise ValueError("Mixed LF and CRLF in tracked migration: " + relative)
+            raw_for_git = raw.replace(b"\r\n", b"\n")
+            eol_mode = "CRLF-checkout-normalized"
         else:
-            canonical = b"\n" + raw
+            raw_for_git = raw
+
+        if status == "exact-bytes":
+            canonical = raw_for_git
+        elif status == "terminal-lf-only":
+            if not raw_for_git.endswith(b"\n"):
+                raise ValueError("Expected trailing LF in Git migration blob")
+            canonical = raw_for_git[:-1]
+        else:
+            canonical = b"\n" + raw_for_git
         if git_blob_sha1(canonical) != remote["remote_git_blob_sha1"]:
             raise ValueError("Tracked SQL changed from pinned source fingerprint: " + remote["remote_version"])
         matches.append({
             "path": relative,
             "local_version": VERSION_RE.match(path.name).group(1),
-            "local_blob_sha1": git_blob_sha1(raw),
+            "local_blob_sha1": git_blob_sha1(raw_for_git),
+            "working_copy_line_endings": eol_mode,
             "verified_strict_variant": status,
             "approved_for_execution": False,
         })
