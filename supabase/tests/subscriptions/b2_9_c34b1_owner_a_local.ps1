@@ -93,7 +93,10 @@ $stateAfter = (& docker exec $container psql -U postgres -d postgres -X -At -c $
 if ($LASTEXITCODE -ne 0 -or $stateAfter -ne '2|1|0|0|0|2|11') {
  throw 'C3.4B1: unexpected persisted database state; STOP and inspect'
 }
-$mappingCheck = (& docker exec $container psql -U postgres -d postgres -X -At -v ("owner_uuid=" + $id.ToString()) -c "SELECT count(*) FROM public.users u WHERE u.id=:'owner_uuid'::uuid AND u.role='academy_owner' AND u.academy_id='a0000000-0000-4000-8000-000000000001'::uuid;" | Out-String).Trim()
+# -c bypasses psql's file-input variable expansion. Use only the parsed GUID.
+$verifiedUuid = $id.ToString()
+$mappingReadSql = "SELECT count(*) FROM public.users u WHERE u.id='$verifiedUuid'::uuid AND u.role='academy_owner' AND u.academy_id='a0000000-0000-4000-8000-000000000001'::uuid;"
+$mappingCheck = (& docker exec $container psql -U postgres -d postgres -X -At -c $mappingReadSql | Out-String).Trim()
 if ($LASTEXITCODE -ne 0 -or $mappingCheck -ne '1') {
  throw 'C3.4B1: role mapping not persisted; STOP'
 }

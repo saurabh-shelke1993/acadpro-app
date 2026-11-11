@@ -43,6 +43,10 @@ class OwnerAOneUserScope(unittest.TestCase):
    self.assertNotIn('GRANT SELECT ON TABLE',text)
    self.assertNotRegex(text,re.compile(r"(?im)^\s*CREATE\s+POLICY\b"))
    self.assertNotIn('ALTER TABLE public.users DISABLE ROW LEVEL SECURITY',text)
+ def test_uuid_safe_readback(self):
+  self.assertIn("$mappingReadSql",self.ps)
+  self.assertNotIn("-c \"SELECT count(*) FROM public.users u WHERE u.id=:'owner_uuid'",self.ps)
+  self.assertIn("[guid]::Parse",self.ps)
  def test_only_one_public_users_insert(self):
   self.assertEqual(len(re.findall(r"\bINSERT\s+INTO\s+public\.",self.sql,re.I)),1)
   self.assertIn("'a0000000-0000-4000-8000-000000000001'::uuid",self.sql)
