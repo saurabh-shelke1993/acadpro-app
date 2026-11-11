@@ -1,0 +1,48 @@
+name: AG34-H2 Generate clean CLI migration filename (no deployment)
+
+on:
+  push:
+    branches: [security-ag34-h2-rollout-prep]
+    paths:
+      - '.github/workflows/security-ag34-h2-migration-generator.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  generate-version-in-unlinked-workspace:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 3.0.0
+      - name: CLI-generate migration filename without linking or deploying
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -z "${SUPABASE_ACCESS_TOKEN:-}"
+          test -z "${SUPABASE_DB_URL:-}"
+          ROOT="$RUNNER_TEMP/kheltriva-ag34-h2-new"
+          test ! -e "$ROOT"
+          mkdir -p "$ROOT"
+          cd "$ROOT"
+          supabase --version
+          supabase migration new --help >/dev/null
+          supabase init --yes >/dev/null
+          test ! -e "supabase/.temp/project-ref"
+          supabase migration new ag34_h1_legacy_coach_batches_client_lockdown
+          mapfile -t files < <(find supabase/migrations -maxdepth 1 -name '*.sql' -type f)
+          test "${#files[@]}" -eq 1
+          base="$(basename "${files[0]}")"
+          if [[ ! "$base" =~ ^[0-9]{14}_ag34_h1_legacy_coach_batches_client_lockdown\.sql$ ]]; then
+            echo 'Generated migration filename did not match CLI contract'
+            exit 1
+          fi
+          echo "AG34_H2_CLI_GENERATED_FILENAME=$base"
+          echo "### CLI-only generated migration name" >> "$GITHUB_STEP_SUMMARY"
+          echo "$base" >> "$GITHUB_STEP_SUMMARY"
+          echo 'No application, remote database, migration ledger or migration source changed.' >> "$GITHUB_STEP_SUMMARY"
