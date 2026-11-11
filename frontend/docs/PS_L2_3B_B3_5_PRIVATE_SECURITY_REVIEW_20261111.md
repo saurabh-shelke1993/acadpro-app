@@ -8,8 +8,8 @@
 ## Phase decision
 
 - **B3.5A IMPLEMENTED/CI TESTED:** offline original-source review tooling and sanitized current-state catalog snapshot.
-- **B3.5B PENDING local execution:** owner runs tool against the independently verified 82-migration, 168-element private B3.4 SQL archive.
-- **B3.5C PENDING manual security approval:** human source/role/RLS/finance/data-splitting review for all 14 quarantined historical migrations. No migration approved.
+- **B3.5B OWNER-RUN PASS:** owner provided the local console summary: 82 original versions, 168 original elements and 14 quarantined cases structurally scanned; manual_source_review_complete=false and ready_for_disposable_replay=false.
+- **B3.5C TECHNICAL TRIAGE CLASSIFIED (14/14):** connected read-only original statement review and sanitizer-only disposition register prepared; manual security/DDL-data split sign-off and disposable role/finance/storage tests are PENDING. No migration approved.
 
 B3.5A tests only the source reviewer, not the production migration history or actual security semantics. The user's protected B3.4 archive remains only on their Windows laptop.
 
@@ -49,7 +49,7 @@ The 14 cases are source-derived from the pinned B2.6/B3.4 evidence, not newly ap
 
 All 14 remain under manual review. A mixed DDL/data migration cannot be silently skipped, because it may include essential functions, RLS policies, triggers, grants or constraints. An opaque DO block or function body cannot be deemed safe from keyword scans.
 
-## B3.5B — Local owner command (not yet run)
+## B3.5B — Owner-run local command (PASS; retained for repeatability)
 
 From repository root in VS Code PowerShell:
 
@@ -57,7 +57,7 @@ From repository root in VS Code PowerShell:
     $private = "supabase\recovery\historical-baseline\.recovery-private"
     python supabase/recovery/historical-baseline/b3_5_quarantine_source_review.py --root . --archive "$private\baseline-b3-4-001" --output "$private\b3-5-quarantine-review.json"
 
-Expected summary:
+Owner-confirmed console summary:
 
     {
       "verified_original_versions": 82,
@@ -77,4 +77,4 @@ The report remains inside the Git-ignored .recovery-private folder. It contains 
 4. Verify original creation order and SQL body of private helpers, including historical current_parent_id and parents.user_id chronology. Current-state B2.9 fixture is not historical source.
 5. In an unlinked disposable Supabase only, validate RLS, storage, SECURITY DEFINER owner/search_path/grants, functions/triggers and financial invariants before PS-L2.3 integration.
 
-**Status:** B3.5A implemented/tested. Actual local archive scan, human SQL review, complete B3 disposable Supabase replay and B4 subscription lifecycle integration remain pending or blocked. Production unchanged.
+**Status:** B3.5A CI-tested; B3.5B owner local scan PASSED; B3.5C technical classification recorded (14/14) in [the B3.5C disposition report](PS_L2_3B_B3_5C_TECHNICAL_DISPOSITIONS_20261111.md). Human security approval, essential DDL/data split, full B3 disposable Supabase replay and B4 lifecycle integration remain PENDING/BLOCKED. Production unchanged.

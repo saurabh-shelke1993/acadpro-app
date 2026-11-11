@@ -8,6 +8,14 @@
 **Purpose:** Stable, handoff-friendly checkpoint between ChatGPT conversations. This document is NOT a substitute for inspecting live code, the current database, or current tests.
 
 
+## B3.5C technical disposition register checkpoint (11 November 2026)
+
+**IMPLEMENTED (docs/metadata only):** Sanitized 14-case technical disposition report and non-executable register added with strict false replay/production flags, preserving original sources in the private archive. Owner B3.5B scan output: 82 versions, 168 elements, 14/14 structurally scanned; manual_review=false and replay=false. Original SQL reviewed with active Supabase SELECT only. All 14 technically classified, **0 approved**. See [B3.5C technical dispositions](PS_L2_3B_B3_5C_TECHNICAL_DISPOSITIONS_20261111.md).
+
+**VALIDATION:** Existing B3.5 synthetic Python unit tests extended to require matching 14-case register coverage and fail-closed approvals; exact-HEAD CI must be verified after commit. No live mutation or executable replay occurred.
+
+**PENDING/BLOCKED:** Manual essential DDL/data split, historical helper privilege/creation order, RLS/SECURITY DEFINER and multi-tenant negative tests in an unlinked disposable Supabase, financial ledger discrepancies (11 due/transaction mismatches, 10 paid dues without linked entries), full B3 reconstruction and B4 subscriptions. No deployed billing automation or legacy auto-renewal.
+
 ## Latest checkpoint — PS-L2.3B B3.5 private historical SQL review (11 November 2026)
 
 - **IMPLEMENTED/CI PASSED:** b3_5_quarantine_source_review.py scans exactly 14 B2.6/B3.4 high-risk original SQL migrations, but **only from the owner's verified, ignored B3.4 local archive**. It runs B3.3's 82-version/168-element source hash attestation before analysis, masks quoted SQL and dollar-quoted bodies, records structural-only categories and RBAC/financial/security checklists; all approvals remain false.

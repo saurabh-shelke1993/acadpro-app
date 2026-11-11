@@ -42,6 +42,37 @@ class B35ReviewTests(unittest.TestCase):
         self.assertEqual(sum(x["review_class"] == "record_specific_player_reconciliation"
                              for x in items), 2)
 
+    def test_b35c_disposition_register_all_fourteen_cases_and_fail_closed(self):
+        # Sanitized read-only review metadata is not executable SQL or sign-off.
+        path = ROOT / RECOVERY / "b3_5c_technical_dispositions_20261111.json"
+        register = json.loads(path.read_text(encoding="utf-8"))
+        self.assertEqual(register["schema"], "kheltriva-b3-5c-technical-dispositions-v1")
+        self.assertEqual(register["project_id"], self.register["active_project_id"])
+        self.assertEqual([x["version"] for x in register["cases"]],
+                         [x["version"] for x in self.register["cases"]])
+        self.assertEqual(len(register["cases"]), 14)
+        self.assertTrue(register["technical_triage_complete"])
+        self.assertIs(register["contains_original_sql"], False)
+        self.assertIs(register["contains_customer_identifiers"], False)
+        for key in ("all_cases_human_approved", "essential_ddl_data_separation_approved",
+                    "tenant_negative_runtime_parity_tested",
+                    "disposable_supabase_auth_storage_finance_replay_tested",
+                    "ready_for_disposable_replay", "ready_for_production"):
+            self.assertIs(register[key], False, key)
+        for original, case in zip(self.register["cases"], register["cases"]):
+            self.assertEqual(original["name"], case["historical_name"])
+            self.assertEqual(original["review_class"], case["source_review_class"])
+            self.assertEqual(case["technical_triage_status"],
+                             "CLASSIFIED_NOT_SIGNED_OFF")
+            self.assertTrue(case["synthetic_acceptance_tests"])
+            for key in ("manual_ddl_data_split_approved",
+                        "historical_sql_semantic_parity_verified",
+                        "historical_tenant_negative_tests_passed",
+                        "synthetic_financial_or_integrity_tests_passed",
+                        "human_source_security_signoff", "replay_approved",
+                        "production_approved"):
+                self.assertIs(case[key], False, f"{case['version']}:{key}")
+
     def test_current_catalog_snapshot_is_not_historical_parity(self):
         path = ROOT / RECOVERY / "b3_5_current_catalog_readonly_20261111.json"
         evidence = json.loads(path.read_text(encoding="utf-8"))
