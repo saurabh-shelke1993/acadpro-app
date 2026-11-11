@@ -1,5 +1,14 @@
 # Kheltriva — Development Continuity
 
+## AG3.2 — Real Coach JWT active-assignment CI PASS; PR #6 owner acceptance pending (11 November 2026)
+
+**IMPLEMENTED / NATIVE POSTGREST CI PASS / NOT MERGED:** [GitHub Actions 43031441781](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43031441781) passed the scoped AG3.2 pure safety tests, real GoTrue JWT positive/negative Coach A/B checks and discarded the isolated Supabase runner. [PR #6](https://github.com/saurabh-shelke1993/acadpro-app/pull/6) targets **only** `payment-module-finalization` and awaits Owner manual acceptance. Two Coach JWTs see their own *active* assigned batches, not the other academy, unassigned direct IDs or an inactive same-academy membership. Owner policy regression, unmapped/invalid/anon identities, forged HTTP headers, rejected writes and unchanged synthetic permissions passed.
+
+**SECURITY BOUNDARY:** AG3.2 adds one **nonhistorical, scratch-only** Coach SELECT policy and two synthetic Coach identities. The pinned `private.is_coach_assigned_to_batch` requires active assignment; `private.can_access_batch` has different membership semantics and must not substitute for this test. Not a certification of deployed Coach policies, real players, attendance or finance. AG3.3 Parent/SA and AG3.4 deployed-policy parity are pending. Historical 82-migration replay, original local C3.4B2 read-only check, B4 billing and production deployment remain BLOCKED. [AG3.2 design](frontend/docs/KHELTRIVA_DEVBOT_AG3_2.md).
+
+**AG3.1 OWNER APPROVED AND MERGED:** [PR #5](https://github.com/saurabh-shelke1993/acadpro-app/pull/5) merged at `e3505d415285b2a96fe41f2294d7cb293793b986` into `payment-module-finalization` only; `main` and hosted Supabase unchanged.
+
+
 ## AG3.1 — real JWT-backed owner batch isolation CI PASS (11 November 2026)
 
 **IMPLEMENTED / REAL POSTGREST CI PASS / OWNER REVIEW PENDING:** [Run 43027355787](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43027355787) passed nine AG3 pure safety checks and a full real native Supabase Auth / PostgREST sequence. Both owners' real Auth-issued bearer JWTs can read their own synthetic academy's batch; direct cross-academy ID requests return zero rows. A real signed-in unmapped identity sees zero rows; anonymous and forged bearer tokens receive denial, fake tenant/user HTTP headers do not change scope, and ungranted INSERT/UPDATE/DELETE return rejection. Final SQL confirmed 3 native Auth, 2 app owners, 2 batches, 11 unmodified helpers and the single **scratch-only** scoped SELECT policy. [AG3.1 test design](frontend/docs/KHELTRIVA_DEVBOT_AG3.md).
