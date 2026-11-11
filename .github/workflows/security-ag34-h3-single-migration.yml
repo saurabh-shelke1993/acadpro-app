@@ -7,6 +7,8 @@ on:
       - '.github/workflows/security-ag34-h3-single-migration.yml'
       - 'scripts/devbot/ag34_h3_single_migration_cli_ci.py'
       - 'scripts/devbot/test_ag34_h3_single_migration_cli.py'
+      - 'scripts/devbot/ag34_h3_operator_workspace_gate.py'
+      - 'scripts/devbot/test_ag34_h3_operator_workspace_gate.py'
       - 'scripts/devbot/ag34_h2_rollout_rehearsal_ci.py'
       - 'scripts/devbot/test_ag34_h2_rollout_rehearsal_ci.py'
       - 'supabase/migrations/20261111165330_ag34_h1_legacy_coach_batches_client_lockdown.sql'
@@ -40,6 +42,7 @@ jobs:
           set -euo pipefail
           python -m unittest discover -s scripts/devbot -p 'test_ag34_h2_rollout_rehearsal_ci.py' -v
           python -m unittest discover -s scripts/devbot -p 'test_ag34_h3_single_migration_cli.py' -v
+          python -m unittest discover -s scripts/devbot -p 'test_ag34_h3_operator_workspace_gate.py' -v
           python -m unittest discover -s scripts/devbot -p 'test_ag3_4e_security_release_gate.py' -v
           python scripts/devbot/ag3_4e_security_release_gate.py --check-no-go
       - uses: supabase/setup-cli@v1
