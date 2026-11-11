@@ -1,6 +1,6 @@
 # Kheltriva DevBot AG3.2 — Real Coach JWT assigned-batch RLS
 
-**11 November 2026 — code implemented in isolated review branch; native CI and Owner acceptance pending.**
+**11 November 2026 — implemented and native Supabase/Auth/PostgREST CI PASS; Owner acceptance and PR #6 merge pending.**
 
 ## Goal
 
@@ -39,4 +39,10 @@ Verify real signed GoTrue Coach sessions read only batches to which the Coach ha
 - `scripts/devbot/test_ag3_2_coach_jwt_rls_ci.py`
 - `supabase/tests/subscriptions/ps_l2_3_b2_9_ag32_coach_batch_rls.sql`
 
-**Stage:** implementation completed in separate branch; CI and Owner review/merge gate pending. Do not mark AG3.2 accepted until CI PASS and approved PR.
+## Native CI result
+
+[GitHub Actions 43031441781](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43031441781) completed successfully on the AG3.2 source commit. All workflow steps succeeded: pure scope tests, pinned Supabase CLI installation, new unlinked GoTrue/PostgREST startup, authentic signed-JWT Coach authorization/denial run and disposal without backup. Documentation-only commits after this green run do not modify the tested CI source.
+
+[PR #6](https://github.com/saurabh-shelke1993/acadpro-app/pull/6) is OPEN against `payment-module-finalization`. Owner acceptance and merge are **NOT DONE**. Production-schema parity, historical helper provenance and B4 remain blocked.
+
+**Stage:** implemented and real CI tested; Owner manual acceptance/merge pending.
