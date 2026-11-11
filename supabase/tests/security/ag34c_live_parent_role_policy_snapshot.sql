@@ -37,7 +37,7 @@ AS $function$
     AND lower(coalesce(u.role, '')) = 'parent'
     AND p.is_active = true
   LIMIT 1;
-$function$
+$function$;
 
 REVOKE ALL ON FUNCTION private.current_parent_id() FROM PUBLIC,anon,authenticated,service_role;
 GRANT EXECUTE ON FUNCTION private.current_parent_id() TO authenticated;
