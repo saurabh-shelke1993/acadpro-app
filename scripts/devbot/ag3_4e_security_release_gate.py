@@ -23,10 +23,11 @@ REQUIREMENTS={
     "windows_C3_4B2_persistence_check",
     "production_deployment_and_rollback_plan_approved",
     "explicit_product_owner_production_release_approval",
+    "frontend_all_jest_and_build_green",
 }
 REQUIRED_FINDINGS={
     "AG34-HIGH-001","AG34-GATE-002","AG34-GATE-003",
-    "AG34-GATE-004","AG34-GATE-005",
+    "AG34-GATE-004","AG34-GATE-005","AG34-GATE-006",
 }
 REQUIRED_PHASES={"AG3.4A","AG3.4B","AG3.4C1","AG3.4C2","AG3.4D1","AG3.4D2"}
 
