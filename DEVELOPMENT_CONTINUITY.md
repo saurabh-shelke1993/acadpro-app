@@ -1,5 +1,12 @@
 # Kheltriva — Development Continuity
 
+## AG3.4B — live Coach mapping policy JWT reproduction CONFIRMED (11 November 2026)
+
+**IMPLEMENTED / NATIVE CI PASS / HIGH-PRIORITY SECURITY REMEDIATION STILL UNDEPLOYED:** [Run 43046427442](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43046427442) verified **10 pure safety tests**, reconstructed the exact live `coach_batches` policy predicates and required source-checksummed `coaches_select` dependency, and exercised nine real GoTrue identities through local PostgREST. Parent A1 and Coach A could both **INSERT and DELETE cross-academy Coach B mapping rows** in the invented fixture, while Parent A1/A2 could read other-parent legacy mappings and Coach A could read an inactive membership. CI logged redacted `ALLOWED_IN_SCRATCH` verdicts for both Parent and Coach. Test-only candidate role/academy guards blocked those operations while preserving Coach active-only read, Academy Owner and Super Admin scoped actions. No hosted record touched.
+
+**SECURITY RELEASE BLOCKER:** `supabase/tests/security/ag34b_scratch_role_gated_candidate.sql` is a **noncanonical proposed patch**, not deployed. AG3.4C Parent helper parity, D Finance/RPC/Storage and E consolidated release verification remain separate. The protected 82-entry migration ledger and 40-file repo drift still block automated production migration; B4 NO-GO. [Scope](frontend/docs/KHELTRIVA_DEVBOT_AG3_4B_COACH_POLICY_PARITY.md).
+
+
 ## AG3.4A — read-only live policy parity inventory, Owner review pending (11 November 2026)
 
 **INSPECTED / REPORTED, NO DDL OR AUTHORIZATION REGRESSION YET:** Active hosted `acadpro-db` (`ulyealhkmlorsbdiknrh`) catalog reports **28 public base tables, all RLS-enabled, 103 public policies, 42 private functions, 14 authenticated-callable public SECURITY DEFINER RPCs and no public views**. Security Advisor: 14 RPC warnings, 2 deny-by-default/no-policy info findings, 1 leaked-password warning. Four Storage buckets (three intentionally public and private `player-photos`). The live ledger has 82 versions versus 40 repository SQL files, only 23 exact version-prefix matches; don't replay or reconcile automatically.
