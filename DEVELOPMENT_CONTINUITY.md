@@ -1,5 +1,10 @@
 # Kheltriva — Development Continuity
 
+## AG3.4E independent frontend build PASS, full Jest still FAIL (11 November 2026)
+
+**BUILD-ONLY CI VERIFIED:** [run 43057423740](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43057423740) / [PR #15](https://github.com/saurabh-shelke1993/acadpro-app/pull/15) on `payment-module-finalization` ran Node 20, locked `npm ci` and `CI=true npm run build` using dummy Supabase credentials; React **compiled successfully**. This does **not** fix or invalidate the four failing full Jest suites (16/490 tests, [run 43056100352](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43056100352)). `frontend_all_jest_and_build_green=false` remains a release blocker; AG3.4E final production decision **NO-GO**. [E release review](frontend/docs/KHELTRIVA_DEVBOT_AG3_4E_FINAL_SECURITY_RELEASE_REVIEW.md).
+
+
 ## AG3.4C2/D1/D2/E — development PRs merged; consolidated production release NO-GO (11 November 2026)
 
 **OWNER STANDING PR MERGE APPROVAL USED / DEVELOPMENT-ONLY:** AG3.4C2 [PR #11](https://github.com/saurabh-shelke1993/acadpro-app/pull/11) merged with native source-matched Parent/Coach/SA SELECT JWT tests [43053546673](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43053546673) **PASS** (9/9 guards; active/inactive Parent, cross-tenant and same-academy other Parent, Coach assignment, SA). AG3.4D1/D2 [PR #13](https://github.com/saurabh-shelke1993/acadpro-app/pull/13) merged with native finance read parity [43056561458](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43056561458) **PASS** (9/9 guards; nine exact finance read policy digests and six helper MD5; Parent/Owner/Coach/SA/inactive Parent JWT). D2 separately captured **14 public privileged RPC** source digests and **16 Storage policy** digests; these are **metadata-only, not real RPC/Storage object permission tests**. AG3.4E [PR #12](https://github.com/saurabh-shelke1993/acadpro-app/pull/12) merged with fail-closed production **NO-GO** evidence workflow [43055647578](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43055647578) green by design (green means correctly BLOCKING deployment).
