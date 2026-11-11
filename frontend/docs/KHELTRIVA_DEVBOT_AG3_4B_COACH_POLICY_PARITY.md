@@ -1,6 +1,6 @@
 # AG3.4B — Real-JWT replay of deployed legacy Coach mapping policies
 
-**Status:** implementation written on `devbot-ag3-4b-live-coach-mapping-parity`; native Supabase CI validation pending. No live migration or production database operation.
+**Status:** implemented and native scratch GoTrue/JWT/PostgREST CI PASS; high-priority authorization gap confirmed under replayed deployed predicates. No live migration or production database operation.
 
 ## Source and reproducibility
 
@@ -29,3 +29,18 @@ Even if source expressions match live `pg_policies`, this is a minimized seven-t
 - Before/after tests distinguish legacy scope from proposed role-gated candidate.
 - Real app still needs targeted manual validation, an authored audited migration, and separate production rollout approval before policies can be hardened.
 - Merge only into `payment-module-finalization` after successful CI under the Product Owner’s standing AG3.4 PR approvals.
+
+## Final native CI outcome — 11 November 2026
+
+[Successful run 43046427442](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43046427442) passed **10/10 pure security tests**, real native Auth/PostgREST, all four live predicate checksums, and after-fix positive/negative role regressions. CI logs explicitly record:
+
+- `AG3.4B PARENT_MAPPING_INSERT ALLOWED_IN_SCRATCH`
+- `AG3.4B COACH_MAPPING_INSERT ALLOWED_IN_SCRATCH`
+- Successful removal of both injected cross-academy Coach→Batch rows.
+- Role-gated scratch candidate denies Parent mapping reads/writes, limits Coach reads to own active assignment, blocks Owner cross-academy Coach reassignment and retains Owner/SA permitted mapping management.
+
+**Risk classification:** Confirmed unsafe authorization **in an exact-predicate, source-attested disposable reconstruction**; HIGH priority for controlled migration design and live-rollout authorization. No claim that any hosted customer record was exploited or changed.
+
+Earlier GitHub CI runs failed on static-test wording or an incomplete scratch `coaches_select` dependency. The final successful run includes the source-matched extra live `coaches_select` RLS policy (its predicate checksum), `coaches.academy_id`, live matching grants and exact legacy `coach_batches` RLS, including nested batch RLS visibility.
+
+**Release status:** Role-gated fix exists only as `supabase/tests/security/ag34b_scratch_role_gated_candidate.sql`; it is **NOT a canonical migration and NOT deployed**. Historical migration drift, full RPC/Storage regression, and dedicated hosted-release safeguards remain hard blockers. Do not interpret PR merge as hosted remediation.
