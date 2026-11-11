@@ -1,5 +1,12 @@
 # AcadPro Product Backlog
 
+## Security AG34-HIGH-001 — close unused legacy Coach mapping surface
+
+**IMPLEMENTATION STAGED, NATIVE CI PENDING, PRODUCTION STILL OPEN.** Live legacy `public.coach_batches` currently has **0 rows**, but four permissive authenticated policies and broad grants expose writes. AG3.4B previously reproduced unauthorized Coach/Parent mutation in disposable real-JWT replay. New isolated [PR #17](https://github.com/saurabh-shelke1993/acadpro-app/pull/17) proposes deny-all client access to that obsolete table (revoked grants + restrictive RLS policy), leaving active `coach_batch_assignments` and three legacy helper dependencies intact. Transactional SQL fails closed on non-empty table, changed grants or policy digests; new native CI tests all roles, an intentionally regranted scratch row, and active mapping regression. [Design and release gates](AG34_HIGH_001_LEGACY_COACH_BATCHES_LOCKDOWN.md).
+
+**REMAINING:** successful CI, review/merge into development only, separately approved canonical CLI-created migration and rollback rehearsal, manual Owner/Coach/Parent regression and explicit hosted Supabase authorization, live postflight. **AG34-HIGH-001 and production release are still NO-GO.** Do not conflate with unrelated RPC/Storage, frontend, B3/B4 gates.
+
+
 ## AG3.4C2–E — implementation and release blockers (11 November 2026)
 
 **MERGED / SOURCE-ALIGNED NATIVE TESTED:** AG3.4C2 [PR #11](https://github.com/saurabh-shelke1993/acadpro-app/pull/11) real GoTrue/SELECT policy parity PASS; AG3.4D1 [PR #13](https://github.com/saurabh-shelke1993/acadpro-app/pull/13) finance SELECT policy JWT PASS, nine exact deployed predicates + six helpers; AG3.4D2 source fingerprints of 14 authenticated SECURITY DEFINER RPCs + 16 Storage policies (metadata **only**); AG3.4E [PR #12](https://github.com/saurabh-shelke1993/acadpro-app/pull/12) offline fail-closed production **NO-GO** gate.
