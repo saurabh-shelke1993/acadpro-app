@@ -148,7 +148,7 @@ class Ag33Safety(unittest.TestCase):
             with mock.patch("builtins.print") as write:
                 ag33.report([("test", "PASS")], True)
         report = write.call_args.args[0]
-        self.assertIn("not genuine hosted policy-text parity", report)
+        self.assertIn("Not genuine hosted policy-text parity", report)
         self.assertIn("No full Parent Portal", report)
         self.assertIn("no hosted supabase", report.lower())
 
