@@ -1,6 +1,6 @@
 # Kheltriva DevBot V1 — Safe validation runner
 
-**Status: AG1 implemented; cloud quick and focused Auth checks PASSED; [review PR #3](https://github.com/saurabh-shelke1993/acadpro-app/pull/3) awaits Owner approval.** This is a deterministic execution bot, not a paid autonomous AI programming agent.
+**Status: AG1 approved and merged through [PR #3](https://github.com/saurabh-shelke1993/acadpro-app/pull/3) into payment-module-finalization, with post-merge CI PASS. AG2 real native Auth CI now PASS in a separate review branch (not merged).** This is a deterministic execution bot, not a paid autonomous AI programming agent.
 
 ## Available test suites
 
@@ -43,3 +43,7 @@ The Owner can assign/approve a check from ChatGPT on the phone; code changes to 
 ## Acceptance criteria
 
 AG1: GitHub self-test workflow passes from this branch, source diff is scoped to this bot/docs, and the Owner can read the result from phone. Direct phone manual trigger and autonomous AI coding remain future phases.
+
+## AG2: real GoTrue integration (separate CI workflow)
+
+[AG2 native Auth run 43022481533](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43022481533) **PASS** in an unlinked scratch Supabase stack on GitHub Actions. Test validates 3 real sessions and two synthetic academy_owner mappings. The AG1 allowlisted static Auth suite remains separate; AG2 uses its own real Supabase stack. Owner review/merge of AG2 pending. Positive/negative cross-academy PostgREST RLS is reserved for AG3. See [AG2 scope](KHELTRIVA_DEVBOT_AG2.md).

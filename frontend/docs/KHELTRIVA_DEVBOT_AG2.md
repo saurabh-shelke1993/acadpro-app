@@ -1,6 +1,6 @@
 # Kheltriva DevBot AG2 — Real local Supabase Auth in GitHub Actions
 
-**11 November 2026 — implemented on isolated AG2 feature branch, real CI pending.**
+**11 November 2026 — implemented and real native Supabase CI PASS on isolated AG2 feature branch; Owner review/merge pending.**
 
 ## Goal
 
@@ -26,7 +26,7 @@ One standard ubuntu-latest job, 20-minute ceiling, no paid AI/API calls, no uplo
 ## Development status
 
 IMPLEMENTED: isolated branch code + static safety checks + native stack workflow.
-CI-TESTED: pending first real GitHub Actions run.
+CI-TESTED: [real Supabase Actions run 43022481533](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43022481533) PASS — 7 pure safety tests, native GoTrue/Auth local JWT rejection/session confirmation, Owner A/B transactional mappings, 11 helper/ACL and fresh state checks. The first attempted workflow configuration was invalid because runner.temp was referenced at job scope; corrected in the next commit before this successful run. No actual failed database-test run or hosted writes.
 OWNER SIGN-OFF / MERGE to payment-module-finalization: pending.
 AG3 JWT tenant RLS: pending.
 PRODUCTION / B4: unchanged and blocked.
