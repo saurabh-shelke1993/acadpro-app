@@ -9,7 +9,7 @@
 
 **C3.3A LOCAL PASS:** Owner confirmed COMMIT, five RLS-enabled synthetic tables, two invented batches, zero Auth/app users, native auth.uid() retained (`5|2|0|0|t`).
 
-**C3.3B IMPLEMENTED; CI PENDING; LOCAL NOT RUN:** Atomic precheck + unchanged 11-helper current-state SQL + postcheck with native Auth SHA-256 preservation, 11 pinned helper-body hashes, ownership/search paths/grants and missing JWT negative tests. [C3.3B plan](PS_L2_3B_B2_9_C3_3B_LOCAL_HELPERS_20261111.md).
+**C3.3B IMPLEMENTED; CI 27/27 PASS; LOCAL NOT RUN:** [GitHub Actions 42981068438](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42981068438) passed 27/27 Python safety/source guards plus a full precheck/11-helper/postcheck atomic transaction in an independent native-shaped PostgreSQL 17 instance. CI's Auth shim is FAKE and never used locally; it is not real Supabase Auth verification.  Atomic precheck + unchanged 11-helper current-state SQL + postcheck with native Auth SHA-256 preservation, 11 pinned helper-body hashes, ownership/search paths/grants and missing JWT negative tests. [C3.3B plan](PS_L2_3B_B2_9_C3_3B_LOCAL_HELPERS_20261111.md).
 
 **BLOCKED:** Historical replay, actual Auth-JWT positive tests, storage/finance 35-scenario validation and B4 implementation.
 
