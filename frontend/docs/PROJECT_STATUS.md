@@ -5,9 +5,17 @@
 **Current Git Branch:** `payment-module-finalization`
 
 
+## B2.9-C3.4B1 local PASS / C3.4B2 CI PASS (11 November 2026)
+
+**B1 OWNER-TESTED PASS:** Real local GoTrue session and FK-backed Academy A `academy_owner` mapping succeeded; 2 Auth users, 1 app user, 11 private helpers and 2 synthetic batches. No cross-academy RLS was exercised.
+
+**B2 PREPARED / CI PASS / OWNER RUN PENDING:** [GitHub Actions 42987891004](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42987891004) passed 43/43 safety tests, PowerShell parsing and a synthetic PostgreSQL 17 mapping transaction for second Academy B owner. Actual GoTrue B2 signup and SQL have NOT run in the Owner's isolated environment. [C3.4B2 plan](PS_L2_3B_B2_9_C3_4B2_OWNER_B_20261111.md).
+
+**BLOCKED:** C3.4 coach identity setup, real signed-JWT role/tenant RLS proof, Storage/finance, protected historical replay and B4.
+
 ## B2.9-C3.4B1 — first role identity (11 November 2026)
 
-**B1A IMPLEMENTED / CI 38/38 PASS / OWNER RUN NOT STARTED:** [GitHub Actions 42986582846](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42986582846) passed 38 Python static guards, PowerShell parser checks, and independent native-shaped PostgreSQL 17 mapping SQL. No actual new GoTrue account was created in CI.  Read-only FK preflight confirmed `1|0|0|0|0|1|1`. Implementation provisions one Auth-issued Academy Owner A in isolated scratch, links exactly one app user using guarded SQL, preserves 5 RLS-enabled app tables, and grants no new client access. [B1a reference](PS_L2_3B_B2_9_C3_4B1_OWNER_A_20261111.md).
+**B1A OWNER-TESTED PASS (original CI 38/38 PASS):** [GitHub Actions 42986582846](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42986582846) passed 38 Python static guards, PowerShell parser checks, and independent native-shaped PostgreSQL 17 mapping SQL. No actual new GoTrue account was created in CI.  Read-only FK preflight confirmed `1|0|0|0|0|1|1`. Implementation provisions one Auth-issued Academy Owner A in isolated scratch, links exactly one app user using guarded SQL, preserves 5 RLS-enabled app tables, and grants no new client access. [B1a reference](PS_L2_3B_B2_9_C3_4B1_OWNER_A_20261111.md).
 
 **NOT YET TESTED:** Signed JWT role/tenant helper evaluation, Coach B/Owner B mappings, cross-tenant RLS positive/negative cases, historical replay, Storage/finance, B4.
 
