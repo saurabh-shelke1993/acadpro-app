@@ -5,6 +5,12 @@
 **Current Git Branch:** `payment-module-finalization`
 
 
+## B2.9-C3.4B1 — first role identity (11 November 2026)
+
+**B1A PREPARED / CI PENDING / OWNER RUN NOT STARTED:** Read-only FK preflight confirmed `1|0|0|0|0|1|1`. Implementation provisions one Auth-issued Academy Owner A in isolated scratch, links exactly one app user using guarded SQL, preserves 5 RLS-enabled app tables, and grants no new client access. [B1a reference](PS_L2_3B_B2_9_C3_4B1_OWNER_A_20261111.md).
+
+**NOT YET TESTED:** Signed JWT role/tenant helper evaluation, Coach B/Owner B mappings, cross-tenant RLS positive/negative cases, historical replay, Storage/finance, B4.
+
 ## B2.9-C3.4A verified / C3.4B planned — 11 November 2026
 
 **C3.4A OWNER-TESTED PASS:** One invented account was created through the real isolated GoTrue Auth API, and a bearer session verified using `GET /auth/v1/user`. Output: `local_auth_users=1`, `app_users=0`, `current_state_helpers=11`, `synthetic_batches=2`; no historical replay or hosted modifications.
