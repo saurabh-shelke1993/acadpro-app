@@ -19,7 +19,7 @@ BEGIN
      OR (SELECT count(*) FROM auth.users WHERE email LIKE 'b29-c34a-%@example.test')<>1
      OR (SELECT count(*) FROM auth.users au JOIN pg_temp.b29_c34b2_target x ON x.id=au.id
          WHERE au.email LIKE 'b29-c34b2-ao-b-%@example.test')<>1
-  THEN RAISE EXCEPTION 'C3.4B2: expected two invented local Auth users only'; END IF;
+  THEN RAISE EXCEPTION 'C3.4B2: expected three invented local Auth users, including the unmapped smoke identity'; END IF;
   IF (SELECT count(*) FROM public.users)<>1
      OR EXISTS(SELECT 1 FROM public.coaches)
      OR EXISTS(SELECT 1 FROM public.coach_batches)
@@ -35,7 +35,7 @@ BEGIN
          ON b.academy_id=x.academy_id
        WHERE b.id='b0000000-0000-4000-8000-000000000002'::uuid
      )
-  THEN RAISE EXCEPTION 'C3.4B2: Academy A batch precondition failed'; END IF;
+  THEN RAISE EXCEPTION 'C3.4B2: Academy B batch precondition failed'; END IF;
   SELECT count(*) INTO n FROM pg_proc p
   JOIN pg_namespace ns ON ns.oid=p.pronamespace WHERE ns.nspname='private';
   IF n<>11 THEN RAISE EXCEPTION 'C3.4B2: expected exactly eleven private helpers'; END IF;

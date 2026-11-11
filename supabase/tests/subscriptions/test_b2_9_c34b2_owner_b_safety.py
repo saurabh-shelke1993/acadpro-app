@@ -29,6 +29,11 @@ class OwnerBGuards(unittest.TestCase):
    self.assertIn(s,self.ps)
   for banned in ("sb_secret_","supabase link","supabase db push"):
    self.assertNotIn(banned,self.ps)
+ def test_success_marker_agrees_with_sql(self):
+  sql_marker="B2.9-C3.4B2 OWNER B MAPPING VERIFIED"
+  self.assertIn("SELECT '"+sql_marker+"'",self.sql)
+  self.assertIn("$mappingResult -notmatch 'B2\\.9-C3\\.4B2 OWNER B MAPPING VERIFIED'",self.ps)
+  self.assertNotIn("$mappingResult -notmatch 'B2\\.9-C3\\.4B1 OWNER A MAPPING VERIFIED'",self.ps)
  def test_fail_stop(self):
   self.assertIn("STOP, never retry automatically",self.ps)
   self.assertIn("C3.4B2",self.sql)

@@ -8,6 +8,12 @@
 **Purpose:** Stable, handoff-friendly checkpoint between ChatGPT conversations. This document is NOT a substitute for inspecting live code, the current database, or current tests.
 
 
+## C3.4B2 reported script failure — incident review pending (11 November 2026)
+
+**OWNER EXECUTED / SQL PERSISTENCE NOT VERIFIED:** B2's GoTrue signup advanced to mapping SQL, but PowerShell incorrectly compared the SQL's B2 success message with B1's success marker. The code mismatch is confirmed; the database might already contain a valid B2 owner mapping. **Do not rerun signup or mapping SQL.** A separate read-only SQL check of local counts and both owner roles is required before closing B2.
+
+**IMPLEMENTATION FIX:** B2 marker corrected and CI regression test added. This fixes misleading status detection, not an established database failure. Real cross-academy JWT/RLS and B4 remain blocked.
+
 ## B2.9-C3.4B1 local PASS / C3.4B2 CI PASS (11 November 2026)
 
 **B1 OWNER-TESTED PASS:** Real local GoTrue session and FK-backed Academy A `academy_owner` mapping succeeded; 2 Auth users, 1 app user, 11 private helpers and 2 synthetic batches. No cross-academy RLS was exercised.

@@ -89,8 +89,8 @@ if ($LASTEXITCODE -ne 0) {
  throw 'C3.4B2: fixture copy failed after signup; STOP, do not retry'
 }
 $mappingResult = (& docker exec $container psql -U postgres -d postgres -X --single-transaction -v ON_ERROR_STOP=1 -v ("owner_uuid=" + $id.ToString()) -f /tmp/b29_c34b2_owner_b_mapping.sql 2>&1 | Out-String)
-if ($LASTEXITCODE -ne 0 -or $mappingResult -notmatch 'B2\.9-C3\.4B1 OWNER A MAPPING VERIFIED') {
- throw 'C3.4B2: mapping SQL did not complete. Auth user may exist without mapping; STOP and inspect, do not retry.'
+if ($LASTEXITCODE -ne 0 -or $mappingResult -notmatch 'B2\.9-C3\.4B2 OWNER B MAPPING VERIFIED') {
+ throw 'C3.4B2: mapping SQL failed or returned an unexpected success marker. The Auth user may already exist and SQL might have committed. STOP; run the approved read-only persistence check; do not retry.'
 }
 
 $stateAfter = (& docker exec $container psql -U postgres -d postgres -X -At -c $stateSql | Out-String).Trim()
