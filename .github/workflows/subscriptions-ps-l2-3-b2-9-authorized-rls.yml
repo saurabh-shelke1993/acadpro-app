@@ -15,6 +15,9 @@ on:
       - 'supabase/tests/subscriptions/b2_9_c34b1_owner_a_local.ps1'
       - 'supabase/tests/subscriptions/ps_l2_3_b2_9_c34b1_owner_a_mapping.sql'
       - 'supabase/tests/subscriptions/test_b2_9_c34b1_owner_a_safety.py'
+      - 'supabase/tests/subscriptions/b2_9_c34b2_owner_b_local.ps1'
+      - 'supabase/tests/subscriptions/ps_l2_3_b2_9_c34b2_owner_b_mapping.sql'
+      - 'supabase/tests/subscriptions/test_b2_9_c34b2_owner_b_safety.py'
       - '.github/workflows/subscriptions-ps-l2-3-b2-9-authorized-rls.yml'
   workflow_dispatch:
 
@@ -54,6 +57,7 @@ jobs:
           python -m unittest discover -s supabase/tests/subscriptions -p 'test_b2_9_c33b_guard.py' -v
           python -m unittest discover -s supabase/tests/subscriptions -p 'test_b2_9_c34a_local_auth_safety.py' -v
           python -m unittest discover -s supabase/tests/subscriptions -p 'test_b2_9_c34b1_owner_a_safety.py' -v
+          python -m unittest discover -s supabase/tests/subscriptions -p 'test_b2_9_c34b2_owner_b_safety.py' -v
       - name: Parse C3.4A PowerShell syntax without executing it
         shell: pwsh
         run: |
@@ -68,6 +72,13 @@ jobs:
           $errors = $null
           [System.Management.Automation.Language.Parser]::ParseFile('supabase/tests/subscriptions/b2_9_c34b1_owner_a_local.ps1', [ref]$tokens, [ref]$errors) | Out-Null
           if ($errors.Count -ne 0) { throw 'C3.4B1 PowerShell parse failed' }
+      - name: Parse C3.4B2 Owner B PowerShell without execution
+        shell: pwsh
+        run: |
+          $tokens = $null
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile('supabase/tests/subscriptions/b2_9_c34b2_owner_b_local.ps1', [ref]$tokens, [ref]$errors) | Out-Null
+          if ($errors.Count -ne 0) { throw 'Owner B PowerShell syntax error' }
       - name: Run synthetic B2.9 bootstrap, then isolated RLS checks
         env:
           PGPASSWORD: postgres
@@ -120,6 +131,13 @@ jobs:
             -v owner_uuid=60000000-0000-4000-8000-000000000002 \
             -f /workspace/supabase/tests/subscriptions/ps_l2_3_b2_9_c34b1_owner_a_mapping.sql
           echo "PASS = C3.4B1 native-shaped synthetic PostgreSQL FK/role transaction; NOT real Supabase Auth."
+          docker exec "$container" psql -U postgres -d postgres -X -v ON_ERROR_STOP=1 \
+            -c "INSERT INTO auth.users(id,email) VALUES ('60000000-0000-4000-8000-000000000003','b29-c34b2-ao-b-ci@example.test');"
+          docker exec "$container" psql -U postgres -d postgres -X \
+            --single-transaction -v ON_ERROR_STOP=1 \
+            -v owner_uuid=60000000-0000-4000-8000-000000000003 \
+            -f /workspace/supabase/tests/subscriptions/ps_l2_3_b2_9_c34b2_owner_b_mapping.sql
+          echo "PASS = C3.4B2 native-shaped synthetic PostgreSQL FK/role transaction; NOT real Supabase Auth."
           echo "PASS = native-shaped synthetic PG17; NOT real Supabase Auth."
       - name: Confirm no production credentials or historical source
         run: |
