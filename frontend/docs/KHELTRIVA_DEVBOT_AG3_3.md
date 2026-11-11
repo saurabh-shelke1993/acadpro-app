@@ -1,6 +1,6 @@
 # Kheltriva DevBot AG3.3 — Parent linked-player and Super Admin JWT/RLS
 
-**11 November 2026 — implemented on isolated review branch; native GitHub CI and Product Owner merge acceptance pending.**
+**11 November 2026 — implemented and real GoTrue/JWT/PostgREST native CI PASS on review branch; Product Owner acceptance and merge pending.**
 
 ## Objective
 
@@ -44,4 +44,6 @@ No source under `supabase/migrations`, no actual application source code or UI, 
 - `scripts/devbot/test_ag3_3_parent_sa_jwt_rls_ci.py`
 - `supabase/tests/subscriptions/ps_l2_3_b2_9_ag33_parent_sa_rls.sql`
 
-**Acceptance:** CI green and verified, review scoped diff, explicit Product Owner acceptance, merge to `payment-module-finalization` only. Until then AG3.3 is *implemented, not accepted*.
+**Validation evidence:** [Native GitHub Actions run 43039558349](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43039558349) **PASS**: 14/14 pure safety tests; real ephemeral Supabase 3.0.0 native GoTrue, PostgREST and actual JWT positive/negative Parent/SA checks; synthetic Super Admin CRUD; previous Owner/Coach regression; postflight SQL and no-backup cleanup all passed. First run 43039312329 failed one pure test due report capitalization and did not start native Supabase; fixed in commit `ea564729`. The successful native run tested unchanged SQL/driver sources after that correction.
+
+**Review gate:** [PR #7](https://github.com/saurabh-shelke1993/acadpro-app/pull/7) targets `payment-module-finalization` only and remains **OPEN**. Explicit Product Owner manual acceptance and merge are still pending. Real production-schema parity, Parent Portal/RPCs and B4 release are NOT complete.
