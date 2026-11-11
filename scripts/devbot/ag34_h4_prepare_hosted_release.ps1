@@ -11,9 +11,9 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 function Invoke-Checked {
-    param([string]$Label,[string[]]$Args)
+    param([string]$Label,[string[]]$CliArgs)
     Write-Host ("AG34-H4: " + $Label)
-    & supabase @Args
+    & supabase @CliArgs
     if ($LASTEXITCODE -ne 0) { throw "AG34-H4 STOP: $Label failed" }
 }
 
@@ -32,7 +32,7 @@ if ($LASTEXITCODE -ne 0 -or $branchName -ne 'payment-module-finalization') {
     throw 'AG34-H4 STOP: checkout the approved development branch first'
 }
 $status = (& git -C $repoRoot status --porcelain)
-if ($LASTEXITCODE -ne 0 -or @($status).Where({ $_.Trim() -ne '' }).Count -ne 0) {
+if ($LASTEXITCODE -ne 0 -or @($status | Where-Object { $_ -and $_.Trim() -ne '' }).Count -ne 0) {
     throw 'AG34-H4 STOP: local Git working tree must be clean'
 }
 $versionOutput = (& supabase --version | Out-String).Trim()
@@ -61,10 +61,10 @@ $schemas = 'public,auth,storage,supabase_migrations'
 $finished = $false
 try {
     # Read-only dump; all data includes sensitive Auth and player information.
-    Invoke-Checked 'export private logical schema backup' @(
+    Invoke-Checked -Label 'export private logical schema backup' -CliArgs @(
         'db','dump',$remoteArg,'--schema',$schemas,'--file',$schemaPath
     )
-    Invoke-Checked 'export private logical data backup' @(
+    Invoke-Checked -Label 'export private logical data backup' -CliArgs @(
         'db','dump',$remoteArg,'--schema',$schemas,'--data-only','--file',$dataPath
     )
     foreach ($f in @($schemaPath,$dataPath)) {
@@ -74,8 +74,8 @@ try {
     }
     Push-Location $workspace
     try {
-        Invoke-Checked 'initialize isolated no-link project' @('init','--yes')
-        Invoke-Checked 'fetch 82 applied migrations to private local files only' @(
+        Invoke-Checked -Label 'initialize isolated no-link project' -CliArgs @('init','--yes')
+        Invoke-Checked -Label 'fetch 82 applied migrations to private local files only' -CliArgs @(
             'migration','fetch',$remoteArg
         )
         & python $gate --workspace $workspace --phase fetched
@@ -90,7 +90,7 @@ try {
         if ($LASTEXITCODE -ne 0) {
             throw 'AG34-H4 STOP: exactly-one pending migration check failed'
         }
-        Invoke-Checked 'list pending migration history (read-only)' @(
+        Invoke-Checked -Label 'list pending migration history (read-only)' -CliArgs @(
             'migration','list',$remoteArg
         )
         $finished = $true
