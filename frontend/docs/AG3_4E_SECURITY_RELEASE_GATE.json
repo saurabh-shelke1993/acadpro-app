@@ -42,12 +42,6 @@
       "state": "source_inventory_only",
       "mode": "14_public_definer_rpc_16_storage_policy_fingerprints",
       "url": "https://github.com/saurabh-shelke1993/acadpro-app"
-    },
-    {
-      "phase": "AG34-H2",
-      "state": "staged_tested_not_deployed",
-      "mode": "cli_generated_source_identical_sql_native_jwt_and_safe_downshift_rehearsal",
-      "url": "https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43063776080"
     }
   ],
   "production_release_requirements": {
