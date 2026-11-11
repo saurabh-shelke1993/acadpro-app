@@ -256,6 +256,7 @@ def main() -> int:
         checkpoint="legacy mapping unauthorized write probe"
         probe={"id":PROBE,"coach_id":CROSS_COACH,"batch_id":ag3.BATCH_A}
         status=post(key,token_a1,probe)
+        print("AG3.4B PARENT_MAPPING_INSERT "+("ALLOWED_IN_SCRATCH" if status==201 else "DENIED_IN_SCRATCH"),flush=True)
         if status==201:
             expect_ids(key,token_a1,{PROBE},id_filter=PROBE)
             delete_exact(key,token_a1,PROBE)
@@ -267,6 +268,7 @@ def main() -> int:
         # A Coach with an active A1 assignment can also reach the A1 batch
         # in the original deployed EXISTS predicate.
         status=post(key,coach_a_token,probe)
+        print("AG3.4B COACH_MAPPING_INSERT "+("ALLOWED_IN_SCRATCH" if status==201 else "DENIED_IN_SCRATCH"),flush=True)
         if status==201:
             delete_exact(key,coach_a_token,PROBE)
             outcome.append(("LIVE PREDICATE: Coach inserted/deleted cross-academy Coach link","CONFIRMED IN SCRATCH"))
