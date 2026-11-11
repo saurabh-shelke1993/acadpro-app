@@ -33,9 +33,9 @@
     },
     {
       "phase": "AG3.4D1",
-      "state": "implementation_testing",
-      "mode": "nine_deployed_finance_read_predicates_real_jwt",
-      "url": "https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43054776383"
+      "state": "tested_pr_pending",
+      "mode": "nine_deployed_finance_read_predicates_real_jwt_9_unit_tests",
+      "url": "https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43056181524"
     },
     {
       "phase": "AG3.4D2",
@@ -55,7 +55,8 @@
     "parent_owner_coach_super_admin_browser_manual_regression": false,
     "windows_C3_4B2_persistence_check": false,
     "production_deployment_and_rollback_plan_approved": false,
-    "explicit_product_owner_production_release_approval": false
+    "explicit_product_owner_production_release_approval": false,
+    "frontend_all_jest_and_build_green": false
   },
   "blocking_findings": [
     {
@@ -92,9 +93,17 @@
       "status": "open",
       "subject": "Multi-role browser/manual tests, Windows Auth persistence, and B4 billing acceptance still outstanding",
       "mitigation": "Owner-driven manual QA and separate B3/B4 gates required."
+    },
+    {
+      "id": "AG34-GATE-006",
+      "severity": "RELEASE_BLOCKER",
+      "status": "open",
+      "subject": "Full frontend CI fails: 4 Jest suites and 16 tests failed (474 passed of 490); build skipped after tests",
+      "mitigation": "Reproduce and remediate or formally disposition existing CoachProfile, CoachPerformanceAssessments, PlayerPerformanceReport and PerformanceWorkspaceTabs test failures; rerun full suite and build with stub-only CI credentials.",
+      "evidence": "https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43056100352"
     }
   ],
   "production_decision": "NO_GO",
   "dev_pr_merge_status": "Allowed if PR-specific checks succeed; unrelated to production deployment",
-  "source_limits": "This is a release decision ledger and automated fail-closed blocker check, NOT evidence of complete AG3.4D RPC/Storage runtime tests, production migration or manual QA."
+  "source_limits": "This is a release decision ledger and automated fail-closed blocker check, NOT evidence of complete AG3.4D RPC/Storage runtime tests, production migration or manual QA. Full frontend CI currently fails 16 tests in four suites, build not reached."
 }
