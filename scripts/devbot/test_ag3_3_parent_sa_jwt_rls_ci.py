@@ -150,7 +150,7 @@ class Ag33Safety(unittest.TestCase):
         report = write.call_args.args[0]
         self.assertIn("not genuine hosted policy-text parity", report)
         self.assertIn("No full Parent Portal", report)
-        self.assertIn("no hosted Supabase", report.lower())
+        self.assertIn("no hosted supabase", report.lower())
 
 
 if __name__ == "__main__":
