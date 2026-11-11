@@ -5,6 +5,12 @@
 **Current Git Branch:** `payment-module-finalization`
 
 
+## B3.7A — historical helper chronology (11 November 2026)
+
+**READ-ONLY REVIEW DONE / CI PENDING:** The retained 82/168 original-source ledger has no identifiable foundational CREATE for the 11 current B2.9 helpers or private schema. All 11 current live function hashes and metadata match the pinned B2.9 manifest. Historical parent function uses email at 20260908062059, before parents.user_id and revised helper at 20260912142706. No historical provenance or replay approval was inferred. [B3.7A details](PS_L2_3B_B3_7A_HISTORICAL_HELPER_CHRONOLOGY_20261111.md).
+
+**BLOCKED:** Authentic original helper source, audited scratch bootstrap approval, B3 full Supabase Auth/RLS/Storage/finance replay, 22 legacy subscription activation, and B4 lifecycle integration.
+
 ## B3.6 non-executable reconstruction planning (11 November 2026)
 
 **IMPLEMENTED / CI PASSED:** 82 original migrations ordered in a sanitized plan; 14 B3.5C quarantine treatments; six divergent sources, helper/parent/finance chronology, 35 role, Storage and financial synthetic scenarios (all NOT_RUN). Python contract and independent [GitHub Actions B3.6 validation](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42966102654) **PASS — 11/11 synthetic tests at `fd08c9b`**. Recovery evidence workflow [42966102497](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42966102497) also **PASS**. [B3.6 report](PS_L2_3B_B3_6_DISPOSABLE_RECONSTRUCTION_PLAN_20261111.md).

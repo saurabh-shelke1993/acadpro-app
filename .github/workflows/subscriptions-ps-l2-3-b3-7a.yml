@@ -1,0 +1,24 @@
+name: PS-L2.3B B3.7A helper provenance validation
+on:
+  push:
+    branches: [payment-module-finalization]
+    paths:
+      - 'supabase/recovery/historical-baseline/b3_7a_helper_history_20261111.json'
+      - 'supabase/recovery/historical-baseline/test_b3_7a_helper_history.py'
+      - '.github/workflows/subscriptions-ps-l2-3-b3-7a.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  provenance-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate 11-helper history and replay denial
+        run: python -m unittest discover -s supabase/recovery/historical-baseline -p 'test_b3_7a_helper_history.py' -v
+      - name: No private archive or hosted database access
+        run: test ! -d supabase/recovery/historical-baseline/.recovery-private

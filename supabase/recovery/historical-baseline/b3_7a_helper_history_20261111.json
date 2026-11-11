@@ -1,0 +1,190 @@
+{
+  "schema": "kheltriva-b3-7a-history-v1",
+  "project_id": "ulyealhkmlorsbdiknrh",
+  "source_versions": 82,
+  "source_elements": 168,
+  "current_function_hashes_matching_manifest": 11,
+  "original_private_schema_create_detected": false,
+  "private_schema_usage_grant_first_version": "20260903173804",
+  "all_historical_creation_source_recovered": false,
+  "previously_unrecorded_helper_count": 11,
+  "parent_first_function": "20260908062059",
+  "parent_first_function_uses_email_not_user_id": true,
+  "parent_user_id_added_and_function_revised": "20260912142706",
+  "helpers": [
+    {
+      "name": "batch_academy_id",
+      "first_qualified_call": "20260903173804",
+      "original_create_found": false,
+      "live_metadata_matches_manifest": true,
+      "owner": "postgres",
+      "security_definer": true,
+      "search_path": [
+        "search_path=public, private"
+      ],
+      "public_execute": false,
+      "auth_execute": true,
+      "anon_execute": false,
+      "approved_for_replay": false
+    },
+    {
+      "name": "can_access_batch",
+      "first_qualified_call": null,
+      "original_create_found": false,
+      "live_metadata_matches_manifest": true,
+      "owner": "postgres",
+      "security_definer": true,
+      "search_path": [
+        "search_path=public, private"
+      ],
+      "public_execute": true,
+      "auth_execute": true,
+      "anon_execute": true,
+      "approved_for_replay": false
+    },
+    {
+      "name": "can_access_center",
+      "first_qualified_call": null,
+      "original_create_found": false,
+      "live_metadata_matches_manifest": true,
+      "owner": "postgres",
+      "security_definer": true,
+      "search_path": [
+        "search_path=public, private"
+      ],
+      "public_execute": true,
+      "auth_execute": true,
+      "anon_execute": true,
+      "approved_for_replay": false
+    },
+    {
+      "name": "can_access_coach",
+      "first_qualified_call": null,
+      "original_create_found": false,
+      "live_metadata_matches_manifest": true,
+      "owner": "postgres",
+      "security_definer": true,
+      "search_path": [
+        "search_path=public, private"
+      ],
+      "public_execute": true,
+      "auth_execute": true,
+      "anon_execute": true,
+      "approved_for_replay": false
+    },
+    {
+      "name": "can_access_coach_batch",
+      "first_qualified_call": null,
+      "original_create_found": false,
+      "live_metadata_matches_manifest": true,
+      "owner": "postgres",
+      "security_definer": true,
+      "search_path": [
+        "search_path=public, private"
+      ],
+      "public_execute": true,
+      "auth_execute": true,
+      "anon_execute": true,
+      "approved_for_replay": false
+    },
+    {
+      "name": "current_academy_id",
+      "first_qualified_call": "20260903173804",
+      "original_create_found": false,
+      "live_metadata_matches_manifest": true,
+      "owner": "postgres",
+      "security_definer": true,
+      "search_path": [
+        "search_path=public, pg_catalog"
+      ],
+      "public_execute": false,
+      "auth_execute": true,
+      "anon_execute": false,
+      "approved_for_replay": false
+    },
+    {
+      "name": "current_user_role",
+      "first_qualified_call": "20260907180752",
+      "original_create_found": false,
+      "live_metadata_matches_manifest": true,
+      "owner": "postgres",
+      "security_definer": true,
+      "search_path": [
+        "search_path=public, private"
+      ],
+      "public_execute": false,
+      "auth_execute": true,
+      "anon_execute": false,
+      "approved_for_replay": false
+    },
+    {
+      "name": "is_super_admin",
+      "first_qualified_call": "20260903173804",
+      "original_create_found": false,
+      "live_metadata_matches_manifest": true,
+      "owner": "postgres",
+      "security_definer": true,
+      "search_path": [
+        "search_path=public, pg_catalog"
+      ],
+      "public_execute": false,
+      "auth_execute": true,
+      "anon_execute": false,
+      "approved_for_replay": false
+    },
+    {
+      "name": "is_academy_owner",
+      "first_qualified_call": "20260903173804",
+      "original_create_found": false,
+      "live_metadata_matches_manifest": true,
+      "owner": "postgres",
+      "security_definer": true,
+      "search_path": [
+        "search_path=public, private"
+      ],
+      "public_execute": true,
+      "auth_execute": true,
+      "anon_execute": true,
+      "approved_for_replay": false
+    },
+    {
+      "name": "is_coach",
+      "first_qualified_call": "20261012035934",
+      "original_create_found": false,
+      "live_metadata_matches_manifest": true,
+      "owner": "postgres",
+      "security_definer": true,
+      "search_path": [
+        "search_path=public, private"
+      ],
+      "public_execute": true,
+      "auth_execute": true,
+      "anon_execute": true,
+      "approved_for_replay": false
+    },
+    {
+      "name": "is_coach_assigned_to_batch",
+      "first_qualified_call": "20260907180752",
+      "original_create_found": false,
+      "live_metadata_matches_manifest": true,
+      "owner": "postgres",
+      "security_definer": true,
+      "search_path": [
+        "search_path=public, private"
+      ],
+      "public_execute": true,
+      "auth_execute": true,
+      "anon_execute": true,
+      "approved_for_replay": false
+    }
+  ],
+  "security_gates": {
+    "origin_verified": false,
+    "helper_order_accepted": false,
+    "full_supabase_replay_passed": false,
+    "owner_approved": false,
+    "b4_ready": false
+  },
+  "sensitive_sql_included": false,
+  "any_database_changed": false
+}
