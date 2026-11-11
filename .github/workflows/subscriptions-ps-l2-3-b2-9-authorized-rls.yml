@@ -1,0 +1,62 @@
+name: PS-L2.3B B2.9 authorized disposable RLS validation
+
+on:
+  push:
+    branches: [payment-module-finalization]
+    paths:
+      - 'supabase/tests/subscriptions/ps_l2_3_b2_9_*'
+      - 'supabase/tests/subscriptions/test_b2_9_authorized_scope.py'
+      - '.github/workflows/subscriptions-ps-l2-3-b2-9-authorized-rls.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  authorized-disposable-postgres-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      synthetic_postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=5s
+          --health-timeout=3s
+          --health-retries=12
+    steps:
+      - name: Checkout test-only files
+        uses: actions/checkout@v4
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify B2.9 live snapshot hashes and authorized disposable-only policy
+        run: |
+          python -m unittest discover -s supabase/tests/subscriptions -p 'test_b2_9_snapshot_integrity.py' -v
+          python -m unittest discover -s supabase/tests/subscriptions -p 'test_b2_9_authorized_scope.py' -v
+      - name: Run synthetic B2.9 bootstrap, then isolated RLS checks
+        env:
+          PGPASSWORD: postgres
+        run: |
+          set -euo pipefail
+          for f in \
+            ps_l2_3_b2_9_synthetic_preconditions.sql \
+            ps_l2_3_b2_9_live_helper_snapshot.sql \
+            ps_l2_3_b2_9_synthetic_assertions.sql \
+            ps_l2_3_b2_9_authorized_rls_assertions.sql
+          do
+            docker run --rm --network host -e PGPASSWORD=postgres \
+              -v "$GITHUB_WORKSPACE:/workspace:ro" postgres:17 \
+              psql -h 127.0.0.1 -U postgres -d postgres -X -v ON_ERROR_STOP=1 \
+              -f "/workspace/supabase/tests/subscriptions/$f"
+          done
+      - name: Confirm no production credentials or historical source
+        run: |
+          test ! -d supabase/recovery/historical-baseline/.recovery-private
+          echo "PASS = synthetic PostgreSQL role/RLS behavior, not Supabase Auth/Storage or historic migration parity."
