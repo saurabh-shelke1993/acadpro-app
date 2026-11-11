@@ -1,0 +1,31 @@
+name: PS-L2.3B B3.5 original SQL quarantine triage (synthetic only)
+
+on:
+  push:
+    branches: [payment-module-finalization]
+    paths:
+      - 'supabase/recovery/historical-baseline/b3_5_quarantine_source_review.py'
+      - 'supabase/recovery/historical-baseline/test_b3_5_quarantine_source_review.py'
+      - '.github/workflows/subscriptions-ps-l2-3-b3-5-quarantine.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic-private-review-tool:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Test SQL masking, 14-case coverage and replay denial
+        run: |
+          python -m unittest discover -s supabase/recovery/historical-baseline -p 'test_b3_5_quarantine_source_review.py' -v
+          python -m py_compile supabase/recovery/historical-baseline/b3_5_quarantine_source_review.py
+      - name: Confirm no private original SQL archive or production credentials
+        run: |
+          test ! -d supabase/recovery/historical-baseline/.recovery-private
+          echo "B3.5 PASS means synthetic static reviewer is safe; original 14-migration review still requires local owner run"
