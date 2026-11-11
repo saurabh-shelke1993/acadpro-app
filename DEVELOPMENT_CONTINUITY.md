@@ -7,6 +7,25 @@
 **Original branch baseline (before this file was created):** `0bfc71099ed14cdada08022320a72c378e9da5f7`. Subsequent CMA commits exist; recheck current branch HEAD before development.  
 **Purpose:** Stable, handoff-friendly checkpoint between ChatGPT conversations. This document is NOT a substitute for inspecting live code, the current database, or current tests.
 
+
+## B3.4 recovery note — Windows CRLF source-hash false mismatch (11 November 2026)
+
+A Windows local owner import stopped during post-export analysis at original version 20260920041653. Original Git LF content was reverified to match the pinned remote SQL hash after one trailing LF removal; a Windows CRLF working copy can fail the previous strict local-binary check.
+
+B3.1 now accepts CRLF line-endings **only when CRLF-to-LF normalization produces the exact pinned source hash**. Mixed line endings and real SQL content changes still fail. [B3.1 CI 42954533764](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42954533764) **PASS — 12 tests**.
+
+The earlier B3.4 run can have already written its private original archive before the post-archive check failed. A new --finalize-existing mode checks the existing archive's original hashes and creates only a sanitized final attestation; no SQL export, deletion, overwriting or database access. [B3.4 CI 42954795483](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42954795483) **PASS — 15 tests**. The owner still needs to execute the local finalization; actual archive verification status PENDING.
+
+From repository root after pulling the branch:
+
+    $private = "supabase\recovery\historical-baseline\.recovery-private"
+    Test-Path "$private\baseline-b3-4-001\manifest.json"
+    python supabase/recovery/historical-baseline/b3_4_import_dashboard_csv.py --root . --finalize-existing --output "$private\baseline-b3-4-001"
+
+Run the finalization command **only if Test-Path returns True**; otherwise inspect filenames without deleting any private source files. Detailed B3.4 development report is in frontend/docs/PS_L2_3B_B3_4_PRIVATE_ARCHIVE_ACQUISITION_20261111.md.
+
+**Still blocked:** full disposable Supabase replay, historical DML quarantine approval, Auth/RLS/finance parity, and PS-L2.3 subscription deployment. Hosted database, canonical migrations and credentials unchanged.
+
 ## Latest checkpoint — PS-L2.3B B3.4 password-free private SQL archive tooling (11 November 2026)
 
 - **IMPLEMENTED / CI-TESTED:** A new import workflow takes 5 (or 1–20) Google-authenticated Supabase SQL Editor CSV exports into the existing ignored .recovery-private folder; requires NO PostgreSQL password reset. The importer verifies 82 original migration-wide hashes and all 168 original SQL element SHA-256s **before writing raw SQL**, reuses B2.7 private export/attestation and B3.3 original-source audit, and refuses incomplete, duplicate, tampered or unsafe-path input. **Real owner CSV export/import has NOT been run**.
