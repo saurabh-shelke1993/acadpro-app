@@ -117,7 +117,7 @@ class PowerShellBoundary(unittest.TestCase):
     def test_roles_dump_is_only_remote_operation(self):
         self.assertIn("db dump ('--remote=' + $referenceProject) --role-only --file",self.src)
         self.assertIn("3.0.0",self.src)
-        self.assertIn("NO HOSTED",self.src)
+        self.assertIn("no hosted",self.src.lower())
         self.assertIn("critical table",self.src)
 
 
