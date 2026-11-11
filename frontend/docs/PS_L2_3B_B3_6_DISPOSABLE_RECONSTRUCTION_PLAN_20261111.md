@@ -2,6 +2,8 @@
 
 **11 November 2026** · `payment-module-finalization` · active Supabase `ulyealhkmlorsbdiknrh`
 
+**Automated validation:** [B3.6 GitHub Actions 42966102654](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42966102654) **PASS — 11/11 synthetic tests** at implementation SHA `fd08c9b`. [Recovery evidence 42966102497](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42966102497) **PASS**. This only verifies plan integrity, not the actual planned runtime scenarios.
+
 **Implementation:** Metadata-only 82-version source-order plan, 14 B3.5C quarantines, six unresolved divergent sources, chronology guards and 35 planned role/finance/Storage tests. **No SQL generated, database created, history repaired, schema modified, live data changed or migration approved.**
 
 ## Evidence reviewed

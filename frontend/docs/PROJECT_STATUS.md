@@ -7,7 +7,7 @@
 
 ## B3.6 non-executable reconstruction planning (11 November 2026)
 
-**IMPLEMENTED / CI PENDING:** 82 original migrations ordered in a sanitized plan; 14 B3.5C quarantine treatments; six divergent sources, helper/parent/finance chronology, 35 role, Storage and financial synthetic scenarios (all NOT_RUN); 11 fail-closed Python contract tests and independent GitHub Actions workflow. [B3.6 report](PS_L2_3B_B3_6_DISPOSABLE_RECONSTRUCTION_PLAN_20261111.md).
+**IMPLEMENTED / CI PASSED:** 82 original migrations ordered in a sanitized plan; 14 B3.5C quarantine treatments; six divergent sources, helper/parent/finance chronology, 35 role, Storage and financial synthetic scenarios (all NOT_RUN). Python contract and independent [GitHub Actions B3.6 validation](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42966102654) **PASS — 11/11 synthetic tests at `fd08c9b`**. Recovery evidence workflow [42966102497](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42966102497) also **PASS**. [B3.6 report](PS_L2_3B_B3_6_DISPOSABLE_RECONSTRUCTION_PLAN_20261111.md).
 
 **BLOCKED:** Essential SQL DDL/data split approval, original helper provenance, isolated Supabase Auth/RLS/Storage replay, 35 runtime role and financial tests, owner security sign-off, 22 legacy subscription renewals, PS-L2.3 integration. No executable SQL, canonical migration changes, production data changes or live credentials affected.
 
