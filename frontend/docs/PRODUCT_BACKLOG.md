@@ -1,5 +1,12 @@
 # AcadPro Product Backlog
 
+## AG3.4 — real deployed authorization parity and security regression (11 November 2026)
+
+**AG3.4A READ-ONLY INVENTORY IMPLEMENTED IN REVIEW BRANCH; OWNER ACCEPTANCE PENDING:** Live Postgres catalog, `pg_policies`, grants, private helpers, Storage policies, Advisor and 82-version ledger were inspected without live mutation. Baseline 28 public RLS-enabled tables, 103 policies, 42 private helper/functions, 14 authenticated public SECURITY DEFINER functions; 40 repository migration files / 23 exact version-prefix matches. [AG3.4A report](KHELTRIVA_DEVBOT_AG3_4A_LIVE_POLICY_INVENTORY_20261111.md).
+
+**HIGH-PRIORITY NEXT TEST:** `coach_batches` broad authenticated same-academy mutation/select policies lack explicit academy-owner guard despite broad table privileges and no custom trigger. Negative-JWT Coach/Parent/Owner/SA evidence is required **before** concluding exploitability or proposing a remediation migration. Also test inactive Parent live-helper parity, same-academy center access by role, finance/14 RPCs and Storage. All phases **AG3.4B–E PENDING**; no hosted DDL, billing, or deployment authorized. AG3.3 [PR #7](https://github.com/saurabh-shelke1993/acadpro-app/pull/7) approved and merged at `9b8ba8ed`. B3 protected 82-migration replay and B4 remain NO-GO.
+
+
 ## AG3.3 — Parent and Super Admin real-JWT authorization (11 November 2026)
 
 **IMPLEMENTED + CI TESTED, OWNER ACCEPTANCE PENDING:** [GitHub Actions 43039558349](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43039558349) **PASS** — fourteen static/safety tests, native GoTrue real JWTs and PostgREST with three synthetic Parent identities (A1/A2 same academy, B other), one platform Super Admin, and existing Owner/Coach fixtures. Parent record/linked player/batch positive checks passed; same-academy other-parent and foreign tenant denied; SA global read and synthetic cross-tenant batch INSERT/UPDATE/DELETE passed; unauthorized Parent/Coach writes, ungranted IDs and header/JWT forgery denied. [PR #7](https://github.com/saurabh-shelke1993/acadpro-app/pull/7) needs Owner manual acceptance and merge to `payment-module-finalization` only.
