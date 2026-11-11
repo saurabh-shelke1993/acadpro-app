@@ -1,0 +1,96 @@
+name: Kheltriva AG3.4D - Source-aligned finance JWT and RPC Storage catalog audit
+
+on:
+  push:
+    branches: [devbot-ag3-4d-finance-rpc-storage-audit, payment-module-finalization]
+    paths:
+      - '.github/workflows/devbot-ag3-4d-finance-audit.yml'
+      - 'scripts/devbot/ag3_4d_finance_jwt_ci.py'
+      - 'scripts/devbot/test_ag3_4d_finance_jwt_ci.py'
+      - 'supabase/tests/security/ag34d1_live_finance_read_policies.sql'
+      - 'supabase/tests/security/ag34d2_live_rpc_storage_fingerprints.json'
+      - 'scripts/devbot/ag3_4c2_live_parent_policy_ci.py'
+      - 'supabase/tests/security/ag34c2_live_parent_coach_sa_select.sql'
+  pull_request:
+    branches: [payment-module-finalization]
+    paths:
+      - '.github/workflows/devbot-ag3-4d-finance-audit.yml'
+      - 'scripts/devbot/ag3_4d_finance_jwt_ci.py'
+      - 'scripts/devbot/test_ag3_4d_finance_jwt_ci.py'
+      - 'supabase/tests/security/ag34d1_live_finance_read_policies.sql'
+      - 'supabase/tests/security/ag34d2_live_rpc_storage_fingerprints.json'
+permissions:
+  contents: read
+concurrency:
+  group: kheltriva-ag34d-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  finance-jwt-and-rpc-catalog:
+    name: AG3.4D finance signed JWT and RPC/Storage source contract
+    if: github.repository == 'saurabh-shelke1993/acadpro-app'
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Pure AG3.4D finance/RPC/Storage safety tests
+        run: python -m unittest discover -s scripts/devbot -p 'test_ag3_4d_finance_jwt_ci.py' -v
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 3.0.0
+      - name: New unlinked scratch native Supabase
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT="$RUNNER_TEMP/kheltriva-ag34c2-ci"
+          test -z "${SUPABASE_ACCESS_TOKEN:-}"
+          test -z "${SUPABASE_DB_URL:-}"
+          test ! -e "$ROOT"
+          mkdir -p "$ROOT"
+          cd "$ROOT"
+          supabase init --yes >/dev/null 2>&1
+          python - <<'PY'
+          import tomllib
+          from pathlib import Path
+          root=Path('supabase')
+          cfg=tomllib.loads((root/'config.toml').read_text())
+          assert cfg['project_id']=='kheltriva-ag34c2-ci'
+          assert cfg['auth']['email']['enable_confirmations'] is False
+          assert not (root/'migrations').exists()
+          assert not (root/'.temp'/'project-ref').exists()
+          PY
+      - name: Start native scratch GoTrue PostgREST PostgreSQL
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/kheltriva-ag34c2-ci"
+          if ! supabase start -x 'realtime,storage-api,studio,postgres-meta,edge-runtime,imgproxy,logflare,vector,supavisor,mailpit' > "$RUNNER_TEMP/ag34d-private-startup.log" 2>&1; then
+            echo 'AG3.4D FAIL: scratch Supabase startup; sensitive logs withheld'
+            exit 1
+          fi
+      - name: Rebuild C2 signed-JWT source-aligned role baseline
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/kheltriva-ag34c2-ci"
+          python "$GITHUB_WORKSPACE/scripts/devbot/ag3_4c2_live_parent_policy_ci.py"
+      - name: Apply exact live finance read policies and exercise signed-JWT roles
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/kheltriva-ag34c2-ci"
+          python "$GITHUB_WORKSPACE/scripts/devbot/ag3_4d_finance_jwt_ci.py"
+      - name: Destroy test Supabase without backup
+        if: always()
+        shell: bash
+        run: |
+          ROOT="$RUNNER_TEMP/kheltriva-ag34c2-ci"
+          if [ -f "$ROOT/supabase/config.toml" ]; then
+            cd "$ROOT"
+            supabase stop --no-backup >/dev/null 2>&1 || true
+          fi
+          echo 'AG3.4D disposable teardown attempted'
