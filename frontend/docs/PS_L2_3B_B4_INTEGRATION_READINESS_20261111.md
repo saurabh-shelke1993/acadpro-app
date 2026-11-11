@@ -28,3 +28,7 @@ This is a **read-only assessment**, not B4 implementation. It reconciles B3.7Aâ€
 **Do not deploy or activate B4.** The next safe engineering step is a narrowly scoped disposable-only bootstrap and test plan built from B2.9 current-state helpers, **explicitly labeled nonhistorical**, subject to Owner approval of the reconstruction approach and source-security review. Until then B4 remains **blocked** and no live financial or subscription records are modified.
 
 Machine-readable non-executable [B4 readiness register](../../supabase/recovery/historical-baseline/b4_readiness_review_20261111.json) and fail-closed synthetic tests record this checkpoint.
+
+## Authorization does not change the NO-GO decision (11 November 2026)
+
+Limited B2.9 nonhistorical, disposable-only testing is Owner-authorized and PostgreSQL 17 synthetic RLS tests passed [CI run 42971178667](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42971178667). **B4 remains NO-GO**. Full unlinked Supabase Auth/RLS/Storage/finance replay, 35 runtime scenarios, historical SQL security disposition and 22 agreement reconciliations remain outstanding; no new subscription tables or renewal RPCs have been deployed.

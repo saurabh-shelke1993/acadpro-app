@@ -16,8 +16,12 @@ The Product Owner authorized using the 11 pinned **current-state** private autho
 
 ## Validation status
 
-**Implemented:** Dedicated GitHub Actions job, source policy assertions and focused offline guard tests. **CI results pending at initial commit**. The prior original B2.9 role/bootstrap tests are preserved and rerun by this workflow. Do not count synthetic policy tests as B3.6's 35 full Supabase runtime test scenarios.
+**Implemented and CI PASS:** Dedicated GitHub Actions job, source policy assertions and focused offline guard tests. [Run 42971178667](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42971178667) passed: 5 original source integrity tests, 6 new scope tests and the PostgreSQL 17 bootstrap/synthetic RLS assertions. The prior original B2.9 role/bootstrap tests are preserved and rerun by this workflow. Do not count synthetic policy tests as B3.6's 35 full Supabase runtime test scenarios.
 
 ## Production / B4 guard
 
 All 14 quarantined historical migrations, six source divergences, missing original helper creation provenance, 22 legacy agreements and financial reconciliation discrepancies remain held. No executable historical SQL assembly or B4 lifecycle integration is authorized.
+
+## Local validation preparation
+
+Windows read-only [B2.9-C2 preflight script](../../supabase/recovery/historical-baseline/b2_9_c2_local_preflight.ps1) inspects local tool availability and private archive **presence only**, without executing SQL or contacting the active Supabase project. See [local validation plan](PS_L2_3B_LOCAL_SUPABASE_PREPARATION_20261111.md). Local full Supabase Auth/Storage/replay is NOT RUN.

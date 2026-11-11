@@ -11,3 +11,7 @@ The original `private.current_parent_id` created at `20260908062059` uses email-
 The second option is the most practical *test strategy*, but is not evidence of authentic historical migration replay, and cannot be selected silently. Original-source review also still requires the six divergences, 14 quarantined data/DDL splits, 82-version security provenance and a full unlinked disposable Auth/RLS/finance/Storage baseline.
 
 **Status:** B3.7B first-use dependency investigation reviewed; reconstruction strategy and B3 replay NOT APPROVED. B4 integration cannot be certified. No production, canonical migrations or customer/financial data modified. [Non-executable structural record](../../supabase/recovery/historical-baseline/b3_7b_dependency_review_20261111.json).
+
+## Subsequent limited test authorization (11 November 2026)
+
+Owner selected **option 2 for disposable-only testing**, not as authentic historical provenance or a production baseline. B2.9 current-state fixtures may be used in isolated synthetic GitHub Actions and a future *unlinked* local Supabase test. The source/grant/chronology gaps, 14 quarantines and 6 divergences remain unapproved for executable full migration assembly. [Authorized test plan](PS_L2_3B_B2_9_DISPOSABLE_AUTHORIZATION_20261111.md).

@@ -58,3 +58,7 @@ Directly from live `pg_proc`, read-only:
 | Production migration or subscription billing | **Unchanged** |
 
 **Next proposed checkpoint:** B3.0 local Supabase replay readiness — inspect the real bootstrap point and existing test workflow; reconcile overlapping CI stubs, the initial schema mismatch and data-specific history **before** attempting an isolated Supabase replay. No production or applied-history changes.
+
+## Later Owner authorization (11 November 2026)
+
+The Product Owner authorized **test-only, nonhistorical** reuse of the verified 11 helper snapshot. A separate synthetic PostgreSQL 17 RLS workflow passed, with **5 baseline source tests, 6 new guard tests and actual synthetic policy checks**: [CI run 42971178667](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42971178667). It does not certify real Supabase JWTs, full Storage/financial parity or original migration replay. A Windows local read-only preflight is prepared but not yet run.

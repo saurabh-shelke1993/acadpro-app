@@ -8,6 +8,16 @@ Security and data isolation are prerequisites for production.
 # ✅ Completed
 
 
+## B2.9-C1/C2 — Owner-authorized disposable-only reconstruction (11 November 2026)
+
+**AUTHORIZED:** Current 11-function B2.9 snapshot as a nonhistorical disposable testing baseline (GitHub Actions first), and preparation of a local unlinked Supabase validation plan. **NOT authorized:** production project access changes, actual player/payment data, canonical migration edits, paid infrastructure or B4 activation.
+
+**IMPLEMENTED AND CI PASS:** Isolated PostgreSQL 17 workflow [42971178667](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42971178667): B2.9 source integrity **5/5**, new RLS test safeguards **6/6**, existing helper role assertions and newly constructed synthetic Super Admin/Owner/Coach/Parent/anonymous RLS isolation assertions all PASS.
+
+**LOCAL PREPARATION:** Read-only Windows PowerShell environment preflight added, plus [local Supabase validation preparation](PS_L2_3B_LOCAL_SUPABASE_PREPARATION_20261111.md). This checks Docker/CLI/archive presence only; it does not start containers or replay SQL. Full local Supabase Auth/RLS/Storage/finance 35-scenario validation remains NOT RUN.
+
+**HISTORICAL REPLAY AND B4:** Still blocked pending original helper provenance / approved scratch reconstruction, six source divergences, 14 quarantined SQL dispositions, all 22 legacy agreement approvals, financial anomaly reconciliation, and actual isolated Supabase security tests. Synthetic JWT via a GUC cannot certify real authentication.
+
 ## B4 subscription lifecycle integration — assessed NO-GO (11 November 2026)
 
 **READ-ONLY AUDIT:** 22 active legacy agreements (all open-ended), three academy mismatches, one linked to inactive player; 26 dues and 42 payments. Proposed PS-L2.3 period/policy/event tables and period due FK absent from active Supabase; no hosted branches, pg_cron or btree_gist. The 35 B3.6 real role/finance tests have not run. Missing original helper provenance and Owner reconciliation prevent B4 live integration. Fail-closed B4 readiness validator **6/6 PASS** ([run 42969566233](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42969566233)); assessment remains NO-GO. [B4 report](PS_L2_3B_B4_INTEGRATION_READINESS_20261111.md).
