@@ -38,6 +38,13 @@ class SecurityMismatch(Exception):
 def safe(args: list[str], *, marker: str | None = None) -> str:
     c = subprocess.run(args, capture_output=True, text=True, timeout=90, check=False)
     if c.returncode:
+        for known in ("AG3.4B live predicate checksum parity mismatch",
+                      "AG3.4B live predicate clone is inconsistent",
+                      "AG3.4B requires disposable AG3.3 baseline",
+                      "AG3.4B remediation target is not isolated fixture",
+                      "AG3.4B candidate policy count changed"):
+            if known in c.stderr:
+                raise SecurityMismatch(known)
         raise SecurityMismatch("Disposable SQL/Docker command failed")
     if marker and marker not in c.stdout:
         raise SecurityMismatch("SQL guard marker missing")
@@ -312,10 +319,11 @@ def main() -> int:
         print("AG3.4B PASS: live legacy predicate risk reproduced and candidate isolation verified",flush=True)
         return 0
     except (SecurityMismatch,ag2.Ag2Error,ag3.Ag3Failure,ag32.Ag32Failure,
-            ag33.Ag33Failure,OSError,subprocess.TimeoutExpired,KeyError,TypeError,ValueError):
+            ag33.Ag33Failure,OSError,subprocess.TimeoutExpired,KeyError,TypeError,ValueError) as exc:
         outcome.append((checkpoint,"FAIL"))
         report(outcome,False)
-        print("AG3.4B FAIL at "+checkpoint+"; sensitive diagnostics withheld",flush=True)
+        reason = str(exc) if isinstance(exc, SecurityMismatch) else "sensitive diagnostics withheld"
+        print("AG3.4B FAIL at "+checkpoint+"; "+reason,flush=True)
         return 1
 
 
