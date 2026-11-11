@@ -15,10 +15,16 @@ The Owner independently verified **B2.9-C3.3B** after helper installation in the
 5. Reinspect database to establish 1 local auth.users record, no public.users record, and 11 helpers / 2 batches unchanged. Print only safe PASS status and synthetic UUID.
 6. Stop; do not grant application table privileges, create policies, modify the canonical schema or replay historical SQL in C3.4A.
 
-**C3.4A status:** Planned, not implemented or tested. The Owner-run PowerShell check must fail closed on any unexpected local URL, environment, response or database state. No CLI status output or private tokens should be pasted into chat.
+**C3.4A status:** Owner preflight PASS (local API verified, publishable key available, confirmations disabled). Safe one-user Auth test script implemented; actual Auth signup NOT RUN. CI syntax and static safety checks are pending. The Owner-run PowerShell check must fail closed on any unexpected local URL, environment, response or database state. No CLI status output or private tokens should be pasted into chat.
 
 **C3.4B/C pending:** Link genuine Auth UUIDs to synthetic application roles, then separately validate real RLS positive/negative cross-tenant access using actual JWTs and explicitly reviewed scratch-only policies.
 
 **Not permitted:** Production SQL writes, hosted Auth changes, paid infrastructure, canonical migrations, 82-version historical replay, B4 billing. Storage/finance and the 35 B3.6 scenarios remain pending.
 
 Official reference: https://supabase.com/docs/guides/auth/testing-auth-flows
+
+## Single-account scripted smoke test
+
+The committed scratch-only script is `supabase/tests/subscriptions/b2_9_c34a_local_gotrue_smoke.ps1`. It requires the exact isolated working directory and container, confirms a pristine database, reads the local publishable key from CLI output without printing it, creates one random `@example.test` identity through native local GoTrue signup, validates bearer credentials through GET `/auth/v1/user`, and verifies 11 helpers / two batches / zero app users / one local Auth user. It outputs only a non-sensitive JSON summary. On any failed signup or postcheck, **stop rather than repeat**, as an account might already have been created.
+
+Do not print the CLI env output, signup response, Authorization headers or JWTs. Do not run via GitHub Actions, hosted Supabase, a linked database, or canonical migrations.

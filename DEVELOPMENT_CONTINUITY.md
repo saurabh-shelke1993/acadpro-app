@@ -8,6 +8,13 @@
 **Purpose:** Stable, handoff-friendly checkpoint between ChatGPT conversations. This document is NOT a substitute for inspecting live code, the current database, or current tests.
 
 
+## B2.9-C3.4A — Native local Supabase Auth preflight PASS (11 November 2026)
+
+**OWNER VERIFIED:** `local_api_verified=true`, `publishable_key_available=true`, `email_confirmations_disabled=true` in the isolated `kheltriva-b29-disposable` workspace, with Supabase CLI v3.0.0.
+
+**C3.4A SCRIPT IMPLEMENTED / CI PENDING / LOCAL SIGNUP NOT RUN:** Prepared a fail-closed one-user GoTrue signup + GET /auth/v1/user session check using only the real LOCAL service, with in-memory credentials and post-state guards. No app-table grants, RLS changes, historical replay or billing. [Checkpoint plan](frontend/docs/PS_L2_3B_B2_9_C3_4_LOCAL_AUTH_PLAN_20261111.md).
+
+**Next gate:** CI syntax/static checks, followed by Owner-only local run of the script. Real multi-tenant positive/negative RLS and Storage/finance tests remain pending.
 ## B2.9-C3.3B closed / C3.4A local Auth next (11 November 2026)
 
 **C3.3B LOCAL PASS:** Owner's separate-session SELECT returned 11|2|0|t|f|t, verifying persistence of 11 current-state helpers and intended private schema usage. Original historical helper provenance remains unresolved.

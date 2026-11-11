@@ -10,6 +10,8 @@ on:
       - 'supabase/recovery/historical-baseline/test_b2_9_c2_local_preflight_safety.py'
       - 'supabase/tests/subscriptions/test_b2_9_c3_native_schema_guard.py'
       - 'supabase/tests/subscriptions/test_b2_9_c33b_guard.py'
+      - 'supabase/tests/subscriptions/b2_9_c34a_local_gotrue_smoke.ps1'
+      - 'supabase/tests/subscriptions/test_b2_9_c34a_local_auth_safety.py'
       - '.github/workflows/subscriptions-ps-l2-3-b2-9-authorized-rls.yml'
   workflow_dispatch:
 
@@ -47,6 +49,14 @@ jobs:
           python -m unittest discover -s supabase/recovery/historical-baseline -p 'test_b2_9_c2_local_preflight_safety.py' -v
           python -m unittest discover -s supabase/tests/subscriptions -p 'test_b2_9_c3_native_schema_guard.py' -v
           python -m unittest discover -s supabase/tests/subscriptions -p 'test_b2_9_c33b_guard.py' -v
+          python -m unittest discover -s supabase/tests/subscriptions -p 'test_b2_9_c34a_local_auth_safety.py' -v
+      - name: Parse C3.4A PowerShell syntax without executing it
+        shell: pwsh
+        run: |
+          $tokens = $null
+          $parseErrors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile('supabase/tests/subscriptions/b2_9_c34a_local_gotrue_smoke.ps1', [ref]$tokens, [ref]$parseErrors) | Out-Null
+          if ($parseErrors.Count -ne 0) { throw 'C3.4A PowerShell syntax errors detected' }
       - name: Run synthetic B2.9 bootstrap, then isolated RLS checks
         env:
           PGPASSWORD: postgres
