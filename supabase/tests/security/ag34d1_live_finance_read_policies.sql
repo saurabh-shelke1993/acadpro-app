@@ -198,7 +198,9 @@ BEGIN
  ON p.tablename=desired.table_name AND p.policyname=desired.policy_name
  WHERE p.schemaname='public'
  AND md5(coalesce(p.qual,'')||chr(31)||coalesce(p.with_check,''))=desired.policy_md5;
- SELECT count(*) INTO nf FROM pg_proc fn JOIN (VALUES
+ SELECT count(*) INTO nf FROM pg_proc fn
+ JOIN pg_namespace nsp ON nsp.oid=fn.pronamespace AND nsp.nspname='private'
+ JOIN (VALUES
  ('private.is_parent_of_player(uuid)','dbab5d5bf4fb58c7990b7135e4cf8e9d'),
  ('private.is_parent_payment_due(uuid)','d4f7787396135c9fadaea1fb89036b33'),
  ('private.is_parent_payment_player(uuid)','a9e2986ca1e2fab5289a1c76ea4b44a1'),
