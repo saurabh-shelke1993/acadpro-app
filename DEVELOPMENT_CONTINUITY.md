@@ -8,18 +8,26 @@
 **Purpose:** Stable, handoff-friendly checkpoint between ChatGPT conversations. This document is NOT a substitute for inspecting live code, the current database, or current tests.
 
 
+## B2.9-C3.4A verified / C3.4B planned — 11 November 2026
+
+**C3.4A OWNER-TESTED PASS:** One invented account was created through the real isolated GoTrue Auth API, and a bearer session verified using `GET /auth/v1/user`. Output: `local_auth_users=1`, `app_users=0`, `current_state_helpers=11`, `synthetic_batches=2`; no historical replay or hosted modifications.
+
+**C3.4B PLANNED / NOT IMPLEMENTED:** Create new synthetic, real local GoTrue accounts for role-based tests; bind their actual UUIDs to minimal synthetic `public.users` and coach/batch mappings **only after review**. The first smoke account's randomly generated password was deliberately not retained, so it is not a reusable test login. See [C3.4B design](frontend/docs/PS_L2_3B_B2_9_C3_4B_ROLE_IDENTITY_PLAN_20261111.md).
+
+**PENDING / NOT AUTHORIZED:** Actual JWT-based cross-tenant RLS, Storage, finance/35 scenarios, 82 historical migrations and B4 production integration.
+
 ## B2.9-C3.4A — Native local Supabase Auth preflight PASS (11 November 2026)
 
 **OWNER VERIFIED:** `local_api_verified=true`, `publishable_key_available=true`, `email_confirmations_disabled=true` in the isolated `kheltriva-b29-disposable` workspace, with Supabase CLI v3.0.0.
 
-**C3.4A SCRIPT IMPLEMENTED / CI PASS / OWNER RUN PENDING:** [Run 42983842960](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42983842960) passed **32/32 static Python safeguards**, PowerShell syntax parsing, and existing disposable PostgreSQL tests. No actual GoTrue Auth signup was run by CI.  Prepared a fail-closed one-user GoTrue signup + GET /auth/v1/user session check using only the real LOCAL service, with in-memory credentials and post-state guards. No app-table grants, RLS changes, historical replay or billing. [Checkpoint plan](frontend/docs/PS_L2_3B_B2_9_C3_4_LOCAL_AUTH_PLAN_20261111.md).
+**C3.4A HISTORICAL PRE-EXECUTION STATUS (NOW OWNER-TESTED PASS):** [Run 42983842960](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42983842960) passed **32/32 static Python safeguards**, PowerShell syntax parsing, and existing disposable PostgreSQL tests. No actual GoTrue Auth signup was run by CI.  Prepared a fail-closed one-user GoTrue signup + GET /auth/v1/user session check using only the real LOCAL service, with in-memory credentials and post-state guards. No app-table grants, RLS changes, historical replay or billing. [Checkpoint plan](frontend/docs/PS_L2_3B_B2_9_C3_4_LOCAL_AUTH_PLAN_20261111.md).
 
 **Next gate:** CI syntax/static checks, followed by Owner-only local run of the script. Real multi-tenant positive/negative RLS and Storage/finance tests remain pending.
 ## B2.9-C3.3B closed / C3.4A local Auth next (11 November 2026)
 
 **C3.3B LOCAL PASS:** Owner's separate-session SELECT returned 11|2|0|t|f|t, verifying persistence of 11 current-state helpers and intended private schema usage. Original historical helper provenance remains unresolved.
 
-**C3.4A PLANNED, NOT RUN:** Create a single invented account through the **real local Supabase Auth API**, then verify its actual bearer session without printing tokens. No real tenant data or production changes. [C3.4A plan](frontend/docs/PS_L2_3B_B2_9_C3_4_LOCAL_AUTH_PLAN_20261111.md).
+**C3.4A HISTORICAL PLAN (NOW OWNER-TESTED PASS):** Create a single invented account through the **real local Supabase Auth API**, then verify its actual bearer session without printing tokens. No real tenant data or production changes. [C3.4A plan](frontend/docs/PS_L2_3B_B2_9_C3_4_LOCAL_AUTH_PLAN_20261111.md).
 
 **STILL BLOCKED:** Real app role/RLS positive-negative tests, Storage, finance, full B3 historical replay, B4 deployment.
 ## B2.9-C3.3B pinned helpers local installation (11 November 2026)

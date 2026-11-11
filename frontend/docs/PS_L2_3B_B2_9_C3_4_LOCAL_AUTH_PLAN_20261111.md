@@ -15,7 +15,7 @@ The Owner independently verified **B2.9-C3.3B** after helper installation in the
 5. Reinspect database to establish 1 local auth.users record, no public.users record, and 11 helpers / 2 batches unchanged. Print only safe PASS status and synthetic UUID.
 6. Stop; do not grant application table privileges, create policies, modify the canonical schema or replay historical SQL in C3.4A.
 
-**C3.4A status:** Owner preflight PASS (local API verified, publishable key available, confirmations disabled); safe one-user Auth test script committed and [CI run 42983842960](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42983842960) PASS: 32/32 Python tests, PowerShell parser syntax, prior isolated SQL checks. **Actual real local Auth signup is NOT RUN** until the Owner executes the script and supplies its sanitized output. The Owner-run PowerShell check must fail closed on any unexpected local URL, environment, response or database state. No CLI status output or private tokens should be pasted into chat.
+**C3.4A status: OWNER-TESTED PASS / COMPLETE.** After preflight and 32/32 CI static checks, the Owner executed the one-user script from the isolated local workspace. Its sanitized result reported `result=PASS`, `auth_issued_session_verified=true`, `local_auth_users=1`, `app_users=0`, `current_state_helpers=11`, `synthetic_batches=2`, `historical_replay_performed=false`, `production_modified=false`. This demonstrates real local GoTrue session issuance/verification, **not** role-based or cross-tenant RLS behavior. The Owner-run PowerShell check must fail closed on any unexpected local URL, environment, response or database state. No CLI status output or private tokens should be pasted into chat.
 
 **C3.4B/C pending:** Link genuine Auth UUIDs to synthetic application roles, then separately validate real RLS positive/negative cross-tenant access using actual JWTs and explicitly reviewed scratch-only policies.
 
@@ -28,3 +28,9 @@ Official reference: https://supabase.com/docs/guides/auth/testing-auth-flows
 The committed scratch-only script is `supabase/tests/subscriptions/b2_9_c34a_local_gotrue_smoke.ps1`. It requires the exact isolated working directory and container, confirms a pristine database, reads the local publishable key from CLI output without printing it, creates one random `@example.test` identity through native local GoTrue signup, validates bearer credentials through GET `/auth/v1/user`, and verifies 11 helpers / two batches / zero app users / one local Auth user. It outputs only a non-sensitive JSON summary. On any failed signup or postcheck, **stop rather than repeat**, as an account might already have been created.
 
 Do not print the CLI env output, signup response, Authorization headers or JWTs. Do not run via GitHub Actions, hosted Supabase, a linked database, or canonical migrations.
+
+## Final local outcome and continuation
+
+**Observed locally:** One synthetic GoTrue Auth user was created and successfully validated via the Auth `/user` endpoint; the initial generated password/access token were intentionally not persisted or displayed. The account remains **unmapped** to application `public.users` and cannot be reused for password-based testing without separately reestablishing credentials. **No additional SQL or RLS policies have been executed.**
+
+Next: [B2.9-C3.4B planned test design](PS_L2_3B_B2_9_C3_4B_ROLE_IDENTITY_PLAN_20261111.md).
