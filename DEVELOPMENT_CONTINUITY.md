@@ -1,8 +1,16 @@
 # Kheltriva — Development Continuity
 
+## AG3.1 — real JWT-backed owner batch isolation CI PASS (11 November 2026)
+
+**IMPLEMENTED / REAL POSTGREST CI PASS / OWNER REVIEW PENDING:** [Run 43027355787](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43027355787) passed nine AG3 pure safety checks and a full real native Supabase Auth / PostgREST sequence. Both owners' real Auth-issued bearer JWTs can read their own synthetic academy's batch; direct cross-academy ID requests return zero rows. A real signed-in unmapped identity sees zero rows; anonymous and forged bearer tokens receive denial, fake tenant/user HTTP headers do not change scope, and ungranted INSERT/UPDATE/DELETE return rejection. Final SQL confirmed 3 native Auth, 2 app owners, 2 batches, 11 unmodified helpers and the single **scratch-only** scoped SELECT policy. [AG3.1 test design](frontend/docs/KHELTRIVA_DEVBOT_AG3.md).
+
+**LIMIT:** The policy created and tested by AG3.1 is **synthetic nonhistorical**, not the authentic full production RLS policy set. Coach, Parent and Super Admin roles, Coach assignments, real player/financial scopes, Storage, the protected 82-version historical replay and B4 remain **PENDING**. The Windows C3.4B2 local database remains untouched and unverified.
+
+**APPROVED AG2:** PR #4 was merged into `payment-module-finalization` at `97b7d267`; [post-merge native CI run 43023539387](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43023539387) PASS. AG3 is isolated in its own feature branch; `main` and Vercel unchanged.
+
 ## Kheltriva DevBot AG2 — real Supabase Auth CI PASS (11 November 2026)
 
-**IMPLEMENTED + REAL CI TESTED / PR MERGE PENDING:** [GitHub Actions 43022481533](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43022481533) successfully started a fresh CI-only, unlinked Supabase CLI v3.0.0 stack. Seven pure safety tests passed. Native GoTrue rejected a malformed JWT, issued and verified real bearer sessions for one unmapped smoke account and Academy Owners A/B, and exact existing synthetic SQL mapped both owner UUIDs. Fresh SQL checked **3 native Auth users, 2 scoped app users, 2 batches, 11 helper functions**, and RLS/client grant invariants.
+**AG2 IMPLEMENTED / REAL CI TESTED / PR #4 MERGED:** [GitHub Actions 43022481533](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43022481533) successfully started a fresh CI-only, unlinked Supabase CLI v3.0.0 stack. Seven pure safety tests passed. Native GoTrue rejected a malformed JWT, issued and verified real bearer sessions for one unmapped smoke account and Academy Owners A/B, and exact existing synthetic SQL mapped both owner UUIDs. Fresh SQL checked **3 native Auth users, 2 scoped app users, 2 batches, 11 helper functions**, and RLS/client grant invariants.
 
 **IMPORTANT SCOPE:** AG2 tested native Auth and FK mappings, **not actual positive/negative cross-tenant PostgREST RLS** (AG3). The original Windows C3.4B2 local database is untouched and still awaiting its separate read-only check. The protected historical replay, Storage/finance and B4 release remain **NO-GO**. [AG2 test design](frontend/docs/KHELTRIVA_DEVBOT_AG2.md).
 

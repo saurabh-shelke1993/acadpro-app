@@ -1,0 +1,95 @@
+name: Kheltriva DevBot AG3 - JWT cross-academy RLS
+
+on:
+  push:
+    branches: [devbot-ag3-real-jwt-rls, payment-module-finalization]
+    paths:
+      - '.github/workflows/devbot-ag3-real-jwt-rls.yml'
+      - 'scripts/devbot/ag3_real_jwt_rls_ci.py'
+      - 'scripts/devbot/test_ag3_real_jwt_rls_ci.py'
+      - 'supabase/tests/subscriptions/ps_l2_3_b2_9_ag3_owner_batch_rls.sql'
+      - 'scripts/devbot/ag2_real_auth_ci.py'
+      - 'supabase/tests/subscriptions/ps_l2_3_b2_9_c3_native_schema.sql'
+      - 'supabase/tests/subscriptions/ps_l2_3_b2_9_live_helper_snapshot.sql'
+      - 'supabase/tests/subscriptions/ps_l2_3_b2_9_c34b1_owner_a_mapping.sql'
+      - 'supabase/tests/subscriptions/ps_l2_3_b2_9_c34b2_owner_b_mapping.sql'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kheltriva-ag3-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  signed-jwt-tenant-isolation:
+    name: AG3.1 real JWT Academy Owner cross-tenant RLS
+    if: github.repository == 'saurabh-shelke1993/acadpro-app'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout source without persisted credentials
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate AG3 harness and synthetic RLS restrictions
+        run: python -m unittest discover -s scripts/devbot -p 'test_ag3_real_jwt_rls_ci.py' -v
+      - name: Install pinned Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: 3.0.0
+      - name: Initialize isolated unlinked AG3 Supabase
+        shell: bash
+        run: |
+          set -euo pipefail
+          AG3_DIR="$RUNNER_TEMP/kheltriva-ag3-ci"
+          test -z "${SUPABASE_ACCESS_TOKEN:-}"
+          test -z "${SUPABASE_DB_URL:-}"
+          test ! -e "$AG3_DIR"
+          mkdir -p "$AG3_DIR"
+          cd "$AG3_DIR"
+          supabase init --yes > /dev/null 2>&1
+          python - <<'PY'
+          from pathlib import Path
+          import tomllib
+          config = Path('supabase/config.toml')
+          data = tomllib.loads(config.read_text())
+          assert data['project_id'] == 'kheltriva-ag3-ci'
+          assert data['auth']['email']['enable_confirmations'] is False
+          assert not Path('supabase/migrations').exists()
+          assert not Path('supabase/.temp/project-ref').exists()
+          PY
+          echo 'AG3 PASS: fresh unlinked project, no historical migration files.'
+      - name: Start real local Auth, PostgREST, Kong and PostgreSQL
+        shell: bash
+        run: |
+          set -euo pipefail
+          AG3_DIR="$RUNNER_TEMP/kheltriva-ag3-ci"
+          cd "$AG3_DIR"
+          if ! supabase start -x 'realtime,storage-api,studio,postgres-meta,edge-runtime,imgproxy,logflare,vector,supavisor,mailpit' > "$RUNNER_TEMP/ag3-startup-private.log" 2>&1; then
+            echo 'AG3 FAIL: disposable Supabase stack failed to start; raw secrets withheld.'
+            exit 1
+          fi
+          echo 'AG3 PASS: GoTrue, PostgREST, Kong and PostgreSQL available.'
+      - name: Run real signed-JWT scoped reads and unauthorized write tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          AG3_DIR="$RUNNER_TEMP/kheltriva-ag3-ci"
+          cd "$AG3_DIR"
+          python "$GITHUB_WORKSPACE/scripts/devbot/ag3_real_jwt_rls_ci.py"
+      - name: Stop disposable AG3 Supabase without backup
+        if: always()
+        shell: bash
+        run: |
+          AG3_DIR="$RUNNER_TEMP/kheltriva-ag3-ci"
+          if [ -f "$AG3_DIR/supabase/config.toml" ]; then
+            cd "$AG3_DIR"
+            supabase stop --no-backup > /dev/null 2>&1 || true
+          fi
+          echo 'AG3 cleanup attempted; GitHub runner ephemeral.'
