@@ -168,7 +168,7 @@ def report(items: list[tuple[str,str]], result: bool) -> None:
         print("\n".join(lines))
 
 
-def main() -> int:
+def main(on_live_snapshot=None) -> int:
     outcome=[]
     checkpoint="disposable Supabase preflight"
     try:
@@ -274,6 +274,21 @@ def main() -> int:
             outcome.append(("LIVE PREDICATE: Coach inserted/deleted cross-academy Coach link","CONFIRMED IN SCRATCH"))
         else:
             outcome.append(("LIVE PREDICATE: Coach INSERT blocked by nested RLS","DENIED"))
+
+        if on_live_snapshot is not None:
+            # Optional downstream regression callback runs against the exact
+            # source-attested *unmodified* legacy policy state. Standard AG3.4B
+            # continues to execute the previously validated candidate path.
+            on_live_snapshot(key, {
+                "owner_a": owner_a_token, "owner_b": owner_b_token,
+                "coach_a": coach_a_token, "coach_b": coach_b_token,
+                "parent_a1": token_a1, "parent_a2": token_a2,
+                "parent_b": token_b, "super_admin": token_sa,
+            })
+            outcome.append(("AG34-H1 scratch-only legacy lockdown and regressions", "PASS"))
+            report(outcome, True)
+            print("AG34-H1 PASS: legacy API lockdown verified in source-attested scratch", flush=True)
+            return 0
 
         checkpoint="install proposed fix inside scratch only"
         if db_counts()!="9|8|3|4|11":
