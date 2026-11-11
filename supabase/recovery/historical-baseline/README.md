@@ -226,3 +226,22 @@ The importer checks **82 migration-wide original source fingerprints** and **all
 The 14 source-sensitive DML/procedural cases are in b3_4_data_procedural_quarantine_review_20261111.json, all PENDING. Detailed owner instructions: frontend/docs/PS_L2_3B_B3_4_PRIVATE_ARCHIVE_ACQUISITION_20261111.md.
 
 **B3.4 synthetic CI PASS does not mean the real SQL is archived.** The owner must execute the CSV export/import locally. The protected archive is needed before continuing actual full migration replay.
+
+
+## B3.4 recovery note — Windows CRLF source-hash false mismatch (11 November 2026)
+
+A Windows local owner import stopped during post-export analysis at original version 20260920041653. Original Git LF content was reverified to match the pinned remote SQL hash after one trailing LF removal; a Windows CRLF working copy can fail the previous strict local-binary check.
+
+B3.1 now accepts CRLF line-endings **only when CRLF-to-LF normalization produces the exact pinned source hash**. Mixed line endings and real SQL content changes still fail. [B3.1 CI 42954533764](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42954533764) **PASS — 12 tests**.
+
+The earlier B3.4 run can have already written its private original archive before the post-archive check failed. A new --finalize-existing mode checks the existing archive's original hashes and creates only a sanitized final attestation; no SQL export, deletion, overwriting or database access. [B3.4 CI 42954795483](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42954795483) **PASS — 15 tests**. The owner still needs to execute the local finalization; actual archive verification status PENDING.
+
+From repository root after pulling the branch:
+
+    $private = "supabase\recovery\historical-baseline\.recovery-private"
+    Test-Path "$private\baseline-b3-4-001\manifest.json"
+    python supabase/recovery/historical-baseline/b3_4_import_dashboard_csv.py --root . --finalize-existing --output "$private\baseline-b3-4-001"
+
+Run the finalization command **only if Test-Path returns True**; otherwise inspect filenames without deleting any private source files. Detailed B3.4 development report is in frontend/docs/PS_L2_3B_B3_4_PRIVATE_ARCHIVE_ACQUISITION_20261111.md.
+
+**Still blocked:** full disposable Supabase replay, historical DML quarantine approval, Auth/RLS/finance parity, and PS-L2.3 subscription deployment. Hosted database, canonical migrations and credentials unchanged.
