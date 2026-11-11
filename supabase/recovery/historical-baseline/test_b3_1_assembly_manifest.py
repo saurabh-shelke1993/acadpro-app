@@ -6,7 +6,7 @@ import shutil
 import tempfile
 import unittest
 
-from b3_1_assembly_manifest import assemble, PARITY, REVIEW, RISKS, HELPERS
+from b3_1_assembly_manifest import assemble, check_local_source, PARITY, REVIEW, RISKS, HELPERS
 
 ROOT = Path(__file__).resolve().parents[3]
 
@@ -88,6 +88,54 @@ class B31AssemblyTests(unittest.TestCase):
                 handle.write(b"\n-- unaudited change\n")
             with self.assertRaisesRegex(ValueError, "Tracked SQL changed"):
                 assemble(tmp)
+
+    def test_windows_crlf_checkout_preserves_all_strict_source_hashes(self):
+        """A Windows Git checkout changes line endings, not historical SQL."""
+        with self.source_clone() as tmp:
+            sql_dir = tmp / "supabase/migrations"
+            count_converted = 0
+            for sql_file in sql_dir.glob("*.sql"):
+                raw = sql_file.read_bytes()
+                normalized = raw.replace(b"\r\n", b"\n")
+                if b"\n" in normalized:
+                    sql_file.write_bytes(normalized.replace(b"\n", b"\r\n"))
+                    count_converted += 1
+            self.assertGreater(count_converted, 0)
+            result = assemble(tmp)
+            linked = [r for r in result["ordered_original_migrations"] if r["linked_local_sources"]]
+            self.assertEqual(len(linked), 25)
+            self.assertTrue(any(
+                link["working_copy_line_endings"] == "CRLF-checkout-normalized"
+                for row in linked for link in row["linked_local_sources"]
+            ))
+            self.assertFalse(result["ready_for_disposable_full_replay"])
+
+    def test_windows_crlf_with_actual_sql_change_still_refused(self):
+        with self.source_clone() as tmp:
+            p = tmp / "supabase/migrations/20260920041653_enforce_single_player_batch_mapping.sql"
+            raw = p.read_bytes().replace(b"\r\n", b"\n")
+            self.assertIn(b"player_batches", raw)
+            p.write_bytes(raw.replace(b"player_batches", b"foreign_batches", 1)
+                          .replace(b"\n", b"\r\n"))
+            pinned = json.loads((tmp / PARITY).read_text(encoding="utf-8"))
+            migration = next(
+                row for row in pinned["remote_rows"] if row["remote_version"] == "20260920041653"
+            )
+            with self.assertRaisesRegex(ValueError, "Tracked SQL changed"):
+                check_local_source(tmp, migration)
+
+    def test_mixed_windows_line_endings_rejected(self):
+        with self.source_clone() as tmp:
+            p = tmp / "supabase/migrations/20260920041653_enforce_single_player_batch_mapping.sql"
+            raw = p.read_bytes().replace(b"\r\n", b"\n")
+            self.assertGreaterEqual(raw.count(b"\n"), 2)
+            p.write_bytes(raw.replace(b"\n", b"\r\n", 1))
+            pinned = json.loads((tmp / PARITY).read_text(encoding="utf-8"))
+            migration = next(
+                row for row in pinned["remote_rows"] if row["remote_version"] == "20260920041653"
+            )
+            with self.assertRaisesRegex(ValueError, "Mixed LF and CRLF"):
+                check_local_source(tmp, migration)
 
     def test_pretending_current_snapshot_historical_is_rejected(self):
         with self.source_clone() as tmp:
