@@ -14,6 +14,8 @@
 
 **IMPLEMENTED AND CI PASS:** Isolated PostgreSQL 17 workflow [42971178667](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42971178667): B2.9 source integrity **5/5**, new RLS test safeguards **6/6**, existing helper role assertions and newly constructed synthetic Super Admin/Owner/Coach/Parent/anonymous RLS isolation assertions all PASS.
 
+**C2 OFFLINE VALIDATION:** Read-only PowerShell preflight static safeguards **4/4 PASS** in [GitHub Actions 42971621790](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42971621790). Across B2.9 baseline, extended RLS and preflight checks **15/15 Python tests passed**; isolated PostgreSQL synthetic SQL checks also PASS. Full local Supabase test remains NOT RUN.
+
 **LOCAL PREPARATION:** Read-only Windows PowerShell environment preflight added, plus [local Supabase validation preparation](frontend/docs/PS_L2_3B_LOCAL_SUPABASE_PREPARATION_20261111.md). This checks Docker/CLI/archive presence only; it does not start containers or replay SQL. Full local Supabase Auth/RLS/Storage/finance 35-scenario validation remains NOT RUN.
 
 **HISTORICAL REPLAY AND B4:** Still blocked pending original helper provenance / approved scratch reconstruction, six source divergences, 14 quarantined SQL dispositions, all 22 legacy agreement approvals, financial anomaly reconciliation, and actual isolated Supabase security tests. Synthetic JWT via a GUC cannot certify real authentication.

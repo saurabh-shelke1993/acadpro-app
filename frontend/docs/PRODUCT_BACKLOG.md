@@ -1,6 +1,6 @@
 # AcadPro Product Backlog
 
-**Last Updated:** 11 November 2026 (B3.5C technical triage and replay-denial register, manual security gate pending)
+**Last Updated:** 11 November 2026 (B2.9-C1/C2 authorized disposable validation; local full replay pending)
 **Current Branch:** `payment-module-finalization`
 
 Security and data isolation are prerequisites for production.
@@ -13,6 +13,8 @@ Security and data isolation are prerequisites for production.
 **AUTHORIZED:** Current 11-function B2.9 snapshot as a nonhistorical disposable testing baseline (GitHub Actions first), and preparation of a local unlinked Supabase validation plan. **NOT authorized:** production project access changes, actual player/payment data, canonical migration edits, paid infrastructure or B4 activation.
 
 **IMPLEMENTED AND CI PASS:** Isolated PostgreSQL 17 workflow [42971178667](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42971178667): B2.9 source integrity **5/5**, new RLS test safeguards **6/6**, existing helper role assertions and newly constructed synthetic Super Admin/Owner/Coach/Parent/anonymous RLS isolation assertions all PASS.
+
+**C2 OFFLINE VALIDATION:** Read-only PowerShell preflight static safeguards **4/4 PASS** in [GitHub Actions 42971621790](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42971621790). Across B2.9 baseline, extended RLS and preflight checks **15/15 Python tests passed**; isolated PostgreSQL synthetic SQL checks also PASS. Full local Supabase test remains NOT RUN.
 
 **LOCAL PREPARATION:** Read-only Windows PowerShell environment preflight added, plus [local Supabase validation preparation](PS_L2_3B_LOCAL_SUPABASE_PREPARATION_20261111.md). This checks Docker/CLI/archive presence only; it does not start containers or replay SQL. Full local Supabase Auth/RLS/Storage/finance 35-scenario validation remains NOT RUN.
 

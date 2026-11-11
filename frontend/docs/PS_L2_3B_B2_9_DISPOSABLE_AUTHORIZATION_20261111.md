@@ -25,3 +25,7 @@ All 14 quarantined historical migrations, six source divergences, missing origin
 ## Local validation preparation
 
 Windows read-only [B2.9-C2 preflight script](../../supabase/recovery/historical-baseline/b2_9_c2_local_preflight.ps1) inspects local tool availability and private archive **presence only**, without executing SQL or contacting the active Supabase project. See [local validation plan](PS_L2_3B_LOCAL_SUPABASE_PREPARATION_20261111.md). Local full Supabase Auth/Storage/replay is NOT RUN.
+
+## Updated CI and preflight checkpoint
+
+[CI 42971621790](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42971621790) **PASS** at source commit `e10bc5e`: original helper source guards **5/5**, added RLS guards **6/6**, Windows preflight static guards **4/4**, plus the disposable PostgreSQL 17 SQL role/RLS assertions. This does not establish real Supabase authentication or authorize historical replay.

@@ -22,3 +22,13 @@
 Full local Supabase validation is **prepared, not run**. It cannot be claimed complete without the protected archive, an approved scratch-only reconstruction, and a functioning Docker/Supabase CLI environment. Stop if the proposed test would touch the live `ulyealhkmlorsbdiknrh` project or require paid infrastructure. Owner acceptance of results is a later separate gate.
 
 Reference: [Supabase local development workflow](https://supabase.com/docs/guides/local-development/cli-workflows).
+
+## Local preflight command (not yet executed on Owner laptop)
+
+From the local checkout of `payment-module-finalization`, after inspecting `git status` and pulling with `git pull --ff-only origin payment-module-finalization`, run:
+
+```powershell
+.\supabase\recovery\historical-baseline\b2_9_c2_local_preflight.ps1 -RepoRoot .
+```
+
+This only checks presence/version metadata, branch and Docker readiness; it intentionally reports `runnable_history_approved = false`, `full_supabase_replay_completed = false`, and `production_changes_authorized = false`. Do **not** paste any private SQL, customer data or credentials into chat. The code's static safety tests passed [CI 42971621790](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42971621790). The user's local environment remains unverified.
