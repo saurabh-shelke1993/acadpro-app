@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "project": "Kheltriva / AcadPro",
+  "phase": "AG3.4E",
+  "inspected_on": "2026-11-11",
+  "target_branch": "payment-module-finalization",
+  "production_branch": "main",
+  "product_owner_instruction": "Standing approval to merge AG3.4 feature PRs into development branch after successful checks. Does not authorize hosted Supabase policy deployment or production release.",
+  "last_verified_phase_evidence": [
+    {
+      "phase": "AG3.4A",
+      "state": "inspected_merged",
+      "mode": "live_catalog_read_only",
+      "url": "https://github.com/saurabh-shelke1993/acadpro-app/pull/8"
+    },
+    {
+      "phase": "AG3.4B",
+      "state": "tested_merged",
+      "mode": "deployed_source_predicates_disposable_real_jwt",
+      "url": "https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43046427442"
+    },
+    {
+      "phase": "AG3.4C1",
+      "state": "tested_merged",
+      "mode": "offline_source_fingerprints",
+      "url": "https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43051827250"
+    },
+    {
+      "phase": "AG3.4C2",
+      "state": "tested_merged",
+      "mode": "six_deployed_select_predicates_real_jwt",
+      "url": "https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43053546673"
+    },
+    {
+      "phase": "AG3.4D1",
+      "state": "implementation_testing",
+      "mode": "nine_deployed_finance_read_predicates_real_jwt",
+      "url": "https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43054776383"
+    },
+    {
+      "phase": "AG3.4D2",
+      "state": "source_inventory_only",
+      "mode": "14_public_definer_rpc_16_storage_policy_fingerprints",
+      "url": "https://github.com/saurabh-shelke1993/acadpro-app"
+    }
+  ],
+  "production_release_requirements": {
+    "coach_mapping_production_policy_remediation_verified": false,
+    "production_authorization_policy_parity_full": false,
+    "all_14_authenticated_rpc_negative_jwt_mutation_invariant_tests": false,
+    "all_16_storage_policy_object_level_auth_tests": false,
+    "82_migration_version_source_provenance_resolved": false,
+    "B3_disposable_historical_replay_verified": false,
+    "B4_billing_release_acceptance": false,
+    "parent_owner_coach_super_admin_browser_manual_regression": false,
+    "windows_C3_4B2_persistence_check": false,
+    "production_deployment_and_rollback_plan_approved": false,
+    "explicit_product_owner_production_release_approval": false
+  },
+  "blocking_findings": [
+    {
+      "id": "AG34-HIGH-001",
+      "severity": "HIGH",
+      "status": "open",
+      "subject": "Legacy public.coach_batches authenticated same-academy mapping RLS allows unexpected Parent/Coach writes in exact-source scratch replay",
+      "mitigation": "Role-gated policy candidate tested in scratch; NO canonical migration or production deployment."
+    },
+    {
+      "id": "AG34-GATE-002",
+      "severity": "RELEASE_BLOCKER",
+      "status": "open",
+      "subject": "14 authenticated public SECURITY DEFINER RPCs need signed-JWT negative mutation and atomicity checks",
+      "mitigation": "Read-only source fingerprints and checks; no complete RPC data-plane suite."
+    },
+    {
+      "id": "AG34-GATE-003",
+      "severity": "RELEASE_BLOCKER",
+      "status": "open",
+      "subject": "16 Storage policies need real JWT object data-plane read/write tests",
+      "mitigation": "Bucket visibility and policy fingerprints inventoried; no object API regression."
+    },
+    {
+      "id": "AG34-GATE-004",
+      "severity": "RELEASE_BLOCKER",
+      "status": "open",
+      "subject": "Historical database provenance gap: 82 applied versions versus 40 local SQL files, 23 exact version-prefix matches",
+      "mitigation": "No ledger editing or reconstruction/replay without approved original source provenance."
+    },
+    {
+      "id": "AG34-GATE-005",
+      "severity": "RELEASE_BLOCKER",
+      "status": "open",
+      "subject": "Multi-role browser/manual tests, Windows Auth persistence, and B4 billing acceptance still outstanding",
+      "mitigation": "Owner-driven manual QA and separate B3/B4 gates required."
+    }
+  ],
+  "production_decision": "NO_GO",
+  "dev_pr_merge_status": "Allowed if PR-specific checks succeed; unrelated to production deployment",
+  "source_limits": "This is a release decision ledger and automated fail-closed blocker check, NOT evidence of complete AG3.4D RPC/Storage runtime tests, production migration or manual QA."
+}
