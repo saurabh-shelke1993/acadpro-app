@@ -8,6 +8,13 @@
 **Purpose:** Stable, handoff-friendly checkpoint between ChatGPT conversations. This document is NOT a substitute for inspecting live code, the current database, or current tests.
 
 
+## Latest checkpoint — B3.4 verified private original SQL archive (owner run 11 November 2026)
+
+- After successful `git pull` to `bce6a65`, the owner confirmed `baseline-b3-4-001/manifest.json` exists and executed `python supabase/recovery/historical-baseline/b3_4_import_dashboard_csv.py --root . --finalize-existing --output "$private\baseline-b3-4-001"`.
+- **Actual local outcome (owner-provided terminal output):** `migration_versions=82`, `original_statement_elements=168`, `source_hashes_verified_before_archive=true`, `ready_for_disposable_replay=false`. This is **a locally attested private archive**, not raw SQL available to GitHub or ChatGPT. The importer retains original SQL under Git-ignored `.recovery-private`; no production migration execution occurred.
+- **B3.4 private export and integrity gate: owner-tested PASS.** B3.1 Windows EOL normalization and B3.4 resume tests passed in CI (12 and 15 focused tests respectively). The first failed post-archive attempt was resolved without deleting or overwriting original source SQL.
+- **Next B3.5:** Review the 14 historical DML/procedural quarantine cases and original security/RLS/privilege semantics using protected local source; prepare safe disposable-only decisions. B3 complete Supabase Auth/RLS/finance replay, B4 subscription lifecycle proposal, and production deployment remain **BLOCKED**. No known production schema, financial or credential changes.
+
 ## B3.4 recovery note — Windows CRLF source-hash false mismatch (11 November 2026)
 
 A Windows local owner import stopped during post-export analysis at original version 20260920041653. Original Git LF content was reverified to match the pinned remote SQL hash after one trailing LF removal; a Windows CRLF working copy can fail the previous strict local-binary check.
