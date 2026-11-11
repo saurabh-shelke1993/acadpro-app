@@ -5,6 +5,12 @@
 **Current Git Branch:** `payment-module-finalization`
 
 
+## PS-L2.3B B3.4 local archive attestation — owner validation PASS (11 November 2026)
+
+**Owner-executed and output-confirmed:** After the Windows CRLF checkout verifier repair, the owner ran the password-free local B3.4 `--finalize-existing` command on `supabase/recovery/historical-baseline/.recovery-private/baseline-b3-4-001`. Their PowerShell output reported **82 migration versions, 168 original SQL array elements, `source_hashes_verified_before_archive=true`, and `ready_for_disposable_replay=false`**. The existing archive manifest was present. Finalization's code path re-attests the complete B2.7 source archive and all 168 B3.3 element hashes without applying SQL. This is **user-supplied local verification output**; GitHub and connected Supabase cannot directly inspect the private local archive.
+
+**State change:** B3.4 actual local archival verification **PASSED** (as reported), replacing the earlier *archive pending* status. Historical record-specific operations (14 reviewed/quarantined candidates), helper provenance, source security approval, full disposable Supabase Auth/RLS/finance replay, and B4 subscriptions remain **PENDING/BLOCKED**. No production database, credentials, canonical migrations or customer payment records changed.
+
 ## B3.4 recovery note — Windows CRLF source-hash false mismatch (11 November 2026)
 
 A Windows local owner import stopped during post-export analysis at original version 20260920041653. Original Git LF content was reverified to match the pinned remote SQL hash after one trailing LF removal; a Windows CRLF working copy can fail the previous strict local-binary check.
