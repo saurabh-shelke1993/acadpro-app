@@ -1,6 +1,6 @@
 # AG34-HIGH-001 — Legacy `coach_batches` direct-access lockdown
 
-**11 November 2026. Status: staged SQL + isolated native JWT regression; NOT deployed.**
+**11 November 2026. Status: staged SQL + isolated native JWT regression PASS; NOT deployed.**
 
 ## Scope and decision
 
@@ -49,7 +49,7 @@ In scratch only, the runner removes exactly three invented legacy mappings, exer
 | Check | Status |
 | --- | --- |
 | Live source/row/grant inventory | **INSPECTED** |
-| Scratch real-JWT lockdown including accidental regrant | **CI PENDING** until successful run |
+| Scratch real-JWT lockdown including accidental regrant | **NATIVE CI PASS** — [run 43059424184](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43059424184): 10/10 existing AG3.4B and 11/11 H1 static tests, plus genuine signed JWT/PostgREST denying all roles even after an accidental scratch-only regrant |
 | Proposed SQL committed to feature branch | **IMPLEMENTED / NOT DEPLOYED** |
 | Canonical migration and rollback rehearsed against a faithful snapshot | **PENDING** |
 | Manual Owner Coach Batch Mapping and Coach/Parent portal regression | **PENDING** |
