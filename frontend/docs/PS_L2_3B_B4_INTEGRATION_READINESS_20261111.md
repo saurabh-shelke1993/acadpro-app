@@ -2,6 +2,8 @@
 
 **11 November 2026 · B4 decision: NO-GO · No deployment**
 
+**Automation validation:** [B4 preflight CI run 42969566233](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42969566233) **PASS — 6 synthetic fail-closed tests**. This explicitly validates that the preconditions are *not* met; it is not B4 integration testing.
+
 This is a **read-only assessment**, not B4 implementation. It reconciles B3.7A–B3.7B authentication provenance, B3.6's proposed test matrix, current Supabase catalog and existing PS-L2.3 schema proposal.
 
 ## Current real database (read-only)

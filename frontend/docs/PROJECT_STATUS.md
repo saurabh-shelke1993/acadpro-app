@@ -7,7 +7,7 @@
 
 ## B4 subscription lifecycle integration — assessed NO-GO (11 November 2026)
 
-**READ-ONLY AUDIT:** 22 active legacy agreements (all open-ended), three academy mismatches, one linked to inactive player; 26 dues and 42 payments. Proposed PS-L2.3 period/policy/event tables and period due FK absent from active Supabase; no hosted branches, pg_cron or btree_gist. The 35 B3.6 real role/finance tests have not run. Missing original helper provenance and Owner reconciliation prevent B4 live integration. Fail-closed B4 readiness validator prepared (CI pending). [B4 report](PS_L2_3B_B4_INTEGRATION_READINESS_20261111.md).
+**READ-ONLY AUDIT:** 22 active legacy agreements (all open-ended), three academy mismatches, one linked to inactive player; 26 dues and 42 payments. Proposed PS-L2.3 period/policy/event tables and period due FK absent from active Supabase; no hosted branches, pg_cron or btree_gist. The 35 B3.6 real role/finance tests have not run. Missing original helper provenance and Owner reconciliation prevent B4 live integration. Fail-closed B4 readiness validator **6/6 PASS** ([run 42969566233](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/42969566233)); assessment remains NO-GO. [B4 report](PS_L2_3B_B4_INTEGRATION_READINESS_20261111.md).
 
 **NO-GO:** No new subscription schema, RPCs, automatic renewal, due generator, production credentials or payment data changed. B4 remains BLOCKED until unlinked Supabase replay and explicit Owner security/product acceptance.
 
@@ -19,7 +19,7 @@
 
 ## B3.7A — historical helper chronology (11 November 2026)
 
-**READ-ONLY REVIEW DONE / CI PENDING:** The retained 82/168 original-source ledger has no identifiable foundational CREATE for the 11 current B2.9 helpers or private schema. All 11 current live function hashes and metadata match the pinned B2.9 manifest. Historical parent function uses email at 20260908062059, before parents.user_id and revised helper at 20260912142706. No historical provenance or replay approval was inferred. [B3.7A details](PS_L2_3B_B3_7A_HISTORICAL_HELPER_CHRONOLOGY_20261111.md).
+**READ-ONLY REVIEW DONE / CI PASS:** The retained 82/168 original-source ledger has no identifiable foundational CREATE for the 11 current B2.9 helpers or private schema. All 11 current live function hashes and metadata match the pinned B2.9 manifest. Historical parent function uses email at 20260908062059, before parents.user_id and revised helper at 20260912142706. No historical provenance or replay approval was inferred. [B3.7A details](PS_L2_3B_B3_7A_HISTORICAL_HELPER_CHRONOLOGY_20261111.md).
 
 **BLOCKED:** Authentic original helper source, audited scratch bootstrap approval, B3 full Supabase Auth/RLS/Storage/finance replay, 22 legacy subscription activation, and B4 lifecycle integration.
 
