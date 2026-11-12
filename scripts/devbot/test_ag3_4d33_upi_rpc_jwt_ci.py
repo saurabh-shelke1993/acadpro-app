@@ -54,6 +54,7 @@ class UpiSourceAndSafetyGuards(unittest.TestCase):
                      "to_regprocedure('public.submit_parent_upi_payment",
                      "ALTER TABLE public.parent_payment_submissions",
                      "CREATE UNIQUE INDEX ag34d33_active_due_unique",
+                     "ALTER COLUMN id SET DEFAULT gen_random_uuid()",
                      "CREATE UNIQUE INDEX ag34d33_academy_utr_unique",
                      "CREATE TRIGGER ag34d33_fail_reference",
                      "REVOKE ALL ON FUNCTION public.", "GRANT EXECUTE ON FUNCTION public."):
