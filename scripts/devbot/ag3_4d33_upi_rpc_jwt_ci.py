@@ -231,7 +231,7 @@ def main() -> int:
         ready=False
         for _ in range(26):
             code,body=rpc(key,tokens["parent-a"],"submit_parent_upi_payment",
-                          submit_args("", "AG34D33-READY"))
+                          submit_args(None, "AG34D33-READY"))
             if code==400 and "Select a fee due" in str(getattr(body,"get",lambda _: "")("message")):
                 ready=True
                 break
