@@ -136,13 +136,12 @@ def allow_submit(key: str, token: str, due: str, ref: str, amount: int = 30) -> 
         print("AG3.4D3.3 DIAGNOSTIC Parent submit HTTP="+str(code)+" SQLSTATE="+sqlstate,flush=True)
     elif not isinstance(body,dict):
         print("AG3.4D3.3 DIAGNOSTIC Parent submit unexpected JSON type",flush=True)
-    else:
-        print("AG3.4D3.3 DIAGNOSTIC Parent submit response contract "+
-              "id="+str(uuid_ok(str(body.get("id",""))))+
-              " due="+str(body.get("due_id")==due)+
-              " pending="+str(body.get("status")=="pending")+
-              " amount="+str(str(body.get("amount","")) in (str(amount),str(amount)+".00"))+
-              " UTR="+str(body.get("transaction_reference")==ref),flush=True)
+    elif not (uuid_ok(str(body.get("id","")))
+              and body.get("due_id")==due
+              and body.get("status")=="pending"
+              and Decimal(str(body.get("amount",-1)))==Decimal(amount)
+              and body.get("transaction_reference")==ref):
+        print("AG3.4D3.3 DIAGNOSTIC Parent submit contract fields differ",flush=True)
     if (code!=200 or not isinstance(body,dict)
         or not uuid_ok(str(body.get("id","")))
         or body.get("due_id")!=due or body.get("status")!="pending"
@@ -184,7 +183,8 @@ def allow_record(key: str, token: str, claim: str, due: str,
                 "receipt":str(body.get("receipt_number","")).startswith("RCPT-"),
                 "transaction":str(body.get("transaction_reference","")).startswith("TXN-"),
                 "payment_id":uuid_ok(str(body.get("payment_id","")))}
-        print("AG3.4D3.3 DIAGNOSTIC record boolean contract "+str(checks),flush=True)
+        if not all(checks.values()):
+            print("AG3.4D3.3 DIAGNOSTIC record boolean contract "+str(checks),flush=True)
     expected_status="paid" if remaining==0 else "partial"
     if (code!=200 or not isinstance(body,dict)
         or body.get("submission_id")!=claim or body.get("status")!="recorded"
