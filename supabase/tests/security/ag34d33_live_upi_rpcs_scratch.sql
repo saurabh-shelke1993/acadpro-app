@@ -97,6 +97,8 @@ CREATE UNIQUE INDEX ag34d33_active_due_unique
 CREATE UNIQUE INDEX ag34d33_payment_link_unique
  ON public.parent_payment_submissions (payment_id) WHERE payment_id IS NOT NULL;
 ALTER TABLE public.parent_payment_submissions ALTER COLUMN id SET DEFAULT gen_random_uuid();
+-- Historic D1 read-parity rows remain rejected; new Parent claims must default to pending.
+ALTER TABLE public.parent_payment_submissions ALTER COLUMN status SET DEFAULT 'pending';
 ALTER TABLE public.payments ADD COLUMN external_transaction_reference text;
 
 -- Trigger exists ONLY in scratch to force failure after receipt-number allocation.
