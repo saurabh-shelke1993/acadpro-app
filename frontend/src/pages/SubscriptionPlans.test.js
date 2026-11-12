@@ -93,8 +93,8 @@ test("SP1 renders monthly, quarterly, half-yearly and One-time, and uses Amount 
   expect(screen.getByRole("columnheader", { name: "Amount" })).toBeInTheDocument();
   expect(screen.queryByText("Recurring amount")).not.toBeInTheDocument();
   expect(screen.getByRole("columnheader", { name: "Billing cycle" })).toBeInTheDocument();
-  expect(screen.getByText("Monthly")).toBeInTheDocument();
-  expect(screen.getByText("Quarterly")).toBeInTheDocument();
+  expect(screen.getAllByText("Monthly").length).toBeGreaterThan(0);
+  expect(screen.getAllByText("Quarterly").length).toBeGreaterThan(0);
 });
 
 test("SP1 an Academy Owner can prepare a One-time plan payload without creating dues or enrollments", async () => {
