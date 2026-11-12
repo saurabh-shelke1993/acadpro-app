@@ -59,7 +59,7 @@ class UpiSecurityContract(unittest.TestCase):
                       "SUPABASE_ACCESS_TOKEN", "SUPABASE_DB_URL",
                       "project-ref", "supabase/migrations", "auth.users"):
             if guard == "supabase/migrations":
-                self.assertIn('"migrations"', RUNNER)
+                self.assertIn('"supabase/migrations"', RUNNER)
             else:
                 self.assertIn(guard, RUNNER)
 
