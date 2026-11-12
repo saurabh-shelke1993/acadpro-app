@@ -21,6 +21,7 @@ const data = {
   players: [{ id: "player-1", full_name: "Test Junior", academy_id: "academy-1", center_id: "center-1", batch_id: "batch-1" }],
   subscription_plans: [{ id: "plan-1", plan_name: "Monthly", amount: 1500, billing_cycle: "monthly", academy_id: "academy-1", is_active: true }],
   player_subscriptions: [],
+  lastInserted: null,
 };
 const queryFor = (table) => {
   const filters = [];
@@ -29,6 +30,10 @@ const queryFor = (table) => {
     select: jest.fn(() => query),
     eq: jest.fn((field, value) => { filters.push([field, value]); return query; }),
     order: jest.fn(() => query),
+    insert: jest.fn(async (rows) => {
+      data.lastInserted = rows[0];
+      return { data: null, error: null };
+    }),
     then: (resolve, reject) => Promise.resolve({
       data: (data[table] || []).filter((item) =>
         filters.every(([key, value]) => item[key] === undefined || item[key] === value)),
@@ -38,24 +43,33 @@ const queryFor = (table) => {
   return query;
 };
 beforeEach(() => {
+  data.lastInserted = null;
   jest.clearAllMocks();
   supabase.from.mockImplementation(queryFor);
   getLoggedInUser.mockResolvedValue({ id: "owner-1", role: "academy_owner", academy_id: "academy-1" });
 });
 afterEach(() => {
   data.player_subscriptions = [];
+  data.subscription_plans = data.subscription_plans.filter((plan) => plan.id === "plan-1");
+  data.lastInserted = null;
   jest.restoreAllMocks();
 });
 
-test("PS1 Owner sees compact academy scope and all original assignment controls", async () => {
+test("RC1.3 Owner sees compact Center Batch Player without redundant academy banner", async () => {
   render(<PlayerSubscriptions />);
-  expect(await screen.findByText("Test Academy")).toBeInTheDocument();
+  await waitFor(() => expect(screen.getByLabelText("Player").querySelector('option[value="player-1"]')).not.toBeNull());
+  expect(screen.queryByText("Test Academy")).not.toBeInTheDocument();
+  expect(screen.queryByLabelText("Academy")).not.toBeInTheDocument();
   expect(screen.getByRole("heading", { name: "Assign a plan to a player" })).toBeInTheDocument();
   expect(screen.getByLabelText("Center")).toBeInTheDocument();
   expect(screen.getByLabelText("Batch")).toBeInTheDocument();
   expect(screen.getByLabelText("Player")).toBeInTheDocument();
   expect(screen.getByLabelText("Plan")).toBeInTheDocument();
   expect(screen.getByLabelText("Start date")).toBeInTheDocument();
+  expect(screen.getByLabelText("End date")).toHaveAttribute("readonly");
+  const contextRow = screen.getByLabelText("Center").closest(".player-subscriptions-context-grid");
+  expect(contextRow).toContainElement(screen.getByLabelText("Batch"));
+  expect(contextRow).toContainElement(screen.getByLabelText("Player"));
   expect(screen.getByRole("button", { name: "Create subscription" })).toBeInTheDocument();
   expect(screen.queryByRole("button", { name: "Clear form" })).not.toBeInTheDocument();
   expect(screen.getByTestId("subscriptions-view")).toHaveTextContent("players");
@@ -63,7 +77,7 @@ test("PS1 Owner sees compact academy scope and all original assignment controls"
 
 test("PS1 Clear form resets a partially completed assignment without writing", async () => {
   render(<PlayerSubscriptions />);
-  await screen.findByText("Test Academy");
+  await waitFor(() => expect(screen.getByLabelText("Player").querySelector('option[value="player-1"]')).not.toBeNull());
   await waitFor(() => expect(screen.getByLabelText("Player").querySelector('option[value="player-1"]')).not.toBeNull());
   fireEvent.change(screen.getByLabelText("Player"), { target: { value: "player-1" } });
   expect(screen.getByRole("button", { name: "Clear form" })).toBeInTheDocument();
@@ -134,14 +148,103 @@ test("RC1.1 an inactive subscription does not block new assignment", async () =>
   expect(screen.getByRole("button", { name: "Create subscription" })).toBeEnabled();
 });
 
+test("RC1.3 monthly and quarterly calendar ends appear before saving, without changing dates on legacy edits", async () => {
+  data.subscription_plans = [
+    ...data.subscription_plans,
+    { id: "plan-2", plan_name: "Quarterly", amount: 4000, billing_cycle: "quarterly", academy_id: "academy-1", is_active: true },
+  ];
+  render(<PlayerSubscriptions />);
+  await waitFor(() => expect(screen.getByLabelText("Plan").querySelector('option[value="plan-2"]')).not.toBeNull());
+  fireEvent.change(screen.getByLabelText("Plan"), { target: { value: "plan-1" } });
+  fireEvent.change(screen.getByLabelText("Start date"), { target: { value: "2026-11-12" } });
+  expect(screen.getByLabelText("End date")).toHaveValue("2026-11-30");
+  fireEvent.change(screen.getByLabelText("Plan"), { target: { value: "plan-2" } });
+  expect(screen.getByLabelText("End date")).toHaveValue("2027-01-31");
+  fireEvent.change(screen.getByLabelText("Start date"), { target: { value: "2026-12-12" } });
+  expect(screen.getByLabelText("End date")).toHaveValue("2027-02-28");
+});
+
+test("RC1.3 saving a new monthly subscription persists the computed calendar end but no payment due", async () => {
+  render(<PlayerSubscriptions />);
+  await waitFor(() => expect(screen.getByLabelText("Player").querySelector('option[value="player-1"]')).not.toBeNull());
+  fireEvent.change(screen.getByLabelText("Player"), { target: { value: "player-1" } });
+  fireEvent.change(screen.getByLabelText("Plan"), { target: { value: "plan-1" } });
+  fireEvent.change(screen.getByLabelText("Start date"), { target: { value: "2026-11-12" } });
+  expect(screen.getByLabelText("End date")).toHaveValue("2026-11-30");
+  fireEvent.click(screen.getByRole("button", { name: "Create subscription" }));
+  await waitFor(() => expect(data.lastInserted).toMatchObject({
+    player_id: "player-1",
+    subscription_plan_id: "plan-1",
+    start_date: "2026-11-12",
+    end_date: "2026-11-30",
+    status: "active",
+  }));
+  expect(supabase.from).not.toHaveBeenCalledWith("payment_dues");
+});
+
+test("RC1.3 existing legacy subscriptions with missing end date are not silently backfilled", async () => {
+  data.player_subscriptions = [{
+    id: "subscription-legacy",
+    player_id: "player-1",
+    subscription_plan_id: "plan-1",
+    start_date: "2026-08-01",
+    end_date: null,
+    status: "active",
+    players: data.players[0],
+    subscription_plans: data.subscription_plans[0],
+  }];
+  const originalRAF = window.requestAnimationFrame;
+  window.requestAnimationFrame = jest.fn(() => 1);
+  try {
+    render(<PlayerSubscriptions />);
+    await waitFor(() => expect(screen.getByText(/1 matching/)).toBeInTheDocument());
+    fireEvent.change(screen.getByLabelText("Player"), { target: { value: "player-1" } });
+    fireEvent.change(screen.getByLabelText("Plan"), { target: { value: "plan-1" } });
+    fireEvent.click(screen.getByRole("button", { name: "Edit existing subscription" }));
+    expect(screen.getByLabelText("End date")).toHaveValue("");
+    expect(screen.getByText(/Empty legacy end dates remain unchanged/)).toBeInTheDocument();
+  } finally {
+    window.requestAnimationFrame = originalRAF;
+  }
+});
+
+test("RC1.3 a recorded end date cannot silently survive a conflicting plan/start change", async () => {
+  data.player_subscriptions = [{
+    id: "subscription-new",
+    player_id: "player-1",
+    subscription_plan_id: "plan-1",
+    start_date: "2026-11-12",
+    end_date: "2026-11-30",
+    status: "active",
+    players: data.players[0],
+    subscription_plans: data.subscription_plans[0],
+  }];
+  const originalRAF = window.requestAnimationFrame;
+  window.requestAnimationFrame = jest.fn(() => 1);
+  try {
+    render(<PlayerSubscriptions />);
+    await waitFor(() => expect(screen.getByText(/1 matching/)).toBeInTheDocument());
+    fireEvent.change(screen.getByLabelText("Player"), { target: { value: "player-1" } });
+    fireEvent.change(screen.getByLabelText("Plan"), { target: { value: "plan-1" } });
+    fireEvent.click(screen.getByRole("button", { name: "Edit existing subscription" }));
+    expect(screen.getByLabelText("End date")).toHaveValue("2026-11-30");
+    fireEvent.change(screen.getByLabelText("Start date"), { target: { value: "2026-12-12" } });
+    fireEvent.click(screen.getByRole("button", { name: "Update subscription" }));
+    expect(await screen.findByText(/has a recorded end date/)).toBeInTheDocument();
+    expect(supabase.from).not.toHaveBeenCalledWith("payment_dues");
+  } finally {
+    window.requestAnimationFrame = originalRAF;
+  }
+});
+
 test("PS-L1P2 preview is read-only when a player and monthly plan are selected", async () => {
   render(<PlayerSubscriptions />);
-  await screen.findByText("Test Academy");
+  await waitFor(() => expect(screen.getByLabelText("Player").querySelector('option[value="player-1"]')).not.toBeNull());
   await waitFor(() => expect(screen.getByLabelText("Player").querySelector('option[value="player-1"]')).not.toBeNull());
   fireEvent.change(screen.getByLabelText("Player"), { target: { value: "player-1" } });
   fireEvent.change(screen.getByLabelText("Plan"), { target: { value: "plan-1" } });
   expect(screen.getByRole("region",{name:"First-period fee preview"})).toBeInTheDocument();
-  expect(screen.getByText(/Create subscription will not save the estimated end date/)).toBeInTheDocument();
+  expect(screen.getByText(/calendar-aligned end date is saved separately/)).toBeInTheDocument();
   expect(screen.getByRole("button",{name:"Create subscription"})).toBeInTheDocument();
   expect(supabase.from).not.toHaveBeenCalledWith("payment_dues");
 });

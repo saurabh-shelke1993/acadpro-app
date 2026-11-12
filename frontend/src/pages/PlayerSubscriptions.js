@@ -2,6 +2,7 @@ import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import Layout from "../components/Layout";
 import SubscriptionsWorkspaceTabs from "../components/SubscriptionsWorkspaceTabs";
 import SubscriptionFeePreview from "../components/SubscriptionFeePreview";
+import { calculateCalendarAlignedEndDate } from "../utils/subscriptionCalendarEndDate";
 import "./PlayerSubscriptions.css";
 import { supabase } from "../services/supabase";
 import { getLoggedInUser, isSuperAdmin, getAcademyId } from "../utils/auth";
@@ -55,6 +56,9 @@ function PlayerSubscriptions() {
   const [selectedPlan, setSelectedPlan] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [editingSubscriptionId, setEditingSubscriptionId] = useState(null);
+  const [editingOriginalEndDate, setEditingOriginalEndDate] = useState(null);
+  const [editingOriginalStartDate, setEditingOriginalStartDate] = useState(null);
+  const [editingOriginalPlanId, setEditingOriginalPlanId] = useState(null);
   const [selectedSubscriptionId, setSelectedSubscriptionId] = useState(null);
   const [startDate, setStartDate] = useState(new Date().toISOString().split("T")[0]);
   const [statusFilter, setStatusFilter] = useState("active");
@@ -264,6 +268,9 @@ useEffect(() => {
   const resetAssignmentForm = () => {
     setIsEditing(false);
     setEditingSubscriptionId(null);
+    setEditingOriginalEndDate(null);
+    setEditingOriginalStartDate(null);
+    setEditingOriginalPlanId(null);
     setSelectedSubscriptionId(null);
     setSelectedPlayer("");
     setSelectedPlan("");
@@ -275,16 +282,27 @@ useEffect(() => {
     setSelectedAcademy(academyId);
     setSelectedCenter("");
     setSelectedBatch("");
+    setSelectedPlayer("");
+    setSelectedPlan("");
   };
 
   const handleCenterChange = (centerId) => {
     setSelectedCenter(centerId);
     setSelectedBatch("");
+    setSelectedPlayer("");
+  };
+
+  const handleBatchChange = (batchId) => {
+    setSelectedBatch(batchId);
+    setSelectedPlayer("");
   };
 
   const handleEditSubscription = (subscription) => {
     setIsEditing(true);
     setEditingSubscriptionId(subscription.id);
+    setEditingOriginalEndDate(subscription.end_date || null);
+    setEditingOriginalStartDate(subscription.start_date);
+    setEditingOriginalPlanId(subscription.subscription_plan_id);
     setSelectedPlayer(subscription.player_id);
     setSelectedPlan(subscription.subscription_plan_id);
     setStartDate(subscription.start_date || new Date().toISOString().split("T")[0]);
@@ -300,6 +318,15 @@ useEffect(() => {
   const createSubscription = async () => {
     if (!selectedPlayer || !selectedPlan || !startDate) {
       showToast("error", "Select a player, plan, and start date.");
+      return;
+    }
+
+    const plan = plans.find((item) => item.id === selectedPlan);
+    let calculatedEndDate;
+    try {
+      calculatedEndDate = calculateCalendarAlignedEndDate(startDate, plan?.billing_cycle);
+    } catch {
+      showToast("error", "Choose a valid subscription plan and start date.");
       return;
     }
 
@@ -330,6 +357,7 @@ useEffect(() => {
         player_id: selectedPlayer,
         subscription_plan_id: selectedPlan,
         start_date: startDate,
+        end_date: calculatedEndDate,
         status: "active"
       }]);
 
@@ -347,6 +375,15 @@ useEffect(() => {
   const handleUpdateSubscription = async () => {
     if (!selectedPlayer || !selectedPlan || !startDate) {
       showToast("error", "Select a player, plan, and start date.");
+      return;
+    }
+
+    // An already-recorded entitlement end cannot be silently invalidated by editing
+    // its plan/start. Legacy NULL end dates also remain untouched in this workflow.
+    if (editingOriginalEndDate && (
+      startDate !== editingOriginalStartDate || selectedPlan !== editingOriginalPlanId
+    )) {
+      showToast("error", "This subscription has a recorded end date. Its plan/start cannot be changed here without a separate approved period change.");
       return;
     }
 
@@ -461,6 +498,14 @@ useEffect(() => {
 
   const selectedPlayerRecord = players.find((player) => player.id === selectedPlayer);
   const selectedPlanRecord = plans.find((plan) => plan.id === selectedPlan);
+  const calculatedEndDate = useMemo(() => {
+    if (!selectedPlanRecord || !startDate) return "";
+    try {
+      return calculateCalendarAlignedEndDate(startDate, selectedPlanRecord.billing_cycle);
+    } catch {
+      return "";
+    }
+  }, [startDate, selectedPlanRecord]);
   const existingActiveSubscriptionForSelection = !isEditing && selectedPlayer && selectedPlan
     ? subscriptions.find((subscription) =>
         subscription.player_id === selectedPlayer &&
@@ -517,14 +562,8 @@ useEffect(() => {
           </div>
         )}
 
-        <section className="player-subscriptions-filter-bar" aria-label="Subscription scope">
-          {loggedInUser && !isSuperAdmin(loggedInUser) && (
-            <div className="player-subscriptions-scope-academy">
-              <span>Academy</span>
-              <strong>{academies.find((academy) => academy.id === selectedAcademy)?.academy_name || "Academy unavailable"}</strong>
-            </div>
-          )}
-          {isSuperAdmin(loggedInUser) && (
+        {isSuperAdmin(loggedInUser) && (
+          <section className="player-subscriptions-filter-bar player-subscriptions-admin-scope" aria-label="Subscription academy scope">
             <div className="player-subscriptions-filter-field">
               <label htmlFor="player-subscription-academy">Academy</label>
               <select
@@ -534,15 +573,27 @@ useEffect(() => {
               >
                 <option value="">All academies</option>
                 {academies.map((academy) => (
-                  <option key={academy.id} value={academy.id}>
-                    {academy.academy_name}
-                  </option>
+                  <option key={academy.id} value={academy.id}>{academy.academy_name}</option>
                 ))}
               </select>
             </div>
-          )}
+          </section>
+        )}
 
-          <div className="player-subscriptions-filter-field">
+        <section id="player-subscription-form" className="player-subscriptions-form-card" aria-labelledby="player-subscription-form-title">
+          <div className="player-subscriptions-form-heading">
+            <h2 id="player-subscription-form-title">
+              {isEditing ? "Update player subscription" : "Assign a plan to a player"}
+            </h2>
+            {hasUnsavedSubscription && (
+              <button type="button" className="player-subscriptions-secondary-button" onClick={resetAssignmentForm}>
+                {isEditing ? "Cancel edit" : "Clear form"}
+              </button>
+            )}
+          </div>
+
+          <div className="player-subscriptions-context-grid" aria-label="Choose center, batch and player">
+          <div className="player-subscriptions-field">
             <label htmlFor="player-subscription-center">Center</label>
             <select
               id="player-subscription-center"
@@ -561,12 +612,12 @@ useEffect(() => {
             </select>
           </div>
 
-          <div className="player-subscriptions-filter-field">
+          <div className="player-subscriptions-field">
             <label htmlFor="player-subscription-batch">Batch</label>
             <select
               id="player-subscription-batch"
               value={selectedBatch}
-              onChange={(e) => setSelectedBatch(e.target.value)}
+              onChange={(e) => handleBatchChange(e.target.value)}
               disabled={!selectedCenter}
             >
               <option value="">
@@ -579,21 +630,7 @@ useEffect(() => {
               ))}
             </select>
           </div>
-        </section>
 
-        <section id="player-subscription-form" className="player-subscriptions-form-card" aria-labelledby="player-subscription-form-title">
-          <div className="player-subscriptions-form-heading">
-            <h2 id="player-subscription-form-title">
-              {isEditing ? "Update player subscription" : "Assign a plan to a player"}
-            </h2>
-            {hasUnsavedSubscription && (
-              <button type="button" className="player-subscriptions-secondary-button" onClick={resetAssignmentForm}>
-                {isEditing ? "Cancel edit" : "Clear form"}
-              </button>
-            )}
-          </div>
-
-          <div className="player-subscriptions-assignment-grid">
             <div className="player-subscriptions-field">
               <label htmlFor="player-subscription-player">Player</label>
               <select
@@ -610,6 +647,9 @@ useEffect(() => {
               </select>
             </div>
 
+          </div>
+
+          <div className="player-subscriptions-assignment-grid">
             <div className="player-subscriptions-field">
               <label htmlFor="player-subscription-plan">Plan</label>
               <select
@@ -636,6 +676,17 @@ useEffect(() => {
               />
             </div>
 
+            <div className="player-subscriptions-field player-subscriptions-end-date-field">
+              <label htmlFor="player-subscription-end-date">End date</label>
+              <input
+                id="player-subscription-end-date"
+                type="date"
+                readOnly
+                value={isEditing ? (editingOriginalEndDate || "") : calculatedEndDate}
+                aria-describedby="player-subscription-end-date-note"
+              />
+            </div>
+
             <div className="player-subscriptions-form-action">
               <button
                 type="button"
@@ -651,6 +702,12 @@ useEffect(() => {
               </button>
             </div>
           </div>
+
+          <p id="player-subscription-end-date-note" className="player-subscriptions-end-date-note">
+            {isEditing
+              ? "Existing end date is shown as recorded. Empty legacy end dates remain unchanged; changing a recorded plan period requires separate approval."
+              : "New subscriptions use calendar month ends (monthly: this month; quarterly: the third month). This is not proof of payment or automatic renewal."}
+          </p>
 
           {selectedPlayerRecord && selectedPlanRecord && (
             <div className="player-subscriptions-assignment-summary">

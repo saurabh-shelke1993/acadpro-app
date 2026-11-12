@@ -21,6 +21,8 @@ on:
       - 'frontend/src/components/SubscriptionFeePreview.test.js'
       - 'frontend/src/utils/subscriptionLifecycleDates.js'
       - 'frontend/src/utils/subscriptionLifecycleDates.test.js'
+      - 'frontend/src/utils/subscriptionCalendarEndDate.js'
+      - 'frontend/src/utils/subscriptionCalendarEndDate.test.js'
       - 'frontend/src/utils/subscriptionProration.js'
       - 'frontend/src/utils/subscriptionProration.test.js'
       - '.github/workflows/subscriptions-merge-validation.yml'
@@ -30,6 +32,10 @@ on:
       - 'frontend/src/pages/PlayerSubscriptions.js'
       - 'frontend/src/pages/PlayerSubscriptions.css'
       - 'frontend/src/pages/PlayerSubscriptions.test.js'
+      - 'frontend/src/components/SubscriptionFeePreview.js'
+      - 'frontend/src/components/SubscriptionFeePreview.test.js'
+      - 'frontend/src/utils/subscriptionCalendarEndDate.js'
+      - 'frontend/src/utils/subscriptionCalendarEndDate.test.js'
       - '.github/workflows/subscriptions-merge-validation.yml'
   workflow_dispatch:
 
@@ -69,6 +75,10 @@ jobs:
         env:
           CI: 'true'
         run: npm test -- --watchAll=false --runInBand --testPathPattern=subscriptionLifecycleDates.test.js
+      - name: Run RC1.3 calendar-aligned end date tests
+        env:
+          CI: 'true'
+        run: npm test -- --watchAll=false --runInBand --testPathPattern=subscriptionCalendarEndDate.test.js
       - name: Run PS-L1P1 monthly proration calculator tests
         env:
           CI: 'true'
