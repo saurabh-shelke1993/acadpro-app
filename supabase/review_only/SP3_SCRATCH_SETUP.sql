@@ -7,7 +7,7 @@ CREATE SCHEMA private;
 GRANT USAGE ON SCHEMA auth, private TO authenticated;
 CREATE OR REPLACE FUNCTION auth.uid() RETURNS uuid
 LANGUAGE sql STABLE
-AS $$ SELECT pg_catalog.nullif(pg_catalog.current_setting('request.jwt.claim.sub', true), '')::uuid $$;
+AS $$ SELECT nullif(pg_catalog.current_setting('request.jwt.claim.sub', true), '')::uuid $$;
 GRANT EXECUTE ON FUNCTION auth.uid() TO authenticated;
 
 CREATE TABLE public.users (
@@ -55,8 +55,8 @@ CREATE OR REPLACE FUNCTION private.enforce_payment_due_financial_state() RETURNS
 LANGUAGE plpgsql SECURITY DEFINER SET search_path=''
 AS $$
 BEGIN
-  IF NEW.total_amount < 0 OR pg_catalog.coalesce(NEW.paid_amount, 0) < 0 OR
-     pg_catalog.coalesce(NEW.paid_amount, 0) > NEW.total_amount THEN
+  IF NEW.total_amount < 0 OR coalesce(NEW.paid_amount, 0) < 0 OR
+     coalesce(NEW.paid_amount, 0) > NEW.total_amount THEN
     RAISE EXCEPTION 'Invalid financial due';
   END IF;
   IF TG_OP = 'UPDATE' AND
@@ -65,7 +65,7 @@ BEGIN
      pg_catalog.current_setting('acadpro.payment_write_operation', true) IS DISTINCT FROM 'collect' THEN
     RAISE EXCEPTION 'Financial due amount is system managed';
   END IF;
-  NEW.paid_amount := pg_catalog.coalesce(NEW.paid_amount, 0);
+  NEW.paid_amount := coalesce(NEW.paid_amount, 0);
   NEW.due_status := CASE WHEN NEW.paid_amount = 0 THEN 'pending'
     WHEN NEW.paid_amount = NEW.total_amount THEN 'paid' ELSE 'partial' END;
   RETURN NEW;
