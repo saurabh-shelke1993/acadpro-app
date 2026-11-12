@@ -34,6 +34,7 @@ const sub = {
   }
 };
 let existingDues = [];
+let activeSubscription = sub;
 
 const queryFor = (table) => {
   const filters = [];
@@ -42,9 +43,9 @@ const queryFor = (table) => {
     eq: jest.fn((column, value) => { filters.push([column, value]); return query; }),
     order: jest.fn(() => query),
     limit: jest.fn(() => query),
-    single: jest.fn(async () => ({ data: table === "player_subscriptions" ? sub : null, error: null })),
+    single: jest.fn(async () => ({ data: table === "player_subscriptions" ? activeSubscription : null, error: null })),
     then: (resolve, reject) => {
-      const rows = table === "player_subscriptions" ? [sub]
+      const rows = table === "player_subscriptions" ? [activeSubscription]
         : table === "payment_dues" ? existingDues : [];
       return Promise.resolve({
         data: rows.filter((row) => filters.every(([key, value]) => row[key] === value)),
@@ -57,6 +58,7 @@ const queryFor = (table) => {
 
 beforeEach(() => {
   existingDues = [];
+  activeSubscription = sub;
   jest.clearAllMocks();
   getLoggedInUser.mockResolvedValue({ id: "owner-1", role: "academy_owner", academy_id: "academy-1" });
   getAccessibleAcademies.mockResolvedValue([{ id: "academy-1", academy_name: "Test Academy" }]);
@@ -174,6 +176,25 @@ test("RC1.2 a saved decimal due shows its exact paise and adjustment note when s
   fireEvent.click(screen.getByRole("cell", { name: "Test Junior" }));
   expect(screen.getByText(/Due notes:/)).toBeInTheDocument();
   expect(screen.getByText(/Owner-entered first-period monthly tuition adjustment/)).toBeInTheDocument();
+});
+
+test("SP2 One-time camp is visible for review but cannot be misbilled as Monthly/Registration", async () => {
+  activeSubscription = {
+    ...sub,
+    subscription_plans: {
+      ...sub.subscription_plans,
+      plan_name: "Summer Camp",
+      billing_cycle: "one_time"
+    }
+  };
+  const d = await selectSubscription();
+  expect(d.getByText(/One-time camp payment dues are not available yet/)).toBeInTheDocument();
+  expect(d.getByText(/Do not use Monthly or Registration/)).toBeInTheDocument();
+  expect(d.getByRole("button", { name: "Generate Due" })).toBeDisabled();
+  expect(d.queryByLabelText("Use an Owner-approved first-period amount")).not.toBeInTheDocument();
+  fireEvent.change(d.getByLabelText("Due Type"), { target: { value: "registration" } });
+  expect(d.getByRole("button", { name: "Generate Due" })).toBeDisabled();
+  expect(createPaymentDueService).not.toHaveBeenCalled();
 });
 
 test("RC1.2 Coach cannot generate manual or standard dues", async () => {

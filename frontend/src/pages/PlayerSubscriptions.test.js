@@ -182,6 +182,175 @@ test("RC1.3 saving a new monthly subscription persists the computed calendar end
   expect(supabase.from).not.toHaveBeenCalledWith("payment_dues");
 });
 
+test("SP2 One-time plan requires a manually entered camp end date and never shows monthly fee preview", async () => {
+  data.subscription_plans.push({
+    id: "camp-plan", academy_id: "academy-1", plan_name: "Summer Camp U12",
+    amount: 3000, billing_cycle: "one_time", is_active: true,
+  });
+  render(<PlayerSubscriptions />);
+  await waitFor(() => expect(screen.getByLabelText("Plan").querySelector('option[value="camp-plan"]')).not.toBeNull());
+  fireEvent.change(screen.getByLabelText("Player"), { target: { value: "player-1" } });
+  fireEvent.change(screen.getByLabelText("Plan"), { target: { value: "camp-plan" } });
+  fireEvent.change(screen.getByLabelText("Start date"), { target: { value: "2027-05-12" } });
+
+  expect(screen.getByLabelText("End date")).toHaveValue("");
+  expect(screen.getByLabelText("End date")).not.toHaveAttribute("readonly");
+  expect(screen.getByLabelText("End date")).toHaveAttribute("min", "2027-05-12");
+  expect(screen.getByText(/One-time camp: enter the final camp date/)).toBeInTheDocument();
+  expect(screen.queryByRole("region", { name: "First-period fee preview" })).not.toBeInTheDocument();
+  expect(screen.getByRole("option", { name: /Summer Camp U12/ })).toHaveTextContent("one-time");
+
+  fireEvent.change(screen.getByLabelText("End date"), { target: { value: "2027-05-25" } });
+  expect(screen.getByLabelText("End date")).toHaveValue("2027-05-25");
+  fireEvent.change(screen.getByLabelText("Plan"), { target: { value: "plan-1" } });
+  expect(screen.getByLabelText("End date")).toHaveAttribute("readonly");
+  expect(screen.getByLabelText("End date")).toHaveValue("2027-05-31");
+  fireEvent.change(screen.getByLabelText("Plan"), { target: { value: "camp-plan" } });
+  expect(screen.getByLabelText("End date")).toHaveValue("");
+});
+
+test("SP2 creating One-time camp saves only explicit dates without posting dues, payments or renewals", async () => {
+  data.subscription_plans.push({
+    id: "camp-plan", academy_id: "academy-1", plan_name: "Winter Camp",
+    amount: 2500, billing_cycle: "one_time", is_active: true,
+  });
+  render(<PlayerSubscriptions />);
+  await waitFor(() => expect(screen.getByLabelText("Plan").querySelector('option[value="camp-plan"]')).not.toBeNull());
+  fireEvent.change(screen.getByLabelText("Player"), { target: { value: "player-1" } });
+  fireEvent.change(screen.getByLabelText("Plan"), { target: { value: "camp-plan" } });
+  fireEvent.change(screen.getByLabelText("Start date"), { target: { value: "2026-12-20" } });
+  fireEvent.change(screen.getByLabelText("End date"), { target: { value: "2027-01-05" } });
+  fireEvent.click(screen.getByRole("button", { name: "Create subscription" }));
+  await waitFor(() => expect(data.lastInserted).toEqual({
+    player_id: "player-1", subscription_plan_id: "camp-plan",
+    start_date: "2026-12-20", end_date: "2027-01-05", status: "active"
+  }));
+  expect(screen.getByText(/One-time camp assignment created/)).toBeInTheDocument();
+  expect(supabase.from).not.toHaveBeenCalledWith("payment_dues");
+  expect(supabase.from).not.toHaveBeenCalledWith("payments");
+  expect(supabase.from).not.toHaveBeenCalledWith("payment_collections");
+});
+
+test("SP2 a One-time camp can be assigned alongside a different existing monthly plan", async () => {
+  data.subscription_plans.push({
+    id: "camp-plan", academy_id: "academy-1", plan_name: "Winter Camp",
+    amount: 3000, billing_cycle: "one_time", is_active: true,
+  });
+  data.player_subscriptions = [{
+    id: "regular-monthly", player_id: "player-1", subscription_plan_id: "plan-1",
+    start_date: "2026-11-01", end_date: "2026-11-30", status: "active",
+    players: data.players[0], subscription_plans: data.subscription_plans[0]
+  }];
+  render(<PlayerSubscriptions />);
+  await waitFor(() => expect(screen.getByLabelText("Plan").querySelector('option[value="camp-plan"]')).not.toBeNull());
+  fireEvent.change(screen.getByLabelText("Player"), { target: { value: "player-1" } });
+  fireEvent.change(screen.getByLabelText("Plan"), { target: { value: "camp-plan" } });
+  expect(screen.getByRole("button", { name: "Create subscription" })).toBeEnabled();
+  fireEvent.change(screen.getByLabelText("Start date"), { target: { value: "2026-12-20" } });
+  fireEvent.change(screen.getByLabelText("End date"), { target: { value: "2026-12-30" } });
+  fireEvent.click(screen.getByRole("button", { name: "Create subscription" }));
+  await waitFor(() => expect(data.lastInserted).toMatchObject({
+    subscription_plan_id: "camp-plan", start_date: "2026-12-20", end_date: "2026-12-30"
+  }));
+  expect(supabase.from).not.toHaveBeenCalledWith("payment_dues");
+});
+
+test("SP2 refuses cross-academy One-time plan/participant pairing even in Super Admin UI", async () => {
+  data.subscription_plans.push({
+    id: "foreign-camp", academy_id: "academy-2", plan_name: "Foreign Camp",
+    amount: 3000, billing_cycle: "one_time", is_active: true,
+  });
+  getLoggedInUser.mockResolvedValue({ id: "admin-1", role: "super_admin", academy_id: null });
+  render(<PlayerSubscriptions />);
+  await waitFor(() => expect(screen.getByLabelText("Plan").querySelector('option[value="foreign-camp"]')).not.toBeNull());
+  fireEvent.change(screen.getByLabelText("Player"), { target: { value: "player-1" } });
+  fireEvent.change(screen.getByLabelText("Plan"), { target: { value: "foreign-camp" } });
+  fireEvent.change(screen.getByLabelText("Start date"), { target: { value: "2027-05-12" } });
+  fireEvent.change(screen.getByLabelText("End date"), { target: { value: "2027-05-25" } });
+  fireEvent.click(screen.getByRole("button", { name: "Create subscription" }));
+  expect(await screen.findByText(/must belong to the same academy/)).toBeInTheDocument();
+  expect(data.lastInserted).toBeNull();
+});
+
+test("SP2 invalid or missing One-time end dates must never insert an agreement", async () => {
+  data.subscription_plans.push({
+    id: "camp-plan", academy_id: "academy-1", plan_name: "Summer Camp U12",
+    amount: 3000, billing_cycle: "one_time", is_active: true,
+  });
+  render(<PlayerSubscriptions />);
+  await waitFor(() => expect(screen.getByLabelText("Plan").querySelector('option[value="camp-plan"]')).not.toBeNull());
+  fireEvent.change(screen.getByLabelText("Player"), { target: { value: "player-1" } });
+  fireEvent.change(screen.getByLabelText("Plan"), { target: { value: "camp-plan" } });
+  fireEvent.change(screen.getByLabelText("Start date"), { target: { value: "2027-05-12" } });
+  fireEvent.click(screen.getByRole("button", { name: "Create subscription" }));
+  expect(await screen.findByText(/Enter an end date for the One-time camp/)).toBeInTheDocument();
+  expect(data.lastInserted).toBeNull();
+
+  // HTML date field also advertises a minimum, but correctness is rechecked on save.
+  fireEvent.change(screen.getByLabelText("End date"), { target: { value: "2027-05-11" } });
+  fireEvent.click(screen.getByRole("button", { name: "Create subscription" }));
+  expect(await screen.findByText(/end date cannot be before/)).toBeInTheDocument();
+  expect(data.lastInserted).toBeNull();
+});
+
+test("SP2 a matching active One-time camp cannot be duplicated and its saved end stays protected in Edit", async () => {
+  data.subscription_plans.push({
+    id: "camp-plan", academy_id: "academy-1", plan_name: "Summer Camp U12",
+    amount: 3000, billing_cycle: "one_time", is_active: true,
+  });
+  data.player_subscriptions = [{
+    id: "camp-enrollment", player_id: "player-1", subscription_plan_id: "camp-plan",
+    start_date: "2027-05-12", end_date: "2027-05-25", status: "active",
+    players: data.players[0], subscription_plans: data.subscription_plans[1]
+  }];
+  const originalRAF = window.requestAnimationFrame;
+  window.requestAnimationFrame = jest.fn(() => 1);
+  try {
+    render(<PlayerSubscriptions />);
+    await waitFor(() => expect(screen.getByLabelText("Plan").querySelector('option[value="camp-plan"]')).not.toBeNull());
+    fireEvent.change(screen.getByLabelText("Player"), { target: { value: "player-1" } });
+    fireEvent.change(screen.getByLabelText("Plan"), { target: { value: "camp-plan" } });
+    expect(screen.getByRole("button", { name: "Create subscription" })).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "Edit existing subscription" }));
+    expect(screen.getByLabelText("End date")).toHaveValue("2027-05-25");
+    expect(screen.getByLabelText("End date")).toHaveAttribute("readonly");
+    fireEvent.change(screen.getByLabelText("Start date"), { target: { value: "2027-06-12" } });
+    fireEvent.click(screen.getByRole("button", { name: "Update subscription" }));
+    expect(await screen.findByText(/has a recorded end date/)).toBeInTheDocument();
+    expect(data.lastInserted).toBeNull();
+  } finally {
+    window.requestAnimationFrame = originalRAF;
+  }
+});
+
+test("SP2 existing undated monthly subscription cannot be converted into a One-time camp in Edit", async () => {
+  data.subscription_plans.push({
+    id: "camp-plan", academy_id: "academy-1", plan_name: "Summer Camp",
+    amount: 3000, billing_cycle: "one_time", is_active: true,
+  });
+  data.player_subscriptions = [{
+    id: "legacy-monthly", player_id: "player-1", subscription_plan_id: "plan-1",
+    start_date: "2026-08-01", end_date: null, status: "active",
+    players: data.players[0], subscription_plans: data.subscription_plans[0]
+  }];
+  const originalRAF = window.requestAnimationFrame;
+  window.requestAnimationFrame = jest.fn(() => 1);
+  try {
+    render(<PlayerSubscriptions />);
+    await waitFor(() => expect(screen.getByText(/1 matching/)).toBeInTheDocument());
+    fireEvent.change(screen.getByLabelText("Player"), { target: { value: "player-1" } });
+    fireEvent.change(screen.getByLabelText("Plan"), { target: { value: "plan-1" } });
+    fireEvent.click(screen.getByRole("button", { name: "Edit existing subscription" }));
+    fireEvent.change(screen.getByLabelText("Plan"), { target: { value: "camp-plan" } });
+    expect(screen.getByLabelText("End date")).toHaveAttribute("readonly");
+    fireEvent.click(screen.getByRole("button", { name: "Update subscription" }));
+    expect(await screen.findByText(/cannot be converted to a One-time plan/)).toBeInTheDocument();
+    expect(data.lastInserted).toBeNull();
+  } finally {
+    window.requestAnimationFrame = originalRAF;
+  }
+});
+
 test("RC1.3 existing legacy subscriptions with missing end date are not silently backfilled", async () => {
   data.player_subscriptions = [{
     id: "subscription-legacy",
