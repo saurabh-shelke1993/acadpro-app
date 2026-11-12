@@ -10,7 +10,10 @@ on:
       - 'frontend/src/pages/PaymentDues.js'
       - 'frontend/src/pages/PaymentDues.test.js'
       - 'frontend/src/services/parentPortalService.js'
+      - 'frontend/src/services/parentPortalService.sp3.test.js'
       - 'frontend/src/pages/ParentFinancialOverview.js'
+      - 'frontend/src/pages/ParentFinancialOverview.sp3.test.js'
+      - 'frontend/src/components/ParentUpiPaymentSubmission.js'
       - '.github/workflows/sp3-one-time-camp-due-scratch.yml'
   workflow_dispatch:
 
@@ -78,6 +81,10 @@ jobs:
         env:
           CI: 'true'
         run: npm test -- --watchAll=false --runInBand --testPathPattern=PaymentDues.test.js
+      - name: Parent financial data service regression
+        env:
+          CI: 'true'
+        run: npm test -- --watchAll=false --runInBand --testPathPattern=parentPortalService.sp3.test.js
       - name: Parent financial overview regression
         env:
           CI: 'true'
