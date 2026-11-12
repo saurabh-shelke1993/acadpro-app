@@ -40,16 +40,16 @@ ALTER TABLE public.parent_payment_submissions
  ALTER COLUMN payment_date DROP DEFAULT,
  ALTER COLUMN status SET DEFAULT 'pending';
 ALTER TABLE public.payments ADD COLUMN external_transaction_reference text;
+-- Existing D1 rows are artificial read-policy markers; give them independent UTRs.
+UPDATE public.parent_payment_submissions
+ SET transaction_reference='AG34D33_legacy_'||id::text
+ WHERE transaction_reference='AG34D33_legacy';
 CREATE UNIQUE INDEX ag34d33_unique_utr ON public.parent_payment_submissions
  (academy_id,lower(btrim(transaction_reference)));
 CREATE UNIQUE INDEX ag34d33_unique_active_due ON public.parent_payment_submissions (due_id)
  WHERE status IN ('pending','accepted');
 CREATE UNIQUE INDEX ag34d33_unique_payment_link ON public.parent_payment_submissions (payment_id)
  WHERE payment_id IS NOT NULL;
--- Existing D1 rows are artificial read-policy markers; give them independent UTRs.
-UPDATE public.parent_payment_submissions
- SET transaction_reference='AG34D33_legacy_'||id::text
- WHERE transaction_reference='AG34D33_legacy';
 
 -- Original bodies, no rewrites, role checks preserved intentionally for reproduction.
 CREATE OR REPLACE FUNCTION public.record_accepted_parent_upi_submission(p_submission_id uuid)
