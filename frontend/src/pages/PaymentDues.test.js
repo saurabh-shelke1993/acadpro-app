@@ -129,6 +129,7 @@ test("RC1.2 rejects manual fee above the standard price without writing", async 
   fireEvent.click(d.getByLabelText("Use an Owner-approved first-period amount"));
   fireEvent.change(d.getByLabelText("Approved first-period fee"), { target: { value: "1800" } });
   fireEvent.change(d.getByLabelText("First-period fee adjustment reason"), { target: { value: "Joined midway through the month" } });
+  await waitFor(() => expect(d.getByRole("button", { name: "Generate Due" })).toBeEnabled());
   fireEvent.click(d.getByRole("button", { name: "Generate Due" }));
   await waitFor(() => expect(window.alert).toHaveBeenCalledWith(expect.stringMatching(/lower than the standard monthly rate/)));
   expect(createPaymentDueService).not.toHaveBeenCalled();
@@ -147,6 +148,7 @@ test("RC1.2 prevents an adjusted first-period due if the subscription already ha
   fireEvent.click(d.getByLabelText("Use an Owner-approved first-period amount"));
   fireEvent.change(d.getByLabelText("Approved first-period fee"), { target: { value: "1269.23" } });
   fireEvent.change(d.getByLabelText("First-period fee adjustment reason"), { target: { value: "Joined after first two scheduled sessions" } });
+  await waitFor(() => expect(d.getByRole("button", { name: "Generate Due" })).toBeEnabled());
   fireEvent.click(d.getByRole("button", { name: "Generate Due" }));
   await waitFor(() => expect(window.alert).toHaveBeenCalledWith(expect.stringMatching(/monthly due already exists/)));
   expect(createPaymentDueService).not.toHaveBeenCalled();
