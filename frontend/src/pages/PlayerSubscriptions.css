@@ -956,3 +956,58 @@
     width: 100%;
   }
 }
+
+/* RC1.3 — academy is implicit for Owners; Center / Batch / Player share one row. */
+.player-subscriptions-page .player-subscriptions-context-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .65rem;
+  align-items: end;
+  margin-top: .7rem;
+}
+.player-subscriptions-context-grid .player-subscriptions-field {
+  min-width: 0;
+}
+.player-subscriptions-page .player-subscriptions-assignment-grid {
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1fr) auto;
+  gap: .65rem;
+  margin-top: .7rem;
+}
+.player-subscriptions-page .player-subscriptions-admin-scope {
+  margin-bottom: .7rem;
+}
+.player-subscriptions-admin-scope .player-subscriptions-filter-field {
+  max-width: 380px;
+  width: 100%;
+}
+.player-subscriptions-page .player-subscriptions-end-date-field input[readonly] {
+  background: var(--ap-slate-50);
+  color: var(--ap-slate-800);
+  cursor: default;
+}
+.player-subscriptions-end-date-note {
+  margin: .45rem 0 0;
+  color: var(--ap-slate-600);
+  font-size: var(--ap-font-size-xs);
+  line-height: 1.5;
+}
+@media (max-width: 1200px) {
+  .player-subscriptions-page .player-subscriptions-context-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .player-subscriptions-page .player-subscriptions-assignment-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .player-subscriptions-page .player-subscriptions-form-action {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 720px) {
+  .player-subscriptions-page .player-subscriptions-context-grid,
+  .player-subscriptions-page .player-subscriptions-assignment-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .player-subscriptions-page .player-subscriptions-form-action {
+    grid-column: 1;
+  }
+}
