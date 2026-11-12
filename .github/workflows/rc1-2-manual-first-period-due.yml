@@ -6,6 +6,7 @@ on:
       - 'frontend/src/pages/PaymentDues.js'
       - 'frontend/src/pages/PaymentDues.css'
       - 'frontend/src/pages/PaymentDues.test.js'
+      - 'frontend/src/services/paymentService.js'
       - 'frontend/src/utils/manualFirstPeriodDue.js'
       - 'frontend/src/utils/manualFirstPeriodDue.test.js'
       - '.github/workflows/rc1-2-manual-first-period-due.yml'
