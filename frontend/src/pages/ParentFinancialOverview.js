@@ -145,6 +145,13 @@ const ParentFinancialOverview = () => {
   const formatDueType = (value) =>
     String(value || "Due").replaceAll("_", " ").replace(/\b\w/g, (char) => char.toUpperCase());
 
+  const formatDueTitle = (due) => {
+    const plan = due?.player_subscriptions?.subscription_plans?.plan_name;
+    return due?.due_type === "one_time"
+      ? (plan ? `${plan} · One-time` : "One-time camp")
+      : formatDueType(due?.due_type);
+  };
+
   const escapeHtml = (value) =>
     String(value ?? "")
       .replaceAll("&", "&amp;")
@@ -169,6 +176,8 @@ const ParentFinancialOverview = () => {
     const academyName = selectedChild?.academy?.academy_name || "AcadPro";
     const amount = formatAmount(payment.amount_paid);
     const paymentDate = formatDate(payment.payment_date, true);
+    const paymentPlan = payment.payment_dues?.player_subscriptions?.subscription_plans?.plan_name;
+    const paymentDueType = payment.payment_dues?.due_type;
 
     popup.document.write(
       `<!doctype html><html><head><title>${escapeHtml(payment.receipt_number)}</title>
@@ -191,8 +200,9 @@ const ParentFinancialOverview = () => {
           <div class="item"><span class="label">Player</span><span class="value">${escapeHtml(childName)}</span></div>
           <div class="item"><span class="label">Amount</span><span class="value amount">${escapeHtml(amount)}</span></div>
           <div class="item"><span class="label">Payment Date</span><span class="value">${escapeHtml(paymentDate)}</span></div>
-          <div class="item"><span class="label">Payment Mode</span><span class="value">${payment.payment_mode || "—"}</span></div>
-          <div class="item"><span class="label">Transaction Reference</span><span class="value">${payment.transaction_reference || "—"}</span></div>
+          ${paymentDueType ? `<div class="item"><span class="label">Fee</span><span class="value">${escapeHtml(paymentDueType === "one_time" ? (paymentPlan ? paymentPlan + " · One-time" : "One-time camp") : formatDueType(paymentDueType))}</span></div>` : ""}
+          <div class="item"><span class="label">Payment Mode</span><span class="value">${escapeHtml(payment.payment_mode || "—")}</span></div>
+          <div class="item"><span class="label">Transaction Reference</span><span class="value">${escapeHtml(payment.transaction_reference || "—")}</span></div>
           <div class="item"><span class="label">Receipt Number</span><span class="value">${escapeHtml(payment.receipt_number)}</span></div>
         </div>
         <div class="footer">Generated from AcadPro. Use the browser print dialog to print or save as PDF.</div>
@@ -300,7 +310,7 @@ const ParentFinancialOverview = () => {
                   {sortedPendingDues.map((due) => (
                     <article key={due.id} className="parent-finance-due-row">
                       <div className="parent-finance-due-main">
-                        <strong>{formatDueType(due.due_type)}</strong>
+                        <strong>{formatDueTitle(due)}</strong>
                         <span>Due {formatDate(due.due_date)}</span>
                       </div>
                       <span className={`parent-finance-status parent-finance-status-${String(due.due_status || "pending").toLowerCase()}`}>
@@ -408,6 +418,12 @@ const ParentFinancialOverview = () => {
                                 <span>Transaction</span>
                                 <strong>{payment.transaction_reference || "Not available"}</strong>
                               </div>
+                              {payment.payment_dues?.due_type === "one_time" && (
+                                <div>
+                                  <span>Camp</span>
+                                  <strong>{payment.payment_dues.player_subscriptions?.subscription_plans?.plan_name || "One-time camp"}</strong>
+                                </div>
+                              )}
                               <div>
                                 <span>Remarks</span>
                                 <strong>{payment.remarks || "—"}</strong>
