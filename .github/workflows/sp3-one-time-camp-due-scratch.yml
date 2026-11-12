@@ -13,6 +13,11 @@ on:
       - 'frontend/src/services/parentPortalService.sp3.test.js'
       - 'frontend/src/pages/ParentFinancialOverview.js'
       - 'frontend/src/pages/ParentFinancialOverview.sp3.test.js'
+      - 'frontend/docs/KHELTRIVA_SP3_ONE_TIME_CAMP_BILLING_20261113.md'
+      - 'frontend/docs/PROJECT_STATUS.md'
+      - 'frontend/docs/PROJECT_ARCHITECTURE.md'
+      - 'frontend/docs/PRODUCT_BACKLOG.md'
+      - 'DEVELOPMENT_CONTINUITY.md'
       - 'frontend/src/components/ParentUpiPaymentSubmission.js'
       - '.github/workflows/sp3-one-time-camp-due-scratch.yml'
   workflow_dispatch:
