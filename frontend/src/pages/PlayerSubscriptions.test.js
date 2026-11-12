@@ -244,7 +244,7 @@ test("PS-L1P2 preview is read-only when a player and monthly plan are selected",
   fireEvent.change(screen.getByLabelText("Player"), { target: { value: "player-1" } });
   fireEvent.change(screen.getByLabelText("Plan"), { target: { value: "plan-1" } });
   expect(screen.getByRole("region",{name:"First-period fee preview"})).toBeInTheDocument();
-  expect(screen.getByText(/Create subscription will not save the estimated end date/)).toBeInTheDocument();
+  expect(screen.getByText(/calendar-aligned end date is saved separately/)).toBeInTheDocument();
   expect(screen.getByRole("button",{name:"Create subscription"})).toBeInTheDocument();
   expect(supabase.from).not.toHaveBeenCalledWith("payment_dues");
 });
