@@ -10,7 +10,7 @@ BEGIN
     EXECUTE p_sql;
   EXCEPTION WHEN OTHERS THEN
     GET STACKED DIAGNOSTICS v_message = MESSAGE_TEXT;
-    IF pg_catalog.position(p_message IN v_message) > 0 THEN RETURN; END IF;
+    IF pg_catalog.strpos(v_message, p_message) > 0 THEN RETURN; END IF;
     RAISE EXCEPTION 'Expected error containing %, got %', p_message, v_message;
   END;
   RAISE EXCEPTION 'Expected error containing %, but statement succeeded', p_message;
