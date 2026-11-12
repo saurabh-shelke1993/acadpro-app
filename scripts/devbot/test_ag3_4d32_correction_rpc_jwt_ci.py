@@ -31,7 +31,7 @@ class CorrectionSourceGuards(unittest.TestCase):
 
     def test_candidate_isolated_and_always_null_safe(self):
         self.assertEqual(CANDIDATE.count("CREATE OR REPLACE FUNCTION public."),3)
-        self.assertEqual(len(re.findall(r"^\\s*if v_role is null or v_role not in",CANDIDATE,re.M)),3)
+        self.assertEqual(sum(1 for line in CANDIDATE.splitlines() if line.strip().startswith("if v_role is null or v_role not in")),3)
         self.assertIn("md5(pg_get_functiondef(",CANDIDATE)
         self.assertIn("current_database()<>'postgres'",CANDIDATE)
         self.assertIn("(SELECT count(*) FROM auth.users)<>29",CANDIDATE)
