@@ -362,6 +362,7 @@ const fetchPaymentDues = useCallback(async (
       paid_amount,
       remaining_amount,
     due_status,
+    remarks,
 
 player_subscriptions (
   subscription_plans (
@@ -712,11 +713,15 @@ const filterOptions = useMemo(() => ({
 
 const filteredRemaining = filteredDues.reduce((sum, due) => sum + Number(due.remaining_amount || 0), 0);
 
-const formatCurrency = (value) => new Intl.NumberFormat("en-IN", {
-  style: "currency",
-  currency: "INR",
-  maximumFractionDigits: 0
-}).format(Number(value || 0));
+const formatCurrency = (value) => {
+  const amount = Number(value || 0);
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    minimumFractionDigits: Number.isInteger(amount) ? 0 : 2,
+    maximumFractionDigits: 2
+  }).format(amount);
+};
 
 const formatDate = (value) => {
   if (!value) return "—";
@@ -894,6 +899,15 @@ useEffect(() => {
                           {canGenerateDue(loggedInUser) && <><button type="button" className="payment-text-button" onClick={(event) => { event.stopPropagation(); startEdit(due); }} aria-label={`Edit due for ${due.players?.full_name || "player"}`}>Edit</button><button type="button" className="payment-danger-button" onClick={(event) => { event.stopPropagation(); deleteDue(due); }} aria-label={`Delete due for ${due.players?.full_name || "player"}`}>Delete</button></>}
                         </div></td>
                       </tr>
+                      {isSelected && due.remarks && (
+                        <tr className="payment-due-note-row">
+                          <td colSpan="13">
+                            <div className="payment-due-note">
+                              <strong>Due notes:</strong> {due.remarks}
+                            </div>
+                          </td>
+                        </tr>
+                      )}
                       {isSelected && (
                         <tr className="payment-due-mobile-actions-row">
                           <td colSpan="13" className="payment-due-mobile-actions-cell">
