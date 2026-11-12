@@ -1,7 +1,7 @@
 import { getChildFinancialData } from "./parentPortalService";
-import { supabase } from "../services/supabase";
+import { supabase } from "../supabaseClient";
 
-jest.mock("../services/supabase", () => ({ supabase: { from: jest.fn() } }));
+jest.mock("../supabaseClient", () => ({ supabase: { from: jest.fn() } }));
 
 const due = {
   id: "camp-due", player_id: "child-1", due_type: "one_time",
