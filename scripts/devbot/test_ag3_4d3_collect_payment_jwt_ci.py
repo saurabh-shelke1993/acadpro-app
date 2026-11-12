@@ -9,6 +9,7 @@ sys.path.insert(0,str(Path(__file__).resolve().parent))
 import ag3_4d3_collect_payment_jwt_ci as d3
 
 SQL=(ROOT/"supabase/tests/security/ag34d3_collect_payment_rpc_scratch.sql").read_text(encoding="utf-8")
+CANDIDATE=(ROOT/"supabase/tests/security/ag34d3_scratch_null_role_candidate.sql").read_text(encoding="utf-8")
 SRC=Path(d3.__file__).read_text(encoding="utf-8")
 
 class CollectPaymentSafety(unittest.TestCase):
@@ -63,6 +64,14 @@ class CollectPaymentSafety(unittest.TestCase):
         with mock.patch.object(d3,"snapshot",return_value="same"), \
              mock.patch.object(d3,"collect",return_value=(400,{"message":"expected"})):
             d3.deny("key","token",d3.DUE_A1,10,"expected")
+
+    def test_confirm_real_source_null_role_bug_and_candidate(self):
+        self.assertIn("if v_role not in (\'super_admin\', \'academy_owner\') then",SQL)
+        self.assertIn("if v_role is null or v_role not in",CANDIDATE)
+        self.assertIn("AG34-HIGH-002 REPRODUCED",SRC)
+        self.assertIn("DUE_PROBE",SRC)
+        self.assertIn("unmapped signed-JWT denied after candidate",SRC)
+        self.assertIn("SOURCE" if False else "md5(pg_get_functiondef",CANDIDATE)
 
     def test_scratch_fault_is_after_number_allocation(self):
         self.assertLess(SQL.index("CREATE OR REPLACE FUNCTION public.collect_payment("),
