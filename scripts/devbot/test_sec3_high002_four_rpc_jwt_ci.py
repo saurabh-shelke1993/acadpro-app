@@ -54,8 +54,6 @@ class High002ReviewSourceTests(unittest.TestCase):
             # source_md5 occurs only in reviewed SQL, not in test runner.
             if phrase == "source_md5":
                 self.assertIn("source_md5", REVIEW)
-            elif phrase == "supabase/migrations":
-                self.assertIn("supabase/migrations", REVIEW)
             else:
                 self.assertIn(phrase, RUNNER)
         for forbidden in ("supabase link", "supabase db push",
