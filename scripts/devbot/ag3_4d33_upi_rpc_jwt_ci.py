@@ -6,6 +6,8 @@ Never invoke hosted endpoints, apply migrations, access customer data or deploy.
 """
 from __future__ import annotations
 
+from concurrent.futures import ThreadPoolExecutor
+
 import json
 import os
 from pathlib import Path
@@ -342,9 +344,28 @@ def main() -> int:
         if d31.snapshot() != baseline:
             raise UpiFailure("Rejected claim changed ledger")
 
+        stage = "late UPI wrapper fault rolls back collection, receipt, counters and claim"
+        fault = allowed(key, tokens["parent-b"], "submit_parent_upi_payment",
+                        submit(DUE_B, 5, "AG34D33_ABORT"), "pending")
+        allowed(key, tokens["owner-b"], "review_parent_upi_payment",
+                review(fault["id"]), "accepted")
+        deny(key, tokens["owner-b"], "record_accepted_parent_upi_submission",
+             record(fault["id"]), "AG34D33 synthetic wrapper rollback")
+        if claim_state(fault["id"]) != "accepted|-":
+            raise UpiFailure("Late-stage UPI failure changed claim status or payment link")
+        # Remove only invented trigger/function inside disposable fixture and retry.
+        d1.sql("-c", "DROP TRIGGER ag34d33_abort_recording ON public.parent_payment_submissions")
+        d1.sql("-c", "DROP FUNCTION private.ag34d33_abort_after_payment()")
+        allowed(key, tokens["owner-b"], "record_accepted_parent_upi_submission",
+                record(fault["id"]), "recorded")
+        if d31.due_state(DUE_B) != "75|partial":
+            raise UpiFailure("Wrapper fault retry did not create exactly one collection")
+        print("AG3.4D3.3 PASS: forced post-payment claim-update exception rolled back all state",
+              flush=True)
+
         stage = "stale accepted amount rejected atomically"
         stale = allowed(key, tokens["parent-b"], "submit_parent_upi_payment",
-                        submit(DUE_B, 30, "AG34D33_STALE"), "pending")
+                        submit(DUE_B, 25, "AG34D33_STALE"), "pending")
         allowed(key, tokens["owner-b"], "review_parent_upi_payment",
                 review(stale["id"]), "accepted")
         code, _ = d31.collect(key, tokens["owner-b"], DUE_B, 10)
@@ -354,6 +375,35 @@ def main() -> int:
              record(stale["id"]), "current remaining due is")
         if claim_state(stale["id"]) != "accepted|-":
             raise UpiFailure("Stale claim must remain accepted/unrecorded")
+        stage = "simultaneous double-recording of one accepted synthetic claim"
+        race_claim = seed("accepted", ACADEMY_A, PARENT_A, d31.DUE_RACE,
+                          d1.PLAYER_IDS[0], "AG34D33_RACE", 10)
+        before_count = int(d1.sql("-At", "-c", "SELECT count(*) FROM public.payments"))
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            futures = [pool.submit(rpc, key, tokens["owner-a"],
+                                   "record_accepted_parent_upi_submission",
+                                   record(race_claim)) for _ in range(2)]
+            results = [future.result(timeout=35) for future in futures]
+        successes = [(status, body) for status, body in results
+                     if status == 200 and isinstance(body, dict)
+                     and body.get("status") == "recorded"]
+        rejected = [(status, body) for status, body in results
+                    if status in (400, 409) and isinstance(body, dict)
+                    and "already been recorded" in str(body.get("message", ""))]
+        if (len(successes) != 1 or len(rejected) != 1
+            or claim_state(race_claim) != "recorded|" + successes[0][1].get("payment_id", "")
+            or d31.due_state(d31.DUE_RACE) != "75|partial"
+            or int(d1.sql("-At", "-c", "SELECT count(*) FROM public.payments")) != before_count + 1):
+            raise UpiFailure("Concurrent double-record did not commit exactly one payment")
+        if d1.sql("-At", "-c",
+                  "SELECT count(*) FROM public.parent_payment_submissions s "
+                  "JOIN public.payments p ON p.id=s.payment_id "
+                  "WHERE s.id='" + race_claim + "'::uuid "
+                  "AND p.external_transaction_reference='AG34D33_RACE'") != "1":
+            raise UpiFailure("Concurrent recording did not preserve one UTR payment link")
+        print("AG3.4D3.3 PASS: two concurrent signed Owner calls committed one payment/receipt",
+              flush=True)
+
         print("AG3.4D3.3 PASS: review NULL-role bypass reproduced; submission/recording denied; candidate UPI and ledger invariants",
               flush=True)
         print("AG3.4D3.3 LIMIT: synthetic tables/triggers only; hosted HIGH-001/002 remain OPEN; AG3.4E NO_GO",
