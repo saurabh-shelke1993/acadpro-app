@@ -64,8 +64,8 @@ class UpiSecurityContract(unittest.TestCase):
                 self.assertIn(guard, RUNNER)
 
     def test_real_jwt_negative_positive_and_financial_scenarios_are_written(self):
-        for marker in ("original NULL-role parent-linked submission reproduction",
-                       "original NULL-role cross-academy Owner review reproduction",
+        for marker in ("source original unmapped Parent submission denied by existing FK relationship",
+                       "original NULL-role Owner review reproduction on seeded pending claim",
                        "downstream NULL-safe tenant denial",
                        "install scratch-only strict UPI role",
                        "anonymous and forged bearer",
