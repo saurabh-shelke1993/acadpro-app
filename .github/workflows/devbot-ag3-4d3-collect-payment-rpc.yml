@@ -6,6 +6,7 @@ on:
       - 'scripts/devbot/ag3_4d3_collect_payment_jwt_ci.py'
       - 'scripts/devbot/test_ag3_4d3_collect_payment_jwt_ci.py'
       - 'supabase/tests/security/ag34d3_collect_payment_rpc_scratch.sql'
+      - 'supabase/tests/security/ag34d3_scratch_null_role_candidate.sql'
       - '.github/workflows/devbot-ag3-4d3-collect-payment-rpc.yml'
   push:
     branches: [security-ag34-d3-collect-payment-rpc-jwt, payment-module-finalization]
@@ -13,6 +14,7 @@ on:
       - 'scripts/devbot/ag3_4d3_collect_payment_jwt_ci.py'
       - 'scripts/devbot/test_ag3_4d3_collect_payment_jwt_ci.py'
       - 'supabase/tests/security/ag34d3_collect_payment_rpc_scratch.sql'
+      - 'supabase/tests/security/ag34d3_scratch_null_role_candidate.sql'
       - '.github/workflows/devbot-ag3-4d3-collect-payment-rpc.yml'
 permissions:
   contents: read
