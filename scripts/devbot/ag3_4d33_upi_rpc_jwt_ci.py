@@ -196,17 +196,27 @@ def allow_record(key: str, token: str, claim: str, due: str,
         or not str(body.get("receipt_number","")).startswith("RCPT-")
         or not str(body.get("transaction_reference","")).startswith("TXN-")):
         raise UpiFailure("Recorded UPI response violates payment/receipt contract")
-    if due_state(due)!=f"{100-remaining}|{expected_status}":
+    actual_due=due_state(due)
+    if actual_due!=f"{100-remaining}|{expected_status}":
+        print("AG3.4D3.3 DIAGNOSTIC record due mismatch expected="+
+              f"{100-remaining}|{expected_status}"+" actual="+actual_due,flush=True)
         raise UpiFailure("Recorded UPI due balance/status mismatch")
-    if claim_state(claim)!=f"recorded|{body['payment_id']}":
+    actual_claim=claim_state(claim)
+    if actual_claim!=f"recorded|{body['payment_id']}":
+        print("AG3.4D3.3 DIAGNOSTIC record claim link mismatch status="+
+              str(actual_claim.split("|")[0])+" linked="+
+              str(len(actual_claim.split("|"))>1 and bool(actual_claim.split("|")[1])),flush=True)
         raise UpiFailure("UPI claim ledger link or status missing")
     row=sqlscalar("SELECT count(*) FROM public.payments WHERE id='"+
                   body["payment_id"]+"'::uuid AND due_id='"+due+"'::uuid "+
                   "AND payment_mode='upi' AND payment_entry_type='payment' "+
                   "AND external_transaction_reference='"+ref+"' "+
                   "AND receipt_number='"+body["receipt_number"]+"'")
-    if row!="1" or int(sqlscalar("SELECT count(*) FROM public.payments WHERE due_id='"+
-                               due+"'::uuid")) != int(before_count)+1:
+    actual_count=sqlscalar("SELECT count(*) FROM public.payments WHERE due_id='"+
+                           due+"'::uuid")
+    if row!="1" or int(actual_count) != int(before_count)+1:
+        print("AG3.4D3.3 DIAGNOSTIC record payment assertion matching_row="+row+
+              " before_count="+before_count+" after_count="+actual_count,flush=True)
         raise UpiFailure("Recorded UPI was not exactly one ledger entry")
 
 def must_be_disposable() -> str:
