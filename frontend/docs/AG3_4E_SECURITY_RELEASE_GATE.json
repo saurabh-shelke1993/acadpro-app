@@ -67,6 +67,13 @@
       "mitigation": "H4 two private SQL exports created with SHA256 evidence, but full restore not verified. AG34-H5 local-only roles export/hash/six-table marker integrity checker and synthetic CI staged; original actual files remain private with Product Owner. Separate H5.2 isolated restore and physical Storage recovery missing. No hosted RLS migration applied; HIGH remains OPEN."
     },
     {
+      "id": "AG34-HIGH-002",
+      "severity": "HIGH",
+      "status": "open",
+      "subject": "Confirmed in source-attested disposable real-JWT reproduction: unmapped authenticated user can collect cross-academy payment via deployed collect_payment NULL-role comparison",
+      "mitigation": "Native run 43158144697 PASS: exact deployed source accepted an unauthorized synthetic payment and scratch-only NULL-denying candidate blocked it. Hosted function unchanged. Several correction/UPI RPCs have similar NULL-unsafe guards requiring 14-RPC behavioral review and coordinated migration with explicit hosted approval."
+    },
+    {
       "id": "AG34-GATE-002",
       "severity": "RELEASE_BLOCKER",
       "status": "open",
@@ -105,7 +112,7 @@
   ],
   "production_decision": "NO_GO",
   "dev_pr_merge_status": "Allowed if PR-specific checks succeed; unrelated to production deployment",
-  "source_limits": "AG34-H5 tests only synthetic SQL fixture verification logic in GitHub; private H4 backup files, roles snapshot and isolated restore have not been executed or inspected here. Separate schema/data/roles exports do not prove a common point-in-time snapshot. Physical Storage files absent from logical dumps. Existing RPC/Storage/Jest/B3/B4 and manual browser QA blockers remain. Hosted production NO_GO.",
+  "source_limits": "AG34-H5 tests only synthetic SQL fixture verification logic in GitHub; private H4 backup files, roles snapshot and isolated restore have not been executed or inspected here. Separate schema/data/roles exports do not prove a common point-in-time snapshot. Physical Storage files absent from logical dumps. Existing RPC/Storage/Jest/B3/B4 and manual browser QA blockers remain. Hosted production NO_GO. New HIGH-002 was REPRODUCED in scratch native signed-JWT CI run 43158144697; no hosted correction was performed.",
   "independent_frontend_build": {
     "result": "PASS",
     "evidence_url": "https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43057423740",

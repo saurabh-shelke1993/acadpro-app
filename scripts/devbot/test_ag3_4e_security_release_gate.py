@@ -20,6 +20,7 @@ class ReleaseGateTests(unittest.TestCase):
         decision,reasons=gate.evaluate(copy.deepcopy(self.data))
         self.assertEqual(decision,"NO_GO")
         self.assertIn("AG34-HIGH-001",reasons)
+        self.assertIn("AG34-HIGH-002",reasons)
         self.assertIn("coach_mapping_production_policy_remediation_verified",reasons)
 
     def test_complete_release_checklist_is_required(self):
@@ -63,6 +64,12 @@ class ReleaseGateTests(unittest.TestCase):
     def test_missing_high_blocker_is_rejected(self):
         d=copy.deepcopy(self.data)
         d["blocking_findings"]=[f for f in d["blocking_findings"] if f["id"]!="AG34-HIGH-001"]
+        with self.assertRaises(gate.GateContractError):
+            gate.evaluate(d)
+
+    def test_null_role_payment_high_finding_cannot_be_removed(self):
+        d=copy.deepcopy(self.data)
+        d["blocking_findings"]=[f for f in d["blocking_findings"] if f["id"]!="AG34-HIGH-002"]
         with self.assertRaises(gate.GateContractError):
             gate.evaluate(d)
 
