@@ -153,6 +153,79 @@ CREATE TRIGGER sp3_one_time_camp_due_guard
 BEFORE INSERT OR UPDATE OR DELETE ON public.payment_dues
 FOR EACH ROW EXECUTE FUNCTION private.enforce_one_time_camp_due();
 
+-- Protect immutable identity of a camp agreement once a charge exists.
+-- Status may still be manually deactivated by the existing subscription workflow.
+CREATE OR REPLACE FUNCTION private.protect_charged_one_time_enrollment()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $sp3_enrollment_guard$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM public.payment_dues d
+    WHERE d.subscription_id = OLD.id AND d.due_type = 'one_time'
+  ) THEN
+    IF TG_OP = 'DELETE' THEN
+      RAISE EXCEPTION 'A charged One-time camp enrollment cannot be deleted';
+    END IF;
+    IF OLD.player_id IS DISTINCT FROM NEW.player_id
+      OR OLD.subscription_plan_id IS DISTINCT FROM NEW.subscription_plan_id
+      OR OLD.start_date IS DISTINCT FROM NEW.start_date
+      OR OLD.end_date IS DISTINCT FROM NEW.end_date
+    THEN
+      RAISE EXCEPTION 'Charged One-time camp enrollment identity and dates cannot be changed';
+    END IF;
+  END IF;
+  RETURN CASE WHEN TG_OP = 'DELETE' THEN OLD ELSE NEW END;
+END;
+$sp3_enrollment_guard$;
+
+REVOKE ALL ON FUNCTION private.protect_charged_one_time_enrollment()
+  FROM PUBLIC, anon, authenticated;
+DROP TRIGGER IF EXISTS sp3_protect_charged_one_time_enrollment ON public.player_subscriptions;
+CREATE TRIGGER sp3_protect_charged_one_time_enrollment
+BEFORE UPDATE OR DELETE ON public.player_subscriptions
+FOR EACH ROW EXECUTE FUNCTION private.protect_charged_one_time_enrollment();
+
+-- The actual issued due is an amount snapshot. Once a camp has a charge,
+-- do not silently change that plan's name, price, cycle or academy identity,
+-- because these fields appear on Parent financial views and receipts.
+CREATE OR REPLACE FUNCTION private.protect_charged_one_time_plan()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $sp3_plan_guard$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM public.payment_dues d
+    WHERE d.one_time_plan_id = OLD.id AND d.due_type = 'one_time'
+  ) THEN
+    IF TG_OP = 'DELETE' THEN
+      RAISE EXCEPTION 'A charged One-time camp plan cannot be deleted';
+    END IF;
+    IF OLD.plan_name IS DISTINCT FROM NEW.plan_name
+      OR OLD.billing_cycle IS DISTINCT FROM NEW.billing_cycle
+      OR OLD.amount IS DISTINCT FROM NEW.amount
+      OR OLD.registration_fee IS DISTINCT FROM NEW.registration_fee
+      OR OLD.academy_id IS DISTINCT FROM NEW.academy_id
+      OR OLD.center_id IS DISTINCT FROM NEW.center_id
+    THEN
+      RAISE EXCEPTION 'Charged One-time camp plan identity and fee cannot be changed';
+    END IF;
+  END IF;
+  RETURN CASE WHEN TG_OP = 'DELETE' THEN OLD ELSE NEW END;
+END;
+$sp3_plan_guard$;
+
+REVOKE ALL ON FUNCTION private.protect_charged_one_time_plan()
+  FROM PUBLIC, anon, authenticated;
+DROP TRIGGER IF EXISTS sp3_protect_charged_one_time_plan ON public.subscription_plans;
+CREATE TRIGGER sp3_protect_charged_one_time_plan
+BEFORE UPDATE OR DELETE ON public.subscription_plans
+FOR EACH ROW EXECUTE FUNCTION private.protect_charged_one_time_plan();
+
 -- SECURITY INVOKER is deliberate: the caller must pass existing payment_dues
 -- RLS (plus SELECT policies). No SECURITY DEFINER shortcut or user_metadata.
 -- No user-supplied amount/date/type: the server reads them from the camp plan.
