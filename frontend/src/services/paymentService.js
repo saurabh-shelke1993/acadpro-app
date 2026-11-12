@@ -17,19 +17,13 @@ export const fetchPaymentDuesService = async (query) => {
 // =====================================================
 
 export const createPaymentDueService = async (dueData) => {
-
-  console.log("Due Data:", dueData);
-
+  // Financial amounts and approval remarks must not be logged to browser consoles.
   const { data, error } = await supabase
     .from("payment_dues")
     .insert([dueData])
     .select();
 
-  console.log("Insert Result:", data);
-  console.log("Insert Error:", error);
-
   if (error) throw error;
-
   return data;
 };
 

@@ -864,3 +864,89 @@
   font-size: 11px;
   line-height: 1.3;
 }
+
+/* RC1.2: optional one-time tuition amount, scoped to the first monthly due. */
+.payment-manual-first-period {
+  margin-top: 4px;
+  padding: 12px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #fff;
+}
+.payment-first-period-help,
+.payment-first-period-warning {
+  margin: 0;
+  color: #475569;
+  line-height: 1.5;
+  font-size: 12px;
+}
+.payment-first-period-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  cursor: pointer;
+}
+.payment-first-period-toggle input {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 17px;
+  accent-color: var(--ap-primary-600);
+}
+.payment-first-period-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
+  gap: 10px;
+  margin-top: 12px;
+}
+.payment-first-period-fields .payment-field {
+  min-width: 0;
+}
+.payment-first-period-fields .payment-field textarea {
+  display: block;
+  width: 100%;
+  padding: 8px 11px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  color: #0f172a;
+  background: #fff;
+  font: inherit;
+  font-size: 13px;
+  resize: vertical;
+  box-sizing: border-box;
+}
+.payment-first-period-fields .payment-field textarea:focus-visible,
+.payment-first-period-fields .payment-field input:focus-visible,
+.payment-first-period-toggle input:focus-visible {
+  outline: 2px solid var(--ap-primary-600);
+  outline-offset: 2px;
+}
+.payment-first-period-warning {
+  grid-column: 1 / -1;
+}
+@media (max-width: 640px) {
+  .payment-first-period-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .payment-first-period-warning {
+    grid-column: auto;
+  }
+}
+
+/* Selected due shows a saved reason without adding another wide table column. */
+.payment-due-note-row td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #e2e8f0;
+}
+.payment-due-note {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #475569;
+  overflow-wrap: anywhere;
+}
+.payment-due-note strong {
+  color: #0f172a;
+}
