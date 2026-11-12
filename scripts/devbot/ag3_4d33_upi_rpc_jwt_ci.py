@@ -376,8 +376,11 @@ def main() -> int:
         if claim_state(stale["id"]) != "accepted|-":
             raise UpiFailure("Stale claim must remain accepted/unrecorded")
         stage = "simultaneous double-recording of one accepted synthetic claim"
-        race_claim = seed("accepted", ACADEMY_A, PARENT_A, d31.DUE_RACE,
-                          d1.PLAYER_IDS[0], "AG34D33_RACE", 10)
+        race_submission = allowed(key, tokens["parent-a"], "submit_parent_upi_payment",
+                                  submit(d31.DUE_RACE, 10, "AG34D33_RACE"), "pending")
+        race_claim = race_submission["id"]
+        allowed(key, tokens["owner-a"], "review_parent_upi_payment",
+                review(race_claim), "accepted")
         before_count = int(d1.sql("-At", "-c", "SELECT count(*) FROM public.payments"))
         with ThreadPoolExecutor(max_workers=2) as pool:
             futures = [pool.submit(rpc, key, tokens["owner-a"],
