@@ -9,6 +9,10 @@ on:
       - 'frontend/src/services/paymentService.js'
       - 'frontend/src/utils/manualFirstPeriodDue.js'
       - 'frontend/src/utils/manualFirstPeriodDue.test.js'
+      - 'frontend/docs/KHELTRIVA_RC1_2_MANUAL_FIRST_PERIOD_DUE_20261112.md'
+      - 'frontend/docs/PROJECT_STATUS.md'
+      - 'frontend/docs/PRODUCT_BACKLOG.md'
+      - 'DEVELOPMENT_CONTINUITY.md'
       - '.github/workflows/rc1-2-manual-first-period-due.yml'
   workflow_dispatch:
 
