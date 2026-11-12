@@ -20,7 +20,7 @@ export const createOneTimeCampDueService = async (subscriptionId, client = supab
     if (error.code === "PGRST202" || /could not find the function|schema cache/i.test(error.message || "")) {
       throw new Error("The One-time camp billing service is not deployed. No payment due was created.");
     }
-    throw error;
+    throw new Error(error.message || "The One-time camp due could not be created.");
   }
   if (!data || typeof data !== "object" ||
     typeof data.created !== "boolean" || !data.id || data.due_type !== "one_time") {
