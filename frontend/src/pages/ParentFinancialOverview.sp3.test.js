@@ -3,9 +3,10 @@ import ParentFinancialOverview from "./ParentFinancialOverview";
 import { getChildFinancialData, getParentContext } from "../services/parentPortalService";
 
 jest.mock("../components/Layout", () => ({ children }) => <div>{children}</div>);
-jest.mock("react-router-dom", () => ({
-  useSearchParams: () => [new URLSearchParams(), jest.fn()],
-}));
+jest.mock("react-router-dom", () => {
+  const searchParams = new URLSearchParams();
+  return { useSearchParams: () => [searchParams, jest.fn()] };
+});
 jest.mock("../services/parentPortalService", () => ({
   getParentContext: jest.fn(),
   getChildFinancialData: jest.fn(),
