@@ -3,7 +3,7 @@
 **Date:** 13 November 2026 (IST)
 **Branch:** `sp2-one-time-camp-enrollment-dates` targeting `payment-module-finalization`
 **Product phase:** SP2 only (after SP1 plan-definition implementation)
-**Status:** CODE IMPLEMENTED IN ISOLATED DEVELOPMENT BRANCH. Focused CI, Owner UI acceptance and integration are separately gated; no production release authorization.
+**Status:** CODE IMPLEMENTED IN ISOLATED DEVELOPMENT BRANCH. Focused CI PASS (253 subscriptions tests + 27 payment-related tests, both React builds) at source SHA `6143d82`; Product Owner UI acceptance and integration still pending; no production release authorization.
 
 ## Accepted scope and behavior
 
@@ -36,13 +36,13 @@ The existing Payment Dues Generate form previously allowed a Monthly or Registra
 
 ## Tests and validations
 
-- [ ] Pure One-time camp date validation: summer/winter spans, single-day, invalid Feb/ISO, reversed periods, missing end.
-- [ ] UI: One-time plan enables End date, requires manual value, doesn't display monthly fee preview, clears manually entered end on plan switch.
-- [ ] UI: valid One-time creation preserves exactly the two dates in `player_subscriptions`; no `payment_dues`, `payments` or renewal call.
-- [ ] UI: existing separate Monthly plan does not block camp assignment; duplicate ACTIVE same camp plan still blocked.
-- [ ] UI: Super Admin cannot pair foreign-academy player and plan; legacy edit dates not silently rewritten.
-- [ ] UI: Payment Dues explicitly refuses One-time misbilling before SP3.
-- [ ] Existing Subscriptions, RC1.2 Payment Dues scoped tests + React production build on exact PR head.
+- [x] Pure One-time camp date validation: summer/winter spans, single-day, invalid Feb/ISO, reversed periods, missing end.
+- [x] UI: One-time plan enables End date, requires manual value, doesn't display monthly fee preview, clears manually entered end on plan switch.
+- [x] UI: valid One-time creation preserves exactly the two dates in `player_subscriptions`; no `payment_dues`, `payments` or renewal call.
+- [x] UI: existing separate Monthly plan does not block camp assignment; duplicate ACTIVE same camp plan still blocked.
+- [x] UI: Super Admin cannot pair foreign-academy player and plan; legacy edit dates not silently rewritten.
+- [x] UI: Payment Dues explicitly refuses One-time misbilling before SP3.
+- [x] Existing Subscriptions and RC1.2 Payment Dues scoped tests + React production build on source SHA `6143d82`: [subscriptions run 43294033296](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43294033296), [payment dues run 43294033154](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43294033154). Final docs-only head validation remains separate.
 - [ ] Product Owner manual desktop/mobile checks — see below.
 
 ## Product Owner UI acceptance checklist — local SP2 branch or merged development branch
