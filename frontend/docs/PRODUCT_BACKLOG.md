@@ -1,3 +1,7 @@
+## AG34-HIGH-002 — hardened privileged payment RPC role enforcement (12 Nov 2026)
+
+**PR #23 STAGED / NOT DEPLOYED:** Read-only deployed function review found `collect_payment` and several related privileged RPCs check `v_role NOT IN (...)` or `v_role <> ...` without rejecting NULL. A valid GoTrue user with no `public.users` mapping evaluates the role guard as UNKNOWN, then bypasses Academy Owner-only scoping. D3 source-attested JWT test must confirm original vulnerability and candidate fix in **disposable** Supabase; scan all 14 original RPC functions before remediation. Draft separately reviewed migration and rollback/backup plan, obtain explicit hosted DDL approval. Leave AG3.4E NO-GO and B4 blocked.
+
 # AcadPro Product Backlog
 
 ## AG34-H5 — verify the actual private H4 backup and rehearse safe restoration
