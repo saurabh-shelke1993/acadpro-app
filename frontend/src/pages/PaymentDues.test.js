@@ -154,6 +154,28 @@ test("RC1.2 prevents an adjusted first-period due if the subscription already ha
   expect(createPaymentDueService).not.toHaveBeenCalled();
 });
 
+test("RC1.2 a saved decimal due shows its exact paise and adjustment note when selected", async () => {
+  existingDues = [{
+    id: "display-due", subscription_id: "subscription-1",
+    due_type: "monthly", due_date: "2026-11-06",
+    total_amount: 1269.23, paid_amount: 0, remaining_amount: 1269.23, due_status: "pending",
+    remarks: "Owner-entered first-period monthly tuition adjustment.",
+    players: {
+      ...player,
+      academies: { academy_name: "Test Academy" },
+      centers: { center_name: "Main Center" },
+      batches: { batch_name: "Juniors" }
+    },
+    player_subscriptions: { subscription_plans: { plan_name: "Monthly" } }
+  }];
+  render(<PaymentDues />);
+  await waitFor(() => expect(screen.getByText("Test Junior")).toBeInTheDocument());
+  expect(screen.getAllByText("₹1,269.23").length).toBeGreaterThanOrEqual(2);
+  fireEvent.click(screen.getByText("Test Junior"));
+  expect(screen.getByText(/Due notes:/)).toBeInTheDocument();
+  expect(screen.getByText(/Owner-entered first-period monthly tuition adjustment/)).toBeInTheDocument();
+});
+
 test("RC1.2 Coach cannot generate manual or standard dues", async () => {
   getLoggedInUser.mockResolvedValue({ id: "coach-1", role: "coach", academy_id: "academy-1" });
   render(<PaymentDues />);
