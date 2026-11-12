@@ -1,3 +1,7 @@
+## HIGH-002 SEC-3 confirmation (13 Nov 2026)
+
+**SEC-3 COMPLETED / SIGNED-JWT SCRATCH TESTS PASS.** [GitHub run 43310522080](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43310522080) replayed all four exact live payment RPCs, proved original unmapped-user bypasses, then applied the single SEC-2 **review-only** patch to disposable Supabase and proved Owner/SA allowed, foreign Owner/Coach/Parent/unmapped/orphan/anon denied, clean ledger, receipts, concurrent payment and correction rollbacks. PR #34 remains OPEN DRAFT; **no hosted migration, no finance data touched, HIGH-002 LIVE OPEN**. **SEC-4:** Owner reviews evidence and isolated deployment plan. **SEC-5:** separately approved hosted change after recovery proof; no automatic execution. Parent UPI Claims UI/API removal deferred to separate beta task.
+
 ## HIGH-002 — exact-source four-RPC fail-closed security fix (13 Nov 2026)
 
 - **SEC-1: COMPLETED, read-only source audit:** live `collect_payment` + three correction RPCs have NULL-unsafe role and academy checks; original definitions/MD5/ownership verified.
