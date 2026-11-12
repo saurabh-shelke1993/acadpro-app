@@ -7,8 +7,10 @@ import { isLeapYear, SUBSCRIPTION_CYCLE_MONTHS } from "./subscriptionLifecycleDa
  * It does not indicate the paid-through date or trigger a renewal.
  */
 export const calculateCalendarAlignedEndDate = (startDate, billingCycle) => {
+  if (!Object.prototype.hasOwnProperty.call(SUBSCRIPTION_CYCLE_MONTHS, billingCycle)) {
+    throw new RangeError("Unsupported billing cycle");
+  }
   const months = SUBSCRIPTION_CYCLE_MONTHS[billingCycle];
-  if (!months) throw new RangeError("Unsupported billing cycle");
 
   const match = typeof startDate === "string" &&
     /^(\d{4})-(\d{2})-(\d{2})$/.exec(startDate);
