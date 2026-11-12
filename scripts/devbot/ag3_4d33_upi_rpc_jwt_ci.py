@@ -218,46 +218,40 @@ def main() -> int:
         if not ready:
             raise UpiFailure("Source RPC exposure or role guard not available")
 
-        stage = "original NULL-role parent-linked submission reproduction"
+        stage = "source original unmapped Parent submission denied by existing FK relationship"
         unmapped_id = users["unmapped"][0]
         if not uuid(unmapped_id):
             raise UpiFailure("Invalid unmapped test identity")
-        d1.sql("-c", "UPDATE public.parents SET user_id='" + unmapped_id +
-               "'::uuid WHERE id='" + PARENT_A + "'::uuid")
-        initial = snapshot()
-        original = allowed(key, tokens["unmapped"], "submit_parent_upi_payment",
-                           submit(DUE_A, 5, "AG34D33_ORIGINAL"), "pending")
-        original_id = original["id"]
-        if original.get("due_id") != DUE_A or snapshot() == initial:
-            raise UpiFailure("Original-source NULL-role parent submission bypass not proven")
-        print("AG34-HIGH-002 D3.3 REPRODUCED: unmapped JWT with linked parent submitted claim",
+        # parents.user_id -> public.users.id and users.role is non-NULL in hosted.
+        # Never disable the FK to invent a NULL-role Parent-submission exploit.
+        deny(key, tokens["unmapped"], "submit_parent_upi_payment",
+             submit(DUE_A, 5, "AG34D33_UNMAPPED"), "Parent profile not found")
+        print("AG3.4D3.3 PASS: original unmapped Parent submission denied by linked-profile boundary",
               flush=True)
 
-        stage = "original NULL-role cross-academy Owner review reproduction"
+        stage = "original NULL-role Owner review reproduction on seeded pending claim"
+        original_id = seed("pending", ACADEMY_A, PARENT_A, DUE_A,
+                           d1.PLAYER_IDS[0], "AG34D33_ORIGINAL", 5)
         unchanged_ledger = d31.snapshot()
         accepted = allowed(key, tokens["unmapped"], "review_parent_upi_payment",
                            review(original_id), "accepted")
         if accepted.get("reviewed_by_user_id") != unmapped_id or d31.snapshot() != unchanged_ledger:
-            raise UpiFailure("Original NULL-role review exploit or ledger non-mutation not proven")
-        print("AG34-HIGH-002 D3.3 REPRODUCED: unmapped JWT reviewed UPI claim", flush=True)
+            raise UpiFailure("Original NULL-role review bypass or ledger non-mutation not proven")
+        print("AG34-HIGH-002 D3.3 REPRODUCED: unmapped JWT reviewed a synthetic UPI claim",
+              flush=True)
 
-        stage = "original recording wrapper downstream NULL-safe tenant denial"
+        stage = "original recording downstream NULL-safe tenant denial"
         deny(key, tokens["unmapped"], "record_accepted_parent_upi_submission",
              record(original_id), TENANT_RECORD)
-        # A mapped NULL-role with the correct academy gets past the wrapper's nullable
-        # role comparison, but the already tested scratch collect_payment fix must deny.
-        d1.sql("-c", "INSERT INTO public.users(id,academy_id,role) VALUES ('" +
-               unmapped_id + "'::uuid,'" + ACADEMY_A + "'::uuid,NULL)")
-        deny(key, tokens["unmapped"], "record_accepted_parent_upi_submission",
-             record(original_id), "Only Academy Owner or Super Admin can collect payments")
-        d1.sql("-c", "DELETE FROM public.users WHERE id='" + unmapped_id + "'::uuid")
+        # The recording wrapper has a distinct-from check unlike the review RPC;
+        # reject rather than claiming it is exploitable without a valid test path.
         d1.sql("-c", "UPDATE public.parents SET user_id='" + users["parent-a"][0] +
                "'::uuid WHERE id='" + PARENT_A + "'::uuid")
         d1.sql("-c", "UPDATE public.parents SET user_id='" + users["parent-b"][0] +
                "'::uuid WHERE id='" + PARENT_B + "'::uuid")
         if d1.sql("-At", "-c", "SELECT count(*) FROM public.users") != "32":
-            raise UpiFailure("Fixture role cleanup failed")
-        print("AG3.4D3.3 PASS: original recording's later academy/collection guards prevented mutation",
+            raise UpiFailure("Fixture role mapping count changed")
+        print("AG3.4D3.3 PASS: original recording's NULL-safe tenant guard blocked unmapped JWT",
               flush=True)
 
         stage = "install scratch-only strict UPI role and tenant candidates"
@@ -352,7 +346,7 @@ def main() -> int:
              record(stale["id"]), "current remaining due is")
         if claim_state(stale["id"]) != "accepted|-":
             raise UpiFailure("Stale claim must remain accepted/unrecorded")
-        print("AG3.4D3.3 PASS: source exploits reproduced; candidate negative/positive UPI and ledger invariants",
+        print("AG3.4D3.3 PASS: review NULL-role bypass reproduced; submission/recording denied; candidate UPI and ledger invariants",
               flush=True)
         print("AG3.4D3.3 LIMIT: synthetic tables/triggers only; hosted HIGH-001/002 remain OPEN; AG3.4E NO_GO",
               flush=True)
