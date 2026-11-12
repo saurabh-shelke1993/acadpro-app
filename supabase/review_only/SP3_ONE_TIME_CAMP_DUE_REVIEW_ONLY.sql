@@ -122,14 +122,14 @@ BEGIN
     OR v_enrollment.plan_amount <= 0
     OR v_enrollment.plan_amount > 99999999.99
     OR v_enrollment.plan_amount <> pg_catalog.round(v_enrollment.plan_amount, 2)
-    OR pg_catalog.coalesce(v_enrollment.registration_fee, 0) <> 0
+    OR coalesce(v_enrollment.registration_fee, 0) <> 0
   THEN
     RAISE EXCEPTION 'One-time camp requires a valid positive plan amount and zero separate registration fee';
   END IF;
 
   IF NEW.due_date IS DISTINCT FROM v_enrollment.start_date
     OR NEW.total_amount IS DISTINCT FROM v_enrollment.plan_amount
-    OR pg_catalog.coalesce(NEW.paid_amount, 0) <> 0
+    OR coalesce(NEW.paid_amount, 0) <> 0
   THEN
     RAISE EXCEPTION 'One-time camp due date, initial paid amount or price differs from the enrollment';
   END IF;
@@ -228,7 +228,7 @@ BEGIN
     OR v_enrollment.amount <= 0
     OR v_enrollment.amount > 99999999.99
     OR v_enrollment.amount <> pg_catalog.round(v_enrollment.amount, 2)
-    OR pg_catalog.coalesce(v_enrollment.registration_fee, 0) <> 0
+    OR coalesce(v_enrollment.registration_fee, 0) <> 0
   THEN
     RAISE EXCEPTION 'Camp plan needs a positive amount and zero separate registration fee';
   END IF;
