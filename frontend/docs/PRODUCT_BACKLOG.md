@@ -1,3 +1,10 @@
+## SP1–SP4 — Seasonal camp One-time plan and fee flow (13 Nov 2026)
+
+- **SP1: IMPLEMENTED IN DEV PR; TEST/OWNER UI ACCEPTANCE PENDING.** Billing cycle dropdown includes One-time; form and list say Amount. One-time plan creation saves only a plan definition, not an enrollment or due. A UI note marks one-time billing not yet usable downstream. See `KHELTRIVA_SP1_ONE_TIME_PLAN_SETUP_20261113.md`.
+- **SP2: PENDING.** Design/implement manually dated camp enrollment; explicitly preserve existing recurring calendar and legacy record behavior.
+- **SP3: PENDING.** One-time payment due, collection, receipt, role/academy isolation, backend duplicate prevention, Parent Portal visibility. Do not repurpose Monthly due type.
+- **SP4: PENDING.** Automated integrated test and Owner four-role manual acceptance; external beta remains dependent on security, recovery and deployment gates.
+
 ## RC1.3 — Subscription form clarity and first calendar end date (12 Nov 2026)
 
 **IMPLEMENTED IN DEVELOPMENT PR; MANUAL UI ACCEPTANCE PENDING.** On Player Subscriptions, Academy Owner's repeated academy identity is removed; SA academy selector remains; Center/Batch/Player are aligned, with Plan/Start/End and Save together. New monthly/quarterly subscriptions automatically show and save the last date of their first fixed calendar period (12 Nov monthly → 30 Nov; quarterly → 31 Jan). Existing legacy end dates stay untouched, and changing a recorded period requires a separately approved workflow. This **does not** activate automated renewals or auto-post any fees/dues. Calendar-aligned new assignment is distinct from anniversary-model preview calculations; fee preview remains advisory and adjusted first-month dues remain manual via RC1.2. Open dependencies: production security NO-GO, Owner UI checks, future immutable period/price audit and reconciliation of 22 legacy open-ended subscriptions. See `KHELTRIVA_RC1_3_SUBSCRIPTION_FORM_CALENDAR_END_20261112.md`.

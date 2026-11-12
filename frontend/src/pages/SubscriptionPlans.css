@@ -432,3 +432,15 @@
     display: none;
   }
 }
+
+/* SP1: make the initial one-time plan-only limitation explicit. */
+.subscription-plans-one-time-note {
+  margin: .65rem 0 0;
+  padding: .55rem .75rem;
+  border: 1px solid var(--ap-primary-200);
+  border-radius: var(--ap-radius-md);
+  background: var(--ap-primary-50);
+  color: var(--ap-slate-700);
+  font-size: var(--ap-font-size-xs);
+  line-height: 1.5;
+}

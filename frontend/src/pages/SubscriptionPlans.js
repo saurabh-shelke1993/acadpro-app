@@ -8,7 +8,8 @@ import { getLoggedInUser, isSuperAdmin, getAcademyId } from "../utils/auth";
 const BILLING_CYCLES = [
   { value: "monthly", label: "Monthly" },
   { value: "quarterly", label: "Quarterly" },
-  { value: "half_yearly", label: "Half Yearly" }
+  { value: "half_yearly", label: "Half Yearly" },
+  { value: "one_time", label: "One-time" }
 ];
 const PAGE_SIZE = 5;
 
@@ -138,7 +139,7 @@ function SubscriptionPlans() {
     if (!selectedAcademy) return "Select an academy.";
     if (!planName.trim()) return "Enter a plan name.";
     if (!billingCycle) return "Select a billing cycle.";
-    if (amount === "" || Number(amount) < 0) return "Enter a valid recurring amount.";
+    if (amount === "" || Number(amount) < 0) return "Enter a valid amount.";
     if (registrationFee === "" || Number(registrationFee) < 0) return "Enter a valid registration fee.";
     return "";
   };
@@ -261,7 +262,7 @@ function SubscriptionPlans() {
             </div>
 
             <div className="subscription-plans-field">
-              <label htmlFor="subscription-plan-amount">Recurring amount</label>
+              <label htmlFor="subscription-plan-amount">Amount</label>
               <div className="subscription-plans-money-input"><span>₹</span><input id="subscription-plan-amount" type="number" min="0" step="0.01" inputMode="decimal" placeholder="0.00" value={amount} onChange={(e) => setAmount(e.target.value)} /></div>
             </div>
 
@@ -276,6 +277,13 @@ function SubscriptionPlans() {
               </button>
             </div>
           </div>
+
+          {billingCycle === "one_time" && (
+            <p className="subscription-plans-one-time-note" role="status">
+              One-time plan setup only. Assigning camp participants and generating one-time payment dues
+              will be supported in SP2 and SP3; this plan does not automatically charge anyone.
+            </p>
+          )}
 
           {formError && <div className="subscription-plans-form-error" role="alert">{formError}</div>}
         </section>
@@ -308,7 +316,7 @@ function SubscriptionPlans() {
               <caption className="sr-only">Subscription plans</caption>
               <thead><tr>
                 {isSuperAdmin(loggedInUser) && <th scope="col">Academy</th>}
-                <th scope="col">Plan</th><th scope="col">Billing cycle</th><th scope="col">Recurring amount</th><th scope="col">Registration</th><th scope="col">Status</th><th scope="col">Actions</th>
+                <th scope="col">Plan</th><th scope="col">Billing cycle</th><th scope="col">Amount</th><th scope="col">Registration</th><th scope="col">Status</th><th scope="col">Actions</th>
               </tr></thead>
               <tbody>
                 {paginatedPlans.length === 0 ? <tr><td className="subscription-plans-empty-state" colSpan={isSuperAdmin(loggedInUser) ? 7 : 6}><strong>No plans found</strong><span>{statusFilter === "active" ? "Create a plan or switch the status filter to view inactive plans." : "Try a different filter or create a new plan."}</span></td></tr> :

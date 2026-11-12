@@ -13,6 +13,8 @@ on:
       - 'frontend/src/components/Sidebar.js'
       - 'frontend/src/components/Sidebar.test.js'
       - 'frontend/src/pages/SubscriptionPlans.js'
+      - 'frontend/src/pages/SubscriptionPlans.css'
+      - 'frontend/src/pages/SubscriptionPlans.test.js'
       - 'frontend/src/pages/PlayerSubscriptions.js'
       - 'frontend/src/pages/PlayerSubscriptions.css'
       - 'frontend/src/pages/PlayerSubscriptions.test.js'
@@ -32,6 +34,9 @@ on:
       - 'frontend/src/pages/PlayerSubscriptions.js'
       - 'frontend/src/pages/PlayerSubscriptions.css'
       - 'frontend/src/pages/PlayerSubscriptions.test.js'
+      - 'frontend/src/pages/SubscriptionPlans.js'
+      - 'frontend/src/pages/SubscriptionPlans.css'
+      - 'frontend/src/pages/SubscriptionPlans.test.js'
       - 'frontend/src/components/SubscriptionFeePreview.js'
       - 'frontend/src/components/SubscriptionFeePreview.test.js'
       - 'frontend/src/utils/subscriptionCalendarEndDate.js'
@@ -71,6 +76,10 @@ jobs:
         env:
           CI: 'true'
         run: npm test -- --watchAll=false --runInBand --testPathPattern=PlayerSubscriptions.test.js
+      - name: Run Subscription Plans SP1 tests
+        env:
+          CI: 'true'
+        run: npm test -- --watchAll=false --runInBand --testPathPattern=SubscriptionPlans.test.js
       - name: Run PS-L1 date-only lifecycle unit tests
         env:
           CI: 'true'
