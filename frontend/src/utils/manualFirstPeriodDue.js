@@ -24,6 +24,9 @@ export const moneyFromPaise = (paise) => (paise / 100).toFixed(2);
 export const canAdjustFirstPeriodDue = (subscription, dueType, dueDate) => (
   subscription?.status === "active" &&
   subscription?.subscription_plans?.billing_cycle === "monthly" &&
+  Boolean(subscription?.players?.academy_id &&
+    subscription?.subscription_plans?.academy_id &&
+    subscription.players.academy_id === subscription.subscription_plans.academy_id) &&
   dueType === "monthly" &&
   Boolean(subscription?.start_date && dueDate) &&
   subscription.start_date === dueDate
@@ -31,7 +34,7 @@ export const canAdjustFirstPeriodDue = (subscription, dueType, dueDate) => (
 
 export const prepareManualFirstPeriodDue = ({ subscription, dueType, dueDate, enteredAmount, reason }) => {
   if (!canAdjustFirstPeriodDue(subscription, dueType, dueDate)) {
-    throw new Error("A first-period fee can only be entered for an active monthly subscription on its start date.");
+    throw new Error("A first-period fee requires an active monthly subscription, matching academy and due date equal to the start date.");
   }
 
   const fullPaise = toMoneyPaise(subscription.subscription_plans.amount);
