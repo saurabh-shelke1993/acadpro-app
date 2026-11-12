@@ -8,8 +8,9 @@ import {
 const sub = Object.freeze({
   id: "subscription-1",
   status: "active",
+  players: Object.freeze({ academy_id: "academy-A" }),
   start_date: "2026-11-06",
-  subscription_plans: Object.freeze({ billing_cycle: "monthly", amount: 1500 }),
+  subscription_plans: Object.freeze({ billing_cycle: "monthly", amount: 1500, academy_id: "academy-A" }),
 });
 const request = (changes = {}) => ({
   subscription: sub,
@@ -50,6 +51,12 @@ test("RC1.2 permits only active monthly subscriptions on their start date", () =
   expect(canAdjustFirstPeriodDue(sub, "registration", sub.start_date)).toBe(false);
   expect(canAdjustFirstPeriodDue({ ...sub, status: "inactive" }, "monthly", sub.start_date)).toBe(false);
   expect(canAdjustFirstPeriodDue({ ...sub, subscription_plans: { ...sub.subscription_plans, billing_cycle: "quarterly" } }, "monthly", sub.start_date)).toBe(false);
+});
+
+test("RC1.2 blocks cross-academy player/plan conflicts", () => {
+  const wrongAcademy = { ...sub, subscription_plans: { ...sub.subscription_plans, academy_id: "academy-B" } };
+  expect(canAdjustFirstPeriodDue(wrongAcademy, "monthly", sub.start_date)).toBe(false);
+  expect(() => prepareManualFirstPeriodDue(request({ subscription: wrongAcademy }))).toThrow(/matching academy/);
 });
 
 test("RC1.2 rejects attempts to change old or non-monthly dues", () => {
