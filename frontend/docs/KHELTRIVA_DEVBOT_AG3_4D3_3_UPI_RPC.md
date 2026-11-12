@@ -1,6 +1,6 @@
 # AG3.4D3.3 — Source-attested Parent UPI RPC security regression
 
-**State: development implementation; native signed-JWT CI and Product Owner review NOT YET ACCEPTED.**
+**State: IMPLEMENTED / NATIVE REAL-JWT CI PASS / Owner manual acceptance PENDING / development DRAFT PR.**
 **Scope:** exact hosted `submit_parent_upi_payment`, `review_parent_upi_payment`, `record_accepted_parent_upi_submission`, as read-only captured 12 November 2026. No hosted DDL/DML or customer financial records; no `main` or Vercel release. AG34-HIGH-001 and HIGH-002 remain **OPEN**; AG3.4E remains **NO-GO**.
 
 ## Existing workflow and permissions
@@ -48,11 +48,11 @@ Workflow `.github/workflows/devbot-ag3-4d33-upi-rpcs.yml` executes the existing 
 8. Duplicate record and stale/over-balance record must fail with unchanged financial/claim snapshot.
 9. Fail CI on unexpected success, unrelated error text, source checksum drift, unauthorized mutation, missing invoice/receipt, missing teardown or wrong JWT scope.
 
-Synthetic source-required schema does not reproduce all hosted triggers, indexes, Storage policies or historical migrations. Additional forced downstream failure and concurrent recording attempts should be reviewed as separately explicit follow-up if not proven by this run. The D3.1 existing payment rollback/concurrency checks are prerequisites, but do not by themselves certify UPI wrapper concurrency.
+Synthetic source-required schema does not reproduce all hosted triggers, indexes, Storage policies or historical migrations. **Not proven in D3.3:** an independently forced late failure *inside the UPI recording wrapper* and simultaneous double-record attempts. D3.1 payment rollback/concurrency prerequisites passed but do not by themselves certify those wrapper scenarios. Full live triggers, source provenance and browser authorization also remain open. The D3.1 existing payment rollback/concurrency checks are prerequisites, but do not by themselves certify UPI wrapper concurrency.
 
 ## Validation and release gates
 
-- Native CI: **PENDING** until exact-HEAD GitHub Actions run succeeds.
+- Native genuine-JWT CI: **PASS** on code SHA `d97118b27f9673fbf6fdbc24fdf5824f17d5ce4a`, [run 43169434723](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43169434723). Both D3.2 and D3.3 offline 10/10 tests passed; original deployed source/ACL test, unmapped Parent denial, unmapped Owner-review cross-role bypass **reproduced in scratch**, recording downstream NULL-safe tenant rejection, candidate role/tenant negatives, Parent and Owner positives, UTR/active-due uniqueness, acceptance ledger separation, receipt/UTR link, duplicate recording and stale claim rejection passed. If source changes after this run, re-check exact-head CI before merging.
 - Product Owner/manual four-role browser acceptance: **PENDING**.
 - Hosted remediation migration and genuine hosted role/tenant postflight: **NOT AUTHORIZED**.
 - Historical 82-version migration provenance, H5.2 restore, HIGH-001 legacy mapping and HIGH-002 payment RPC fixes: still **OPEN**.
