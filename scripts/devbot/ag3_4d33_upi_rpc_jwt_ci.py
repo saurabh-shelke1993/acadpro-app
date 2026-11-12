@@ -197,7 +197,9 @@ def allow_record(key: str, token: str, claim: str, due: str,
         or not str(body.get("transaction_reference","")).startswith("TXN-")):
         raise UpiFailure("Recorded UPI response violates payment/receipt contract")
     actual_due=due_state(due)
-    if actual_due!=f"{100-remaining}|{expected_status}":
+    due_parts=actual_due.split("|")
+    if (len(due_parts)!=2 or Decimal(due_parts[0])!=Decimal(100-remaining)
+        or due_parts[1]!=expected_status):
         print("AG3.4D3.3 DIAGNOSTIC record due mismatch expected="+
               f"{100-remaining}|{expected_status}"+" actual="+actual_due,flush=True)
         raise UpiFailure("Recorded UPI due balance/status mismatch")
@@ -425,7 +427,8 @@ def main() -> int:
         if (len(successes)!=1 or len(rejects)!=1
             or "already been recorded" not in str(rejects[0][1].get("message",""))
             or claim_state(race).split("|")[0]!="recorded"
-            or due_state(DUE_RACE)!="60|partial"
+            or Decimal(due_state(DUE_RACE).split("|")[0])!=Decimal(60)
+            or due_state(DUE_RACE).split("|")[-1]!="partial"
             or sqlscalar("SELECT count(*) FROM public.payments WHERE due_id='"+DUE_RACE+"'::uuid")!="1"):
             raise UpiFailure("Concurrent accepted recording violated exactly-once invariant")
         print("AG3.4D3.3 PASS: concurrent calls commit exactly one payment and receipt",flush=True)
