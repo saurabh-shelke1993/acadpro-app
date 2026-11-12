@@ -1,3 +1,7 @@
+## RC1.3 Player Subscriptions new calendar end (12 Nov 2026)
+
+RC1.3 groups Owner Center/Batch/Player in one form row (Academy Owner header removed), with Plan/Start/End/Action in the next; Super Admin's academy selector remains. The `subscriptionCalendarEndDate.js` pure helper calculates fixed-calendar ends (monthly Nov 12–Nov 30; quarterly Nov 12–Jan 31); **only newly created agreements** save the calculated `player_subscriptions.end_date` in the existing column. Existing legacy `NULL` end dates are not inferred or backfilled; recorded-end plan/start edits require separate approval. The separate `subscriptionLifecycleDates.js` anniversary model and `SubscriptionFeePreview.js` pricing simulation remain distinct and do not save first-month discount or create a due. A calendar end is NOT verified payment entitlement or an automatic renewal instruction. No schema, grant, policy, tenant or payment ledger change. See `KHELTRIVA_RC1_3_SUBSCRIPTION_FORM_CALENDAR_END_20261112.md`; historical PS-L1P2 sections below remain previous-point-in-time descriptions.
+
 # AcadPro Architecture
 
 **Last Updated:** 6 November 2026 (PS-L2.3 local Supabase replay gap; no live deployment)
