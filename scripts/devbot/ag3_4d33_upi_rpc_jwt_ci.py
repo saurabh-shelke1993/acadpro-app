@@ -239,8 +239,10 @@ def main() -> int:
         if not ready:
             raise UpiFailure("Original submission function schema/guard unavailable")
 
-        step="original source: legitimate Parent submit and unsafe NULL comparison observation"
+        step="original source: legitimate Parent submit and claim insert"
         claim_a=allow_submit(key,tokens["parent-a"],DUE_A,REF_A)
+        print("AG3.4D3.3 ORIGINAL: legitimate Parent submission inserted only claim",flush=True)
+        step="original source: unmapped JWT submit profile guard"
         deny(key,tokens["unmapped"],"submit_parent_upi_payment",
              submit_args(DUE_SECOND,"AG34D33-UNMAPPED"),
              "Parent profile not found")
