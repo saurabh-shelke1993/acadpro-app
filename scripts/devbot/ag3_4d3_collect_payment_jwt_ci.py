@@ -12,6 +12,7 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+import time
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
@@ -140,15 +141,31 @@ def main() -> int:
             raise RpcFailure("Real Auth identity cardinality drift")
         print("AG3.4D3 PASS: live function/number-helper MD5 matched and ACLs pinned",flush=True)
         tokens = {name: val[1] for name,val in sessions.items()}
+        step = "PostgREST function schema cache readiness"
+        ready = False
+        for _ in range(24):
+            status, body = collect(key, tokens["owner-a"], DUE_A1, 0)
+            if (status == 400 and isinstance(body,dict)
+                and "Payment amount must be greater than zero" in str(body.get("message",""))):
+                ready = True
+                break
+            time.sleep(0.5)
+        if not ready:
+            raise RpcFailure("Source RPC did not expose expected validation guard after schema reload")
         baseline = snapshot()
         step = "role/tenant/parameter guards"
         role_error = "Only Academy Owner or Super Admin can collect payments"
         for label in ("coach","parent","unmapped"):
+            step = "wrong role rejected: "+label
             deny(key,tokens[label],DUE_A1,20,role_error)
+        step = "foreign academy Owner rejected"
         deny(key,tokens["owner-b"],DUE_A1,20,
              "You are not authorized to collect this payment")
+        step = "zero payment rejected"
         deny(key,tokens["owner-a"],DUE_A1,0,"Payment amount must be greater than zero")
+        step = "unsupported payment mode rejected"
         deny(key,tokens["owner-a"],DUE_A1,20,"Unsupported payment mode",mode="invalid")
+        step = "overpayment rejected"
         deny(key,tokens["owner-a"],DUE_A1,101,
              "Payment exceeds the remaining due amount")
         if snapshot()!=baseline:
