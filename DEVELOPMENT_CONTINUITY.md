@@ -1,3 +1,7 @@
+## AG34-HIGH-002 / D3 — NULL role in privileged finance RPC (12 Nov 2026)
+
+**DEVELOPMENT / NOT HOSTED:** [PR #23](https://github.com/saurabh-shelke1993/acadpro-app/pull/23) adds real JWT PostgREST calls to exact deployed `collect_payment` and `private.next_payment_number`. Initial native CI passed source/ACL/C2/D1 checks but failed on unmapped valid JWT — deployed `v_role NOT IN ('super_admin','academy_owner')` is SQL NULL-unsafe. Scratch-only exploit reproduction and candidate explicit NULL-denial tests are now under CI; investigate similarly guarded payment correction and UPI functions. No live SQL writes, no policy/function deployment, AG3.4E NO-GO.
+
 # Kheltriva — Development Continuity
 
 ## AG34-H5 — private backup integrity and recovery gate (11 November 2026)
