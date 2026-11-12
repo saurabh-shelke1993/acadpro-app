@@ -6,6 +6,9 @@ import {
   fetchPaymentDuesService, createPaymentDueService
 } from "../services/paymentService";
 import {
+  createOneTimeCampDueService, isOneTimeCampDueEnabled
+} from "../services/oneTimeCampDueService";
+import {
   getAccessibleAcademies, getAccessibleCenters,
   getAccessibleBatches, getAccessiblePlayers
 } from "../utils/dataScope";
@@ -14,6 +17,10 @@ jest.mock("../components/Layout", () => ({ children }) => <div>{children}</div>)
 jest.mock("react-router-dom", () => ({ useNavigate: () => jest.fn() }));
 jest.mock("../utils/auth", () => ({ getLoggedInUser: jest.fn() }));
 jest.mock("../supabaseClient", () => ({ supabase: { from: jest.fn() } }));
+jest.mock("../services/oneTimeCampDueService", () => ({
+  createOneTimeCampDueService: jest.fn(),
+  isOneTimeCampDueEnabled: jest.fn()
+}));
 jest.mock("../utils/dataScope", () => ({
   getAccessibleAcademies: jest.fn(), getAccessibleCenters: jest.fn(),
   getAccessibleBatches: jest.fn(), getAccessiblePlayers: jest.fn()
@@ -60,6 +67,11 @@ beforeEach(() => {
   existingDues = [];
   activeSubscription = sub;
   jest.clearAllMocks();
+  isOneTimeCampDueEnabled.mockReturnValue(false);
+  createOneTimeCampDueService.mockResolvedValue({
+    id: "camp-due-1", created: true, due_type: "one_time", due_date: "2026-11-06",
+    total_amount: 3000, paid_amount: 0, remaining_amount: 3000, due_status: "pending"
+  });
   getLoggedInUser.mockResolvedValue({ id: "owner-1", role: "academy_owner", academy_id: "academy-1" });
   getAccessibleAcademies.mockResolvedValue([{ id: "academy-1", academy_name: "Test Academy" }]);
   getAccessibleCenters.mockResolvedValue([{ id: "center-1", center_name: "Main Center", academy_id: "academy-1" }]);
@@ -178,7 +190,7 @@ test("RC1.2 a saved decimal due shows its exact paise and adjustment note when s
   expect(screen.getByText(/Owner-entered first-period monthly tuition adjustment/)).toBeInTheDocument();
 });
 
-test("SP2 One-time camp is visible for review but cannot be misbilled as Monthly/Registration", async () => {
+test("SP3 One-time camp is visible as a locked, server-managed due until the backend is deployed", async () => {
   activeSubscription = {
     ...sub,
     subscription_plans: {
@@ -188,12 +200,70 @@ test("SP2 One-time camp is visible for review but cannot be misbilled as Monthly
     }
   };
   const d = await selectSubscription();
-  expect(d.getByText(/One-time camp payment dues are not available yet/)).toBeInTheDocument();
-  expect(d.getByText(/Do not use Monthly or Registration/)).toBeInTheDocument();
+  expect(d.getByText(/One-time camp payment dues are not enabled yet/)).toBeInTheDocument();
+  expect(d.getByText(/approved database safeguards must be installed/)).toBeInTheDocument();
+  expect(d.getByLabelText("Due Type")).toHaveValue("one_time");
+  expect(d.getByLabelText("Due Type")).toBeDisabled();
+  expect(d.getByLabelText("Due Date")).toHaveValue("2026-11-06");
+  expect(d.getByLabelText("Due Date")).toHaveAttribute("readonly");
   expect(d.getByRole("button", { name: "Generate Due" })).toBeDisabled();
   expect(d.queryByLabelText("Use an Owner-approved first-period amount")).not.toBeInTheDocument();
-  fireEvent.change(d.getByLabelText("Due Type"), { target: { value: "registration" } });
-  expect(d.getByRole("button", { name: "Generate Due" })).toBeDisabled();
+  expect(createPaymentDueService).not.toHaveBeenCalled();
+  expect(createOneTimeCampDueService).not.toHaveBeenCalled();
+});
+
+test("SP3 enabled One-time camp uses server RPC and does not pass amount, due type or date from browser", async () => {
+  isOneTimeCampDueEnabled.mockReturnValue(true);
+  activeSubscription = {
+    ...sub, subscription_plans: {
+      ...sub.subscription_plans, plan_name: "Summer Camp U12",
+      amount: 3000, billing_cycle: "one_time"
+    }
+  };
+  const d = await selectSubscription();
+  expect(d.getByLabelText("Due Type")).toHaveValue("one_time");
+  expect(d.getByText(/one fee per player per camp plan/i)).toBeInTheDocument();
+  await waitFor(() => expect(d.getByRole("button", { name: "Generate Due" })).toBeEnabled());
+  fireEvent.click(d.getByRole("button", { name: "Generate Due" }));
+  await waitFor(() => expect(createOneTimeCampDueService).toHaveBeenCalledWith("subscription-1"));
+  expect(window.confirm).toHaveBeenCalledTimes(1);
+  expect(window.confirm).toHaveBeenCalledWith(expect.stringContaining("ONE pending One-time camp due"));
+  expect(window.alert).toHaveBeenCalledWith(expect.stringContaining("One-time camp due generated"));
+  expect(createPaymentDueService).not.toHaveBeenCalled();
+});
+
+test("SP3 already charged camp is idempotent and reports no duplicate", async () => {
+  isOneTimeCampDueEnabled.mockReturnValue(true);
+  activeSubscription = {
+    ...sub, subscription_plans: {
+      ...sub.subscription_plans, amount: 3000, billing_cycle: "one_time"
+    }
+  };
+  createOneTimeCampDueService.mockResolvedValue({
+    id: "camp-due-existing", created: false, due_type: "one_time",
+    due_date: "2026-11-06", total_amount: 3000, paid_amount: 0,
+    remaining_amount: 3000, due_status: "pending"
+  });
+  const d = await selectSubscription();
+  await waitFor(() => expect(d.getByRole("button", { name: "Generate Due" })).toBeEnabled());
+  fireEvent.click(d.getByRole("button", { name: "Generate Due" }));
+  await waitFor(() => expect(window.alert).toHaveBeenCalledWith(expect.stringContaining("No duplicate charge")));
+  expect(createOneTimeCampDueService).toHaveBeenCalledTimes(1);
+  expect(createPaymentDueService).not.toHaveBeenCalled();
+});
+
+test("SP3 cancel before authorization never submits a One-time charge", async () => {
+  isOneTimeCampDueEnabled.mockReturnValue(true);
+  activeSubscription = {
+    ...sub, subscription_plans: {
+      ...sub.subscription_plans, amount: 3000, billing_cycle: "one_time"
+    }
+  };
+  window.confirm.mockReturnValue(false);
+  const d = await selectSubscription();
+  await waitFor(() => expect(d.getByRole("button", { name: "Generate Due" })).toBeEnabled());
+  fireEvent.click(d.getByRole("button", { name: "Generate Due" }));
+  expect(createOneTimeCampDueService).not.toHaveBeenCalled();
   expect(createPaymentDueService).not.toHaveBeenCalled();
 });
 
