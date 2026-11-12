@@ -103,7 +103,10 @@ def snapshot() -> str:
 def deny(key: str, token: str | None, fn: str, args: dict, expected: str) -> None:
     before = snapshot()
     status, body = rpc(key, token, fn, args)
-    if status not in (400, 401, 403) or not isinstance(body, dict):
+    # PostgREST reports PostgreSQL 23505 unique-index rejection as HTTP 409.
+    # It is allowed ONLY for the expected duplicate-active-claim constraint case.
+    constraint_conflict = status == 409 and expected == "duplicate key"
+    if (status not in (400, 401, 403) and not constraint_conflict) or not isinstance(body, dict):
         raise UpiFailure("UPI RPC did not deny unauthorized/invalid call")
     if expected not in str(body.get("message", "")):
         raise UpiFailure("UPI RPC denial did not reach the expected guard")
@@ -301,19 +304,24 @@ def main() -> int:
              record(original_id), "already been recorded")
 
         stage = "positive Parent A submits, Owner accepts, then records final due"
+        stage = "Parent A submits final synthetic claim"
         new_claim = allowed(key, tokens["parent-a"], "submit_parent_upi_payment",
                             submit(DUE_A, 5, "AG34D33_FINAL"), "pending")
         claim = new_claim["id"]
+        stage = "duplicate academy UTR guard"
         deny(key, tokens["parent-a"], "submit_parent_upi_payment",
              submit(DUE_A, 5, "AG34D33_FINAL"), "already been submitted")
+        stage = "duplicate active claim unique index guard"
         deny(key, tokens["parent-a"], "submit_parent_upi_payment",
              submit(DUE_A, 5, "AG34D33_ACTIVE"), "duplicate key")
         # Review is explicitly nonfinancial; collect occurs only after separate record action.
+        stage = "Owner A accepts without ledger posting"
         before_review = d31.snapshot()
         allowed(key, tokens["owner-a"], "review_parent_upi_payment",
                 review(claim), "accepted")
         if d31.snapshot() != before_review:
             raise UpiFailure("Review changed due/payment ledger")
+        stage = "Owner A records final synthetic payment"
         allowed(key, tokens["owner-a"], "record_accepted_parent_upi_submission",
                 record(claim), "recorded")
         if d31.due_state(DUE_A) != "100|paid":
