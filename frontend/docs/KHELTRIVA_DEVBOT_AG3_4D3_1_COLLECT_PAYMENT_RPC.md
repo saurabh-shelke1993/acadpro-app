@@ -1,6 +1,6 @@
 # AG3.4D3.1 — Real signed-JWT collect_payment execution regression
 
-**State:** implementation staged for CI on isolated development branch; **NOT yet validated** until native Actions succeeds. Initial native run reproduced a failure at an *unmapped* real-JWT role; the deployed function has a NULL role guard weakness. A separate scratch-only candidate now explicitly rejects NULL roles, pending native CI. Only one of fourteen public authenticated `SECURITY DEFINER` RPCs is in this test scope. Not a production release approval.
+**State:** original-source signed-JWT exploit **REPRODUCED in disposable CI**, and an isolated role-guard fix **PASSED the same JWT denial test**. [Native CI 43158144697](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43158144697) executed 7 offline guards, C2/D1 preflight, unauthorized payment probe, rollback and concurrency. **The hosted RPC is still vulnerable/unmodified.** Only one of fourteen public authenticated `SECURITY DEFINER` RPCs is in this test scope. Not a production release approval.
 
 ## Source and test contract
 
@@ -19,6 +19,10 @@ A new native negative case first probes the **exact original deployed function**
 
 ## CI evidence
 
-Workflow: `.github/workflows/devbot-ag3-4d3-collect-payment-rpc.yml`. It invokes seven offline safety checks, starts native Supabase CLI 3.0.0 only under `RUNNER_TEMP`, rebuilds C2 and D1, executes this new signed-JWT RPC test and destroys the scratch stack. A green isolated PR check is necessary before owner-authorized merge to `payment-module-finalization`.
+Workflow: `.github/workflows/devbot-ag3-4d3-collect-payment-rpc.yml`. [Native source-replay run 43158144697](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43158144697) reports original-source HIGH-002 reproduced and scratch-candidate denial plus rollback, full/partial and concurrency PASS. It invokes seven offline safety checks, starts native Supabase CLI 3.0.0 only under `RUNNER_TEMP`, rebuilds C2 and D1, executes this new signed-JWT RPC test and destroys the scratch stack. A green isolated PR check is necessary before owner-authorized merge to `payment-module-finalization`.
 
 **Live AG3.4E release gate must remain `NO_GO`.** D3.1 does not satisfy the `all_14_authenticated_rpc_negative_jwt_mutation_invariant_tests` requirement.
+
+## Other live RPCs needing the next D3.2 regression
+
+Read-only review of the deployed bodies finds the same NULL-unsafe `v_role NOT IN ('super_admin','academy_owner')` guard in **`approve_payment_correction`**, **`request_payment_correction`** and **`reject_payment_correction`**, each with academy-only checks guarded by `v_role = 'academy_owner'`. `review_parent_upi_payment` uses `v_role <> 'academy_owner'` followed by `academy_id <> private.current_academy_id()`, both nullable; it needs a negative real-JWT test. `record_accepted_parent_upi_submission` has a similar initial role comparator, but also a later NULL-safe `academy_id IS DISTINCT FROM current_academy_id()` check; do not claim the same data-plane exploit without testing. `submit_parent_upi_payment` has a nullable role comparator but subsequently requires a linked `public.parents` identity. Prioritize all these paths for D3.2 tests, then create a reviewed coordinated security migration, with explicit live-DDL approval and backup readiness.
