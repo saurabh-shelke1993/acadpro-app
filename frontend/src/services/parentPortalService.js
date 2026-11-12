@@ -130,7 +130,7 @@ export const getChildFinancialData = async (childId) => {
     supabase
       .from("payments")
       .select(
-        "id, player_id, payment_date, amount_paid, payment_mode, transaction_reference, receipt_number, remarks, due_id"
+        "id, player_id, payment_date, amount_paid, payment_mode, transaction_reference, receipt_number, remarks, due_id, payment_dues ( due_type, player_subscriptions ( subscription_plans ( plan_name, billing_cycle ) ) )"
       )
       .eq("player_id", childId)
       .order("payment_date", { ascending: false }),
