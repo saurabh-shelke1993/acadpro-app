@@ -133,7 +133,7 @@ def install_reviewed_patch(root: Path) -> None:
 
     ag34b.safe(["docker", "cp", str(REVIEW_SQL),
                 CONTAINER + ":/tmp/high002-sec3-reviewed-patch.sql"])
-    d1.sql("--single-transaction", "-f", "/tmp/high002-sec3-reviewed-patch.sql")
+    d1.sql("-f", "/tmp/high002-sec3-reviewed-patch.sql")
     # The review patch includes a one-shot original-source MD5 preflight.
     # We verify the expected guards, preserved grants and unchanged return
     # contracts on the actual compiled Postgres definitions after installation.
@@ -310,11 +310,16 @@ def main() -> int:
         d32.assert_due(DUE_A2, 80, "partial")
 
         stage = "invalid adjustment and forced late correction rollback"
-        too_low = d32.allow_request(key, tokens["owner-b"], b_payment70, 1)
+        # The original D3.2 fixture left this older due paid 70 against an
+        # original payment 80 after a legitimate adjustment. Re-correcting that
+        # original to 1 must be refused because it would make the balance -9.
+        legacy_b_payment80 = d32.payment_id(d1.DUE_IDS[2], 80)
+        d32.assert_due(d1.DUE_IDS[2], 70, "partial")
+        too_low = d32.allow_request(key, tokens["owner-b"], legacy_b_payment80, 1)
         d32.deny(key, tokens["owner-b"], "approve_payment_correction",
                  d32.approve_args(too_low), "Correction would make paid amount negative")
         d32.allow_reject(key, tokens["owner-b"], too_low)
-        too_high = d32.allow_request(key, tokens["owner-b"], b_payment70, 200)
+        too_high = d32.allow_request(key, tokens["owner-b"], legacy_b_payment80, 200)
         d32.deny(key, tokens["owner-b"], "approve_payment_correction",
                  d32.approve_args(too_high), "Correction would overpay the payment due")
         d32.allow_reject(key, tokens["owner-b"], too_high)
