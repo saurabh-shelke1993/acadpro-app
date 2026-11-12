@@ -184,7 +184,9 @@ function ParentUpiPaymentSubmission({ playerId, academyId, pendingDues = [] }) {
               <option value="">Select an outstanding due</option>
               {eligibleDues.map((due) => (
                 <option key={due.id} value={due.id}>
-                  {String(due.due_type || "Fee").replaceAll("_", " ")} · Due {formatDate(due.due_date)} · Remaining {formatAmount(due.remaining_amount)}
+                  {due.due_type === "one_time"
+                    ? (due.player_subscriptions?.subscription_plans?.plan_name || "One-time camp") + " · One-time"
+                    : String(due.due_type || "Fee").replaceAll("_", " ")} · Due {formatDate(due.due_date)} · Remaining {formatAmount(due.remaining_amount)}
                 </option>
               ))}
             </select>

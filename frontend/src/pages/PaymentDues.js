@@ -25,6 +25,10 @@ import {
 } from "../services/paymentService";
 
 import { useNavigate } from "react-router-dom";
+import {
+  createOneTimeCampDueService,
+  isOneTimeCampDueEnabled
+} from "../services/oneTimeCampDueService";
 import "./PaymentDues.css";
 import {
   canAdjustFirstPeriodDue,
@@ -33,6 +37,7 @@ import {
 
 function PaymentDues() {
 const navigate = useNavigate();
+const oneTimeBillingEnabled = isOneTimeCampDueEnabled();
   const [academies, setAcademies] = useState([]);
 const [centers, setCenters] = useState([]);
 const [batches, setBatches] = useState([]);
@@ -482,7 +487,30 @@ console.log(
       return;
     }
     if (selectedSubscriptionData.subscription_plans?.billing_cycle === "one_time") {
-      alert("One-time camp dues are not supported yet. Use the dedicated One-time payment workflow after SP3, not Monthly or Registration.");
+      if (!oneTimeBillingEnabled) {
+        alert("One-time camp billing is not enabled. The reviewed server protections must be deployed first.");
+        return;
+      }
+      if (dueType !== "one_time" || dueDate !== selectedSubscriptionData.start_date) {
+        alert("A One-time camp must use its saved start date and One-time due type.");
+        return;
+      }
+      if (!window.confirm(
+        `Generate ONE pending One-time camp due of ${formatCurrency(selectedSubscriptionData.subscription_plans?.amount)} for ${selectedSubscriptionData.players?.full_name || "the player"}? No payment will be collected.`
+      )) return;
+      setIsCreatingDue(true);
+      try {
+        const result = await createOneTimeCampDueService(selectedSubscription);
+        alert(result.created
+          ? "One-time camp due generated. Collect the payment separately; no payment has been recorded."
+          : "The One-time camp due already exists. No duplicate charge was created.");
+        closeGenerateDueModal();
+        await fetchPaymentDues();
+      } catch (error) {
+        alert(error.message || "Could not generate the One-time camp due.");
+      } finally {
+        setIsCreatingDue(false);
+      }
       return;
     }
 
@@ -574,6 +602,10 @@ console.log(
 
 
 const startEdit = (due) => {
+  if (due?.due_type === "one_time") {
+    alert("One-time camp charges cannot be edited; use the audited correction workflow.");
+    return;
+  }
 
   setEditingDue(due);
 
@@ -629,6 +661,10 @@ const saveEdit = async () => {
 };
 
 const deleteDue = async (due) => {
+  if (due?.due_type === "one_time") {
+    alert("One-time camp charges cannot be deleted; use the audited correction workflow.");
+    return;
+  }
 
   if (!canGenerateDue(loggedInUser)) {
 
@@ -900,7 +936,7 @@ useEffect(() => {
                         <td><span className={`payment-status-badge payment-status-${due.due_status}`}>{due.due_status === "paid" ? "Paid" : due.due_status === "partial" ? "Partial" : "Pending"}</span></td>
                         <td className="payment-actions-cell"><div className="payment-action-group">
                           {due.due_status !== "paid" && <button type="button" className="payment-secondary-button" onClick={(event) => { event.stopPropagation(); navigate("/payment-collections", { state: { dueId: due.id } }); }}>Record Payment</button>}
-                          {canGenerateDue(loggedInUser) && <><button type="button" className="payment-text-button" onClick={(event) => { event.stopPropagation(); startEdit(due); }} aria-label={`Edit due for ${due.players?.full_name || "player"}`}>Edit</button><button type="button" className="payment-danger-button" onClick={(event) => { event.stopPropagation(); deleteDue(due); }} aria-label={`Delete due for ${due.players?.full_name || "player"}`}>Delete</button></>}
+                          {canGenerateDue(loggedInUser) && due.due_type !== "one_time" && <><button type="button" className="payment-text-button" onClick={(event) => { event.stopPropagation(); startEdit(due); }} aria-label={`Edit due for ${due.players?.full_name || "player"}`}>Edit</button><button type="button" className="payment-danger-button" onClick={(event) => { event.stopPropagation(); deleteDue(due); }} aria-label={`Delete due for ${due.players?.full_name || "player"}`}>Delete</button></>}
                         </div></td>
                       </tr>
                       {isSelected && due.remarks && (
@@ -928,7 +964,7 @@ useEffect(() => {
                                   Record Payment
                                 </button>
                               )}
-                              {canGenerateDue(loggedInUser) && (
+                              {canGenerateDue(loggedInUser) && due.due_type !== "one_time" && (
                                 <>
                                   <button
                                     type="button"
@@ -1043,7 +1079,10 @@ useEffect(() => {
                 <select value={selectedSubscription} onChange={(e) => {
                   const subscriptionId = e.target.value;
                   setSelectedSubscription(subscriptionId);
-                  setSelectedSubscriptionData(subscriptions.find((subscription) => subscription.id === subscriptionId) || null);
+                  const nextSubscription = subscriptions.find((subscription) => subscription.id === subscriptionId) || null;
+                  setSelectedSubscriptionData(nextSubscription);
+                  setDueType(nextSubscription?.subscription_plans?.billing_cycle === "one_time" ? "one_time" : "");
+                  setDueDate(nextSubscription?.subscription_plans?.billing_cycle === "one_time" ? (nextSubscription.start_date || "") : "");
                 }}>
                   <option value="">Select Subscription</option>
                   {subscriptions.map((subscription) => (
@@ -1055,23 +1094,33 @@ useEffect(() => {
               </label>
               <label className="payment-field">
                 <span>Due Type</span>
-                <select value={dueType} onChange={(e) => setDueType(e.target.value)}>
+                <select value={dueType} onChange={(e) => setDueType(e.target.value)}
+                  disabled={selectedSubscriptionData?.subscription_plans?.billing_cycle === "one_time"}>
                   <option value="">Select Due Type</option>
-                  <option value="monthly">Monthly</option>
-                  <option value="quarterly">Quarterly</option>
-                  <option value="registration">Registration</option>
+                  {selectedSubscriptionData?.subscription_plans?.billing_cycle === "one_time" ? (
+                    <option value="one_time">One-time</option>
+                  ) : <>
+                    <option value="monthly">Monthly</option>
+                    <option value="quarterly">Quarterly</option>
+                    <option value="registration">Registration</option>
+                  </>}
                 </select>
               </label>
               <label className="payment-field">
                 <span>Due Date</span>
-                <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
+                <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)}
+                  readOnly={selectedSubscriptionData?.subscription_plans?.billing_cycle === "one_time"} />
               </label>
             </div>
 
             {selectedSubscriptionData?.subscription_plans?.billing_cycle === "one_time" && (
-              <div className="payment-duplicate-warning" role="alert">
-                <strong>One-time camp payment dues are not available yet.</strong>
-                <span>SP3 will add the correct single-charge workflow. Do not use Monthly or Registration for this camp.</span>
+              <div className="payment-duplicate-warning" role={oneTimeBillingEnabled ? "status" : "alert"}>
+                <strong>{oneTimeBillingEnabled
+                  ? "One-time camp — one fee per player per camp plan"
+                  : "One-time camp payment dues are not enabled yet."}</strong>
+                <span>{oneTimeBillingEnabled
+                  ? "The fee and due date come from the saved camp plan and start date. No automatic collection or registration fee is added. Plans with a separate registration fee are not eligible."
+                  : "The approved database safeguards must be installed and tested before this charge can be created. Do not use Monthly or Registration as a workaround."}</span>
               </div>
             )}
 
@@ -1168,7 +1217,8 @@ useEffect(() => {
                   type="button"
                   className="payment-primary-button"
                   onClick={createPaymentDue}
-                  disabled={!selectedSubscriptionData || !dueType || !dueDate || checkingExistingDue || isCreatingDue || Boolean(existingDueForSelection) || selectedSubscriptionData?.subscription_plans?.billing_cycle === "one_time"}
+                  disabled={!selectedSubscriptionData || !dueType || !dueDate || checkingExistingDue || isCreatingDue || Boolean(existingDueForSelection) ||
+                    (selectedSubscriptionData?.subscription_plans?.billing_cycle === "one_time" && !oneTimeBillingEnabled)}
                 >
                   Generate Due
                 </button>
