@@ -935,3 +935,18 @@
     grid-column: auto;
   }
 }
+
+/* Selected due shows a saved reason without adding another wide table column. */
+.payment-due-note-row td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #e2e8f0;
+}
+.payment-due-note {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #475569;
+  overflow-wrap: anywhere;
+}
+.payment-due-note strong {
+  color: #0f172a;
+}
