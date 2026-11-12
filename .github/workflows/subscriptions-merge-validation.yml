@@ -14,6 +14,7 @@ on:
       - 'frontend/src/components/Sidebar.test.js'
       - 'frontend/src/pages/SubscriptionPlans.js'
       - 'frontend/src/pages/PlayerSubscriptions.js'
+      - 'frontend/src/pages/PlayerSubscriptions.css'
       - 'frontend/src/pages/PlayerSubscriptions.test.js'
       - 'frontend/src/components/SubscriptionFeePreview.js'
       - 'frontend/src/components/SubscriptionFeePreview.css'
@@ -22,6 +23,13 @@ on:
       - 'frontend/src/utils/subscriptionLifecycleDates.test.js'
       - 'frontend/src/utils/subscriptionProration.js'
       - 'frontend/src/utils/subscriptionProration.test.js'
+      - '.github/workflows/subscriptions-merge-validation.yml'
+  pull_request:
+    branches: [payment-module-finalization]
+    paths:
+      - 'frontend/src/pages/PlayerSubscriptions.js'
+      - 'frontend/src/pages/PlayerSubscriptions.css'
+      - 'frontend/src/pages/PlayerSubscriptions.test.js'
       - '.github/workflows/subscriptions-merge-validation.yml'
   workflow_dispatch:
 

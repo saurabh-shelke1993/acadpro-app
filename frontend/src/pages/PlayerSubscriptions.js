@@ -461,6 +461,13 @@ useEffect(() => {
 
   const selectedPlayerRecord = players.find((player) => player.id === selectedPlayer);
   const selectedPlanRecord = plans.find((plan) => plan.id === selectedPlan);
+  const existingActiveSubscriptionForSelection = !isEditing && selectedPlayer && selectedPlan
+    ? subscriptions.find((subscription) =>
+        subscription.player_id === selectedPlayer &&
+        subscription.subscription_plan_id === selectedPlan &&
+        subscription.status === "active"
+      )
+    : null;
 
   
 
@@ -634,7 +641,7 @@ useEffect(() => {
                 type="button"
                 className="player-subscriptions-primary-button"
                 onClick={isEditing ? handleUpdateSubscription : createSubscription}
-                disabled={isSaving}
+                disabled={isSaving || Boolean(existingActiveSubscriptionForSelection)}
               >
                 {isSaving
                   ? "Saving..."
@@ -673,6 +680,25 @@ useEffect(() => {
                   {" · Start " + formatDate(startDate)}
                 </small>
               </div>
+            </div>
+          )}
+
+          {existingActiveSubscriptionForSelection && (
+            <div className="player-subscriptions-existing-notice" role="status">
+              <div>
+                <strong>Active subscription already assigned</strong>
+                <p>
+                  Edit the existing subscription to change its plan or start date.
+                  The fee preview is not saved and will not change payment dues.
+                </p>
+              </div>
+              <button
+                type="button"
+                className="player-subscriptions-secondary-button"
+                onClick={() => handleEditSubscription(existingActiveSubscriptionForSelection)}
+              >
+                Edit existing subscription
+              </button>
             </div>
           )}
         </section>

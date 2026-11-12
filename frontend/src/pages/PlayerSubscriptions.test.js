@@ -42,7 +42,10 @@ beforeEach(() => {
   supabase.from.mockImplementation(queryFor);
   getLoggedInUser.mockResolvedValue({ id: "owner-1", role: "academy_owner", academy_id: "academy-1" });
 });
-afterEach(() => jest.restoreAllMocks());
+afterEach(() => {
+  data.player_subscriptions = [];
+  jest.restoreAllMocks();
+});
 
 test("PS1 Owner sees compact academy scope and all original assignment controls", async () => {
   render(<PlayerSubscriptions />);
@@ -77,6 +80,58 @@ test("PS1 Super Admin keeps Academy selector and original filters", async () => 
   expect(screen.getByLabelText("Academy")).toHaveValue("");
   expect(screen.getByRole("combobox", { name: "Status" })).toHaveValue("active");
   expect(screen.getByText(/matching/)).toBeInTheDocument();
+});
+
+test("RC1.1 existing active player-plan offers Edit rather than creating a duplicate", async () => {
+  data.player_subscriptions = [{
+    id: "subscription-1",
+    player_id: "player-1",
+    subscription_plan_id: "plan-1",
+    start_date: "2026-11-01",
+    end_date: null,
+    status: "active",
+    players: data.players[0],
+    subscription_plans: data.subscription_plans[0],
+  }];
+  const originalAnimationFrame = window.requestAnimationFrame;
+  window.requestAnimationFrame = jest.fn(() => 1);
+  try {
+    render(<PlayerSubscriptions />);
+    await waitFor(() => expect(screen.getByText(/1 matching/)).toBeInTheDocument());
+    fireEvent.change(screen.getByLabelText("Player"), { target: { value: "player-1" } });
+    fireEvent.change(screen.getByLabelText("Plan"), { target: { value: "plan-1" } });
+    expect(screen.getByText("Active subscription already assigned")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Create subscription" })).toBeDisabled();
+    expect(screen.getByText(/fee preview is not saved and will not change payment dues/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Edit existing subscription" }));
+    expect(screen.getByRole("heading", { name: "Update player subscription" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Start date")).toHaveValue("2026-11-01");
+    expect(screen.getByRole("button", { name: "Update subscription" })).toBeEnabled();
+    expect(screen.queryByRole("button", { name: "Edit existing subscription" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("region", { name: "First-period fee preview" })).not.toBeInTheDocument();
+    expect(supabase.from).not.toHaveBeenCalledWith("payment_dues");
+  } finally {
+    window.requestAnimationFrame = originalAnimationFrame;
+  }
+});
+
+test("RC1.1 an inactive subscription does not block new assignment", async () => {
+  data.player_subscriptions = [{
+    id: "subscription-inactive",
+    player_id: "player-1",
+    subscription_plan_id: "plan-1",
+    start_date: "2026-08-01",
+    end_date: null,
+    status: "inactive",
+    players: data.players[0],
+    subscription_plans: data.subscription_plans[0],
+  }];
+  render(<PlayerSubscriptions />);
+  await waitFor(() => expect(screen.getByText(/1 inactive/)).toBeInTheDocument());
+  fireEvent.change(screen.getByLabelText("Player"), { target: { value: "player-1" } });
+  fireEvent.change(screen.getByLabelText("Plan"), { target: { value: "plan-1" } });
+  expect(screen.queryByText("Active subscription already assigned")).not.toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Create subscription" })).toBeEnabled();
 });
 
 test("PS-L1P2 preview is read-only when a player and monthly plan are selected", async () => {
