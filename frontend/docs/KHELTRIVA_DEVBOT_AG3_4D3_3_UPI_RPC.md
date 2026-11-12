@@ -2,7 +2,7 @@
 
 **Date:** 12 November 2026
 **Branch:** `security-ag34-d33-upi-claims-jwt` (PR against `payment-module-finalization`).
-**State:** TEST SOURCE + CI IMPLEMENTED / EXECUTION, REVIEW AND OWNER ACCEPTANCE PENDING / PRODUCTION NO-GO.
+**State:** IMPLEMENTED / NATIVE SIGNED-JWT CI PASS ON TESTED SOURCE / OWNER & MANUAL ACCEPTANCE PENDING / HOSTED NO-GO. [Native CI 43166608916](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43166608916) passed at code SHA `0433aa41659ed861ee8830ce5db20ce9722140a3`; final documentation/diagnostic-only HEAD revalidation is a separate check.
 
 ## Existing P1.4/P1.5 contract (unchanged)
 1. `submit_parent_upi_payment(uuid,numeric,text,date,text)`: Parent may submit for own linked child and outstanding due, with unique academy UTR and one active claim per due. No payment/receipt at submission.
@@ -31,9 +31,15 @@ All three live functions are `SECURITY DEFINER` with empty `search_path`, `authe
 - `scripts/devbot/test_ag3_4d33_upi_rpc_jwt_ci.py`: offline source, confinement and fail-closed negative-response guards.
 - `.github/workflows/devbot-ag3-4d33-upi-rpcs.yml`: independent native isolated Supabase workflow on PR, runs C2 > D1 > D3.1 > D3.2 > D3.3 and tears the stack down with `--no-backup`.
 
+## Native CI results (12 November 2026)
+
+[AG3.4D3.3 native scratch run 43166608916](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43166608916) **PASS**, with **12/12 offline safety tests** and genuine GoTrue/PostgREST. Exact deployed UPI source hashes matched after C2/D1/D3.1/D3.2 prerequisites. The original NULL-role submit path fell through the comparator but **Parent profile** rejected; the original review path fell through NULL-unsafe role/academy checks but **reviewed_by_user_id FK** rejected with no claim mutation; original recording was denied by **IS DISTINCT FROM** academy guard. All three scratch-only NULL-safe role candidates rejected unmapped JWT explicitly. Legitimate Parent and own-Academy Owner flows, Parent/Coach/SA/unmapped/foreign Owner and anonymous/forged JWT denial, unique academy UTR, one pending/accepted claim per due, duplicate review/record, stale overbalance, explicit one-payment/UTR/receipt ledger recording, after-number forced rollback, and **two simultaneous record calls producing one successful payment/receipt** all passed. No hosted DDL/DML, main or deployment. The original sources were not changed on hosted.
+
+**Limit:** Minimal source-required synthetic schema, not exhaustive hosted triggers or customer data. Parent submission, claim review and recording browser acceptance remain pending. A later small diagnostic-only change should be rechecked on the final PR head.
+
 ## Evidence classification — do not predeclare an exploit
 
-Original signed-JWT UPI runtime outcomes are **PENDING CI**. The runner specifically distinguishes:
+Original signed-JWT UPI runtime outcomes are **CONFIRMED IN SCRATCH, with no observed unauthorized UPI state mutation**. The runner specifically distinguishes:
 - An unmapped valid JWT falls past the original submission role comparator but should fail at **Parent profile not found**, leaving no claim.
 - An unmapped JWT falls past the original review role/academy comparators but should fail on the independent `reviewed_by_user_id` foreign key, leaving the claim unchanged. If it instead writes, classify and investigate the actual evidence; never label a pure role-guard bypass as confirmed financial exploitation.
 - An unmapped JWT falls past the original recording role comparator but should fail its later NULL-safe academy predicate, leaving all claim/receipt/ledger state unchanged.
