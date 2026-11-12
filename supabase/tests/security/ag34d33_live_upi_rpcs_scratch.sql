@@ -51,6 +51,20 @@ CREATE UNIQUE INDEX ag34d33_unique_active_due ON public.parent_payment_submissio
 CREATE UNIQUE INDEX ag34d33_unique_payment_link ON public.parent_payment_submissions (payment_id)
  WHERE payment_id IS NOT NULL;
 
+-- Scratch-only failure AFTER collect_payment has written ledger/number but BEFORE
+-- claim status finalization. A thrown exception must roll back the entire RPC.
+CREATE FUNCTION private.ag34d33_abort_after_payment() RETURNS trigger
+ LANGUAGE plpgsql SET search_path TO '' AS $fault$
+BEGIN
+ IF OLD.status = 'accepted' AND NEW.status = 'recorded'
+    AND NEW.transaction_reference = 'AG34D33_ABORT' THEN
+    RAISE EXCEPTION 'AG34D33 synthetic wrapper rollback';
+ END IF;
+ RETURN NEW;
+END $fault$;
+CREATE TRIGGER ag34d33_abort_recording BEFORE UPDATE ON public.parent_payment_submissions
+ FOR EACH ROW EXECUTE FUNCTION private.ag34d33_abort_after_payment();
+
 -- Original bodies, no rewrites, role checks preserved intentionally for reproduction.
 CREATE OR REPLACE FUNCTION public.record_accepted_parent_upi_submission(p_submission_id uuid)
  RETURNS jsonb
