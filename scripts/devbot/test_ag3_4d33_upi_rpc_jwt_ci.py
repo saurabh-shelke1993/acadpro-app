@@ -105,5 +105,24 @@ class UpiSecurityContract(unittest.TestCase):
             d33.rpc("key", "token", "collect_payment", {})
 
 
+    def test_duplicate_due_conflict_must_match_exact_index_message(self):
+        with patch.object(d33, "snapshot", return_value="unchanged"), \
+             patch.object(d33, "rpc", return_value=(409, {"message": "duplicate key value violates unique constraint"})):
+            d33.deny("key", "token", "submit_parent_upi_payment", {}, "duplicate key")
+            with self.assertRaises(d33.UpiFailure):
+                d33.deny("key", "token", "submit_parent_upi_payment", {}, d33.ROLE_SUBMIT)
+
+    def test_wrapper_rollback_and_signed_owner_race_are_explicit(self):
+        self.assertIn("CREATE TRIGGER ag34d33_abort_recording", SOURCE)
+        self.assertIn("AG34D33 synthetic wrapper rollback", SOURCE)
+        self.assertIn("ThreadPoolExecutor(max_workers=2)", RUNNER)
+        self.assertIn("future.result(timeout=35)", RUNNER)
+        self.assertIn("before_count + 1", RUNNER)
+        self.assertIn("DROP TRIGGER ag34d33_abort_recording", RUNNER)
+        self.assertIn("DROP FUNCTION private.ag34d33_abort_after_payment()", RUNNER)
+        self.assertIn("claim_state(fault[\"id\"]) != \"accepted|-\"", RUNNER)
+        self.assertIn("p.external_transaction_reference='AG34D33_RACE'", RUNNER)
+
+
 if __name__ == "__main__":
     unittest.main()
