@@ -1,3 +1,7 @@
+## SP2 update — One-time camp dates (13 Nov 2026)
+
+**SP2 implemented in scoped development PR, Owner UI and focused CI pending:** New One-time camp assignments have operator-entered Start and End dates and use the existing `player_subscriptions` table and RLS, without creating dues/renewals. Cross-academy pairing and bad date ranges rejected in app; existing recorded end dates are read-only on Edit and legacy subscriptions stay unchanged. Payment Dues temporarily blocks selecting One-time camp for Monthly/Registration charges, but **server-side bypass is still possible and must be remediated in SP3**. Repeat active same-plan enrollments remain disallowed; no automatic expiry. **SP3 PENDING:** trusted single-charge `one_time` due, idempotency, payment/receipt/Parent Portal tests. SP4 integrated acceptance and beta security NO-GO remain pending. See `KHELTRIVA_SP2_ONE_TIME_CAMP_ENROLLMENT_20261113.md`.
+
 ## SP1–SP4 — Seasonal camp One-time plan and fee flow (13 Nov 2026)
 
 - **SP1: IMPLEMENTED IN DEV PR; TEST/OWNER UI ACCEPTANCE PENDING.** Billing cycle dropdown includes One-time; form and list say Amount. One-time plan creation saves only a plan definition, not an enrollment or due. A UI note marks one-time billing not yet usable downstream. See `KHELTRIVA_SP1_ONE_TIME_PLAN_SETUP_20261113.md`.
