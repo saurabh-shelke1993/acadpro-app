@@ -25,9 +25,11 @@ import ag3_4c2_live_parent_policy_ci as c2
 PROJECT = c2.PROJECT
 CONTAINER = c2.CONTAINER
 SQL_FILE = "ag34d3_collect_payment_rpc_scratch.sql"
+CANDIDATE_FILE = "ag34d3_scratch_null_role_candidate.sql"
 FIXTURE = Path(__file__).resolve().parents[2] / "supabase/tests/security" / SQL_FILE
 DUE_A1, DUE_A2, DUE_B = d1.DUE_IDS
 DUE_RACE = "d2000000-0000-4000-8000-000000000014"
+DUE_PROBE = "d2000000-0000-4000-8000-000000000015"
 
 class RpcFailure(Exception):
     pass
@@ -152,9 +154,33 @@ def main() -> int:
             time.sleep(0.5)
         if not ready:
             raise RpcFailure("Source RPC did not expose expected validation guard after schema reload")
+        step = "original live source: unmapped signed-JWT exploit reproduction"
+        d1.sql("-c", "INSERT INTO public.payment_dues(id,player_id,total_amount) VALUES ('"
+               + DUE_PROBE + "'::uuid, '" + d1.PLAYER_IDS[2] + "'::uuid, 100)")
+        before_probe = snapshot()
+        code, body = collect(key, tokens["unmapped"], DUE_PROBE, 7)
+        if code != 200 or not isinstance(body,list) or len(body)!=1:
+            raise RpcFailure("Original unmapped-JWT source outcome differed; HTTP "+str(code))
+        if (due_state(DUE_PROBE) != "7|partial" or snapshot() == before_probe
+            or d1.sql("-At","-c","SELECT count(*) FROM public.payments WHERE due_id='"
+                      +DUE_PROBE+"'::uuid") != "1"):
+            raise RpcFailure("Expected original-source unmapped-JWT financial mutation absent")
+        print("AG34-HIGH-002 REPRODUCED: original source accepted unmapped signed JWT on foreign-academy due in scratch",flush=True)
+
+        step = "install scratch-only null-role fix candidate"
+        candidate=FIXTURE.parent/CANDIDATE_FILE
+        if not candidate.is_file():
+            raise RpcFailure("Scratch-only source guard candidate missing")
+        ag34b.safe(["docker","cp",str(candidate),CONTAINER+":/tmp/"+CANDIDATE_FILE])
+        d1.sql("--single-transaction","-f","/tmp/"+CANDIDATE_FILE,
+               marker="AG34-HIGH-002 NULL ROLE CANDIDATE INSTALLED IN SCRATCH")
+        role_error = "Only Academy Owner or Super Admin can collect payments"
+        step = "unmapped signed-JWT denied after candidate"
+        deny(key,tokens["unmapped"],DUE_A1,20,role_error)
+        print("AG34-HIGH-002 PASS: scratch candidate rejects unmapped JWT",flush=True)
+
         baseline = snapshot()
         step = "role/tenant/parameter guards"
-        role_error = "Only Academy Owner or Super Admin can collect payments"
         for label in ("coach","parent","unmapped"):
             step = "wrong role rejected: "+label
             deny(key,tokens[label],DUE_A1,20,role_error)
@@ -187,7 +213,7 @@ def main() -> int:
         deny(key,tokens["owner-a"],DUE_A1,1,"already fully paid")
         allow(key,tokens["owner-b"],DUE_B,80,20,"partial")
         allow(key,tokens["super-admin"],DUE_A2,100,0,"paid")
-        if d1.sql("-At","-c","SELECT count(*) FROM public.payments WHERE due_id IS NOT NULL")!="4":
+        if d1.sql("-At","-c","SELECT count(*) FROM public.payments WHERE due_id IS NOT NULL")!="5":
             raise RpcFailure("Expected payment ledger row count differs")
         print("AG3.4D3 PASS: Owner A/B and SA collections, partial/full and duplicate denial",flush=True)
 
@@ -214,7 +240,7 @@ def main() -> int:
                       +DUE_RACE+"'::uuid")!="1"):
             raise RpcFailure("Concurrent calls violated row-lock/overpayment invariant")
         print("AG3.4D3 PASS: concurrent payment overage denied, one receipt committed",flush=True)
-        print("AG3.4D3 LIMIT: one exact callable RPC, synthetic schema and injected trigger; 13 RPCs and Storage remain pending",flush=True)
+        print("AG3.4D3 LIMIT: original source HIGH-002 remains on hosted; only a scratch candidate was tested; other 13 RPCs and Storage pending",flush=True)
         return 0
     except (RpcFailure,d1.FinanceFailure,ag34b.SecurityMismatch,
             ag3.Ag3Failure,ag2.Ag2Error,ValueError,TypeError,KeyError,
