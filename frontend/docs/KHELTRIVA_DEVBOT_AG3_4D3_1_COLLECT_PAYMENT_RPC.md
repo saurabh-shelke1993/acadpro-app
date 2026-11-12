@@ -1,6 +1,6 @@
 # AG3.4D3.1 — Real signed-JWT collect_payment execution regression
 
-**State:** implementation staged for CI on isolated development branch; **NOT yet validated** until native Actions succeeds. Only one of fourteen public authenticated `SECURITY DEFINER` RPCs is in this test scope. Not a production release approval.
+**State:** implementation staged for CI on isolated development branch; **NOT yet validated** until native Actions succeeds. Initial native run reproduced a failure at an *unmapped* real-JWT role; the deployed function has a NULL role guard weakness. A separate scratch-only candidate now explicitly rejects NULL roles, pending native CI. Only one of fourteen public authenticated `SECURITY DEFINER` RPCs is in this test scope. Not a production release approval.
 
 ## Source and test contract
 
@@ -8,14 +8,14 @@ Read-only inspected deployed `public.collect_payment(uuid,numeric,text,text)` (s
 
 Role cases exercised via **actual GoTrue-issued JWT HTTP calls**: same-Academy Owner accepts payment, Owner B cannot collect Academy A due, Coach/Parent/unmapped rejected, SA may collect both academies' dues, anonymous/bad tokens rejected. Financial invariants: zero/negative amount and bad mode rejected; overpayment rejected, partial/full transitions, second payment on already paid due denied, corresponding ledger row and receipt number generated.
 
-A scratch-only trigger raises a controlled exception **after number allocation** on a specified test remark, verifying that payment state, inserts and payment-number counters roll back atomically. Two concurrent signed Owner calls targeting the same new 100-unit due at 70 each must yield exactly one committed payment, leaving 30 remaining. Expected rejection messages are checked (mere 400 status isn't accepted as role proof), and synthetic financial state is queried after each negative case.
+A new native negative case first probes the **exact original deployed function** with an authenticated but unmapped GoTrue identity. Since `NULL NOT IN (...)` is SQL UNKNOWN, the role gate and `v_role = 'academy_owner'` tenant check can both be bypassed; the fixture requires an unauthorized invented due/payment mutation to be observed, then installs a **scratch-only** `v_role IS NULL OR ...` candidate and requires the same JWT to be rejected. This is **AG34-HIGH-002**: proposed hosted fix is NOT deployed. The original source is preserved separately from the candidate.\n\nA scratch-only trigger raises a controlled exception **after number allocation** on a specified test remark, verifying that payment state, inserts and payment-number counters roll back atomically. Two concurrent signed Owner calls targeting the same new 100-unit due at 70 each must yield exactly one committed payment, leaving 30 remaining. Expected rejection messages are checked (mere 400 status isn't accepted as role proof), and synthetic financial state is queried after each negative case.
 
 ## Strict boundaries
 
 - D3.1 replicates **one** deployed RPC source and its deployed numbering helper, but not the entire hosted schema, payment triggers, notification side effects, every table constraint or the complete payment lifecycle.
 - Failures from the original source under the minimal scratch schema should be diagnosed and corrected in the **fixture only**; never rewrite function logic to force tests green. If live source drift is discovered, stop and review separately.
 - No call against hosted RPCs or customer financial rows; no hosted SQL DDL/DML, `main` or Vercel changes, service-role tokens, original migration replay or B4 activation.
-- **Still blocked:** remaining 13 public callable RPCs, 16 Storage policy object tests, production HIGH-001 legacy Coach mapping migration, full 82-version source provenance, clean Jest, Windows state and four-role browser QA.
+- **Still blocked:** production AG34-HIGH-002 remediation and the other privileged RPCs sharing NULL-unsafe guards; remaining 13 public callable RPCs, 16 Storage policy object tests, production HIGH-001 legacy Coach mapping migration, full 82-version source provenance, clean Jest, Windows state and four-role browser QA.
 
 ## CI evidence
 
