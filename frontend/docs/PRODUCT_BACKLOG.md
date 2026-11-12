@@ -1,3 +1,13 @@
+## HIGH-002 — exact-source four-RPC fail-closed security fix (13 Nov 2026)
+
+- **SEC-1: COMPLETED, read-only source audit:** live `collect_payment` + three correction RPCs have NULL-unsafe role and academy checks; original definitions/MD5/ownership verified.
+- **SEC-2: PREPARED, NOT DEPLOYED:** isolated source-matched `supabase/review_only/HIGH002_FOUR_PAYMENT_RPC_FAIL_CLOSED_REVIEW_ONLY.sql`; precisely two role/tenant checks corrected per function, checksum preflight, existing finance logic preserved. NO hosted DDL/DML, no migration, no permission changes.
+- **SEC-3: PENDING:** disposable exact-source signed-JWT AO own/foreign, SA, Coach, Parent, unmapped and anon, plus partial/full/rollback/correction ledger regression for all four functions.
+- **SEC-4/5: PENDING:** Owner review and separately approved isolated hosted deployment only after recovery checks. HIGH-002 beta blocker remains OPEN.
+- **Separate beta change, NOT part of SEC-1/2:** remove Parent UPI Claims page/sidebar/route and submit-for-verification UI, then disable unused backend RPC access with reviewed retention plan. Parent financial overview, existing Payment Collections and QR display retained.
+
+Reference: `KHELTRIVA_HIGH002_SEC1_SEC2_REVIEW_20261113.md`.
+
 ## SP3 — One-time camp charge and Parent/receipt integration (13 Nov 2026)
 
 **IMPLEMENTED IN DEV PR #33, FOCUSED CI PASS; LIVE FEATURE DISABLED AND MANUAL ACCEPTANCE PENDING.** Dedicated One-time fee due for SP2 camp enrollment: server-derived plan amount / start date, one per player per plan enforced by unique index and private trigger, Owner/SA-only Security Invoker RPC, strict academy/center/date/RLS constraints, immutable charged due/plan/enrollment terms. Review-only SQL **not** in migration folder or hosted; no production live charges. Gated Payment Dues UI; Parent Financial Overview/UPI claim dropdown and printable payment receipt display the camp plan name. Existing Payment Collections still depends on **open HIGH-002 collection/correction RPC authorization fix**; actual collection, receipt, real-JWT, browser and live concurrency acceptance are PENDING. Separate registration fee on one-time plan must be ₹0 until policy approved. Scratch PG and 22 frontend focused tests plus build PASS run 43299940829. **Next:** approved isolated DB deployment planning and SP4 comprehensive acceptance/security gates. See KHELTRIVA_SP3_ONE_TIME_CAMP_BILLING_20261113.md.
