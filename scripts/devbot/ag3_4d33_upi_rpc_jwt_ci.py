@@ -131,6 +131,18 @@ def deny(key: str, token: str | None, name: str, args: dict, expected: str,
 def allow_submit(key: str, token: str, due: str, ref: str, amount: int = 30) -> str:
     before = fingerprint(include_claims=False)
     code, body = rpc(key,token,"submit_parent_upi_payment",submit_args(due,ref,amount))
+    if code!=200:
+        sqlstate=str(body.get("code","?"))[:5] if isinstance(body,dict) else "?"
+        print("AG3.4D3.3 DIAGNOSTIC Parent submit HTTP="+str(code)+" SQLSTATE="+sqlstate,flush=True)
+    elif not isinstance(body,dict):
+        print("AG3.4D3.3 DIAGNOSTIC Parent submit unexpected JSON type",flush=True)
+    else:
+        print("AG3.4D3.3 DIAGNOSTIC Parent submit response contract "+
+              "id="+str(uuid_ok(str(body.get("id",""))))+
+              " due="+str(body.get("due_id")==due)+
+              " pending="+str(body.get("status")=="pending")+
+              " amount="+str(str(body.get("amount","")) in (str(amount),str(amount)+".00"))+
+              " UTR="+str(body.get("transaction_reference")==ref),flush=True)
     if (code!=200 or not isinstance(body,dict)
         or not uuid_ok(str(body.get("id","")))
         or body.get("due_id")!=due or body.get("status")!="pending"
