@@ -1,3 +1,23 @@
+## SEC-3 — exact four-RPC patch signed-JWT verification (13 Nov 2026)
+
+**SEC-3 PASSED in a fresh unlinked native Supabase (real GoTrue + PostgREST), NOT on hosted.** [GitHub Actions run 43310522080](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43310522080) validated the exact SEC-2 review-only SQL from `supabase/review_only/HIGH002_FOUR_PAYMENT_RPC_FAIL_CLOSED_REVIEW_ONLY.sql`. The run's source/test SHA was `cc525f228557f8ee8043ab5c4fe4f2b6a7d4fffb` before this documentation update.
+
+**Method:** Reused the existing successful AG3.4C2 → AG3.4D1 → AG3.4D3.1 → AG3.4D3.2 disposable source-matched JWT fixtures. Those older stages first reproduced the original four NULL-role exploits, then source-restored **all four original function definitions** to their exact live `pg_get_functiondef` MD5 hashes. The runner applied **the actual SEC-2 four-function patch file**, including its one-shot source checksum/identity/ownership preflight, compiled it, and verified that all guards, signatures and EXECUTE grants matched intended behavior. No second candidate or independent rewrite was substituted for the reviewed SQL.
+
+**Test results — PASS:**
+
+- Real signed-JWT Academy Owner A/B own-academy payment collection and corrections; cross-academy Owner denied across all four functions.
+- Super Admin authorized collection, correction requests, approvals and rejections across academies.
+- Coach, Parent, unmapped signed JWT, Owner with NULL academy, anonymous and forged token denied. Negative attempts left payment amounts, correction statuses, receipts and numbering counters unchanged.
+- Partial and full payment status/remaining amount, distinct legitimate receipts, fully-paid duplicate rejection, zero/invalid mode and overpayment validation.
+- Correction pending-duplicate rejection, legitimate approve/reject and adjustment ledgers, underflow/overpayment correction safeguards.
+- Simulated failures **after number allocation** reverted financial rows and counters; two concurrent 70-unit payments against one 100-unit due committed only one payment/receipt.
+- All synthetic records confined to ephemeral CI; scratch stack torn down. No hosted DDL/DML, customer-data touch, schema migration, `main` deployment or SP3 activation.
+
+**New tests:** `scripts/devbot/sec3_high002_four_rpc_jwt_ci.py`, `scripts/devbot/test_sec3_high002_four_rpc_jwt_ci.py`, and `.github/workflows/high002-sec3-four-rpc-real-jwt.yml`. The new seven offline source/guard/denial unit tests also PASSED.
+
+**Remaining:** SEC-4 Product Owner review of the exact patch, source hashes, restore proof and deployment plan; SEC-5 isolated hosted deployment **only after explicit separate approval** and real-role postflight. **Live HIGH-002 remains OPEN and beta remains NO-GO** until then. Parent UPI Claims removal stays a separate phase.
+
 # HIGH-002 — SEC-1 source audit and SEC-2 isolated review-only patch
 
 **Date:** 13 November 2026 (IST)  
