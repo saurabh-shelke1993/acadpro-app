@@ -90,12 +90,18 @@ export default function SubscriptionFeePreview({ player, plan, joinDate }) {
         <h3>First-period fee preview</h3><span>Simulation only</span>
       </div>
       <p className="subscription-fee-preview-warning">
-        This calculation is not applied. <strong>Create subscription will not save the estimated end date, billing model, discount or payment due.</strong>
+        <strong>The new subscription's calendar-aligned end date is saved separately in the assignment form.</strong>
+        {" "}The fee estimate and billing model choices below are simulations only; Create subscription will not save the preview discount, chosen billing model or payment due.
       </p>
       {!sameAcademy ? (
         <p role="alert">Preview unavailable: player and plan must belong to the same academy.</p>
       ) : (
         <>
+          {alignment === ALIGN.ANNIVERSARY_MONTH && (
+            <p className="subscription-fee-preview-warning">
+              Anniversary-month dates are an alternative simulation and may differ from the fixed-calendar end date saved on the new subscription.
+            </p>
+          )}
           <div className="subscription-fee-preview-controls">
             <div>
               <label htmlFor="subscription-preview-alignment">Billing model (preview only)</label>
