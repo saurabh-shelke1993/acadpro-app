@@ -170,6 +170,21 @@ def allow_record(key: str, token: str, claim: str, due: str,
     before_count = sqlscalar("SELECT count(*) FROM public.payments WHERE due_id='"+
                              due+"'::uuid")
     code, body=rpc(key,token,"record_accepted_parent_upi_submission",record_args(claim))
+    if code!=200:
+        sqlstate=str(body.get("code","?"))[:5] if isinstance(body,dict) else "?"
+        print("AG3.4D3.3 DIAGNOSTIC record HTTP="+str(code)+" SQLSTATE="+sqlstate,flush=True)
+    elif not isinstance(body,dict):
+        print("AG3.4D3.3 DIAGNOSTIC record unexpected JSON type",flush=True)
+    else:
+        checks={"submission":body.get("submission_id")==claim,
+                "recorded":body.get("status")=="recorded",
+                "external_ref":body.get("external_transaction_reference")==ref,
+                "amount":Decimal(str(body.get("amount_paid",-1)))==Decimal(amount),
+                "remaining":Decimal(str(body.get("remaining_amount",-1)))==Decimal(remaining),
+                "receipt":str(body.get("receipt_number","")).startswith("RCPT-"),
+                "transaction":str(body.get("transaction_reference","")).startswith("TXN-"),
+                "payment_id":uuid_ok(str(body.get("payment_id","")))}
+        print("AG3.4D3.3 DIAGNOSTIC record boolean contract "+str(checks),flush=True)
     expected_status="paid" if remaining==0 else "partial"
     if (code!=200 or not isinstance(body,dict)
         or body.get("submission_id")!=claim or body.get("status")!="recorded"
