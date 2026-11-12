@@ -71,7 +71,7 @@ class CollectPaymentSafety(unittest.TestCase):
         self.assertIn("AG34-HIGH-002 REPRODUCED",SRC)
         self.assertIn("DUE_PROBE",SRC)
         self.assertIn("unmapped signed-JWT denied after candidate",SRC)
-        self.assertIn("SOURCE" if False else "md5(pg_get_functiondef",CANDIDATE)
+        self.assertIn("md5(pg_get_functiondef",CANDIDATE)
 
     def test_scratch_fault_is_after_number_allocation(self):
         self.assertLess(SQL.index("CREATE OR REPLACE FUNCTION public.collect_payment("),
