@@ -26,6 +26,10 @@ import {
 
 import { useNavigate } from "react-router-dom";
 import "./PaymentDues.css";
+import {
+  canAdjustFirstPeriodDue,
+  prepareManualFirstPeriodDue
+} from "../utils/manualFirstPeriodDue";
 
 function PaymentDues() {
 const navigate = useNavigate();
@@ -50,6 +54,10 @@ const [showGenerateDueModal, setShowGenerateDueModal] = useState(false);
   const [dueType, setDueType] = useState("");
 
   const [dueDate, setDueDate] = useState("");
+  const [manualFirstPeriod, setManualFirstPeriod] = useState(false);
+  const [manualFirstPeriodAmount, setManualFirstPeriodAmount] = useState("");
+  const [manualFirstPeriodReason, setManualFirstPeriodReason] = useState("");
+  const [isCreatingDue, setIsCreatingDue] = useState(false);
 
   // Date-range filters for reviewing dues by month or custom period.
   const [dueFromDate, setDueFromDate] = useState("");
@@ -125,6 +133,13 @@ useEffect(() => {
   }
 
 }, [generationPlayer]);
+
+useEffect(() => {
+  // A manual first-period quote must not carry across different players, dates or due types.
+  setManualFirstPeriod(false);
+  setManualFirstPeriodAmount("");
+  setManualFirstPeriodReason("");
+}, [selectedSubscription, dueType, dueDate]);
 
 useEffect(() => {
   let cancelled = false;
@@ -303,14 +318,17 @@ const fetchSubscriptionsByPlayer = async (
       .select(`
         id,
         player_id,
-
+        start_date,
+        status,
         players (
-          full_name
+          full_name,
+          academy_id
         ),
-
         subscription_plans (
           plan_name,
-          amount
+          amount,
+          academy_id,
+          billing_cycle
         )
       `)
       .eq("player_id", playerId);
@@ -436,6 +454,10 @@ console.log(
     setCheckingExistingDue(false);
     setDueType("");
     setDueDate("");
+    setManualFirstPeriod(false);
+    setManualFirstPeriodAmount("");
+    setManualFirstPeriodReason("");
+    setIsCreatingDue(false);
   };
 
   const openGenerateDueModal = () => {
@@ -449,96 +471,101 @@ console.log(
   };
 
   const createPaymentDue = async () => {
-
+    if (isCreatingDue) return;
     if (!canGenerateDue(loggedInUser)) {
-
-  alert(
-    "You are not authorized to generate payment dues."
-  );
-
-  return;
-
-}
-
-    if (
-      !selectedSubscription ||
-      !dueType ||
-      !dueDate
-    ) {
-
-      alert("Please fill all fields");
-
+      alert("You are not authorized to generate payment dues.");
+      return;
+    }
+    if (!selectedSubscription || !selectedSubscriptionData || !dueType || !dueDate) {
+      alert("Please select a subscription, due type and due date.");
       return;
     }
 
-    const playerId =
-      selectedSubscriptionData.player_id;
+    setIsCreatingDue(true);
+    try {
+      let adjustment = null;
 
-    const amount =
-      selectedSubscriptionData
-      .subscription_plans.amount;
+      if (manualFirstPeriod) {
+        // Re-read the authoritative agreement and price immediately before posting.
+        // Do not rely on the old dropdown or advisory proration calculator values.
+        const { data: currentSubscription, error: subscriptionError } = await supabase
+          .from("player_subscriptions")
+          .select(`id, player_id, status, start_date,
+            players ( academy_id ),
+            subscription_plans ( amount, academy_id, billing_cycle )`)
+          .eq("id", selectedSubscription)
+          .single();
+        if (subscriptionError) throw subscriptionError;
+        if (!currentSubscription || currentSubscription.player_id !== generationPlayer ||
+            (generationAcademy && currentSubscription.players?.academy_id !== generationAcademy)) {
+          throw new Error("The selected player or academy changed. Reload the subscription before creating a due.");
+        }
 
-      const dueData = {
+        adjustment = prepareManualFirstPeriodDue({
+          subscription: currentSubscription,
+          dueType,
+          dueDate,
+          enteredAmount: manualFirstPeriodAmount,
+          reason: manualFirstPeriodReason
+        });
 
-  player_id: playerId,
+        // Do not post a second first-period amount on a subscription with existing tuition dues.
+        // This is a client-side safeguard, NOT cross-session database uniqueness.
+        const { data: earlierMonthlyDues, error: priorError } = await supabase
+          .from("payment_dues")
+          .select("id")
+          .eq("subscription_id", selectedSubscription)
+          .eq("due_type", "monthly")
+          .limit(1);
+        if (priorError) throw priorError;
+        if (earlierMonthlyDues?.length) {
+          throw new Error("A monthly due already exists for this subscription. Review its payment history; do not create a replacement due.");
+        }
+      }
 
-  subscription_id:
-    selectedSubscription,
+      const { data: existingDue, error: duplicateError } = await supabase
+        .from("payment_dues")
+        .select("id, due_type, due_date, total_amount, due_status")
+        .eq("subscription_id", selectedSubscription)
+        .eq("due_date", dueDate)
+        .limit(1);
+      if (duplicateError) throw duplicateError;
+      if (existingDue?.length) {
+        setExistingDueForSelection(existingDue[0]);
+        throw new Error("A due already exists for this subscription and due date.");
+      }
 
-  due_type: dueType,
+      const originalAmount = selectedSubscriptionData.subscription_plans?.amount;
+      if (originalAmount == null && !adjustment) {
+        throw new Error("A valid subscription plan amount is required.");
+      }
+      if (adjustment && !window.confirm(
+        `Generate one pending first-period due for INR ${adjustment.amount.toFixed(2)} instead of the standard ` +
+        `INR ${(adjustment.fullPaise / 100).toFixed(2)}? This will not change the plan price or collect a payment.`
+      )) return;
 
-  due_date: dueDate,
+      await createPaymentDueService({
+        player_id: selectedSubscriptionData.player_id,
+        subscription_id: selectedSubscription,
+        due_type: dueType,
+        due_date: dueDate,
+        total_amount: adjustment ? adjustment.amount : originalAmount,
+        paid_amount: 0,
+        due_status: "pending",
+        ...(adjustment ? { remarks: adjustment.remarks } : {})
+      });
 
-  total_amount: amount,
-
-  paid_amount: 0,
-
-  due_status: "pending"
-
-};
-
-      const { data: existingDue } =
-  await supabase
-    .from("payment_dues")
-    .select("id")
-    .eq(
-      "subscription_id",
-      selectedSubscription
-    )
-    .eq(
-      "due_date",
-      dueDate
-    );
-
-    if (
-  existingDue &&
-  existingDue.length > 0
-) {
-      setExistingDueForSelection(existingDue[0]);
-      return;
+      alert(adjustment
+        ? "Manual first-period payment due created. No payment has been collected."
+        : "Payment Due Generated Successfully");
+      closeGenerateDueModal();
+      fetchPaymentDues();
+    } catch (error) {
+      alert(error.message || "Unable to create payment due.");
+    } finally {
+      setIsCreatingDue(false);
     }
-
-try {
-
-    await createPaymentDueService(
-        dueData
-    );
-
-    alert(
-        "Payment Due Generated Successfully"
-    );
-
-    closeGenerateDueModal();
-    fetchPaymentDues();
-
-} catch (error) {
-
-    alert(error.message);
-
-}
-
   };
-
 
 
 const startEdit = (due) => {
@@ -1023,6 +1050,59 @@ useEffect(() => {
               </label>
             </div>
 
+            {selectedSubscriptionData?.subscription_plans?.billing_cycle === "monthly" && (
+              <div className="payment-manual-first-period">
+                <p className="payment-first-period-help">
+                  For a reduced first-month tuition fee, select <strong>Monthly</strong> and use the
+                  subscription start date (<strong>{formatDate(selectedSubscriptionData.start_date)}</strong>)
+                  as the due date. This does not alter the recurring plan rate.
+                </p>
+                {canAdjustFirstPeriodDue(selectedSubscriptionData, dueType, dueDate) && canGenerateDue(loggedInUser) && (
+                  <>
+                    <label className="payment-first-period-toggle">
+                      <input
+                        type="checkbox"
+                        checked={manualFirstPeriod}
+                        onChange={(e) => setManualFirstPeriod(e.target.checked)}
+                      />
+                      <span>Use an Owner-approved first-period amount</span>
+                    </label>
+                    {manualFirstPeriod && (
+                      <div className="payment-first-period-fields">
+                        <label className="payment-field">
+                          <span>Approved first-period fee (₹)</span>
+                          <input
+                            type="text"
+                            inputMode="decimal"
+                            value={manualFirstPeriodAmount}
+                            placeholder="e.g. 1269.23"
+                            onChange={(e) => setManualFirstPeriodAmount(e.target.value)}
+                            aria-label="Approved first-period fee"
+                          />
+                        </label>
+                        <label className="payment-field">
+                          <span>Adjustment reason (8–180 characters)</span>
+                          <textarea
+                            value={manualFirstPeriodReason}
+                            onChange={(e) => setManualFirstPeriodReason(e.target.value)}
+                            maxLength={180}
+                            rows={2}
+                            placeholder="e.g. Joined after the first two scheduled sessions"
+                            aria-label="First-period fee adjustment reason"
+                          />
+                        </label>
+                        <p className="payment-first-period-warning">
+                          Review the training-session or day calculation yourself. This is a manually
+                          approved one-time due, not an automatic saved prorated subscription price.
+                          Existing dues and payments will not be changed.
+                        </p>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
+
             {selectedSubscriptionData && (
               <div className="payment-due-preview" aria-live="polite">
                 <div className="payment-due-preview-heading">
@@ -1035,7 +1115,9 @@ useEffect(() => {
                 <div className="payment-due-preview-grid">
                   <div><span>Player</span><strong>{selectedSubscriptionData.players?.full_name || "—"}</strong></div>
                   <div><span>Plan</span><strong>{selectedSubscriptionData.subscription_plans?.plan_name || "—"}</strong></div>
-                  <div><span>Amount</span><strong>{formatCurrency(selectedSubscriptionData.subscription_plans?.amount)}</strong></div>
+                  <div><span>Amount</span><strong>{manualFirstPeriod
+                    ? (manualFirstPeriodAmount ? "₹" + manualFirstPeriodAmount : "Enter approved amount")
+                    : formatCurrency(selectedSubscriptionData.subscription_plans?.amount)}</strong></div>
                   <div><span>Due type</span><strong>{dueType || "—"}</strong></div>
                   <div><span>Due date</span><strong>{formatDate(dueDate)}</strong></div>
                 </div>
@@ -1061,7 +1143,7 @@ useEffect(() => {
                   type="button"
                   className="payment-primary-button"
                   onClick={createPaymentDue}
-                  disabled={!selectedSubscriptionData || !dueType || !dueDate || checkingExistingDue || Boolean(existingDueForSelection)}
+                  disabled={!selectedSubscriptionData || !dueType || !dueDate || checkingExistingDue || isCreatingDue || Boolean(existingDueForSelection)}
                 >
                   Generate Due
                 </button>
