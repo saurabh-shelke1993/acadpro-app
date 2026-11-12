@@ -20,7 +20,7 @@ beforeEach(() => {
 test("monthly only; no save or charge actions", () => {
   const { rerender } = render(<SubscriptionFeePreview player={player} plan={plan} joinDate="2027-01-15" />);
   expect(screen.getByRole("region",{name:"First-period fee preview"})).toBeInTheDocument();
-  expect(screen.getByText(/Create subscription will not save the estimated end date/)).toBeInTheDocument();
+  expect(screen.getByText(/calendar-aligned end date is saved separately/)).toBeInTheDocument();
   expect(screen.queryByRole("button")).not.toBeInTheDocument();
   rerender(<SubscriptionFeePreview player={player} plan={{...plan,billing_cycle:"quarterly"}} joinDate="2027-01-15" />);
   expect(screen.queryByRole("region",{name:"First-period fee preview"})).not.toBeInTheDocument();
@@ -45,6 +45,12 @@ test("anniversary month: 15 Jan to 14 Feb full amount", () => {
   expect(screen.getByText("2027-02-15")).toBeInTheDocument();
   expect(screen.getAllByText(/1,500\.00/)).toHaveLength(2);
   expect(getPlayerScheduleEnrollments).not.toHaveBeenCalled();
+});
+
+test("RC1.3 anniversary preview clearly says dates are not the saved calendar end", () => {
+  render(<SubscriptionFeePreview player={player} plan={plan} joinDate="2027-01-15" />);
+  pick("Billing model (preview only)", "anniversary_month");
+  expect(screen.getByText(/alternative simulation and may differ from the fixed-calendar end date/)).toBeInTheDocument();
 });
 
 test("session-based quote uses scoped player enrollments and 7/13 occurrences", async () => {
