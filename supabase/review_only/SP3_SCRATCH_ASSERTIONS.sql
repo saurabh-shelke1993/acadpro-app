@@ -194,6 +194,40 @@ BEGIN
 END;
 $sp3_admin$;
 
+-- Even an administrative direct UPDATE/DELETE cannot rewrite a charged
+-- camp enrollment or its plan fee/name after a due has been issued.
+RESET ROLE;
+SELECT pg_temp.expect_denied(
+ 'UPDATE public.player_subscriptions SET end_date=''2027-05-26''
+  WHERE id=''50000000-0000-0000-0000-000000000001''',
+ 'Charged One-time camp enrollment identity and dates cannot be changed'
+);
+SELECT pg_temp.expect_denied(
+ 'UPDATE public.player_subscriptions SET subscription_plan_id=''40000000-0000-0000-0000-000000000005''
+  WHERE id=''50000000-0000-0000-0000-000000000001''',
+ 'Charged One-time camp enrollment identity and dates cannot be changed'
+);
+SELECT pg_temp.expect_denied(
+ 'DELETE FROM public.player_subscriptions
+  WHERE id=''50000000-0000-0000-0000-000000000001''',
+ 'A charged One-time camp enrollment cannot be deleted'
+);
+SELECT pg_temp.expect_denied(
+ 'UPDATE public.subscription_plans SET amount=3500
+  WHERE id=''40000000-0000-0000-0000-000000000001''',
+ 'Charged One-time camp plan identity and fee cannot be changed'
+);
+SELECT pg_temp.expect_denied(
+ 'UPDATE public.subscription_plans SET plan_name=''Renamed Camp''
+  WHERE id=''40000000-0000-0000-0000-000000000001''',
+ 'Charged One-time camp plan identity and fee cannot be changed'
+);
+SELECT pg_temp.expect_denied(
+ 'DELETE FROM public.subscription_plans
+  WHERE id=''40000000-0000-0000-0000-000000000001''',
+ 'A charged One-time camp plan cannot be deleted'
+);
+
 -- All invoice logic is independent of payment ledger: this script inserts
 -- no payments or receipts, and cannot produce fake payment confirmations.
 RESET ROLE;
