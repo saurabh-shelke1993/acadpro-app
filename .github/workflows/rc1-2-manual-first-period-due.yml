@@ -1,0 +1,45 @@
+name: RC1.2 - Manual first-period due validation
+on:
+  pull_request:
+    branches: [payment-module-finalization]
+    paths:
+      - 'frontend/src/pages/PaymentDues.js'
+      - 'frontend/src/pages/PaymentDues.css'
+      - 'frontend/src/pages/PaymentDues.test.js'
+      - 'frontend/src/utils/manualFirstPeriodDue.js'
+      - 'frontend/src/utils/manualFirstPeriodDue.test.js'
+      - '.github/workflows/rc1-2-manual-first-period-due.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rc1-2-regression:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout current PR source
+        uses: actions/checkout@v4
+      - name: Node.js with dependency lockfile
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install exact dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Test manual first-period fee logic
+        env:
+          CI: 'true'
+        run: npm test -- --watchAll=false --runInBand --testPathPattern=manualFirstPeriodDue
+      - name: Test Payment Dues UI and guarded posting
+        env:
+          CI: 'true'
+        run: npm test -- --watchAll=false --runInBand --testPathPattern=PaymentDues.test.js
+      - name: Build React frontend
+        env:
+          CI: 'true'
+        run: npm run build
