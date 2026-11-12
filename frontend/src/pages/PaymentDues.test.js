@@ -169,9 +169,9 @@ test("RC1.2 a saved decimal due shows its exact paise and adjustment note when s
     player_subscriptions: { subscription_plans: { plan_name: "Monthly" } }
   }];
   render(<PaymentDues />);
-  await waitFor(() => expect(screen.getByText("Test Junior")).toBeInTheDocument());
+  await waitFor(() => expect(screen.getByRole("cell", { name: "Test Junior" })).toBeInTheDocument());
   expect(screen.getAllByText("₹1,269.23").length).toBeGreaterThanOrEqual(2);
-  fireEvent.click(screen.getByText("Test Junior"));
+  fireEvent.click(screen.getByRole("cell", { name: "Test Junior" }));
   expect(screen.getByText(/Due notes:/)).toBeInTheDocument();
   expect(screen.getByText(/Owner-entered first-period monthly tuition adjustment/)).toBeInTheDocument();
 });
