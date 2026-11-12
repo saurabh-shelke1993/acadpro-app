@@ -102,8 +102,10 @@ async function selectSubscription({ dueDate = "2026-11-06", dueType = "monthly" 
   fireEvent.change(d.getByLabelText("Player"), { target: { value: "player-1" } });
   await waitFor(() => expect(d.getByLabelText("Subscription").querySelector('option[value="subscription-1"]')).not.toBeNull());
   fireEvent.change(d.getByLabelText("Subscription"), { target: { value: "subscription-1" } });
-  fireEvent.change(d.getByLabelText("Due Type"), { target: { value: dueType } });
-  fireEvent.change(d.getByLabelText("Due Date"), { target: { value: dueDate } });
+  if (activeSubscription.subscription_plans.billing_cycle !== "one_time") {
+    fireEvent.change(d.getByLabelText("Due Type"), { target: { value: dueType } });
+    fireEvent.change(d.getByLabelText("Due Date"), { target: { value: dueDate } });
+  }
   return d;
 }
 
