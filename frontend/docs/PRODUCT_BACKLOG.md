@@ -1,3 +1,10 @@
+## HIGH-002 SEC-4 readiness — HOLD (13 Nov 2026)
+
+- **SEC-1 source audit / SEC-2 exact four-function guard patch / SEC-3 real signed-JWT scratch validation: DONE.**
+- **SEC-4 reviewed:** live function hashes/permissions and financial tables unchanged; no migration-history repair needed. Outstanding prerequisites: H5 private backup integrity + isolated restore evidence; isolated source-equivalent atomic one-function-group deployment/ledger test; emergency RPC disable/restore drill and Owner maintenance approval. SQL contains BEGIN/COMMIT and is NOT automatically safe to use verbatim as a CLI migration.
+- **SEC-5 hosted patch: NOT AUTHORIZED / NOT DEPLOYED.** HIGH-002 remains P0 beta NO-GO. No historic payment mutation, app redesign, Supabase `db push`, or new schema is needed. See `KHELTRIVA_HIGH002_SEC4_DEPLOYMENT_READINESS_20261113.md`.
+- Parent UPI Claims removal and SP3 One-time fee activation continue as separate deferred tasks.
+
 ## HIGH-002 SEC-3 confirmation (13 Nov 2026)
 
 **SEC-3 COMPLETED / SIGNED-JWT SCRATCH TESTS PASS.** [GitHub run 43310522080](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43310522080) replayed all four exact live payment RPCs, proved original unmapped-user bypasses, then applied the single SEC-2 **review-only** patch to disposable Supabase and proved Owner/SA allowed, foreign Owner/Coach/Parent/unmapped/orphan/anon denied, clean ledger, receipts, concurrent payment and correction rollbacks. PR #34 remains OPEN DRAFT; **no hosted migration, no finance data touched, HIGH-002 LIVE OPEN**. **SEC-4:** Owner reviews evidence and isolated deployment plan. **SEC-5:** separately approved hosted change after recovery proof; no automatic execution. Parent UPI Claims UI/API removal deferred to separate beta task.
