@@ -1,0 +1,114 @@
+name: Kheltriva AG3.4D3.2 - Real JWT correction RPC NULL-role regression (scratch)
+on:
+  pull_request:
+    branches: [payment-module-finalization]
+    paths:
+      - 'scripts/devbot/ag3_4d3_collect_payment_jwt_ci.py'
+      - 'scripts/devbot/test_ag3_4d3_collect_payment_jwt_ci.py'
+      - 'supabase/tests/security/ag34d3_collect_payment_rpc_scratch.sql'
+      - 'supabase/tests/security/ag34d3_scratch_null_role_candidate.sql'
+      - '.github/workflows/devbot-ag3-4d32-correction-rpcs.yml'
+      - 'scripts/devbot/ag3_4d32_correction_rpc_jwt_ci.py'
+      - 'scripts/devbot/test_ag3_4d32_correction_rpc_jwt_ci.py'
+      - 'supabase/tests/security/ag34d32_live_correction_rpcs_scratch.sql'
+      - 'supabase/tests/security/ag34d32_correction_null_role_scratch_candidate.sql'
+  push:
+    branches: [security-ag34-d32-correction-null-role-jwt, payment-module-finalization]
+    paths:
+      - 'scripts/devbot/ag3_4d3_collect_payment_jwt_ci.py'
+      - 'scripts/devbot/test_ag3_4d3_collect_payment_jwt_ci.py'
+      - 'supabase/tests/security/ag34d3_collect_payment_rpc_scratch.sql'
+      - 'supabase/tests/security/ag34d3_scratch_null_role_candidate.sql'
+      - '.github/workflows/devbot-ag3-4d32-correction-rpcs.yml'
+      - 'scripts/devbot/ag3_4d32_correction_rpc_jwt_ci.py'
+      - 'scripts/devbot/test_ag3_4d32_correction_rpc_jwt_ci.py'
+      - 'supabase/tests/security/ag34d32_live_correction_rpcs_scratch.sql'
+      - 'supabase/tests/security/ag34d32_correction_null_role_scratch_candidate.sql'
+permissions:
+  contents: read
+concurrency:
+  group: kheltriva-ag34d32-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  correction-rpcs-signed-jwt:
+    if: github.repository == 'saurabh-shelke1993/acadpro-app'
+    runs-on: ubuntu-latest
+    timeout-minutes: 34
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Offline fail-closed tests for source and JWT runner
+        run: python -m unittest discover -s scripts/devbot -p 'test_ag3_4d32_correction_rpc_jwt_ci.py' -v
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 3.0.0
+      - name: Bootstrap brand-new unlinked Supabase in runner temp
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT="$RUNNER_TEMP/kheltriva-ag34c2-ci"
+          test -z "${SUPABASE_ACCESS_TOKEN:-}"
+          test -z "${SUPABASE_DB_URL:-}"
+          test ! -e "$ROOT"
+          mkdir -p "$ROOT"
+          cd "$ROOT"
+          supabase init --yes >/dev/null 2>&1
+          python - <<'PY'
+          import tomllib
+          from pathlib import Path
+          root=Path("supabase")
+          cfg=tomllib.loads((root/"config.toml").read_text())
+          assert cfg["project_id"]=="kheltriva-ag34c2-ci"
+          assert cfg["auth"]["email"]["enable_confirmations"] is False
+          assert not (root/"migrations").exists()
+          assert not (root/".temp"/"project-ref").exists()
+          PY
+      - name: Start native GoTrue PostgREST scratch stack
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/kheltriva-ag34c2-ci"
+          if ! supabase start -x 'realtime,storage-api,studio,postgres-meta,edge-runtime,imgproxy,logflare,vector,supavisor,mailpit' > "$RUNNER_TEMP/ag34d3-private-startup.log" 2>&1; then
+            echo 'AG3.4D3.2 FAIL: local native startup; internal logs withheld'
+            exit 1
+          fi
+      - name: Replay exact deployed C2 role predicates with signed JWTs
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/kheltriva-ag34c2-ci"
+          python "$GITHUB_WORKSPACE/scripts/devbot/ag3_4c2_live_parent_policy_ci.py"
+      - name: Replay deployed D1 finance read policy predicates
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/kheltriva-ag34c2-ci"
+          python "$GITHUB_WORKSPACE/scripts/devbot/ag3_4d_finance_jwt_ci.py"
+      - name: Exercise deployed collect_payment and number helper under real JWTs
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/kheltriva-ag34c2-ci"
+          python "$GITHUB_WORKSPACE/scripts/devbot/ag3_4d3_collect_payment_jwt_ci.py"
+          echo 'AG3.4D3.1: original-source collect_payment and scratch fix tested; hosted unchanged.' >> "$GITHUB_STEP_SUMMARY"
+      - name: Exercise three deployed correction RPCs and scratch-only NULL role candidates
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/kheltriva-ag34c2-ci"
+          python "$GITHUB_WORKSPACE/scripts/devbot/ag3_4d32_correction_rpc_jwt_ci.py"
+          echo 'AG3.4D3.2: three original correction RPCs reproduced; scratch candidates only. HIGH-002 remains OPEN on hosted.' >> "$GITHUB_STEP_SUMMARY"
+      - name: Destroy disposable stack with no backup
+        if: always()
+        shell: bash
+        run: |
+          ROOT="$RUNNER_TEMP/kheltriva-ag34c2-ci"
+          if [ -f "$ROOT/supabase/config.toml" ]; then
+            cd "$ROOT"
+            supabase stop --no-backup >/dev/null 2>&1 || true
+          fi
+          echo 'AG3.4D3 scratch teardown attempted'
