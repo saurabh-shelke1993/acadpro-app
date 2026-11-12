@@ -1,3 +1,7 @@
+## AG34-HIGH-002 — NULL-role privileged payment RPC source risk (12 Nov 2026)
+
+**IDENTIFIED / SCRATCH REGRESSION IN PROGRESS / HOSTED UNCHANGED:** The deployed `public.collect_payment` tests `v_role NOT IN ('super_admin','academy_owner')`, then applies the academy check only when role equals `academy_owner`; SQL `NULL NOT IN (...)` is not TRUE. The first native signed-JWT D3 run failed precisely on an unmapped authenticated caller, after C2/D1 and function-source hashes passed. Exact-source failure reproduction and a separate scratch-only null-role candidate are now staged in [PR #23](https://github.com/saurabh-shelke1993/acadpro-app/pull/23); until native CI confirms their results, treat behavioral status as **under validation**. Same null-unsafe pattern appears in other correction/UPI RPC guards and needs function-by-function review. **No hosted mutation or production migration authorized. AG3.4E NO-GO.** [D3 scope](KHELTRIVA_DEVBOT_AG3_4D3_1_COLLECT_PAYMENT_RPC.md).
+
 # AcadPro Project Status
 
 ## AG34-H5 — private SQL export verification and restore readiness (11 Nov 2026)
