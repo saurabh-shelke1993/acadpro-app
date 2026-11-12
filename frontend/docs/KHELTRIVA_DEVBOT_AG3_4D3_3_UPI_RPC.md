@@ -64,4 +64,4 @@ Positive recording must not be possible through Claim Submit or Accept. Explicit
 - [ ] Desktop/mobile displays remain intact; existing cash, UPI and bank-transfer collections and corrections unaffected.
 - [ ] CI, exact HEAD, git diff, docs and release NO_GO gate reviewed.
 
-**Current checkpoint:** tests committed on a **feature branch**, native CI pending. No hosted deployment or end-user acceptance.
+**Current checkpoint:** original UPI source and scratch candidate native real-JWT CI **PASS** ([run 43166608916](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43166608916), 12 offline tests); **final PR HEAD revalidation and Product Owner/browser acceptance pending**. No hosted deployment, migration or end-user acceptance.
