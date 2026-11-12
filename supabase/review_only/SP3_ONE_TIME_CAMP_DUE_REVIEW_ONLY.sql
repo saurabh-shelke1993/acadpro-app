@@ -193,8 +193,7 @@ BEGIN
   FROM public.player_subscriptions ps
   JOIN public.players p ON p.id = ps.player_id
   JOIN public.subscription_plans sp ON sp.id = ps.subscription_plan_id
-  WHERE ps.id = p_subscription_id
-  FOR SHARE OF ps, p, sp;
+  WHERE ps.id = p_subscription_id;
 
   IF NOT FOUND THEN
     RAISE EXCEPTION 'Camp enrollment not found or not accessible';
