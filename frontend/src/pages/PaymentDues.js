@@ -481,6 +481,10 @@ console.log(
       alert("Please select a subscription, due type and due date.");
       return;
     }
+    if (selectedSubscriptionData.subscription_plans?.billing_cycle === "one_time") {
+      alert("One-time camp dues are not supported yet. Use the dedicated One-time payment workflow after SP3, not Monthly or Registration.");
+      return;
+    }
 
     setIsCreatingDue(true);
     try {
@@ -1064,6 +1068,13 @@ useEffect(() => {
               </label>
             </div>
 
+            {selectedSubscriptionData?.subscription_plans?.billing_cycle === "one_time" && (
+              <div className="payment-duplicate-warning" role="alert">
+                <strong>One-time camp payment dues are not available yet.</strong>
+                <span>SP3 will add the correct single-charge workflow. Do not use Monthly or Registration for this camp.</span>
+              </div>
+            )}
+
             {selectedSubscriptionData?.subscription_plans?.billing_cycle === "monthly" && (
               <div className="payment-manual-first-period">
                 <p className="payment-first-period-help">
@@ -1157,7 +1168,7 @@ useEffect(() => {
                   type="button"
                   className="payment-primary-button"
                   onClick={createPaymentDue}
-                  disabled={!selectedSubscriptionData || !dueType || !dueDate || checkingExistingDue || isCreatingDue || Boolean(existingDueForSelection)}
+                  disabled={!selectedSubscriptionData || !dueType || !dueDate || checkingExistingDue || isCreatingDue || Boolean(existingDueForSelection) || selectedSubscriptionData?.subscription_plans?.billing_cycle === "one_time"}
                 >
                   Generate Due
                 </button>
