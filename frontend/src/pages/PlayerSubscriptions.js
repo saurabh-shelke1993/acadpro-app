@@ -3,6 +3,7 @@ import Layout from "../components/Layout";
 import SubscriptionsWorkspaceTabs from "../components/SubscriptionsWorkspaceTabs";
 import SubscriptionFeePreview from "../components/SubscriptionFeePreview";
 import { calculateCalendarAlignedEndDate } from "../utils/subscriptionCalendarEndDate";
+import { validateOneTimeCampPeriod } from "../utils/subscriptionOneTimeCampPeriod";
 import "./PlayerSubscriptions.css";
 import { supabase } from "../services/supabase";
 import { getLoggedInUser, isSuperAdmin, getAcademyId } from "../utils/auth";
@@ -12,7 +13,8 @@ const PAGE_SIZE = 7;
 const BILLING_CYCLES = {
   monthly: "month",
   quarterly: "quarter",
-  half_yearly: "6 months"
+  half_yearly: "6 months",
+  one_time: "one-time"
 };
 
 const formatCurrency = (value) =>
@@ -61,6 +63,7 @@ function PlayerSubscriptions() {
   const [editingOriginalPlanId, setEditingOriginalPlanId] = useState(null);
   const [selectedSubscriptionId, setSelectedSubscriptionId] = useState(null);
   const [startDate, setStartDate] = useState(new Date().toISOString().split("T")[0]);
+  const [oneTimeEndDate, setOneTimeEndDate] = useState("");
   const [statusFilter, setStatusFilter] = useState("active");
   const [columnFilters, setColumnFilters] = useState({
     academy: "",
@@ -275,6 +278,7 @@ useEffect(() => {
     setSelectedPlayer("");
     setSelectedPlan("");
     setStartDate(new Date().toISOString().split("T")[0]);
+    setOneTimeEndDate("");
     setIsSaving(false);
   };
 
@@ -284,6 +288,7 @@ useEffect(() => {
     setSelectedBatch("");
     setSelectedPlayer("");
     setSelectedPlan("");
+    setOneTimeEndDate("");
   };
 
   const handleCenterChange = (centerId) => {
@@ -306,6 +311,7 @@ useEffect(() => {
     setSelectedPlayer(subscription.player_id);
     setSelectedPlan(subscription.subscription_plan_id);
     setStartDate(subscription.start_date || new Date().toISOString().split("T")[0]);
+    setOneTimeEndDate(subscription.end_date || "");
 
     window.requestAnimationFrame(() => {
       document.getElementById("player-subscription-form")?.scrollIntoView({
@@ -322,11 +328,27 @@ useEffect(() => {
     }
 
     const plan = plans.find((item) => item.id === selectedPlan);
+    const player = players.find((item) => item.id === selectedPlayer);
     let calculatedEndDate;
     try {
-      calculatedEndDate = calculateCalendarAlignedEndDate(startDate, plan?.billing_cycle);
-    } catch {
-      showToast("error", "Choose a valid subscription plan and start date.");
+      if (plan?.billing_cycle === "one_time") {
+        // One-time camps are manually dated, not inferred from a recurring period.
+        // RLS remains authoritative for all writes; check current scoped data as well.
+        if (!player || !plan.academy_id || player.academy_id !== plan.academy_id) {
+          showToast("error", "The selected player and camp plan must belong to the same academy.");
+          return;
+        }
+        calculatedEndDate = validateOneTimeCampPeriod({
+          startDate,
+          endDate: oneTimeEndDate
+        }).endDate;
+      } else {
+        calculatedEndDate = calculateCalendarAlignedEndDate(startDate, plan?.billing_cycle);
+      }
+    } catch (error) {
+      showToast("error", plan?.billing_cycle === "one_time"
+        ? (error.message || "Select valid camp start and end dates.")
+        : "Choose a valid subscription plan and start date.");
       return;
     }
 
@@ -369,12 +391,23 @@ useEffect(() => {
 
     await fetchSubscriptions();
     resetAssignmentForm();
-    showToast("success", "Subscription created successfully.");
+    showToast("success", plan?.billing_cycle === "one_time"
+      ? "One-time camp assignment created. No payment due was generated."
+      : "Subscription created successfully.");
   };
 
   const handleUpdateSubscription = async () => {
     if (!selectedPlayer || !selectedPlan || !startDate) {
       showToast("error", "Select a player, plan, and start date.");
+      return;
+    }
+
+    // SP2 cannot convert an existing undated subscription to a camp without
+    // explicitly establishing its new period; period amendments are deferred.
+    const selectedEditPlan = plans.find((item) => item.id === selectedPlan);
+    if (selectedEditPlan?.billing_cycle === "one_time" &&
+        (selectedPlan !== editingOriginalPlanId || !editingOriginalEndDate)) {
+      showToast("error", "Existing subscriptions cannot be converted to a One-time plan or assigned a missing camp end date through Edit.");
       return;
     }
 
@@ -498,8 +531,9 @@ useEffect(() => {
 
   const selectedPlayerRecord = players.find((player) => player.id === selectedPlayer);
   const selectedPlanRecord = plans.find((plan) => plan.id === selectedPlan);
+  const isOneTimeNewPlan = !isEditing && selectedPlanRecord?.billing_cycle === "one_time";
   const calculatedEndDate = useMemo(() => {
-    if (!selectedPlanRecord || !startDate) return "";
+    if (!selectedPlanRecord || !startDate || selectedPlanRecord.billing_cycle === "one_time") return "";
     try {
       return calculateCalendarAlignedEndDate(startDate, selectedPlanRecord.billing_cycle);
     } catch {
@@ -655,7 +689,10 @@ useEffect(() => {
               <select
                 id="player-subscription-plan"
                 value={selectedPlan}
-                onChange={(e) => setSelectedPlan(e.target.value)}
+                onChange={(e) => {
+                  setSelectedPlan(e.target.value);
+                  setOneTimeEndDate("");
+                }}
               >
                 <option value="">Select plan</option>
                 {plans.map((plan) => (
@@ -681,8 +718,11 @@ useEffect(() => {
               <input
                 id="player-subscription-end-date"
                 type="date"
-                readOnly
-                value={isEditing ? (editingOriginalEndDate || "") : calculatedEndDate}
+                readOnly={!isOneTimeNewPlan}
+                required={isOneTimeNewPlan}
+                min={isOneTimeNewPlan ? startDate : undefined}
+                value={isEditing ? (editingOriginalEndDate || "") : isOneTimeNewPlan ? oneTimeEndDate : calculatedEndDate}
+                onChange={isOneTimeNewPlan ? (event) => setOneTimeEndDate(event.target.value) : undefined}
                 aria-describedby="player-subscription-end-date-note"
               />
             </div>
@@ -706,7 +746,9 @@ useEffect(() => {
           <p id="player-subscription-end-date-note" className="player-subscriptions-end-date-note">
             {isEditing
               ? "Existing end date is shown as recorded. Empty legacy end dates remain unchanged; changing a recorded plan period requires separate approval."
-              : "New subscriptions use calendar month ends (monthly: this month; quarterly: the third month). This is not proof of payment or automatic renewal."}
+              : isOneTimeNewPlan
+                ? "One-time camp: enter the final camp date (inclusive). No payment due, automatic renewal or automatic status expiry is created."
+                : "New recurring subscriptions use calendar month ends (monthly: this month; quarterly: the third month). This is not proof of payment or automatic renewal."}
           </p>
 
           {selectedPlayerRecord && selectedPlanRecord && (
@@ -954,7 +996,9 @@ useEffect(() => {
                               <span>
                                 {subscription.subscription_plans?.billing_cycle
                                   ? BILLING_CYCLES[subscription.subscription_plans.billing_cycle]
-                                    ? "Per " + BILLING_CYCLES[subscription.subscription_plans.billing_cycle]
+                                    ? subscription.subscription_plans.billing_cycle === "one_time"
+                          ? "One-time"
+                          : "Per " + BILLING_CYCLES[subscription.subscription_plans.billing_cycle]
                                     : subscription.subscription_plans.billing_cycle
                                   : ""}
                               </span>
