@@ -30,7 +30,7 @@ These are **not** live SQL migrations or approved production fixes. The original
 
 ## Risk contract and why each route is independent
 
-- **Parent submission:** deployed `current_user_role() <> 'parent'` is NULL-unsafe; its later linked-parent requirement is a separate boundary. The test deliberately uses a real signed unmapped JWT with a synthetic linked parent, then verifies the original result and the candidate's denial. This condition does not prove any real customer exploitation.
+- **Parent submission:** deployed `current_user_role() <> 'parent'` is NULL-unsafe; its later linked-parent requirement is a **concrete enforcing boundary**: live `parents.user_id` references `public.users(id)` and `users.role` is NOT NULL. The real signed unmapped JWT therefore cannot be assigned a valid Parent profile, and the unchanged deployed source must deny it with `Parent profile not found`. No parent-submission exploit is claimed; the scratch-only candidate denies NULL role earlier. Do not drop the FK or make role nullable in a fixture to force a bypass.
 - **Owner review:** deployed `v_role <> 'academy_owner'` and `academy_id <> current_academy_id()` are NULL-unsafe. Native unmapped-JWT acceptance must be demonstrated in disposable data, and a scratch guard must subsequently block it.
 - **Accepted-payment recording:** the initial role comparator is NULL-unsafe, but its downstream academy `IS DISTINCT FROM` comparator rejects a truly unmapped JWT and the separately validated scratch `collect_payment` guard rejects a role-NULL user with a mapped academy. **Do not claim a recording exploit unless a real authorization-bypass/ledger mutation is independently reproduced.**
 
@@ -39,9 +39,9 @@ These are **not** live SQL migrations or approved production fixes. The original
 Workflow `.github/workflows/devbot-ag3-4d33-upi-rpcs.yml` executes the existing C2/D1/D3.1/D3.2 genuine GoTrue JWT fixtures, then D3.3. Required checks:
 
 1. No hosted project link, migration source replay, customer data, service role token or remote connection. Require fresh JWT IDs and exact scratch baseline row counts.
-2. Source MD5, RPC EXECUTE grants, three original finance SELECT policies, source-attested `collect_payment` and correction prerequisites.
-3. Original-source unauthorized UPI submission **with linked synthetic parent** and unauthorized review, showing actual claim mutation; not merely a 400/500 error.
-4. Original-source recording downstream NULL-safe denial; distinguish unmapped NULL and mapped-NULL role, with no payment/claim/due/receipt/counter changes.
+2. Source MD5, RPC EXECUTE grants, original finance SELECT policies, source-attested `collect_payment` and correction prerequisites.
+3. Original-source unmapped Parent submission **denied by the linked-profile/FK boundary**; a separate pending claim is seeded in scratch using authorized SQL fixture setup. Original-source unmapped Owner review must be shown modifying that claim (without changing the payment ledger), not merely returning a generic error.
+4. Original-source recording downstream NULL-safe academy denial for an unmapped user, with no payment/claim/due/receipt/counter changes. Do not invent a mapped-NULL-role user in the hosted-equivalent schema because `users.role` is NOT NULL.
 5. Scratch-only explicit role and academy protection: Owner A/B, Parent A/B, Coach, SA, unmapped, anon and forged JWT, including cross-tenant ID tampering.
 6. Parent valid claim, duplicate academy UTR, one pending/accepted claim per due, invalid/overpaid/cross-parent submissions and genuine Owner review/rejection.
 7. Acceptance/rejection leaves ledger unchanged; separate accepted-claim recording creates one `upi` payment, external UTR, receipt, correct due status, and linked recorded claim.
