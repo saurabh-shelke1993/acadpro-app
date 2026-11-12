@@ -2,7 +2,7 @@
 
 **Date:** 12 November 2026
 **Branch:** `rc1-2-first-period-manual-fee`, from accepted RC0/RC1.1 development branch `payment-module-finalization`.
-**Status:** **IMPLEMENTED IN DEVELOPMENT PR ONLY; CI and manual Owner/browser testing are not established at document creation.**
+**Status:** **IMPLEMENTED / FOCUSED CI PASS (19 fee unit tests + 7 Payment Dues UI tests + React build); Owner manual browser acceptance PENDING.** [GitHub Actions 43279692209](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43279692209) passed at code SHA `3e89472`.
 **Production/release:** NOT deployed; AG3.4E remains NO-GO. No hosted DDL/DML, new migration, financial data mutation or automatic renewal.
 
 ## Original problem
@@ -43,7 +43,7 @@ RC1.1 provided **Edit existing subscription** instead of a duplicate Create path
 - Restrict to active matched-academy monthly subscription and exact start date; reject old-month/manual period alterations.
 - Reject when a monthly due already exists; preserve same-date duplicate protection, and no paid/settled adjustments.
 - Coach cannot access Generate Due.
-- React production build, owner desktop/mobile acceptance. **Exact PR CI outcome to be recorded after execution.**
+- React production build **PASS** in focused CI; owner desktop/mobile acceptance **PENDING**. Full unrelated frontend suite failures remain an independent RC3 release blocker.
 
 ## Owner UI acceptance — test only on RC1.2 local branch or approved preview
 
@@ -51,7 +51,7 @@ RC1.1 provided **Edit existing subscription** instead of a duplicate Create path
 
 1. Choose an academy, center, batch, test player and an **active monthly subscription with no linked monthly dues**. Choose **Due Type = Monthly**, **Due Date = subscription start date**. Expect to see **Use an Owner-approved first-period amount**.
 2. Check it. Enter an amount lower than the standard plan, such as **₹1,269.23** for a ₹1,500 plan, and a reason like **Joined mid-month; 11 of 13 scheduled sessions**. Expect the due preview to show the entered amount; no amount is automatically copied from the subscription calculator.
-3. Click **Generate Due**. Expect a confirmation showing both **₹1,269.23** and **₹1,500.00**. **Use a disposable test academy/subscription or test environment for the actual Confirm/save; do not generate a new due against real paid player records.** Confirm on a disposable fixture; expect one Pending due with Total ₹1,269.23, Paid ₹0, Remaining ₹1,269.23, and an explanation in Remarks.
+3. Click **Generate Due**. Expect a confirmation showing both **₹1,269.23** and **₹1,500.00**. **Use a disposable test academy/subscription or test environment for the actual Confirm/save; do not generate a new due against real paid player records.** Confirm on a disposable fixture; expect one Pending due with Total ₹1,269.23, Paid ₹0, Remaining ₹1,269.23. Select the due row to reveal its **Due notes** explanation. The list must preserve paise rather than round the amount.
 4. Select an amount above ₹1,500 or ₹0, or enter a reason shorter than eight characters. Expect rejection; no due inserted.
 5. Change Due Type to Registration or change Due Date away from the subscription start date. Expect manual adjustment controls to disappear and the ordinary form to remain unchanged.
 6. Try a subscription that already has a monthly due. Expect manual insertion to be rejected; existing payment history unchanged.
@@ -69,7 +69,7 @@ RC1.1 provided **Edit existing subscription** instead of a duplicate Create path
 ## Completion gates
 
 - **Implemented (code):** manual amount, reason, recheck, limited duplicate safeguards, UI warnings and tests, within a development PR.
-- **Automated tested:** PENDING exact PR head CI.
+- **Automated tested:** PASS for 19 fee helper tests, 7 synthetic Payment Dues UI tests and React production build at code SHA `3e89472`; final documentation-only PR head validation is separate.
 - **Manually tested:** PENDING Owner review.
 - **Deployed:** NO.
 - **Financial/RBAC security acceptance:** NOT COMPLETE.
