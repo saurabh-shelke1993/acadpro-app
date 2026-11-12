@@ -1,0 +1,88 @@
+name: SP3 One-time camp due (disposable PG security)
+
+on:
+  pull_request:
+    branches: [payment-module-finalization]
+    paths:
+      - 'supabase/review_only/SP3_*.sql'
+      - 'frontend/src/services/oneTimeCampDueService.js'
+      - 'frontend/src/services/oneTimeCampDueService.test.js'
+      - 'frontend/src/pages/PaymentDues.js'
+      - 'frontend/src/pages/PaymentDues.test.js'
+      - 'frontend/src/services/parentPortalService.js'
+      - 'frontend/src/pages/ParentFinancialOverview.js'
+      - '.github/workflows/sp3-one-time-camp-due-scratch.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sp3-disposable-postgres:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: sp3_scratch_only
+          POSTGRES_DB: sp3_scratch
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d sp3_scratch"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 15
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: '5432'
+      PGUSER: postgres
+      PGPASSWORD: sp3_scratch_only
+      PGDATABASE: sp3_scratch
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client
+      - name: Setup synthetic roles, schemas and RLS (NO live data)
+        run: psql -X -v ON_ERROR_STOP=1 -f supabase/review_only/SP3_SCRATCH_SETUP.sql
+      - name: Apply REVIEW-ONLY script to disposable database
+        run: psql -X -v ON_ERROR_STOP=1 -f supabase/review_only/SP3_ONE_TIME_CAMP_DUE_REVIEW_ONLY.sql
+      - name: Prove Owner/SA success, other role denials, unique camp charge and immutable ledger
+        run: psql -X -v ON_ERROR_STOP=1 -f supabase/review_only/SP3_SCRATCH_ASSERTIONS.sql
+
+  sp3-react-regression:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: One-time camp due service validation
+        env:
+          CI: 'true'
+        run: npm test -- --watchAll=false --runInBand --testPathPattern=oneTimeCampDueService.test.js
+      - name: Payment Dues and first-period regression
+        env:
+          CI: 'true'
+        run: npm test -- --watchAll=false --runInBand --testPathPattern=PaymentDues.test.js
+      - name: Parent financial overview regression
+        env:
+          CI: 'true'
+        run: npm test -- --watchAll=false --runInBand --testPathPattern=ParentFinancialOverview
+      - name: Production React build
+        env:
+          CI: 'true'
+        run: npm run build
