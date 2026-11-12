@@ -124,5 +124,15 @@ class UpiSecurityContract(unittest.TestCase):
         self.assertIn("p.external_transaction_reference='AG34D33_RACE'", RUNNER)
 
 
+    def test_parent_fk_boundary_is_not_weakened_to_force_submission_bypass(self):
+        self.assertNotIn("DROP CONSTRAINT", SOURCE.upper())
+        self.assertNotIn("ALTER TABLE public.parents", SOURCE)
+        self.assertNotIn("ALTER TABLE public.users", SOURCE)
+        self.assertIn("Parent profile not found", RUNNER)
+        self.assertIn("original unmapped Parent submission denied by linked-profile boundary", RUNNER)
+        self.assertIn("original NULL-role Owner review reproduction on seeded pending claim", RUNNER)
+        self.assertIn("AG34-HIGH-002 D3.3 REPRODUCED", RUNNER)
+
+
 if __name__ == "__main__":
     unittest.main()
