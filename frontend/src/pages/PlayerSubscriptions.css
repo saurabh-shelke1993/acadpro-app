@@ -920,3 +920,39 @@
     min-width: 0;
   }
 }
+
+/* RC1.1 — prompt owners to edit an already-active player/plan instead of creating a duplicate. */
+.player-subscriptions-existing-notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .65rem;
+  margin-top: .7rem;
+  padding: .65rem .75rem;
+  border: 1px solid var(--ap-primary-200);
+  border-radius: var(--ap-radius-md);
+  background: var(--ap-primary-50);
+}
+.player-subscriptions-existing-notice > div {
+  flex: 1 1 260px;
+  min-width: 0;
+}
+.player-subscriptions-existing-notice strong {
+  color: var(--ap-slate-900);
+  font-size: var(--ap-font-size-sm);
+}
+.player-subscriptions-existing-notice p {
+  margin: .2rem 0 0;
+  color: var(--ap-slate-700);
+  font-size: var(--ap-font-size-xs);
+  line-height: 1.5;
+}
+.player-subscriptions-existing-notice .player-subscriptions-secondary-button {
+  flex-shrink: 0;
+}
+@media (max-width: 640px) {
+  .player-subscriptions-existing-notice .player-subscriptions-secondary-button {
+    width: 100%;
+  }
+}
