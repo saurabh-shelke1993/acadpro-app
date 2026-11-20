@@ -13,24 +13,27 @@ test("registers exactly 19 stable sequential IDs across the three roadmap phases
   expect(betaTasks.every((task) => betaPhases.some((phase) => phase.id === task.phaseId))).toBe(true);
 });
 
-test("starts with only the audit in progress, no approved completion and no deployment claims", () => {
-  expect(betaTasks.map(getBetaTaskStatus)).toEqual(["IN_PROGRESS", ...Array(18).fill("PLANNED")]);
-  expect(getBetaSummary()).toMatchObject({ total: 19, completed: 0, inProgress: 1, blocked: 0 });
-  expect(getBetaSummary().activeMilestone.id).toBe("BETA-01");
-  expect(betaTasks.every((task) => task.acceptance.status === "NOT_REVIEWED")).toBe(true);
-  expect(betaTasks.every((task) => task.automatedTests.status === "NOT_RUN")).toBe(true);
-  expect(betaTasks.every((task) => task.deployment.status === "NOT_VERIFIED")).toBe(true);
+test("records approved audit and active integration without false deployment claims", () => {
+  expect(betaTasks.map(getBetaTaskStatus)).toEqual(["COMPLETE", "IN_PROGRESS", ...Array(17).fill("PLANNED")]);
+  expect(getBetaSummary()).toMatchObject({ total: 19, completed: 1, inProgress: 1, blocked: 0 });
+  expect(getBetaSummary().activeMilestone.id).toBe("BETA-02");
+  expect(betaTasks[0].acceptance).toMatchObject({ status: "APPROVED", approvedBy: "Product Owner", approvedOn: "2026-11-20" });
+  expect(betaTasks[1].acceptance.status).toBe("PENDING");
+  expect(betaTasks.slice(2).every((task) => task.acceptance.status === "NOT_REVIEWED")).toBe(true);
+  expect(betaTasks[1].automatedTests.status).toBe("PARTIAL");
+  expect(betaTasks.every((task) => task.deployment.status !== "DEPLOYED")).toBe(true);
   expect(betaLaunch).toEqual({ productionDecision: "NO-GO", releaseDate: null });
 });
 
-test("retains the supplied discovery evidence without claiming the branch audit is complete", () => {
+test("retains audited branch evidence with approved baseline decision", () => {
   const audit = betaTasks[0];
   const evidence = audit.implementation.evidence.join(" ");
   for (const expected of ["43 remote GitHub branches", "payment-module-finalization", "diverged", "UI-C2.10 Pitchside Emerald"]) {
     expect(evidence).toContain(expected);
   }
-  expect(audit.blocker).toMatch(/reconciliation.*approval.*pending/i);
-  expect(getBetaTaskStatus(audit)).toBe("IN_PROGRESS");
+  expect(audit.blocker).toBeNull();
+  expect(audit.branchReference).toContain("(approved baseline)");
+  expect(getBetaTaskStatus(audit)).toBe("COMPLETE");
 });
 
 test.each([undefined, "NOT_REVIEWED", "PENDING", "REJECTED", "approved"])(
@@ -56,7 +59,7 @@ test("only explicit approval contributes to total and phase completion", () => {
   expect(getBetaSummary(tasks)).toMatchObject({ total: 3, completed: 1, inProgress: 1, blocked: 1 });
   expect(getBetaSummary(tasks).activeMilestone.id).toBe("BETA-03");
   expect(getBetaSummary(tasks.filter((task) => task.phaseId === "phase-1")).completed).toBe(1);
-  expect(getBetaSummary().completed).toBe(0);
+  expect(getBetaSummary().completed).toBe(1);
 });
 
 test("rejects a bare COMPLETE work status as proof of acceptance", () => {
