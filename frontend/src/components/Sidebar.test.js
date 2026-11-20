@@ -22,6 +22,21 @@ afterEach(() => {
   localStorage.clear();
 });
 
+test.each(["super_admin", "academy_owner", "coach", "parent", "unknown", null])(
+  "BETA-01-T Internal navigation is Super Admin only: %s", (role) => {
+    renderSidebar(role, "/beta-tracker");
+    const link = screen.queryByRole("link", { name: "Beta Launch Tracker" });
+    if (role === "super_admin") {
+      expect(screen.getByText("Internal")).toBeInTheDocument();
+      expect(link).toHaveAttribute("href", "/beta-tracker");
+      expect(link).toHaveClass("app-nav-link-active");
+    } else {
+      expect(link).not.toBeInTheDocument();
+      expect(screen.queryByText("Internal")).not.toBeInTheDocument();
+    }
+  }
+);
+
 test.each([
   ["academy_owner", "/attendance?view=mark"],
   ["coach", "/attendance?view=mark"],

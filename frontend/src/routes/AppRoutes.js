@@ -6,6 +6,7 @@ import {
 } from "react-router-dom";
 
 import ProtectedRoute from "../components/ProtectedRoute";
+import BetaTracker from "../pages/BetaTracker";
 import CoachProfile from "../pages/CoachProfile";
 
 // ============================================
@@ -108,6 +109,15 @@ function AppRoutes() {
               ]}
             >
               <Academy />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/beta-tracker"
+          element={
+            <ProtectedRoute allowedRoles={["super_admin"]}>
+              <BetaTracker />
             </ProtectedRoute>
           }
         />

@@ -140,6 +140,12 @@ function Sidebar({ isOpen = false, onClose = () => {}, closeButtonRef }) {
               {renderLink("/academy-upi-settings", "Academy UPI Settings", "▦")}
             </>
           )}
+          {isSuperAdmin(user) && (
+            <>
+              <div className="app-nav-group-title">Internal</div>
+              {renderLink("/beta-tracker", "Beta Launch Tracker", "◇")}
+            </>
+          )}
         </nav>
 
         <div className="app-sidebar-footer">
