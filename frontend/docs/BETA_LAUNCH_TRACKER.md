@@ -58,3 +58,13 @@ For manual review, run `npm.cmd start` in this worktree with an approved develop
 - Academy Owner, Coach and Parent: confirm the Internal tracker link is absent, then paste `/beta-tracker` and refresh. Each must follow the existing `/login` redirect with no tracker content. Repeat signed out.
 
 Capture screenshots without user data or credentials. Report actual session/browser/viewport and results. Screenshots from a mocked/static harness are layout evidence only. Product Owner manual acceptance and ChatGPT architecture review remain required after implementation and focused testing.
+
+## Approved BETA-01 and active BETA-02 — 20 November 2026
+
+**BETA-01: APPROVED COMPLETE.** The Product Owner explicitly approved `payment-module-finalization` @ `62e54bef15aafffe0810b9c64e8ce1ed81d5b250` as the development baseline. GitHub audit counted 43 remote branches (32 histories contained in payment, 10 with unique commits, plus the payment branch itself). Source comparison retained newer payment-branch operational screens; Vercel Production was shown on `main` @ `3218b657`. Approval does not authorize deployment or blanket merging.
+
+**BETA-02: IN PROGRESS.** The tracker was committed at `9423acc4f3f908c8d4d64e5a2af65e8b13f08ff9`; its original focused tests passed 50/50 and the local React build passed. Product Owner accepted its Super Admin layout. Status-update tests/build, actual negative-role manual verification and final integration acceptance are still pending. The derived completion formula is unchanged.
+
+**Release state:** Production NO-GO. No release date. The separate P3 working tree, `main`, and `payment-module-finalization` remain unchanged.
+
+References: [tracker commit](https://github.com/saurabh-shelke1993/acadpro-app/commit/9423acc4f3f908c8d4d64e5a2af65e8b13f08ff9), [approved baseline](https://github.com/saurabh-shelke1993/acadpro-app/commit/62e54bef15aafffe0810b9c64e8ce1ed81d5b250).
