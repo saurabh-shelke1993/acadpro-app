@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen, within, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, within, fireEvent, waitFor, act } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import AttendanceHistory from "./AttendanceHistory";
 import { getAttendanceHistoryPage } from "../services/attendanceHistoryService";
@@ -47,22 +47,30 @@ const rows = [
   makeRecord("old-1", "Old Junior", oldDate),
 ];
 
-const renderHistory = async (role, data = rows) => {
+const renderHistory = async (role, data = rows, readPage) => {
   getCurrentUser.mockResolvedValue({ id: "user-1", role, academy_id: "academy-1" });
   // Match the server contract: apply filters before slicing five records.
-  getAttendanceHistoryPage.mockImplementation(async ({ page, playerName, status }) => {
+  getAttendanceHistoryPage.mockImplementation(readPage || (async ({ page, playerName, status }) => {
     const filtered = data.filter((item) =>
       (!status || item.status === status) &&
       (!playerName || item.players.full_name.toLowerCase().includes(playerName.toLowerCase()))
     );
     return { rows: filtered.slice((page - 1) * 5, page * 5), count: filtered.length };
-  });
+  }));
   render(
     <MemoryRouter initialEntries={["/attendance-history"]}>
       <AttendanceHistory />
     </MemoryRouter>
   );
-  await screen.findByRole("cell", { name: "Old Junior" });
+  // A first response can render rows before academy selection starts a second read.
+  // Wait for the final scope and its completed render before returning to assertions.
+  await waitFor(() => {
+    expect(getAttendanceHistoryPage).toHaveBeenLastCalledWith(expect.objectContaining({
+      academyId: role === "super_admin" ? "" : "academy-1",
+    }));
+    expect(screen.queryByText("Loading attendance history...")).not.toBeInTheDocument();
+    expect(screen.getByRole("cell", { name: "Old Junior" })).toBeInTheDocument();
+  });
 };
 
 beforeEach(() => {
@@ -182,4 +190,23 @@ test("AM7.3 server error shows Retry instead of a false empty-result success", a
   expect(screen.getByRole("button", { name: "Retry" })).toBeInTheDocument();
   fireEvent.click(screen.getByRole("button", { name: "Retry" }));
   await waitFor(() => expect(screen.getByText("No attendance records found")).toBeInTheDocument());
+});
+
+
+test("history readiness waits for the academy-scoped response after initial rows", async () => {
+  let resolveScoped;
+  const scoped = new Promise((resolve) => { resolveScoped = resolve; });
+  let ready = false;
+  const mounting = renderHistory("coach", rows, async ({ academyId }) =>
+    academyId ? scoped : { rows, count: rows.length });
+  mounting.then(() => { ready = true; });
+  await waitFor(() => expect(getAttendanceHistoryPage).toHaveBeenLastCalledWith(
+    expect.objectContaining({ academyId: "academy-1" })
+  ));
+  expect(screen.getByText("Loading attendance history...")).toBeInTheDocument();
+  expect(ready).toBe(false);
+  await act(async () => resolveScoped({ rows, count: rows.length }));
+  await mounting;
+  expect(screen.getByRole("cell", { name: "Recent Junior" })).toBeInTheDocument();
+  expect(screen.getByRole("cell", { name: "Old Junior" })).toBeInTheDocument();
 });
