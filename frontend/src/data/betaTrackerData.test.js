@@ -13,14 +13,17 @@ test("registers exactly 19 stable sequential IDs across the three roadmap phases
   expect(betaTasks.every((task) => betaPhases.some((phase) => phase.id === task.phaseId))).toBe(true);
 });
 
-test("records BETA-01 and BETA-02 approved with BETA-03 active and production NO-GO", () => {
-  expect(betaTasks.map(getBetaTaskStatus)).toEqual(["COMPLETE", "COMPLETE", "IN_PROGRESS", ...Array(16).fill("PLANNED")]);
-  expect(getBetaSummary()).toMatchObject({ total: 19, completed: 2, inProgress: 1, blocked: 0 });
-  expect(getBetaSummary().activeMilestone.id).toBe("BETA-03");
+test("records three approved milestones and active BETA-04 with production NO-GO", () => {
+  expect(betaTasks.map(getBetaTaskStatus)).toEqual(["COMPLETE", "COMPLETE", "COMPLETE", "IN_PROGRESS", ...Array(15).fill("PLANNED")]);
+  expect(getBetaSummary()).toMatchObject({ total: 19, completed: 3, inProgress: 1, blocked: 0 });
+  expect(getBetaSummary().activeMilestone.id).toBe("BETA-04");
   expect(betaTasks[0].acceptance).toMatchObject({ status: "APPROVED", approvedBy: "Product Owner", approvedOn: "2026-11-20" });
   expect(betaTasks[1].acceptance).toMatchObject({ status: "APPROVED", approvedBy: "Product Owner", approvedOn: "2026-11-21" });
-  expect(betaTasks.slice(2).every((task) => task.acceptance.status === "NOT_REVIEWED")).toBe(true);
+  expect(betaTasks[2].acceptance).toMatchObject({ status: "APPROVED", approvedBy: "Product Owner", approvedOn: "2026-11-21" });
+  expect(betaTasks.slice(3).every((task) => task.acceptance.status === "NOT_REVIEWED")).toBe(true);
   expect(betaTasks[1].automatedTests.status).toBe("PASSED");
+  expect(betaTasks[2].automatedTests.status).toBe("NOT_RUN");
+  expect(betaTasks[3].workStatus).toBe("IN_PROGRESS");
   expect(betaTasks.every((task) => task.deployment.status !== "DEPLOYED")).toBe(true);
   expect(betaLaunch).toEqual({ productionDecision: "NO-GO", releaseDate: null });
 });
@@ -54,12 +57,12 @@ test("only explicit approval contributes to total and phase completion", () => {
   const tasks = [
     { ...betaTasks[0], acceptance: { status: "APPROVED", approvedBy: "Test reviewer", approvedOn: "2026-11-20", evidence: ["Test fixture only"] } },
     { ...betaTasks[1], workStatus: "BLOCKED", acceptance: { status: "PENDING" } },
-    { ...betaTasks[2], workStatus: "IN_PROGRESS", implementation: { status: "IMPLEMENTED" }, automatedTests: { status: "PASSED" } },
+    { ...betaTasks[2], workStatus: "IN_PROGRESS", implementation: { status: "IMPLEMENTED" }, automatedTests: { status: "PASSED" }, acceptance: { status: "PENDING" } },
   ];
   expect(getBetaSummary(tasks)).toMatchObject({ total: 3, completed: 1, inProgress: 1, blocked: 1 });
   expect(getBetaSummary(tasks).activeMilestone.id).toBe("BETA-03");
   expect(getBetaSummary(tasks.filter((task) => task.phaseId === "phase-1")).completed).toBe(1);
-  expect(getBetaSummary().completed).toBe(2);
+  expect(getBetaSummary().completed).toBe(3);
 });
 
 test("rejects a bare COMPLETE work status as proof of acceptance", () => {
