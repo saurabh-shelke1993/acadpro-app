@@ -100,3 +100,9 @@ No beta feature was implemented, no Supabase migrations/data changes were author
 BETA-05.2 documents feature-branch isolation, source/diff reviews, evidence provenance, real-role/tenant and financial test boundaries, and BETA-06 through BETA-12 dependencies. **Still pending:** documentation review/integration and Product Owner approval. Do not change the tracker source's BETA-05 acceptance status without that explicit approval. Do not treat the source-controlled documentation as evidence that an environment has been deployed.
 
 The original P3 worktree, beta feature implementation, Supabase, main and production remain untouched by this documentation-only task. Production **NO-GO**, no release date. BETA-06 must not start before BETA-05 approval.
+
+## BETA-05 closure / BETA-06 handoff — 21 November 2026
+
+**BETA-05: Product Owner-approved workspace foundation; documentation merged.** GitHub PR [#35](https://github.com/saurabh-shelke1993/acadpro-app/pull/35) successfully merged the BETA-05.2 contract on beta-launch-integration at `c7b9cc31ff1a3aa6524ac9cf4062e63042a37ea1`. Product Owner then authorized closing BETA-05 after its gates and proceeding to BETA-06 on 21 November 2026. The acceptance applies to the isolated workspace and evidence workflow, not actual signed-in browser tests, deployment, financial backend renewal or future dashboard implementation. The tracker evidence update and its pinned test expectations are tracked in a separate BETA-05 closure change; the BETA-05.1 65/65 focused tests and build passed at `6bf98fd`, NOT at the later closure SHA. Rerunning changed tracker tests/build remains a separate verification requirement. **Production remains NO-GO.**
+
+BETA-06 starts with a read-only dashboard source comparison against [the approved BETA-03 design contract](BETA_03_ACADEMY_OWNER_DESIGN_CONTRACT.md); no unreviewed historical UI branch merge, Supabase schema write or production deployment is authorized.
