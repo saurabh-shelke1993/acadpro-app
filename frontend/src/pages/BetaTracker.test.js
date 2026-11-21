@@ -10,10 +10,10 @@ test("shows unfiltered evidence-based summary and grouped 5/7/7 roadmap records"
   render(<BetaTracker />);
   expect(screen.getByRole("heading", { level: 1, name: "Beta Launch Tracker" })).toBeInTheDocument();
   expect(metric("Total development tasks")).toHaveTextContent("19");
-  expect(metric("Approved completed tasks")).toHaveTextContent("2");
+  expect(metric("Approved completed tasks")).toHaveTextContent("3");
   expect(metric("Tasks in progress")).toHaveTextContent("1");
   expect(metric("Blocked tasks")).toHaveTextContent("0");
-  expect(metric("Current active milestone")).toHaveTextContent("BETA-03");
+  expect(metric("Current active milestone")).toHaveTextContent("BETA-04");
   const groups = [
     ["Phase 1 — Foundation & Consolidation", 5],
     ["Phase 2 — Product Completion", 7],
@@ -23,7 +23,7 @@ test("shows unfiltered evidence-based summary and grouped 5/7/7 roadmap records"
     expect(screen.getByRole("region", { name }).querySelectorAll("details")).toHaveLength(count);
   });
   expect(screen.getAllByRole("progressbar")).toHaveLength(3);
-  expect(screen.getAllByRole("progressbar").map((p) => p.getAttribute("value"))).toEqual(["2", "0", "0"]);
+  expect(screen.getAllByRole("progressbar").map((p) => p.getAttribute("value"))).toEqual(["3", "0", "0"]);
   expect(screen.getByText("Production NO-GO")).toBeInTheDocument();
   expect(screen.getByText(/No release date approved/)).toBeInTheDocument();
 });
@@ -40,17 +40,17 @@ test("combines phase/status filters, handles empty results and keeps global summ
   expect(screen.getByRole("status")).toHaveTextContent("Showing 0 of 19 tasks");
   userEvent.selectOptions(phase, "ALL");
   expect(screen.getByRole("status")).toHaveTextContent("Showing 1 of 19 tasks");
-  expect(screen.getByText("BETA-03", { selector: ".beta-tracker-task-id" })).toBeInTheDocument();
+  expect(screen.getByText("BETA-04", { selector: ".beta-tracker-task-id" })).toBeInTheDocument();
   userEvent.selectOptions(status, "COMPLETE");
-  expect(screen.getByRole("status")).toHaveTextContent("Showing 2 of 19 tasks");
+  expect(screen.getByRole("status")).toHaveTextContent("Showing 3 of 19 tasks");
   expect(screen.getByText("BETA-01", { selector: ".beta-tracker-task-id" })).toBeInTheDocument();
   userEvent.selectOptions(status, "BLOCKED");
   expect(screen.getByRole("status")).toHaveTextContent("Showing 0 of 19 tasks");
   userEvent.selectOptions(status, "PLANNED");
-  expect(screen.getByRole("status")).toHaveTextContent("Showing 16 of 19 tasks");
+  expect(screen.getByRole("status")).toHaveTextContent("Showing 15 of 19 tasks");
   userEvent.selectOptions(status, "ALL");
   expect(screen.getByRole("status")).toHaveTextContent("Showing 19 of 19 tasks");
-  expect(metric("Approved completed tasks")).toHaveTextContent("2");
+  expect(metric("Approved completed tasks")).toHaveTextContent("3");
   expect(metric("Total development tasks")).toHaveTextContent("19");
 });
 
