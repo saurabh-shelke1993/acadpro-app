@@ -1,8 +1,16 @@
 # BETA-06 calendar policy proposal and regression checkpoint
 
-Date: 21 November 2026. Status: proposal only; no production behavior change.
+Date: 21 November 2026. Status: fixed Asia/Kolkata policy approved for the initial India beta; isolated utility implementation only, no production consumer behavior change.
 Branch: `beta-06-owner-preview`; reviewed HEAD: `040e15a6788425947ed1a0361d889385f26bda12`.
-Scope: preserve BETA-06.3A tests and define a reviewable calendar contract. This document does not authorize implementation, migrations, deployment, or release. BETA-06 remains incomplete; production remains NO-GO.
+Scope: preserve BETA-06.3A tests and define a reviewable calendar contract. The PO has authorized BETA-06.3B2A pure utilities and tests only. Application integration, migrations, deployment, and release remain outside this checkpoint. BETA-06 remains incomplete; production remains NO-GO.
+
+## BETA-06.3B2A approval and implementation boundary
+
+PO decision: fixed `Asia/Kolkata` for the initial India beta; preserve UTC database timezone and timestamp storage, keep date-only calendar values unchanged, and perform no automatic historical rewriting. Academy-configurable timezones are deferred. Coach authorization requires separate review.
+
+`utils/academyCalendar.js` adds explicit-instant local date/ISO weekday functions, strict date-only validation, separate month date/UTC instant bounds, and inclusive date ranges. It reuses the existing pure `addSubscriptionCalendarDays` validator/arithmetic without modifying subscription code. Intl uses explicit Asia/Kolkata, Gregorian calendar and Latin digits; timestamp boundaries resolve zone midnight without the machine timezone or a hardcoded offset. Instant inputs are valid Date objects, integer epoch milliseconds, or full ISO timestamps with seconds and an explicit Z/HH:MM offset (optional 1-3 fractional digits). Invalid/ambiguous inputs throw RangeError; validation returns boolean. Date-only values use supported years 0001-9999; an exclusive next-month boundary beyond 9999 throws. No implicit current clock or runtime consumer is introduced.
+
+Only this document and the new utility/test files change. Dashboard/date calculations, attendance permissions, existing characterization tests, Auth/RBAC and database state remain untouched. Later integration must retain the separate date-only versus timestamp contracts and undergo the applicable security review. Prior sections below retain the checkpoint's historical findings and pending integration decisions; fixed-zone approval and the no-rewrite decision supersede those specific previously open questions.
 
 ## Evidence and preservation
 
@@ -123,8 +131,8 @@ The existing calendar suite covers the eight listed instants, process offset, ge
 
 ## Risks, decisions and checkpoint recommendation
 
-Remaining PO decisions: approve fixed Asia/Kolkata versus academy-configurable zones; approve business-date ownership and month boundaries across all dashboards; approve IST Coach access/edit windows versus retaining UTC as a documented exception; define Owner server-side future-date policy; accept changed monthly inclusion totals; decide how to explain historical UTC-dated attendance without automatic rewriting.
+Resolved PO decisions: fixed Asia/Kolkata for the initial India beta; configurable zones deferred; UTC database/time storage retained; no automatic historical rewriting. Remaining decisions: approve integration scope across dashboards; approve IST Coach access/edit windows versus retaining UTC as a documented exception; define Owner server-side future-date policy; accept changed monthly inclusion totals; decide how to explain historical UTC-dated attendance.
 
 Risks: frontend/server date disagreement can hide or reject valid Coach actions; access-helper changes affect reads as well as writes; a global timezone switch would alter unrelated CURRENT_DATE consumers; shared dashboard helper changes can affect other roles; date-only historical provenance is ambiguous; independent client clocks can disagree at midnight. No browser test or mocked-I/O pass removes these risks.
 
-Three-file checkpoint: PASS to commit after review (two preserved tests plus this proposal only). Calendar implementation: HOLD until PO/architecture/security decisions and coordinated validation plan are approved. This task performs no commit or push and does not begin the next milestone.
+BETA-06.3B1 three-file checkpoint was preserved in commit `a2061ea1b6d70cf3b915fea6bdf9bd3045e63821`. BETA-06.3B2A is limited to the isolated utility, its tests, and this approval/boundary update; no commit or push is authorized here. Runtime calendar integration and Coach authorization remain separate steps requiring their applicable reviews.
