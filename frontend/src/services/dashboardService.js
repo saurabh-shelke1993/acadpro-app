@@ -1,3 +1,4 @@
+import { getAcademyDate, getAcademyMonthDateBounds, getAcademyMonthUtcBounds, isValidAcademyDate } from "../utils/academyCalendar";
 import { supabase } from "../supabaseClient";
 import { getDashboardDataScope, getCoachAssignedBatchIds } from "../utils/dataScope";
 import { getAttendanceTrend, getCollectionsTrend } from "./analyticsService";
@@ -643,6 +644,13 @@ export async function getAcademyOwnerDashboardData(user) {
     throw new Error("Academy Owner is not linked to an academy.");
   }
 
+  // Capture once so all monthly reporting uses the same IST business month.
+  const reportingInstant = new Date();
+  const businessDate = getAcademyDate(reportingInstant);
+  const { startDate, endDateExclusive } = getAcademyMonthDateBounds(businessDate);
+  const { startInstant, endInstantExclusive } = getAcademyMonthUtcBounds(businessDate);
+  const monthStart = new Date(startInstant);
+  const nextMonthStart = new Date(endInstantExclusive);
   const academyId = user.academy_id;
   const today = getToday();
 
@@ -736,12 +744,12 @@ export async function getAcademyOwnerDashboardData(user) {
       .eq("players.academy_id", academyId)
       .eq("players.is_active", true),
     supabase.from("expenses").select("id, expense_date, amount_paid").eq("academy_id", academyId)
-      .gte("expense_date", new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().slice(0, 10))
-      .lt("expense_date", new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).toISOString().slice(0, 10)),
+      .gte("expense_date", startDate)
+      .lt("expense_date", endDateExclusive),
     supabase.from("inquiries").select("id, assigned_center_id, assigned_batch_id, created_at")
       .eq("academy_id", academyId)
-      .gte("created_at", new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString())
-      .lt("created_at", new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).toISOString()),
+      .gte("created_at", startInstant)
+      .lt("created_at", endInstantExclusive),
     getAttendanceTrend({ type: "academy", academyId }, 7),
     getCollectionsTrend({ type: "academy", academyId }, 6)
   ]);
@@ -947,13 +955,10 @@ export async function getAcademyOwnerDashboardData(user) {
     (total, due) => total + Number(due.total_amount || 0),
     0
   );
-  const billingNow = new Date();
-  const monthStartDate = new Date(billingNow.getFullYear(), billingNow.getMonth(), 1);
-  const nextMonthStartDate = new Date(billingNow.getFullYear(), billingNow.getMonth() + 1, 1);
   const totalBilledThisMonth = dues.reduce((total, due) => {
-    if (!due.due_date) return total;
-    const dueDate = new Date(String(due.due_date) + "T00:00:00");
-    return dueDate >= monthStartDate && dueDate < nextMonthStartDate ? total + Number(due.total_amount || 0) : total;
+    if (!isValidAcademyDate(due.due_date)) return total;
+    return due.due_date >= startDate && due.due_date < endDateExclusive
+      ? total + Number(due.total_amount || 0) : total;
   }, 0);
   const totalPaid = dues.reduce(
     (total, due) => total + Math.min(
@@ -972,10 +977,6 @@ export async function getAcademyOwnerDashboardData(user) {
   const paidDues = dues.filter(
     (due) => due.due_status === "paid"
   ).length;
-
-  const now = new Date();
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  const nextMonthStart = new Date(now.getFullYear(), now.getMonth() + 1, 1);
 
   const collectionsThisMonth = (paymentsResult.data || []).reduce(
     (total, payment) => {
