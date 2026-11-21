@@ -4,7 +4,9 @@
 
 **BETA-02 — Approved Complete:** `beta-launch-integration` contains the Super Admin tracker; Codex reported 65/65 focused Jest tests (6 suites), local React build PASS and a clean isolated worktree at `0149d421`. Product Owner explicitly approved closing BETA-02 on 21 November. Genuine signed-in denied-role checks, full app regression and hosted SPA refresh are still unverified and must not be treated as passing release gates.
 
-**BETA-03 — In Progress:** Formalize selected Academy Owner UI-C2.10 Pitchside Emerald design contract from the separate UI preview branch; no UI merge or global theme rollout yet (integration belongs to BETA-06).
+**BETA-03 — Approved Complete:** Product Owner approved the final scoped Academy Owner **UI-C2.10 Pitchside Emerald** design contract on 21 November 2026. The binding specification is [BETA_03_ACADEMY_OWNER_DESIGN_CONTRACT.md](BETA_03_ACADEMY_OWNER_DESIGN_CONTRACT.md), including four BETA-06 corrections: attendance `view=mark` link, center-ID grouping, truthful batch/date mark status, and IST/UTC date-boundary validation. No dashboard code, global colors, Supabase or production changes have been made.
+
+**BETA-04 — In Progress:** Prepare the beta feature-scope freeze with explicit in-scope workflows, deferred features and acceptance/security gates. Product Owner scope approval is pending; this is not a feature implementation task.
 
 **Release:** Production NO-GO; no release date. `main`, hosted Supabase and unfinished `ps-r6a4-integrated-subscription-regression` checkout unchanged. Detailed milestones and approval provenance: [BETA_LAUNCH_TRACKER.md](BETA_LAUNCH_TRACKER.md); authoritative task states: `src/data/betaTrackerData.js`.
 
