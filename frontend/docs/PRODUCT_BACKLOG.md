@@ -8,7 +8,7 @@
 
 **BETA-04 — Approved Complete:** Product Owner approved the initial pilot beta scope on 21 November 2026, including **manual Academy Owner-initiated monthly batch subscription renewal** with exactly one **Pending** due per eligible player/agreement/period, no automatic collection and strict price, eligibility, transaction, idempotency, audit, RLS/tenant safeguards. Approved scope/exclusions: [BETA_04_BETA_SCOPE_FREEZE.md](BETA_04_BETA_SCOPE_FREEZE.md). Renewal is **PLANNED for BETA-07**, not implemented, migrated or tested.
 
-**BETA-05 — In Progress:** Validate the isolated beta integration worktree, feature-branch/review protocol and source-controlled evidence workflow, then seek separate Product Owner workspace acceptance. Production remains NO-GO.
+**BETA-05 — In Progress:** BETA-05.1 isolated-worktree validation reported PASS at `beta-launch-integration` @ `6bf98fd` (6 focused Jest suites, 65 tests; React build; clean status/ancestry). Architecture workflow reviewed and BETA-05.2 [documentation contract](BETA_05_INTEGRATION_WORKFLOW.md) prepared on a separate documentation branch. Product Owner acceptance and integration remain pending; production NO-GO.
 
 **Release:** Production NO-GO; no release date. `main`, hosted Supabase and unfinished `ps-r6a4-integrated-subscription-regression` checkout unchanged. Detailed milestones and approval provenance: [BETA_LAUNCH_TRACKER.md](BETA_LAUNCH_TRACKER.md); authoritative task states: `src/data/betaTrackerData.js`.
 

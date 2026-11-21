@@ -1,3 +1,7 @@
+## BETA-05 — Isolated integration workflow and evidence boundary (21 Nov 2026)
+
+BETA-05.1 validated beta-launch-integration at 6bf98fd with 65/65 focused Jest tests across six suites and a passing React build, as reported by Codex. The agreed workflow, source boundaries, security dependencies, validation steps and remaining acceptance gates are documented in [BETA_05_INTEGRATION_WORKFLOW.md](BETA_05_INTEGRATION_WORKFLOW.md). BETA-05.2 documentation is prepared on a separate branch; Product Owner acceptance and merge remain pending. No beta feature, hosted database, original P3 worktree or production deploy was changed. Production NO-GO.
+
 ## BETA-04 — Approved first-pilot scope and manual batch renewal (21 Nov 2026)
 
 Product Owner froze the initial beta release scope in [BETA_04_BETA_SCOPE_FREEZE.md](BETA_04_BETA_SCOPE_FREEZE.md), accepting existing four-role academy management, Coach/Parent operations, subscription and payment workflows, the BETA-03 dashboard design, responsive/security acceptance and pilot-readiness gates. The one added beta capability is **Academy Owner manual monthly batch subscription renewal** (BETA-07), creating exactly one **Pending** due per eligible player/agreement/next calendar period (BETA-08), with no payment collection or automatic scheduler. This is approved scope, **NOT IMPLEMENTED**.
