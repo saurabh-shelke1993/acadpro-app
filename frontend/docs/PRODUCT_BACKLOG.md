@@ -1,3 +1,15 @@
+## Beta launch recovery — 21 November 2026
+
+**BETA-01 — Approved Complete:** Product Owner selected `payment-module-finalization` @ `62e54bef` after 43-branch and Vercel `main` baseline reconciliation.
+
+**BETA-02 — Approved Complete:** `beta-launch-integration` contains the Super Admin tracker; Codex reported 65/65 focused Jest tests (6 suites), local React build PASS and a clean isolated worktree at `0149d421`. Product Owner explicitly approved closing BETA-02 on 21 November. Genuine signed-in denied-role checks, full app regression and hosted SPA refresh are still unverified and must not be treated as passing release gates.
+
+**BETA-03 — In Progress:** Formalize selected Academy Owner UI-C2.10 Pitchside Emerald design contract from the separate UI preview branch; no UI merge or global theme rollout yet (integration belongs to BETA-06).
+
+**Release:** Production NO-GO; no release date. `main`, hosted Supabase and unfinished `ps-r6a4-integrated-subscription-regression` checkout unchanged. Detailed milestones and approval provenance: [BETA_LAUNCH_TRACKER.md](BETA_LAUNCH_TRACKER.md); authoritative task states: `src/data/betaTrackerData.js`.
+
+---
+
 ## SP3 — One-time camp charge and Parent/receipt integration (13 Nov 2026)
 
 **IMPLEMENTED IN DEV PR #33, FOCUSED CI PASS; LIVE FEATURE DISABLED AND MANUAL ACCEPTANCE PENDING.** Dedicated One-time fee due for SP2 camp enrollment: server-derived plan amount / start date, one per player per plan enforced by unique index and private trigger, Owner/SA-only Security Invoker RPC, strict academy/center/date/RLS constraints, immutable charged due/plan/enrollment terms. Review-only SQL **not** in migration folder or hosted; no production live charges. Gated Payment Dues UI; Parent Financial Overview/UPI claim dropdown and printable payment receipt display the camp plan name. Existing Payment Collections still depends on **open HIGH-002 collection/correction RPC authorization fix**; actual collection, receipt, real-JWT, browser and live concurrency acceptance are PENDING. Separate registration fee on one-time plan must be ₹0 until policy approved. Scratch PG and 22 frontend focused tests plus build PASS run 43299940829. **Next:** approved isolated DB deployment planning and SP4 comprehensive acceptance/security gates. See KHELTRIVA_SP3_ONE_TIME_CAMP_BILLING_20261113.md.
