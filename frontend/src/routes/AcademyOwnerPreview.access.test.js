@@ -1,4 +1,4 @@
-import { configure, fireEvent, render, screen } from "@testing-library/react";
+import { configure, fireEvent, render, screen, within } from "@testing-library/react";
 import AppRoutes from "./AppRoutes";
 import { getCurrentUser } from "../utils/auth";
 import { supabase } from "../supabaseClient";
@@ -154,23 +154,68 @@ test("pending route guard never mounts the preview or fetches data", () => {
   expectNoFetch();
 });
 
-test.each(["academy_owner", "super_admin"])("ordinary dashboard route still renders existing %s destination", async (role) => {
+test.each(["academy_owner", "super_admin"])("default dashboard promotes Owner and preserves %s routing", async (role) => {
   window.history.replaceState({}, "", "/dashboard");
   getCurrentUser.mockResolvedValue({ ...owner, role });
   render(<AppRoutes />);
   expect(await screen.findByRole("heading", {
-    name: role === "academy_owner" ? "Existing Owner dashboard" : "Existing Super Admin dashboard"
+    name: role === "academy_owner" ? "Academy overview" : "Existing Super Admin dashboard"
   })).toBeInTheDocument();
-  expect(screen.queryByRole("heading", { name: "Academy overview" })).not.toBeInTheDocument();
+  expect(Boolean(screen.queryByRole("heading", { name: "Academy overview" }))).toBe(role === "academy_owner");
   expect(screen.queryByRole("link", { name: "Return to dashboard" })).not.toBeInTheDocument();
   expect(getCurrentUser).toHaveBeenCalledTimes(2);
   expect(role === "academy_owner" ? getSuperAdminDashboardData : getAcademyOwnerDashboardData).not.toHaveBeenCalled();
 });
 
-test("return link navigates to the existing Owner dashboard", async () => {
+test("return link navigates to the promoted Owner dashboard", async () => {
   render(<AppRoutes />);
   expect(await screen.findByRole("heading", { name: "Academy overview" })).toBeInTheDocument();
   fireEvent.click(screen.getByRole("link", { name: "Return to dashboard" }));
-  expect(await screen.findByRole("heading", { name: "Existing Owner dashboard" })).toBeInTheDocument();
+  expect(await screen.findByRole("heading", { name: "Academy overview" })).toBeInTheDocument();
   expect(window.location.pathname).toBe("/dashboard");
+});
+
+test("Owner directly enters and remounts the promoted dashboard with its navigation intact", async () => {
+  window.history.replaceState({}, "", "/dashboard");
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const view = render(<AppRoutes />);
+    expect(await screen.findByRole("heading", { name: "Academy overview", level: 1 })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Refresh dashboard" })).toBeEnabled();
+    expect(screen.queryByRole("link", { name: "Return to dashboard" })).not.toBeInTheDocument();
+    const dashboard = within(screen.getByRole("main"));
+    for (const [name, href] of [[/Players/, "/players"], [/Centers/, "/centers"], [/Batches/, "/batches"],
+      [/Attendance workspace/, "/attendance?view=mark"], [/View all/, "/enquiries"],
+      [/Collected this month/, "/payment-collections"], [/Billed this month/, "/payment-dues"],
+      [/Current outstanding/, "/payment-dues"], [/Expenses this month/, "/expenses"]]) {
+      expect(dashboard.getByRole("link", { name })).toHaveAttribute("href", href);
+    }
+    expect(window.location.pathname).toBe("/dashboard");
+    view.unmount();
+  }
+  expect(getCurrentUser).toHaveBeenCalledTimes(4);
+  expect(getAcademyOwnerDashboardData).toHaveBeenCalledTimes(2);
+  expect(getSuperAdminDashboardData).not.toHaveBeenCalled();
+  expect(getDashboardSummary).not.toHaveBeenCalled();
+});
+
+test.each(["coach", "parent", "unknown", null])("default dashboard denies %s on direct entry and remount", async (role) => {
+  getCurrentUser.mockResolvedValue(role ? { ...owner, role } : null);
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    window.history.replaceState({}, "", "/dashboard");
+    const view = render(<AppRoutes />);
+    expect(await screen.findByRole("heading", { name: "Login destination" })).toBeInTheDocument();
+    expect(window.location.pathname).toBe("/login");
+    expect(screen.queryByRole("heading", { name: "Academy overview" })).not.toBeInTheDocument();
+    view.unmount();
+  }
+  expectNoFetch();
+});
+
+test.each(["coach", "parent", null])("default dashboard rejects a second profile changed to %s before fetching", async (role) => {
+  window.history.replaceState({}, "", "/dashboard");
+  getCurrentUser.mockResolvedValueOnce(owner).mockResolvedValue(role ? { ...owner, role } : null);
+  render(<AppRoutes />);
+  expect(await screen.findByRole("alert")).toBeInTheDocument();
+  expect(screen.queryByRole("heading", { name: "Academy overview" })).not.toBeInTheDocument();
+  expectNoFetch();
 });

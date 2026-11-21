@@ -26,7 +26,9 @@ const deferred = () => {
   const promise = new Promise((yes, no) => { resolve = yes; reject = no; });
   return { promise, resolve, reject };
 };
-const mount = (props = { ownerPreview: true }) => render(<MemoryRouter><Dashboard {...props} /></MemoryRouter>);
+let previewMode = true;
+const refreshName = () => previewMode ? "Refresh preview" : "Refresh dashboard";
+const mount = (props = { ownerPreview: previewMode }) => render(<MemoryRouter><Dashboard {...props} /></MemoryRouter>);
 let authChanged;
 let unsubscribe;
 let errorLog;
@@ -50,6 +52,8 @@ const expectNoFallback = () => {
   expect(getDashboardSummary).not.toHaveBeenCalled();
 };
 
+describe.each([true, false])("Owner lifecycle with ownerPreview=%s", (mode) => {
+  beforeEach(() => { previewMode = mode; });
 test("preview waits for profile and data, then passes Owner data and exposes return/refresh controls", async () => {
   const lookup = deferred();
   const data = deferred();
@@ -57,8 +61,11 @@ test("preview waits for profile and data, then passes Owner data and exposes ret
   getAcademyOwnerDashboardData.mockReturnValue(data.promise);
   mount();
   expect(screen.getByRole("status")).toHaveTextContent("Loading your dashboard");
-  expect(screen.getByRole("link", { name: "Return to dashboard" })).toHaveAttribute("href", "/dashboard");
-  expect(screen.getByRole("button", { name: "Refresh preview" })).toBeDisabled();
+  expect(screen.queryByRole("link", { name: "Return to dashboard" })?.getAttribute("href") ?? null)
+    .toBe(previewMode ? "/dashboard" : null);
+  // The default route has not established the role yet; Owner controls appear after validation.
+  expect(screen.queryByRole("button", { name: refreshName() })?.disabled ?? null)
+    .toBe(previewMode ? true : null);
   expect(getAcademyOwnerDashboardData).not.toHaveBeenCalled();
   await act(async () => lookup.resolve(owner));
   expect(getAcademyOwnerDashboardData).toHaveBeenCalledWith(owner);
@@ -71,7 +78,7 @@ test("preview waits for profile and data, then passes Owner data and exposes ret
 
 test.each([null, { ...owner, role: "super_admin" }, { ...owner, role: "coach" },
   { ...owner, role: "parent" }, { ...owner, role: "unknown" },
-  ...[undefined, null, "", "   ", 42, {}].map((academy_id) => ({ ...owner, academy_id }))])(
+  ...[undefined, null, "", "   ", 42, {}].map((academy_id) => ({ ...owner, academy_id }))].filter(profile => mode || profile?.role !== "super_admin"))(
   "preview denies invalid second profile %j without any dashboard fetch", async (profile) => {
     getCurrentUser.mockResolvedValue(profile);
     mount();
@@ -93,7 +100,7 @@ test("service error can be retried only after another Owner validation", async (
   getAcademyOwnerDashboardData.mockRejectedValueOnce(new Error("Read failed"));
   mount();
   expect(await screen.findByRole("alert")).toHaveTextContent("Unable to load dashboard data");
-  fireEvent.click(screen.getByRole("button", { name: "Refresh preview" }));
+  fireEvent.click(screen.getByRole("button", { name: refreshName() }));
   expect(await screen.findByRole("heading", { name: "Owner preview" })).toBeInTheDocument();
   expect(getCurrentUser).toHaveBeenCalledTimes(2);
   expect(getAcademyOwnerDashboardData).toHaveBeenCalledTimes(2);
@@ -104,7 +111,7 @@ test("refresh removes previous data and denies a changed role without fallback",
   mount();
   expect(await screen.findByText("Academy A data")).toBeInTheDocument();
   getCurrentUser.mockResolvedValue({ ...owner, role: "super_admin" });
-  fireEvent.click(screen.getByRole("button", { name: "Refresh preview" }));
+  fireEvent.click(screen.getByRole("button", { name: refreshName() }));
   expect(screen.queryByText("Academy A data")).not.toBeInTheDocument();
   expect(await screen.findByRole("alert")).toBeInTheDocument();
   expect(getAcademyOwnerDashboardData).toHaveBeenCalledTimes(1);
@@ -196,13 +203,40 @@ test("initial-session notification does not duplicate the profile or Owner read"
   expect(getAcademyOwnerDashboardData).toHaveBeenCalledTimes(1);
 });
 
-test.each(["academy_owner", "super_admin"])("ordinary /dashboard still renders existing %s component without a preview subscription", async (role) => {
+test("an academy change on the same profile clears displayed data before publishing the new academy", async () => {
+  mount();
+  expect(await screen.findByText("Academy A data")).toBeInTheDocument();
+  const nextData = deferred();
+  getCurrentUser.mockResolvedValue({ ...owner, academy_id: "academy-b" });
+  getAcademyOwnerDashboardData.mockReturnValue(nextData.promise);
+  act(() => authChanged("USER_UPDATED"));
+  expect(screen.queryByText("Academy A data")).not.toBeInTheDocument();
+  await waitFor(() => expect(getAcademyOwnerDashboardData).toHaveBeenLastCalledWith({ ...owner, academy_id: "academy-b" }));
+  await act(async () => nextData.resolve({ marker: "Academy B data" }));
+  expect(screen.getByText("Academy B data")).toBeInTheDocument();
+  expectNoFallback();
+});
+
+test("a refreshed Owner with no academy fails closed and hides previously displayed data", async () => {
+  mount();
+  expect(await screen.findByText("Academy A data")).toBeInTheDocument();
+  getCurrentUser.mockResolvedValue({ ...owner, academy_id: null });
+  fireEvent.click(screen.getByRole("button", { name: refreshName() }));
+  expect(screen.queryByText("Academy A data")).not.toBeInTheDocument();
+  expect(await screen.findByRole("alert")).toBeInTheDocument();
+  expect(getAcademyOwnerDashboardData).toHaveBeenCalledTimes(1);
+  expectNoFallback();
+});
+
+});
+
+test.each(["academy_owner", "super_admin"])("ordinary /dashboard renders the promoted Owner or existing %s component", async (role) => {
   getCurrentUser.mockResolvedValue({ ...owner, role });
   mount({});
-  expect(await screen.findByRole("heading", { name: role === "academy_owner" ? "Existing Owner dashboard" : "Existing Super Admin dashboard" })).toBeInTheDocument();
-  expect(screen.queryByRole("heading", { name: "Owner preview" })).not.toBeInTheDocument();
+  expect(await screen.findByRole("heading", { name: role === "academy_owner" ? "Owner preview" : "Existing Super Admin dashboard" })).toBeInTheDocument();
+  expect(Boolean(screen.queryByRole("heading", { name: "Owner preview" }))).toBe(role === "academy_owner");
   expect(screen.queryByRole("link", { name: "Return to dashboard" })).not.toBeInTheDocument();
-  expect(supabase.auth.onAuthStateChange).not.toHaveBeenCalled();
+  expect(supabase.auth.onAuthStateChange).toHaveBeenCalledTimes(1);
   expect(role === "academy_owner" ? getAcademyOwnerDashboardData : getSuperAdminDashboardData).toHaveBeenCalledWith({ ...owner, role });
 });
 
@@ -218,4 +252,16 @@ test("changing the same mounted Dashboard to preview hides ordinary data until r
   expect(screen.getByRole("alert")).toBeInTheDocument();
   expect(getSuperAdminDashboardData).toHaveBeenCalledTimes(1);
   expect(getAcademyOwnerDashboardData).not.toHaveBeenCalled();
+});
+
+test("the established Super Admin view retains its existing lifecycle on auth notifications", async () => {
+  getCurrentUser.mockResolvedValue({ ...owner, role: "super_admin" });
+  mount({});
+  expect(await screen.findByText("Platform data")).toBeInTheDocument();
+  act(() => authChanged("TOKEN_REFRESHED"));
+  expect(screen.getByText("Platform data")).toBeInTheDocument();
+  expect(getCurrentUser).toHaveBeenCalledTimes(1);
+  expect(getSuperAdminDashboardData).toHaveBeenCalledTimes(1);
+  expect(getAcademyOwnerDashboardData).not.toHaveBeenCalled();
+  expect(getDashboardSummary).not.toHaveBeenCalled();
 });

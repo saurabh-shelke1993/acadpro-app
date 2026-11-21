@@ -3,10 +3,9 @@ import { Link } from "react-router-dom";
 import DashboardCard from "../components/Dashboard/DashboardCard";
 import DashboardCharts from "../components/DashboardCharts";
 import SuperAdminDashboard from "../components/Dashboard/SuperAdminDashboard";
-import AcademyOwnerDashboard from "../components/Dashboard/AcademyOwnerDashboard";
 import AcademyOwnerDashboardPreview from "../components/Dashboard/AcademyOwnerDashboardPreview";
 import Layout from "../components/Layout";
-import { getAcademyOwnerDashboardData, getDashboardSummary, getSuperAdminDashboardData } from "../services/dashboardService";
+import { getAcademyOwnerDashboardData, getSuperAdminDashboardData } from "../services/dashboardService";
 import "../styles/dashboard.css";
 import { getCurrentUser, isAcademyOwner, isSuperAdmin } from "../utils/auth";
 import { supabase } from "../supabaseClient";
@@ -30,7 +29,7 @@ const initialSummary = {
 const formatCurrency = (amount) =>
   `₹${Number(amount || 0).toLocaleString("en-IN")}`;
 
-const canPreviewOwner = (user) => isAcademyOwner(user)
+const canLoadOwner = (user) => isAcademyOwner(user)
   && typeof user?.academy_id === "string"
   && user.academy_id.trim().length > 0;
 
@@ -42,14 +41,19 @@ function Dashboard({ ownerPreview = false }) {
   const [refreshToken, setRefreshToken] = useState(0);
   const [loadedMode, setLoadedMode] = useState(ownerPreview);
   const requestVersion = useRef(0);
+  // Once this view loads Owner data, later role changes must not select another service.
+  const ownerAccess = useRef(ownerPreview);
+  const superAdminView = useRef(false);
 
   useEffect(() => {
-    if (!ownerPreview) return undefined;
     let active = true;
     // Invalidate synchronously, then revalidate outside the auth callback.
     // Never authorize from session metadata or the Sidebar's local cache.
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (!active || event === "INITIAL_SESSION") return;
+      // Keep the established Super Admin lifecycle unchanged. Listen before the
+      // initial lookup so an Owner sign-out during that lookup is still invalidated.
+      if (!ownerPreview && superAdminView.current) return;
       requestVersion.current += 1;
       setUser(null);
       setSummary(initialSummary);
@@ -75,7 +79,7 @@ function Dashboard({ ownerPreview = false }) {
 
         const profile = await getCurrentUser();
         if (!isCurrent()) return;
-        const currentUser = ownerPreview && profile ? { ...profile } : profile;
+        const currentUser = profile ? { ...profile } : profile;
 
         if (!currentUser) {
           throw new Error("Unable to load the current user.");
@@ -83,26 +87,24 @@ function Dashboard({ ownerPreview = false }) {
 
         let dashboardSummary;
 
-        if (ownerPreview) {
-          if (!canPreviewOwner(currentUser)) {
-            throw new Error("Academy Owner preview access denied.");
+        if (ownerPreview || ownerAccess.current || isAcademyOwner(currentUser)) {
+          ownerAccess.current = true;
+          superAdminView.current = false;
+          if (!canLoadOwner(currentUser)) {
+            throw new Error("Academy Owner dashboard access denied.");
           }
           dashboardSummary = {
             ...initialSummary,
             academyOwner: await getAcademyOwnerDashboardData(currentUser)
           };
         } else if (isSuperAdmin(currentUser)) {
+          superAdminView.current = true;
           dashboardSummary = {
             ...initialSummary,
             superAdmin: await getSuperAdminDashboardData(currentUser)
           };
-        } else if (isAcademyOwner(currentUser)) {
-          dashboardSummary = {
-            ...initialSummary,
-            academyOwner: await getAcademyOwnerDashboardData(currentUser)
-          };
         } else {
-          dashboardSummary = await getDashboardSummary(currentUser);
+          throw new Error("Dashboard access denied.");
         }
 
         if (!isCurrent()) return;
@@ -129,9 +131,9 @@ function Dashboard({ ownerPreview = false }) {
     };
   }, [refreshToken, ownerPreview]);
 
-  const previewActions = ownerPreview && (
+  const ownerActions = (ownerPreview || ownerAccess.current) && (
     <div className="dashboard-header-meta">
-      <Link to="/dashboard">Return to dashboard</Link>
+      {ownerPreview && <Link to="/dashboard">Return to dashboard</Link>}
       <button className="dashboard-refresh-button" type="button" disabled={loading}
         onClick={() => {
           requestVersion.current += 1;
@@ -139,15 +141,15 @@ function Dashboard({ ownerPreview = false }) {
           setSummary(initialSummary);
           setLoading(true);
           setRefreshToken((value) => value + 1);
-        }}>Refresh preview</button>
+        }}>{ownerPreview ? "Refresh preview" : "Refresh dashboard"}</button>
     </div>
   );
 
   if (loading || loadedMode !== ownerPreview) {
     return (
       <Layout>
-        {previewActions}
-        <div className="dashboard-state" role={ownerPreview ? "status" : undefined}>
+        {ownerActions}
+        <div className="dashboard-state" role="status">
           <div className="dashboard-state-spinner" />
           <h2>Loading your dashboard</h2>
           <p>Preparing your academy overview...</p>
@@ -156,10 +158,10 @@ function Dashboard({ ownerPreview = false }) {
     );
   }
 
-  if (error || (ownerPreview && !canPreviewOwner(user))) {
+  if (error || ((ownerPreview || ownerAccess.current) && !canLoadOwner(user))) {
     return (
       <Layout>
-        {previewActions}
+        {ownerActions}
         <div className="dashboard-state dashboard-state-error">
           <span className="dashboard-state-icon">!</span>
           <h1>Dashboard</h1>
@@ -171,10 +173,10 @@ function Dashboard({ ownerPreview = false }) {
 
   const roleLabel = user?.role?.replaceAll("_", " ");
 
-  if (ownerPreview) {
+  if (ownerPreview || isAcademyOwner(user)) {
     return (
       <Layout>
-        {previewActions}
+        {ownerActions}
         <AcademyOwnerDashboardPreview data={summary.academyOwner} />
       </Layout>
     );
@@ -186,20 +188,6 @@ function Dashboard({ ownerPreview = false }) {
         <SuperAdminDashboard
           user={user}
           data={summary.superAdmin}
-          onRefresh={() => setRefreshToken((value) => value + 1)}
-        />
-      </Layout>
-    );
-  }
-
-
-
-  if (isAcademyOwner(user)) {
-    return (
-      <Layout>
-        <AcademyOwnerDashboard
-          user={user}
-          data={summary.academyOwner}
           onRefresh={() => setRefreshToken((value) => value + 1)}
         />
       </Layout>
