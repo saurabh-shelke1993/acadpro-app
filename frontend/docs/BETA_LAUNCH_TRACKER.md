@@ -76,3 +76,11 @@ References: [tracker commit](https://github.com/saurabh-shelke1993/acadpro-app/c
 **BETA-03: IN PROGRESS.** Establish the Academy Owner dashboard design contract from the selected UI-C2.10 Pitchside Emerald preview at `ui-c2-5-owner-dashboard-validation`: layout hierarchy, colors, responsive screens, financial and attendance metric semantics, accessibility and role-scoped navigation. Final Product Owner design approval is still pending. No full branch merge, existing `/dashboard` replacement or global palette rollout is authorized by this status change; those are scoped for BETA-06 and later.
 
 **Unchanged:** Beta launch NO-GO with no release date, 19 milestone IDs, separate P3 worktree and unchanged `main`, `payment-module-finalization` and hosted Supabase.
+
+## BETA-03 design approval and BETA-04 scope start — 21 November 2026
+
+**BETA-03 — Approved Complete:** Product Owner approved the final scoped Academy Owner **UI-C2.10 Pitchside Emerald** design contract on 21 November 2026. The binding specification is [BETA_03_ACADEMY_OWNER_DESIGN_CONTRACT.md](BETA_03_ACADEMY_OWNER_DESIGN_CONTRACT.md), including four BETA-06 corrections: attendance `view=mark` link, center-ID grouping, truthful batch/date mark status, and IST/UTC date-boundary validation. No dashboard code, global colors, Supabase or production changes have been made.
+
+**BETA-04 — In Progress:** Prepare the beta feature-scope freeze with explicit in-scope workflows, deferred features and acceptance/security gates. Product Owner scope approval is pending; this is not a feature implementation task.
+
+The approval is **design-contract-only**. BETA-06 implementation and browser acceptance are separate milestones. The historical UI branch remains isolated, and production is still NO-GO without an approved date. The tracker remains the canonical milestone status source.
