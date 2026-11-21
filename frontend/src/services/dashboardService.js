@@ -919,6 +919,7 @@ export async function getAcademyOwnerDashboardData(user) {
     const assignedPlayerIds = new Set((assignmentsResult.data || []).filter((assignment) => assignment.batch_id === batch.id).map((assignment) => assignment.player_id));
     return {
       id: batch.id, batchId: batch.id, batchName: batch.batch_name,
+      centerId: batch.center_id,
       centerName: centerMap.get(batch.center_id)?.name || "Center",
       expectedPlayers: assignedPlayerIds.size, presentPlayers: presentRecords,
       attendanceRecorded: recordedSessions > 0, presentRecords, absentRecords, totalRecords, recordedSessions,

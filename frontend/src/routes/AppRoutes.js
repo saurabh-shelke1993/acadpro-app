@@ -87,6 +87,15 @@ function AppRoutes() {
         />
 
         <Route
+          path="/beta-owner-preview"
+          element={
+            <ProtectedRoute allowedRoles={["academy_owner"]}>
+              <Dashboard ownerPreview />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
           path="/analytics"
           element={
             <ProtectedRoute
