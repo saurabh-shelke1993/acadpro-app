@@ -147,3 +147,13 @@ The Player module hardening validation covered:
 - `inquiries` and `trial_attendance` are unused legacy tables and remain outside the active authorization scope; their RLS-disabled status is documented for future production review.
 - Supabase leaked-password protection is unavailable on the current Free plan and is deferred until a plan upgrade is justified.
 - Supabase performance-advisor findings are tracked separately from authorization completion.
+
+## 9. Approved BETA-04 manual batch renewal — future authorization contract (NOT YET IMPLEMENTED)
+
+On 21 November 2026 Product Owner approved adding **Academy Owner-initiated monthly batch renewal** to the initial beta scope. This section describes a **future BETA-07/BETA-12 implementation requirement**, not a currently deployed permission or Supabase grant. See [BETA_04_BETA_SCOPE_FREEZE.md](BETA_04_BETA_SCOPE_FREEZE.md).
+
+- **Academy Owner:** May request renewal only for eligible active monthly agreements belonging to active players assigned to a batch in their own academy; server must independently validate actual academy/center/batch membership, agreement eligibility, paid-through dates, locked price and next period.
+- **Coach/Parent/Unauthenticated:** No authority to execute batch renewal, generate payment dues or alter subscription history. Parent retains existing linked-player read access only; Coach's existing assigned-scope permission is unchanged.
+- **Super Admin:** Existing platform-wide permissions are not a blanket delegation of this future renewal operation. Explicitly review/approve any Super Admin execution path before granting it; default Owner-initiated operation is the beta feature.
+- **Database:** Protect renewal and exactly one Pending due per eligible agreement/period with trusted transaction, unique/idempotent keys, cross-tenant denial, double-click/concurrent retry defense, rollback and audit. A browser-only batch filter is insufficient authorization.
+- **Current status:** Feature scoped but not coded, deployed or manual-tested. HIGH-002 and legacy subscription reconciliation remain release blockers. Production remains NO-GO.
