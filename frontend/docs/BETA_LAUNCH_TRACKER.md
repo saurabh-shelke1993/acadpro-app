@@ -84,3 +84,11 @@ References: [tracker commit](https://github.com/saurabh-shelke1993/acadpro-app/c
 **BETA-04 — In Progress:** Prepare the beta feature-scope freeze with explicit in-scope workflows, deferred features and acceptance/security gates. Product Owner scope approval is pending; this is not a feature implementation task.
 
 The approval is **design-contract-only**. BETA-06 implementation and browser acceptance are separate milestones. The historical UI branch remains isolated, and production is still NO-GO without an approved date. The tracker remains the canonical milestone status source.
+
+## BETA-04 scope approved; BETA-05 workspace foundation active — 21 November 2026
+
+**BETA-04 — Approved Complete:** Product Owner approved the initial pilot beta scope on 21 November 2026, including **manual Academy Owner-initiated monthly batch subscription renewal** with exactly one **Pending** due per eligible player/agreement/period, no automatic collection and strict price, eligibility, transaction, idempotency, audit, RLS/tenant safeguards. Approved scope/exclusions: [BETA_04_BETA_SCOPE_FREEZE.md](BETA_04_BETA_SCOPE_FREEZE.md). Renewal is **PLANNED for BETA-07**, not implemented, migrated or tested.
+
+**BETA-05 — In Progress:** Validate the isolated beta integration worktree, feature-branch/review protocol and source-controlled evidence workflow, then seek separate Product Owner workspace acceptance. Production remains NO-GO.
+
+No beta feature was implemented, no Supabase migrations/data changes were authorized, and no production release was approved by the scope freeze. BETA-07/08/12/17 still require separate implementation, tests, manual acceptance and release gates.
