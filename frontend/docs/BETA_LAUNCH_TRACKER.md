@@ -68,3 +68,11 @@ Capture screenshots without user data or credentials. Report actual session/brow
 **Release state:** Production NO-GO. No release date. The separate P3 working tree, `main`, and `payment-module-finalization` remain unchanged.
 
 References: [tracker commit](https://github.com/saurabh-shelke1993/acadpro-app/commit/9423acc4f3f908c8d4d64e5a2af65e8b13f08ff9), [approved baseline](https://github.com/saurabh-shelke1993/acadpro-app/commit/62e54bef15aafffe0810b9c64e8ce1ed81d5b250).
+
+## BETA-02 accepted, BETA-03 started — 21 November 2026
+
+**BETA-02: APPROVED COMPLETE.** On 21 November 2026 the Product Owner expressly approved closing BETA-02 and continuing to BETA-03. The beta integration branch was based on approved `payment-module-finalization` @ `62e54bef` with the isolated Super Admin tracker implementation @ `9423acc`. Codex BETA-02.1 reported 65/65 focused tests across six suites PASS, local React production build PASS and a clean worktree on `0149d421`. GitHub ancestry and tracker state were independently checked. Mocked role route tests passed. Real signed-in negative-role tests, complete application regression and hosted refresh are not claimed as performed. No production deployment is approved.
+
+**BETA-03: IN PROGRESS.** Establish the Academy Owner dashboard design contract from the selected UI-C2.10 Pitchside Emerald preview at `ui-c2-5-owner-dashboard-validation`: layout hierarchy, colors, responsive screens, financial and attendance metric semantics, accessibility and role-scoped navigation. Final Product Owner design approval is still pending. No full branch merge, existing `/dashboard` replacement or global palette rollout is authorized by this status change; those are scoped for BETA-06 and later.
+
+**Unchanged:** Beta launch NO-GO with no release date, 19 milestone IDs, separate P3 worktree and unchanged `main`, `payment-module-finalization` and hosted Supabase.
