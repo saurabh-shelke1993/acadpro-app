@@ -1,3 +1,7 @@
+## BETA-05 workspace approval and BETA-06 transition — 21 November 2026
+
+BETA-05.2 workflow documentation merged to beta-launch-integration via PR #35 at `c7b9cc31`. Product Owner authorized BETA-05 workspace/process closure and advancing to BETA-06 following the reported 65/65 focused Jest and React build PASS at the earlier tested commit `6bf98fd`. BETA-05 tracker acceptance and assertion updates are recorded separately; no tests of those later edits are implied. Actual four-role signed-in checks, complete regression and hosted SPA refresh remain future gates. BETA-06 is PLANNED for source comparison/controlled dashboard integration, not implemented. Production NO-GO; no hosted Supabase change.
+
 ## BETA-05 — Isolated integration workflow and evidence boundary (21 Nov 2026)
 
 BETA-05.1 validated beta-launch-integration at 6bf98fd with 65/65 focused Jest tests across six suites and a passing React build, as reported by Codex. The agreed workflow, source boundaries, security dependencies, validation steps and remaining acceptance gates are documented in [BETA_05_INTEGRATION_WORKFLOW.md](BETA_05_INTEGRATION_WORKFLOW.md). BETA-05.2 documentation is prepared on a separate branch; Product Owner acceptance and merge remain pending. No beta feature, hosted database, original P3 worktree or production deploy was changed. Production NO-GO.
