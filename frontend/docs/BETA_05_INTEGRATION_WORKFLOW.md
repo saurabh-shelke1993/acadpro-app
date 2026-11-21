@@ -1,11 +1,11 @@
 # BETA-05 — Beta Integration Workspace, Workflow and Evidence Contract
 
-**Project:** Kheltriva multi-tenant football academy SaaS  
-**Milestone:** BETA-05 — Integration Workspace and Tracking Foundation  
-**Prepared:** 21 November 2026 (IST), BETA-05.2 documentation task  
-**Architecture review:** BETA-05.1 findings and proposed workflow accepted at architecture-review level by ChatGPT on 21 November 2026  
-**Milestone acceptance:** NOT REVIEWED by Product Owner; BETA-05 remains IN PROGRESS  
-**Production:** NO-GO. No release date, production deployment, database migration or automatic billing is approved.
+- **Project:** Kheltriva multi-tenant football academy SaaS
+- **Milestone:** BETA-05 — Integration Workspace and Tracking Foundation
+- **Prepared:** 21 November 2026 (IST), BETA-05.2 documentation task
+- **Architecture review:** BETA-05.1 findings and proposed workflow accepted at architecture-review level by ChatGPT on 21 November 2026
+- **Milestone acceptance:** NOT REVIEWED by Product Owner; BETA-05 remains IN PROGRESS
+- **Production:** NO-GO. No release date, production deployment, database migration or automatic billing is approved.
 
 ## 1. Authority and baseline
 
