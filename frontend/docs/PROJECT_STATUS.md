@@ -1,3 +1,15 @@
+## Beta launch recovery — 21 November 2026
+
+**BETA-01 — Approved Complete:** Product Owner selected `payment-module-finalization` @ `62e54bef` after 43-branch and Vercel `main` baseline reconciliation.
+
+**BETA-02 — Approved Complete:** `beta-launch-integration` contains the Super Admin tracker; Codex reported 65/65 focused Jest tests (6 suites), local React build PASS and a clean isolated worktree at `0149d421`. Product Owner explicitly approved closing BETA-02 on 21 November. Genuine signed-in denied-role checks, full app regression and hosted SPA refresh are still unverified and must not be treated as passing release gates.
+
+**BETA-03 — In Progress:** Formalize selected Academy Owner UI-C2.10 Pitchside Emerald design contract from the separate UI preview branch; no UI merge or global theme rollout yet (integration belongs to BETA-06).
+
+**Release:** Production NO-GO; no release date. `main`, hosted Supabase and unfinished `ps-r6a4-integrated-subscription-regression` checkout unchanged. Detailed milestones and approval provenance: [BETA_LAUNCH_TRACKER.md](BETA_LAUNCH_TRACKER.md); authoritative task states: `src/data/betaTrackerData.js`.
+
+---
+
 ## SP3 — One-time camp dues and Parent financial display (13 Nov 2026)
 
 **IMPLEMENTED IN ISOLATED DEVELOPMENT PR #33, FOCUSED TEST PASS, LIVE SQL NOT DEPLOYED, CAMP BILLING FLAG OFF, OWNER UI PENDING, BETA NO-GO.** A review-only (NOT migration) PostgreSQL SQL change stages one charge per player/camp-plan with unique index, private trigger enforcing amount/date/tenant/type, Security Invoker Owner/SA RPC and charged-plan/enrollment immutability. Frontend is guarded by REACT_APP_ENABLE_SP3_ONE_TIME_DUES=true (default OFF), preserving existing recurring dues; Parent Financial Overview/receipt/UPI claim displays camp name from RLS-scoped existing dues/payments. Existing Payment Collections and receipt engine are reused, NOT newly authorized for external beta because HIGH-002 is still open. Disposable PG16 security/identity tests + 22 frontend tests + React production build PASSED [run 43299940829](https://github.com/saurabh-shelke1993/acadpro-app/actions/runs/43299940829). No hosted DDL/data writes/automatic collections or main deployment. Before live use: Owner-authorized isolated migration after restore rehearsal, real JWT and concurrency tests, HIGH-002 remediation, four-role UI acceptance. See KHELTRIVA_SP3_ONE_TIME_CAMP_BILLING_20261113.md.
