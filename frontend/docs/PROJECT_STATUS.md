@@ -6,7 +6,9 @@
 
 **BETA-03 — Approved Complete:** Product Owner approved the final scoped Academy Owner **UI-C2.10 Pitchside Emerald** design contract on 21 November 2026. The binding specification is [BETA_03_ACADEMY_OWNER_DESIGN_CONTRACT.md](BETA_03_ACADEMY_OWNER_DESIGN_CONTRACT.md), including four BETA-06 corrections: attendance `view=mark` link, center-ID grouping, truthful batch/date mark status, and IST/UTC date-boundary validation. No dashboard code, global colors, Supabase or production changes have been made.
 
-**BETA-04 — In Progress:** Prepare the beta feature-scope freeze with explicit in-scope workflows, deferred features and acceptance/security gates. Product Owner scope approval is pending; this is not a feature implementation task.
+**BETA-04 — Approved Complete:** Product Owner approved the initial pilot beta scope on 21 November 2026, including **manual Academy Owner-initiated monthly batch subscription renewal** with exactly one **Pending** due per eligible player/agreement/period, no automatic collection and strict price, eligibility, transaction, idempotency, audit, RLS/tenant safeguards. Approved scope/exclusions: [BETA_04_BETA_SCOPE_FREEZE.md](BETA_04_BETA_SCOPE_FREEZE.md). Renewal is **PLANNED for BETA-07**, not implemented, migrated or tested.
+
+**BETA-05 — In Progress:** Validate the isolated beta integration worktree, feature-branch/review protocol and source-controlled evidence workflow, then seek separate Product Owner workspace acceptance. Production remains NO-GO.
 
 **Release:** Production NO-GO; no release date. `main`, hosted Supabase and unfinished `ps-r6a4-integrated-subscription-regression` checkout unchanged. Detailed milestones and approval provenance: [BETA_LAUNCH_TRACKER.md](BETA_LAUNCH_TRACKER.md); authoritative task states: `src/data/betaTrackerData.js`.
 
