@@ -92,3 +92,11 @@ The approval is **design-contract-only**. BETA-06 implementation and browser acc
 **BETA-05 — In Progress:** Validate the isolated beta integration worktree, feature-branch/review protocol and source-controlled evidence workflow, then seek separate Product Owner workspace acceptance. Production remains NO-GO.
 
 No beta feature was implemented, no Supabase migrations/data changes were authorized, and no production release was approved by the scope freeze. BETA-07/08/12/17 still require separate implementation, tests, manual acceptance and release gates.
+
+## BETA-05.1 architecture review and BETA-05.2 documentation — 21 November 2026
+
+**BETA-05 — In Progress / Product Owner acceptance NOT_REVIEWED.** The [BETA-05 integration workflow and evidence contract](BETA_05_INTEGRATION_WORKFLOW.md) records the reported isolated-worktree validation at beta-launch-integration commit 6bf98fd8624671f4328a552f3a361db066111af2, approved baseline ancestry, 6 focused Jest suites / 65 passing tests, React build PASS and clean git status. ChatGPT accepted the proposed workflow at architecture-review level. These are BETA-05.1 Codex-reported results on the earlier tested commit, not a new test run of the BETA-05.2 documentation changes.
+
+BETA-05.2 documents feature-branch isolation, source/diff reviews, evidence provenance, real-role/tenant and financial test boundaries, and BETA-06 through BETA-12 dependencies. **Still pending:** documentation review/integration and Product Owner approval. Do not change the tracker source's BETA-05 acceptance status without that explicit approval. Do not treat the source-controlled documentation as evidence that an environment has been deployed.
+
+The original P3 worktree, beta feature implementation, Supabase, main and production remain untouched by this documentation-only task. Production **NO-GO**, no release date. BETA-06 must not start before BETA-05 approval.
